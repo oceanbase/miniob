@@ -7,14 +7,14 @@ miniob设计的目标是让不熟悉数据库设计和实现的同学能够快�
 please refer to docs/how_to_build.md
 
 # miniob 题目
-[miniob 题目](miniob-topics)
+[miniob 题目](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-topics)
 
 # miniob 实现解析
 
-[miniob-date 实现解析](miniob-date-implementation.md)
+[miniob-date 实现解析](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-date-implementation.html)
 
-[miniob drop-table 实现解析](miniob-drop-table-implementation.md)
+[miniob drop-table 实现解析](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-drop-table-implementation.html)
 
-[miniob select-tables 实现解析](miniob-select-tables-implementation.md)
+[miniob select-tables 实现解析](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-select-tables-implementation.html)
 
-[miniob 调试篇](miniob-how-to-debug.md)
+[miniob 调试篇](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-how-to-debug.html)
