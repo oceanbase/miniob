@@ -162,6 +162,11 @@ class LoggerFactory {
 
 extern Log *g_log;
 
+#ifndef __FILE_NAME__
+#define __FILE_NAME__ (strrchr(__FILE__,'/')?strrchr(__FILE__,'/')+1:__FILE__)
+#endif
+
+
 #define LOG_HEAD(prefix, level)                                                 \
   if (common::g_log) {                                                          \
     time_t now_time;                                                            \
@@ -175,17 +180,17 @@ extern Log *g_log;
       common::g_log->rotate(p->tm_year + 1900, p->tm_mon + 1, p->tm_mday);      \
     }                                                                           \
     snprintf(prefix, sizeof(prefix), "[%s %s %s %s %u]>>", sz_head,             \
-            (common::g_log)->prefix_msg(level), __FILE__,                       \
+            (common::g_log)->prefix_msg(level), __FILE_NAME__,                  \
              __FUNCTION__, (u32_t)__LINE__);                                    \
   }
 
 #define LOG_OUTPUT(level, fmt, ...)                                             \
   do {                                                                          \
     using namespace common;                                                     \
-    if (g_log && g_log->check_output(level, __FILE__)) {                        \
+    if (g_log && g_log->check_output(level, __FILE_NAME__)) {                   \
       char prefix[ONE_KILO] = {0};                                              \
       LOG_HEAD(prefix, level);                                                  \
-      g_log->output(level, __FILE__, prefix, fmt, ##__VA_ARGS__);               \
+      g_log->output(level, __FILE_NAME__, prefix, fmt, ##__VA_ARGS__);          \
     }                                                                           \
   } while (0)
 
