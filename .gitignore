@@ -1,0 +1,14 @@
+./deps/libevent/*
+./deps/googletest/*
+./deps/jsoncpp/*
+build/*
+cmake-build-*/*
+.vscode/*
+.DS_Store
+.idea
+compile_commands.json
+./.name
+./miniob.iml
+./vcs.xml
+./workspace.xml
+./modules.xml

@@ -226,6 +226,9 @@ char *hex_to_bin(const char *s, char *bin_buff, int *dest_len) {
 }
 
 bool is_blank(const char *s) {
+  if (s == nullptr) {
+    return true;
+  }
   while (*s != '\0') {
     if (!isspace(*s)) {
       return false;

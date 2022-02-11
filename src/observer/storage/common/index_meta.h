@@ -23,7 +23,7 @@ class FieldMeta;
 
 namespace Json {
 class Value;
-} // namespace Json
+}  // namespace Json
 
 class IndexMeta {
 public:
@@ -36,12 +36,13 @@ public:
   const char *field() const;
 
   void desc(std::ostream &os) const;
+
 public:
   void to_json(Json::Value &json_value) const;
   static RC from_json(const TableMeta &table, const Json::Value &json_value, IndexMeta &index);
 
-private:
-  std::string       name_;
-  std::string       field_;
+protected:
+  std::string name_;   // index's name
+  std::string field_;  // field's name
 };
-#endif // __OBSERVER_STORAGE_COMMON_INDEX_META_H__
+#endif  // __OBSERVER_STORAGE_COMMON_INDEX_META_H__
