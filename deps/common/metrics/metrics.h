@@ -27,17 +27,23 @@ namespace common {
 class Gauge : public Metric {
 public:
   // user implement snapshot function
-  void set_snapshot(Snapshot *value) { snapshot_value_ = value; }
+  void set_snapshot(Snapshot *value)
+  {
+    snapshot_value_ = value;
+  }
 };
 
 class Counter : public Metric {
-  void set_snapshot(SnapshotBasic<long> *value) { snapshot_value_ = value; }
+  void set_snapshot(SnapshotBasic<long> *value)
+  {
+    snapshot_value_ = value;
+  }
 };
 
 class Meter : public Metric {
 public:
   Meter();
-  virtual  ~Meter();
+  virtual ~Meter();
 
   void inc(long increase);
   void inc();
@@ -76,7 +82,6 @@ public:
   virtual ~Histogram();
 
   void snapshot();
-
 };
 
 // timeunit is ms
@@ -109,5 +114,5 @@ public:
   long end_tick_;
 };
 
-} // namespace common
-#endif //__COMMON_METRICS_METRICS_H__
+}  // namespace common
+#endif  //__COMMON_METRICS_METRICS_H__

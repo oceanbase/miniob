@@ -12,7 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/5/3.
 //
 
-
 #include "init.h"
 
 #include "ini_setting.h"
@@ -40,20 +39,26 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-bool *&_get_init() {
+bool *&_get_init()
+{
   static bool util_init = false;
   static bool *util_init_p = &util_init;
   return util_init_p;
 }
 
-bool get_init() { return *_get_init(); }
+bool get_init()
+{
+  return *_get_init();
+}
 
-void set_init(bool value) {
+void set_init(bool value)
+{
   *_get_init() = value;
   return;
 }
 
-void sig_handler(int sig) {
+void sig_handler(int sig)
+{
   // Signal handler will be add in the next step.
   //  Add action to shutdown
 
@@ -62,7 +67,8 @@ void sig_handler(int sig) {
   return;
 }
 
-int init_log(ProcessParam *process_cfg, Ini &properties) {
+int init_log(ProcessParam *process_cfg, Ini &properties)
+{
   const std::string &proc_name = process_cfg->get_process_name();
   try {
     // we had better alloc one lock to do so, but simplify the logic
@@ -71,8 +77,7 @@ int init_log(ProcessParam *process_cfg, Ini &properties) {
     }
 
     const std::string log_section_name = "LOG";
-    std::map<std::string, std::string> log_section =
-        properties.get(log_section_name);
+    std::map<std::string, std::string> log_section = properties.get(log_section_name);
 
     std::string log_file_name;
 
@@ -81,8 +86,7 @@ int init_log(ProcessParam *process_cfg, Ini &properties) {
     std::map<std::string, std::string>::iterator it = log_section.find(key);
     if (it == log_section.end()) {
       log_file_name = proc_name + ".log";
-      std::cout << "Not set log file name, use default " << log_file_name
-                << std::endl;
+      std::cout << "Not set log file name, use default " << log_file_name << std::endl;
     } else {
       log_file_name = it->second;
     }
@@ -121,15 +125,15 @@ int init_log(ProcessParam *process_cfg, Ini &properties) {
 
     return 0;
   } catch (std::exception &e) {
-    std::cerr << "Failed to init log for " << proc_name << SYS_OUTPUT_FILE_POS
-              << SYS_OUTPUT_ERROR << std::endl;
+    std::cerr << "Failed to init log for " << proc_name << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
     return errno;
   }
 
   return 0;
 }
 
-void cleanup_log() {
+void cleanup_log()
+{
 
   if (g_log) {
     delete g_log;
@@ -138,27 +142,22 @@ void cleanup_log() {
   return;
 }
 
-int prepare_init_seda() {
-  static StageFactory session_stage_factory("SessionStage",
-                                          &SessionStage::make_stage);
-  static StageFactory resolve_stage_factory("ResolveStage",
-                                          &ResolveStage::make_stage);
-  static StageFactory query_cache_stage_factory("QueryCacheStage",
-                                             &QueryCacheStage::make_stage);
+int prepare_init_seda()
+{
+  static StageFactory session_stage_factory("SessionStage", &SessionStage::make_stage);
+  static StageFactory resolve_stage_factory("ResolveStage", &ResolveStage::make_stage);
+  static StageFactory query_cache_stage_factory("QueryCacheStage", &QueryCacheStage::make_stage);
   static StageFactory parse_stage_factory("ParseStage", &ParseStage::make_stage);
-  static StageFactory plan_cache_factory("PlanCacheStage",
-                                       &PlanCacheStage::make_stage);
-  static StageFactory optimize_factory("OptimizeStage",
-                                      &OptimizeStage::make_stage);
+  static StageFactory plan_cache_factory("PlanCacheStage", &PlanCacheStage::make_stage);
+  static StageFactory optimize_factory("OptimizeStage", &OptimizeStage::make_stage);
   static StageFactory execute_factory("ExecuteStage", &ExecuteStage::make_stage);
-  static StageFactory default_storage_factory("DefaultStorageStage",
-                                            &DefaultStorageStage::make_stage);
-  static StageFactory mem_storage_factory("MemStorageStage",
-                                        &MemStorageStage::make_stage);
+  static StageFactory default_storage_factory("DefaultStorageStage", &DefaultStorageStage::make_stage);
+  static StageFactory mem_storage_factory("MemStorageStage", &MemStorageStage::make_stage);
   return 0;
 }
 
-int init(ProcessParam *process_param) {
+int init(ProcessParam *process_param)
+{
 
   if (get_init()) {
 
@@ -170,11 +169,9 @@ int init(ProcessParam *process_param) {
   // Run as daemon if daemonization requested
   int rc = STATUS_SUCCESS;
   if (process_param->is_demon()) {
-    rc = daemonize_service(process_param->get_std_out().c_str(),
-                          process_param->get_std_err().c_str());
+    rc = daemonize_service(process_param->get_std_out().c_str(), process_param->get_std_err().c_str());
     if (rc != 0) {
-      std::cerr << "Shutdown due to failed to daemon current process!"
-                << std::endl;
+      std::cerr << "Shutdown due to failed to daemon current process!" << std::endl;
       return rc;
     }
   }
@@ -230,7 +227,8 @@ int init(ProcessParam *process_param) {
   return STATUS_SUCCESS;
 }
 
-void cleanup_util() {
+void cleanup_util()
+{
 
   if (nullptr != get_properties()) {
     delete get_properties();
@@ -246,4 +244,5 @@ void cleanup_util() {
   return;
 }
 
-void cleanup() {}
+void cleanup()
+{}

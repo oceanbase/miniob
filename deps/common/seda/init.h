@@ -36,5 +36,5 @@ int init_seda(ProcessParam *process_cfg);
 
 void cleanup_seda();
 
-} //namespace common
-#endif // __COMMON_SEDA_INIT_H__
+}  // namespace common
+#endif  // __COMMON_SEDA_INIT_H__

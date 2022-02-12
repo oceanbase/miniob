@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2021/5/11.
+// Created by Meiyi & Wangyunlai on 2021/5/11.
 //
 
 #ifndef __OBSERVER_STORAGE_COMMON_INDEX_H_
@@ -38,7 +38,8 @@ public:
   Index() = default;
   virtual ~Index() = default;
 
-  const IndexMeta &index_meta() const {
+  const IndexMeta &index_meta() const
+  {
     return index_meta_;
   }
 
@@ -53,8 +54,8 @@ protected:
   RC init(const IndexMeta &index_meta, const FieldMeta &field_meta);
 
 protected:
-  IndexMeta   index_meta_;
-  FieldMeta   field_meta_;    /// 当前实现仅考虑一个字段的索引
+  IndexMeta index_meta_;
+  FieldMeta field_meta_;  /// 当前实现仅考虑一个字段的索引
 };
 
 class IndexScanner {

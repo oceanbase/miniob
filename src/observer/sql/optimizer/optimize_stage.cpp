@@ -26,13 +26,16 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 //! Constructor
-OptimizeStage::OptimizeStage(const char *tag) : Stage(tag) {}
+OptimizeStage::OptimizeStage(const char *tag) : Stage(tag)
+{}
 
 //! Destructor
-OptimizeStage::~OptimizeStage() {}
+OptimizeStage::~OptimizeStage()
+{}
 
 //! Parse properties, instantiate a stage object
-Stage *OptimizeStage::make_stage(const std::string &tag) {
+Stage *OptimizeStage::make_stage(const std::string &tag)
+{
   OptimizeStage *stage = new (std::nothrow) OptimizeStage(tag.c_str());
   if (stage == nullptr) {
     LOG_ERROR("new OptimizeStage failed");
@@ -43,7 +46,8 @@ Stage *OptimizeStage::make_stage(const std::string &tag) {
 }
 
 //! Set properties for this object set in stage specific properties
-bool OptimizeStage::set_properties() {
+bool OptimizeStage::set_properties()
+{
   //  std::string stageNameStr(stage_name_);
   //  std::map<std::string, std::string> section = g_properties()->get(
   //    stageNameStr);
@@ -56,7 +60,8 @@ bool OptimizeStage::set_properties() {
 }
 
 //! Initialize stage params and validate outputs
-bool OptimizeStage::initialize() {
+bool OptimizeStage::initialize()
+{
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
@@ -67,13 +72,15 @@ bool OptimizeStage::initialize() {
 }
 
 //! Cleanup after disconnection
-void OptimizeStage::cleanup() {
+void OptimizeStage::cleanup()
+{
   LOG_TRACE("Enter");
 
   LOG_TRACE("Exit");
 }
 
-void OptimizeStage::handle_event(StageEvent *event) {
+void OptimizeStage::handle_event(StageEvent *event)
+{
   LOG_TRACE("Enter\n");
 
   // optimize sql plan, here just pass the event to the next stage
@@ -83,7 +90,8 @@ void OptimizeStage::handle_event(StageEvent *event) {
   return;
 }
 
-void OptimizeStage::callback_event(StageEvent *event, CallbackContext *context) {
+void OptimizeStage::callback_event(StageEvent *event, CallbackContext *context)
+{
   LOG_TRACE("Enter\n");
 
   LOG_TRACE("Exit\n");

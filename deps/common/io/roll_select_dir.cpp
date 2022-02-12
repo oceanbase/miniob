@@ -17,7 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 namespace common {
 
-void RollSelectDir::setBaseDir(std::string baseDir) {
+void RollSelectDir::setBaseDir(std::string baseDir)
+{
   mBaseDir = baseDir;
 
   std::vector<std::string> dirList;
@@ -44,7 +45,8 @@ void RollSelectDir::setBaseDir(std::string baseDir) {
   return;
 }
 
-std::string RollSelectDir::select() {
+std::string RollSelectDir::select()
+{
   std::string ret;
 
   MUTEX_LOCK(&mMutex);
@@ -55,4 +57,4 @@ std::string RollSelectDir::select() {
   return ret;
 }
 
-} //namespace common
+}  // namespace common

@@ -15,7 +15,6 @@ See the Mulan PSL v2 for more details. */
  *      Author: Longda Feng
  */
 
-
 #include <netinet/in.h>
 #include <unistd.h>
 #include <iostream>
@@ -32,7 +31,8 @@ using namespace common;
 
 static Server *g_server = nullptr;
 
-void usage() {
+void usage()
+{
   std::cout << "Useage " << std::endl;
   std::cout << "-p: server port. if not specified, the item in the config file will be used" << std::endl;
   std::cout << "-f: path of config file." << std::endl;
@@ -40,7 +40,8 @@ void usage() {
   exit(0);
 }
 
-void parse_parameter(int argc, char **argv) {
+void parse_parameter(int argc, char **argv)
+{
   std::string process_name = get_process_name(argv[0]);
 
   ProcessParam *process_param = the_process_param();
@@ -52,35 +53,35 @@ void parse_parameter(int argc, char **argv) {
   extern char *optarg;
   while ((opt = getopt(argc, argv, "dp:s:f:o:e:h")) > 0) {
     switch (opt) {
-    case 's':
-      process_param->set_unix_socket_path(optarg);
-      break;
-    case 'p':
-      process_param->set_server_port(atoi(optarg));
-      break;
-    case 'f':
-      process_param->set_conf(optarg);
-      break;
-    case 'o':
-      process_param->set_std_out(optarg);
-      break;
-    case 'e':
-      process_param->set_std_err(optarg);
-      break;
-    case 'd':
-      process_param->set_demon(true);
-      break;
-    case 'h':
-    default:
-      usage();
-      return;
+      case 's':
+        process_param->set_unix_socket_path(optarg);
+        break;
+      case 'p':
+        process_param->set_server_port(atoi(optarg));
+        break;
+      case 'f':
+        process_param->set_conf(optarg);
+        break;
+      case 'o':
+        process_param->set_std_out(optarg);
+        break;
+      case 'e':
+        process_param->set_std_err(optarg);
+        break;
+      case 'd':
+        process_param->set_demon(true);
+        break;
+      case 'h':
+      default:
+        usage();
+        return;
     }
   }
 }
 
-Server *init_server() {
-  std::map<std::string, std::string> net_section =
-      get_properties()->get(NET);
+Server *init_server()
+{
+  std::map<std::string, std::string> net_section = get_properties()->get(NET);
 
   ProcessParam *process_param = the_process_param();
 
@@ -130,7 +131,8 @@ Server *init_server() {
  * 那么直接在signal_handler里面处理的话，可能会导致死锁
  * 所以这里单独创建一个线程
  */
-void *quit_thread_func(void *_signum) {
+void *quit_thread_func(void *_signum)
+{
   intptr_t signum = (intptr_t)_signum;
   LOG_INFO("Receive signal: %ld", signum);
   if (g_server) {
@@ -140,12 +142,14 @@ void *quit_thread_func(void *_signum) {
   }
   return nullptr;
 }
-void quit_signal_handle(int signum) {
+void quit_signal_handle(int signum)
+{
   pthread_t tid;
   pthread_create(&tid, nullptr, quit_thread_func, (void *)(intptr_t)signum);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   setSignalHandler(quit_signal_handle);
 
   parse_parameter(argc, argv);

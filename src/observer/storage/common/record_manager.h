@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/13.
+// Created by Meiyi & Longda on 2021/4/13.
 //
 #ifndef __OBSERVER_STORAGE_COMMON_RECORD_MANAGER_H_
 #define __OBSERVER_STORAGE_COMMON_RECORD_MANAGER_H_

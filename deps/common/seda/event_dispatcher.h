@@ -55,7 +55,7 @@ class EventDispatcher : public Stage {
 
   // public interface operations
 
- public:
+public:
   typedef enum { SEND_EVENT = 0, STORE_EVENT, FAIL_EVENT } status_t;
 
   /**
@@ -77,7 +77,7 @@ class EventDispatcher : public Stage {
 
   // Note, EventDispatcher is an abstract class and needs no make_stage()
 
- protected:
+protected:
   /**
    * Constructor
    * @param[in] tag     The label that identifies this stage.
@@ -96,7 +96,10 @@ class EventDispatcher : public Stage {
   bool initialize();
 
   // set properties for this object
-  bool set_properties() { return true; }
+  bool set_properties()
+  {
+    return true;
+  }
 
   /**
    * Cleanup stage after disconnection
@@ -119,8 +122,7 @@ class EventDispatcher : public Stage {
    *         FAIL_EVENT if failure, and event has been completed;
    *                    ctx is NULL
    */
-  virtual status_t dispatch_event(StageEvent *ev, DispatchContext *&ctx,
-                                 std::string &hash) = 0;
+  virtual status_t dispatch_event(StageEvent *ev, DispatchContext *&ctx, std::string &hash) = 0;
 
   /**
    * Wake up a stored event
@@ -136,11 +138,11 @@ class EventDispatcher : public Stage {
   typedef std::pair<StageEvent *, DispatchContext *> StoredEvent;
   typedef std::map<std::string, std::list<StoredEvent>> EventHash;
 
-  EventHash event_store_;      // events stored here while waiting
-  pthread_mutex_t event_lock_; // protects access to event_store_
-  Stage *next_stage_;          // target for dispatched events
+  EventHash event_store_;       // events stored here while waiting
+  pthread_mutex_t event_lock_;  // protects access to event_store_
+  Stage *next_stage_;           // target for dispatched events
 
- protected:
+protected:
 };
 
 /**
@@ -148,9 +150,10 @@ class EventDispatcher : public Stage {
  * derive from this base class.
  */
 class DispatchContext {
- public:
-  virtual ~DispatchContext() {}
+public:
+  virtual ~DispatchContext()
+  {}
 };
 
-} //namespace common
-#endif // __COMMON_SEDA_EVENT_DISPATCHER_H__
+}  // namespace common
+#endif  // __COMMON_SEDA_EVENT_DISPATCHER_H__

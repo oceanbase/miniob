@@ -20,25 +20,30 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-
 class Snapshot {
 public:
-  virtual ~Snapshot() {};
+  virtual ~Snapshot(){};
   virtual std::string to_string() = 0;
 };
 
 template <class T>
 class SnapshotBasic : public Snapshot {
 public:
-  SnapshotBasic() : value(){
+  SnapshotBasic()
+      : value(){
 
-  };
+        };
 
-  virtual ~SnapshotBasic() {}
+  virtual ~SnapshotBasic()
+  {}
 
-  void setValue(T &input) { value = input; }
+  void setValue(T &input)
+  {
+    value = input;
+  }
 
-  std::string to_string() {
+  std::string to_string()
+  {
     std::string ret;
     val_to_str(value, ret);
     return ret;
@@ -48,28 +53,31 @@ private:
   T value;
 };
 
-class SimplerTimerSnapshot: public  Snapshot{
+class SimplerTimerSnapshot : public Snapshot {
 public:
-   SimplerTimerSnapshot() {
+  SimplerTimerSnapshot()
+  {}
 
-  }
+  virtual ~SimplerTimerSnapshot()
+  {}
 
-  virtual ~SimplerTimerSnapshot() {}
-
-  void setValue(double mean, double tps) {
+  void setValue(double mean, double tps)
+  {
     this->mean = mean;
     this->tps = tps;
   }
 
-  std::string to_string() {
+  std::string to_string()
+  {
     std::stringstream oss;
-    oss << "mean:" << mean << ",tps:"<<tps;
+    oss << "mean:" << mean << ",tps:" << tps;
 
     return oss.str();
   }
+
 private:
   double mean = 1.0;
   double tps = 1.0;
 };
-} //namespace common
-#endif //__COMMON_METRICS_SNAPSHOT_H__
+}  // namespace common
+#endif  //__COMMON_METRICS_SNAPSHOT_H__

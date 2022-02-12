@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/13.
+// Created by Meiyi & Longda on 2021/4/13.
 //
 
 #ifndef __OBSERVER_STORAGE_DEFAULT_STORAGE_STAGE_H__
@@ -33,8 +33,7 @@ protected:
   bool initialize() override;
   void cleanup() override;
   void handle_event(common::StageEvent *event) override;
-  void callback_event(common::StageEvent *event,
-                     common::CallbackContext *context) override;
+  void callback_event(common::StageEvent *event, common::CallbackContext *context) override;
 
 private:
   std::string load_data(const char *db_name, const char *table_name, const char *file_name);
@@ -44,7 +43,7 @@ protected:
   static const std::string QUERY_METRIC_TAG;
 
 private:
-  DefaultHandler * handler_;
+  DefaultHandler *handler_;
 };
 
-#endif //__OBSERVER_STORAGE_DEFAULT_STORAGE_STAGE_H__
+#endif  //__OBSERVER_STORAGE_DEFAULT_STORAGE_STAGE_H__

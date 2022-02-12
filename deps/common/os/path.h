@@ -18,7 +18,6 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 namespace common {
 
-
 /**
  * get file name from full path
  * example
@@ -66,7 +65,7 @@ bool check_directory(std::string &path);
  * @param filter_pattern  示例 ^miniob.*bin$
  * @return 成功返回找到的文件个数，否则返回-1
  */
-int list_file(const char *path, const char *filter_pattern, std::vector<std::string> &files); // io/io.h::getFileList
+int list_file(const char *path, const char *filter_pattern, std::vector<std::string> &files);  // io/io.h::getFileList
 
-} //namespace common
-#endif //__COMMON_OS_PATH_H__
+}  // namespace common
+#endif  //__COMMON_OS_PATH_H__

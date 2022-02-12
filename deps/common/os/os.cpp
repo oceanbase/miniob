@@ -21,7 +21,8 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 // Don't care windows
-u32_t getCpuNum() {
+u32_t getCpuNum()
+{
   return std::thread::hardware_concurrency();
 }
 
@@ -30,14 +31,13 @@ u32_t getCpuNum() {
 void print_stacktrace()
 {
   int size = MAX_STACK_SIZE;
-  void * array[MAX_STACK_SIZE];
+  void *array[MAX_STACK_SIZE];
   int stack_num = backtrace(array, size);
-  char ** stacktrace = backtrace_symbols(array, stack_num);
-  for (int i = 0; i < stack_num; ++i)
-  {
+  char **stacktrace = backtrace_symbols(array, stack_num);
+  for (int i = 0; i < stack_num; ++i) {
     LOG_INFO("%d ----- %s\n", i, stacktrace[i]);
   }
   free(stacktrace);
 }
 
-}//namespace common
+}  // namespace common

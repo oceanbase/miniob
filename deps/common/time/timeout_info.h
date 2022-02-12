@@ -28,7 +28,7 @@ namespace common {
  */
 
 class TimeoutInfo {
- public:
+public:
   /**
    * Constructor
    * @param[in] deadline_  deadline_ of this timeout
@@ -44,7 +44,7 @@ class TimeoutInfo {
   // Check if it has timed out
   bool has_timed_out();
 
- private:
+private:
   // Forbid copy ctor and =() to support ref count
 
   // Copy constructor.
@@ -53,24 +53,24 @@ class TimeoutInfo {
   // Assignment operator.
   TimeoutInfo &operator=(const TimeoutInfo &ti);
 
- protected:
+protected:
   // Avoid heap-based \c TimeoutInfo
   // so it can easily associated with \c StageEvent
 
   // Destructor.
   ~TimeoutInfo();
 
- private:
-  time_t deadline_; // when should this be timed out
+private:
+  time_t deadline_;  // when should this be timed out
 
   // used to predict timeout if now + reservedTime > deadline_
   // time_t reservedTime;
 
-  bool is_timed_out_; // timeout flag
+  bool is_timed_out_;  // timeout flag
 
   int ref_cnt_;            // reference count of this object
-  pthread_mutex_t mutex_; // mutex_ to protect ref_cnt_ and flag
+  pthread_mutex_t mutex_;  // mutex_ to protect ref_cnt_ and flag
 };
 
-} //namespace common
-#endif // __COMMON_TIME_TIMEOUT_INFO_H__
+}  // namespace common
+#endif  // __COMMON_TIME_TIMEOUT_INFO_H__

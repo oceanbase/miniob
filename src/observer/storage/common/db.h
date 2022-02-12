@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2021/5/12.
+// Created by Meiyi & Longda & Wangyunlai on 2021/5/12.
 //
 
 #ifndef __OBSERVER_STORAGE_COMMON_DB_H__
@@ -40,13 +40,14 @@ public:
   void all_tables(std::vector<std::string> &table_names) const;
 
   RC sync();
+
 private:
   RC open_all_tables();
 
 private:
-  std::string   name_;
-  std::string   path_;
-  std::unordered_map<std::string, Table *>  opened_tables_;
+  std::string name_;
+  std::string path_;
+  std::unordered_map<std::string, Table *> opened_tables_;
 };
 
-#endif // __OBSERVER_STORAGE_COMMON_DB_H__
+#endif  // __OBSERVER_STORAGE_COMMON_DB_H__

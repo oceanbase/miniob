@@ -38,8 +38,8 @@ public:
   virtual ~UniformReservoir();
 
 public:
-  size_t size();  // data buffer size
-  size_t get_count(); // how many items have been insert?
+  size_t size();       // data buffer size
+  size_t get_count();  // how many items have been insert?
 
   void update(double one);
   void snapshot();
@@ -51,11 +51,11 @@ protected:
 
 protected:
   pthread_mutex_t mutex;
-  size_t counter; // counter is likely to be bigger than data.size()
+  size_t counter;  // counter is likely to be bigger than data.size()
   std::vector<double> data;
   RandomGenerator random;
 };
 
-} // namespace common
+}  // namespace common
 
 #endif /* __COMMON_METRICS_UNIFORM_RESERVOIR_H_ */

@@ -30,7 +30,6 @@ void blockDefaultSignals(sigset_t *signal_set, sigset_t *old_set);
  */
 void unBlockDefaultSignals(sigset_t *signal_set, sigset_t *old_set);
 
-
 void *waitForSignals(sigset_t *signal_set);
 void startWaitForSignals(sigset_t *signal_set);
 
@@ -42,5 +41,5 @@ typedef void (*sighandler_t)(int);
 void setSignalHandler(sighandler_t func);
 void setSignalHandler(int sig, sighandler_t func);
 
-} //namespace common
+}  // namespace common
 #endif /* __COMMON_OS_SIGNAL_H__ */

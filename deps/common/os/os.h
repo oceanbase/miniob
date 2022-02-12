@@ -20,5 +20,5 @@ u32_t getCpuNum();
 
 void print_stacktrace();
 
-} //namespace common
+}  // namespace common
 #endif /* __COMMON_OS_OS_H__ */

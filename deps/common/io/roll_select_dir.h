@@ -26,8 +26,14 @@ namespace common {
 
 class RollSelectDir : public SelectDir {
 public:
-  RollSelectDir() { MUTEX_INIT(&mMutex, NULL); }
-  ~RollSelectDir() { MUTEX_DESTROY(&mMutex); }
+  RollSelectDir()
+  {
+    MUTEX_INIT(&mMutex, NULL);
+  }
+  ~RollSelectDir()
+  {
+    MUTEX_DESTROY(&mMutex);
+  }
 
 public:
   /**
@@ -43,5 +49,5 @@ public:
   u32_t mPos;
 };
 
-} //namespace common
+}  // namespace common
 #endif /* __COMMON_IO_ROLL_SELECT_DIR__ */

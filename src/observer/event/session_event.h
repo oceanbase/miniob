@@ -42,4 +42,4 @@ private:
   std::string response_;
 };
 
-#endif //__OBSERVER_SESSION_SESSIONEVENT_H__
+#endif  //__OBSERVER_SESSION_SESSIONEVENT_H__

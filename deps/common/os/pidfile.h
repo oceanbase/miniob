@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 #define __COMMON_OS_PIDFILE_H__
 namespace common {
 
-
 //! Generates a PID file for the current component
 /**
  * Gets the process ID (PID) of the calling process and writes a file
@@ -35,7 +34,7 @@ int writePidFile(const char *progName);
  */
 void removePidFile(void);
 
-std::string& getPidPath();
+std::string &getPidPath();
 
-} //namespace common
-#endif // __COMMON_OS_PIDFILE_H__
+}  // namespace common
+#endif  // __COMMON_OS_PIDFILE_H__

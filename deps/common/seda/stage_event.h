@@ -58,7 +58,7 @@ class TimeoutInfo;
 
 class StageEvent {
 
- public:
+public:
   // Interface for collecting debugging information
   typedef enum { HANDLE_EV = 0, CALLBACK_EV, TIMEOUT_EV } HistType;
 
@@ -106,7 +106,10 @@ class StageEvent {
   UserData *get_user_data();
 
   // True if event represents a callback
-  bool is_callback() { return cb_flag_; }
+  bool is_callback()
+  {
+    return cb_flag_;
+  }
 
   // Add stage to list of stages which have handled this event
   void save_stage(Stage *stg, HistType type);
@@ -123,23 +126,28 @@ class StageEvent {
   // If the event has timed out (and should be dropped)
   bool has_timed_out();
 
- private:
+private:
   typedef std::pair<Stage *, HistType> HistEntry;
 
   // Interface to allow callbacks to be run on target stage's threads
-  void mark_callback() { cb_flag_ = true; }
-  void clear_callback() { cb_flag_ = false; }
-  
+  void mark_callback()
+  {
+    cb_flag_ = true;
+  }
+  void clear_callback()
+  {
+    cb_flag_ = false;
+  }
+
   // Set a timeout info into the event
   void set_timeout_info(TimeoutInfo *tmi);
 
-  CompletionCallback *comp_cb_; // completion callback stack for this event
-  UserData *ud_;               // user data associated with event by caller
-  bool cb_flag_; // true if this event is a callback
-  std::list<HistEntry> *history_; // List of stages which have handled ev
+  CompletionCallback *comp_cb_;    // completion callback stack for this event
+  UserData *ud_;                   // user data associated with event by caller
+  bool cb_flag_;                   // true if this event is a callback
+  std::list<HistEntry> *history_;  // List of stages which have handled ev
   u32_t stage_hops_;               // Number of stages which have handled ev
-  TimeoutInfo *tm_info_; // the timeout info for this event
-  
+  TimeoutInfo *tm_info_;           // the timeout info for this event
 };
 
 /**
@@ -155,15 +163,18 @@ class StageEvent {
  *  originating stage can access the \c UserData member to recover its state.
  */
 class UserData {
- public:
+public:
   /**
    *  \brief A virtual destructor to enable the use of dynamic casts.
    */
-  virtual ~UserData() { return; }
+  virtual ~UserData()
+  {
+    return;
+  }
 };
 
 bool &get_event_history_flag();
 u32_t &get_max_event_hops();
 
-} //namespace common
-#endif // __COMMON_SEDA_STAGE_EVENT_H__
+}  // namespace common
+#endif  // __COMMON_SEDA_STAGE_EVENT_H__

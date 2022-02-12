@@ -66,5 +66,5 @@ void MD5Final(unsigned char[16], MD5_CTX *);
 }
 #endif
 
-} //namespace common
-#endif //__COMMON_MATH_MD5_H__
+}  // namespace common
+#endif  //__COMMON_MATH_MD5_H__
