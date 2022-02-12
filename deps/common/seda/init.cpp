@@ -37,17 +37,15 @@ See the Mulan PSL v2 for more details. */
 #include "common/seda/timer_stage.h"
 namespace common {
 
-
-int init_seda(ProcessParam *process_cfg) {
+int init_seda(ProcessParam *process_cfg)
+{
   // Initialize the static data structures of threadpool
   Threadpool::create_pool_key();
 
   // initialize class factory instances here
-  static StageFactory kill_thread_factory("KillThreads",
-                                        &KillThreadStage::make_stage);
+  static StageFactory kill_thread_factory("KillThreads", &KillThreadStage::make_stage);
   static StageFactory timer_factory("TimerStage", &TimerStage::make_stage);
-  static StageFactory seda_stats_factory("MetricsStage",
-                                       &MetricsStage::make_stage);
+  static StageFactory seda_stats_factory("MetricsStage", &MetricsStage::make_stage);
 
   // try to parse the seda configuration files
   SedaConfig *config = SedaConfig::get_instance();
@@ -55,16 +53,14 @@ int init_seda(ProcessParam *process_cfg) {
 
   config_stat = config->parse();
   if (config_stat != SedaConfig::SUCCESS) {
-    LOG_ERROR("Error: unable to parse file %s",
-              process_cfg->get_process_name().c_str());
+    LOG_ERROR("Error: unable to parse file %s", process_cfg->get_process_name().c_str());
     return errno;
   }
 
   // Log a message to indicate that we are restarting, when looking
   // at a log we can see if mmon is restarting us because we keep
   // crashing.
-  LOG_INFO("(Re)Starting State: Pid: %u Time: %s", (unsigned int)getpid(),
-           DateTime::now().to_string_local().c_str());
+  LOG_INFO("(Re)Starting State: Pid: %u Time: %s", (unsigned int)getpid(), DateTime::now().to_string_local().c_str());
   LOG_INFO("The process Name is %s", process_cfg->get_process_name().c_str());
 
   // try to initialize the seda configuration
@@ -79,10 +75,11 @@ int init_seda(ProcessParam *process_cfg) {
   return 0;
 }
 
-void cleanup_seda() {
+void cleanup_seda()
+{
   SedaConfig *seda_config = SedaConfig::get_instance();
   delete seda_config;
   SedaConfig::get_instance() = NULL;
 }
 
-} //namespace common
+}  // namespace common

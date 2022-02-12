@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/13.
+// Created by Meiyi & Longda on 2021/4/13.
 //
 #ifndef __OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_
 #define __OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_
@@ -111,10 +111,9 @@ public:
     if (pool_num > 0) {
       POOL_NUM = pool_num;
       LOG_INFO("Successfully set POOL_NUM as %d", pool_num);
-    }else {
+    } else {
       LOG_INFO("Invalid input argument pool_num:%d", pool_num);
     }
-
   }
 
   static const int get_pool_num()

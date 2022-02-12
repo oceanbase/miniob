@@ -18,5 +18,5 @@ namespace common {
 
 int regex_match(const char *str_, const char *pat_);
 
-} //namespace common
+}  // namespace common
 #endif /* __COMMON_MATH_REGEX_H__ */

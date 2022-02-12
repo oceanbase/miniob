@@ -33,11 +33,12 @@ extern bool &get_event_history_flag();
 
 // Constructor
 CompletionCallback::CompletionCallback(Stage *trgt, CallbackContext *ctx)
-  : target_stage_(trgt), context_(ctx), next_cb_(NULL),
-    ev_hist_flag_(get_event_history_flag()) {}
+    : target_stage_(trgt), context_(ctx), next_cb_(NULL), ev_hist_flag_(get_event_history_flag())
+{}
 
 // Destructor
-CompletionCallback::~CompletionCallback() {
+CompletionCallback::~CompletionCallback()
+{
   if (context_) {
     delete context_;
   }
@@ -47,14 +48,16 @@ CompletionCallback::~CompletionCallback() {
 }
 
 // Push onto a callback stack
-void CompletionCallback::push_callback(CompletionCallback *next) {
+void CompletionCallback::push_callback(CompletionCallback *next)
+{
   ASSERT((!next_cb_), "%s", "cannot push a callback twice");
 
   next_cb_ = next;
 }
 
 // Pop off of a callback stack
-CompletionCallback *CompletionCallback::pop_callback() {
+CompletionCallback *CompletionCallback::pop_callback()
+{
   CompletionCallback *ret_val = next_cb_;
 
   next_cb_ = NULL;
@@ -62,7 +65,8 @@ CompletionCallback *CompletionCallback::pop_callback() {
 }
 
 // One event is complete
-void CompletionCallback::event_done(StageEvent *ev) {
+void CompletionCallback::event_done(StageEvent *ev)
+{
 
   if (ev_hist_flag_) {
     ev->save_stage(target_stage_, StageEvent::CALLBACK_EV);
@@ -71,11 +75,13 @@ void CompletionCallback::event_done(StageEvent *ev) {
 }
 
 // Reschedule callback on target stage thread
-void CompletionCallback::event_reschedule(StageEvent *ev) {
+void CompletionCallback::event_reschedule(StageEvent *ev)
+{
   target_stage_->add_event(ev);
 }
 
-void CompletionCallback::event_timeout(StageEvent *ev) {
+void CompletionCallback::event_timeout(StageEvent *ev)
+{
   LOG_DEBUG("to call event_timeout for stage %s", target_stage_->get_name());
   if (ev_hist_flag_) {
     ev->save_stage(target_stage_, StageEvent::TIMEOUT_EV);
@@ -83,4 +89,4 @@ void CompletionCallback::event_timeout(StageEvent *ev) {
   target_stage_->timeout_event(ev, context_);
 }
 
-} //namespace common
+}  // namespace common

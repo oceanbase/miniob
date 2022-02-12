@@ -26,25 +26,26 @@ See the Mulan PSL v2 for more details. */
 #include "common/os/pidfile.h"
 namespace common {
 
-std::string& getPidPath() {
+std::string &getPidPath()
+{
   static std::string path;
 
   return path;
 }
 
-void setPidPath(const char *progName) {
+void setPidPath(const char *progName)
+{
   std::string &path = getPidPath();
 
   if (progName != NULL) {
     path = std::string(_PATH_TMP) + progName + ".pid";
-  }else {
+  } else {
     path = "";
   }
-
 }
 
-
-int writePidFile(const char *progName) {
+int writePidFile(const char *progName)
+{
   assert(progName);
   std::ofstream ostr;
   int rv = 1;
@@ -58,15 +59,14 @@ int writePidFile(const char *progName) {
     rv = 0;
   } else {
     rv = errno;
-    std::cerr << "error opening PID file " << path.c_str() << SYS_OUTPUT_ERROR
-              << std::endl;
+    std::cerr << "error opening PID file " << path.c_str() << SYS_OUTPUT_ERROR << std::endl;
   }
 
   return rv;
 }
 
-
-void removePidFile(void) {
+void removePidFile(void)
+{
   std::string path = getPidPath();
   if (!path.empty()) {
     unlink(path.c_str());
@@ -75,5 +75,4 @@ void removePidFile(void) {
   return;
 }
 
-
-} //namespace common
+}  // namespace common

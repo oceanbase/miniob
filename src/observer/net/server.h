@@ -68,4 +68,4 @@ public:
   virtual int stop() = 0;
 };
 
-#endif //__OBSERVER_NET_SERVER_H__
+#endif  //__OBSERVER_NET_SERVER_H__

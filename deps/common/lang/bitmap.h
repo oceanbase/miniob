@@ -15,8 +15,7 @@ See the Mulan PSL v2 for more details. */
 #ifndef __COMMON_LANG_BITMAP_H__
 #define __COMMON_LANG_BITMAP_H__
 
-namespace common
-{
+namespace common {
 
 class Bitmap {
 public:
@@ -26,14 +25,14 @@ public:
   void set_bit(int index);
   void clear_bit(int index);
 
-  int  next_unsetted_bit(int start);
-  int  next_setted_bit(int start);
+  int next_unsetted_bit(int start);
+  int next_setted_bit(int start);
 
 private:
-  char * bitmap_;
-  int    size_;
+  char *bitmap_;
+  int size_;
 };
 
-} // namespace common
+}  // namespace common
 
-#endif // __COMMON_LANG_BITMAP_H__
+#endif  // __COMMON_LANG_BITMAP_H__

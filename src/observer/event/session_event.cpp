@@ -14,33 +14,48 @@ See the Mulan PSL v2 for more details. */
 
 #include "session_event.h"
 
-SessionEvent::SessionEvent(ConnectionContext *client) : client_(client) {
+SessionEvent::SessionEvent(ConnectionContext *client) : client_(client)
+{}
+
+SessionEvent::~SessionEvent()
+{}
+
+ConnectionContext *SessionEvent::get_client() const
+{
+  return client_;
 }
 
-SessionEvent::~SessionEvent() {
-
+const char *SessionEvent::get_response() const
+{
+  return response_.c_str();
 }
 
-ConnectionContext *SessionEvent::get_client() const { return client_; }
-
-const char *SessionEvent::get_response() const { 
-  return response_.c_str(); 
-}
-
-void SessionEvent::set_response(const char *response) {
+void SessionEvent::set_response(const char *response)
+{
   set_response(response, strlen(response));
 }
 
-void SessionEvent::set_response(const char *response, int len) {
+void SessionEvent::set_response(const char *response, int len)
+{
   response_.assign(response, len);
 }
 
-void SessionEvent::set_response(std::string &&response) {
+void SessionEvent::set_response(std::string &&response)
+{
   response_ = std::move(response);
 }
 
-int SessionEvent::get_response_len() const { return response_.size(); }
+int SessionEvent::get_response_len() const
+{
+  return response_.size();
+}
 
-char *SessionEvent::get_request_buf() { return client_->buf; }
+char *SessionEvent::get_request_buf()
+{
+  return client_->buf;
+}
 
-int SessionEvent::get_request_buf_len() { return SOCKET_BUFFER_SIZE; }
+int SessionEvent::get_request_buf_len()
+{
+  return SOCKET_BUFFER_SIZE;
+}

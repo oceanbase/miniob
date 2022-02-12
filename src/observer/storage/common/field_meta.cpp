@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2021/5/12.
+// Created by Meiyi & Wangyunlai on 2021/5/12.
 //
 
 #include <common/lang/string.h>

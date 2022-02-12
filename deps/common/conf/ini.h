@@ -31,7 +31,7 @@ namespace common {
 // VARNAME=VALUE
 
 class Ini {
- public:
+public:
   /**
    * To simplify the logic, no lock's when loading configuration
    * So don't modify the data parallel
@@ -50,24 +50,22 @@ class Ini {
    * get the map of the section
    * if the section doesn't exist, return one empty section
    */
-  const std::map<std::string, std::string> &
-  get(const std::string &section = DEFAULT_SECTION);
+  const std::map<std::string, std::string> &get(const std::string &section = DEFAULT_SECTION);
 
   /**
    * get the value of the key in the section,
    * if the key-value doesn't exist,
    * use the input default_value
    */
-  std::string get(const std::string &key, const std::string &default_value,
-                  const std::string &section = DEFAULT_SECTION);
+  std::string get(
+      const std::string &key, const std::string &default_value, const std::string &section = DEFAULT_SECTION);
 
   /**
    * put the key-value pair to the section
    * if the key-value already exist, just replace it
    * if the section doesn't exist, it will create this section
    */
-  int put(const std::string &key, const std::string &value,
-          const std::string &section = DEFAULT_SECTION);
+  int put(const std::string &key, const std::string &value, const std::string &section = DEFAULT_SECTION);
 
   /**
    * output all configuration to one string
@@ -92,7 +90,7 @@ class Ini {
   static const char CFG_SESSION_START_TAG = '[';
   static const char CFG_SESSION_END_TAG = ']';
 
- protected:
+protected:
   /**
    * insert one empty session to sections_
    */
@@ -102,21 +100,18 @@ class Ini {
    * switch session according to the session_name
    * if the section doesn't exist, it will create one
    */
-  std::map<std::string, std::string> *
-  switch_session(const std::string &session_name);
+  std::map<std::string, std::string> *switch_session(const std::string &session_name);
 
   /**
    * insert one entry to session_map
    * line's format is "key=value"
    *
    */
-  int insert_entry(std::map<std::string, std::string> *session_map,
-                  const std::string &line);
+  int insert_entry(std::map<std::string, std::string> *session_map, const std::string &line);
 
-  typedef std::map<std::string, std::map<std::string, std::string>>
-    SessionsMap;
+  typedef std::map<std::string, std::map<std::string, std::string>> SessionsMap;
 
- private:
+private:
   static const std::map<std::string, std::string> empty_map_;
 
   std::set<std::string> file_names_;
@@ -129,5 +124,5 @@ class Ini {
 Ini *&get_properties();
 //********************************************************************
 
-}// namespace common
-#endif //__COMMON_CONF_INI_H__
+}  // namespace common
+#endif  //__COMMON_CONF_INI_H__

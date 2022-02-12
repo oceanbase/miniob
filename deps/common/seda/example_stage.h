@@ -33,7 +33,6 @@ protected:
   void cleanup();
   void handle_event(StageEvent *event);
   void callback_event(StageEvent *event, CallbackContext *context);
-
 };
-} // namespace common
-#endif //__COMMON_SEDA_EXAMPLE_STAGE_H__
+}  // namespace common
+#endif  //__COMMON_SEDA_EXAMPLE_STAGE_H__

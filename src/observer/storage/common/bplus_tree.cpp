@@ -10,6 +10,7 @@ See the Mulan PSL v2 for more details. */
 
 //
 // Created by Xie Meiyi
+// Rewritten by Longda & Wangyunlai
 //
 #include "storage/common/bplus_tree.h"
 #include "storage/default/disk_buffer_pool.h"
@@ -303,13 +304,13 @@ RC BplusTreeHandler::print_tree()
 
 RC BplusTreeHandler::print_leafs()
 {
-  PageNum  page_num;
+  PageNum page_num;
   get_first_leaf_page(&page_num);
 
   IndexNode *node;
   BPPageHandle page_handle;
-  RC rc ;
-  while(page_num != -1) {
+  RC rc;
+  while (page_num != -1) {
     rc = disk_buffer_pool_->get_this_page(file_id_, page_num, &page_handle);
     if (rc != RC::SUCCESS) {
       LOG_WARN("Failed to print leafs, due to failed to load. ");
@@ -567,8 +568,9 @@ bool BplusTreeHandler::validate_leaf_link()
   }
 
   if (last_page == -1) {
-    LOG_WARN(
-        "The last leaf is invalid, last leaf is root:%s, file_id:%d", last_leaf->to_string(file_header_).c_str(), file_id_);
+    LOG_WARN("The last leaf is invalid, last leaf is root:%s, file_id:%d",
+        last_leaf->to_string(file_header_).c_str(),
+        file_id_);
     disk_buffer_pool_->unpin_page(&first_leaf_handle);
     return false;
   }

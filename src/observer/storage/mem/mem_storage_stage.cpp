@@ -27,13 +27,16 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 //! Constructor
-MemStorageStage::MemStorageStage(const char *tag) : Stage(tag) {}
+MemStorageStage::MemStorageStage(const char *tag) : Stage(tag)
+{}
 
 //! Destructor
-MemStorageStage::~MemStorageStage() {}
+MemStorageStage::~MemStorageStage()
+{}
 
 //! Parse properties, instantiate a stage object
-Stage *MemStorageStage::make_stage(const std::string &tag) {
+Stage *MemStorageStage::make_stage(const std::string &tag)
+{
   MemStorageStage *stage = new (std::nothrow) MemStorageStage(tag.c_str());
   if (stage == nullptr) {
     LOG_ERROR("new MemStorageStage failed");
@@ -44,7 +47,8 @@ Stage *MemStorageStage::make_stage(const std::string &tag) {
 }
 
 //! Set properties for this object set in stage specific properties
-bool MemStorageStage::set_properties() {
+bool MemStorageStage::set_properties()
+{
   //  std::string stageNameStr(stage_name_);
   //  std::map<std::string, std::string> section = g_properties()->get(
   //    stageNameStr);
@@ -57,7 +61,8 @@ bool MemStorageStage::set_properties() {
 }
 
 //! Initialize stage params and validate outputs
-bool MemStorageStage::initialize() {
+bool MemStorageStage::initialize()
+{
   LOG_TRACE("Enter");
 
   LOG_TRACE("Exit");
@@ -65,13 +70,15 @@ bool MemStorageStage::initialize() {
 }
 
 //! Cleanup after disconnection
-void MemStorageStage::cleanup() {
+void MemStorageStage::cleanup()
+{
   LOG_TRACE("Enter");
 
   LOG_TRACE("Exit");
 }
 
-void MemStorageStage::handle_event(StageEvent *event) {
+void MemStorageStage::handle_event(StageEvent *event)
+{
   LOG_TRACE("Enter\n");
   TimerStat timerStat(*queryMetric);
 
@@ -81,8 +88,8 @@ void MemStorageStage::handle_event(StageEvent *event) {
   return;
 }
 
-void MemStorageStage::callback_event(StageEvent *event,
-                                    CallbackContext *context) {
+void MemStorageStage::callback_event(StageEvent *event, CallbackContext *context)
+{
   LOG_TRACE("Enter\n");
 
   LOG_TRACE("Exit\n");

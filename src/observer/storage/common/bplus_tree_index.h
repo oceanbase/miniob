@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by wangyunlai.wyl on 2021/5/19.
+// Created by Meiyi & wangyunlai.wyl on 2021/5/19.
 //
 
 #ifndef __OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_
@@ -46,8 +46,9 @@ public:
 
   RC next_entry(RID *rid) override;
   RC destroy() override;
+
 private:
-  BplusTreeScanner * tree_scanner_;
+  BplusTreeScanner *tree_scanner_;
 };
 
-#endif //__OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_
+#endif  //__OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_

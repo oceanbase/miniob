@@ -31,8 +31,6 @@ namespace common {
 
 #else
 
-
-
 typedef struct MemID_t {
 public:
   const static int MEM_FILENAME_LEN = 32;
@@ -44,12 +42,10 @@ public:
 
 class CLMemTrace {
 public:
-  static void *malloc(size_t size, const char *file, const int line,
-                      bool retry = false) throw(std::bad_alloc);
+  static void *malloc(size_t size, const char *file, const int line, bool retry = false) throw(std::bad_alloc);
 
   // just use for realloc, same functionality as realloc
-  static void *realloc(void *ptr, size_t size, const char *file,
-                       const int line);
+  static void *realloc(void *ptr, size_t size, const char *file, const int line);
 
   static void free(void *ptr);
 
@@ -58,7 +54,10 @@ public:
   /**
    * set whether show every details
    */
-  static void setVerbose(bool verbose) { mVerbose = verbose; }
+  static void setVerbose(bool verbose)
+  {
+    mVerbose = verbose;
+  }
 
 protected:
   static std::new_handler getNewHandler();
@@ -132,5 +131,5 @@ static void operator delete[](void *pointer);
 
 #endif /* MEM_DEBUG */
 
-} //namespace common
+}  // namespace common
 #endif /* __COMMON_MM_MEM_H__ */

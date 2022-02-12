@@ -36,7 +36,8 @@ namespace common {
 
 #endif
 
-inline const std::string &theSwVersion() {
+inline const std::string &theSwVersion()
+{
   static const std::string swVersion(VERSION_STR);
 
   return swVersion;
@@ -44,24 +45,24 @@ inline const std::string &theSwVersion() {
 
 enum {
   // General Error Codes
-  STATUS_SUCCESS = 0,    //!< Success status should be zero,
-  STATUS_INVALID_PARAM,  //!< Invalid parameter
-  STATUS_FAILED_INIT,    //!< Failed to init program
-  STATUS_PROPERTY_ERR,   //!< Property error
-  STATUS_INIT_LOG,       //!< log error
-  STATUS_INIT_THREAD,    //!< failed to init thread
-  STATUS_FAILED_JOB,     //!< Failed to do job
-  STATUS_FAILED_NETWORK, //!< Network failure
+  STATUS_SUCCESS = 0,     //!< Success status should be zero,
+  STATUS_INVALID_PARAM,   //!< Invalid parameter
+  STATUS_FAILED_INIT,     //!< Failed to init program
+  STATUS_PROPERTY_ERR,    //!< Property error
+  STATUS_INIT_LOG,        //!< log error
+  STATUS_INIT_THREAD,     //!< failed to init thread
+  STATUS_FAILED_JOB,      //!< Failed to do job
+  STATUS_FAILED_NETWORK,  //!< Network failure
 
   STATUS_UNKNOW_ERROR,
-  STATUS_LAST_ERR //!< last error code
+  STATUS_LAST_ERR  //!< last error code
 
 };
 
 const unsigned int ONE_KILO = 1024;
 const unsigned int ONE_MILLION = ONE_KILO * ONE_KILO;
 const unsigned int ONE_GIGA = ONE_MILLION * ONE_KILO;
-const unsigned int FILENAME_LENGTH_MAX = 256; // the max filename length
+const unsigned int FILENAME_LENGTH_MAX = 256;  // the max filename length
 
 static const char FILE_PATH_SPLIT = '/';
 static const char FILE_PATH_SPLIT_STR[] = "/";
@@ -82,5 +83,5 @@ typedef long long s64_t;
 
 #define LOCAL_HOST "localhost"
 
-} // namespace common
-#endif //__COMMON_DEFS_H__
+}  // namespace common
+#endif  //__COMMON_DEFS_H__

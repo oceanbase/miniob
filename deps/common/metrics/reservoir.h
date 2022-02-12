@@ -21,8 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/metrics/metric.h"
 #include "common/metrics/snapshot.h"
 
-
-
 namespace common {
 
 class Reservoir : public Metric {
@@ -45,6 +43,6 @@ private:
   RandomGenerator &random;
 };
 
-} // namespace common
+}  // namespace common
 
 #endif /* __COMMON_METRICS_RESERVOIR_H_ */

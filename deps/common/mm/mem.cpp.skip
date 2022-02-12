@@ -28,8 +28,8 @@ MemID *CLMemTrace::mMemIDs[MEM_HASHTABLE_SIZE] = {0};
 bool CLMemTrace::mVerbose = false;
 ;
 
-void *CLMemTrace::malloc(size_t size, const char *file, const int line,
-                         bool retry) throw(std::bad_alloc) {
+void *CLMemTrace::malloc(size_t size, const char *file, const int line, bool retry) throw(std::bad_alloc)
+{
 
   size_t allocSize = size + sizeof(MemID);
   void *usedPointer = NULL;
@@ -81,8 +81,8 @@ void *CLMemTrace::malloc(size_t size, const char *file, const int line,
   return NULL;
 }
 
-void *CLMemTrace::realloc(void *pointer, size_t size, const char *file,
-                          const int line) {
+void *CLMemTrace::realloc(void *pointer, size_t size, const char *file, const int line)
+{
   if (pointer == NULL && size == 0) {
     return NULL;
   } else if (pointer == NULL && size != 0) {
@@ -172,8 +172,7 @@ void *CLMemTrace::realloc(void *pointer, size_t size, const char *file,
       /**
        * Secondly, add the new one to table
        */
-      u64_t newHashIndex =
-          (u64_t)MEM_ID_HASH((char *)pNewMemID + sizeof(MemID));
+      u64_t newHashIndex = (u64_t)MEM_ID_HASH((char *)pNewMemID + sizeof(MemID));
 
       pNewMemID->mNext = mMemIDs[newHashIndex];
       mMemIDs[newHashIndex] = pNewMemID;
@@ -182,8 +181,7 @@ void *CLMemTrace::realloc(void *pointer, size_t size, const char *file,
        * Third, do memory copy
        * to simplify the old logic, copy memory here
        */
-      memcpy((char *)pNewMemID + sizeof(MemID),
-             (char *)pFreeMemID + sizeof(MemID), pFreeMemID->mSize);
+      memcpy((char *)pNewMemID + sizeof(MemID), (char *)pFreeMemID + sizeof(MemID), pFreeMemID->mSize);
       break;
     }
   }
@@ -191,9 +189,7 @@ void *CLMemTrace::realloc(void *pointer, size_t size, const char *file,
   MUTEX_UNLOCK(&mMutex);
 
   if (foundOld == false) {
-    LOG_WARN(
-        "Something is wrong, the old pointer %p isn't found, so alloc new one",
-        pointer);
+    LOG_WARN("Something is wrong, the old pointer %p isn't found, so alloc new one", pointer);
     try {
       return malloc(size, file, line, false);
     } catch (std::bad_alloc &e) {
@@ -203,8 +199,7 @@ void *CLMemTrace::realloc(void *pointer, size_t size, const char *file,
   }
 
   if (mVerbose) {
-    LOG_INFO("Delete %p, file:%s, line:%u, size:%llu", pointer, oldMemID.mFile,
-             oldMemID.mLine, oldMemID.mSize);
+    LOG_INFO("Delete %p, file:%s, line:%u, size:%llu", pointer, oldMemID.mFile, oldMemID.mLine, oldMemID.mSize);
   }
 
   if (pFreeMemID) {
@@ -215,8 +210,10 @@ void *CLMemTrace::realloc(void *pointer, size_t size, const char *file,
 
     if (mVerbose) {
       LOG_INFO("Alloc %p, file:%s, line:%u, size:%llu",
-               (char *)pNewMemID + sizeof(MemID), pNewMemID->mFile,
-               pNewMemID->mLine, pNewMemID->mSize);
+          (char *)pNewMemID + sizeof(MemID),
+          pNewMemID->mFile,
+          pNewMemID->mLine,
+          pNewMemID->mSize);
     }
     return pNewMemID;
   }
@@ -224,7 +221,8 @@ void *CLMemTrace::realloc(void *pointer, size_t size, const char *file,
   return NULL;
 }
 
-void CLMemTrace::free(void *pointer) {
+void CLMemTrace::free(void *pointer)
+{
   if (pointer == NULL) {
     LOG_WARN("Free one empty pointer");
     return;
@@ -260,8 +258,7 @@ void CLMemTrace::free(void *pointer) {
   if (pMemID) {
 
     if (mVerbose) {
-      LOG_INFO("Delete %p, file:%s, line:%u, size:%llu", pointer, pMemID->mFile,
-               pMemID->mLine, pMemID->mSize);
+      LOG_INFO("Delete %p, file:%s, line:%u, size:%llu", pointer, pMemID->mFile, pMemID->mLine, pMemID->mSize);
     }
     ::free(pMemID);
     return;
@@ -273,7 +270,8 @@ void CLMemTrace::free(void *pointer) {
   return;
 }
 
-std::new_handler CLMemTrace::getNewHandler() {
+std::new_handler CLMemTrace::getNewHandler()
+{
   std::new_handler newHandler = NULL;
   MUTEX_LOCK(&mMutex);
 
@@ -285,7 +283,8 @@ std::new_handler CLMemTrace::getNewHandler() {
   return newHandler;
 }
 
-void CLMemTrace::output() {
+void CLMemTrace::output()
+{
   for (int i = 0; i < MEM_HASHTABLE_SIZE; ++i) {
     // Don't lock outside of the loop
     // 1. avoid output too long to alloc/free memory
@@ -298,8 +297,8 @@ void CLMemTrace::output() {
     }
     while (ptr) {
       // if LOG_INFO alloc memory, it will easy leading to dead lock
-      LOG_INFO("Exist %p, file:%s, line:%u, size:%llu",
-               (char *)ptr + sizeof(MemID), ptr->mFile, ptr->mLine, ptr->mSize);
+      LOG_INFO(
+          "Exist %p, file:%s, line:%u, size:%llu", (char *)ptr + sizeof(MemID), ptr->mFile, ptr->mLine, ptr->mSize);
       ptr = ptr->mNext;
     }
 
@@ -307,23 +306,28 @@ void CLMemTrace::output() {
   }
 }
 
-void *operator new(std::size_t size, const char *file, int line) {
+void *operator new(std::size_t size, const char *file, int line)
+{
   return CLMemTrace::malloc(size, file, line, true);
 }
 
-void *operator new[](std::size_t size, const char *file, int line) {
+void *operator new[](std::size_t size, const char *file, int line)
+{
   return operator new(size, file, line);
 }
 
-void *operator new(std::size_t size) throw(std::bad_alloc) {
+void *operator new(std::size_t size) throw(std::bad_alloc)
+{
   return operator new(size, "<Unknown>", 0);
 }
 
-void *operator new[](std::size_t size) throw(std::bad_alloc) {
+void *operator new[](std::size_t size) throw(std::bad_alloc)
+{
   return operator new(size);
 }
 
-void *operator new(std::size_t size, const std::nothrow_t &) throw() {
+void *operator new(std::size_t size, const std::nothrow_t &) throw()
+{
   void *pointer = NULL;
   try {
     pointer = operator new(size);
@@ -334,7 +338,8 @@ void *operator new(std::size_t size, const std::nothrow_t &) throw() {
   return pointer;
 }
 
-void *operator new[](std::size_t size, const std::nothrow_t &) throw() {
+void *operator new[](std::size_t size, const std::nothrow_t &) throw()
+{
   void *pointer = NULL;
   try {
     pointer = operator[] new(size);
@@ -345,9 +350,15 @@ void *operator new[](std::size_t size, const std::nothrow_t &) throw() {
   return pointer;
 }
 
-void operator delete(void *pointer) { CLMemTrace::free(pointer); }
+void operator delete(void *pointer)
+{
+  CLMemTrace::free(pointer);
+}
 
-void operator delete[](void *pointer) { operator delete(pointer); }
+void operator delete[](void *pointer)
+{
+  operator delete(pointer);
+}
 
 // Some older compilers like Borland C++ Compiler 5.5.1 and Digital Mars
 // Compiler 8.29 do not support placement delete operators.
@@ -355,23 +366,28 @@ void operator delete[](void *pointer) { operator delete(pointer); }
 // Also note that in that case memory leakage will occur if an exception
 // is thrown in the initialization (constructor) of a dynamically
 // created object.
-void operator delete(void *pointer, const char *file, int line) {
+void operator delete(void *pointer, const char *file, int line)
+{
   operator delete(pointer);
 }
 
-void operator delete[](void *pointer, const char *file, int line) {
+void operator delete[](void *pointer, const char *file, int line)
+{
   operator delete(pointer, file, line);
 }
 
-void operator delete(void *pointer, const std::nothrow_t &) {
+void operator delete(void *pointer, const std::nothrow_t &)
+{
   operator delete(pointer, "<Unknown>", 0);
 }
 
-void operator delete[](void *pointer, const std::nothrow_t &) {
+void operator delete[](void *pointer, const std::nothrow_t &)
+{
   operator delete(pointer, std::nothrow);
 }
 
-void *Lcalloc(size_t nmemb, size_t size, const char *file, const int line) {
+void *Lcalloc(size_t nmemb, size_t size, const char *file, const int line)
+{
   try {
     void *point = CLMemTrace::malloc(size * nmemb, file, line, false);
     if (point) {
@@ -384,7 +400,8 @@ void *Lcalloc(size_t nmemb, size_t size, const char *file, const int line) {
   return pointer;
 }
 
-void *Lmalloc(size_t size, const char *file, const int line) {
+void *Lmalloc(size_t size, const char *file, const int line)
+{
   try {
     void *point = CLMemTrace::malloc(size, file, line, false);
   } catch (std::bad_alloc &e) {
@@ -394,8 +411,12 @@ void *Lmalloc(size_t size, const char *file, const int line) {
   return pointer;
 }
 
-void Lfree(void *ptr) { CLMemTrace::free(pointer); }
-void *Lrealloc(void *ptr, size_t size, const char *file, const int line) {
+void Lfree(void *ptr)
+{
+  CLMemTrace::free(pointer);
+}
+void *Lrealloc(void *ptr, size_t size, const char *file, const int line)
+{
   // simplify the logic
   return CLMemTrace::realloc(ptr, size, file, line);
 }

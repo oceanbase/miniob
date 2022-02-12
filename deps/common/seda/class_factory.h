@@ -21,7 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 namespace common {
 
-
 /**
  *  A class to construct arbitrary subclass instances
  *
@@ -42,10 +41,10 @@ namespace common {
  *  with static linkage in a global initialization routine.
  */
 
-template<class T>
+template <class T>
 class ClassFactory {
 
- public:
+public:
   typedef T *(*FactoryFunc)(const std::string &);
 
   /**
@@ -69,13 +68,13 @@ class ClassFactory {
    */
   static T *make_instance(const std::string &tag);
 
- private:
+private:
   // Accessor function that gets the head of the factory list
   static ClassFactory<T> *&fact_list_head();
 
-  std::string identifier_; // identifier for this factory
+  std::string identifier_;  // identifier for this factory
   FactoryFunc fact_func_;   // factory function for this class
-  ClassFactory<T> *next_;  // next factory in global list
+  ClassFactory<T> *next_;   // next factory in global list
 };
 
 /**
@@ -88,8 +87,9 @@ class ClassFactory {
  * as static.  C++ guarantees that the first time the function is
  * invoked (from anywhere) the static local will be initialized.
  */
-template<class T>
-ClassFactory<T> *&ClassFactory<T>::fact_list_head() {
+template <class T>
+ClassFactory<T> *&ClassFactory<T>::fact_list_head()
+{
   static ClassFactory<T> *fact_list = NULL;
   return fact_list;
 }
@@ -99,16 +99,17 @@ ClassFactory<T> *&ClassFactory<T>::fact_list_head() {
  * Implementation notes:
  * constructor places current instance on the global factory list.
  */
-template<class T>
-ClassFactory<T>::ClassFactory(const std::string &tag, FactoryFunc func)
-  : identifier_(tag), fact_func_(func) {
+template <class T>
+ClassFactory<T>::ClassFactory(const std::string &tag, FactoryFunc func) : identifier_(tag), fact_func_(func)
+{
   next_ = fact_list_head();
   fact_list_head() = this;
 }
 
 // Destructor
-template<class T>
-ClassFactory<T>::~ClassFactory() {}
+template <class T>
+ClassFactory<T>::~ClassFactory()
+{}
 
 /**
  * Construct an instance of a specified sub-class
@@ -116,8 +117,9 @@ ClassFactory<T>::~ClassFactory() {}
  * scan global list to find matching tag and use the factory func to
  * create an instance.
  */
-template<class T>
-T *ClassFactory<T>::make_instance(const std::string &tag) {
+template <class T>
+T *ClassFactory<T>::make_instance(const std::string &tag)
+{
   T *instance = NULL;
   ClassFactory<T> *current = fact_list_head();
 
@@ -136,5 +138,5 @@ T *ClassFactory<T>::make_instance(const std::string &tag) {
   return instance;
 }
 
-} //namespace common
-#endif // __COMMON_SEDA_CLASS_FACTORY_H__
+}  // namespace common
+#endif  // __COMMON_SEDA_CLASS_FACTORY_H__

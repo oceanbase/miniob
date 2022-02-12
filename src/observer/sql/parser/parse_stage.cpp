@@ -30,13 +30,16 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 //! Constructor
-ParseStage::ParseStage(const char *tag) : Stage(tag) {}
+ParseStage::ParseStage(const char *tag) : Stage(tag)
+{}
 
 //! Destructor
-ParseStage::~ParseStage() {}
+ParseStage::~ParseStage()
+{}
 
 //! Parse properties, instantiate a stage object
-Stage *ParseStage::make_stage(const std::string &tag) {
+Stage *ParseStage::make_stage(const std::string &tag)
+{
   ParseStage *stage = new (std::nothrow) ParseStage(tag.c_str());
   if (stage == nullptr) {
     LOG_ERROR("new ParseStage failed");
@@ -47,7 +50,8 @@ Stage *ParseStage::make_stage(const std::string &tag) {
 }
 
 //! Set properties for this object set in stage specific properties
-bool ParseStage::set_properties() {
+bool ParseStage::set_properties()
+{
   //  std::string stageNameStr(stageName);
   //  std::map<std::string, std::string> section = theGlobalProperties()->get(
   //    stageNameStr);
@@ -60,7 +64,8 @@ bool ParseStage::set_properties() {
 }
 
 //! Initialize stage params and validate outputs
-bool ParseStage::initialize() {
+bool ParseStage::initialize()
+{
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
@@ -71,13 +76,15 @@ bool ParseStage::initialize() {
 }
 
 //! Cleanup after disconnection
-void ParseStage::cleanup() {
+void ParseStage::cleanup()
+{
   LOG_TRACE("Enter");
 
   LOG_TRACE("Exit");
 }
 
-void ParseStage::handle_event(StageEvent *event) {
+void ParseStage::handle_event(StageEvent *event)
+{
   LOG_TRACE("Enter\n");
 
   StageEvent *new_event = handle_request(event);
@@ -101,7 +108,8 @@ void ParseStage::handle_event(StageEvent *event) {
   return;
 }
 
-void ParseStage::callback_event(StageEvent *event, CallbackContext *context) {
+void ParseStage::callback_event(StageEvent *event, CallbackContext *context)
+{
   LOG_TRACE("Enter\n");
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   sql_event->session_event()->done_immediate();
@@ -109,10 +117,11 @@ void ParseStage::callback_event(StageEvent *event, CallbackContext *context) {
   return;
 }
 
-StageEvent *ParseStage::handle_request(StageEvent *event) {
+StageEvent *ParseStage::handle_request(StageEvent *event)
+{
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   const std::string &sql = sql_event->get_sql();
-  
+
   Query *result = query_create();
   if (nullptr == result) {
     LOG_ERROR("Failed to create query.");

@@ -26,13 +26,16 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 // Constructor
-ExampleStage::ExampleStage(const char *tag) : Stage(tag) {}
+ExampleStage::ExampleStage(const char *tag) : Stage(tag)
+{}
 
 // Destructor
-ExampleStage::~ExampleStage() {}
+ExampleStage::~ExampleStage()
+{}
 
 // Parse properties, instantiate a stage object
-Stage *ExampleStage::make_stage(const std::string &tag) {
+Stage *ExampleStage::make_stage(const std::string &tag)
+{
   ExampleStage *stage = new ExampleStage(tag.c_str());
   if (stage == NULL) {
     LOG_ERROR("new ExampleStage failed");
@@ -43,7 +46,8 @@ Stage *ExampleStage::make_stage(const std::string &tag) {
 }
 
 // Set properties for this object set in stage specific properties
-bool ExampleStage::set_properties() {
+bool ExampleStage::set_properties()
+{
   //  std::string stageNameStr(stage_name_);
   //  std::map<std::string, std::string> section = g_properties()->get(
   //    stageNameStr);
@@ -56,7 +60,8 @@ bool ExampleStage::set_properties() {
 }
 
 // Initialize stage params and validate outputs
-bool ExampleStage::initialize() {
+bool ExampleStage::initialize()
+{
   LOG_TRACE("Enter");
 
   //  std::list<Stage*>::iterator stgp = next_stage_list_.begin();
@@ -68,20 +73,23 @@ bool ExampleStage::initialize() {
 }
 
 // Cleanup after disconnection
-void ExampleStage::cleanup() {
+void ExampleStage::cleanup()
+{
   LOG_TRACE("Enter");
 
   LOG_TRACE("Exit");
 }
 
-void ExampleStage::handle_event(StageEvent *event) {
+void ExampleStage::handle_event(StageEvent *event)
+{
   LOG_TRACE("Enter\n");
 
   LOG_TRACE("Exit\n");
   return;
 }
 
-void ExampleStage::callback_event(StageEvent *event, CallbackContext *context) {
+void ExampleStage::callback_event(StageEvent *event, CallbackContext *context)
+{
   LOG_TRACE("Enter\n");
 
   LOG_TRACE("Exit\n");

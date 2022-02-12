@@ -38,4 +38,4 @@ public:
   bool use_unix_socket = false;
 };
 
-#endif //__SRC_OBSERVER_NET_SERVER_PARAM_H__
+#endif  //__SRC_OBSERVER_NET_SERVER_PARAM_H__

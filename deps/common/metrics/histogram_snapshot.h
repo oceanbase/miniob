@@ -65,10 +65,11 @@ public:
   const std::vector<double> &get_values();
 
   std::string to_string();
+
 protected:
   std::vector<double> data_;
 };
 
-} // namespace common
+}  // namespace common
 
 #endif /* __COMMON_METRICS_HISTOGRAM_SNAPSHOT_H_ */

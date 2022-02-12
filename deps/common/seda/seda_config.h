@@ -26,8 +26,7 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-//keywords of sedaconfig
-
+// keywords of sedaconfig
 
 /**
  *  A class to configure seda stages
@@ -45,7 +44,7 @@ namespace common {
 
 class SedaConfig {
 
- public:
+public:
   typedef enum { SUCCESS = 0, INITFAIL, PARSEFAIL } status_t;
 
   static SedaConfig *&get_instance();
@@ -157,7 +156,7 @@ class SedaConfig {
   std::map<std::string, Stage *>::iterator begin();
   std::map<std::string, Stage *>::iterator end();
 
- private:
+private:
   // Constructor
   SedaConfig();
 
@@ -192,7 +191,7 @@ class SedaConfig {
   void init_event_history();
 
   SedaConfig &operator=(const SedaConfig &cevtout);
-  
+
   static SedaConfig *instance_;
 
   // In old logic, SedaConfig will parse seda configure file
@@ -203,18 +202,20 @@ class SedaConfig {
   std::map<std::string, Threadpool *> thread_pools_;
   std::map<std::string, Stage *> stages_;
   std::vector<std::string> stage_names_;
-
 };
 
-inline std::map<std::string, Stage *>::iterator SedaConfig::begin() {
+inline std::map<std::string, Stage *>::iterator SedaConfig::begin()
+{
   return stages_.begin();
 }
 
-inline std::map<std::string, Stage *>::iterator SedaConfig::end() {
+inline std::map<std::string, Stage *>::iterator SedaConfig::end()
+{
   return stages_.end();
 }
 
-inline Stage *SedaConfig::get_stage(const char *stagename) {
+inline Stage *SedaConfig::get_stage(const char *stagename)
+{
   if (stagename) {
     std::string sname(stagename);
     return stages_[stagename];
@@ -228,5 +229,5 @@ SedaConfig *&get_seda_config();
 bool &get_event_history_flag();
 u32_t &get_max_event_hops();
 
-} //namespace common
-#endif //__COMMON_SEDA_SEDA_CONFIG_H__
+}  // namespace common
+#endif  //__COMMON_SEDA_SEDA_CONFIG_H__

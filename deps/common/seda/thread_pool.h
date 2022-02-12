@@ -42,7 +42,7 @@ class Stage;
  */
 class Threadpool {
 
- public:
+public:
   // Initialize the static data structures of ThreadPool
   static void create_pool_key();
 
@@ -109,8 +109,7 @@ class Threadpool {
   // Get name of thread pool
   const std::string &get_name();
 
-
- protected:
+protected:
   /**
    * Internal thread kill.
    * Internal operation called only when a thread kill event is processed.
@@ -130,7 +129,7 @@ class Threadpool {
    */
   unsigned int gen_kill_thread_events(unsigned int to_kill);
 
- private:
+private:
   /**
    * Internal thread control function
    * Function which contains the control loop for each service thread.
@@ -145,19 +144,19 @@ class Threadpool {
   static const Threadpool *get_thread_pool_ptr();
 
   // run queue state
-  pthread_mutex_t run_mutex_;     //< protects the run queue
-  pthread_cond_t run_cond_;       //< wait here for stage to be scheduled
-  std::deque<Stage *> run_queue_; //< list of stages with work to do
-  bool eventhist_;               //< is event history enabled?
+  pthread_mutex_t run_mutex_;      //< protects the run queue
+  pthread_cond_t run_cond_;        //< wait here for stage to be scheduled
+  std::deque<Stage *> run_queue_;  //< list of stages with work to do
+  bool eventhist_;                 //< is event history enabled?
 
   // thread state
-  pthread_mutex_t thread_mutex_; //< protects thread state
-  pthread_cond_t thread_cond_;   //< wait here when killing threads
-  unsigned int nthreads_;       //< number of service threads
+  pthread_mutex_t thread_mutex_;  //< protects thread state
+  pthread_cond_t thread_cond_;    //< wait here when killing threads
+  unsigned int nthreads_;         //< number of service threads
   unsigned int threads_to_kill_;  //< number of pending kill events
-  unsigned int n_idles_;         //< number of idle threads
-  KillThreadStage killer_;      //< used to kill threads
-  std::string name_;            //< name of threadpool
+  unsigned int n_idles_;          //< number of idle threads
+  KillThreadStage killer_;        //< used to kill threads
+  std::string name_;              //< name of threadpool
 
   // key of thread specific to store thread pool pointer
   static pthread_key_t pool_ptr_key_;
@@ -166,5 +165,5 @@ class Threadpool {
   friend class KillThreadStage;
 };
 
-} //namespace common
-#endif // __COMMON_SEDA_THREAD_POOL_H__
+}  // namespace common
+#endif  // __COMMON_SEDA_THREAD_POOL_H__

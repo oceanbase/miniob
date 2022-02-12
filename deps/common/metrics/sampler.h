@@ -19,7 +19,6 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-
 /**
  * The most simple sample function
  */
@@ -40,5 +39,5 @@ private:
 };
 
 Sampler *&get_sampler();
-} //namespace common
-#endif //__COMMON_METRICS_SAMPLER_H__
+}  // namespace common
+#endif  //__COMMON_METRICS_SAMPLER_H__
