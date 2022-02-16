@@ -2203,7 +2203,11 @@ RC BplusTreeScanner::next_entry(RID *rid)
     if (rc != RC::SUCCESS) {
       return rc;
     }
-    return get_next_idx_in_memory(rid);
+    rc = get_next_idx_in_memory(rid);
+    if (rc == RC::RECORD_NO_MORE_IDX_IN_MEM) {
+      rc = RC::RECORD_EOF;
+    }
+    return rc;
   } else {
     if (rc != RC::SUCCESS) {
       return rc;
