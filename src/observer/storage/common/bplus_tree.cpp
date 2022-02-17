@@ -66,6 +66,38 @@ int key_compare(AttrType attr_type, int attr_length, const char *first, const ch
   RID *rid2 = (RID *)(second + attr_length);
   return RID::compare(rid1, rid2);
 }
+int lower_bound(AttrType attr_type, int attr_length, const char *data, const int item_length, const int item_num, const char *key, bool *_found = nullptr)
+{
+ int left = 0;
+ int right = item_num;
+ int med = 0;
+ bool last_is_bigger = false;
+ bool found = false;
+ for ( ; left < right; ) {
+   med = (left + right) / 2;
+   const char *item = data + item_length * med;
+   int cmp_result = key_compare(attr_type, attr_length, key, item);
+   if (cmp_result == 0) {
+     last_is_bigger = false;
+     found = true;
+     break;
+   }
+   if (cmp_result > 0) {
+     last_is_bigger = true;
+     left = med + 1;
+   } else {
+     last_is_bigger = false;
+     right = med;
+   }
+ }
+
+ if (_found)
+   *_found = found;
+
+ if (last_is_bigger)
+   return med + 1;
+ return med;
+}
 
 int get_page_index_capacity(int attr_length)
 {
@@ -680,12 +712,13 @@ RC BplusTreeHandler::find_leaf(const char *pkey, PageNum *leaf_page)
   while (false == node->is_leaf) {
     char *pdata;
     int i;
-    for (i = 0; i < node->key_num; i++) {
-      int tmp =
-          key_compare(file_header_.attr_type, file_header_.attr_length, pkey, node->keys + i * file_header_.key_length);
-      if (tmp < 0)
-        break;
-    }
+    //for (i = 0; i < node->key_num; i++) {
+    //  int tmp =
+    //      key_compare(file_header_.attr_type, file_header_.attr_length, pkey, node->keys + i * file_header_.key_length);
+    //  if (tmp < 0)
+    //    break;
+    //}
+    i = lower_bound(file_header_.attr_type, file_header_.attr_length, node->keys, file_header_.key_length, node->key_num, pkey);
 
     if (page_handle.open == true) {
       disk_buffer_pool_->unpin_page(&page_handle);
@@ -716,16 +749,24 @@ RC BplusTreeHandler::insert_entry_into_node(IndexNode *node, const char *pkey, c
 {
   int insert_pos = 0, tmp;
 
-  for (; insert_pos < node->key_num; insert_pos++) {
-    tmp = key_compare(
-        file_header_.attr_type, file_header_.attr_length, pkey, node->keys + insert_pos * file_header_.key_length);
-    if (tmp == 0) {
-      LOG_TRACE("Insert into %d occur duplicated key, rid:%s.", file_id_, node->rids[insert_pos].to_string().c_str());
-      return RC::RECORD_DUPLICATE_KEY;
-    }
-    if (tmp < 0)
-      break;
-  }
+  //for (; insert_pos < node->key_num; insert_pos++) {
+  //  tmp = key_compare(
+  //      file_header_.attr_type, file_header_.attr_length, pkey, node->keys + insert_pos * file_header_.key_length);
+  //  if (tmp == 0) {
+  //    LOG_TRACE("Insert into %d occur duplicated key, rid:%s.", file_id_, node->rids[insert_pos].to_string().c_str());
+  //    return RC::RECORD_DUPLICATE_KEY;
+  //  }
+  //  if (tmp < 0)
+  //    break;
+  //}
+
+ bool found = false;
+ insert_pos = lower_bound(file_header_.attr_type, file_header_.attr_length, node->keys, file_header_.key_length,
+                          node->key_num, pkey, &found);
+ if (found) {
+   LOG_TRACE("Insert into %d occur duplicated key, rid:%s.", file_id_, node->rids[insert_pos].to_string().c_str());
+   return RC::RECORD_DUPLICATE_KEY;
+ }
 
   char *from = node->keys + insert_pos * file_header_.key_length;
   char *to = from + file_header_.key_length;
