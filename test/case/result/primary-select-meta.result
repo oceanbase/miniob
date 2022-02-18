@@ -1,0 +1,13 @@
+INITIALIZATION
+CREATE TABLE Select_meta(id int, age int);
+SUCCESS
+
+1. SELECT FROM A NON-EXISTENT TABLE
+select * from no_table;
+FAILURE
+
+2. SELECT FROM A NON-EXISTENT COLUMN
+select home from Select_meta;
+FAILURE
+select * from Select_meta where home='001';
+FAILURE

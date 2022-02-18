@@ -1,0 +1,9 @@
+-- echo initialization
+CREATE TABLE Select_meta(id int, age int);
+
+-- echo 1. select from a non-existent table
+select * from no_table;
+
+-- echo 2. select from a non-existent column
+select home from Select_meta;
+select * from Select_meta where home='001';

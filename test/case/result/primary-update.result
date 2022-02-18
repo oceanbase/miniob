@@ -1,0 +1,81 @@
+INITIALIZATION
+CREATE TABLE Update_table_1(id int, t_name char, col1 int, col2 int);
+SUCCESS
+CREATE INDEX index_id on Update_table_1(id);
+SUCCESS
+INSERT INTO Update_table_1 VALUES (1,'N1',1,1);
+SUCCESS
+INSERT INTO Update_table_1 VALUES (2,'N2',1,1);
+SUCCESS
+INSERT INTO Update_table_1 VALUES (3,'N3',2,1);
+SUCCESS
+
+1. UPDATE A ROW
+UPDATE Update_table_1 SET t_name='N01' WHERE id=1;
+SUCCESS
+SELECT * FROM Update_table_1;
+1 | N01 | 1 | 1
+2 | N2 | 1 | 1
+3 | N3 | 2 | 1
+ID | T_NAME | COL1 | COL2
+
+2. UPDATE ROWS
+UPDATE Update_table_1 SET col2=0 WHERE col1=1;
+SUCCESS
+SELECT * FROM Update_table_1;
+1 | N01 | 1 | 0
+2 | N2 | 1 | 0
+3 | N3 | 2 | 1
+ID | T_NAME | COL1 | COL2
+
+3. UPDATE A INDEX COLUMN
+UPDATE Update_table_1 SET id=4 WHERE t_name='N3';
+SUCCESS
+SELECT * FROM Update_table_1;
+1 | N01 | 1 | 0
+2 | N2 | 1 | 0
+4 | N3 | 2 | 1
+ID | T_NAME | COL1 | COL2
+
+4. UPDATE WITHOUT CONDITIONS
+UPDATE Update_table_1 SET col1=0;
+SUCCESS
+SELECT * FROM Update_table_1;
+1 | N01 | 0 | 0
+2 | N2 | 0 | 0
+4 | N3 | 0 | 1
+ID | T_NAME | COL1 | COL2
+
+5. UPDATE WITH CONDITIONS
+UPDATE Update_table_1 SET t_name='N02' WHERE col1=0 AND col2=0;
+SUCCESS
+SELECT * FROM Update_table_1;
+1 | N02 | 0 | 0
+2 | N02 | 0 | 0
+4 | N3 | 0 | 1
+ID | T_NAME | COL1 | COL2
+
+6. UPDATE NON-EXISTENT TABLE
+UPDATE Update_table_2 SET t_name='N01' WHERE id=1;
+FAILURE
+
+7. UPDATE NON-EXISTENT COLUMN
+UPDATE Update_table_1 SET t_name_false='N01' WHERE id=1;
+FAILURE
+
+8. UPDATE WITH INVALID CONDITION
+UPDATE Update_table_1 SET t_name='N01' WHERE id_false=1;
+FAILURE
+
+9. UPDATE IN VAIN
+UPDATE Update_table_1 SET t_name='N01' WHERE id=100;
+SUCCESS
+SELECT * FROM Update_table_1;
+1 | N02 | 0 | 0
+2 | N02 | 0 | 0
+4 | N3 | 0 | 1
+ID | T_NAME | COL1 | COL2
+
+10. UPDATE WITH INVALID VALUE
+UPDATE Update_table_1 SET col1='N01' WHERE id=1;
+FAILURE

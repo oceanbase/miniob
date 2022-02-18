@@ -1,0 +1,34 @@
+-- echo initialization
+CREATE TABLE date_table(id int, u_date date);
+CREATE INDEX index_id on date_table(u_date);
+
+-- echo 1. insert normal date data
+INSERT INTO date_table VALUES (1,'2020-01-21');
+INSERT INTO date_table VALUES (2,'2020-10-21');
+INSERT INTO date_table VALUES (3,'2020-1-01');
+INSERT INTO date_table VALUES (4,'2020-01-1');
+INSERT INTO date_table VALUES (5,'2019-12-21');
+INSERT INTO date_table VALUES (6,'2016-2-29');
+INSERT INTO date_table VALUES (7,'1970-1-1');
+INSERT INTO date_table VALUES (8,'2000-01-01');
+INSERT INTO date_table VALUES (9,'2038-1-19');
+
+-- echo 2. compare date data
+-- sort SELECT * FROM date_table WHERE u_date>'2020-1-20';
+-- sort SELECT * FROM date_table WHERE u_date<'2019-12-31';
+-- sort SELECT * FROM date_table WHERE u_date='2020-1-1';
+
+-- echo 3. delete data
+DELETE FROM date_table WHERE u_date>'2012-2-29';
+-- sort SELECT * FROM date_table;
+
+-- echo 4. check invalid date data
+SELECT * FROM date_table WHERE u_date='2017-2-29';
+SELECT * FROM date_table WHERE u_date='2017-21-29';
+SELECT * FROM date_table WHERE u_date='2017-12-32';
+SELECT * FROM date_table WHERE u_date='2017-11-31';
+
+INSERT INTO date_table VALUES (10,'2017-2-29');
+INSERT INTO date_table VALUES (11,'2017-21-29');
+INSERT INTO date_table VALUES (12,'2017-12-32');
+INSERT INTO date_table VALUES (13,'2017-11-31');

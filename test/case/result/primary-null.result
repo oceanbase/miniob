@@ -1,0 +1,184 @@
+INITIALIZATION
+CREATE TABLE null_table(id int, num int nullable, price float not null, birthday date nullable);
+SUCCESS
+CREATE TABLE null_table2(id int, num int nullable, price float not null, birthday date nullable);
+SUCCESS
+CREATE INDEX index_num on null_table(num);
+SUCCESS
+
+1. INSERT
+INSERT INTO null_table VALUES (1, 18, 10.0, '2020-01-01');
+SUCCESS
+INSERT INTO null_table VALUES (2, null, 20.0, '2010-01-11');
+SUCCESS
+INSERT INTO null_table VALUES (3, 12, 30.0, null);
+SUCCESS
+INSERT INTO null_table VALUES (4, 15, 30.0, '2021-01-31');
+SUCCESS
+INSERT INTO null_table2 VALUES (1, 18, 30.0, '2021-01-31');
+SUCCESS
+INSERT INTO null_table2 VALUES (2, null, 40.0, null);
+SUCCESS
+
+INSERT INTO null_table VALUES (5, 15, null, '2021-01-31');
+FAILURE
+INSERT INTO null_table VALUES (null, 15, 30.0, '2021-01-31');
+FAILURE
+
+2. SELECT
+SELECT * FROM null_table;
+1 | 18 | 10 | 2020-01-01
+2 | NULL | 20 | 2010-01-11
+3 | 12 | 30 | NULL
+4 | 15 | 30 | 2021-01-31
+ID | NUM | PRICE | BIRTHDAY
+
+3. SELECT WITH CONSTANT
+SELECT * FROM null_table where 1 is null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where 1 is not null;
+1 | 18 | 10 | 2020-01-01
+2 | NULL | 20 | 2010-01-11
+3 | 12 | 30 | NULL
+4 | 15 | 30 | 2021-01-31
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where null=1;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where 1=null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where 1<>null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where 1<null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where 1>null;
+ID | NUM | PRICE | BIRTHDAY
+
+SELECT * FROM null_table where null is null;
+1 | 18 | 10 | 2020-01-01
+2 | NULL | 20 | 2010-01-11
+3 | 12 | 30 | NULL
+4 | 15 | 30 | 2021-01-31
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where null is not null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE null=null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE null<>null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE null>null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE null<null;
+ID | NUM | PRICE | BIRTHDAY
+
+SELECT * FROM null_table where 'a' is null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where 'a' is not null;
+1 | 18 | 10 | 2020-01-01
+2 | NULL | 20 | 2010-01-11
+3 | 12 | 30 | NULL
+4 | 15 | 30 | 2021-01-31
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE null='a';
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE 'a'=null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE 'a'<>null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE 'a'>null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE 'a'<null;
+ID | NUM | PRICE | BIRTHDAY
+
+SELECT * FROM null_table where '2021-01-31' is null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where '2021-01-31' is not null;
+1 | 18 | 10 | 2020-01-01
+2 | NULL | 20 | 2010-01-11
+3 | 12 | 30 | NULL
+4 | 15 | 30 | 2021-01-31
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE null='2021-01-31';
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE '2021-01-31'=null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE '2021-01-31'>null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table WHERE '2021-01-31'<null;
+ID | NUM | PRICE | BIRTHDAY
+
+4. SELECT WITH COLUMN
+SELECT * FROM null_table where birthday is not null;
+1 | 18 | 10 | 2020-01-01
+2 | NULL | 20 | 2010-01-11
+4 | 15 | 30 | 2021-01-31
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where birthday is null;
+3 | 12 | 30 | NULL
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where birthday = null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where null = birthday;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where birthday <> null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where birthday > null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where birthday < null;
+ID | NUM | PRICE | BIRTHDAY
+
+SELECT * FROM null_table where num is not null;
+1 | 18 | 10 | 2020-01-01
+3 | 12 | 30 | NULL
+4 | 15 | 30 | 2021-01-31
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where num is null;
+2 | NULL | 20 | 2010-01-11
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where num = null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where null = num;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where num <> null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where num > null;
+ID | NUM | PRICE | BIRTHDAY
+SELECT * FROM null_table where num < null;
+ID | NUM | PRICE | BIRTHDAY
+
+SELECT null_table.num,null_table2.num,null_table.birthday FROM null_table,null_table2 where null_table.num=null_table2.num;
+18 | 18 | 2020-01-01
+NULL_TABLE.NUM | NULL_TABLE2.NUM | NULL_TABLE.BIRTHDAY
+
+5. AGGREGATION
+SELECT count(*) FROM null_table;
+COUNT(*)
+4
+SELECT count(price) FROM null_table;
+COUNT(PRICE)
+4
+SELECT count(birthday) FROM null_table;
+COUNT(BIRTHDAY)
+3
+SELECT avg(num) FROM null_table;
+AVG(NUM)
+15
+
+6. AGGREGATION WITH NULL COLUMNS
+CREATE TABLE null_table3(id int, num int nullable);
+SUCCESS
+INSERT INTO null_table3 VALUES (1, null);
+SUCCESS
+INSERT INTO null_table3 VALUES (2, null);
+SUCCESS
+SELECT count(num) FROM null_table3;
+COUNT(NUM)
+0
+SELECT min(num) FROM null_table3;
+MIN(NUM)
+NULL
+SELECT max(num) FROM null_table3;
+MAX(NUM)
+NULL
+SELECT avg(num) FROM null_table3;
+AVG(NUM)
+NULL

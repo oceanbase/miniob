@@ -1,0 +1,1375 @@
+INITIALIZATION
+CREATE TABLE join_table_1(id int, name char);
+SUCCESS
+CREATE TABLE join_table_2(id int, num int);
+SUCCESS
+CREATE TABLE join_table_3(id int, num2 int);
+SUCCESS
+create table join_table_empty_1(id int, num_empty_1 int);
+SUCCESS
+create table join_table_empty_2(id int, num_empty_2 int);
+SUCCESS
+
+INSERT INTO join_table_1 VALUES (1, 'a');
+SUCCESS
+INSERT INTO join_table_1 VALUES (2, 'b');
+SUCCESS
+INSERT INTO join_table_1 VALUES (3, 'c');
+SUCCESS
+INSERT INTO join_table_2 VALUES (1, 2);
+SUCCESS
+INSERT INTO join_table_2 VALUES (2, 15);
+SUCCESS
+INSERT INTO join_table_3 VALUES (1, 120);
+SUCCESS
+INSERT INTO join_table_3 VALUES (3, 800);
+SUCCESS
+
+1. SELECT
+Select * from join_table_1 inner join join_table_2 on join_table_1.id=join_table_2.id;
+1 | A | 1 | 2
+2 | B | 2 | 15
+JOIN_TABLE_1.ID | JOIN_TABLE_1.NAME | JOIN_TABLE_2.ID | JOIN_TABLE_2.NUM
+Select join_table_1.name from join_table_1 inner join join_table_2 on join_table_1.id=join_table_2.id;
+A
+B
+JOIN_TABLE_1.NAME
+Select join_table_2.num from join_table_1 inner join join_table_2 on join_table_1.id=join_table_2.id;
+15
+2
+JOIN_TABLE_2.NUM
+Select * from join_table_1 inner join join_table_2 on join_table_1.id=join_table_2.id inner join join_table_3 on join_table_1.id=join_table_3.id;
+1 | A | 1 | 2 | 1 | 120
+JOIN_TABLE_1.ID | JOIN_TABLE_1.NAME | JOIN_TABLE_2.ID | JOIN_TABLE_2.NUM | JOIN_TABLE_3.ID | JOIN_TABLE_3.NUM2
+Select * from join_table_1 inner join join_table_2 on join_table_1.id=join_table_2.id and join_table_2.num>13 where join_table_1.name='b';
+2 | B | 2 | 15
+JOIN_TABLE_1.ID | JOIN_TABLE_1.NAME | JOIN_TABLE_2.ID | JOIN_TABLE_2.NUM
+Select * from join_table_1 inner join join_table_2 on join_table_1.id=join_table_2.id and join_table_2.num>13 where join_table_1.name='a';
+JOIN_TABLE_1.ID | JOIN_TABLE_1.NAME | JOIN_TABLE_2.ID | JOIN_TABLE_2.NUM
+Select * from join_table_1 inner join join_table_2 on join_table_1.id=join_table_2.id and join_table_2.num>23 where join_table_1.name='b';
+JOIN_TABLE_1.ID | JOIN_TABLE_1.NAME | JOIN_TABLE_2.ID | JOIN_TABLE_2.NUM
+
+3. EMPTY
+select * from join_table_1 inner join join_table_empty_1 on join_table_1.id=join_table_empty_1.id;
+JOIN_TABLE_1.ID | JOIN_TABLE_1.NAME | JOIN_TABLE_EMPTY_1.ID | JOIN_TABLE_EMPTY_1.NUM_EMPTY_1
+select * from join_table_empty_1 inner join join_table_1 on join_table_empty_1.id=join_table_1.id;
+JOIN_TABLE_EMPTY_1.ID | JOIN_TABLE_EMPTY_1.NUM_EMPTY_1 | JOIN_TABLE_1.ID | JOIN_TABLE_1.NAME
+select * from join_table_empty_1 inner join join_table_empty_2 on join_table_empty_1.id = join_table_empty_2.id;
+JOIN_TABLE_EMPTY_1.ID | JOIN_TABLE_EMPTY_1.NUM_EMPTY_1 | JOIN_TABLE_EMPTY_2.ID | JOIN_TABLE_EMPTY_2.NUM_EMPTY_2
+select * from join_table_1 inner join join_table_2 on join_table_1.id = join_table_2.id inner join join_table_empty_1 on join_table_1.id=join_table_empty_1.id;
+JOIN_TABLE_1.ID | JOIN_TABLE_1.NAME | JOIN_TABLE_2.ID | JOIN_TABLE_2.NUM | JOIN_TABLE_EMPTY_1.ID | JOIN_TABLE_EMPTY_1.NUM_EMPTY_1
+select * from join_table_empty_1 inner join join_table_1 on join_table_empty_1.id=join_table_1.id inner join join_table_2 on join_table_1.id=join_table_2.id;
+JOIN_TABLE_EMPTY_1.ID | JOIN_TABLE_EMPTY_1.NUM_EMPTY_1 | JOIN_TABLE_1.ID | JOIN_TABLE_1.NAME | JOIN_TABLE_2.ID | JOIN_TABLE_2.NUM
+
+4. VERY LARGE JOIN
+create table join_table_large_1(id int, num1 int);
+SUCCESS
+create table join_table_large_2(id int, num2 int);
+SUCCESS
+create table join_table_large_3(id int, num3 int);
+SUCCESS
+create table join_table_large_4(id int, num4 int);
+SUCCESS
+create table join_table_large_5(id int, num5 int);
+SUCCESS
+create table join_table_large_6(id int, num6 int);
+SUCCESS
+
+insert into join_table_large_1 values(1, 1);
+SUCCESS
+insert into join_table_large_1 values(2, 2);
+SUCCESS
+insert into join_table_large_1 values(3, 3);
+SUCCESS
+insert into join_table_large_1 values(4, 4);
+SUCCESS
+insert into join_table_large_1 values(5, 5);
+SUCCESS
+insert into join_table_large_1 values(6, 6);
+SUCCESS
+insert into join_table_large_1 values(7, 7);
+SUCCESS
+insert into join_table_large_1 values(8, 8);
+SUCCESS
+insert into join_table_large_1 values(9, 9);
+SUCCESS
+insert into join_table_large_1 values(10, 10);
+SUCCESS
+insert into join_table_large_1 values(11, 11);
+SUCCESS
+insert into join_table_large_1 values(12, 12);
+SUCCESS
+insert into join_table_large_1 values(13, 13);
+SUCCESS
+insert into join_table_large_1 values(14, 14);
+SUCCESS
+insert into join_table_large_1 values(15, 15);
+SUCCESS
+insert into join_table_large_1 values(16, 16);
+SUCCESS
+insert into join_table_large_1 values(17, 17);
+SUCCESS
+insert into join_table_large_1 values(18, 18);
+SUCCESS
+insert into join_table_large_1 values(19, 19);
+SUCCESS
+insert into join_table_large_1 values(20, 20);
+SUCCESS
+insert into join_table_large_1 values(21, 21);
+SUCCESS
+insert into join_table_large_1 values(22, 22);
+SUCCESS
+insert into join_table_large_1 values(23, 23);
+SUCCESS
+insert into join_table_large_1 values(24, 24);
+SUCCESS
+insert into join_table_large_1 values(25, 25);
+SUCCESS
+insert into join_table_large_1 values(26, 26);
+SUCCESS
+insert into join_table_large_1 values(27, 27);
+SUCCESS
+insert into join_table_large_1 values(28, 28);
+SUCCESS
+insert into join_table_large_1 values(29, 29);
+SUCCESS
+insert into join_table_large_1 values(30, 30);
+SUCCESS
+insert into join_table_large_1 values(31, 31);
+SUCCESS
+insert into join_table_large_1 values(32, 32);
+SUCCESS
+insert into join_table_large_1 values(33, 33);
+SUCCESS
+insert into join_table_large_1 values(34, 34);
+SUCCESS
+insert into join_table_large_1 values(35, 35);
+SUCCESS
+insert into join_table_large_1 values(36, 36);
+SUCCESS
+insert into join_table_large_1 values(37, 37);
+SUCCESS
+insert into join_table_large_1 values(38, 38);
+SUCCESS
+insert into join_table_large_1 values(39, 39);
+SUCCESS
+insert into join_table_large_1 values(40, 40);
+SUCCESS
+insert into join_table_large_1 values(41, 41);
+SUCCESS
+insert into join_table_large_1 values(42, 42);
+SUCCESS
+insert into join_table_large_1 values(43, 43);
+SUCCESS
+insert into join_table_large_1 values(44, 44);
+SUCCESS
+insert into join_table_large_1 values(45, 45);
+SUCCESS
+insert into join_table_large_1 values(46, 46);
+SUCCESS
+insert into join_table_large_1 values(47, 47);
+SUCCESS
+insert into join_table_large_1 values(48, 48);
+SUCCESS
+insert into join_table_large_1 values(49, 49);
+SUCCESS
+insert into join_table_large_1 values(50, 50);
+SUCCESS
+insert into join_table_large_1 values(51, 51);
+SUCCESS
+insert into join_table_large_1 values(52, 52);
+SUCCESS
+insert into join_table_large_1 values(53, 53);
+SUCCESS
+insert into join_table_large_1 values(54, 54);
+SUCCESS
+insert into join_table_large_1 values(55, 55);
+SUCCESS
+insert into join_table_large_1 values(56, 56);
+SUCCESS
+insert into join_table_large_1 values(57, 57);
+SUCCESS
+insert into join_table_large_1 values(58, 58);
+SUCCESS
+insert into join_table_large_1 values(59, 59);
+SUCCESS
+insert into join_table_large_1 values(60, 60);
+SUCCESS
+insert into join_table_large_1 values(61, 61);
+SUCCESS
+insert into join_table_large_1 values(62, 62);
+SUCCESS
+insert into join_table_large_1 values(63, 63);
+SUCCESS
+insert into join_table_large_1 values(64, 64);
+SUCCESS
+insert into join_table_large_1 values(65, 65);
+SUCCESS
+insert into join_table_large_1 values(66, 66);
+SUCCESS
+insert into join_table_large_1 values(67, 67);
+SUCCESS
+insert into join_table_large_1 values(68, 68);
+SUCCESS
+insert into join_table_large_1 values(69, 69);
+SUCCESS
+insert into join_table_large_1 values(70, 70);
+SUCCESS
+insert into join_table_large_1 values(71, 71);
+SUCCESS
+insert into join_table_large_1 values(72, 72);
+SUCCESS
+insert into join_table_large_1 values(73, 73);
+SUCCESS
+insert into join_table_large_1 values(74, 74);
+SUCCESS
+insert into join_table_large_1 values(75, 75);
+SUCCESS
+insert into join_table_large_1 values(76, 76);
+SUCCESS
+insert into join_table_large_1 values(77, 77);
+SUCCESS
+insert into join_table_large_1 values(78, 78);
+SUCCESS
+insert into join_table_large_1 values(79, 79);
+SUCCESS
+insert into join_table_large_1 values(80, 80);
+SUCCESS
+insert into join_table_large_1 values(81, 81);
+SUCCESS
+insert into join_table_large_1 values(82, 82);
+SUCCESS
+insert into join_table_large_1 values(83, 83);
+SUCCESS
+insert into join_table_large_1 values(84, 84);
+SUCCESS
+insert into join_table_large_1 values(85, 85);
+SUCCESS
+insert into join_table_large_1 values(86, 86);
+SUCCESS
+insert into join_table_large_1 values(87, 87);
+SUCCESS
+insert into join_table_large_1 values(88, 88);
+SUCCESS
+insert into join_table_large_1 values(89, 89);
+SUCCESS
+insert into join_table_large_1 values(90, 90);
+SUCCESS
+insert into join_table_large_1 values(91, 91);
+SUCCESS
+insert into join_table_large_1 values(92, 92);
+SUCCESS
+insert into join_table_large_1 values(93, 93);
+SUCCESS
+insert into join_table_large_1 values(94, 94);
+SUCCESS
+insert into join_table_large_1 values(95, 95);
+SUCCESS
+insert into join_table_large_1 values(96, 96);
+SUCCESS
+insert into join_table_large_1 values(97, 97);
+SUCCESS
+insert into join_table_large_1 values(98, 98);
+SUCCESS
+insert into join_table_large_1 values(99, 99);
+SUCCESS
+insert into join_table_large_1 values(100, 100);
+SUCCESS
+
+insert into join_table_large_2 values(1, 1);
+SUCCESS
+insert into join_table_large_2 values(2, 2);
+SUCCESS
+insert into join_table_large_2 values(3, 3);
+SUCCESS
+insert into join_table_large_2 values(4, 4);
+SUCCESS
+insert into join_table_large_2 values(5, 5);
+SUCCESS
+insert into join_table_large_2 values(6, 6);
+SUCCESS
+insert into join_table_large_2 values(7, 7);
+SUCCESS
+insert into join_table_large_2 values(8, 8);
+SUCCESS
+insert into join_table_large_2 values(9, 9);
+SUCCESS
+insert into join_table_large_2 values(10, 10);
+SUCCESS
+insert into join_table_large_2 values(11, 11);
+SUCCESS
+insert into join_table_large_2 values(12, 12);
+SUCCESS
+insert into join_table_large_2 values(13, 13);
+SUCCESS
+insert into join_table_large_2 values(14, 14);
+SUCCESS
+insert into join_table_large_2 values(15, 15);
+SUCCESS
+insert into join_table_large_2 values(16, 16);
+SUCCESS
+insert into join_table_large_2 values(17, 17);
+SUCCESS
+insert into join_table_large_2 values(18, 18);
+SUCCESS
+insert into join_table_large_2 values(19, 19);
+SUCCESS
+insert into join_table_large_2 values(20, 20);
+SUCCESS
+insert into join_table_large_2 values(21, 21);
+SUCCESS
+insert into join_table_large_2 values(22, 22);
+SUCCESS
+insert into join_table_large_2 values(23, 23);
+SUCCESS
+insert into join_table_large_2 values(24, 24);
+SUCCESS
+insert into join_table_large_2 values(25, 25);
+SUCCESS
+insert into join_table_large_2 values(26, 26);
+SUCCESS
+insert into join_table_large_2 values(27, 27);
+SUCCESS
+insert into join_table_large_2 values(28, 28);
+SUCCESS
+insert into join_table_large_2 values(29, 29);
+SUCCESS
+insert into join_table_large_2 values(30, 30);
+SUCCESS
+insert into join_table_large_2 values(31, 31);
+SUCCESS
+insert into join_table_large_2 values(32, 32);
+SUCCESS
+insert into join_table_large_2 values(33, 33);
+SUCCESS
+insert into join_table_large_2 values(34, 34);
+SUCCESS
+insert into join_table_large_2 values(35, 35);
+SUCCESS
+insert into join_table_large_2 values(36, 36);
+SUCCESS
+insert into join_table_large_2 values(37, 37);
+SUCCESS
+insert into join_table_large_2 values(38, 38);
+SUCCESS
+insert into join_table_large_2 values(39, 39);
+SUCCESS
+insert into join_table_large_2 values(40, 40);
+SUCCESS
+insert into join_table_large_2 values(41, 41);
+SUCCESS
+insert into join_table_large_2 values(42, 42);
+SUCCESS
+insert into join_table_large_2 values(43, 43);
+SUCCESS
+insert into join_table_large_2 values(44, 44);
+SUCCESS
+insert into join_table_large_2 values(45, 45);
+SUCCESS
+insert into join_table_large_2 values(46, 46);
+SUCCESS
+insert into join_table_large_2 values(47, 47);
+SUCCESS
+insert into join_table_large_2 values(48, 48);
+SUCCESS
+insert into join_table_large_2 values(49, 49);
+SUCCESS
+insert into join_table_large_2 values(50, 50);
+SUCCESS
+insert into join_table_large_2 values(51, 51);
+SUCCESS
+insert into join_table_large_2 values(52, 52);
+SUCCESS
+insert into join_table_large_2 values(53, 53);
+SUCCESS
+insert into join_table_large_2 values(54, 54);
+SUCCESS
+insert into join_table_large_2 values(55, 55);
+SUCCESS
+insert into join_table_large_2 values(56, 56);
+SUCCESS
+insert into join_table_large_2 values(57, 57);
+SUCCESS
+insert into join_table_large_2 values(58, 58);
+SUCCESS
+insert into join_table_large_2 values(59, 59);
+SUCCESS
+insert into join_table_large_2 values(60, 60);
+SUCCESS
+insert into join_table_large_2 values(61, 61);
+SUCCESS
+insert into join_table_large_2 values(62, 62);
+SUCCESS
+insert into join_table_large_2 values(63, 63);
+SUCCESS
+insert into join_table_large_2 values(64, 64);
+SUCCESS
+insert into join_table_large_2 values(65, 65);
+SUCCESS
+insert into join_table_large_2 values(66, 66);
+SUCCESS
+insert into join_table_large_2 values(67, 67);
+SUCCESS
+insert into join_table_large_2 values(68, 68);
+SUCCESS
+insert into join_table_large_2 values(69, 69);
+SUCCESS
+insert into join_table_large_2 values(70, 70);
+SUCCESS
+insert into join_table_large_2 values(71, 71);
+SUCCESS
+insert into join_table_large_2 values(72, 72);
+SUCCESS
+insert into join_table_large_2 values(73, 73);
+SUCCESS
+insert into join_table_large_2 values(74, 74);
+SUCCESS
+insert into join_table_large_2 values(75, 75);
+SUCCESS
+insert into join_table_large_2 values(76, 76);
+SUCCESS
+insert into join_table_large_2 values(77, 77);
+SUCCESS
+insert into join_table_large_2 values(78, 78);
+SUCCESS
+insert into join_table_large_2 values(79, 79);
+SUCCESS
+insert into join_table_large_2 values(80, 80);
+SUCCESS
+insert into join_table_large_2 values(81, 81);
+SUCCESS
+insert into join_table_large_2 values(82, 82);
+SUCCESS
+insert into join_table_large_2 values(83, 83);
+SUCCESS
+insert into join_table_large_2 values(84, 84);
+SUCCESS
+insert into join_table_large_2 values(85, 85);
+SUCCESS
+insert into join_table_large_2 values(86, 86);
+SUCCESS
+insert into join_table_large_2 values(87, 87);
+SUCCESS
+insert into join_table_large_2 values(88, 88);
+SUCCESS
+insert into join_table_large_2 values(89, 89);
+SUCCESS
+insert into join_table_large_2 values(90, 90);
+SUCCESS
+insert into join_table_large_2 values(91, 91);
+SUCCESS
+insert into join_table_large_2 values(92, 92);
+SUCCESS
+insert into join_table_large_2 values(93, 93);
+SUCCESS
+insert into join_table_large_2 values(94, 94);
+SUCCESS
+insert into join_table_large_2 values(95, 95);
+SUCCESS
+insert into join_table_large_2 values(96, 96);
+SUCCESS
+insert into join_table_large_2 values(97, 97);
+SUCCESS
+insert into join_table_large_2 values(98, 98);
+SUCCESS
+insert into join_table_large_2 values(99, 99);
+SUCCESS
+insert into join_table_large_2 values(100, 100);
+SUCCESS
+
+insert into join_table_large_3 values(1, 1);
+SUCCESS
+insert into join_table_large_3 values(2, 2);
+SUCCESS
+insert into join_table_large_3 values(3, 3);
+SUCCESS
+insert into join_table_large_3 values(4, 4);
+SUCCESS
+insert into join_table_large_3 values(5, 5);
+SUCCESS
+insert into join_table_large_3 values(6, 6);
+SUCCESS
+insert into join_table_large_3 values(7, 7);
+SUCCESS
+insert into join_table_large_3 values(8, 8);
+SUCCESS
+insert into join_table_large_3 values(9, 9);
+SUCCESS
+insert into join_table_large_3 values(10, 10);
+SUCCESS
+insert into join_table_large_3 values(11, 11);
+SUCCESS
+insert into join_table_large_3 values(12, 12);
+SUCCESS
+insert into join_table_large_3 values(13, 13);
+SUCCESS
+insert into join_table_large_3 values(14, 14);
+SUCCESS
+insert into join_table_large_3 values(15, 15);
+SUCCESS
+insert into join_table_large_3 values(16, 16);
+SUCCESS
+insert into join_table_large_3 values(17, 17);
+SUCCESS
+insert into join_table_large_3 values(18, 18);
+SUCCESS
+insert into join_table_large_3 values(19, 19);
+SUCCESS
+insert into join_table_large_3 values(20, 20);
+SUCCESS
+insert into join_table_large_3 values(21, 21);
+SUCCESS
+insert into join_table_large_3 values(22, 22);
+SUCCESS
+insert into join_table_large_3 values(23, 23);
+SUCCESS
+insert into join_table_large_3 values(24, 24);
+SUCCESS
+insert into join_table_large_3 values(25, 25);
+SUCCESS
+insert into join_table_large_3 values(26, 26);
+SUCCESS
+insert into join_table_large_3 values(27, 27);
+SUCCESS
+insert into join_table_large_3 values(28, 28);
+SUCCESS
+insert into join_table_large_3 values(29, 29);
+SUCCESS
+insert into join_table_large_3 values(30, 30);
+SUCCESS
+insert into join_table_large_3 values(31, 31);
+SUCCESS
+insert into join_table_large_3 values(32, 32);
+SUCCESS
+insert into join_table_large_3 values(33, 33);
+SUCCESS
+insert into join_table_large_3 values(34, 34);
+SUCCESS
+insert into join_table_large_3 values(35, 35);
+SUCCESS
+insert into join_table_large_3 values(36, 36);
+SUCCESS
+insert into join_table_large_3 values(37, 37);
+SUCCESS
+insert into join_table_large_3 values(38, 38);
+SUCCESS
+insert into join_table_large_3 values(39, 39);
+SUCCESS
+insert into join_table_large_3 values(40, 40);
+SUCCESS
+insert into join_table_large_3 values(41, 41);
+SUCCESS
+insert into join_table_large_3 values(42, 42);
+SUCCESS
+insert into join_table_large_3 values(43, 43);
+SUCCESS
+insert into join_table_large_3 values(44, 44);
+SUCCESS
+insert into join_table_large_3 values(45, 45);
+SUCCESS
+insert into join_table_large_3 values(46, 46);
+SUCCESS
+insert into join_table_large_3 values(47, 47);
+SUCCESS
+insert into join_table_large_3 values(48, 48);
+SUCCESS
+insert into join_table_large_3 values(49, 49);
+SUCCESS
+insert into join_table_large_3 values(50, 50);
+SUCCESS
+insert into join_table_large_3 values(51, 51);
+SUCCESS
+insert into join_table_large_3 values(52, 52);
+SUCCESS
+insert into join_table_large_3 values(53, 53);
+SUCCESS
+insert into join_table_large_3 values(54, 54);
+SUCCESS
+insert into join_table_large_3 values(55, 55);
+SUCCESS
+insert into join_table_large_3 values(56, 56);
+SUCCESS
+insert into join_table_large_3 values(57, 57);
+SUCCESS
+insert into join_table_large_3 values(58, 58);
+SUCCESS
+insert into join_table_large_3 values(59, 59);
+SUCCESS
+insert into join_table_large_3 values(60, 60);
+SUCCESS
+insert into join_table_large_3 values(61, 61);
+SUCCESS
+insert into join_table_large_3 values(62, 62);
+SUCCESS
+insert into join_table_large_3 values(63, 63);
+SUCCESS
+insert into join_table_large_3 values(64, 64);
+SUCCESS
+insert into join_table_large_3 values(65, 65);
+SUCCESS
+insert into join_table_large_3 values(66, 66);
+SUCCESS
+insert into join_table_large_3 values(67, 67);
+SUCCESS
+insert into join_table_large_3 values(68, 68);
+SUCCESS
+insert into join_table_large_3 values(69, 69);
+SUCCESS
+insert into join_table_large_3 values(70, 70);
+SUCCESS
+insert into join_table_large_3 values(71, 71);
+SUCCESS
+insert into join_table_large_3 values(72, 72);
+SUCCESS
+insert into join_table_large_3 values(73, 73);
+SUCCESS
+insert into join_table_large_3 values(74, 74);
+SUCCESS
+insert into join_table_large_3 values(75, 75);
+SUCCESS
+insert into join_table_large_3 values(76, 76);
+SUCCESS
+insert into join_table_large_3 values(77, 77);
+SUCCESS
+insert into join_table_large_3 values(78, 78);
+SUCCESS
+insert into join_table_large_3 values(79, 79);
+SUCCESS
+insert into join_table_large_3 values(80, 80);
+SUCCESS
+insert into join_table_large_3 values(81, 81);
+SUCCESS
+insert into join_table_large_3 values(82, 82);
+SUCCESS
+insert into join_table_large_3 values(83, 83);
+SUCCESS
+insert into join_table_large_3 values(84, 84);
+SUCCESS
+insert into join_table_large_3 values(85, 85);
+SUCCESS
+insert into join_table_large_3 values(86, 86);
+SUCCESS
+insert into join_table_large_3 values(87, 87);
+SUCCESS
+insert into join_table_large_3 values(88, 88);
+SUCCESS
+insert into join_table_large_3 values(89, 89);
+SUCCESS
+insert into join_table_large_3 values(90, 90);
+SUCCESS
+insert into join_table_large_3 values(91, 91);
+SUCCESS
+insert into join_table_large_3 values(92, 92);
+SUCCESS
+insert into join_table_large_3 values(93, 93);
+SUCCESS
+insert into join_table_large_3 values(94, 94);
+SUCCESS
+insert into join_table_large_3 values(95, 95);
+SUCCESS
+insert into join_table_large_3 values(96, 96);
+SUCCESS
+insert into join_table_large_3 values(97, 97);
+SUCCESS
+insert into join_table_large_3 values(98, 98);
+SUCCESS
+insert into join_table_large_3 values(99, 99);
+SUCCESS
+insert into join_table_large_3 values(100, 100);
+SUCCESS
+
+insert into join_table_large_4 values(1, 1);
+SUCCESS
+insert into join_table_large_4 values(2, 2);
+SUCCESS
+insert into join_table_large_4 values(3, 3);
+SUCCESS
+insert into join_table_large_4 values(4, 4);
+SUCCESS
+insert into join_table_large_4 values(5, 5);
+SUCCESS
+insert into join_table_large_4 values(6, 6);
+SUCCESS
+insert into join_table_large_4 values(7, 7);
+SUCCESS
+insert into join_table_large_4 values(8, 8);
+SUCCESS
+insert into join_table_large_4 values(9, 9);
+SUCCESS
+insert into join_table_large_4 values(10, 10);
+SUCCESS
+insert into join_table_large_4 values(11, 11);
+SUCCESS
+insert into join_table_large_4 values(12, 12);
+SUCCESS
+insert into join_table_large_4 values(13, 13);
+SUCCESS
+insert into join_table_large_4 values(14, 14);
+SUCCESS
+insert into join_table_large_4 values(15, 15);
+SUCCESS
+insert into join_table_large_4 values(16, 16);
+SUCCESS
+insert into join_table_large_4 values(17, 17);
+SUCCESS
+insert into join_table_large_4 values(18, 18);
+SUCCESS
+insert into join_table_large_4 values(19, 19);
+SUCCESS
+insert into join_table_large_4 values(20, 20);
+SUCCESS
+insert into join_table_large_4 values(21, 21);
+SUCCESS
+insert into join_table_large_4 values(22, 22);
+SUCCESS
+insert into join_table_large_4 values(23, 23);
+SUCCESS
+insert into join_table_large_4 values(24, 24);
+SUCCESS
+insert into join_table_large_4 values(25, 25);
+SUCCESS
+insert into join_table_large_4 values(26, 26);
+SUCCESS
+insert into join_table_large_4 values(27, 27);
+SUCCESS
+insert into join_table_large_4 values(28, 28);
+SUCCESS
+insert into join_table_large_4 values(29, 29);
+SUCCESS
+insert into join_table_large_4 values(30, 30);
+SUCCESS
+insert into join_table_large_4 values(31, 31);
+SUCCESS
+insert into join_table_large_4 values(32, 32);
+SUCCESS
+insert into join_table_large_4 values(33, 33);
+SUCCESS
+insert into join_table_large_4 values(34, 34);
+SUCCESS
+insert into join_table_large_4 values(35, 35);
+SUCCESS
+insert into join_table_large_4 values(36, 36);
+SUCCESS
+insert into join_table_large_4 values(37, 37);
+SUCCESS
+insert into join_table_large_4 values(38, 38);
+SUCCESS
+insert into join_table_large_4 values(39, 39);
+SUCCESS
+insert into join_table_large_4 values(40, 40);
+SUCCESS
+insert into join_table_large_4 values(41, 41);
+SUCCESS
+insert into join_table_large_4 values(42, 42);
+SUCCESS
+insert into join_table_large_4 values(43, 43);
+SUCCESS
+insert into join_table_large_4 values(44, 44);
+SUCCESS
+insert into join_table_large_4 values(45, 45);
+SUCCESS
+insert into join_table_large_4 values(46, 46);
+SUCCESS
+insert into join_table_large_4 values(47, 47);
+SUCCESS
+insert into join_table_large_4 values(48, 48);
+SUCCESS
+insert into join_table_large_4 values(49, 49);
+SUCCESS
+insert into join_table_large_4 values(50, 50);
+SUCCESS
+insert into join_table_large_4 values(51, 51);
+SUCCESS
+insert into join_table_large_4 values(52, 52);
+SUCCESS
+insert into join_table_large_4 values(53, 53);
+SUCCESS
+insert into join_table_large_4 values(54, 54);
+SUCCESS
+insert into join_table_large_4 values(55, 55);
+SUCCESS
+insert into join_table_large_4 values(56, 56);
+SUCCESS
+insert into join_table_large_4 values(57, 57);
+SUCCESS
+insert into join_table_large_4 values(58, 58);
+SUCCESS
+insert into join_table_large_4 values(59, 59);
+SUCCESS
+insert into join_table_large_4 values(60, 60);
+SUCCESS
+insert into join_table_large_4 values(61, 61);
+SUCCESS
+insert into join_table_large_4 values(62, 62);
+SUCCESS
+insert into join_table_large_4 values(63, 63);
+SUCCESS
+insert into join_table_large_4 values(64, 64);
+SUCCESS
+insert into join_table_large_4 values(65, 65);
+SUCCESS
+insert into join_table_large_4 values(66, 66);
+SUCCESS
+insert into join_table_large_4 values(67, 67);
+SUCCESS
+insert into join_table_large_4 values(68, 68);
+SUCCESS
+insert into join_table_large_4 values(69, 69);
+SUCCESS
+insert into join_table_large_4 values(70, 70);
+SUCCESS
+insert into join_table_large_4 values(71, 71);
+SUCCESS
+insert into join_table_large_4 values(72, 72);
+SUCCESS
+insert into join_table_large_4 values(73, 73);
+SUCCESS
+insert into join_table_large_4 values(74, 74);
+SUCCESS
+insert into join_table_large_4 values(75, 75);
+SUCCESS
+insert into join_table_large_4 values(76, 76);
+SUCCESS
+insert into join_table_large_4 values(77, 77);
+SUCCESS
+insert into join_table_large_4 values(78, 78);
+SUCCESS
+insert into join_table_large_4 values(79, 79);
+SUCCESS
+insert into join_table_large_4 values(80, 80);
+SUCCESS
+insert into join_table_large_4 values(81, 81);
+SUCCESS
+insert into join_table_large_4 values(82, 82);
+SUCCESS
+insert into join_table_large_4 values(83, 83);
+SUCCESS
+insert into join_table_large_4 values(84, 84);
+SUCCESS
+insert into join_table_large_4 values(85, 85);
+SUCCESS
+insert into join_table_large_4 values(86, 86);
+SUCCESS
+insert into join_table_large_4 values(87, 87);
+SUCCESS
+insert into join_table_large_4 values(88, 88);
+SUCCESS
+insert into join_table_large_4 values(89, 89);
+SUCCESS
+insert into join_table_large_4 values(90, 90);
+SUCCESS
+insert into join_table_large_4 values(91, 91);
+SUCCESS
+insert into join_table_large_4 values(92, 92);
+SUCCESS
+insert into join_table_large_4 values(93, 93);
+SUCCESS
+insert into join_table_large_4 values(94, 94);
+SUCCESS
+insert into join_table_large_4 values(95, 95);
+SUCCESS
+insert into join_table_large_4 values(96, 96);
+SUCCESS
+insert into join_table_large_4 values(97, 97);
+SUCCESS
+insert into join_table_large_4 values(98, 98);
+SUCCESS
+insert into join_table_large_4 values(99, 99);
+SUCCESS
+insert into join_table_large_4 values(100, 100);
+SUCCESS
+
+insert into join_table_large_5 values(1, 1);
+SUCCESS
+insert into join_table_large_5 values(2, 2);
+SUCCESS
+insert into join_table_large_5 values(3, 3);
+SUCCESS
+insert into join_table_large_5 values(4, 4);
+SUCCESS
+insert into join_table_large_5 values(5, 5);
+SUCCESS
+insert into join_table_large_5 values(6, 6);
+SUCCESS
+insert into join_table_large_5 values(7, 7);
+SUCCESS
+insert into join_table_large_5 values(8, 8);
+SUCCESS
+insert into join_table_large_5 values(9, 9);
+SUCCESS
+insert into join_table_large_5 values(10, 10);
+SUCCESS
+insert into join_table_large_5 values(11, 11);
+SUCCESS
+insert into join_table_large_5 values(12, 12);
+SUCCESS
+insert into join_table_large_5 values(13, 13);
+SUCCESS
+insert into join_table_large_5 values(14, 14);
+SUCCESS
+insert into join_table_large_5 values(15, 15);
+SUCCESS
+insert into join_table_large_5 values(16, 16);
+SUCCESS
+insert into join_table_large_5 values(17, 17);
+SUCCESS
+insert into join_table_large_5 values(18, 18);
+SUCCESS
+insert into join_table_large_5 values(19, 19);
+SUCCESS
+insert into join_table_large_5 values(20, 20);
+SUCCESS
+insert into join_table_large_5 values(21, 21);
+SUCCESS
+insert into join_table_large_5 values(22, 22);
+SUCCESS
+insert into join_table_large_5 values(23, 23);
+SUCCESS
+insert into join_table_large_5 values(24, 24);
+SUCCESS
+insert into join_table_large_5 values(25, 25);
+SUCCESS
+insert into join_table_large_5 values(26, 26);
+SUCCESS
+insert into join_table_large_5 values(27, 27);
+SUCCESS
+insert into join_table_large_5 values(28, 28);
+SUCCESS
+insert into join_table_large_5 values(29, 29);
+SUCCESS
+insert into join_table_large_5 values(30, 30);
+SUCCESS
+insert into join_table_large_5 values(31, 31);
+SUCCESS
+insert into join_table_large_5 values(32, 32);
+SUCCESS
+insert into join_table_large_5 values(33, 33);
+SUCCESS
+insert into join_table_large_5 values(34, 34);
+SUCCESS
+insert into join_table_large_5 values(35, 35);
+SUCCESS
+insert into join_table_large_5 values(36, 36);
+SUCCESS
+insert into join_table_large_5 values(37, 37);
+SUCCESS
+insert into join_table_large_5 values(38, 38);
+SUCCESS
+insert into join_table_large_5 values(39, 39);
+SUCCESS
+insert into join_table_large_5 values(40, 40);
+SUCCESS
+insert into join_table_large_5 values(41, 41);
+SUCCESS
+insert into join_table_large_5 values(42, 42);
+SUCCESS
+insert into join_table_large_5 values(43, 43);
+SUCCESS
+insert into join_table_large_5 values(44, 44);
+SUCCESS
+insert into join_table_large_5 values(45, 45);
+SUCCESS
+insert into join_table_large_5 values(46, 46);
+SUCCESS
+insert into join_table_large_5 values(47, 47);
+SUCCESS
+insert into join_table_large_5 values(48, 48);
+SUCCESS
+insert into join_table_large_5 values(49, 49);
+SUCCESS
+insert into join_table_large_5 values(50, 50);
+SUCCESS
+insert into join_table_large_5 values(51, 51);
+SUCCESS
+insert into join_table_large_5 values(52, 52);
+SUCCESS
+insert into join_table_large_5 values(53, 53);
+SUCCESS
+insert into join_table_large_5 values(54, 54);
+SUCCESS
+insert into join_table_large_5 values(55, 55);
+SUCCESS
+insert into join_table_large_5 values(56, 56);
+SUCCESS
+insert into join_table_large_5 values(57, 57);
+SUCCESS
+insert into join_table_large_5 values(58, 58);
+SUCCESS
+insert into join_table_large_5 values(59, 59);
+SUCCESS
+insert into join_table_large_5 values(60, 60);
+SUCCESS
+insert into join_table_large_5 values(61, 61);
+SUCCESS
+insert into join_table_large_5 values(62, 62);
+SUCCESS
+insert into join_table_large_5 values(63, 63);
+SUCCESS
+insert into join_table_large_5 values(64, 64);
+SUCCESS
+insert into join_table_large_5 values(65, 65);
+SUCCESS
+insert into join_table_large_5 values(66, 66);
+SUCCESS
+insert into join_table_large_5 values(67, 67);
+SUCCESS
+insert into join_table_large_5 values(68, 68);
+SUCCESS
+insert into join_table_large_5 values(69, 69);
+SUCCESS
+insert into join_table_large_5 values(70, 70);
+SUCCESS
+insert into join_table_large_5 values(71, 71);
+SUCCESS
+insert into join_table_large_5 values(72, 72);
+SUCCESS
+insert into join_table_large_5 values(73, 73);
+SUCCESS
+insert into join_table_large_5 values(74, 74);
+SUCCESS
+insert into join_table_large_5 values(75, 75);
+SUCCESS
+insert into join_table_large_5 values(76, 76);
+SUCCESS
+insert into join_table_large_5 values(77, 77);
+SUCCESS
+insert into join_table_large_5 values(78, 78);
+SUCCESS
+insert into join_table_large_5 values(79, 79);
+SUCCESS
+insert into join_table_large_5 values(80, 80);
+SUCCESS
+insert into join_table_large_5 values(81, 81);
+SUCCESS
+insert into join_table_large_5 values(82, 82);
+SUCCESS
+insert into join_table_large_5 values(83, 83);
+SUCCESS
+insert into join_table_large_5 values(84, 84);
+SUCCESS
+insert into join_table_large_5 values(85, 85);
+SUCCESS
+insert into join_table_large_5 values(86, 86);
+SUCCESS
+insert into join_table_large_5 values(87, 87);
+SUCCESS
+insert into join_table_large_5 values(88, 88);
+SUCCESS
+insert into join_table_large_5 values(89, 89);
+SUCCESS
+insert into join_table_large_5 values(90, 90);
+SUCCESS
+insert into join_table_large_5 values(91, 91);
+SUCCESS
+insert into join_table_large_5 values(92, 92);
+SUCCESS
+insert into join_table_large_5 values(93, 93);
+SUCCESS
+insert into join_table_large_5 values(94, 94);
+SUCCESS
+insert into join_table_large_5 values(95, 95);
+SUCCESS
+insert into join_table_large_5 values(96, 96);
+SUCCESS
+insert into join_table_large_5 values(97, 97);
+SUCCESS
+insert into join_table_large_5 values(98, 98);
+SUCCESS
+insert into join_table_large_5 values(99, 99);
+SUCCESS
+insert into join_table_large_5 values(100, 100);
+SUCCESS
+
+insert into join_table_large_6 values(1, 1);
+SUCCESS
+insert into join_table_large_6 values(2, 2);
+SUCCESS
+insert into join_table_large_6 values(3, 3);
+SUCCESS
+insert into join_table_large_6 values(4, 4);
+SUCCESS
+insert into join_table_large_6 values(5, 5);
+SUCCESS
+insert into join_table_large_6 values(6, 6);
+SUCCESS
+insert into join_table_large_6 values(7, 7);
+SUCCESS
+insert into join_table_large_6 values(8, 8);
+SUCCESS
+insert into join_table_large_6 values(9, 9);
+SUCCESS
+insert into join_table_large_6 values(10, 10);
+SUCCESS
+insert into join_table_large_6 values(11, 11);
+SUCCESS
+insert into join_table_large_6 values(12, 12);
+SUCCESS
+insert into join_table_large_6 values(13, 13);
+SUCCESS
+insert into join_table_large_6 values(14, 14);
+SUCCESS
+insert into join_table_large_6 values(15, 15);
+SUCCESS
+insert into join_table_large_6 values(16, 16);
+SUCCESS
+insert into join_table_large_6 values(17, 17);
+SUCCESS
+insert into join_table_large_6 values(18, 18);
+SUCCESS
+insert into join_table_large_6 values(19, 19);
+SUCCESS
+insert into join_table_large_6 values(20, 20);
+SUCCESS
+insert into join_table_large_6 values(21, 21);
+SUCCESS
+insert into join_table_large_6 values(22, 22);
+SUCCESS
+insert into join_table_large_6 values(23, 23);
+SUCCESS
+insert into join_table_large_6 values(24, 24);
+SUCCESS
+insert into join_table_large_6 values(25, 25);
+SUCCESS
+insert into join_table_large_6 values(26, 26);
+SUCCESS
+insert into join_table_large_6 values(27, 27);
+SUCCESS
+insert into join_table_large_6 values(28, 28);
+SUCCESS
+insert into join_table_large_6 values(29, 29);
+SUCCESS
+insert into join_table_large_6 values(30, 30);
+SUCCESS
+insert into join_table_large_6 values(31, 31);
+SUCCESS
+insert into join_table_large_6 values(32, 32);
+SUCCESS
+insert into join_table_large_6 values(33, 33);
+SUCCESS
+insert into join_table_large_6 values(34, 34);
+SUCCESS
+insert into join_table_large_6 values(35, 35);
+SUCCESS
+insert into join_table_large_6 values(36, 36);
+SUCCESS
+insert into join_table_large_6 values(37, 37);
+SUCCESS
+insert into join_table_large_6 values(38, 38);
+SUCCESS
+insert into join_table_large_6 values(39, 39);
+SUCCESS
+insert into join_table_large_6 values(40, 40);
+SUCCESS
+insert into join_table_large_6 values(41, 41);
+SUCCESS
+insert into join_table_large_6 values(42, 42);
+SUCCESS
+insert into join_table_large_6 values(43, 43);
+SUCCESS
+insert into join_table_large_6 values(44, 44);
+SUCCESS
+insert into join_table_large_6 values(45, 45);
+SUCCESS
+insert into join_table_large_6 values(46, 46);
+SUCCESS
+insert into join_table_large_6 values(47, 47);
+SUCCESS
+insert into join_table_large_6 values(48, 48);
+SUCCESS
+insert into join_table_large_6 values(49, 49);
+SUCCESS
+insert into join_table_large_6 values(50, 50);
+SUCCESS
+insert into join_table_large_6 values(51, 51);
+SUCCESS
+insert into join_table_large_6 values(52, 52);
+SUCCESS
+insert into join_table_large_6 values(53, 53);
+SUCCESS
+insert into join_table_large_6 values(54, 54);
+SUCCESS
+insert into join_table_large_6 values(55, 55);
+SUCCESS
+insert into join_table_large_6 values(56, 56);
+SUCCESS
+insert into join_table_large_6 values(57, 57);
+SUCCESS
+insert into join_table_large_6 values(58, 58);
+SUCCESS
+insert into join_table_large_6 values(59, 59);
+SUCCESS
+insert into join_table_large_6 values(60, 60);
+SUCCESS
+insert into join_table_large_6 values(61, 61);
+SUCCESS
+insert into join_table_large_6 values(62, 62);
+SUCCESS
+insert into join_table_large_6 values(63, 63);
+SUCCESS
+insert into join_table_large_6 values(64, 64);
+SUCCESS
+insert into join_table_large_6 values(65, 65);
+SUCCESS
+insert into join_table_large_6 values(66, 66);
+SUCCESS
+insert into join_table_large_6 values(67, 67);
+SUCCESS
+insert into join_table_large_6 values(68, 68);
+SUCCESS
+insert into join_table_large_6 values(69, 69);
+SUCCESS
+insert into join_table_large_6 values(70, 70);
+SUCCESS
+insert into join_table_large_6 values(71, 71);
+SUCCESS
+insert into join_table_large_6 values(72, 72);
+SUCCESS
+insert into join_table_large_6 values(73, 73);
+SUCCESS
+insert into join_table_large_6 values(74, 74);
+SUCCESS
+insert into join_table_large_6 values(75, 75);
+SUCCESS
+insert into join_table_large_6 values(76, 76);
+SUCCESS
+insert into join_table_large_6 values(77, 77);
+SUCCESS
+insert into join_table_large_6 values(78, 78);
+SUCCESS
+insert into join_table_large_6 values(79, 79);
+SUCCESS
+insert into join_table_large_6 values(80, 80);
+SUCCESS
+insert into join_table_large_6 values(81, 81);
+SUCCESS
+insert into join_table_large_6 values(82, 82);
+SUCCESS
+insert into join_table_large_6 values(83, 83);
+SUCCESS
+insert into join_table_large_6 values(84, 84);
+SUCCESS
+insert into join_table_large_6 values(85, 85);
+SUCCESS
+insert into join_table_large_6 values(86, 86);
+SUCCESS
+insert into join_table_large_6 values(87, 87);
+SUCCESS
+insert into join_table_large_6 values(88, 88);
+SUCCESS
+insert into join_table_large_6 values(89, 89);
+SUCCESS
+insert into join_table_large_6 values(90, 90);
+SUCCESS
+insert into join_table_large_6 values(91, 91);
+SUCCESS
+insert into join_table_large_6 values(92, 92);
+SUCCESS
+insert into join_table_large_6 values(93, 93);
+SUCCESS
+insert into join_table_large_6 values(94, 94);
+SUCCESS
+insert into join_table_large_6 values(95, 95);
+SUCCESS
+insert into join_table_large_6 values(96, 96);
+SUCCESS
+insert into join_table_large_6 values(97, 97);
+SUCCESS
+insert into join_table_large_6 values(98, 98);
+SUCCESS
+insert into join_table_large_6 values(99, 99);
+SUCCESS
+insert into join_table_large_6 values(100, 100);
+SUCCESS
+
+select * from join_table_large_1 inner join join_table_large_2 on join_table_large_1.id=join_table_large_2.id inner join join_table_large_3 on join_table_large_1.id=join_table_large_3.id inner join join_table_large_4 on join_table_large_3.id=join_table_large_4.id inner join join_table_large_5 on 1=1 inner join join_table_large_6 on join_table_large_5.id=join_table_large_6.id where join_table_large_3.num3 <10 and join_table_large_5.num5>90;
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 100 | 100 | 100 | 100
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 91 | 91 | 91 | 91
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 92 | 92 | 92 | 92
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 93 | 93 | 93 | 93
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 94 | 94 | 94 | 94
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 95 | 95 | 95 | 95
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 96 | 96 | 96 | 96
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 97 | 97 | 97 | 97
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 98 | 98 | 98 | 98
+1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 99 | 99 | 99 | 99
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 100 | 100 | 100 | 100
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 91 | 91 | 91 | 91
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 92 | 92 | 92 | 92
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 93 | 93 | 93 | 93
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 94 | 94 | 94 | 94
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 95 | 95 | 95 | 95
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 96 | 96 | 96 | 96
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 97 | 97 | 97 | 97
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 98 | 98 | 98 | 98
+2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 99 | 99 | 99 | 99
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 100 | 100 | 100 | 100
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 91 | 91 | 91 | 91
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 92 | 92 | 92 | 92
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 93 | 93 | 93 | 93
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 94 | 94 | 94 | 94
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 95 | 95 | 95 | 95
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 96 | 96 | 96 | 96
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 97 | 97 | 97 | 97
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 98 | 98 | 98 | 98
+3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 99 | 99 | 99 | 99
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 100 | 100 | 100 | 100
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 91 | 91 | 91 | 91
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 92 | 92 | 92 | 92
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 93 | 93 | 93 | 93
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 94 | 94 | 94 | 94
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 95 | 95 | 95 | 95
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 96 | 96 | 96 | 96
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 97 | 97 | 97 | 97
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 98 | 98 | 98 | 98
+4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 99 | 99 | 99 | 99
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 100 | 100 | 100 | 100
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 91 | 91 | 91 | 91
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 92 | 92 | 92 | 92
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 93 | 93 | 93 | 93
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 94 | 94 | 94 | 94
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 95 | 95 | 95 | 95
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 96 | 96 | 96 | 96
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 97 | 97 | 97 | 97
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 98 | 98 | 98 | 98
+5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 99 | 99 | 99 | 99
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 100 | 100 | 100 | 100
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 91 | 91 | 91 | 91
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 92 | 92 | 92 | 92
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 93 | 93 | 93 | 93
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 94 | 94 | 94 | 94
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 95 | 95 | 95 | 95
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 96 | 96 | 96 | 96
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 97 | 97 | 97 | 97
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 98 | 98 | 98 | 98
+6 | 6 | 6 | 6 | 6 | 6 | 6 | 6 | 99 | 99 | 99 | 99
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 100 | 100 | 100 | 100
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 91 | 91 | 91 | 91
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 92 | 92 | 92 | 92
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 93 | 93 | 93 | 93
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 94 | 94 | 94 | 94
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 95 | 95 | 95 | 95
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 96 | 96 | 96 | 96
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 97 | 97 | 97 | 97
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 98 | 98 | 98 | 98
+7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 99 | 99 | 99 | 99
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 100 | 100 | 100 | 100
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 91 | 91 | 91 | 91
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 92 | 92 | 92 | 92
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 93 | 93 | 93 | 93
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 94 | 94 | 94 | 94
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 95 | 95 | 95 | 95
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 96 | 96 | 96 | 96
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 97 | 97 | 97 | 97
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 98 | 98 | 98 | 98
+8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 99 | 99 | 99 | 99
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 100 | 100 | 100 | 100
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 91 | 91 | 91 | 91
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 92 | 92 | 92 | 92
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 93 | 93 | 93 | 93
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 94 | 94 | 94 | 94
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 95 | 95 | 95 | 95
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 96 | 96 | 96 | 96
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 97 | 97 | 97 | 97
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 98 | 98 | 98 | 98
+9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 99 | 99 | 99 | 99
+JOIN_TABLE_LARGE_1.ID | JOIN_TABLE_LARGE_1.NUM1 | JOIN_TABLE_LARGE_2.ID | JOIN_TABLE_LARGE_2.NUM2 | JOIN_TABLE_LARGE_3.ID | JOIN_TABLE_LARGE_3.NUM3 | JOIN_TABLE_LARGE_4.ID | JOIN_TABLE_LARGE_4.NUM4 | JOIN_TABLE_LARGE_5.ID | JOIN_TABLE_LARGE_5.NUM5 | JOIN_TABLE_LARGE_6.ID | JOIN_TABLE_LARGE_6.NUM6

@@ -1,0 +1,99 @@
+INITIALIZATION
+CREATE TABLE aggregation_func(id int, num int, price float, addr char, birthday date);
+SUCCESS
+
+INSERT INTO aggregation_func VALUES (1, 18, 10.0, 'abc', '2020-01-01');
+SUCCESS
+INSERT INTO aggregation_func VALUES (2, 15, 20.0, 'abc', '2010-01-11');
+SUCCESS
+INSERT INTO aggregation_func VALUES (3, 12, 30.0, 'def', '2021-01-21');
+SUCCESS
+INSERT INTO aggregation_func VALUES (4, 15, 30.0, 'dei', '2021-01-31');
+SUCCESS
+
+1. COUNT
+SELECT count(*) FROM aggregation_func;
+COUNT(*)
+4
+
+SELECT count(num) FROM aggregation_func;
+COUNT(NUM)
+4
+
+2. MIN
+SELECT min(num) FROM aggregation_func;
+MIN(NUM)
+12
+
+SELECT min(price) FROM aggregation_func;
+MIN(PRICE)
+10
+
+SELECT min(addr) FROM aggregation_func;
+MIN(ADDR)
+ABC
+
+3. MAX
+SELECT max(num) FROM aggregation_func;
+MAX(NUM)
+18
+
+SELECT max(price) FROM aggregation_func;
+MAX(PRICE)
+30
+
+SELECT max(addr) FROM aggregation_func;
+MAX(ADDR)
+DEI
+
+4. AVG
+SELECT avg(num) FROM aggregation_func;
+AVG(NUM)
+15
+
+SELECT avg(price) FROM aggregation_func;
+AVG(PRICE)
+22.5
+
+5. ERROR WITH *
+SELECT min(*) FROM aggregation_func;
+FAILURE
+SELECT max(*) FROM aggregation_func;
+FAILURE
+SELECT avg(*) FROM aggregation_func;
+FAILURE
+
+6. ERROR WITH REDUNDANT COLUMNS
+SELECT count(*,num) FROM aggregation_func;
+FAILURE
+SELECT min(num,price) FROM aggregation_func;
+FAILURE
+SELECT max(num,price) FROM aggregation_func;
+FAILURE
+SELECT avg(num,price) FROM aggregation_func;
+FAILURE
+
+7. ERROR WITH EMPTY COLUMNS
+SELECT count() FROM aggregation_func;
+FAILURE
+SELECT min() FROM aggregation_func;
+FAILURE
+SELECT max() FROM aggregation_func;
+FAILURE
+SELECT avg() FROM aggregation_func;
+FAILURE
+
+8. ERROR WITH NON-EXISTENT COLUMNS
+SELECT count(id2) FROM aggregation_func;
+FAILURE
+SELECT min(id2) FROM aggregation_func;
+FAILURE
+SELECT max(id2) FROM aggregation_func;
+FAILURE
+SELECT avg(id2) FROM aggregation_func;
+FAILURE
+
+9. SELECT MANY AGGREGATION
+SELECT min(num),max(num),avg(num) FROM aggregation_func;
+MIN(NUM) | MAX(NUM) | AVG(NUM)
+12 | 18 | 15
