@@ -1,0 +1,34 @@
+-- echo 1. create table
+create table t_group_by (id int, score float, name char);
+create table t_group_by_2 (id int, age int);
+
+-- echo 2. insert records
+insert into t_group_by values(3, 1.0, 'a');
+insert into t_group_by values(1, 2.0, 'b');
+insert into t_group_by values(4, 3.0, 'c');
+insert into t_group_by values(3, 2.0, 'c');
+insert into t_group_by values(3, 4.0, 'c');
+insert into t_group_by values(3, 3.0, 'd');
+insert into t_group_by values(3, 2.0, 'f');
+
+insert into t_group_by_2 values(1, 10);
+insert into t_group_by_2 values(2, 20);
+insert into t_group_by_2 values(3, 10);
+insert into t_group_by_2 values(3, 20);
+insert into t_group_by_2 values(3, 40);
+insert into t_group_by_2 values(4, 20);
+
+-- echo 3. primary group by
+-- sort select id, avg(score) from t_group_by group by id;
+
+-- sort select name, min(id), max(score) from t_group_by group by name;
+
+-- sort select id, name, avg(score) from t_group_by group by id, name;
+
+-- echo 4. with where condition
+-- sort select id, avg(score) from t_group_by where id>2 group by id;
+
+-- sort select name, count(id), max(score) from t_group_by where name > 'a' and id>=0 group by name;
+
+-- echo 5. multi table
+-- sort select t_group_by.id, t_group_by.name, avg(t_group_by.score), avg(t_group_by_2.age) from t_group_by, t_group_by_2 where t_group_by.id=t_group_by_2.id group by t_group_by.id, t_group_by.name;

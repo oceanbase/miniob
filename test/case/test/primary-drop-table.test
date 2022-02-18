@@ -1,0 +1,39 @@
+-- echo 1. Drop empty table
+CREATE TABLE Drop_table_1(id int, t_name char);
+DROP TABLE Drop_table_1;
+
+-- echo 2. Drop non-empty table
+CREATE TABLE Drop_table_2(id int, t_name char);
+INSERT INTO Drop_table_2 VALUES (1,'OB');
+DROP TABLE Drop_table_2;
+
+-- echo 3. Check the accuracy of dropping table
+CREATE TABLE Drop_table_3(id int, t_name char);
+INSERT INTO Drop_table_3 VALUES (1,'OB');
+-- sort SELECT * FROM Drop_table_3;
+DROP TABLE Drop_table_3;
+INSERT INTO Drop_table_3 VALUES (1,'OB');
+SELECT * FROM Drop_table_3;
+DELETE FROM Drop_table_3 WHERE id = 3;
+CREATE TABLE Drop_table_3(id int, t_name char);
+-- sort SELECT * FROM Drop_table_3;
+
+-- echo 4. Drop non-existent table
+CREATE TABLE Drop_table_4(id int, t_name char);
+DROP TABLE Drop_table_4;
+DROP TABLE Drop_table_4;
+DROP TABLE Drop_table_4_1;
+
+-- echo 5. Create a table which has dropped
+CREATE TABLE Drop_table_5(id int, t_name char);
+DROP TABLE Drop_table_5;
+CREATE TABLE Drop_table_5(id int, t_name char);
+SELECT * FROM Drop_table_5;
+
+-- echo 6. Drop a table with index
+CREATE TABLE Drop_table_6(id int, t_name char);
+CREATE INDEX index_id on Drop_table_6(id);
+INSERT INTO Drop_table_6 VALUES (1,'OB');
+-- sort SELECT * FROM Drop_table_6;
+DROP TABLE Drop_table_6;
+SELECT * FROM Drop_table_6;

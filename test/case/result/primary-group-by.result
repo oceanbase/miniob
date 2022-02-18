@@ -1,0 +1,81 @@
+1. CREATE TABLE
+create table t_group_by (id int, score float, name char);
+SUCCESS
+create table t_group_by_2 (id int, age int);
+SUCCESS
+
+2. INSERT RECORDS
+insert into t_group_by values(3, 1.0, 'a');
+SUCCESS
+insert into t_group_by values(1, 2.0, 'b');
+SUCCESS
+insert into t_group_by values(4, 3.0, 'c');
+SUCCESS
+insert into t_group_by values(3, 2.0, 'c');
+SUCCESS
+insert into t_group_by values(3, 4.0, 'c');
+SUCCESS
+insert into t_group_by values(3, 3.0, 'd');
+SUCCESS
+insert into t_group_by values(3, 2.0, 'f');
+SUCCESS
+
+insert into t_group_by_2 values(1, 10);
+SUCCESS
+insert into t_group_by_2 values(2, 20);
+SUCCESS
+insert into t_group_by_2 values(3, 10);
+SUCCESS
+insert into t_group_by_2 values(3, 20);
+SUCCESS
+insert into t_group_by_2 values(3, 40);
+SUCCESS
+insert into t_group_by_2 values(4, 20);
+SUCCESS
+
+3. PRIMARY GROUP BY
+select id, avg(score) from t_group_by group by id;
+1 | 2
+3 | 2.4
+4 | 3
+ID | AVG(SCORE)
+
+select name, min(id), max(score) from t_group_by group by name;
+A | 3 | 1
+B | 1 | 2
+C | 3 | 4
+D | 3 | 3
+F | 3 | 2
+NAME | MIN(ID) | MAX(SCORE)
+
+select id, name, avg(score) from t_group_by group by id, name;
+1 | B | 2
+3 | A | 1
+3 | C | 3
+3 | D | 3
+3 | F | 2
+4 | C | 3
+ID | NAME | AVG(SCORE)
+
+4. WITH WHERE CONDITION
+select id, avg(score) from t_group_by where id>2 group by id;
+3 | 2.4
+4 | 3
+ID | AVG(SCORE)
+
+select name, count(id), max(score) from t_group_by where name > 'a' and id>=0 group by name;
+B | 1 | 2
+C | 3 | 4
+D | 1 | 3
+F | 1 | 2
+NAME | COUNT(ID) | MAX(SCORE)
+
+5. MULTI TABLE
+select t_group_by.id, t_group_by.name, avg(t_group_by.score), avg(t_group_by_2.age) from t_group_by, t_group_by_2 where t_group_by.id=t_group_by_2.id group by t_group_by.id, t_group_by.name;
+1 | B | 2 | 10
+3 | A | 1 | 23.33
+3 | C | 3 | 23.33
+3 | D | 3 | 23.33
+3 | F | 2 | 23.33
+4 | C | 3 | 20
+T_GROUP_BY.ID | T_GROUP_BY.NAME | AVG(T_GROUP_BY.SCORE) | AVG(T_GROUP_BY_2.AGE)

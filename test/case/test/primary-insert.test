@@ -1,0 +1,13 @@
+-- echo initialization
+CREATE TABLE insert_table(id int, t_name char, col1 int, col2 int);
+
+-- echo 1. insert
+INSERT INTO insert_table VALUES (1,'N1',1,1);
+INSERT INTO insert_table VALUES (2,'N2',1,1),(3,'N3',2,1);
+
+-- echo 2. error
+INSERT INTO insert_table VALUES (4,'N4',1,1),(1,1,1);
+INSERT INTO insert_table VALUES (4,'N4',1,1),(1,1,1,1);
+
+-- echo 3. select
+-- sort SELECT * FROM insert_table;
