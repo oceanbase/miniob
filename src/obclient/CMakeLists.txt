@@ -1,9 +1,8 @@
 ADD_EXECUTABLE(obclient)
 MESSAGE("Begin to build " obclient)
 
-INCLUDE(CheckCSourceCompiles)
+INCLUDE(CheckIncludeFiles)
 
-MESSAGE(STATUS "source dir is " ${PROJECT_SOURCE_DIR})
 #INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)
 TARGET_INCLUDE_DIRECTORIES(obclient PRIVATE . ${PROJECT_SOURCE_DIR}/../deps /usr/local/include /usr/include)
 # 父cmake 设置的include_directories 和link_directories并不传导到子cmake里面
@@ -11,14 +10,8 @@ TARGET_INCLUDE_DIRECTORIES(obclient PRIVATE . ${PROJECT_SOURCE_DIR}/../deps /usr
 
 TARGET_LINK_DIRECTORIES(obclient PRIVATE /usr/local/lib ${PROJECT_BINARY_DIR}/../../lib)
 
-CHECK_C_SOURCE_COMPILES("
-    #include <stdio.h>
-    #include <readline/readline.h>
-    int main(int argc, char **argv)
-    {
-      return 0;
-    }"
-    HAVE_READLINE_HEADER)
+# stdio.h 必须放在readline/readline.h 前面，因为readline头文件不能直接单独编译
+CHECK_INCLUDE_FILES("stdio.h;readline/readline.h" HAVE_READLINE_HEADER)
 
 FIND_LIBRARY(READLINE_LIBRARY readline)
 IF (HAVE_READLINE_HEADER AND READLINE_LIBRARY)
