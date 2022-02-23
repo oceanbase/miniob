@@ -116,36 +116,7 @@ int init_tcp_sock(const char *server_host, int server_port) {
   return sockfd;
 }
 
-// 这里的代码本来是为了处理控制台不能接收超长字符串的问题
-// 但是设置控制台模式为非 ICANON 后，不能再正常的处理 backspace
-// 所以暂时不调用这个函数
-// 需要测试超长字符串场景的同学，可以通过文本重定向的方式测试
-int set_terminal_noncanonical() {
-  int fd = STDIN_FILENO;
-  struct termios old_termios;
-  int ret = tcgetattr(fd, &old_termios);
-  if (ret < 0) {
-    printf("Failed to get tc attr. error=%s\n", strerror(errno));
-    return -1;
-  }
-
-  struct termios new_attr = old_termios;
-  new_attr.c_lflag &= ~ICANON;
-	new_attr.c_cc[VERASE] = '\b';
-  ret = tcsetattr(fd, TCSANOW, &new_attr);
-  if (ret < 0) {
-    printf("Failed to set tc attr. error=%s\n", strerror(errno));
-    return -1;
-  }
-  return 0;
-}
-
 int main(int argc, char *argv[]) {
-  int ret = 0; // set_terminal_noncanonical();
-  if (ret < 0) {
-    printf("Warning: failed to set terminal non canonical. Long command may be handled incorrect\n");
-  }
-
   const char *unix_socket_path = nullptr;
   const char *server_host = "127.0.0.1";
   int server_port = PORT_DEFAULT;
