@@ -35,6 +35,8 @@ struct IndexFileHeader {
   // int order;
   int32_t internal_max_size;
   int32_t leaf_max_size;
+  int32_t key_size;
+  int32_t value_size;
   int attr_length;
   int key_length;
   AttrType attr_type;
@@ -48,7 +50,9 @@ struct IndexFileHeader {
        << "attr_type:" << attr_type << ","
        << "root_page:" << root_page << ","
        << "internal_max_size:" << internal_max_size << ","
-       << "leaf_max_size:" << leaf_max_size << ";"
+       << "leaf_max_size:" << leaf_max_size << ","
+       << "key_size:" << key_size << ","
+       << "value_size:" << value_size << ";"
 
     return ss.str();
   }
