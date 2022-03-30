@@ -100,17 +100,16 @@ RC BplusTreeIndex::delete_entry(const char *record, const RID *rid)
   return index_handler_.delete_entry(record + field_meta_.offset(), rid);
 }
 
-IndexScanner *BplusTreeIndex::create_scanner(CompOp comp_op, const char *value)
+IndexScanner *BplusTreeIndex::create_scanner(const char *left_key, bool left_inclusive,
+					     const char *right_key, bool right_inclusive)
 {
-  BplusTreeScanner *bplus_tree_scanner = new BplusTreeScanner(index_handler_);
-  RC rc = bplus_tree_scanner->open(comp_op, value);
+  BplusTreeIndexScanner *index_scanner = new BplusTreeIndexScanner(index_handler_);
+  RC rc = index_scanner->open(left_key, left_inclusive, right_key, right_inclusive);
   if (rc != RC::SUCCESS) {
-    LOG_WARN("Failed to open index scanner. file_id:%d, rc=%d:%s", index_handler_.get_file_id(), rc, strrc(rc));
-    delete bplus_tree_scanner;
+    LOG_WARN("failed to open index scanner. rc=%d:%s", rc, strrc(rc));
+    delete index_scanner;
     return nullptr;
   }
-
-  BplusTreeIndexScanner *index_scanner = new BplusTreeIndexScanner(bplus_tree_scanner);
   return index_scanner;
 }
 
@@ -120,18 +119,22 @@ RC BplusTreeIndex::sync()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-BplusTreeIndexScanner::BplusTreeIndexScanner(BplusTreeScanner *tree_scanner) : tree_scanner_(tree_scanner)
+BplusTreeIndexScanner::BplusTreeIndexScanner(BplusTreeHandler &tree_handler) : tree_scanner_(tree_handler)
 {}
 
 BplusTreeIndexScanner::~BplusTreeIndexScanner() noexcept
 {
-  tree_scanner_->close();
-  delete tree_scanner_;
+  tree_scanner_.close();
+}
+
+RC BplusTreeIndexScanner::open(const char *left_key, bool left_inclusive, const char *right_key, bool right_inclusive)
+{
+  return tree_scanner_.open(left_key, left_inclusive, right_key, right_inclusive);
 }
 
 RC BplusTreeIndexScanner::next_entry(RID *rid)
 {
-  return tree_scanner_->next_entry(rid);
+  return tree_scanner_.next_entry(rid);
 }
 
 RC BplusTreeIndexScanner::destroy()

@@ -46,7 +46,8 @@ public:
   virtual RC insert_entry(const char *record, const RID *rid) = 0;
   virtual RC delete_entry(const char *record, const RID *rid) = 0;
 
-  virtual IndexScanner *create_scanner(CompOp comp_op, const char *value) = 0;
+  virtual IndexScanner *create_scanner(const char *left_key, bool left_inclusive,
+				       const char *right_key, bool right_inclusive) = 0;
 
   virtual RC sync() = 0;
 
@@ -63,6 +64,10 @@ public:
   IndexScanner() = default;
   virtual ~IndexScanner() = default;
 
+  /**
+   * 遍历元素数据
+   * 如果没有更多的元素，返回RECORD_EOF
+   */
   virtual RC next_entry(RID *rid) = 0;
   virtual RC destroy() = 0;
 };

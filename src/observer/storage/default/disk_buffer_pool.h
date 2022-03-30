@@ -69,6 +69,16 @@ typedef struct BPPageHandle {
   BPPageHandle() : open(false), frame(nullptr)
   {}
 
+  PageNum page_num() const {
+    return frame->page.page_num;
+  }
+  void mark_dirty() {
+    this->frame->dirty = true;
+  }
+
+  char *data() {
+    return this->frame->page.data;
+  }
   bool open;
   Frame *frame;
 } BPPageHandle;
@@ -194,6 +204,8 @@ public:
   RC get_page_count(int file_id, int *page_count);
 
   RC purge_all_pages(int file_id);
+
+  RC check_all_pages_unpinned(int file_id);
 
 protected:
   RC allocate_page(Frame **buf);

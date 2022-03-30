@@ -768,7 +768,43 @@ IndexScanner *Table::find_index_for_scan(const DefaultConditionFilter &filter)
     return nullptr;
   }
 
-  return index->create_scanner(filter.comp_op(), (const char *)value_cond_desc->value);
+  const char *left_key = nullptr;
+  const char *right_key = nullptr;
+  bool left_inclusive = false;
+  bool right_inclusive = false;
+  switch (filter.comp_op()) {
+  case EQUAL_TO: {
+    left_key = (const char *)value_cond_desc->value;
+    right_key = (const char *)value_cond_desc->value;
+    left_inclusive = true;
+    right_inclusive = true;
+  }
+    break;
+  case LESS_EQUAL: {
+    right_key = (const char *)value_cond_desc->value;
+    right_inclusive = true;
+  }
+    break;
+  case GREAT_EQUAL: {
+    left_key = (const char *)value_cond_desc->value;
+    left_inclusive = true;
+  }
+    break;
+  case LESS_THAN: {
+    right_key = (const char *)value_cond_desc->value;
+    right_inclusive = false;
+  }
+    break;
+  case GREAT_THAN: {
+    left_key = (const char *)value_cond_desc->value;
+    left_inclusive = false;
+  }
+    break;
+  default: {
+    return nullptr;
+  }
+  }
+  return index->create_scanner(left_key, left_inclusive, right_key, right_inclusive);
 }
 
 IndexScanner *Table::find_index_for_scan(const ConditionFilter *filter)
