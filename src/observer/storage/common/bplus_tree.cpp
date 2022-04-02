@@ -314,7 +314,7 @@ std::string to_string(const LeafIndexNodeHandler &handler, const KeyPrinter &pri
   ss << to_string((const IndexNodeHandler &)handler)
      << ",prev page:" << handler.prev_page()
      << ",next page:" << handler.next_page();
-  ss << ",values=[" << printer(handler.__key_at(0));
+  ss << ",values=[" << printer(handler.__key_at(0)) ;
   for (int i = 1; i < handler.size(); i++) {
     ss << "," << printer(handler.__key_at(i));
   }

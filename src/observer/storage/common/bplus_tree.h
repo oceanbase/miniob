@@ -143,11 +143,12 @@ public:
   }
 
   std::string operator() (const char *v) const {
-    std::string result = attr_printer_(v);
-    result.append(",");
+    std::stringstream ss;
+    ss << "{key:" << attr_printer_(v) << ",";
 
     const RID *rid = (const RID *)(v + attr_printer_.attr_length());
-    return result.append(rid->to_string());
+    ss << "rid:{" << rid->to_string() << "}}";
+    return ss.str();
   }
 
 private:
