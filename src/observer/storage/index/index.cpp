@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & wangyunlai.wyl on 2021/5/19.
 //
 
-#include "storage/common/index.h"
+#include "storage/index/index.h"
 
 RC Index::init(const IndexMeta &index_meta, const FieldMeta &field_meta)
 {

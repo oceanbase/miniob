@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Xie Meiyi
 // Rewritten by Longda & Wangyunlai
 //
-#include "storage/common/bplus_tree.h"
+#include "storage/index/bplus_tree.h"
 #include "storage/default/disk_buffer_pool.h"
 #include "rc.h"
 #include "common/log/log.h"

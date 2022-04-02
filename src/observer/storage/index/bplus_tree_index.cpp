@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & wangyunlai.wyl on 2021/5/19.
 //
 
-#include "storage/common/bplus_tree_index.h"
+#include "storage/index/bplus_tree_index.h"
 #include "common/log/log.h"
 
 BplusTreeIndex::~BplusTreeIndex() noexcept

@@ -15,8 +15,8 @@ See the Mulan PSL v2 for more details. */
 #ifndef __OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_
 #define __OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_
 
-#include "storage/common/index.h"
-#include "storage/common/bplus_tree.h"
+#include "storage/index/index.h"
+#include "storage/index/bplus_tree.h"
 
 class BplusTreeIndex : public Index {
 public:
