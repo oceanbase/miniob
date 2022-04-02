@@ -25,8 +25,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/record_manager.h"
 #include "storage/common/condition_filter.h"
 #include "storage/common/meta_util.h"
-#include "storage/common/index.h"
-#include "storage/common/bplus_tree_index.h"
+#include "storage/index/index.h"
+#include "storage/index/bplus_tree_index.h"
 #include "storage/trx/trx.h"
 
 Table::Table() : data_buffer_pool_(nullptr), file_id_(-1), record_handler_(nullptr)
