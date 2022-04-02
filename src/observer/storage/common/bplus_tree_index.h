@@ -30,7 +30,11 @@ public:
   RC insert_entry(const char *record, const RID *rid) override;
   RC delete_entry(const char *record, const RID *rid) override;
 
-  IndexScanner *create_scanner(CompOp comp_op, const char *value) override;
+  /**
+   * 扫描指定范围的数据
+   */
+  IndexScanner *create_scanner(const char *left_key, bool left_inclusive,
+			       const char *right_key, bool right_inclusive) override;
 
   RC sync() override;
 
@@ -41,14 +45,15 @@ private:
 
 class BplusTreeIndexScanner : public IndexScanner {
 public:
-  BplusTreeIndexScanner(BplusTreeScanner *tree_scanner);
+  BplusTreeIndexScanner(BplusTreeHandler &tree_handle);
   ~BplusTreeIndexScanner() noexcept override;
 
   RC next_entry(RID *rid) override;
   RC destroy() override;
 
+  RC open(const char *left_key, bool left_inclusive, const char *right_key, bool right_inclusive);
 private:
-  BplusTreeScanner *tree_scanner_;
+  BplusTreeScanner tree_scanner_;
 };
 
 #endif  //__OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_
