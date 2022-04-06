@@ -321,20 +321,11 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
   index_file_header.attr_type = INTS;
 
   Frame frame;
-  frame.dirty = false;
-  frame.pin_count = 0;
-  frame.acc_time = 0;
-  frame.file_desc = 0;
-  frame.page.page_num = 100;
-
-  BPPageHandle page_handle;
-  page_handle.open = true;
-  page_handle.frame = &frame;
 
   KeyComparator key_comparator;
   key_comparator.init(INTS, 4);
 
-  LeafIndexNodeHandler leaf_node(index_file_header, page_handle);
+  LeafIndexNodeHandler leaf_node(index_file_header, &frame);
   leaf_node.init_empty();
   ASSERT_EQ(0, leaf_node.size());
 
@@ -389,20 +380,11 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
   index_file_header.attr_type = INTS;
 
   Frame frame;
-  frame.dirty = false;
-  frame.pin_count = 0;
-  frame.acc_time = 0;
-  frame.file_desc = 0;
-  frame.page.page_num = 100;
-
-  BPPageHandle page_handle;
-  page_handle.open = true;
-  page_handle.frame = &frame;
 
   KeyComparator key_comparator;
   key_comparator.init(INTS, 4);
 
-  InternalIndexNodeHandler internal_node(index_file_header, page_handle);
+  InternalIndexNodeHandler internal_node(index_file_header, &frame);
   internal_node.init_empty();
   ASSERT_EQ(0, internal_node.size());
 
@@ -479,8 +461,6 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
 TEST(test_bplus_tree, test_scanner)
 {
   LoggerFactory::init_default("test.log");
-
-  DiskBufferPool::set_pool_num(POOL_NUM);
 
   const char *index_name = "scanner.btree";
   ::remove(index_name);
@@ -689,10 +669,7 @@ TEST(test_bplus_tree, test_scanner)
 
 TEST(test_bplus_tree, test_bplus_tree_insert)
 {
-
   LoggerFactory::init_default("test.log");
-  // set the disk buffer pool's number to make it is easy to test
-  DiskBufferPool::set_pool_num(POOL_NUM);
 
   ::remove(index_name);
   handler = new BplusTreeHandler();

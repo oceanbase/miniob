@@ -29,9 +29,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/bplus_tree_index.h"
 #include "storage/trx/trx.h"
 
-Table::Table() : data_buffer_pool_(nullptr), file_id_(-1), record_handler_(nullptr)
-{}
-
 Table::~Table()
 {
   if (record_handler_ != nullptr) {
@@ -39,8 +36,8 @@ Table::~Table()
     record_handler_ = nullptr;
   }
 
-  if (data_buffer_pool_ != nullptr && file_id_ >= 0) {
-    data_buffer_pool_->close_file(file_id_);
+  if (data_buffer_pool_ != nullptr) {
+    data_buffer_pool_->close_file();
     data_buffer_pool_ = nullptr;
   }
 
@@ -102,8 +99,8 @@ RC Table::create(
   fs.close();
 
   std::string data_file = table_data_file(base_dir, name);
-  data_buffer_pool_ = theGlobalDiskBufferPool();
-  rc = data_buffer_pool_->create_file(data_file.c_str());
+  BufferPoolManager &bpm = BufferPoolManager::instance();
+  rc = bpm.create_file(data_file.c_str());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create disk buffer pool of data file. file name=%s", data_file.c_str());
     return rc;
@@ -339,28 +336,24 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
 RC Table::init_record_handler(const char *base_dir)
 {
   std::string data_file = table_data_file(base_dir, table_meta_.name());
-  if (nullptr == data_buffer_pool_) {
-    data_buffer_pool_ = theGlobalDiskBufferPool();
-  }
 
-  int data_buffer_pool_file_id;
-  RC rc = data_buffer_pool_->open_file(data_file.c_str(), &data_buffer_pool_file_id);
+  RC rc = BufferPoolManager::instance().open_file(data_file.c_str(), data_buffer_pool_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to open disk buffer pool for file:%s. rc=%d:%s", data_file.c_str(), rc, strrc(rc));
     return rc;
   }
 
   record_handler_ = new RecordFileHandler();
-  rc = record_handler_->init(data_buffer_pool_, data_buffer_pool_file_id);
+  rc = record_handler_->init(data_buffer_pool_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to init record handler. rc=%d:%s", rc, strrc(rc));
-    data_buffer_pool_->close_file(data_buffer_pool_file_id);
+    data_buffer_pool_->close_file();
+    data_buffer_pool_ = nullptr;
     delete record_handler_;
     record_handler_ = nullptr;
     return rc;
   }
 
-  file_id_ = data_buffer_pool_file_id;
   return rc;
 }
 
@@ -419,9 +412,9 @@ RC Table::scan_record(
 
   RC rc = RC::SUCCESS;
   RecordFileScanner scanner;
-  rc = scanner.open_scan(*data_buffer_pool_, file_id_, filter);
+  rc = scanner.open_scan(*data_buffer_pool_, filter);
   if (rc != RC::SUCCESS) {
-    LOG_ERROR("failed to open scanner. file id=%d. rc=%d:%s", file_id_, rc, strrc(rc));
+    LOG_ERROR("failed to open scanner. rc=%d:%s", rc, strrc(rc));
     return rc;
   }
 
@@ -441,7 +434,7 @@ RC Table::scan_record(
   if (RC::RECORD_EOF == rc) {
     rc = RC::SUCCESS;
   } else {
-    LOG_ERROR("failed to scan record. file id=%d, rc=%d:%s", file_id_, rc, strrc(rc));
+    LOG_ERROR("failed to scan record. rc=%d:%s", rc, strrc(rc));
   }
   scanner.close_scan();
   return rc;
@@ -834,7 +827,7 @@ IndexScanner *Table::find_index_for_scan(const ConditionFilter *filter)
 
 RC Table::sync()
 {
-  RC rc = data_buffer_pool_->purge_all_pages(file_id_);
+  RC rc = data_buffer_pool_->purge_all_pages();
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to flush table's data pages. table=%s, rc=%d:%s", name(), rc, strrc(rc));
     return rc;

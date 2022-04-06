@@ -159,6 +159,7 @@ public:
   RC sync();
 
 public:
+  static void set_default(DefaultHandler *handler);
   static DefaultHandler &get_default();
 
 private:

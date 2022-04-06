@@ -79,10 +79,8 @@ RC BplusTreeIndex::open(const char *file_name, const IndexMeta &index_meta, cons
 RC BplusTreeIndex::close()
 {
   if (inited_) {
-    LOG_INFO("Begin to close index, file_id:%d, index:%s, field:%s",
-        index_handler_.get_file_id(),
-        index_meta_.name(),
-        index_meta_.field());
+    LOG_INFO("Begin to close index, index:%s, field:%s",
+        index_meta_.name(), index_meta_.field());
     index_handler_.close();
     inited_ = false;
   }
