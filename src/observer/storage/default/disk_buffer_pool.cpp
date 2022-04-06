@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/13.
+// Created by Meiyi & Longda on 2021/4/13.
 //
 #include "disk_buffer_pool.h"
 #include <errno.h>
@@ -478,7 +478,7 @@ RC DiskBufferPool::purge_page(int file_id, PageNum page_num)
 RC DiskBufferPool::purge_page(Frame *buf)
 {
   if (buf->pin_count > 0) {
-    LOG_INFO("Begin to free page %d of %d, but it's pinned, pin_count:%d.",
+    LOG_INFO("Begin to free page %d of %d(file id), but it's pinned, pin_count:%d.",
         buf->page.page_num,
         buf->file_desc,
         buf->pin_count);
@@ -488,12 +488,12 @@ RC DiskBufferPool::purge_page(Frame *buf)
   if (buf->dirty) {
     RC rc = flush_page(buf);
     if (rc != RC::SUCCESS) {
-      LOG_WARN("Failed to flush page %d of %d during purge page.", buf->page.page_num, buf->file_desc);
+      LOG_WARN("Failed to flush page %d of %d(file desc) during purge page.", buf->page.page_num, buf->file_desc);
       return rc;
     }
   }
 
-  LOG_DEBUG("Successfully purge frame =%p, page %d of %d", buf, buf->page.page_num, buf->file_desc);
+  LOG_DEBUG("Successfully purge frame =%p, page %d of %d(file desc)", buf, buf->page.page_num, buf->file_desc);
   bp_manager_.free(buf);
   return RC::SUCCESS;
 }
@@ -533,7 +533,8 @@ RC DiskBufferPool::purge_all_pages(BPFileHandle *file_handle)
   for (std::list<Frame *>::iterator it = used.begin(); it != used.end(); ++it) {
     Frame *frame = *it;
     if (frame->pin_count > 0) {
-      LOG_WARN("The page has been pinned, file_id:%d, pagenum:%d", frame->file_desc, frame->page.page_num);
+      LOG_WARN("The page has been pinned, file_desc:%d, pagenum:%d, pin_count=%d",
+	       frame->file_desc, frame->page.page_num, frame->pin_count);
       continue;
     }
     if (frame->dirty) {
@@ -545,6 +546,29 @@ RC DiskBufferPool::purge_all_pages(BPFileHandle *file_handle)
     }
     bp_manager_.free(frame);
   }
+  return RC::SUCCESS;
+}
+
+RC DiskBufferPool::check_all_pages_unpinned(int file_id)
+{
+  RC rc = check_file_id(file_id);
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to flush pages due to invalid file_id %d", file_id);
+    return rc;
+  }
+
+  BPFileHandle *file_handle = open_list_[file_id];
+  std::list<Frame *> frames = bp_manager_.find_list(file_handle->file_desc);
+  for (auto & frame : frames) {
+    if (frame->page.page_num == 0 && frame->pin_count > 1) {
+      LOG_WARN("This page has been pinned. file id=%d, page num:%d, pin count=%d",
+	       file_id, frame->page.page_num, frame->pin_count);
+    } else if (frame->page.page_num != 0 && frame->pin_count > 0) {
+      LOG_WARN("This page has been pinned. file id=%d, page num:%d, pin count=%d",
+	       file_id, frame->page.page_num, frame->pin_count);
+    }
+  }
+  LOG_INFO("all pages have been checked of file id %d", file_id);
   return RC::SUCCESS;
 }
 

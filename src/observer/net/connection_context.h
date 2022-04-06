@@ -29,4 +29,4 @@ typedef struct _ConnectionContext {
   char buf[SOCKET_BUFFER_SIZE];
 } ConnectionContext;
 
-#endif //__SRC_OBSERVER_NET_CONNECTION_CONTEXT_H__
+#endif  //__SRC_OBSERVER_NET_CONNECTION_CONTEXT_H__

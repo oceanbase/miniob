@@ -19,15 +19,18 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-Md5Test::Md5Test() {
+Md5Test::Md5Test()
+{
   // Auto-generated constructor stub
 }
 
-Md5Test::~Md5Test() {
+Md5Test::~Md5Test()
+{
   // Auto-generated destructor stub
 }
 
-void Md5Test::string() {
+void Md5Test::string()
+{
   char buf[512] = "/home/fastdfs/longda";
   unsigned char digest[16] = {0};
   MD5String(buf, digest);
@@ -36,7 +39,8 @@ void Md5Test::string() {
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   Md5Test test;
   test.string();
 

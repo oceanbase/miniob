@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2021/5/13.
+// Created by Meiyi & Wangyunlai on 2021/5/13.
 //
 
 #include <limits.h>
@@ -25,8 +25,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/record_manager.h"
 #include "storage/common/condition_filter.h"
 #include "storage/common/meta_util.h"
-#include "storage/common/index.h"
-#include "storage/common/bplus_tree_index.h"
+#include "storage/index/index.h"
+#include "storage/index/bplus_tree_index.h"
 #include "storage/trx/trx.h"
 
 Table::Table() : data_buffer_pool_(nullptr), file_id_(-1), record_handler_(nullptr)
@@ -768,7 +768,43 @@ IndexScanner *Table::find_index_for_scan(const DefaultConditionFilter &filter)
     return nullptr;
   }
 
-  return index->create_scanner(filter.comp_op(), (const char *)value_cond_desc->value);
+  const char *left_key = nullptr;
+  const char *right_key = nullptr;
+  bool left_inclusive = false;
+  bool right_inclusive = false;
+  switch (filter.comp_op()) {
+  case EQUAL_TO: {
+    left_key = (const char *)value_cond_desc->value;
+    right_key = (const char *)value_cond_desc->value;
+    left_inclusive = true;
+    right_inclusive = true;
+  }
+    break;
+  case LESS_EQUAL: {
+    right_key = (const char *)value_cond_desc->value;
+    right_inclusive = true;
+  }
+    break;
+  case GREAT_EQUAL: {
+    left_key = (const char *)value_cond_desc->value;
+    left_inclusive = true;
+  }
+    break;
+  case LESS_THAN: {
+    right_key = (const char *)value_cond_desc->value;
+    right_inclusive = false;
+  }
+    break;
+  case GREAT_THAN: {
+    left_key = (const char *)value_cond_desc->value;
+    left_inclusive = false;
+  }
+    break;
+  default: {
+    return nullptr;
+  }
+  }
+  return index->create_scanner(left_key, left_inclusive, right_key, right_inclusive);
 }
 
 IndexScanner *Table::find_index_for_scan(const ConditionFilter *filter)

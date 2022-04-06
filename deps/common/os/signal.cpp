@@ -17,29 +17,31 @@ See the Mulan PSL v2 for more details. */
 #include "pthread.h"
 namespace common {
 
-void setSignalHandler(int sig, sighandler_t func) {
+void setSignalHandler(int sig, sighandler_t func)
+{
   struct sigaction newsa, oldsa;
   sigemptyset(&newsa.sa_mask);
   newsa.sa_flags = 0;
   newsa.sa_handler = func;
   int rc = sigaction(sig, &newsa, &oldsa);
   if (rc) {
-    std::cerr << "Failed to set signal " << sig << SYS_OUTPUT_FILE_POS
-              << SYS_OUTPUT_ERROR << std::endl;
+    std::cerr << "Failed to set signal " << sig << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
   }
 }
 
 /*
 ** Set Singal handling Fucntion
 */
-void setSignalHandler(sighandler_t func) {
+void setSignalHandler(sighandler_t func)
+{
   setSignalHandler(SIGQUIT, func);
   setSignalHandler(SIGINT, func);
   setSignalHandler(SIGHUP, func);
   setSignalHandler(SIGTERM, func);
 }
 
-void blockDefaultSignals(sigset_t *signal_set, sigset_t *old_set) {
+void blockDefaultSignals(sigset_t *signal_set, sigset_t *old_set)
+{
   sigemptyset(signal_set);
 #ifndef DEBUG
   // SIGINT will effect our gdb debugging
@@ -50,7 +52,8 @@ void blockDefaultSignals(sigset_t *signal_set, sigset_t *old_set) {
   pthread_sigmask(SIG_BLOCK, signal_set, old_set);
 }
 
-void unBlockDefaultSignals(sigset_t *signal_set, sigset_t *old_set) {
+void unBlockDefaultSignals(sigset_t *signal_set, sigset_t *old_set)
+{
   sigemptyset(signal_set);
 #ifndef DEBUG
   sigaddset(signal_set, SIGINT);
@@ -60,7 +63,8 @@ void unBlockDefaultSignals(sigset_t *signal_set, sigset_t *old_set) {
   pthread_sigmask(SIG_UNBLOCK, signal_set, old_set);
 }
 
-void *waitForSignals(void *args) {
+void *waitForSignals(void *args)
+{
   LOG_INFO("Start thread to wait signals.");
   sigset_t *signal_set = (sigset_t *)args;
   int sig_number = -1;
@@ -68,7 +72,7 @@ void *waitForSignals(void *args) {
     errno = 0;
     int ret = sigwait(signal_set, &sig_number);
     LOG_INFO("sigwait return value: %d, %d \n", ret, sig_number);
-    if (ret != 0)  {
+    if (ret != 0) {
       char errstr[256];
       strerror_r(errno, errstr, sizeof(errstr));
       LOG_ERROR("error (%d) %s\n", errno, errstr);
@@ -77,7 +81,8 @@ void *waitForSignals(void *args) {
   return NULL;
 }
 
-void startWaitForSignals(sigset_t *signal_set) {
+void startWaitForSignals(sigset_t *signal_set)
+{
   pthread_t pThread;
   pthread_attr_t pThreadAttrs;
 
@@ -86,6 +91,5 @@ void startWaitForSignals(sigset_t *signal_set) {
   pthread_attr_setdetachstate(&pThreadAttrs, PTHREAD_CREATE_DETACHED);
 
   pthread_create(&pThread, &pThreadAttrs, waitForSignals, (void *)signal_set);
-
 }
-} // namespace common
+}  // namespace common

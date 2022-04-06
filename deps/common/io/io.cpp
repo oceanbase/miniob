@@ -27,13 +27,11 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-
-int readFromFile(const std::string &fileName, char *&outputData,
-                 size_t &fileSize) {
+int readFromFile(const std::string &fileName, char *&outputData, size_t &fileSize)
+{
   FILE *file = fopen(fileName.c_str(), "rb");
   if (file == NULL) {
-    std::cerr << "Failed to open file " << fileName << SYS_OUTPUT_FILE_POS
-              << SYS_OUTPUT_ERROR << std::endl;
+    std::cerr << "Failed to open file " << fileName << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
     return -1;
   }
 
@@ -50,8 +48,7 @@ int readFromFile(const std::string &fileName, char *&outputData,
     memset(buffer, 0, sizeof(buffer));
     oneRead = fread(buffer, 1, sizeof(buffer), file);
     if (ferror(file)) {
-      std::cerr << "Failed to read data" << fileName << SYS_OUTPUT_FILE_POS
-                << SYS_OUTPUT_ERROR << std::endl;
+      std::cerr << "Failed to read data" << fileName << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
       fclose(file);
       if (data != NULL) {
         lfree(data);
@@ -62,8 +59,7 @@ int readFromFile(const std::string &fileName, char *&outputData,
 
     data = (char *)lrealloc(data, readSize + oneRead);
     if (data == NULL) {
-      std::cerr << "Failed to alloc memory for " << fileName
-                << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
+      std::cerr << "Failed to alloc memory for " << fileName << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
       lfree(data);
       fclose(file);
       return -1;
@@ -81,12 +77,11 @@ int readFromFile(const std::string &fileName, char *&outputData,
   return 0;
 }
 
-int writeToFile(const std::string &fileName, const char *data, u32_t dataSize,
-                const char *openMode) {
+int writeToFile(const std::string &fileName, const char *data, u32_t dataSize, const char *openMode)
+{
   FILE *file = fopen(fileName.c_str(), openMode);
   if (file == NULL) {
-    std::cerr << "Failed to open file " << fileName << SYS_OUTPUT_FILE_POS
-              << SYS_OUTPUT_ERROR << std::endl;
+    std::cerr << "Failed to open file " << fileName << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
     return -1;
   }
 
@@ -95,8 +90,7 @@ int writeToFile(const std::string &fileName, const char *data, u32_t dataSize,
   while (leftSize > 0) {
     int writeCount = fwrite(buffer, 1, leftSize, file);
     if (writeCount <= 0) {
-      std::cerr << "Failed to open file " << fileName << SYS_OUTPUT_FILE_POS
-                << SYS_OUTPUT_ERROR << std::endl;
+      std::cerr << "Failed to open file " << fileName << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
       fclose(file);
       return -1;
     } else {
@@ -110,7 +104,8 @@ int writeToFile(const std::string &fileName, const char *data, u32_t dataSize,
   return 0;
 }
 
-int getFileLines(const std::string &fileName, u64_t &lineNum) {
+int getFileLines(const std::string &fileName, u64_t &lineNum)
+{
   lineNum = 0;
 
   char line[4 * ONE_KILO] = {0};
@@ -133,14 +128,13 @@ int getFileLines(const std::string &fileName, u64_t &lineNum) {
   return 0;
 }
 
-int getFileNum(u64_t &fileNum, const std::string &path,
-               const std::string &pattern, bool recursive) {
+int getFileNum(u64_t &fileNum, const std::string &path, const std::string &pattern, bool recursive)
+{
   try {
     DIR *dirp = NULL;
     dirp = opendir(path.c_str());
     if (dirp == NULL) {
-      std::cerr << "Failed to opendir " << path << SYS_OUTPUT_FILE_POS
-                << SYS_OUTPUT_ERROR << std::endl;
+      std::cerr << "Failed to opendir " << path << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
       return -1;
     }
 
@@ -160,8 +154,7 @@ int getFileNum(u64_t &fileNum, const std::string &path,
       fullPath += entry->d_name;
       memset(&fs, 0, sizeof(fs));
       if (stat(fullPath.c_str(), &fs) < 0) {
-        std::cout << "Failed to stat " << fullPath << SYS_OUTPUT_FILE_POS
-                  << SYS_OUTPUT_ERROR << std::endl;
+        std::cout << "Failed to stat " << fullPath << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
         continue;
       }
 
@@ -181,8 +174,7 @@ int getFileNum(u64_t &fileNum, const std::string &path,
         continue;
       }
 
-      if (pattern.empty() == false &&
-          regex_match(entry->d_name, pattern.c_str())) {
+      if (pattern.empty() == false && regex_match(entry->d_name, pattern.c_str())) {
         // Don't match
         continue;
       }
@@ -194,20 +186,18 @@ int getFileNum(u64_t &fileNum, const std::string &path,
 
     return 0;
   } catch (...) {
-    std::cerr << "Failed to get file num " << path << SYS_OUTPUT_FILE_POS
-              << SYS_OUTPUT_ERROR << std::endl;
+    std::cerr << "Failed to get file num " << path << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
   }
   return -1;
 }
 
-int getFileList(std::vector<std::string> &fileList, const std::string &path,
-                const std::string &pattern, bool recursive) {
+int getFileList(std::vector<std::string> &fileList, const std::string &path, const std::string &pattern, bool recursive)
+{
   try {
     DIR *dirp = NULL;
     dirp = opendir(path.c_str());
     if (dirp == NULL) {
-      std::cerr << "Failed to opendir " << path << SYS_OUTPUT_FILE_POS
-                << SYS_OUTPUT_ERROR << std::endl;
+      std::cerr << "Failed to opendir " << path << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
       return -1;
     }
 
@@ -227,8 +217,7 @@ int getFileList(std::vector<std::string> &fileList, const std::string &path,
       fullPath += entry->d_name;
       memset(&fs, 0, sizeof(fs));
       if (stat(fullPath.c_str(), &fs) < 0) {
-        std::cout << "Failed to stat " << fullPath << SYS_OUTPUT_FILE_POS
-                  << SYS_OUTPUT_ERROR << std::endl;
+        std::cout << "Failed to stat " << fullPath << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
         continue;
       }
 
@@ -248,8 +237,7 @@ int getFileList(std::vector<std::string> &fileList, const std::string &path,
         continue;
       }
 
-      if (pattern.empty() == false &&
-          regex_match(entry->d_name, pattern.c_str())) {
+      if (pattern.empty() == false && regex_match(entry->d_name, pattern.c_str())) {
         // Don't match
         continue;
       }
@@ -260,20 +248,18 @@ int getFileList(std::vector<std::string> &fileList, const std::string &path,
     closedir(dirp);
     return 0;
   } catch (...) {
-    std::cerr << "Failed to get file list " << path << SYS_OUTPUT_FILE_POS
-              << SYS_OUTPUT_ERROR << std::endl;
+    std::cerr << "Failed to get file list " << path << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
   }
   return -1;
 }
 
-int getDirList(std::vector<std::string> &dirList, const std::string &path,
-               const std::string &pattern) {
+int getDirList(std::vector<std::string> &dirList, const std::string &path, const std::string &pattern)
+{
   try {
     DIR *dirp = NULL;
     dirp = opendir(path.c_str());
     if (dirp == NULL) {
-      std::cerr << "Failed to opendir " << path << SYS_OUTPUT_FILE_POS
-                << SYS_OUTPUT_ERROR << std::endl;
+      std::cerr << "Failed to opendir " << path << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
       return -1;
     }
 
@@ -293,8 +279,7 @@ int getDirList(std::vector<std::string> &dirList, const std::string &path,
       fullPath += entry->d_name;
       memset(&fs, 0, sizeof(fs));
       if (stat(fullPath.c_str(), &fs) < 0) {
-        std::cout << "Failed to stat " << fullPath << SYS_OUTPUT_FILE_POS
-                  << SYS_OUTPUT_ERROR << std::endl;
+        std::cout << "Failed to stat " << fullPath << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
         continue;
       }
 
@@ -302,8 +287,7 @@ int getDirList(std::vector<std::string> &dirList, const std::string &path,
         continue;
       }
 
-      if (pattern.empty() == false &&
-          regex_match(entry->d_name, pattern.c_str())) {
+      if (pattern.empty() == false && regex_match(entry->d_name, pattern.c_str())) {
         // Don't match
         continue;
       }
@@ -314,15 +298,15 @@ int getDirList(std::vector<std::string> &dirList, const std::string &path,
     closedir(dirp);
     return 0;
   } catch (...) {
-    std::cerr << "Failed to get file list " << path << SYS_OUTPUT_FILE_POS
-              << SYS_OUTPUT_ERROR << std::endl;
+    std::cerr << "Failed to get file list " << path << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
   }
   return -1;
 }
 
-int touch(const std::string &path) {
-  // CWE367: A check occurs on a file's attributes before 
-  // the file is used in a privileged operation, but things 
+int touch(const std::string &path)
+{
+  // CWE367: A check occurs on a file's attributes before
+  // the file is used in a privileged operation, but things
   // may have changed
 
   // struct stat fs;
@@ -341,7 +325,8 @@ int touch(const std::string &path) {
   return 0;
 }
 
-int getFileSize(const char *filePath, u64_t &fileLen) {
+int getFileSize(const char *filePath, u64_t &fileLen)
+{
   if (filePath == NULL || *filePath == '\0') {
     std::cerr << "invalid filepath" << std::endl;
     return -EINVAL;
@@ -351,8 +336,7 @@ int getFileSize(const char *filePath, u64_t &fileLen) {
 
   int rc = stat(filePath, &statBuf);
   if (rc) {
-    std::cerr << "Failed to get stat of " << filePath << "," << errno << ":"
-              << strerror(errno) << std::endl;
+    std::cerr << "Failed to get stat of " << filePath << "," << errno << ":" << strerror(errno) << std::endl;
     return rc;
   }
 
@@ -365,4 +349,4 @@ int getFileSize(const char *filePath, u64_t &fileLen) {
   return 0;
 }
 
-} //namespace common
+}  // namespace common

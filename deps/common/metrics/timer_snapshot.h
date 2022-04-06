@@ -27,8 +27,9 @@ public:
   void set_tps(double tps);
 
   std::string to_string();
+
 protected:
   double tps = 1.0;
 };
-}//namespace common
-#endif //__COMMON_METRICS_TIMER_SNAPSHOT_H__
+}  // namespace common
+#endif  //__COMMON_METRICS_TIMER_SNAPSHOT_H__

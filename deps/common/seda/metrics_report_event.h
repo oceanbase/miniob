@@ -28,5 +28,5 @@ public:
 
   };
 };
-} //namespace common
-#endif //__COMMON_SEDA_METRICS_REPORT_EVENT_H__
+}  // namespace common
+#endif  //__COMMON_SEDA_METRICS_REPORT_EVENT_H__

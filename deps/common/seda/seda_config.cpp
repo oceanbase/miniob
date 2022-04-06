@@ -28,9 +28,8 @@ namespace common {
 
 SedaConfig *SedaConfig::instance_ = NULL;
 
-
-
-SedaConfig *&SedaConfig::get_instance() {
+SedaConfig *&SedaConfig::get_instance()
+{
   if (instance_ == NULL) {
     instance_ = new SedaConfig();
     ASSERT((instance_ != NULL), "failed to allocate SedaConfig");
@@ -39,12 +38,14 @@ SedaConfig *&SedaConfig::get_instance() {
 }
 
 // Constructor
-SedaConfig::SedaConfig() : cfg_file_(), cfg_str_(), thread_pools_(), stages_() {
+SedaConfig::SedaConfig() : cfg_file_(), cfg_str_(), thread_pools_(), stages_()
+{
   return;
 }
 
 // Destructor
-SedaConfig::~SedaConfig() {
+SedaConfig::~SedaConfig()
+{
   ASSERT(instance_, "Instance should not be null");
   // check to see if clean-up is necessary
   if ((!thread_pools_.empty()) || (!stages_.empty())) {
@@ -55,7 +56,8 @@ SedaConfig::~SedaConfig() {
 }
 
 // Set the file holding the configuration
-void SedaConfig::set_cfg_filename(const char *filename) {
+void SedaConfig::set_cfg_filename(const char *filename)
+{
   cfg_str_.clear();
   cfg_file_.clear();
   if (filename != NULL) {
@@ -65,7 +67,8 @@ void SedaConfig::set_cfg_filename(const char *filename) {
 }
 
 // Set the string holding the configuration
-void SedaConfig::set_cfg_string(const char *config_str) {
+void SedaConfig::set_cfg_string(const char *config_str)
+{
   cfg_str_.clear();
   cfg_file_.clear();
   if (config_str != NULL) {
@@ -75,7 +78,8 @@ void SedaConfig::set_cfg_string(const char *config_str) {
 }
 
 // Parse config file or string
-SedaConfig::status_t SedaConfig::parse() {
+SedaConfig::status_t SedaConfig::parse()
+{
   // first parse the config
   try {
     // skip parse in this implementation
@@ -91,7 +95,8 @@ SedaConfig::status_t SedaConfig::parse() {
 }
 
 // instantiate the parsed SEDA configuration
-SedaConfig::status_t SedaConfig::instantiate_cfg() {
+SedaConfig::status_t SedaConfig::instantiate_cfg()
+{
   status_t stat = SUCCESS;
 
   // instantiate the configuration
@@ -101,7 +106,8 @@ SedaConfig::status_t SedaConfig::instantiate_cfg() {
 }
 
 // start the configuration - puts the stages_ into action
-SedaConfig::status_t SedaConfig::start() {
+SedaConfig::status_t SedaConfig::start()
+{
   status_t stat = SUCCESS;
 
   ASSERT(thread_pools_.size(), "Configuration not yet instantiated");
@@ -127,7 +133,8 @@ SedaConfig::status_t SedaConfig::start() {
 }
 
 // Initialize the thread_pools_ and stages_
-SedaConfig::status_t SedaConfig::init() {
+SedaConfig::status_t SedaConfig::init()
+{
   status_t stat = SUCCESS;
 
   // check the preconditions
@@ -150,7 +157,8 @@ SedaConfig::status_t SedaConfig::init() {
 }
 
 // Clean-up the threadpool and stages_
-void SedaConfig::cleanup() {
+void SedaConfig::cleanup()
+{
   // first disconnect all stages_
   if (stages_.empty() == false) {
     std::map<std::string, Stage *>::iterator iter = stages_.begin();
@@ -171,9 +179,9 @@ void SedaConfig::cleanup() {
   clear_config();
 }
 
-void SedaConfig::init_event_history() {
-  std::map<std::string, std::string> base_section =
-    get_properties()->get(SEDA_BASE_NAME);
+void SedaConfig::init_event_history()
+{
+  std::map<std::string, std::string> base_section = get_properties()->get(SEDA_BASE_NAME);
   std::map<std::string, std::string>::iterator it;
   std::string key;
 
@@ -198,16 +206,15 @@ void SedaConfig::init_event_history() {
   }
   get_max_event_hops() = max_event_hops;
 
-  LOG_INFO("Successfully init_event_history, EventHistory:%d, MaxEventHops:%u",
-           (int) ev_hist, max_event_hops);
+  LOG_INFO("Successfully init_event_history, EventHistory:%d, MaxEventHops:%u", (int)ev_hist, max_event_hops);
   return;
 }
 
-SedaConfig::status_t SedaConfig::init_thread_pool() {
+SedaConfig::status_t SedaConfig::init_thread_pool()
+{
   try {
 
-    std::map<std::string, std::string> base_section =
-      get_properties()->get(SEDA_BASE_NAME);
+    std::map<std::string, std::string> base_section = get_properties()->get(SEDA_BASE_NAME);
     std::map<std::string, std::string>::iterator it;
     std::string key;
 
@@ -239,8 +246,7 @@ SedaConfig::status_t SedaConfig::init_thread_pool() {
       int thread_count = 1;
       str_to_val(count_str, thread_count);
       if (thread_count < 1) {
-        LOG_INFO("Thread number of  %s is %d, it is same as cpu's cores.",
-                  thread_name.c_str(), cpu_num);
+        LOG_INFO("Thread number of  %s is %d, it is same as cpu's cores.", thread_name.c_str(), cpu_num);
         thread_count = cpu_num;
       }
       const int max_thread_count = 1000000;
@@ -249,7 +255,7 @@ SedaConfig::status_t SedaConfig::init_thread_pool() {
         return INITFAIL;
       }
 
-      Threadpool * thread_pool = new Threadpool(thread_count, thread_name);
+      Threadpool *thread_pool = new Threadpool(thread_count, thread_name);
       if (thread_pool == NULL) {
         LOG_ERROR("Failed to new %s threadpool\n", thread_name.c_str());
         return INITFAIL;
@@ -257,9 +263,8 @@ SedaConfig::status_t SedaConfig::init_thread_pool() {
       thread_pools_[thread_name] = thread_pool;
     }
 
-    if  (thread_pools_.find(DEFAULT_THREAD_POOL) == thread_pools_.end()) {
-      LOG_ERROR("There is no default thread pool %s, please add it.",
-                DEFAULT_THREAD_POOL);
+    if (thread_pools_.find(DEFAULT_THREAD_POOL) == thread_pools_.end()) {
+      LOG_ERROR("There is no default thread pool %s, please add it.", DEFAULT_THREAD_POOL);
       return INITFAIL;
     }
 
@@ -279,39 +284,42 @@ SedaConfig::status_t SedaConfig::init_thread_pool() {
   return SUCCESS;
 }
 
-std::string SedaConfig::get_thread_pool(std::string &stage_name) {
+std::string SedaConfig::get_thread_pool(std::string &stage_name)
+{
   std::string ret = DEFAULT_THREAD_POOL;
   // Get thread pool
-  std::map<std::string, std::string> stage_section =
-      get_properties()->get(stage_name);
+  std::map<std::string, std::string> stage_section = get_properties()->get(stage_name);
   std::map<std::string, std::string>::iterator itt;
   std::string thread_pool_id = THREAD_POOL_ID;
   itt = stage_section.find(thread_pool_id);
   if (itt == stage_section.end()) {
-    LOG_INFO("Not set thread_pool_id for %s, use default threadpool %s",
-             stage_name.c_str(), DEFAULT_THREAD_POOL);
+    LOG_INFO("Not set thread_pool_id for %s, use default threadpool %s", stage_name.c_str(), DEFAULT_THREAD_POOL);
     return ret;
   }
 
   std::string thread_name = itt->second;
   if (thread_name.empty()) {
     LOG_ERROR("Failed to set %s of the %s, use the default threadpool %s",
-              thread_pool_id.c_str(), stage_name.c_str(), DEFAULT_THREAD_POOL);
+        thread_pool_id.c_str(),
+        stage_name.c_str(),
+        DEFAULT_THREAD_POOL);
     return ret;
   }
 
   if (thread_pools_.find(thread_name) == thread_pools_.end()) {
     LOG_ERROR("The stage %s's threadpool %s is invalid, use the default "
               "threadpool %s",
-              stage_name.c_str(), thread_name.c_str(), DEFAULT_THREAD_POOL);
+        stage_name.c_str(),
+        thread_name.c_str(),
+        DEFAULT_THREAD_POOL);
   }
   return ret;
 }
 
-SedaConfig::status_t SedaConfig::init_stages() {
+SedaConfig::status_t SedaConfig::init_stages()
+{
   try {
-    std::map<std::string, std::string> base_section =
-      get_properties()->get(SEDA_BASE_NAME);
+    std::map<std::string, std::string> base_section = get_properties()->get(SEDA_BASE_NAME);
     std::map<std::string, std::string>::iterator it;
     std::string key;
 
@@ -328,8 +336,7 @@ SedaConfig::status_t SedaConfig::init_stages() {
     split_tag.assign(1, Ini::CFG_DELIMIT_TAG);
     split_string(it->second, split_tag, stage_names_);
 
-    for (std::vector<std::string>::iterator it = stage_names_.begin();
-         it != stage_names_.end(); it++) {
+    for (std::vector<std::string>::iterator it = stage_names_.begin(); it != stage_names_.end(); it++) {
       std::string stage_name(*it);
 
       std::string thread_name = get_thread_pool(stage_name);
@@ -344,13 +351,11 @@ SedaConfig::status_t SedaConfig::init_stages() {
       stages_[stage_name] = stage;
       stage->set_pool(t);
 
-      LOG_INFO("Stage %s use threadpool %s.",
-               stage_name.c_str(), thread_name.c_str());
-    } // end for stage
+      LOG_INFO("Stage %s use threadpool %s.", stage_name.c_str(), thread_name.c_str());
+    }  // end for stage
 
   } catch (std::exception &e) {
-    LOG_ERROR("Failed to parse stages information, please check, err:%s",
-              e.what());
+    LOG_ERROR("Failed to parse stages information, please check, err:%s", e.what());
     clear_config();
     return INITFAIL;
   }
@@ -364,16 +369,15 @@ SedaConfig::status_t SedaConfig::init_stages() {
   return SUCCESS;
 }
 
-SedaConfig::status_t SedaConfig::gen_next_stages() {
+SedaConfig::status_t SedaConfig::gen_next_stages()
+{
   try {
-    for (std::vector<std::string>::iterator it_name = stage_names_.begin();
-         it_name != stage_names_.end(); it_name++) {
+    for (std::vector<std::string>::iterator it_name = stage_names_.begin(); it_name != stage_names_.end(); it_name++) {
 
       std::string stage_name(*it_name);
       Stage *stage = stages_[stage_name];
 
-      std::map<std::string, std::string> stage_section =
-        get_properties()->get(stage_name);
+      std::map<std::string, std::string> stage_section = get_properties()->get(stage_name);
       std::map<std::string, std::string>::iterator it;
       std::string next_stage_id = NEXT_STAGES;
       it = stage_section.find(next_stage_id);
@@ -388,15 +392,15 @@ SedaConfig::status_t SedaConfig::gen_next_stages() {
       split_tag.assign(1, Ini::CFG_DELIMIT_TAG);
       split_string(next_stage_names, split_tag, next_stage_name_list);
 
-      for (std::vector<std::string>::iterator next_it =
-        next_stage_name_list.begin();
-           next_it != next_stage_name_list.end(); next_it++) {
+      for (std::vector<std::string>::iterator next_it = next_stage_name_list.begin();
+           next_it != next_stage_name_list.end();
+           next_it++) {
         std::string &next_stage_name = *next_it;
         Stage *next_stage = stages_[next_stage_name];
         stage->push_stage(next_stage);
       }
 
-    } // end for stage
+    }  // end for stage
   } catch (std::exception &e) {
     LOG_ERROR("Failed to get next stages");
     clear_config();
@@ -406,7 +410,8 @@ SedaConfig::status_t SedaConfig::gen_next_stages() {
 }
 
 // instantiate the thread_pools_ and stages_
-SedaConfig::status_t SedaConfig::instantiate() {
+SedaConfig::status_t SedaConfig::instantiate()
+{
 
   init_event_history();
 
@@ -432,7 +437,8 @@ SedaConfig::status_t SedaConfig::instantiate() {
 }
 
 // delete all thread_pools_ and stages_
-void SedaConfig::clear_config() {
+void SedaConfig::clear_config()
+{
   // delete stages_
   std::map<std::string, Stage *>::iterator s_iter = stages_.begin();
   std::map<std::string, Stage *>::iterator s_end = stages_.end();
@@ -441,8 +447,7 @@ void SedaConfig::clear_config() {
 
       Stage *stg = s_iter->second;
       LOG_INFO("Stage %s deleted.", stg->get_name());
-      ASSERT((!stg->is_connected()), "%s%s", "Stage connected in clear_config ",
-             stg->get_name());
+      ASSERT((!stg->is_connected()), "%s%s", "Stage connected in clear_config ", stg->get_name());
       delete stg;
       s_iter->second = NULL;
     }
@@ -466,23 +471,25 @@ void SedaConfig::clear_config() {
   LOG_INFO("Seda thread pools released");
 }
 
-void SedaConfig::get_stage_names(std::vector<std::string> &names) const {
+void SedaConfig::get_stage_names(std::vector<std::string> &names) const
+{
   names = stage_names_;
 }
 
-void SedaConfig::get_stage_queue_status(std::vector<int> &stats) const {
-  for (std::map<std::string, Stage *>::const_iterator i = stages_.begin();
-       i != stages_.end(); ++i) {
+void SedaConfig::get_stage_queue_status(std::vector<int> &stats) const
+{
+  for (std::map<std::string, Stage *>::const_iterator i = stages_.begin(); i != stages_.end(); ++i) {
     Stage *stg = (*i).second;
     stats.push_back(stg->qlen());
   }
 }
 
 // Global seda config object
-SedaConfig *&get_seda_config() {
+SedaConfig *&get_seda_config()
+{
   static SedaConfig *seda_config = NULL;
 
   return seda_config;
 }
 
-} //namespace common
+}  // namespace common

@@ -21,7 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/seda/stage.h"
 namespace common {
 
-
 /**
  *  @file
  *  @author Longda
@@ -56,7 +55,8 @@ protected:
    * @post event queue is empty
    * @post stage is not connected
    */
-  KillThreadStage(const char *tag) : Stage(tag) {}
+  KillThreadStage(const char *tag) : Stage(tag)
+  {}
 
   /**
    * Notify the pool and kill the thread
@@ -70,7 +70,10 @@ protected:
    * Handle the callback
    * Nothing special for callbacks in this stage.
    */
-  void callback_event(StageEvent *event, CallbackContext *context) { return; }
+  void callback_event(StageEvent *event, CallbackContext *context)
+  {
+    return;
+  }
 
   /**
    * Initialize stage params
@@ -79,7 +82,10 @@ protected:
    * @pre  Stage not connected
    * @return true
    */
-  bool initialize() { return true; }
+  bool initialize()
+  {
+    return true;
+  }
 
   /**
    * set properties for this object
@@ -92,5 +98,5 @@ protected:
   friend class Threadpool;
 };
 
-} //namespace common
-#endif // __COMMON_SEDA_KILL_THREAD_H__
+}  // namespace common
+#endif  // __COMMON_SEDA_KILL_THREAD_H__

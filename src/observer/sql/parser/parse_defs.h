@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by wangyunlai.wyl on 2021/6/7.
+// Created by Meiyi
 //
 
 #ifndef __OBSERVER_SQL_PARSER_PARSE_DEFS_H__
@@ -62,12 +62,12 @@ typedef struct _Condition {
 
 // struct of select
 typedef struct {
-  size_t    attr_num;               // Length of attrs in Select clause
-  RelAttr   attributes[MAX_NUM];    // attrs in Select clause
-  size_t    relation_num;           // Length of relations in Fro clause
-  char *    relations[MAX_NUM];     // relations in From clause
-  size_t    condition_num;          // Length of conditions in Where clause
-  Condition conditions[MAX_NUM];    // conditions in Where clause
+  size_t attr_num;                // Length of attrs in Select clause
+  RelAttr attributes[MAX_NUM];    // attrs in Select clause
+  size_t relation_num;            // Length of relations in Fro clause
+  char *relations[MAX_NUM];       // relations in From clause
+  size_t condition_num;           // Length of conditions in Where clause
+  Condition conditions[MAX_NUM];  // conditions in Where clause
 } Selects;
 
 // struct of insert

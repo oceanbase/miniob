@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/13.
+// Created by Meiyi
 //
 
 #ifndef __OBSERVER_SQL_PARSER_PARSE_H__
@@ -20,5 +20,4 @@ See the Mulan PSL v2 for more details. */
 
 RC parse(const char *st, Query *sqln);
 
-#endif //__OBSERVER_SQL_PARSER_PARSE_H__
-
+#endif  //__OBSERVER_SQL_PARSER_PARSE_H__

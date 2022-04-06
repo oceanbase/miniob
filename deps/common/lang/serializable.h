@@ -21,11 +21,7 @@ namespace common {
 /**
  * Through this type to determine object type
  */
-enum {
-  MESSAGE_BASIC = 100,
-  MESSAGE_BASIC_REQUEST = 1000,
-  MESSAGE_BASIC_RESPONSE = -1000
-};
+enum { MESSAGE_BASIC = 100, MESSAGE_BASIC_REQUEST = 1000, MESSAGE_BASIC_RESPONSE = -1000 };
 
 class Deserializable {
 public:
@@ -68,5 +64,5 @@ public:
   virtual void to_string(std::string &output) const = 0;
 };
 
-} //namespace common
+}  // namespace common
 #endif /* __COMMON_LANG_SERIALIZABLE_H__ */

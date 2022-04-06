@@ -26,4 +26,4 @@ See the Mulan PSL v2 for more details. */
 #define SOCKET_BUFFER_SIZE 8192
 
 #define SESSION_STAGE_NAME "SessionStage"
-#endif //__SRC_OBSERVER_INI_SETTING_H__
+#endif  //__SRC_OBSERVER_INI_SETTING_H__

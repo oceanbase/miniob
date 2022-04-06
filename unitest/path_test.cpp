@@ -12,4 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021
 //
 
-int main(int argc, char **argv) { return 0; }
+int main(int argc, char **argv)
+{
+  return 0;
+}

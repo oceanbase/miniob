@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/13.
+// Created by Meiyi & Longda on 2021/4/13.
 //
 #ifndef __OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_
 #define __OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_
@@ -69,6 +69,16 @@ typedef struct BPPageHandle {
   BPPageHandle() : open(false), frame(nullptr)
   {}
 
+  PageNum page_num() const {
+    return frame->page.page_num;
+  }
+  void mark_dirty() {
+    this->frame->dirty = true;
+  }
+
+  char *data() {
+    return this->frame->page.data;
+  }
   bool open;
   Frame *frame;
 } BPPageHandle;
@@ -111,10 +121,9 @@ public:
     if (pool_num > 0) {
       POOL_NUM = pool_num;
       LOG_INFO("Successfully set POOL_NUM as %d", pool_num);
-    }else {
+    } else {
       LOG_INFO("Invalid input argument pool_num:%d", pool_num);
     }
-
   }
 
   static const int get_pool_num()
@@ -195,6 +204,8 @@ public:
   RC get_page_count(int file_id, int *page_count);
 
   RC purge_all_pages(int file_id);
+
+  RC check_all_pages_unpinned(int file_id);
 
 protected:
   RC allocate_page(Frame **buf);

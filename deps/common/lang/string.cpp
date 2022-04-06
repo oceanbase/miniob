@@ -28,8 +28,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 namespace common {
 
-char *strip(char *str_) {
-  if (str_ == NULL || *str_ == 0){
+char *strip(char *str_)
+{
+  if (str_ == NULL || *str_ == 0) {
     LOG_ERROR("The augument is invalid!");
     return str_;
   }
@@ -45,7 +46,8 @@ char *strip(char *str_) {
   return head;
 }
 
-void strip(std::string &str) {
+void strip(std::string &str)
+{
   size_t head = 0;
 
   while (isspace(str[head])) {
@@ -61,24 +63,27 @@ void strip(std::string &str) {
 }
 
 // Translation functions with templates are defined in the header file
-std::string size_to_pad_str(int size, int pad) {
+std::string size_to_pad_str(int size, int pad)
+{
   std::ostringstream ss;
   ss << std::setw(pad) << std::setfill('0') << size;
   return ss.str();
 }
 
-std::string &str_to_upper(std::string &s) {
+std::string &str_to_upper(std::string &s)
+{
   std::transform(s.begin(), s.end(), s.begin(), (int (*)(int)) & std::toupper);
   return s;
 }
 
-std::string &str_to_lower(std::string &s) {
+std::string &str_to_lower(std::string &s)
+{
   std::transform(s.begin(), s.end(), s.begin(), (int (*)(int)) & std::tolower);
   return s;
 }
 
-void split_string(const std::string &str, std::string delim,
-                 std::set<std::string> &results) {
+void split_string(const std::string &str, std::string delim, std::set<std::string> &results)
+{
   int cut_at;
   std::string tmp_str(str);
   while ((cut_at = tmp_str.find_first_of(delim)) != (signed)tmp_str.npos) {
@@ -93,8 +98,8 @@ void split_string(const std::string &str, std::string delim,
   }
 }
 
-void split_string(const std::string &str, std::string delim,
-                 std::vector<std::string> &results) {
+void split_string(const std::string &str, std::string delim, std::vector<std::string> &results)
+{
   int cut_at;
   std::string tmp_str(str);
   while ((cut_at = tmp_str.find_first_of(delim)) != (signed)tmp_str.npos) {
@@ -109,8 +114,8 @@ void split_string(const std::string &str, std::string delim,
   }
 }
 
-void split_string(char *str, char dim, std::vector<char *> &results,
-                 bool keep_null) {
+void split_string(char *str, char dim, std::vector<char *> &results, bool keep_null)
+{
   char *p = str;
   char *l = p;
   while (*p) {
@@ -127,11 +132,11 @@ void split_string(char *str, char dim, std::vector<char *> &results,
   return;
 }
 
-void merge_string(std::string &str, std::string delim,
-                 std::vector<std::string> &source, size_t result_len){
+void merge_string(std::string &str, std::string delim, std::vector<std::string> &source, size_t result_len)
+{
 
   std::ostringstream ss;
-  if (source.empty() ) {
+  if (source.empty()) {
     str = ss.str();
     return;
   }
@@ -143,18 +148,17 @@ void merge_string(std::string &str, std::string delim,
   for (unsigned int i = 0; i < result_len; i++) {
     if (i == 0) {
       ss << source[i];
-    }else {
+    } else {
       ss << delim << source[i];
     }
-
   }
 
   str = ss.str();
-  return ;
+  return;
 }
 
-void replace(std::string &str, const std::string &old,
-             const std::string &new_str) {
+void replace(std::string &str, const std::string &old, const std::string &new_str)
+{
   if (old.compare(new_str) == 0) {
     return;
   }
@@ -185,7 +189,8 @@ void replace(std::string &str, const std::string &old,
   return;
 }
 
-char *bin_to_hex(const char *s, const int len, char *hex_buff) {
+char *bin_to_hex(const char *s, const int len, char *hex_buff)
+{
   int new_len = 0;
   unsigned char *end = (unsigned char *)s + len;
   for (unsigned char *p = (unsigned char *)s; p < end; p++) {
@@ -196,7 +201,8 @@ char *bin_to_hex(const char *s, const int len, char *hex_buff) {
   return hex_buff;
 }
 
-char *hex_to_bin(const char *s, char *bin_buff, int *dest_len) {
+char *hex_to_bin(const char *s, char *bin_buff, int *dest_len)
+{
   char buff[3];
   char *src;
   int src_len;
@@ -225,7 +231,8 @@ char *hex_to_bin(const char *s, char *bin_buff, int *dest_len) {
   return bin_buff;
 }
 
-bool is_blank(const char *s) {
+bool is_blank(const char *s)
+{
   if (s == nullptr) {
     return true;
   }
@@ -238,4 +245,4 @@ bool is_blank(const char *s) {
   return true;
 }
 
-} //namespace common
+}  // namespace common

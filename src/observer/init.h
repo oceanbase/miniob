@@ -21,4 +21,4 @@ See the Mulan PSL v2 for more details. */
 int init(common::ProcessParam *processParam);
 void cleanup();
 
-#endif //__OBSERVER_INIT_H__
+#endif  //__OBSERVER_INIT_H__

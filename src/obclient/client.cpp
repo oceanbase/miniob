@@ -66,7 +66,8 @@ bool is_exit_command(const char *cmd) {
          0 == strncasecmp("bye", cmd, 3);
 }
 
-int init_unix_sock(const char *unix_sock_path) {
+int init_unix_sock(const char *unix_sock_path)
+{
   int sockfd = socket(PF_UNIX, SOCK_STREAM, 0);
   if (sockfd < 0) {
     fprintf(stderr, "failed to create unix socket. %s", strerror(errno));
@@ -79,15 +80,15 @@ int init_unix_sock(const char *unix_sock_path) {
   snprintf(sockaddr.sun_path, sizeof(sockaddr.sun_path), "%s", unix_sock_path);
 
   if (connect(sockfd, (struct sockaddr *)&sockaddr, sizeof(sockaddr)) < 0) {
-    fprintf(stderr, "failed to connect to server. unix socket path '%s'. error %s",
-        sockaddr.sun_path, strerror(errno));
+    fprintf(stderr, "failed to connect to server. unix socket path '%s'. error %s", sockaddr.sun_path, strerror(errno));
     close(sockfd);
     return -1;
   }
   return sockfd;
 }
 
-int init_tcp_sock(const char *server_host, int server_port) {
+int init_tcp_sock(const char *server_host, int server_port)
+{
   struct hostent *host;
   struct sockaddr_in serv_addr;
 
@@ -107,8 +108,7 @@ int init_tcp_sock(const char *server_host, int server_port) {
   serv_addr.sin_addr = *((struct in_addr *)host->h_addr);
   bzero(&(serv_addr.sin_zero), 8);
 
-  if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr)) ==
-      -1) {
+  if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr)) == -1) {
     fprintf(stderr, "Failed to connect. errmsg=%d:%s\n", errno, strerror(errno));
     close(sockfd);
     return -1;
@@ -116,7 +116,8 @@ int init_tcp_sock(const char *server_host, int server_port) {
   return sockfd;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   const char *unix_socket_path = nullptr;
   const char *server_host = "127.0.0.1";
   int server_port = PORT_DEFAULT;
@@ -124,15 +125,15 @@ int main(int argc, char *argv[]) {
   extern char *optarg;
   while ((opt = getopt(argc, argv, "s:h:p:")) > 0) {
     switch (opt) {
-    case 's':
-      unix_socket_path = optarg;
-      break;
-    case 'p':
-      server_port = atoi(optarg);
-      break;
-    case 'h':
-      server_host = optarg;
-      break;
+      case 's':
+        unix_socket_path = optarg;
+        break;
+      case 'p':
+        server_port = atoi(optarg);
+        break;
+      case 'h':
+        server_host = optarg;
+        break;
     }
   }
 
@@ -171,13 +172,13 @@ int main(int argc, char *argv[]) {
     memset(send_buf, 0, sizeof(send_buf));
 
     int len = 0;
-    while((len = recv(sockfd, send_buf, MAX_MEM_BUFFER_SIZE, 0)) > 0){  
+    while ((len = recv(sockfd, send_buf, MAX_MEM_BUFFER_SIZE, 0)) > 0) {
       bool msg_end = false;
       for (int i = 0; i < len; i++) {
         if (0 == send_buf[i]) {
           msg_end = true;
           break;
-		    }
+        }
         printf("%c", send_buf[i]);
       }
       if (msg_end) {

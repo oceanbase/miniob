@@ -9,7 +9,8 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/14.
+// Created by Meiyi
+// Rewritten by Longda on 2021/4/14.
 //
 
 #ifndef __OBSERVER_HANDLER_HANDLER_H__
@@ -28,17 +29,17 @@ See the Mulan PSL v2 for more details. */
 
 //属性结构体
 typedef struct {
-  char *relName;  // relation name (may be NULL) 表名
-  char *attrName; // attribute name              属性名
+  char *relName;   // relation name (may be NULL) 表名
+  char *attrName;  // attribute name              属性名
 } RelAttr;
 
 typedef enum {
-  EQual,  //"="			0
-  LEqual, //"<="          1
-  NEqual, //"<>"			2
-  LessT,  //"<"			3
-  GEqual, //">="			4
-  GreatT, //">"           5
+  EQual,   //"="			0
+  LEqual,  //"<="           1
+  NEqual,  //"<>"			2
+  LessT,   //"<"			3
+  GEqual,  //">="			4
+  GreatT,  //">"            5
   NO_OP
 } CompOp;
 
@@ -47,85 +48,85 @@ typedef enum { chars, ints, floats } AttrType;
 //属性值
 typedef struct _Value Value;
 struct _Value {
-  AttrType type; // type of value
-  void *data;    // value
+  AttrType type;  // type of value
+  void *data;     // value
 };
 
 typedef struct _Condition {
-  int bLhsIsAttr;  // TRUE if left-hand side is an attribute
-                   // 1时，操作符右边是属性，0时，是属性值
-  Value lhsValue;  // left-hand side value if bLhsIsAttr = FALSE
-  RelAttr lhsAttr; // left-hand side attribute
-  CompOp op;       // comparison operator
-  int bRhsIsAttr;  // TRUE if right-hand side is an attribute
-                   // 1时，操作符右边是属性，0时，是属性值
+  int bLhsIsAttr;   // TRUE if left-hand side is an attribute
+                    // 1时，操作符右边是属性，0时，是属性值
+  Value lhsValue;   // left-hand side value if bLhsIsAttr = FALSE
+  RelAttr lhsAttr;  // left-hand side attribute
+  CompOp op;        // comparison operator
+  int bRhsIsAttr;   // TRUE if right-hand side is an attribute
+                    // 1时，操作符右边是属性，0时，是属性值
   //   and not a value
-  RelAttr rhsAttr; // right-hand side attribute if bRhsIsAttr = TRUE 右边的属性
-  Value rhsValue; // right-hand side value if bRhsIsAttr = FALSE
-}Condition;
+  RelAttr rhsAttr;  // right-hand side attribute if bRhsIsAttr = TRUE 右边的属性
+  Value rhsValue;   // right-hand side value if bRhsIsAttr = FALSE
+} Condition;
 
 // struct of select
 typedef struct {
-  int nSelAttrs;                 // Length of attrs in Select clause
-  RelAttr *selAttrs[MAX_NUM];    // attrs in Select clause
-  int nRelations;                // Length of relations in Fro clause
-  char *relations[MAX_NUM];      // relations in From clause
-  int nConditions;               // Length of conditions in Where clause
-  Condition conditions[MAX_NUM]; // conditions in Where clause
+  int nSelAttrs;                  // Length of attrs in Select clause
+  RelAttr *selAttrs[MAX_NUM];     // attrs in Select clause
+  int nRelations;                 // Length of relations in Fro clause
+  char *relations[MAX_NUM];       // relations in From clause
+  int nConditions;                // Length of conditions in Where clause
+  Condition conditions[MAX_NUM];  // conditions in Where clause
 } Selects;
 
 // struct of insert
 typedef struct {
-  char *relName;         // Relation to insert into
-  int nValues;           // Length of values
-  Value values[MAX_NUM]; // values to insert
+  char *relName;          // Relation to insert into
+  int nValues;            // Length of values
+  Value values[MAX_NUM];  // values to insert
 } Inserts;
 
 // struct of delete
 typedef struct {
-  char *relName;                 // Relation to delete from
-  int nConditions;               // Length of conditions in Where clause
-  Condition conditions[MAX_NUM]; // conditions in Where clause
+  char *relName;                  // Relation to delete from
+  int nConditions;                // Length of conditions in Where clause
+  Condition conditions[MAX_NUM];  // conditions in Where clause
 } Deletes;
 
 // struct of update
 typedef struct {
-  char *relName;                 // Relation to update
-  char *attrName;                // Attribute to update
-  Value value;                   // update value
-  int nConditions;               // Length of conditions in Where clause
-  Condition conditions[MAX_NUM]; // conditions in Where clause
+  char *relName;                  // Relation to update
+  char *attrName;                 // Attribute to update
+  Value value;                    // update value
+  int nConditions;                // Length of conditions in Where clause
+  Condition conditions[MAX_NUM];  // conditions in Where clause
 } Updates;
 
 // struct of AttrInfo
 typedef struct _AttrInfo AttrInfo;
 struct _AttrInfo {
-  char *attrName;    // Attribute name
-  AttrType attrType; // Type of attribute
-  int attrLength;    // Length of attribute
+  char *attrName;     // Attribute name
+  AttrType attrType;  // Type of attribute
+  int attrLength;     // Length of attribute
 };
 // struct of craete_table
 typedef struct {
-  char *relName;                // Relation name
-  int attrCount;                // Length of attribute
-  AttrInfo attributes[MAX_NUM]; // attributes
+  char *relName;                 // Relation name
+  int attrCount;                 // Length of attribute
+  AttrInfo attributes[MAX_NUM];  // attributes
 } CreateTable;
 
 // struct of drop_table
 typedef struct {
-  char *relName; // Relation name
+  char *relName;  // Relation name
 } DropTable;
 
 // struct of create_index
 typedef struct {
-  char *indexName; // Index name
-  char *relName;   // Relation name
-  char *attrName;  // Attribute name
+  char *indexName;  // Index name
+  char *relName;    // Relation name
+  char *attrName;   // Attribute name
 } CreateIndex;
 
 // struct of  drop_index
 typedef struct {
-  char *indexName; // Index name
+  char *indexName;  // Index name
 
 } DropIndex;
 
@@ -269,7 +270,6 @@ RC deleteRecord(char *relName, int nConditions, Condition *conditions);
  * @param conditions
  * @return
  */
-RC updateRecord(char *relName, char *attrName, Value *value, int nConditions,
-                Condition *conditions);
+RC updateRecord(char *relName, char *attrName, Value *value, int nConditions, Condition *conditions);
 
-#endif //__OBSERVER_HANDLER_HANDLER_H__
+#endif  //__OBSERVER_HANDLER_HANDLER_H__

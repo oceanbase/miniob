@@ -1,0 +1,21 @@
+{
+  "basic":{"necessary":true, "score":10},
+  "primary-date":{"necessary":true, "score":10},
+  "primary-update":{"necessary":true, "score":10},
+  "primary-select-meta":{"necessary":true, "score":10},
+  "primary-select-tables":{"necessary":true, "score":10},
+  "primary-aggregation-func":{"necessary":true, "score":10},
+  "primary-drop-table":{"necessary":true, "score":10},
+
+  "primary-insert":{"necessary":false, "score":10},
+  "primary-join-tables":{"necessary":false, "score":20},
+  "primary-null":{"necessary":false, "score":10},
+  "primary-unique":{"necessary":false, "score":10},
+  "primary-simple-sub-query":{"necessary":false, "score":10},
+  "primary-multi-index":{"necessary":false, "score":20},
+  "primary-text":{"necessary":false, "score":20},
+  "primary-expression":{"necessary":false, "score":20},
+  "primary-complex-sub-query":{"necessary":false, "score":20},
+  "primary-order-by":{"necessary":false, "score":10},
+  "primary-group-by":{"necessary":false, "score":20}
+}

@@ -58,7 +58,8 @@ static new_ptr_list_t *new_ptr_list[DEBUG_NEW_HASHTABLESIZE];
 bool new_verbose_flag = false;
 bool new_autocheck_flag = true;
 
-bool check_leaks() {
+bool check_leaks()
+{
   bool fLeaked = false;
   for (int i = 0; i < DEBUG_NEW_HASHTABLESIZE; ++i) {
     new_ptr_list_t *ptr = new_ptr_list[i];
@@ -67,8 +68,10 @@ bool check_leaks() {
     fLeaked = true;
     while (ptr) {
       printf("Leaked object at %p (size %llu, %s:%d)\n",
-             (char *)ptr + sizeof(new_ptr_list_t),
-             (unsigned long long)ptr->size, ptr->file, ptr->line);
+          (char *)ptr + sizeof(new_ptr_list_t),
+          (unsigned long long)ptr->size,
+          ptr->file,
+          ptr->line);
       ptr = ptr->next;
     }
   }
@@ -78,7 +81,8 @@ bool check_leaks() {
     return false;
 }
 
-void *operator new(size_t size, const char *file, int line) {
+void *operator new(size_t size, const char *file, int line)
+{
   size_t s = size + sizeof(new_ptr_list_t);
   new_ptr_list_t *ptr = (new_ptr_list_t *)malloc(s);
   if (ptr == NULL) {
@@ -102,23 +106,33 @@ void *operator new(size_t size, const char *file, int line) {
   return pointer;
 }
 
-void *operator new[](size_t size, const char *file, int line) {
+void *operator new[](size_t size, const char *file, int line)
+{
   return operator new(size, file, line);
 }
 
-void *operator new(size_t size) { return operator new(size, "<Unknown>", 0); }
+void *operator new(size_t size)
+{
+  return operator new(size, "<Unknown>", 0);
+}
 
-void *operator new[](size_t size) { return operator new(size); }
-
-void *operator new(size_t size, const std::nothrow_t &) throw() {
+void *operator new[](size_t size)
+{
   return operator new(size);
 }
 
-void *operator new[](size_t size, const std::nothrow_t &) throw() {
+void *operator new(size_t size, const std::nothrow_t &) throw()
+{
+  return operator new(size);
+}
+
+void *operator new[](size_t size, const std::nothrow_t &) throw()
+{
   return operator new[](size);
 }
 
-void operator delete(void *pointer) {
+void operator delete(void *pointer)
+{
   if (pointer == NULL)
     return;
   size_t hash_index = DEBUG_NEW_HASH(pointer);
@@ -142,7 +156,10 @@ void operator delete(void *pointer) {
   abort();
 }
 
-void operator delete[](void *pointer) { operator delete(pointer); }
+void operator delete[](void *pointer)
+{
+  operator delete(pointer);
+}
 
 // Some older compilers like Borland C++ Compiler 5.5.1 and Digital Mars
 // Compiler 8.29 do not support placement delete operators.
@@ -151,31 +168,36 @@ void operator delete[](void *pointer) { operator delete(pointer); }
 // is thrown in the initialization (constructor) of a dynamically
 // created object.
 #ifndef NO_PLACEMENT_DELETE
-void operator delete(void *pointer, const char *file, int line) {
+void operator delete(void *pointer, const char *file, int line)
+{
   if (new_verbose_flag)
-    printf("info: exception thrown on initializing object at %p (%s:%d)\n",
-           pointer, file, line);
+    printf("info: exception thrown on initializing object at %p (%s:%d)\n", pointer, file, line);
   operator delete(pointer);
 }
 
-void operator delete[](void *pointer, const char *file, int line) {
+void operator delete[](void *pointer, const char *file, int line)
+{
   operator delete(pointer, file, line);
 }
 
-void operator delete(void *pointer, const std::nothrow_t &) {
+void operator delete(void *pointer, const std::nothrow_t &)
+{
   operator delete(pointer, "<Unknown>", 0);
 }
 
-void operator delete[](void *pointer, const std::nothrow_t &) {
+void operator delete[](void *pointer, const std::nothrow_t &)
+{
   operator delete(pointer, std::nothrow);
 }
-#endif // NO_PLACEMENT_DELETE
+#endif  // NO_PLACEMENT_DELETE
 
 // Proxy class to automatically call check_leaks if new_autocheck_flag is set
 class new_check_t {
 public:
-  new_check_t() {}
-  ~new_check_t() {
+  new_check_t()
+  {}
+  ~new_check_t()
+  {
     if (new_autocheck_flag) {
       // Check for leakage.
       // If any leaks are found, set new_verbose_flag so that any

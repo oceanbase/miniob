@@ -9,14 +9,14 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by wangyunlai.wyl on 2021/5/19.
+// Created by Meiyi & wangyunlai.wyl on 2021/5/19.
 //
 
 #ifndef __OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_
 #define __OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_
 
-#include "storage/common/index.h"
-#include "storage/common/bplus_tree.h"
+#include "storage/index/index.h"
+#include "storage/index/bplus_tree.h"
 
 class BplusTreeIndex : public Index {
 public:
@@ -30,7 +30,11 @@ public:
   RC insert_entry(const char *record, const RID *rid) override;
   RC delete_entry(const char *record, const RID *rid) override;
 
-  IndexScanner *create_scanner(CompOp comp_op, const char *value) override;
+  /**
+   * 扫描指定范围的数据
+   */
+  IndexScanner *create_scanner(const char *left_key, bool left_inclusive,
+			       const char *right_key, bool right_inclusive) override;
 
   RC sync() override;
 
@@ -41,13 +45,15 @@ private:
 
 class BplusTreeIndexScanner : public IndexScanner {
 public:
-  BplusTreeIndexScanner(BplusTreeScanner *tree_scanner);
+  BplusTreeIndexScanner(BplusTreeHandler &tree_handle);
   ~BplusTreeIndexScanner() noexcept override;
 
   RC next_entry(RID *rid) override;
   RC destroy() override;
+
+  RC open(const char *left_key, bool left_inclusive, const char *right_key, bool right_inclusive);
 private:
-  BplusTreeScanner * tree_scanner_;
+  BplusTreeScanner tree_scanner_;
 };
 
-#endif //__OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_
+#endif  //__OBSERVER_STORAGE_COMMON_BPLUS_TREE_INDEX_H_
