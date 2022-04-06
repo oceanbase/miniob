@@ -36,6 +36,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/query_cache/query_cache_stage.h"
 #include "storage/default/default_storage_stage.h"
 #include "storage/mem/mem_storage_stage.h"
+#include "storage/default/disk_buffer_pool.h"
+#include "storage/default/default_handler.h"
 
 using namespace common;
 
@@ -156,6 +158,33 @@ int prepare_init_seda()
   return 0;
 }
 
+int init_global_objects()
+{
+  BufferPoolManager *bpm = new BufferPoolManager();
+  BufferPoolManager::set_instance(bpm);
+
+  DefaultHandler *handler = new DefaultHandler();
+  DefaultHandler::set_default(handler);
+
+  return 0;
+}
+
+int uninit_global_objects()
+{
+  DefaultHandler *default_handler = &DefaultHandler::get_default();
+  if (default_handler != nullptr) {
+    DefaultHandler::set_default(nullptr);
+    delete default_handler;
+  }
+
+  BufferPoolManager *bpm = &BufferPoolManager::instance();
+  if (bpm != nullptr) {
+    BufferPoolManager::set_instance(nullptr);
+    delete bpm;
+  }
+  return 0;
+}
+
 int init(ProcessParam *process_param)
 {
 
@@ -200,6 +229,12 @@ int init(ProcessParam *process_param)
   get_properties()->to_string(conf_data);
   LOG_INFO("Output configuration \n%s", conf_data.c_str());
 
+  rc = init_global_objects();
+  if (rc != 0) {
+    LOG_ERROR("failed to init global objects");
+    return rc;
+  }
+
   // seda is used for backend async event handler
   // the latency of seda is slow, it isn't used for critical latency
   // environment.
@@ -229,7 +264,8 @@ int init(ProcessParam *process_param)
 
 void cleanup_util()
 {
-
+  uninit_global_objects();
+  
   if (nullptr != get_properties()) {
     delete get_properties();
     get_properties() = nullptr;
@@ -245,4 +281,6 @@ void cleanup_util()
 }
 
 void cleanup()
-{}
+{
+  cleanup_util();
+}

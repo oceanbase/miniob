@@ -22,6 +22,7 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 static const PageNum BP_HEADER_PAGE = 0;
+static const int MEM_POOL_ITEM_NUM = 50;
 
 unsigned long current_time()
 {
@@ -111,9 +112,11 @@ RC DiskBufferPool::open_file(const char *file_name)
   file_desc_ = fd;
 
   RC rc = RC::SUCCESS;
-  if ((rc = allocate_page(&hdr_frame_)) != RC::SUCCESS) {
-    LOG_ERROR("Failed to allocate block for %s's BPFileHandle.", file_name);
+  rc = allocate_frame(&hdr_frame_);
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("failed to allocate frame for header. file name %s", file_name_.c_str());
     close(fd);
+    file_desc_ = -1;
     return rc;
   }
 
@@ -126,6 +129,7 @@ RC DiskBufferPool::open_file(const char *file_name)
     hdr_frame_->pin_count_ = 0;
     purge_frame(hdr_frame_);
     close(fd);
+    file_desc_ = -1;
     return rc;
   }
 
@@ -213,6 +217,7 @@ RC DiskBufferPool::allocate_page(Frame **frame)
         (file_header_->allocated_pages)++;
         file_header_->bitmap[byte] |= (1 << bit);
         // TODO,  do we need clean the loaded page's data?
+	hdr_frame_->mark_dirty();
         return get_this_page(i, frame);
       }
     }
@@ -453,10 +458,18 @@ int DiskBufferPool::file_desc() const
   return file_desc_;
 }
 ////////////////////////////////////////////////////////////////////////////////
+BufferPoolManager::BufferPoolManager()
+{
+  frame_manager_.init(true/*dynamic*/, MEM_POOL_ITEM_NUM);
+}
+
 BufferPoolManager::~BufferPoolManager()
 {
-  for (auto &iter : buffer_pools_) {
-    iter.second->close_file();
+  std::unordered_map<std::string, DiskBufferPool *> tmp_bps;
+  tmp_bps.swap(buffer_pools_);
+  
+  for (auto &iter : tmp_bps) {
+    delete iter.second;
   }
 }
 
@@ -518,6 +531,7 @@ RC BufferPoolManager::open_file(const char *_file_name, DiskBufferPool *& _bp)
   RC rc = bp->open_file(_file_name);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open file name");
+    delete bp;
     return rc;
   }
 
@@ -541,7 +555,8 @@ RC BufferPoolManager::close_file(const char *_file_name)
 
   DiskBufferPool *bp = iter->second;
   buffer_pools_.erase(iter);
-  return bp->close_file();
+  delete bp;
+  return RC::SUCCESS;
 }
 
 RC BufferPoolManager::flush_page(Frame &frame)
@@ -557,8 +572,16 @@ RC BufferPoolManager::flush_page(Frame &frame)
   return bp->flush_page(frame);
 }
 
+static BufferPoolManager *default_bpm = nullptr;
+void BufferPoolManager::set_instance(BufferPoolManager *bpm)
+{
+  if (default_bpm != nullptr && bpm != nullptr) {
+    LOG_ERROR("default buffer pool manager has been setted");
+    abort();
+  }
+  default_bpm = bpm;
+}
 BufferPoolManager &BufferPoolManager::instance()
 {
-  static BufferPoolManager obj;
-  return obj;
+  return *default_bpm;
 }

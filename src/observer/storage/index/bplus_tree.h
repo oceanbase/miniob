@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <string.h>
 #include <sstream>
+#include <functional>
 
 #include "storage/common/record_manager.h"
 #include "storage/default/disk_buffer_pool.h"

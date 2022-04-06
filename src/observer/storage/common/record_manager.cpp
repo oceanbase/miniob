@@ -337,10 +337,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
       return ret;
     }
 
-    //@@@ TODO, remove unpin page here
-    //    if (RC::SUCCESS != disk_buffer_pool_->unpin_page(&page_handle)) {
-    //      LOG_ERROR("Failed to unpin page. file_id:%d", file_id_);
-    //    }
+    disk_buffer_pool_->unpin_page(frame);
   }
 
   // 找到空闲位置

@@ -216,7 +216,7 @@ private:
 class BufferPoolManager
 {
 public:
-  BufferPoolManager() = default;
+  BufferPoolManager();
   ~BufferPoolManager();
 
   RC create_file(const char *file_name);
@@ -226,6 +226,7 @@ public:
   RC flush_page(Frame &frame);
 
 public:
+  static void set_instance(BufferPoolManager *bpm);
   static BufferPoolManager &instance();
   
 private:

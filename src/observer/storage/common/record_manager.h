@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #define __OBSERVER_STORAGE_COMMON_RECORD_MANAGER_H_
 
 #include <sstream>
+#include <limits>
 #include "storage/default/disk_buffer_pool.h"
 
 typedef int32_t SlotNum;

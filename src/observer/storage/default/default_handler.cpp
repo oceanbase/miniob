@@ -24,10 +24,20 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/table.h"
 #include "storage/common/condition_filter.h"
 
+static DefaultHandler *default_handler = nullptr;
+
+void DefaultHandler::set_default(DefaultHandler *handler)
+{
+  if (default_handler != nullptr && handler != nullptr) {
+    LOG_ERROR("default handler is setted");
+    abort();
+  }
+  default_handler = handler;
+}
+
 DefaultHandler &DefaultHandler::get_default()
 {
-  static DefaultHandler handler;
-  return handler;
+  return *default_handler;
 }
 
 DefaultHandler::DefaultHandler()
