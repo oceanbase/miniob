@@ -30,7 +30,7 @@ class Trx;
 
 class Table {
 public:
-  Table();
+  Table() = default;
   ~Table();
 
   /**
@@ -101,9 +101,8 @@ private:
 private:
   std::string base_dir_;
   TableMeta table_meta_;
-  DiskBufferPool *data_buffer_pool_;  /// 数据文件关联的buffer pool
-  int file_id_;
-  RecordFileHandler *record_handler_;  /// 记录操作
+  DiskBufferPool *data_buffer_pool_ = nullptr;  /// 数据文件关联的buffer pool
+  RecordFileHandler *record_handler_ = nullptr;  /// 记录操作
   std::vector<Index *> indexes_;
 };
 

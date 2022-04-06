@@ -15,68 +15,68 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/disk_buffer_pool.h"
 #include "gtest/gtest.h"
 
-void test_get(BPManager &bp_manager)
+void test_get(BPFrameManager &frame_manager)
 {
-  Frame *frame1 = bp_manager.alloc();
+  Frame *frame1 = frame_manager.alloc();
   ASSERT_NE(frame1, nullptr);
 
-  frame1->file_desc = 0;
-  frame1->page.page_num = 1;
+  frame1->set_file_desc(0);
+  frame1->set_page_num(1);
 
-  ASSERT_EQ(frame1, bp_manager.get(0, 1));
+  ASSERT_EQ(frame1, frame_manager.get(0, 1));
 
-  Frame *frame2 = bp_manager.alloc();
+  Frame *frame2 = frame_manager.alloc();
   ASSERT_NE(frame2, nullptr);
-  frame2->file_desc = 0;
-  frame2->page.page_num = 2;
+  frame2->set_file_desc(0);
+  frame2->set_page_num(2);
 
-  ASSERT_EQ(frame1, bp_manager.get(0, 1));
+  ASSERT_EQ(frame1, frame_manager.get(0, 1));
 
-  Frame *frame3 = bp_manager.alloc();
+  Frame *frame3 = frame_manager.alloc();
   ASSERT_NE(frame3, nullptr);
-  frame3->file_desc = 0;
-  frame3->page.page_num = 3;
+  frame3->set_file_desc(0);
+  frame3->set_page_num(3);
 
-  frame2 = bp_manager.get(0, 2);
+  frame2 = frame_manager.get(0, 2);
   ASSERT_NE(frame2, nullptr);
 
-  Frame *frame4 = bp_manager.alloc();
-  frame4->file_desc = 0;
-  frame4->page.page_num = 4;
+  Frame *frame4 = frame_manager.alloc();
+  frame4->set_file_desc(0);
+  frame4->set_page_num(4);
 
-  bp_manager.free(frame1);
-  frame1 = bp_manager.get(0, 1);
+  frame_manager.free(frame1);
+  frame1 = frame_manager.get(0, 1);
   ASSERT_EQ(frame1, nullptr);
 
-  ASSERT_EQ(frame3, bp_manager.get(0, 3));
+  ASSERT_EQ(frame3, frame_manager.get(0, 3));
 
-  ASSERT_EQ(frame4, bp_manager.get(0, 4));
+  ASSERT_EQ(frame4, frame_manager.get(0, 4));
 
-  bp_manager.free(frame2);
-  bp_manager.free(frame3);
-  bp_manager.free(frame4);
+  frame_manager.free(frame2);
+  frame_manager.free(frame3);
+  frame_manager.free(frame4);
 
-  ASSERT_EQ(nullptr, bp_manager.get(0, 2));
-  ASSERT_EQ(nullptr, bp_manager.get(0, 3));
-  ASSERT_EQ(nullptr, bp_manager.get(0, 4));
+  ASSERT_EQ(nullptr, frame_manager.get(0, 2));
+  ASSERT_EQ(nullptr, frame_manager.get(0, 3));
+  ASSERT_EQ(nullptr, frame_manager.get(0, 4));
 }
 
-void test_alloc(BPManager &bp_manager)
+void test_alloc(BPFrameManager &frame_manager)
 {
-  int size = bp_manager.get_size();
+  int size = frame_manager.get_size();
 
   std::list<Frame *> used_list;
 
   for (int i = 0; i < size; i++) {
-    Frame *item = bp_manager.alloc();
+    Frame *item = frame_manager.alloc();
     ASSERT_NE(item, nullptr);
     used_list.push_back(item);
   }
 
-  ASSERT_EQ(used_list.size(), bp_manager.get_used_num());
+  ASSERT_EQ(used_list.size(), frame_manager.get_used_num());
 
   for (int i = 0; i < size; i++) {
-    Frame *item = bp_manager.alloc();
+    Frame *item = frame_manager.alloc();
 
     ASSERT_EQ(item, nullptr);
   }
@@ -86,26 +86,26 @@ void test_alloc(BPManager &bp_manager)
       Frame *item = used_list.front();
       used_list.pop_front();
 
-      bp_manager.free(item);
+      frame_manager.free(item);
     } else {
-      Frame *item = bp_manager.alloc();
+      Frame *item = frame_manager.alloc();
       used_list.push_back(item);
     }
 
-    ASSERT_EQ(used_list.size(), bp_manager.get_used_num());
+    ASSERT_EQ(used_list.size(), frame_manager.get_used_num());
   }
 }
 
-TEST(test_bp_manager, test_bp_manager_simple_lru)
+TEST(test_frame_manager, test_frame_manager_simple_lru)
 {
-  BPManager bp_manager("Test");
-  bp_manager.init(false, 2);
+  BPFrameManager frame_manager("Test");
+  frame_manager.init(false, 2);
 
-  test_get(bp_manager);
+  test_get(frame_manager);
 
-  test_alloc(bp_manager);
+  test_alloc(frame_manager);
 
-  bp_manager.cleanup();
+  frame_manager.cleanup();
 }
 
 int main(int argc, char **argv)

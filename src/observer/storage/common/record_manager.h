@@ -96,10 +96,10 @@ struct Record {
 
 class RecordPageHandler {
 public:
-  RecordPageHandler();
+  RecordPageHandler() = default;
   ~RecordPageHandler();
-  RC init(DiskBufferPool &buffer_pool, int file_id, PageNum page_num);
-  RC init_empty_page(DiskBufferPool &buffer_pool, int file_id, PageNum page_num, int record_size);
+  RC init(DiskBufferPool &buffer_pool, PageNum page_num);
+  RC init_empty_page(DiskBufferPool &buffer_pool, PageNum page_num, int record_size);
   RC cleanup();
 
   RC insert_record(const char *data, RID *rid);
@@ -114,7 +114,7 @@ public:
       return rc;
     }
     rc = updater(record);
-    disk_buffer_pool_->mark_dirty(&page_handle_);
+    frame_->mark_dirty();
     return rc;
   }
 
@@ -131,51 +131,40 @@ public:
 protected:
   char *get_record_data(SlotNum slot_num)
   {
-    return page_handle_.frame->page.data + page_header_->first_record_offset + (page_header_->record_size * slot_num);
+    return frame_->data() + page_header_->first_record_offset + (page_header_->record_size * slot_num);
   }
 
 protected:
-  DiskBufferPool *disk_buffer_pool_;
-  int file_id_;
-  BPPageHandle page_handle_;
-  PageHeader *page_header_;
-  char *bitmap_;
+  DiskBufferPool *disk_buffer_pool_ = nullptr;
+  Frame *frame_ = nullptr;
+  PageHeader *page_header_ = nullptr;
+  char *bitmap_ = nullptr;
 };
 
 class RecordFileHandler {
 public:
-  RecordFileHandler();
-  RC init(DiskBufferPool *buffer_pool, int file_id);
+  RecordFileHandler() = default;
+  RC init(DiskBufferPool *buffer_pool);
   void close();
 
   /**
    * 更新指定文件中的记录，rec指向的记录结构中的rid字段为要更新的记录的标识符，
    * pData字段指向新的记录内容
-   * @param rec
-   * @return
    */
   RC update_record(const Record *rec);
 
   /**
    * 从指定文件中删除标识符为rid的记录
-   * @param rid
-   * @return
    */
   RC delete_record(const RID *rid);
 
   /**
    * 插入一个新的记录到指定文件中，pData为指向新纪录内容的指针，返回该记录的标识符rid
-   * @param data
-   * @param rid
-   * @return
    */
   RC insert_record(const char *data, int record_size, RID *rid);
 
   /**
    * 获取指定文件中标识符为rid的记录内容到rec指向的记录结构中
-   * @param rid
-   * @param rec
-   * @return
    */
   RC get_record(const RID *rid, Record *rec);
 
@@ -185,7 +174,7 @@ public:
 
     RC rc = RC::SUCCESS;
     RecordPageHandler page_handler;
-    if ((rc != page_handler.init(*disk_buffer_pool_, file_id_, rid->page_num)) != RC::SUCCESS) {
+    if ((rc != page_handler.init(*disk_buffer_pool_, rid->page_num)) != RC::SUCCESS) {
       return rc;
     }
 
@@ -193,15 +182,13 @@ public:
   }
 
 private:
-  DiskBufferPool *disk_buffer_pool_;
-  int file_id_;  // 参考DiskBufferPool中的fileId
-
+  DiskBufferPool *disk_buffer_pool_ = nullptr;
   RecordPageHandler record_page_handler_;  // 目前只有insert record使用
 };
 
 class RecordFileScanner {
 public:
-  RecordFileScanner();
+  RecordFileScanner() = default;
 
   /**
    * 打开一个文件扫描。
@@ -210,13 +197,8 @@ public:
    * 然后再调用GetNextRec函数来逐个返回文件中满足条件的记录。
    * 如果条件数量conNum为0，则意味着检索文件中的所有记录。
    * 如果条件不为空，则要对每条记录进行条件比较，只有满足所有条件的记录才被返回
-   * @param buffer_pool
-   * @param file_id
-   * @param condition_num
-   * @param conditions
-   * @return
    */
-  RC open_scan(DiskBufferPool &buffer_pool, int file_id, ConditionFilter *condition_filter);
+  RC open_scan(DiskBufferPool &buffer_pool, ConditionFilter *condition_filter);
 
   /**
    * 关闭一个文件扫描，释放相应的资源
@@ -236,10 +218,9 @@ public:
   RC get_next_record(Record *rec);
 
 private:
-  DiskBufferPool *disk_buffer_pool_;
-  int file_id_;  // 参考DiskBufferPool中的fileId
+  DiskBufferPool *disk_buffer_pool_ = nullptr;
 
-  ConditionFilter *condition_filter_;
+  ConditionFilter *condition_filter_ = nullptr;
   RecordPageHandler record_page_handler_;
 };
 

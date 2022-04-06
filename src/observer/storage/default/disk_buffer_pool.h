@@ -14,19 +14,23 @@ See the Mulan PSL v2 for more details. */
 #ifndef __OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_
 #define __OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <sys/types.h>
 #include <stdlib.h>
-
 #include <string.h>
-#include <sys/stat.h>
 #include <time.h>
+#include <string>
+#include <unordered_map>
 
 #include "rc.h"
 #include "common/mm/mem_pool.h"
 
-typedef int PageNum;
+typedef int32_t PageNum;
+
+class BufferPoolManager;
+class DiskBufferPool;
 
 //
 #define BP_INVALID_PAGE_NUM (-1)
@@ -34,73 +38,82 @@ typedef int PageNum;
 #define BP_PAGE_DATA_SIZE (BP_PAGE_SIZE - sizeof(PageNum))
 #define BP_FILE_SUB_HDR_SIZE (sizeof(BPFileSubHeader))
 #define BP_BUFFER_SIZE 256
-#define MAX_OPEN_FILE 1024
 
-typedef struct {
+struct Page {
   PageNum page_num;
   char data[BP_PAGE_DATA_SIZE];
-} Page;
+};
 // sizeof(Page) should be equal to BP_PAGE_SIZE
 
-typedef struct {
-  PageNum page_count;
-  int allocated_pages;
-} BPFileSubHeader;
+/**
+ * BufferPool的文件第一个页面，存放一些元数据信息，包括了后面每页的分配信息。
+ * TODO 1. 当前的做法，只能分配比较少的页面，你可以扩展一下，支持更多的页面或无限多的页面吗？
+ *         可以参考Linux ext(n)和Windows NTFS等文件系统
+ *      2. 当前使用bitmap存放页面分配情况，但是这种方法在页面非常多的时候，查找空闲页面的
+ *         效率非常低，你有办法优化吗？
+ */
+struct BPFileHeader {
+  int32_t page_count;        //! 当前文件一共有多少个页面
+  int32_t allocated_pages;   //! 已经分配了多少个页面
+  char    bitmap[0];         //! 页面分配位图, 第0个页面(就是当前页面)，总是1
+};
 
-typedef struct {
-  int file_id;
-  std::set<PageNum> pages;
-} BPDisposedPages;
-
-typedef struct Frame_ {
-  bool dirty;
-  unsigned int pin_count;
-  unsigned long acc_time;
-  int file_desc;
-  Page page;
-
-  bool can_purge()
+class Frame
+{
+public:
+  void clear_page()
   {
-    return pin_count <= 0;
+    memset(&page_, 0, sizeof(page_));
   }
-} Frame;
 
-typedef struct BPPageHandle {
-  BPPageHandle() : open(false), frame(nullptr)
-  {}
-
-  PageNum page_num() const {
-    return frame->page.page_num;
+  PageNum page_num() const
+  {
+    return page_.page_num;
   }
+
+  void set_page_num(PageNum page_num)
+  {
+    page_.page_num = page_num;
+  }
+
+  /**
+   * 标记指定页面为“脏”页。如果修改了页面的内容，则应调用此函数，
+   * 以便该页面被淘汰出缓冲区时系统将新的页面数据写入磁盘文件
+   */
   void mark_dirty() {
-    this->frame->dirty = true;
+    dirty_ = true;
   }
 
   char *data() {
-    return this->frame->page.data;
+    return page_.data;
   }
-  bool open;
-  Frame *frame;
-} BPPageHandle;
 
-class BPFileHandle {
-public:
-  BPFileHandle();
-  ~BPFileHandle();
+  int file_desc() const
+  {
+    return file_desc_;
+  }
 
-public:
-  bool bopen;
-  const char *file_name;
-  int file_desc;
-  Frame *hdr_frame;
-  Page *hdr_page;
-  char *bitmap;
-  BPFileSubHeader *file_sub_header;
+  void set_file_desc(int fd)
+  {
+    file_desc_ = fd;
+  }
+  bool can_purge()
+  {
+    return pin_count_ <= 0;
+  }
+private:
+  friend class DiskBufferPool;
+
+  bool          dirty_     = false;
+  unsigned int  pin_count_ = 0;
+  unsigned long acc_time_  = 0;
+  int           file_desc_ = -1;
+  Page          page_;
 };
 
-class BPManager : public common::MemPoolSimple<Frame> {
+class BPFrameManager : public common::MemPoolSimple<Frame> {
 public:
-  BPManager(const char *tag);
+  BPFrameManager(const char *tag);
 
   Frame *get(int file_desc, PageNum page_num);
 
@@ -111,26 +124,7 @@ public:
 
 class DiskBufferPool {
 public:
-  static DiskBufferPool *mk_instance()
-  {
-    return new DiskBufferPool();
-  }
-
-  static void set_pool_num(int pool_num)
-  {
-    if (pool_num > 0) {
-      POOL_NUM = pool_num;
-      LOG_INFO("Successfully set POOL_NUM as %d", pool_num);
-    } else {
-      LOG_INFO("Invalid input argument pool_num:%d", pool_num);
-    }
-  }
-
-  static const int get_pool_num()
-  {
-    return POOL_NUM;
-  }
-
+  DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager);
   ~DiskBufferPool();
 
   /**
@@ -142,53 +136,36 @@ public:
    * 根据文件名打开一个分页文件，返回文件ID
    * @return
    */
-  RC open_file(const char *file_name, int *file_id);
+  RC open_file(const char *file_name);
 
   /**
-   * 关闭fileID对应的分页文件
+   * 关闭分页文件
    */
-  RC close_file(int file_id);
+  RC close_file();
 
   /**
    * 根据文件ID和页号获取指定页面到缓冲区，返回页面句柄指针。
    * @return
    */
-  RC get_this_page(int file_id, PageNum page_num, BPPageHandle *page_handle);
+  RC get_this_page(PageNum page_num, Frame **frame);
 
   /**
    * 在指定文件中分配一个新的页面，并将其放入缓冲区，返回页面句柄指针。
    * 分配页面时，如果文件中有空闲页，就直接分配一个空闲页；
    * 如果文件中没有空闲页，则扩展文件规模来增加新的空闲页。
    */
-  RC allocate_page(int file_id, BPPageHandle *page_handle);
-
-  /**
-   * 根据页面句柄指针返回对应的页面号
-   */
-  RC get_page_num(BPPageHandle *page_handle, PageNum *page_num);
-
-  /**
-   * 根据页面句柄指针返回对应的数据区指针
-   */
-  RC get_data(BPPageHandle *page_handle, char **data);
+  RC allocate_page(Frame **frame);
 
   /**
    * 比purge_page多一个动作， 在磁盘上将对应的页数据删掉。
    */
-  RC dispose_page(int file_id, PageNum page_num);
+  RC dispose_page(PageNum page_num);
 
   /**
    * 释放指定文件关联的页的内存， 如果已经脏， 则刷到磁盘，除了pinned page
-   * @param file_handle
-   * @param page_num 如果不指定page_num 将刷新所有页
    */
-  RC purge_page(int file_id, PageNum page_num);
-
-  /**
-   * 标记指定页面为“脏”页。如果修改了页面的内容，则应调用此函数，
-   * 以便该页面被淘汰出缓冲区时系统将新的页面数据写入磁盘文件
-   */
-  RC mark_dirty(BPPageHandle *page_handle);
+  RC purge_page(PageNum page_num);
+  RC purge_all_pages();
 
   /**
    * 此函数用于解除pageHandle对应页面的驻留缓冲区限制。
@@ -196,44 +173,65 @@ public:
    * 该页面被设置为驻留缓冲区状态，以防止其在处理过程中被置换出去，
    * 因此在该页面使用完之后应调用此函数解除该限制，使得该页面此后可以正常地被淘汰出缓冲区
    */
-  RC unpin_page(BPPageHandle *page_handle);
+  RC unpin_page(Frame *frame);
 
   /**
    * 获取文件的总页数
    */
-  RC get_page_count(int file_id, int *page_count);
+  RC get_page_count(int *page_count);
 
-  RC purge_all_pages(int file_id);
+  RC check_all_pages_unpinned();
 
-  RC check_all_pages_unpinned(int file_id);
-
-protected:
-  RC allocate_page(Frame **buf);
+  int file_desc() const;
 
   /**
-   * 刷新指定文件关联的所有脏页到磁盘，除了pinned page
-   * @param file_handle
-   * @param page_num 如果不指定page_num 将刷新所有页
+   * 如果页面是脏的，就将数据刷新到磁盘
    */
-  RC purge_page(BPFileHandle *file_handle, PageNum page_num);
-  RC purge_page(Frame *used_frame);
-  RC purge_all_pages(BPFileHandle *file_handle);
-  RC check_file_id(int file_id);
-  RC check_page_num(PageNum page_num, BPFileHandle *file_handle);
-  RC load_page(PageNum page_num, BPFileHandle *file_handle, Frame *frame);
-  RC flush_page(Frame *frame);
+  RC flush_page(Frame &frame);
+
+protected:
+  RC allocate_frame(Frame **buf);
+
+  /**
+   * 刷新指定页面到磁盘(flush)，并且释放关联的Frame
+   */
+  RC purge_frame(Frame *used_frame);
+  RC check_page_num(PageNum page_num);
+
+  /**
+   * 加载指定页面的数据到内存中
+   */
+  RC load_page(PageNum page_num, Frame *frame);
 
 private:
-  DiskBufferPool();
-
-private:
-  BPManager bp_manager_;
-  BPFileHandle *open_list_[MAX_OPEN_FILE] = {nullptr};
-  std::map<int, BPDisposedPages> disposed_pages;
-
-  static int POOL_NUM;
+  BufferPoolManager &bp_manager_;
+  BPFrameManager &   frame_manager_;
+  std::string        file_name_;
+  int                file_desc_ = -1;
+  Frame *            hdr_frame_ = nullptr;
+  BPFileHeader *     file_header_ = nullptr;
+  std::set<PageNum>  disposed_pages;
 };
 
-DiskBufferPool *theGlobalDiskBufferPool();
+class BufferPoolManager
+{
+public:
+  BufferPoolManager() = default;
+  ~BufferPoolManager();
+
+  RC create_file(const char *file_name);
+  RC open_file(const char *file_name, DiskBufferPool *&bp);
+  RC close_file(const char *file_name);
+
+  RC flush_page(Frame &frame);
+
+public:
+  static BufferPoolManager &instance();
+  
+private:
+  BPFrameManager frame_manager_{"BufPool"};
+  std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;
+  std::unordered_map<int, DiskBufferPool *> fd_buffer_pools_;
+};
 
 #endif  //__OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_
