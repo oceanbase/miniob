@@ -36,8 +36,16 @@ int find_first_setted(char byte, int start)
   return -1;
 }
 
+Bitmap::Bitmap() : bitmap_(nullptr), size_(0)
+{}
 Bitmap::Bitmap(char *bitmap, int size) : bitmap_(bitmap), size_(size)
 {}
+
+void Bitmap::init(char *bitmap, int size)
+{
+  bitmap_ = bitmap;
+  size_ = size;
+}
 
 bool Bitmap::get_bit(int index)
 {

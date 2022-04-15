@@ -751,7 +751,7 @@ bool InternalIndexNodeHandler::validate(const KeyComparator &comparator, DiskBuf
 
 RC BplusTreeHandler::sync()
 {
-  return disk_buffer_pool_->purge_all_pages();
+  return disk_buffer_pool_->flush_all_pages();
 }
 
 RC BplusTreeHandler::create(const char *file_name, AttrType attr_type, int attr_length,

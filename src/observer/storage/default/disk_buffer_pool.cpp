@@ -88,6 +88,43 @@ std::list<Frame *> BPFrameManager::find_list(int file_desc)
   return find_all(match_file, &file_desc);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+BufferPoolIterator::BufferPoolIterator()
+{}
+BufferPoolIterator::~BufferPoolIterator()
+{}
+RC BufferPoolIterator::init(DiskBufferPool &bp, PageNum start_page /* = 0 */)
+{
+  bitmap_.init(bp.file_header_->bitmap, bp.file_header_->page_count);
+  if (start_page <= 0) {
+    current_page_num_ = 0;
+  } else {
+    current_page_num_ = start_page;
+  }
+  return RC::SUCCESS;
+}
+
+bool BufferPoolIterator::has_next()
+{
+  return bitmap_.next_setted_bit(current_page_num_) != -1;
+}
+
+PageNum BufferPoolIterator::next()
+{
+  PageNum next_page = bitmap_.next_setted_bit(current_page_num_);
+  if (next_page != -1) {
+    current_page_num_ = next_page;
+  }
+  return next_page;
+}
+
+RC BufferPoolIterator::reset()
+{
+  current_page_num_ = 0;
+  return RC::SUCCESS;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 DiskBufferPool::DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager)
   : bp_manager_(bp_manager), frame_manager_(frame_manager)
 {
@@ -387,6 +424,19 @@ RC DiskBufferPool::flush_page(Frame &frame)
   frame.dirty_ = false;
   LOG_DEBUG("Flush block. file desc=%d, page num=%d", file_desc_, page.page_num);
 
+  return RC::SUCCESS;
+}
+
+RC DiskBufferPool::flush_all_pages()
+{
+  std::list<Frame *> used = frame_manager_.find_list(file_desc_);
+  for (Frame *frame : used) {
+    RC rc = flush_page(*frame);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to flush all pages");
+      return rc;
+    }
+  }
   return RC::SUCCESS;
 }
 
