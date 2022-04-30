@@ -24,11 +24,11 @@ typedef int32_t SlotNum;
 class ConditionFilter;
 
 struct PageHeader {
-  int record_num;           // 当前页面记录的个数
-  int record_capacity;      // 最大记录个数
-  int record_real_size;     // 每条记录的实际大小
-  int record_size;          // 每条记录占用实际空间大小(可能对齐)
-  int first_record_offset;  // 第一条记录的偏移量
+  int32_t record_num;           // 当前页面记录的个数
+  int32_t record_capacity;      // 最大记录个数
+  int32_t record_real_size;     // 每条记录的实际大小
+  int32_t record_size;          // 每条记录占用实际空间大小(可能对齐)
+  int32_t first_record_offset;  // 第一条记录的偏移量
 };
 
 struct RID {
@@ -108,6 +108,9 @@ public:
   bool has_next();
   RC   next(Record &record);
 
+  bool is_valid() const {
+    return record_page_handler_ != nullptr;
+  }
 private:
   RecordPageHandler *record_page_handler_ = nullptr;
   PageNum page_num_ = BP_INVALID_PAGE_NUM;
@@ -227,7 +230,7 @@ public:
 
 private:
   RC fetch_next_record();
-  RC fetch_record_in_page();
+  RC fetch_next_record_in_page();
 private:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
 

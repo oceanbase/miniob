@@ -102,6 +102,81 @@ TEST(test_record_page_handler, test_record_page_handler)
     ASSERT_EQ(rc, RC::SUCCESS);
   }
   ASSERT_EQ(count, 6);
+
+  bpm->close_file(record_manager_file);
+}
+
+TEST(test_record_page_handler, test_record_file_iterator)
+{
+  const char *record_manager_file = "record_manager.bp";
+  ::remove(record_manager_file);
+
+  BufferPoolManager *bpm = new BufferPoolManager();
+  DiskBufferPool *bp = nullptr;
+  RC rc = bpm->create_file(record_manager_file);
+  ASSERT_EQ(rc, RC::SUCCESS);
+  
+  rc = bpm->open_file(record_manager_file, bp);
+  ASSERT_EQ(rc, RC::SUCCESS);
+
+  RecordFileHandler file_handler;
+  rc = file_handler.init(bp);
+  ASSERT_EQ(rc, RC::SUCCESS);
+
+  RecordFileScanner file_scanner;
+  rc = file_scanner.open_scan(*bp, nullptr);
+  ASSERT_EQ(rc, RC::SUCCESS);
+
+  int count = 0;
+  Record record;
+  while (file_scanner.has_next()) {
+    rc = file_scanner.next(record);
+    ASSERT_EQ(rc, RC::SUCCESS);
+    count++;
+  }
+  file_scanner.close_scan();
+  ASSERT_EQ(count, 0);
+  
+  const int record_insert_num = 1000;
+  char record_data[20];
+  std::vector<RID> rids;
+  for (int i = 0; i < record_insert_num; i++) {
+    RID rid;
+    rc = file_handler.insert_record(record_data, sizeof(record_data), &rid);
+    ASSERT_EQ(rc, RC::SUCCESS);
+    rids.push_back(rid);
+  }
+
+  rc = file_scanner.open_scan(*bp, nullptr);
+  ASSERT_EQ(rc, RC::SUCCESS);
+
+  count = 0;
+  while (file_scanner.has_next()) {
+    rc = file_scanner.next(record);
+    ASSERT_EQ(rc, RC::SUCCESS);
+    count++;
+  }
+  file_scanner.close_scan();
+  ASSERT_EQ(count, rids.size());
+  
+  for (int i = 0; i < record_insert_num; i += 2) {
+    rc = file_handler.delete_record(&rids[i]);
+    ASSERT_EQ(rc, RC::SUCCESS);
+  }
+
+  rc = file_scanner.open_scan(*bp, nullptr);
+  ASSERT_EQ(rc, RC::SUCCESS);
+
+  count = 0;
+  while (file_scanner.has_next()) {
+    rc = file_scanner.next(record);
+    ASSERT_EQ(rc, RC::SUCCESS);
+    count++;
+  }
+  file_scanner.close_scan();
+  ASSERT_EQ(count, rids.size() / 2);
+  
+  bpm->close_file(record_manager_file);
 }
 
 int main(int argc, char **argv)

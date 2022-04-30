@@ -106,12 +106,12 @@ RC BufferPoolIterator::init(DiskBufferPool &bp, PageNum start_page /* = 0 */)
 
 bool BufferPoolIterator::has_next()
 {
-  return bitmap_.next_setted_bit(current_page_num_) != -1;
+  return bitmap_.next_setted_bit(current_page_num_ + 1) != -1;
 }
 
 PageNum BufferPoolIterator::next()
 {
-  PageNum next_page = bitmap_.next_setted_bit(current_page_num_);
+  PageNum next_page = bitmap_.next_setted_bit(current_page_num_ + 1);
   if (next_page != -1) {
     current_page_num_ = next_page;
   }

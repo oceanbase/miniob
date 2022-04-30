@@ -390,6 +390,13 @@ RC RecordFileScanner::open_scan(DiskBufferPool &buffer_pool, ConditionFilter *co
 RC RecordFileScanner::fetch_next_record()
 {
   RC rc = RC::SUCCESS;
+  if (record_page_iterator_.is_valid()) {
+    rc = fetch_next_record_in_page();
+    if (rc == RC::SUCCESS || rc != RC::RECORD_EOF) {
+      return rc;
+    }
+  }
+
   while (bp_iterator_.has_next()) {
     PageNum page_num = bp_iterator_.next();
     record_page_handler_.cleanup();
@@ -400,7 +407,7 @@ RC RecordFileScanner::fetch_next_record()
     }
 
     record_page_iterator_.init(record_page_handler_);
-    rc = fetch_record_in_page();
+    rc = fetch_next_record_in_page();
     if (rc == RC::SUCCESS || rc != RC::RECORD_EOF) {
       return rc;
     }
@@ -409,7 +416,7 @@ RC RecordFileScanner::fetch_next_record()
   return RC::RECORD_EOF;
 }
 
-RC RecordFileScanner::fetch_record_in_page()
+RC RecordFileScanner::fetch_next_record_in_page()
 {
   RC rc = RC::SUCCESS;
   while (record_page_iterator_.has_next()) {
