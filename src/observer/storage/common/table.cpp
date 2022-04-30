@@ -435,11 +435,6 @@ RC Table::scan_record(Trx *trx, ConditionFilter *filter, int limit, void *contex
     }
   }
 
-  if (RC::RECORD_EOF == rc) {
-    rc = RC::SUCCESS;
-  } else {
-    LOG_ERROR("failed to scan record. rc=%d:%s", rc, strrc(rc));
-  }
   scanner.close_scan();
   return rc;
 }
