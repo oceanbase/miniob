@@ -7,7 +7,7 @@ miniob设计的目标是让不熟悉数据库设计和实现的同学能够快�
 [GitHub 首页](https://github.com/oceanbase/miniob)
 
 # How to build
-直接在本地搭建开发环境，可以参考 docs/how_to_build.md。
+直接在本地搭建开发环境，可以参考 [how_to_build](docs/how_to_build.md)。
 
 # Docker
 
@@ -47,6 +47,9 @@ docker基于`CentOS:7`制作。
 
 docker中在/root/source/miniob目录下载了github的源码，可以根据个人需要，下载自己仓库的源代码，也可以直接使用git pull 拉取最新代码。
 /root/source/miniob/build.sh 提供了一个编译脚本，以DEBUG模式编译miniob。
+
+# 数据库管理系统实现基础讲义
+由华中科技大学谢美意和左琼老师联合编撰数据库管理系统实现教材。参考 [数据库管理系统实现基础讲义](docs/lectures/index.md)
 
 # miniob 题目
 [miniob 题目](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-topics)
