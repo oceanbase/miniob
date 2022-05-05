@@ -52,7 +52,7 @@ docker中在/root/source/miniob目录下载了github的源码，可以根据个�
 由华中科技大学谢美意和左琼老师联合编撰数据库管理系统实现教材。参考 [数据库管理系统实现基础讲义](docs/lectures/index.md)
 
 # miniob 题目
-[miniob 题目](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-topics)
+[miniob 题目](docs/miniob_topics.md)
 
 # miniob 实现解析
 
