@@ -69,9 +69,14 @@ MESSAGE("Install target dir is " ${CMAKE_INSTALL_PREFIX})
 # ADD_SUBDIRECTORY(src bin)  bin 为目标目录， 可以省略
 ADD_SUBDIRECTORY(deps)
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(unitest)
 ADD_SUBDIRECTORY(test/perf)
 
+find_package(GTest CONFIG)
+IF (GTest_FOUND)
+    ADD_SUBDIRECTORY(unitest)
+ELSE ()
+    message ("GTest not found")
+ENDIF ()
 
 # install 准备安装的目录是cmakefile 的当前目录， 不是build 后生成的目录
 # Files 默认权限OWNER_WRITE, OWNER_READ, GROUP_READ,和WORLD_READ，即644权限
