@@ -390,8 +390,8 @@ RC Table::scan_record(
   return scan_record(trx, filter, limit, (void *)&adapter, scan_record_reader_adapter);
 }
 
-RC Table::scan_record(
-    Trx *trx, ConditionFilter *filter, int limit, void *context, RC (*record_reader)(Record *record, void *context))
+RC Table::scan_record(Trx *trx, ConditionFilter *filter, int limit, void *context,
+		      RC (*record_reader)(Record *record, void *context))
 {
   if (nullptr == record_reader) {
     return RC::INVALID_ARGUMENT;
@@ -420,8 +420,12 @@ RC Table::scan_record(
 
   int record_count = 0;
   Record record;
-  rc = scanner.get_first_record(&record);
-  for (; RC::SUCCESS == rc && record_count < limit; rc = scanner.get_next_record(&record)) {
+  while (scanner.has_next()) {
+    rc = scanner.next(record);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to fetch next record. rc=%d:%s", rc, strrc(rc));
+      return rc;
+    }
     if (trx == nullptr || trx->is_visible(this, &record)) {
       rc = record_reader(&record, context);
       if (rc != RC::SUCCESS) {
@@ -431,11 +435,6 @@ RC Table::scan_record(
     }
   }
 
-  if (RC::RECORD_EOF == rc) {
-    rc = RC::SUCCESS;
-  } else {
-    LOG_ERROR("failed to scan record. rc=%d:%s", rc, strrc(rc));
-  }
   scanner.close_scan();
   return rc;
 }
@@ -827,7 +826,7 @@ IndexScanner *Table::find_index_for_scan(const ConditionFilter *filter)
 
 RC Table::sync()
 {
-  RC rc = data_buffer_pool_->purge_all_pages();
+  RC rc = data_buffer_pool_->flush_all_pages();
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to flush table's data pages. table=%s, rc=%d:%s", name(), rc, strrc(rc));
     return rc;

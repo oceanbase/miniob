@@ -17,17 +17,18 @@ See the Mulan PSL v2 for more details. */
 #include <sstream>
 #include <limits>
 #include "storage/default/disk_buffer_pool.h"
+#include "common/lang/bitmap.h"
 
 typedef int32_t SlotNum;
 
 class ConditionFilter;
 
 struct PageHeader {
-  int record_num;           // 当前页面记录的个数
-  int record_capacity;      // 最大记录个数
-  int record_real_size;     // 每条记录的实际大小
-  int record_size;          // 每条记录占用实际空间大小(可能对齐)
-  int first_record_offset;  // 第一条记录的偏移量
+  int32_t record_num;           // 当前页面记录的个数
+  int32_t record_capacity;      // 最大记录个数
+  int32_t record_real_size;     // 每条记录的实际大小
+  int32_t record_size;          // 每条记录占用实际空间大小(可能对齐)
+  int32_t first_record_offset;  // 第一条记录的偏移量
 };
 
 struct RID {
@@ -95,6 +96,28 @@ struct Record {
   char *data;  // record's data
 };
 
+class RecordPageHandler;
+class RecordPageIterator
+{
+public:
+  RecordPageIterator();
+  ~RecordPageIterator();
+
+  void init(RecordPageHandler &record_page_handler);
+
+  bool has_next();
+  RC   next(Record &record);
+
+  bool is_valid() const {
+    return record_page_handler_ != nullptr;
+  }
+private:
+  RecordPageHandler *record_page_handler_ = nullptr;
+  PageNum page_num_ = BP_INVALID_PAGE_NUM;
+  common::Bitmap  bitmap_;
+  SlotNum next_slot_num_ = 0;
+};
+
 class RecordPageHandler {
 public:
   RecordPageHandler() = default;
@@ -122,8 +145,6 @@ public:
   RC delete_record(const RID *rid);
 
   RC get_record(const RID *rid, Record *rec);
-  RC get_first_record(Record *rec);
-  RC get_next_record(Record *rec);
 
   PageNum get_page_num() const;
 
@@ -140,6 +161,9 @@ protected:
   Frame *frame_ = nullptr;
   PageHeader *page_header_ = nullptr;
   char *bitmap_ = nullptr;
+
+private:
+  friend class RecordPageIterator;
 };
 
 class RecordFileHandler {
@@ -184,7 +208,6 @@ public:
 
 private:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
-  RecordPageHandler record_page_handler_;  // 目前只有insert record使用
 };
 
 class RecordFileScanner {
@@ -193,36 +216,29 @@ public:
 
   /**
    * 打开一个文件扫描。
-   * 本函数利用从第二个参数开始的所有输入参数初始化一个由参数rmFileScan指向的文件扫描结构，
-   * 在使用中，用户应先调用此函数初始化文件扫描结构，
-   * 然后再调用GetNextRec函数来逐个返回文件中满足条件的记录。
-   * 如果条件数量conNum为0，则意味着检索文件中的所有记录。
    * 如果条件不为空，则要对每条记录进行条件比较，只有满足所有条件的记录才被返回
    */
   RC open_scan(DiskBufferPool &buffer_pool, ConditionFilter *condition_filter);
 
   /**
    * 关闭一个文件扫描，释放相应的资源
-   * @return
    */
   RC close_scan();
 
-  RC get_first_record(Record *rec);
+  bool has_next();
+  RC   next(Record &record);
 
-  /**
-   * 获取下一个符合扫描条件的记录。
-   * 如果该方法成功，返回值rec应包含记录副本及记录标识符。
-   * 如果没有发现满足扫描条件的记录，则返回RM_EOF
-   * @param rec 上一条记录。如果为NULL，就返回第一条记录
-   * @return
-   */
-  RC get_next_record(Record *rec);
-
+private:
+  RC fetch_next_record();
+  RC fetch_next_record_in_page();
 private:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
 
+  BufferPoolIterator bp_iterator_;
   ConditionFilter *condition_filter_ = nullptr;
   RecordPageHandler record_page_handler_;
+  RecordPageIterator record_page_iterator_;
+  Record next_record_;
 };
 
 #endif  //__OBSERVER_STORAGE_COMMON_RECORD_MANAGER_H_
