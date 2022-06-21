@@ -1,0 +1,82 @@
+/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+miniob is licensed under Mulan PSL v2.
+You can use this software according to the terms and conditions of the Mulan PSL v2.
+You may obtain a copy of Mulan PSL v2 at:
+         http://license.coscl.org.cn/MulanPSL2
+THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+See the Mulan PSL v2 for more details. */
+
+//
+// Created by WangYunlai on 2021/6/10.
+//
+
+#include "sql/executor/join_operator.h"
+
+RC JoinOperator::open()
+{
+  RC rc = left_->open();
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to open left operator. rc=%d:%s", rc, strrc(rc));
+    return rc;
+  }
+
+  rc = right_->open();
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to open right operator. rc=%d:%s", rc, strrc(rc));
+    return rc;
+  }
+  return rc;
+}
+
+RC JoinOperator::step_right()
+{
+  rc = right_->next();
+  while (rc == RC::SUCCESS) {
+    if (predicate_->filter()) {
+      return rc;
+    }
+
+    rc = right_->next();
+  }
+  return rc;
+}
+
+RC JoinOperator::next()
+{
+  RC rc = RC::SUCCESS;
+  while (true) {
+    if (round_done_) {
+      rc = left_->next();
+      if (rc != RC::SUCCESS) {
+        return rc;
+      }
+
+      round_done_ = false;
+
+      right_->close();
+      right_->open(); // TODO
+    }
+
+    rc = step_right();
+    if (rc == RC::SUCCESS) {
+      return rc;
+    }
+
+    if (rc == RC::RECORD_EOF) {
+      round_done_ = true;
+    } else {
+      return rc;
+    }
+  }
+
+  return RC::RECORD_EOF;
+}
+
+RC JoinOperator::close()
+{
+  left_->close();
+  right_->close();
+  return RC::SUCCESS;
+}

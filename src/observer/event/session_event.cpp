@@ -15,14 +15,21 @@ See the Mulan PSL v2 for more details. */
 #include "session_event.h"
 
 SessionEvent::SessionEvent(ConnectionContext *client) : client_(client)
-{}
+{
+}
 
 SessionEvent::~SessionEvent()
-{}
+{
+}
 
 ConnectionContext *SessionEvent::get_client() const
 {
   return client_;
+}
+
+Session *SessionEvent::session() const
+{
+  return client_->session;
 }
 
 const char *SessionEvent::get_response() const

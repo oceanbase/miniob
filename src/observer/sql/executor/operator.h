@@ -9,20 +9,26 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/14.
+// Created by WangYunlai on 2021/6/7.
 //
 
-#include "event/storage_event.h"
-#include "event/execution_plan_event.h"
+#pragma once
 
-StorageEvent::StorageEvent(ExecutionPlanEvent *exe_event) : exe_event_(exe_event)
-{}
+#include "common/seda/stage.h"
+#include "sql/parser/parse.h"
+#include "rc.h"
 
-StorageEvent::~StorageEvent()
+class Operator
 {
-  exe_event_ = nullptr;
-  // if (exe_event_ != nullptr) {
-  //   ExecutionPlanEvent *exe_event = exe_event_;
-  //   exe_event->doneImmediate();
-  // }
-}
+public:
+  Operator()
+  {}
+
+  virtual ~Operator() = default;
+
+  virtual RC open() = 0;
+  virtual RC next() = 0;
+  virtual RC close() = 0;
+
+private:
+};

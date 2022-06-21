@@ -29,17 +29,20 @@ RUN wget http://yum-test.obvos.alibaba-inc.com/oceanbase/development-kit/el/7/x8
 
 RUN git clone https://github.com/libevent/libevent  -b release-2.1.12-stable  \
     && mkdir -p ${HOME_DIR}/deps/libevent/build  \
-    && cmake -DEVENT__DISABLE_OPENSSL=ON -B ${HOME_DIR}/deps/libevent/build ${HOME_DIR}/deps/libevent && make -C ${HOME_DIR}/deps/libevent/build -j install \
+    && cmake -DEVENT__DISABLE_OPENSSL=ON -B ${HOME_DIR}/deps/libevent/build ${HOME_DIR}/deps/libevent \
+    && make -C ${HOME_DIR}/deps/libevent/build -j install \
     && rm -rf ${HOME_DIR}/deps/*
 
 RUN git clone https://github.com/open-source-parsers/jsoncpp.git \
     && mkdir -p ${HOME_DIR}/deps/jsoncpp/build \
-    && cmake -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF -B ${HOME_DIR}/deps/jsoncpp/build ${HOME_DIR}/deps/jsoncpp/ && make -C ${HOME_DIR}/deps/jsoncpp/build -j install \
+    && cmake -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF -B ${HOME_DIR}/deps/jsoncpp/build ${HOME_DIR}/deps/jsoncpp/ \
+    && make -C ${HOME_DIR}/deps/jsoncpp/build -j install \
     && rm -rf ${HOME_DIR}/deps/*
 
 RUN git clone https://github.com/google/googletest \
     && mkdir -p ${HOME_DIR}/deps/googletest/build  \
-    && cmake -B ${HOME_DIR}/deps/googletest/build ${HOME_DIR}/deps/googletest && make -C ${HOME_DIR}/deps/googletest/build -j install \
+    && cmake -B ${HOME_DIR}/deps/googletest/build ${HOME_DIR}/deps/googletest \
+    && make -C ${HOME_DIR}/deps/googletest/build -j install \
     && rm -rf ${HOME_DIR}/deps/*
 
 RUN wget http://ftp.gnu.org/gnu/bison/bison-3.7.tar.gz \

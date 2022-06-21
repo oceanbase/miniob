@@ -42,7 +42,7 @@ public:
   const FieldMeta *field(int index) const;
   const FieldMeta *field(const char *name) const;
   const FieldMeta *find_field_by_offset(int offset) const;
-  int field_num() const;
+  int field_num() const; // sys field included
   int sys_field_num() const;
 
   const IndexMeta *index(const char *name) const;

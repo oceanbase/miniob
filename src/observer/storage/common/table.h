@@ -17,12 +17,13 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/common/table_meta.h"
 
-class DiskBufferPool;
-class RecordFileHandler;
-class ConditionFilter;
-class DefaultConditionFilter;
 struct Record;
 struct RID;
+class DiskBufferPool;
+class RecordFileHandler;
+class RecordFileScanner;
+class ConditionFilter;
+class DefaultConditionFilter;
 class Index;
 class IndexScanner;
 class RecordDeleter;
@@ -59,6 +60,8 @@ public:
       void (*record_reader)(const char *data, void *context));
 
   RC create_index(Trx *trx, const char *index_name, const char *attribute_name);
+
+  RC get_record_scanner(RecordFileScanner &scanner);
 
 public:
   const char *name() const;

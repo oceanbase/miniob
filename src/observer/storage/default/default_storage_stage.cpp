@@ -29,7 +29,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/table.h"
 #include "storage/common/table_meta.h"
 #include "storage/trx/trx.h"
-#include "event/execution_plan_event.h"
 #include "event/session_event.h"
 #include "event/sql_event.h"
 #include "event/storage_event.h"
@@ -143,21 +142,15 @@ void DefaultStorageStage::handle_event(StageEvent *event)
   LOG_TRACE("Enter\n");
   TimerStat timerStat(*query_metric_);
 
-  StorageEvent *storage_event = static_cast<StorageEvent *>(event);
-  CompletionCallback *cb = new (std::nothrow) CompletionCallback(this, nullptr);
-  if (cb == nullptr) {
-    LOG_ERROR("Failed to new callback for SessionEvent");
-    storage_event->done_immediate();
-    return;
-  }
-  storage_event->push_callback(cb);
+  SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
 
-  Query *sql = storage_event->exe_event()->sqls();
+  Query *sql = sql_event->query();
 
-  SessionEvent *session_event = storage_event->exe_event()->sql_event()->session_event();
+  SessionEvent *session_event = sql_event->session_event();
 
   Session *session = session_event->get_client()->session;
-  const char *current_db = session->get_current_db().c_str();
+  Db *db = session->get_current_db();
+  const char *dbname = db->name();
 
   Trx *current_trx = session->current_trx();
 
@@ -168,7 +161,7 @@ void DefaultStorageStage::handle_event(StageEvent *event)
     case SCF_INSERT: {  // insert into
       const Inserts &inserts = sql->sstr.insertion;
       const char *table_name = inserts.relation_name;
-      rc = handler_->insert_record(current_trx, current_db, table_name, inserts.value_num, inserts.values);
+      //rc = handler_->insert_record(current_trx, current_db, table_name, inserts.value_num, inserts.values);
       snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
     } break;
     case SCF_UPDATE: {
@@ -176,6 +169,7 @@ void DefaultStorageStage::handle_event(StageEvent *event)
       const char *table_name = updates.relation_name;
       const char *field_name = updates.attribute_name;
       int updated_count = 0;
+      #if 0
       rc = handler_->update_record(current_trx,
           current_db,
           table_name,
@@ -184,57 +178,18 @@ void DefaultStorageStage::handle_event(StageEvent *event)
           updates.condition_num,
           updates.conditions,
           &updated_count);
+      #endif
       snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
     } break;
     case SCF_DELETE: {
       const Deletes &deletes = sql->sstr.deletion;
       const char *table_name = deletes.relation_name;
       int deleted_count = 0;
+      #if 0
       rc = handler_->delete_record(
           current_trx, current_db, table_name, deletes.condition_num, deletes.conditions, &deleted_count);
+      #endif
       snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
-    } break;
-    case SCF_CREATE_TABLE: {  // create table
-      const CreateTable &create_table = sql->sstr.create_table;
-      rc = handler_->create_table(
-          current_db, create_table.relation_name, create_table.attribute_count, create_table.attributes);
-      snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
-    } break;
-    case SCF_CREATE_INDEX: {
-      const CreateIndex &create_index = sql->sstr.create_index;
-      rc = handler_->create_index(
-          current_trx, current_db, create_index.relation_name, create_index.index_name, create_index.attribute_name);
-      snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
-    } break;
-
-    case SCF_SHOW_TABLES: {
-      Db *db = handler_->find_db(current_db);
-      if (nullptr == db) {
-        snprintf(response, sizeof(response), "No such database: %s\n", current_db);
-      } else {
-        std::vector<std::string> all_tables;
-        db->all_tables(all_tables);
-        if (all_tables.empty()) {
-          snprintf(response, sizeof(response), "No table\n");
-        } else {
-          std::stringstream ss;
-          for (const auto &table : all_tables) {
-            ss << table << std::endl;
-          }
-          snprintf(response, sizeof(response), "%s\n", ss.str().c_str());
-        }
-      }
-    } break;
-    case SCF_DESC_TABLE: {
-      const char *table_name = sql->sstr.desc_table.relation_name;
-      Table *table = handler_->find_table(current_db, table_name);
-      std::stringstream ss;
-      if (table != nullptr) {
-        table->table_meta().desc(ss);
-      } else {
-        ss << "No such table: " << table_name << std::endl;
-      }
-      snprintf(response, sizeof(response), "%s", ss.str().c_str());
     } break;
 
     case SCF_LOAD_DATA: {
@@ -244,7 +199,7 @@ void DefaultStorageStage::handle_event(StageEvent *event)
        */
       const char *table_name = sql->sstr.load_data.relation_name;
       const char *file_name = sql->sstr.load_data.file_name;
-      std::string result = load_data(current_db, table_name, file_name);
+      std::string result = load_data(dbname, table_name, file_name);
       snprintf(response, sizeof(response), "%s", result.c_str());
     } break;
     default:
@@ -269,7 +224,7 @@ void DefaultStorageStage::callback_event(StageEvent *event, CallbackContext *con
 {
   LOG_TRACE("Enter\n");
   StorageEvent *storage_event = static_cast<StorageEvent *>(event);
-  storage_event->exe_event()->done_immediate();
+  storage_event->sql_event()->done_immediate();
   LOG_TRACE("Exit\n");
   return;
 }

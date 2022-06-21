@@ -34,7 +34,7 @@ protected:
 
 protected:
 private:
-  Stage *execute_stage = nullptr;
+  Stage *execute_stage_ = nullptr;
 };
 
 #endif  //__OBSERVER_SQL_OPTIMIZE_STAGE_H__

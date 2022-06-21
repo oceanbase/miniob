@@ -21,12 +21,15 @@ See the Mulan PSL v2 for more details. */
 #include "common/seda/stage_event.h"
 #include "net/connection_context.h"
 
+class Session;
+
 class SessionEvent : public common::StageEvent {
 public:
   SessionEvent(ConnectionContext *client);
   virtual ~SessionEvent();
 
   ConnectionContext *get_client() const;
+  Session *session() const;
 
   const char *get_response() const;
   void set_response(const char *response);

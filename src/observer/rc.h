@@ -172,10 +172,11 @@ enum RC {
   /* beginning-of-error-codes */
   GENERIC_ERROR,    /* Generic error */
   INVALID_ARGUMENT, /* Invalid argument */
+  UNIMPLENMENT,     /* not implenment yet */
   SQL_SYNTAX,       /* SQL Syntax error */
   BUFFERPOOL,       /* Buffer pool error*/
   RECORD,           /* Record error */
-  INTERNAL,         /* Internal logic error in SQLite */
+  INTERNAL,         /* Internal logic error in SQL */
   PERM,             /* Access permission denied */
   ABORT,            /* Callback routine requested an abort */
   BUSY,             /* The database file is locked */

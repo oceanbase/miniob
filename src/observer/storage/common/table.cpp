@@ -357,6 +357,15 @@ RC Table::init_record_handler(const char *base_dir)
   return rc;
 }
 
+RC Table::get_record_scanner(RecordFileScanner &scanner)
+{
+  RC rc = scanner.open_scan(*data_buffer_pool_, nullptr);
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("failed to open scanner. rc=%d:%s", rc, strrc(rc));
+  }
+  return rc;
+}
+
 /**
  * 为了不把Record暴露出去，封装一下
  */

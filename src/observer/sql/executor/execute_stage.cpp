@@ -25,9 +25,14 @@ See the Mulan PSL v2 for more details. */
 #include "event/storage_event.h"
 #include "event/sql_event.h"
 #include "event/session_event.h"
-#include "event/execution_plan_event.h"
 #include "sql/executor/execution_node.h"
 #include "sql/executor/tuple.h"
+#include "sql/executor/table_scan_operator.h"
+#include "sql/stmt/stmt.h"
+#include "sql/stmt/select_stmt.h"
+#include "sql/stmt/update_stmt.h"
+#include "sql/stmt/delete_stmt.h"
+#include "sql/stmt/insert_stmt.h"
 #include "storage/common/table.h"
 #include "storage/default/default_handler.h"
 #include "storage/common/condition_filter.h"
@@ -108,9 +113,6 @@ void ExecuteStage::callback_event(StageEvent *event, CallbackContext *context)
   LOG_TRACE("Enter\n");
 
   // here finish read all data from disk or network, but do nothing here.
-  ExecutionPlanEvent *exe_event = static_cast<ExecutionPlanEvent *>(event);
-  SQLStageEvent *sql_event = exe_event->sql_event();
-  sql_event->done_immediate();
 
   LOG_TRACE("Exit\n");
   return;
@@ -118,88 +120,83 @@ void ExecuteStage::callback_event(StageEvent *event, CallbackContext *context)
 
 void ExecuteStage::handle_request(common::StageEvent *event)
 {
-  ExecutionPlanEvent *exe_event = static_cast<ExecutionPlanEvent *>(event);
-  SessionEvent *session_event = exe_event->sql_event()->session_event();
-  Query *sql = exe_event->sqls();
-  const char *current_db = session_event->get_client()->session->get_current_db().c_str();
+  SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
+  SessionEvent *session_event = sql_event->session_event();
+  Stmt *stmt = sql_event->stmt();
+  Session *session = session_event->session();
+  Db *current_db = session->get_current_db();
+  Query *sql = sql_event->query();
 
-  CompletionCallback *cb = new (std::nothrow) CompletionCallback(this, nullptr);
-  if (cb == nullptr) {
-    LOG_ERROR("Failed to new callback for ExecutionPlanEvent");
-    exe_event->done_immediate();
-    return;
+  if (stmt != nullptr) {
+    switch (stmt->type()) {
+    case StmtType::SELECT: {
+      do_select((SelectStmt *)stmt, session_event);
+    } break;
+    case StmtType::UPDATE: {
+      //do_update((UpdateStmt *)stmt, session_event);
+    } break;
+    case StmtType::DELETE: {
+      //do_delete((DeleteStmt *)stmt, session_event);
+    } break;
+    }
+  } else {
+    switch (sql->flag) {
+    case SCF_HELP: {
+      do_help(sql_event);
+    } break;
+    case SCF_CREATE_TABLE: {
+      do_create_table(sql_event);
+    } break;
+    case SCF_CREATE_INDEX: {
+      do_create_index(sql_event);
+    } break;
+    case SCF_SHOW_TABLES: {
+      do_show_tables(sql_event);
+    } break;
+    case SCF_DESC_TABLE: {
+      do_desc_table(sql_event);
+    } break;
+    }
   }
-  exe_event->push_callback(cb);
 
   switch (sql->flag) {
-    case SCF_SELECT: {  // select
-      do_select(current_db, sql, exe_event->sql_event()->session_event());
-      exe_event->done_immediate();
-    } break;
+    //case SCF_SELECT: {  // select
+    // do_select(current_db, sql, exe_event->sql_event()->session_event());
+    // exe_event->done_immediate();
+    //} bre
 
     case SCF_INSERT:
-    case SCF_UPDATE:
-    case SCF_DELETE:
-    case SCF_CREATE_TABLE:
-    case SCF_SHOW_TABLES:
-    case SCF_DESC_TABLE:
     case SCF_DROP_TABLE:
-    case SCF_CREATE_INDEX:
     case SCF_DROP_INDEX:
     case SCF_LOAD_DATA: {
-      StorageEvent *storage_event = new (std::nothrow) StorageEvent(exe_event);
-      if (storage_event == nullptr) {
-        LOG_ERROR("Failed to new StorageEvent");
-        event->done_immediate();
-        return;
-      }
-
-      default_storage_stage_->handle_event(storage_event);
+      default_storage_stage_->handle_event(event);
     } break;
     case SCF_SYNC: {
       RC rc = DefaultHandler::get_default().sync();
       session_event->set_response(strrc(rc));
-      exe_event->done_immediate();
     } break;
     case SCF_BEGIN: {
-      session_event->get_client()->session->set_trx_multi_operation_mode(true);
+      session->set_trx_multi_operation_mode(true);
       session_event->set_response(strrc(RC::SUCCESS));
-      exe_event->done_immediate();
     } break;
     case SCF_COMMIT: {
-      Trx *trx = session_event->get_client()->session->current_trx();
+      Trx *trx = session->current_trx();
       RC rc = trx->commit();
-      session_event->get_client()->session->set_trx_multi_operation_mode(false);
+      session->set_trx_multi_operation_mode(false);
       session_event->set_response(strrc(rc));
-      exe_event->done_immediate();
     } break;
     case SCF_ROLLBACK: {
       Trx *trx = session_event->get_client()->session->current_trx();
       RC rc = trx->rollback();
-      session_event->get_client()->session->set_trx_multi_operation_mode(false);
+      session->set_trx_multi_operation_mode(false);
       session_event->set_response(strrc(rc));
-      exe_event->done_immediate();
-    } break;
-    case SCF_HELP: {
-      const char *response = "show tables;\n"
-                             "desc `table name`;\n"
-                             "create table `table name` (`column name` `column type`, ...);\n"
-                             "create index `index name` on `table` (`column`);\n"
-                             "insert into `table` values(`value1`,`value2`);\n"
-                             "update `table` set column=value [where `column`=`value`];\n"
-                             "delete from `table` [where `column`=`value`];\n"
-                             "select [ * | `columns` ] from `table`;\n";
-      session_event->set_response(response);
-      exe_event->done_immediate();
     } break;
     case SCF_EXIT: {
       // do nothing
       const char *response = "Unsupported\n";
       session_event->set_response(response);
-      exe_event->done_immediate();
     } break;
     default: {
-      exe_event->done_immediate();
       LOG_ERROR("Unsupported command=%d\n", sql->flag);
     }
   }
@@ -216,6 +213,37 @@ void end_trx_if_need(Session *session, Trx *trx, bool all_right)
   }
 }
 
+RC ExecuteStage::do_select(SelectStmt *select_stmt, SessionEvent *session_event)
+{
+  RC rc = RC::SUCCESS;
+  if (select_stmt->tables().size() != 1) {
+    LOG_WARN("select more than 1 tables is not supported");
+    rc = RC::UNIMPLENMENT;
+    return rc;
+  }
+
+  Table *table = select_stmt->tables().front();
+  TableScanOperator table_scan_operator(table);
+  rc = table_scan_operator.open();
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to open operator");
+    return rc;
+  }
+
+  while ((rc = table_scan_operator.next()) == RC::SUCCESS) {
+    // get current record
+    // write to response
+  }
+  if (rc != RC::RECORD_EOF) {
+    LOG_WARN("something wrong while iterate operator. rc=%s", strrc(rc));
+    table_scan_operator.close();
+  } else {
+    rc = table_scan_operator.close();
+  }
+  return rc;
+}
+
+#if 0
 // 这里没有对输入的某些信息做合法性校验，比如查询的列名、where条件中的列名等，没有做必要的合法性校验
 // 需要补充上这一部分. 校验部分也可以放在resolve，不过跟execution放一起也没有关系
 RC ExecuteStage::do_select(const char *db, Query *sql, SessionEvent *session_event)
@@ -356,4 +384,84 @@ RC create_selection_executor(
   }
 
   return select_node.init(trx, table, std::move(schema), std::move(condition_filters));
+}
+#endif
+
+RC ExecuteStage::do_help(SQLStageEvent *sql_event)
+{
+  SessionEvent *session_event = sql_event->session_event();
+  const char *response = "show tables;\n"
+                         "desc `table name`;\n"
+                         "create table `table name` (`column name` `column type`, ...);\n"
+                         "create index `index name` on `table` (`column`);\n"
+                         "insert into `table` values(`value1`,`value2`);\n"
+                         "update `table` set column=value [where `column`=`value`];\n"
+                         "delete from `table` [where `column`=`value`];\n"
+                         "select [ * | `columns` ] from `table`;\n";
+  session_event->set_response(response);
+  return RC::SUCCESS;
+}
+
+RC ExecuteStage::do_create_table(SQLStageEvent *sql_event)
+{
+  const CreateTable &create_table = sql_event->query()->sstr.create_table;
+  SessionEvent *session_event = sql_event->session_event();
+  Db *db = session_event->session()->get_current_db();
+  RC rc = db->create_table(create_table.relation_name,
+			create_table.attribute_count, create_table.attributes);
+  if (rc == RC::SUCCESS) {
+    session_event->set_response("SUCCESS");
+  } else {
+    session_event->set_response("FAILURE");
+  }
+  return rc;
+}
+RC ExecuteStage::do_create_index(SQLStageEvent *sql_event)
+{
+  SessionEvent *session_event = sql_event->session_event();
+  Db *db = session_event->session()->get_current_db();
+  const CreateIndex &create_index = sql_event->query()->sstr.create_index;
+  Table *table = db->find_table(create_index.relation_name);
+  if (nullptr == table) {
+    session_event->set_response("FAILURE");
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+
+  RC rc = table->create_index(nullptr, create_index.index_name, create_index.attribute_name);
+  sql_event->session_event()->set_response(rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
+  return rc;
+}
+
+RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
+{
+  SessionEvent *session_event = sql_event->session_event();
+  Db *db = session_event->session()->get_current_db();
+  std::vector<std::string> all_tables;
+  db->all_tables(all_tables);
+  if (all_tables.empty()) {
+    session_event->set_response("No table\n");
+  } else {
+    std::stringstream ss;
+    for (const auto &table : all_tables) {
+      ss << table << std::endl;
+    }
+    session_event->set_response(ss.str().c_str());
+  }
+  return RC::SUCCESS;
+}
+
+RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
+{
+  Query *query = sql_event->query();
+  Db *db = sql_event->session_event()->session()->get_current_db();
+  const char *table_name = query->sstr.desc_table.relation_name;
+  Table *table = db->find_table(table_name);
+  std::stringstream ss;
+  if (table != nullptr) {
+    table->table_meta().desc(ss);
+  } else {
+    ss << "No such table: " << table_name << std::endl;
+  }
+  sql_event->session_event()->set_response(ss.str().c_str());
+  return RC::SUCCESS;
 }

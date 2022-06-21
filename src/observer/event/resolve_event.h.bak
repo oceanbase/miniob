@@ -9,35 +9,27 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2021/5/11.
+// Created by Wangyunlai on 2022/5/23.
 //
 
-#ifndef __OBSERVER_EVENT_EXECUTION_PLAN_EVENT_H__
-#define __OBSERVER_EVENT_EXECUTION_PLAN_EVENT_H__
+#pragma once
 
 #include "common/seda/stage_event.h"
-#include "sql/parser/parse.h"
 
-class SQLStageEvent;
+class SessionEvent;
+class Stmt;
 
-class ExecutionPlanEvent : public common::StageEvent {
+class ResolveStageEvent : public BaseEvent {
 public:
-  ExecutionPlanEvent(SQLStageEvent *sql_event, Query *sqls);
-  virtual ~ExecutionPlanEvent();
+  ResolveStageEvent(SessionEvent *event);
+  virtual ~ResolveStageEvent() noexcept;
 
-  Query *sqls() const
+  SessionEvent *session_event() const
   {
-    return sqls_;
-  }
-
-  SQLStageEvent *sql_event() const
-  {
-    return sql_event_;
+    return session_event_;
   }
 
 private:
-  SQLStageEvent *sql_event_;
-  Query *sqls_;
+  SessionEvent *session_event_ = nullptr;
 };
 
-#endif  // __OBSERVER_EVENT_EXECUTION_PLAN_EVENT_H__

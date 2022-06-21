@@ -97,9 +97,6 @@ public:
    * 否则，创建该索引。
    * 创建索引的工作包括：①创建并打开索引文件；
    * ②逐个扫描被索引的记录，并向索引文件中插入索引项；③关闭索引
-   * @param indexName
-   * @param relName
-   * @param attrName
    * @return
    */
   RC create_index(
@@ -118,9 +115,6 @@ public:
    * nValues为属性值个数，values为对应的属性值数组。
    * 函数根据给定的属性值构建元组，调用记录管理模块的函数插入该元组，
    * 然后在该表的每个索引中为该元组创建合适的索引项
-   * @param relName
-   * @param nValues
-   * @param values
    * @return
    */
   RC insert_record(Trx *trx, const char *dbname, const char *relation_name, int value_num, const Value *values);
@@ -142,11 +136,6 @@ public:
    * 在每一个更新的元组中将属性attrName的值设置为一个新的值。
    * 如果没有指定条件，则此方法更新relName中所有元组。
    * 如果要更新一个被索引的属性，应当先删除每个被更新元组对应的索引条目，然后插入一个新的索引条目
-   * @param relName
-   * @param attrName
-   * @param value
-   * @param nConditions
-   * @param conditions
    * @return
    */
   RC update_record(Trx *trx, const char *dbname, const char *relation_name, const char *attribute_name,

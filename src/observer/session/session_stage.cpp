@@ -34,7 +34,7 @@ using namespace common;
 const std::string SessionStage::SQL_METRIC_TAG = "SessionStage.sql";
 
 // Constructor
-SessionStage::SessionStage(const char *tag) : Stage(tag), resolve_stage_(nullptr), sql_metric_(nullptr)
+SessionStage::SessionStage(const char *tag) : Stage(tag), plan_cache_stage_(nullptr), sql_metric_(nullptr)
 {}
 
 // Destructor
@@ -73,7 +73,7 @@ bool SessionStage::initialize()
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  resolve_stage_ = *(stgp++);
+  plan_cache_stage_ = *(stgp++);
 
   MetricsRegistry &metricsRegistry = get_metrics_registry();
   sql_metric_ = new SimpleTimer();
@@ -138,7 +138,6 @@ void SessionStage::callback_event(StageEvent *event, CallbackContext *context)
 
 void SessionStage::handle_request(StageEvent *event)
 {
-
   SessionEvent *sev = dynamic_cast<SessionEvent *>(event);
   if (nullptr == sev) {
     LOG_ERROR("Cannot cat event to sessionEvent");
@@ -169,5 +168,5 @@ void SessionStage::handle_request(StageEvent *event)
   sev->push_callback(cb);
 
   SQLStageEvent *sql_event = new SQLStageEvent(sev, sql);
-  resolve_stage_->handle_event(sql_event);
+  plan_cache_stage_->handle_event(sql_event);
 }
