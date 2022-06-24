@@ -25,10 +25,9 @@ See the Mulan PSL v2 for more details. */
 #include <unordered_map>
 
 #include "rc.h"
+#include "defs.h"
 #include "common/mm/mem_pool.h"
 #include "common/lang/bitmap.h"
-
-typedef int32_t PageNum;
 
 class BufferPoolManager;
 class DiskBufferPool;

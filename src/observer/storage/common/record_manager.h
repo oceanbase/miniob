@@ -17,9 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include <sstream>
 #include <limits>
 #include "storage/default/disk_buffer_pool.h"
+#include "storage/common/record.h"
 #include "common/lang/bitmap.h"
-
-typedef int32_t SlotNum;
 
 class ConditionFilter;
 
@@ -31,56 +30,6 @@ struct PageHeader {
   int32_t first_record_offset;  // 第一条记录的偏移量
 };
 
-struct RID {
-  PageNum page_num;  // record's page number
-  SlotNum slot_num;  // record's slot number
-  // bool    valid;    // true means a valid record
-
-  const std::string to_string() const
-  {
-    std::stringstream ss;
-
-    ss << "PageNum:" << page_num << ", SlotNum:" << slot_num;
-
-    return ss.str();
-  }
-
-  bool operator==(const RID &other) const
-  {
-    return page_num == other.page_num && slot_num == other.slot_num;
-  }
-
-  bool operator!=(const RID &other) const
-  {
-    return !(*this == other);
-  }
-
-  static int compare(const RID *rid1, const RID *rid2)
-  {
-    int page_diff = rid1->page_num - rid2->page_num;
-    if (page_diff != 0) {
-      return page_diff;
-    } else {
-      return rid1->slot_num - rid2->slot_num;
-    }
-  }
-
-  /**
-   * 返回一个不可能出现的最小的RID
-   * 虽然page num 0和slot num 0都是合法的，但是page num 0通常用于存放meta数据，所以对数据部分来说都是
-   * 不合法的. 这里在bplus tree中查找时会用到。
-   */
-  static RID *min()
-  {
-    static RID rid{0, 0};
-    return &rid;
-  }
-  static RID *max()
-  {
-    static RID rid{std::numeric_limits<PageNum>::max(), std::numeric_limits<SlotNum>::max()};
-    return &rid;
-  }
-};
 
 class RidDigest {
 public:
@@ -88,12 +37,6 @@ public:
   {
     return ((size_t)(rid.page_num) << 32) | rid.slot_num;
   }
-};
-
-struct Record {
-  // bool valid; // false means the record hasn't been load
-  RID rid;     // record's rid
-  char *data;  // record's data
 };
 
 class RecordPageHandler;

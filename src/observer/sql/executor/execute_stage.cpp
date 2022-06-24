@@ -34,6 +34,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/delete_stmt.h"
 #include "sql/stmt/insert_stmt.h"
 #include "storage/common/table.h"
+#include "storage/common/field.h"
 #include "storage/default/default_handler.h"
 #include "storage/common/condition_filter.h"
 #include "storage/trx/trx.h"
@@ -124,13 +125,15 @@ void ExecuteStage::handle_request(common::StageEvent *event)
   SessionEvent *session_event = sql_event->session_event();
   Stmt *stmt = sql_event->stmt();
   Session *session = session_event->session();
-  Db *current_db = session->get_current_db();
   Query *sql = sql_event->query();
 
   if (stmt != nullptr) {
     switch (stmt->type()) {
     case StmtType::SELECT: {
       do_select((SelectStmt *)stmt, session_event);
+    } break;
+    case StmtType::INSERT: {
+      do_insert(sql_event);
     } break;
     case StmtType::UPDATE: {
       //do_update((UpdateStmt *)stmt, session_event);
@@ -165,7 +168,6 @@ void ExecuteStage::handle_request(common::StageEvent *event)
     // exe_event->done_immediate();
     //} bre
 
-    case SCF_INSERT:
     case SCF_DROP_TABLE:
     case SCF_DROP_INDEX:
     case SCF_LOAD_DATA: {
@@ -213,6 +215,31 @@ void end_trx_if_need(Session *session, Trx *trx, bool all_right)
   }
 }
 
+void record_to_string(std::ostream &os, const Record &record)
+{
+  Field field;
+  RC rc = RC::SUCCESS;
+  bool first_field = true;
+  for (int i = 0; i < record.field_amount(); i++) {
+    rc = record.field_at(i, field);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to fetch field of record. index=%d, rc=%s", i, strrc(rc));
+      break;
+    }
+
+    const FieldMeta *field_meta = field.meta();
+    if (!field_meta->visible()) {
+      continue;
+    }
+
+    if (!first_field) {
+      os << " | ";
+    } else {
+      first_field = false;
+    }
+    field.to_string(os);
+  }
+}
 RC ExecuteStage::do_select(SelectStmt *select_stmt, SessionEvent *session_event)
 {
   RC rc = RC::SUCCESS;
@@ -230,16 +257,28 @@ RC ExecuteStage::do_select(SelectStmt *select_stmt, SessionEvent *session_event)
     return rc;
   }
 
+  std::stringstream ss;
+  Record record;
   while ((rc = table_scan_operator.next()) == RC::SUCCESS) {
     // get current record
     // write to response
+    rc = table_scan_operator.current_record(record);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to get current record. rc=%s", strrc(rc));
+      break;
+    }
+
+    record_to_string(ss, record);
+    ss << std::endl;
   }
+
   if (rc != RC::RECORD_EOF) {
     LOG_WARN("something wrong while iterate operator. rc=%s", strrc(rc));
     table_scan_operator.close();
   } else {
     rc = table_scan_operator.close();
   }
+  session_event->set_response(ss.str());
   return rc;
 }
 
@@ -464,4 +503,26 @@ RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
   }
   sql_event->session_event()->set_response(ss.str().c_str());
   return RC::SUCCESS;
+}
+
+RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
+{
+  Stmt *stmt = sql_event->stmt();
+  SessionEvent *session_event = sql_event->session_event();
+
+  if (stmt == nullptr) {
+    LOG_WARN("cannot find statement");
+    return RC::GENERIC_ERROR;
+  }
+
+  InsertStmt *insert_stmt = (InsertStmt *)stmt;
+
+  Table *table = insert_stmt->table();
+  RC rc = table->insert_record(nullptr, insert_stmt->value_amount(), insert_stmt->values());
+  if (rc == RC::SUCCESS) {
+    session_event->set_response("SUCCESS");
+  } else {
+    session_event->set_response("FAILURE");
+  }
+  return rc;
 }

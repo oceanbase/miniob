@@ -202,7 +202,7 @@ RC Table::rollback_insert(Trx *trx, const RID &rid)
   }
 
   // remove all indexes
-  rc = delete_entry_of_indexes(record.data, rid, false);
+  rc = delete_entry_of_indexes(record.data(), rid, false);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to delete indexes of record(rid=%d.%d) while rollback insert, rc=%d:%s",
         rid.page_num,
@@ -223,7 +223,7 @@ RC Table::insert_record(Trx *trx, Record *record)
   if (trx != nullptr) {
     trx->init_trx_info(this, *record);
   }
-  rc = record_handler_->insert_record(record->data, table_meta_.record_size(), &record->rid);
+  rc = record_handler_->insert_record(record->data(), table_meta_.record_size(), &record->rid());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Insert record failed. table name=%s, rc=%d:%s", table_meta_.name(), rc, strrc(rc));
     return rc;
@@ -234,7 +234,7 @@ RC Table::insert_record(Trx *trx, Record *record)
     if (rc != RC::SUCCESS) {
       LOG_ERROR("Failed to log operation(insertion) to trx");
 
-      RC rc2 = record_handler_->delete_record(&record->rid);
+      RC rc2 = record_handler_->delete_record(&record->rid());
       if (rc2 != RC::SUCCESS) {
         LOG_ERROR("Failed to rollback record data when insert index entries failed. table name=%s, rc=%d:%s",
             name(),
@@ -245,16 +245,16 @@ RC Table::insert_record(Trx *trx, Record *record)
     }
   }
 
-  rc = insert_entry_of_indexes(record->data, record->rid);
+  rc = insert_entry_of_indexes(record->data(), record->rid());
   if (rc != RC::SUCCESS) {
-    RC rc2 = delete_entry_of_indexes(record->data, record->rid, true);
+    RC rc2 = delete_entry_of_indexes(record->data(), record->rid(), true);
     if (rc2 != RC::SUCCESS) {
       LOG_ERROR("Failed to rollback index data when insert index entries failed. table name=%s, rc=%d:%s",
           name(),
           rc2,
           strrc(rc2));
     }
-    rc2 = record_handler_->delete_record(&record->rid);
+    rc2 = record_handler_->delete_record(&record->rid());
     if (rc2 != RC::SUCCESS) {
       LOG_PANIC("Failed to rollback record data when insert index entries failed. table name=%s, rc=%d:%s",
           name(),
@@ -280,7 +280,7 @@ RC Table::insert_record(Trx *trx, int value_num, const Value *values)
   }
 
   Record record;
-  record.data = record_data;
+  record.set_data(record_data);
   // record.valid = true;
   rc = insert_record(trx, &record);
   delete[] record_data;
@@ -377,7 +377,7 @@ public:
 
   void consume(const Record *record)
   {
-    record_reader_(record->data, context_);
+    record_reader_(record->data(), context_);
   }
 
 private:
@@ -494,7 +494,7 @@ public:
 
   RC insert_index(const Record *record)
   {
-    return index_->insert_entry(record->data, &record->rid);
+    return index_->insert_entry(record->data(), &record->rid());
   }
 
 private:
@@ -651,15 +651,15 @@ RC Table::delete_record(Trx *trx, Record *record)
   if (trx != nullptr) {
     rc = trx->delete_record(this, record);
   } else {
-    rc = delete_entry_of_indexes(record->data, record->rid, false);  // 重复代码 refer to commit_delete
+    rc = delete_entry_of_indexes(record->data(), record->rid(), false);  // 重复代码 refer to commit_delete
     if (rc != RC::SUCCESS) {
       LOG_ERROR("Failed to delete indexes of record (rid=%d.%d). rc=%d:%s",
-          record->rid.page_num,
-          record->rid.slot_num,
-          rc,
-          strrc(rc));
+		record->rid().page_num,
+		record->rid().slot_num,
+		rc,
+		strrc(rc));
     } else {
-      rc = record_handler_->delete_record(&record->rid);
+      rc = record_handler_->delete_record(&record->rid());
     }
   }
   return rc;
@@ -673,7 +673,7 @@ RC Table::commit_delete(Trx *trx, const RID &rid)
   if (rc != RC::SUCCESS) {
     return rc;
   }
-  rc = delete_entry_of_indexes(record.data, record.rid, false);
+  rc = delete_entry_of_indexes(record.data(), record.rid(), false);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to delete indexes of record(rid=%d.%d). rc=%d:%s",
         rid.page_num,

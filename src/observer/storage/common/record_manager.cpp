@@ -67,14 +67,13 @@ bool RecordPageIterator::has_next()
 
 RC RecordPageIterator::next(Record &record)
 {
-  record.rid.page_num = page_num_;
-  record.rid.slot_num = next_slot_num_;
-  record.data = record_page_handler_->get_record_data(record.rid.slot_num);
+  record.set_rid(page_num_, next_slot_num_);
+  record.set_data(record_page_handler_->get_record_data(record.rid().slot_num));
 
   if (next_slot_num_ >= 0) {
     next_slot_num_ = bitmap_.next_setted_bit(next_slot_num_ + 1);
   }
-  return record.rid.slot_num != -1 ? RC::SUCCESS : RC::RECORD_EOF;
+  return record.rid().slot_num != -1 ? RC::SUCCESS : RC::RECORD_EOF;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,21 +169,21 @@ RC RecordPageHandler::insert_record(const char *data, RID *rid)
 
 RC RecordPageHandler::update_record(const Record *rec)
 {
-  if (rec->rid.slot_num >= page_header_->record_capacity) {
+  if (rec->rid().slot_num >= page_header_->record_capacity) {
     LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, page_num %d.",
-	      rec->rid.slot_num, frame_->page_num());
+	      rec->rid().slot_num, frame_->page_num());
     return RC::INVALID_ARGUMENT;
   }
 
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
-  if (!bitmap.get_bit(rec->rid.slot_num)) {
+  if (!bitmap.get_bit(rec->rid().slot_num)) {
     LOG_ERROR("Invalid slot_num %d, slot is empty, page_num %d.",
-	      rec->rid.slot_num, frame_->page_num());
+	      rec->rid().slot_num, frame_->page_num());
     return RC::RECORD_RECORD_NOT_EXIST;
   } else {
-    char *record_data = get_record_data(rec->rid.slot_num);
-    memcpy(record_data, rec->data, page_header_->record_real_size);
-    bitmap.set_bit(rec->rid.slot_num);
+    char *record_data = get_record_data(rec->rid().slot_num);
+    memcpy(record_data, rec->data(), page_header_->record_real_size);
+    bitmap.set_bit(rec->rid().slot_num);
     frame_->mark_dirty();
     // LOG_TRACE("Update record. file_id=%d, page num=%d,slot=%d", file_id_, rec->rid.page_num, rec->rid.slot_num);
     return RC::SUCCESS;
@@ -234,8 +233,8 @@ RC RecordPageHandler::get_record(const RID *rid, Record *rec)
     return RC::RECORD_RECORD_NOT_EXIST;
   }
 
-  rec->rid = *rid;
-  rec->data = get_record_data(rid->slot_num);
+  rec->set_rid(*rid);
+  rec->set_data(get_record_data(rid->slot_num));
   return RC::SUCCESS;
 }
 
@@ -328,8 +327,8 @@ RC RecordFileHandler::update_record(const Record *rec)
 {
   RC ret;
   RecordPageHandler page_handler;
-  if ((ret = page_handler.init(*disk_buffer_pool_, rec->rid.page_num)) != RC::SUCCESS) {
-    LOG_ERROR("Failed to init record page handler.page number=%d", rec->rid.page_num);
+  if ((ret = page_handler.init(*disk_buffer_pool_, rec->rid().page_num)) != RC::SUCCESS) {
+    LOG_ERROR("Failed to init record page handler.page number=%d", rec->rid().page_num);
     return ret;
   }
 
@@ -412,7 +411,7 @@ RC RecordFileScanner::fetch_next_record()
       return rc;
     }
   }
-  next_record_.rid.slot_num = -1;
+  next_record_.rid().slot_num = -1;
   return RC::RECORD_EOF;
 }
 
@@ -430,7 +429,7 @@ RC RecordFileScanner::fetch_next_record_in_page()
     }
   }
 
-  next_record_.rid.slot_num = -1;
+  next_record_.rid().slot_num = -1;
   return RC::RECORD_EOF;
 }
 
@@ -449,7 +448,7 @@ RC RecordFileScanner::close_scan()
 
 bool RecordFileScanner::has_next()
 {
-  return next_record_.rid.slot_num != -1;
+  return next_record_.rid().slot_num != -1;
 }
 
 RC RecordFileScanner::next(Record &record)

@@ -39,6 +39,7 @@ public:
   RC next() override;
   RC close() override;
 
+  RC current_record(Record &record) override;
 private:
   Table *table_ = nullptr;
   RecordFileScanner record_scanner_;

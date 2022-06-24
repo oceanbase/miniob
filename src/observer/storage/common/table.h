@@ -17,8 +17,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/common/table_meta.h"
 
-struct Record;
 struct RID;
+class Record;
 class DiskBufferPool;
 class RecordFileHandler;
 class RecordFileScanner;

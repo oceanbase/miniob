@@ -129,13 +129,13 @@ bool DefaultConditionFilter::filter(const Record &rec) const
   char *right_value = nullptr;
 
   if (left_.is_attr) {  // value
-    left_value = (char *)(rec.data + left_.attr_offset);
+    left_value = (char *)(rec.data() + left_.attr_offset);
   } else {
     left_value = (char *)left_.value;
   }
 
   if (right_.is_attr) {
-    right_value = (char *)(rec.data + right_.attr_offset);
+    right_value = (char *)(rec.data() + right_.attr_offset);
   } else {
     right_value = (char *)right_.value;
   }

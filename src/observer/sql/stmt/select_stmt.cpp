@@ -91,7 +91,7 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
 	}
 
 	Table *table = iter->second;
-	if (field_name == "*") {
+	if (0 == strcmp(field_name, "*")) {
 	  wildcard_fields(table, query_fields);
 	} else {
 	  const FieldMeta *field_meta = table->table_meta().field(field_name);

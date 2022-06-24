@@ -48,8 +48,9 @@ RC InsertStmt::create(Db *db, const Inserts &inserts, Stmt *&stmt)
   }
 
   // check fields type
-  for (int i = table_meta.sys_field_num(); i < table_meta.field_num(); i++) {
-    const FieldMeta *field_meta = table_meta.field(i);
+  const int sys_field_num = table_meta.sys_field_num();
+  for (int i = 0; i < value_num; i++) {
+    const FieldMeta *field_meta = table_meta.field(i + sys_field_num);
     const AttrType field_type = field_meta->type();
     const AttrType value_type = values[i].type;
     if (field_type != value_type) { // TODO try to convert the value type to field type

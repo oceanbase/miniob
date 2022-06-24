@@ -9,29 +9,10 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/7.
+// Created by Wangyunlai on 2022/6/23.
 //
 
 #pragma once
 
-#include "common/seda/stage.h"
-#include "sql/parser/parse.h"
-#include "rc.h"
-
-class Record;
-
-class Operator
-{
-public:
-  Operator()
-  {}
-
-  virtual ~Operator() = default;
-
-  virtual RC open() = 0;
-  virtual RC next() = 0;
-  virtual RC close() = 0;
-
-  virtual RC current_record(Record &record) = 0;
-private:
-};
+using PageNum = int32_t;
+using SlotNum = int32_t;

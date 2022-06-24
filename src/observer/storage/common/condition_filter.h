@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "rc.h"
 #include "sql/parser/parse.h"
 
-struct Record;
+class Record;
 class Table;
 
 struct ConDesc {
