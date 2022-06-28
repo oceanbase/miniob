@@ -11,7 +11,7 @@ RC Record::field_at(int index, Field &field) const
   }
 
   const FieldMeta &field_meta = (*fields_)[index];
-  field.set_meta(&field_meta);
+  field.set_type(field_meta.type());
   field.set_data(this->data_ + field_meta.offset());
   return RC::SUCCESS;
 }

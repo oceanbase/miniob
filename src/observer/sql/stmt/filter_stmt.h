@@ -92,6 +92,10 @@ public:
   void set_comp(CompOp comp) {
     comp_ = comp;
   }
+
+  CompOp comp() const {
+    return comp_;
+  }
   FilterItem &left() {
     return left_;
   }

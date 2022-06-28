@@ -14,8 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/seda/stage.h"
-#include "sql/parser/parse.h"
+#include <vector>
 #include "rc.h"
 
 class Record;
@@ -33,5 +32,11 @@ public:
   virtual RC close() = 0;
 
   virtual RC current_record(Record &record) = 0;
-private:
+
+  void add_child(Operator *oper) {
+    children_.push_back(oper);
+  }
+
+protected:
+  std::vector<Operator *> children_;
 };

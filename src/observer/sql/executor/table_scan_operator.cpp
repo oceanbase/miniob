@@ -29,18 +29,6 @@ RC TableScanOperator::next()
 
   RC rc = record_scanner_.next(current_record_);
   current_record_.set_fields(table_->table_meta().field_metas());
-  while (rc == RC::SUCCESS) {
-    //if (predicate_ != nullptr && predicate_->filter(current_record_)) {
-     return rc;
-    //}
-
-    if (record_scanner_.has_next()) {
-      rc = record_scanner_.next(current_record_);
-      current_record_.set_fields(table_->table_meta().field_metas());
-    } else {
-      rc = RC::RECORD_EOF;
-    }
-  }
   return rc;
 }
 

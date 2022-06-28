@@ -26,11 +26,7 @@ class TableScanOperator : public Operator
 {
 public:
   TableScanOperator(Table *table)
-    : table_(table), predicate_(nullptr)
-  {}
-
-  TableScanOperator(Table *table, Predicate *pred)
-    : table_(table), predicate_(pred)
+    : table_(table)
   {}
 
   virtual ~TableScanOperator() = default;
@@ -43,6 +39,5 @@ public:
 private:
   Table *table_ = nullptr;
   RecordFileScanner record_scanner_;
-  Predicate *predicate_ = nullptr;
   Record current_record_;
 };

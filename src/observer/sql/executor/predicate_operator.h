@@ -9,32 +9,30 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/9.
+// Created by WangYunlai on 2022/6/27.
 //
 
 #pragma once
 
 #include "sql/executor/operator.h"
-#include "rc.h"
 
-class DeleteStmt;
-
-class DeleteOperator : public Operator
+class FilterStmt;
+class PredicateOperator : public Operator
 {
 public:
-  DeleteOperator(DeleteStmt *delete_stmt)
-    : delete_stmt_(delete_stmt)
+  PredicateOperator(FilterStmt *filter_stmt)
+    : filter_stmt_(filter_stmt)
   {}
 
-  virtual ~DeleteOperator() = default;
+  virtual ~PredicateOperator() = default;
 
   RC open() override;
   RC next() override;
   RC close() override;
 
-  RC current_record(Record &record) override {
-    return RC::GENERIC_ERROR;
-  }
+  RC current_record(Record &record) override;
 private:
-  DeleteStmt *delete_stmt_ = nullptr;
+  bool do_predicate(Record &record);
+private:
+  FilterStmt *filter_stmt_ = nullptr;
 };

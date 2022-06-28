@@ -28,6 +28,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/execution_node.h"
 #include "sql/executor/tuple.h"
 #include "sql/executor/table_scan_operator.h"
+#include "sql/executor/predicate_operator.h"
+#include "sql/executor/delete_operator.h"
 #include "sql/stmt/stmt.h"
 #include "sql/stmt/select_stmt.h"
 #include "sql/stmt/update_stmt.h"
@@ -130,7 +132,7 @@ void ExecuteStage::handle_request(common::StageEvent *event)
   if (stmt != nullptr) {
     switch (stmt->type()) {
     case StmtType::SELECT: {
-      do_select((SelectStmt *)stmt, session_event);
+      do_select(sql_event);
     } break;
     case StmtType::INSERT: {
       do_insert(sql_event);
@@ -139,7 +141,7 @@ void ExecuteStage::handle_request(common::StageEvent *event)
       //do_update((UpdateStmt *)stmt, session_event);
     } break;
     case StmtType::DELETE: {
-      //do_delete((DeleteStmt *)stmt, session_event);
+      do_delete(sql_event);
     } break;
     }
   } else {
@@ -227,11 +229,6 @@ void record_to_string(std::ostream &os, const Record &record)
       break;
     }
 
-    const FieldMeta *field_meta = field.meta();
-    if (!field_meta->visible()) {
-      continue;
-    }
-
     if (!first_field) {
       os << " | ";
     } else {
@@ -240,8 +237,10 @@ void record_to_string(std::ostream &os, const Record &record)
     field.to_string(os);
   }
 }
-RC ExecuteStage::do_select(SelectStmt *select_stmt, SessionEvent *session_event)
+RC ExecuteStage::do_select(SQLStageEvent *sql_event)
 {
+  SelectStmt *select_stmt = (SelectStmt *)(sql_event->stmt());
+  SessionEvent *session_event = sql_event->session_event();
   RC rc = RC::SUCCESS;
   if (select_stmt->tables().size() != 1) {
     LOG_WARN("select more than 1 tables is not supported");
@@ -523,6 +522,32 @@ RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
     session_event->set_response("SUCCESS");
   } else {
     session_event->set_response("FAILURE");
+  }
+  return rc;
+}
+
+RC ExecuteStage::do_delete(SQLStageEvent *sql_event)
+{
+  Stmt *stmt = sql_event->stmt();
+  SessionEvent *session_event = sql_event->session_event();
+
+  if (stmt == nullptr) {
+    LOG_WARN("cannot find statement");
+    return RC::GENERIC_ERROR;
+  }
+
+  DeleteStmt *delete_stmt = (DeleteStmt *)stmt;
+  TableScanOperator scan_oper(delete_stmt->table());
+  PredicateOperator pred_oper(delete_stmt->filter_stmt());
+  pred_oper.add_child(&scan_oper);
+  DeleteOperator delete_oper(delete_stmt);
+  delete_oper.add_child(&pred_oper);
+
+  RC rc = delete_oper.open();
+  if (rc != RC::SUCCESS) {
+    session_event->set_response("FAILURE");
+  } else {
+    session_event->set_response("SUCCESS");
   }
   return rc;
 }

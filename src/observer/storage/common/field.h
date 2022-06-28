@@ -4,7 +4,7 @@
 #include "storage/common/table.h"
 #include "storage/common/field_meta.h"
 
-class Field
+class Field // TODO rename to Cell
 {
 public: 
   Field() = default;
@@ -12,17 +12,20 @@ public:
   Field(FieldMeta *meta, char *data) : Field(nullptr, meta, data)
   {}
   Field(Table *table, FieldMeta *meta, char *data)
-    : table_(table), meta_(meta), data_(data)
+    : table_(table), attr_type_(meta->type()), data_(data)
   {}
 
   void set_table(Table *table) { this->table_ = table; }
-  void set_meta(const FieldMeta *meta) { this->meta_ = meta; }
+  void set_type(AttrType type) { this->attr_type_ = type; }
   void set_data(char *data) { this->data_ = data; }
+  void set_data(const char *data) { this->set_data(const_cast<char *>(data)); }
 
-  const FieldMeta *meta() const { return meta_; }
   void to_string(std::ostream &os) const;
+
+  int compare(const Field &other) const;
+
 private:
   Table *table_ = nullptr;
-  const FieldMeta *meta_ = nullptr;
+  AttrType attr_type_ = UNDEFINED;
   char *data_ = nullptr; // real data. no need to move to field_meta.offset
 };

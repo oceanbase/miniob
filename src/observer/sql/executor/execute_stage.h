@@ -44,8 +44,9 @@ protected:
   RC do_create_index(SQLStageEvent *sql_event);
   RC do_show_tables(SQLStageEvent *sql_event);
   RC do_desc_table(SQLStageEvent *sql_event);
-  RC do_select(SelectStmt *select_stmt, SessionEvent *session_event);
+  RC do_select(SQLStageEvent *sql_event);
   RC do_insert(SQLStageEvent *sql_event);
+  RC do_delete(SQLStageEvent *sql_event);
 
 protected:
 private:
