@@ -4,14 +4,14 @@
 #include "storage/common/table.h"
 #include "storage/common/field_meta.h"
 
-class Field // TODO rename to Cell
+class TupleCell // TODO rename to Cell
 {
 public: 
-  Field() = default;
+  TupleCell() = default;
   
-  Field(FieldMeta *meta, char *data) : Field(nullptr, meta, data)
+  TupleCell(FieldMeta *meta, char *data) : TupleCell(nullptr, meta, data)
   {}
-  Field(Table *table, FieldMeta *meta, char *data)
+  TupleCell(Table *table, FieldMeta *meta, char *data)
     : table_(table), attr_type_(meta->type()), data_(data)
   {}
 
@@ -22,7 +22,7 @@ public:
 
   void to_string(std::ostream &os) const;
 
-  int compare(const Field &other) const;
+  int compare(const TupleCell &other) const;
 
 private:
   Table *table_ = nullptr;

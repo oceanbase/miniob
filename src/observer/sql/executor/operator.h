@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <vector>
 #include "rc.h"
+#include "sql/executor/tuple.h"
 
 class Record;
 
@@ -31,7 +32,7 @@ public:
   virtual RC next() = 0;
   virtual RC close() = 0;
 
-  virtual RC current_record(Record &record) = 0;
+  virtual Tuple * current_tuple() = 0;
 
   void add_child(Operator *oper) {
     children_.push_back(oper);

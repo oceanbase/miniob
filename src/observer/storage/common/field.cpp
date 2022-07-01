@@ -2,7 +2,7 @@
 #include "common/log/log.h"
 #include "util/comparator.h"
 
-void Field::to_string(std::ostream &os) const
+void TupleCell::to_string(std::ostream &os) const
 {
   switch (attr_type_) {
   case INTS: {
@@ -25,7 +25,7 @@ void Field::to_string(std::ostream &os) const
   }
 }
 
-int Field::compare(const Field &other) const
+int TupleCell::compare(const TupleCell &other) const
 {
   if (this->attr_type_ == other.attr_type_) {
     switch (this->attr_type_) {

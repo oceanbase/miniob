@@ -32,8 +32,8 @@ public:
   RC next() override;
   RC close() override;
 
-  RC current_record(Record &record) override {
-    return RC::GENERIC_ERROR;
+  Tuple * current_tuple() override {
+    return nullptr;
   }
 private:
   DeleteStmt *delete_stmt_ = nullptr;

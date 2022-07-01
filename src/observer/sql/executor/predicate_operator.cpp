@@ -34,14 +34,16 @@ RC PredicateOperator::next()
 {
   RC rc = RC::SUCCESS;
   Operator *oper = children_[0];
-  Record record;
+  
   while (RC::SUCCESS == (rc = oper->next())) {
-    rc = oper->current_record(record);
-    if (rc != RC::SUCCESS) {
+    Tuple *tuple = oper->current_tuple();
+    if (nullptr == tuple) {
+      rc = RC::INTERNAL;
+      LOG_WARN("failed to get tuple from operator");
       break;
     }
 
-    if (do_predicate(record)) {
+    if (do_predicate(static_cast<RowTuple &>(*tuple))) {
       return rc;
     }
   }
@@ -54,15 +56,15 @@ RC PredicateOperator::close()
   return RC::SUCCESS;
 }
 
-RC PredicateOperator::current_record(Record &record)
+Tuple * PredicateOperator::current_tuple()
 {
-  return children_[0]->current_record(record);
+  return children_[0]->current_tuple();
 }
 
-void get_cell(const Record &record, const FilterItem &filter_item, Field &cell)
+void get_cell(const RowTuple &tuple, const FilterItem &filter_item, TupleCell &cell)
 {
   if (filter_item.is_attr()) {
-    cell.set_data(record.data() + filter_item.field().field()->offset());
+    cell.set_data(tuple.record().data() + filter_item.field().field()->offset());
     cell.set_type(filter_item.field().field()->type());
   } else {
     cell.set_data((char *)filter_item.value().data);
@@ -70,7 +72,7 @@ void get_cell(const Record &record, const FilterItem &filter_item, Field &cell)
   }
 }
 
-bool PredicateOperator::do_predicate(Record &record)
+bool PredicateOperator::do_predicate(RowTuple &tuple)
 {
   if (filter_stmt_ == nullptr) {
     return true;
@@ -80,10 +82,10 @@ bool PredicateOperator::do_predicate(Record &record)
     const FilterItem & left = filter_unit.left();
     const FilterItem & right = filter_unit.right();
     CompOp comp = filter_unit.comp();
-    Field left_cell;
-    Field right_cell;
-    get_cell(record, left, left_cell);
-    get_cell(record, right, right_cell);
+    TupleCell left_cell;
+    TupleCell right_cell;
+    get_cell(tuple, left, left_cell);
+    get_cell(tuple, right, right_cell);
 
     const int compare = left_cell.compare(right_cell);
     switch (comp) {

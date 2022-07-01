@@ -25,7 +25,6 @@ See the Mulan PSL v2 for more details. */
 #include "event/storage_event.h"
 #include "event/sql_event.h"
 #include "event/session_event.h"
-#include "sql/executor/execution_node.h"
 #include "sql/executor/tuple.h"
 #include "sql/executor/table_scan_operator.h"
 #include "sql/executor/predicate_operator.h"
@@ -43,8 +42,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-RC create_selection_executor(
-    Trx *trx, const Selects &selects, const char *db, const char *table_name, SelectExeNode &select_node);
+//RC create_selection_executor(
+//   Trx *trx, const Selects &selects, const char *db, const char *table_name, SelectExeNode &select_node);
 
 //! Constructor
 ExecuteStage::ExecuteStage(const char *tag) : Stage(tag)
@@ -217,15 +216,15 @@ void end_trx_if_need(Session *session, Trx *trx, bool all_right)
   }
 }
 
-void record_to_string(std::ostream &os, const Record &record)
+void tuple_to_string(std::ostream &os, const Tuple &tuple)
 {
-  Field field;
+  TupleCell cell;
   RC rc = RC::SUCCESS;
   bool first_field = true;
-  for (int i = 0; i < record.field_amount(); i++) {
-    rc = record.field_at(i, field);
+  for (int i = 0; i < tuple.cell_num(); i++) {
+    rc = tuple.cell_at(i, cell);
     if (rc != RC::SUCCESS) {
-      LOG_WARN("failed to fetch field of record. index=%d, rc=%s", i, strrc(rc));
+      LOG_WARN("failed to fetch field of cell. index=%d, rc=%s", i, strrc(rc));
       break;
     }
 
@@ -234,7 +233,7 @@ void record_to_string(std::ostream &os, const Record &record)
     } else {
       first_field = false;
     }
-    field.to_string(os);
+    cell.to_string(os);
   }
 }
 RC ExecuteStage::do_select(SQLStageEvent *sql_event)
@@ -257,17 +256,17 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
   }
 
   std::stringstream ss;
-  Record record;
   while ((rc = table_scan_operator.next()) == RC::SUCCESS) {
     // get current record
     // write to response
-    rc = table_scan_operator.current_record(record);
-    if (rc != RC::SUCCESS) {
+    Tuple * tuple = table_scan_operator.current_tuple();
+    if (nullptr == tuple) {
+      rc = RC::INTERNAL;
       LOG_WARN("failed to get current record. rc=%s", strrc(rc));
       break;
     }
 
-    record_to_string(ss, record);
+    tuple_to_string(ss, *tuple);
     ss << std::endl;
   }
 

@@ -12,166 +12,107 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Wangyunlai on 2021/5/14.
 //
 
-#ifndef __OBSERVER_SQL_EXECUTOR_TUPLE_H_
-#define __OBSERVER_SQL_EXECUTOR_TUPLE_H_
+#pragma once
 
 #include <memory>
 #include <vector>
 
+#include "common/log/log.h"
 #include "sql/parser/parse.h"
 #include "sql/executor/value.h"
+#include "storage/common/field.h"
+#include "storage/common/record.h"
 
 class Table;
 
-class Tuple {
+class TupleCellSpec
+{
+  
+};
+
+class Tuple
+{
 public:
   Tuple() = default;
+  virtual ~Tuple() = default;
 
-  Tuple(const Tuple &other);
+  virtual int cell_num() const = 0; 
+  virtual RC  cell_at(int index, TupleCell &cell) const = 0;
 
-  ~Tuple();
-
-  Tuple(Tuple &&other) noexcept;
-  Tuple &operator=(Tuple &&other) noexcept;
-
-  void add(TupleValue *value);
-  void add(const std::shared_ptr<TupleValue> &other);
-  void add(int value);
-  void add(float value);
-  void add(const char *s, int len);
-
-  const std::vector<std::shared_ptr<TupleValue>> &values() const
-  {
-    return values_;
-  }
-
-  int size() const
-  {
-    return values_.size();
-  }
-
-  const TupleValue &get(int index) const
-  {
-    return *values_[index];
-  }
-
-  const std::shared_ptr<TupleValue> &get_pointer(int index) const
-  {
-    return values_[index];
-  }
-
-private:
-  std::vector<std::shared_ptr<TupleValue>> values_;
+  //virtual RC  cell_spec_at(int index, TupleCellSpec &spec) const;
 };
 
-class TupleField {
+class RowTuple : public Tuple
+{
 public:
-  TupleField(AttrType type, const char *table_name, const char *field_name)
-      : type_(type), table_name_(table_name), field_name_(field_name)
-  {}
-
-  AttrType type() const
+  RowTuple() = default;
+  virtual ~RowTuple() = default;
+  
+  void set_record(Record *record)
   {
-    return type_;
+    this->record_ = record;
   }
 
-  const char *table_name() const
+  void set_table(Table *table)
   {
-    return table_name_.c_str();
-  }
-  const char *field_name() const
-  {
-    return field_name_.c_str();
+    this->table_ = table;
   }
 
-  std::string to_string() const;
+  void set_schema(const std::vector<FieldMeta> *fields)
+  {
+    this->fields_ = fields;
+  }
 
+  int cell_num() const override
+  {
+    return fields_->size();
+  }
+
+  RC cell_at(int index, TupleCell &cell) const override
+  {
+    if (index < 0 || index >= fields_->size()) {
+      LOG_WARN("invalid argument. index=%d", index);
+      return RC::INVALID_ARGUMENT;
+    }
+
+    const FieldMeta &field_meta = (*fields_)[index];
+    cell.set_table(table_);
+    cell.set_type(field_meta.type());
+    cell.set_data(this->record_->data() + field_meta.offset());
+    return RC::SUCCESS;
+  }
+
+  RC cell_spec_at(int index, TupleCellSpec &spec) const
+  {
+    if (index < 0 || index >= fields_->size()) {
+      LOG_WARN("invalid argument. index=%d", index);
+      return RC::INVALID_ARGUMENT;
+    }
+    const FieldMeta &field_meta = (*fields_)[index];
+    // TODO
+    return RC::SUCCESS;
+  }
+
+  Record &record()
+  {
+    return *record_;
+  }
+
+  const Record &record() const
+  {
+    return *record_;
+  }
 private:
-  AttrType type_;
-  std::string table_name_;
-  std::string field_name_;
+  Record *record_ = nullptr;
+  Table *table_ = nullptr;
+  const std::vector<FieldMeta> *fields_ = nullptr;
 };
 
-class TupleSchema {
+/*
+class CompositeTuple : public Tuple
+{
 public:
-  TupleSchema() = default;
-  ~TupleSchema() = default;
-
-  void add(AttrType type, const char *table_name, const char *field_name);
-  void add_if_not_exists(AttrType type, const char *table_name, const char *field_name);
-  // void merge(const TupleSchema &other);
-  void append(const TupleSchema &other);
-
-  const std::vector<TupleField> &fields() const
-  {
-    return fields_;
-  }
-
-  const TupleField &field(int index) const
-  {
-    return fields_[index];
-  }
-
-  int index_of_field(const char *table_name, const char *field_name) const;
-  void clear()
-  {
-    fields_.clear();
-  }
-
-  void print(std::ostream &os) const;
-
-public:
-  static void from_table(const Table *table, TupleSchema &schema);
-
 private:
-  std::vector<TupleField> fields_;
+  std::vector<Tuple *> tuples_;
 };
-
-class TupleSet {
-public:
-  TupleSet() = default;
-  TupleSet(TupleSet &&other);
-  explicit TupleSet(const TupleSchema &schema) : schema_(schema)
-  {}
-  TupleSet &operator=(TupleSet &&other);
-
-  ~TupleSet() = default;
-
-  void set_schema(const TupleSchema &schema);
-
-  const TupleSchema &get_schema() const;
-
-  void add(Tuple &&tuple);
-
-  void clear();
-
-  bool is_empty() const;
-  int size() const;
-  const Tuple &get(int index) const;
-  const std::vector<Tuple> &tuples() const;
-
-  void print(std::ostream &os) const;
-
-public:
-  const TupleSchema &schema() const
-  {
-    return schema_;
-  }
-
-private:
-  std::vector<Tuple> tuples_;
-  TupleSchema schema_;
-};
-
-class TupleRecordConverter {
-public:
-  TupleRecordConverter(Table *table, TupleSet &tuple_set);
-
-  void add_record(const char *record);
-
-private:
-  Table *table_;
-  TupleSet &tuple_set_;
-};
-
-#endif  //__OBSERVER_SQL_EXECUTOR_TUPLE_H_
+*/

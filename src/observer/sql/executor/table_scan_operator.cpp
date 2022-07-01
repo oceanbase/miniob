@@ -18,7 +18,12 @@ See the Mulan PSL v2 for more details. */
 
 RC TableScanOperator::open()
 {
-  return table_->get_record_scanner(record_scanner_);
+  RC rc = table_->get_record_scanner(record_scanner_);
+  if (rc == RC::SUCCESS) {
+    tuple_.set_table(table_);
+    tuple_.set_schema(table_->table_meta().field_metas());
+  }
+  return rc;
 }
 
 RC TableScanOperator::next()
@@ -37,8 +42,8 @@ RC TableScanOperator::close()
   return record_scanner_.close_scan();
 }
 
-RC TableScanOperator::current_record(Record &record)
+Tuple * TableScanOperator::current_tuple()
 {
-  record = current_record_; // TODO should check status
-  return RC::SUCCESS;
+  tuple_.set_record(&current_record_);
+  return &tuple_;
 }

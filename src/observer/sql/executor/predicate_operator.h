@@ -30,9 +30,9 @@ public:
   RC next() override;
   RC close() override;
 
-  RC current_record(Record &record) override;
+  Tuple * current_tuple() override;
 private:
-  bool do_predicate(Record &record);
+  bool do_predicate(RowTuple &tuple);
 private:
   FilterStmt *filter_stmt_ = nullptr;
 };

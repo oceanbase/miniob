@@ -79,7 +79,7 @@ public:
   }
 
 private:
-  bool is_attr_ = false; // is an attribute or a value
+  bool is_attr_ = false; // is an attribute or a value, or maybe an expression in future
   FilterField field_;
   Value value_;
 };

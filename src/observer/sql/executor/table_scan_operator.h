@@ -35,9 +35,10 @@ public:
   RC next() override;
   RC close() override;
 
-  RC current_record(Record &record) override;
+  Tuple * current_tuple() override;
 private:
   Table *table_ = nullptr;
   RecordFileScanner record_scanner_;
   Record current_record_;
+  RowTuple tuple_;
 };

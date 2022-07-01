@@ -32,15 +32,16 @@ RC DeleteOperator::open()
     return rc;
   }
 
-  Record record;
   Table *table = delete_stmt_->table();
   while (RC::SUCCESS == (rc = child->next())) {
-    rc = child->current_record(record);
-    if (rc != RC::SUCCESS) {
+    Tuple *tuple = child->current_tuple();
+    if (nullptr == tuple) {
       LOG_WARN("failed to get current record: %s", strrc(rc));
       return rc;
     }
 
+    RowTuple *row_tuple = static_cast<RowTuple *>(tuple);
+    Record &record = row_tuple->record();
     rc = table->delete_record(nullptr, &record);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to delete record: %s", strrc(rc));
