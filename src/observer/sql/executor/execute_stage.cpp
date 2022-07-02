@@ -29,6 +29,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/table_scan_operator.h"
 #include "sql/executor/predicate_operator.h"
 #include "sql/executor/delete_operator.h"
+#include "sql/executor/project_operator.h"
 #include "sql/stmt/stmt.h"
 #include "sql/stmt/select_stmt.h"
 #include "sql/stmt/update_stmt.h"
@@ -216,6 +217,25 @@ void end_trx_if_need(Session *session, Trx *trx, bool all_right)
   }
 }
 
+void print_tuple_header(std::ostream &os, const Operator &oper)
+{
+  const int cell_num = oper.tuple_cell_num();
+  TupleCellSpec cell_spec;
+  for (int i = 0; i < cell_num; i++) {
+    oper.tuple_cell_spec_at(i, cell_spec);
+    if (i != 0) {
+      os << " | ";
+    }
+
+    if (cell_spec.alias()) {
+      os << cell_spec.alias();
+    }
+  }
+
+  if (cell_num > 0) {
+    os << '\n';
+  }
+}
 void tuple_to_string(std::ostream &os, const Tuple &tuple)
 {
   TupleCell cell;
@@ -249,17 +269,25 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
 
   Table *table = select_stmt->tables().front();
   TableScanOperator table_scan_operator(table);
-  rc = table_scan_operator.open();
+  PredicateOperator pred_oper(select_stmt->filter_stmt());
+  pred_oper.add_child(&table_scan_operator);
+  ProjectOperator project_oper;
+  project_oper.add_child(&pred_oper);
+  for (const FieldDesc &field : select_stmt->query_fields()) {
+    project_oper.add_projection(field.table_, field.field_meta_);
+  }
+  rc = project_oper.open();
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open operator");
     return rc;
   }
 
   std::stringstream ss;
-  while ((rc = table_scan_operator.next()) == RC::SUCCESS) {
+  print_tuple_header(ss, project_oper);
+  while ((rc = project_oper.next()) == RC::SUCCESS) {
     // get current record
     // write to response
-    Tuple * tuple = table_scan_operator.current_tuple();
+    Tuple * tuple = project_oper.current_tuple();
     if (nullptr == tuple) {
       rc = RC::INTERNAL;
       LOG_WARN("failed to get current record. rc=%s", strrc(rc));
@@ -272,9 +300,9 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
 
   if (rc != RC::RECORD_EOF) {
     LOG_WARN("something wrong while iterate operator. rc=%s", strrc(rc));
-    table_scan_operator.close();
+    project_oper.close();
   } else {
-    rc = table_scan_operator.close();
+    rc = project_oper.close();
   }
   session_event->set_response(ss.str());
   return rc;

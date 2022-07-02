@@ -47,3 +47,7 @@ Tuple * TableScanOperator::current_tuple()
   tuple_.set_record(&current_record_);
   return &tuple_;
 }
+RC TableScanOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
+{
+  return tuple_.cell_spec_at(index, spec);
+}

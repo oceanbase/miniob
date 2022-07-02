@@ -24,7 +24,7 @@ class FilterStmt;
 class Db;
 class Table;
 
-// better to create a field class 
+// TODO better to create a field class 
 struct FieldDesc
 {
   Table *table_ = nullptr;
@@ -47,6 +47,7 @@ public:
 
 public:
   const std::vector<Table *> &tables() const { return tables_; }
+  const std::vector<FieldDesc> &query_fields() const { return query_fields_; }
   FilterStmt *filter_stmt() const { return filter_stmt_; }
 
 private:

@@ -36,6 +36,13 @@ public:
   RC close() override;
 
   Tuple * current_tuple() override;
+
+  int tuple_cell_num() const override
+  {
+    return tuple_.cell_num();
+  }
+
+  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
 private:
   Table *table_ = nullptr;
   RecordFileScanner record_scanner_;

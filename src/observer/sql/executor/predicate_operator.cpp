@@ -74,7 +74,7 @@ void get_cell(const RowTuple &tuple, const FilterItem &filter_item, TupleCell &c
 
 bool PredicateOperator::do_predicate(RowTuple &tuple)
 {
-  if (filter_stmt_ == nullptr) {
+  if (filter_stmt_ == nullptr || filter_stmt_->filter_units().empty()) {
     return true;
   }
 
@@ -101,4 +101,13 @@ bool PredicateOperator::do_predicate(RowTuple &tuple)
     }
   }
   return false;
+}
+
+int PredicateOperator::tuple_cell_num() const
+{
+  return children_[0]->tuple_cell_num();
+}
+RC PredicateOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
+{
+  return children_[0]->tuple_cell_spec_at(index, spec);
 }

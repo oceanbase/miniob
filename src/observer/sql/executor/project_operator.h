@@ -9,39 +9,36 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/7.
+// Created by WangYunlai on 2022/07/01.
 //
 
 #pragma once
 
-#include <vector>
+#include "sql/executor/operator.h"
 #include "rc.h"
-#include "sql/executor/tuple.h"
 
-class Record;
-class TupleCellSpec;
-
-class Operator
+class ProjectOperator : public Operator
 {
 public:
-  Operator()
+  ProjectOperator()
   {}
 
-  virtual ~Operator() = default;
+  virtual ~ProjectOperator() = default;
 
-  virtual RC open() = 0;
-  virtual RC next() = 0;
-  virtual RC close() = 0;
+  void add_projection(const Table *table, const FieldMeta *field); // TODO how to handle the memory in tupleCellSpec?
 
-  virtual Tuple * current_tuple() = 0;
-  virtual int tuple_cell_num() const = 0;
-  virtual RC  tuple_cell_spec_at(int index, TupleCellSpec &spec) const = 0;
+  RC open() override;
+  RC next() override;
+  RC close() override;
 
-  void add_child(Operator *oper) {
-    children_.push_back(oper);
+  int tuple_cell_num() const override
+  {
+    return tuple_.cell_num();
   }
 
+  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
 
-protected:
-  std::vector<Operator *> children_;
+  Tuple * current_tuple() override;
+private:
+  ProjectTuple tuple_;
 };
