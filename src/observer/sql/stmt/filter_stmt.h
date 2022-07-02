@@ -109,7 +109,7 @@ public:
     return right_;
   }
 private:
-  CompOp comp_;
+  CompOp comp_ = NO_OP;
   FilterItem left_;
   FilterItem right_;
 };

@@ -70,6 +70,12 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table,
   RC rc = RC::SUCCESS;
   
   CompOp comp = condition.comp;
+  if (comp < EQUAL_TO || comp >= NO_OP) {
+    LOG_WARN("invalid compare operator : %d", comp);
+    return RC::INVALID_ARGUMENT;
+  }
+
+  filter_unit.set_comp(comp);
   FilterItem &left_item = filter_unit.left();
   FilterItem &right_item = filter_unit.right();
   
