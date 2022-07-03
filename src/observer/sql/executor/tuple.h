@@ -19,7 +19,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/log/log.h"
 #include "sql/parser/parse.h"
-#include "sql/executor/value.h"
 #include "storage/common/field.h"
 #include "storage/common/record.h"
 

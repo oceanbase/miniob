@@ -91,22 +91,12 @@ public:
   char *data() { return this->data_; }
   const char *data() const { return this->data_; }
 
-  void set_fields(const std::vector<FieldMeta> *fields) { this->fields_ = fields; }
-  const std::vector<FieldMeta> *field_metas() const { return fields_; }
-
-  RC field_at(int index, Field &field) const;
-  int field_amount() const { return fields_->size();}
-
   void set_rid(const RID &rid) { this->rid_ = rid; }
   void set_rid(const PageNum page_num, const SlotNum slot_num) { this->rid_.page_num = page_num; this->rid_.slot_num = slot_num; }
   RID & rid() { return rid_; }
   const RID &rid() const { return rid_; };
 
-  RC set_field_value(const Value &value, int index);
-  RC set_field_values(const Value *values, int value_num, int start_index);
-
 private:
-  const std::vector<FieldMeta> * fields_ = nullptr;
   RID                            rid_;
 
   // the data buffer

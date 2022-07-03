@@ -9,31 +9,36 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/7.
+// Created by WangYunlai on 2022/07/01.
 //
 
 #pragma once
 
-#include "common/seda/stage.h"
-#include "sql/executor/operator.h"
-#include "sql/parser/parse.h"
+#include "sql/operator/operator.h"
 #include "rc.h"
 
-class InsertStmt;
-
-class InsertOperator : public Operator
+class ProjectOperator : public Operator
 {
 public:
-  InsertOperator(InsertStmt *insert_stmt)
-    : insert_stmt_(insert_stmt)
+  ProjectOperator()
   {}
 
-  virtual ~InsertOperator() = default;
+  virtual ~ProjectOperator() = default;
+
+  void add_projection(const Table *table, const FieldMeta *field); // TODO how to handle the memory in tupleCellSpec?
 
   RC open() override;
   RC next() override;
   RC close() override;
 
+  int tuple_cell_num() const override
+  {
+    return tuple_.cell_num();
+  }
+
+  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
+
+  Tuple * current_tuple() override;
 private:
-  InsertStmt *insert_stmt_ = nullptr;
+  ProjectTuple tuple_;
 };

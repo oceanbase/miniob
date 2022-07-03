@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "common/log/log.h"
-#include "sql/executor/delete_operator.h"
+#include "sql/operator/delete_operator.h"
 #include "storage/common/record.h"
 #include "storage/common/table.h"
 #include "sql/stmt/delete_stmt.h"

@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "common/log/log.h"
-#include "sql/executor/project_operator.h"
+#include "sql/operator/project_operator.h"
 #include "storage/common/record.h"
 #include "storage/common/table.h"
 

@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "common/log/log.h"
-#include "sql/executor/predicate_operator.h"
+#include "sql/operator/predicate_operator.h"
 #include "storage/common/record.h"
 #include "sql/stmt/filter_stmt.h"
 #include "storage/common/field.h"

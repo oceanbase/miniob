@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2021/6/9.
 //
 
-#include "sql/executor/table_scan_operator.h"
+#include "sql/operator/table_scan_operator.h"
 #include "storage/common/table.h"
 #include "rc.h"
 
@@ -33,7 +33,6 @@ RC TableScanOperator::next()
   }
 
   RC rc = record_scanner_.next(current_record_);
-  current_record_.set_fields(table_->table_meta().field_metas());
   return rc;
 }
 

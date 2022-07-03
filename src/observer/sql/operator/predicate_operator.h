@@ -9,19 +9,32 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/10.
+// Created by WangYunlai on 2022/6/27.
 //
 
 #pragma once
 
-class Predicate
+#include "sql/operator/operator.h"
+
+class FilterStmt;
+class PredicateOperator : public Operator
 {
 public:
-  Predicate()
+  PredicateOperator(FilterStmt *filter_stmt)
+    : filter_stmt_(filter_stmt)
   {}
 
-  virtual ~Predicate() = default;
+  virtual ~PredicateOperator() = default;
 
+  RC open() override;
+  RC next() override;
+  RC close() override;
 
+  Tuple * current_tuple() override;
+  int tuple_cell_num() const override;
+  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
 private:
+  bool do_predicate(RowTuple &tuple);
+private:
+  FilterStmt *filter_stmt_ = nullptr;
 };

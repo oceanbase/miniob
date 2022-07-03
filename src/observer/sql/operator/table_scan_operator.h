@@ -9,41 +9,41 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/9.
+// Created by WangYunlai on 2021/6/7.
 //
 
 #pragma once
 
-#include "sql/executor/operator.h"
+#include "sql/operator/operator.h"
+#include "storage/common/record_manager.h"
 #include "rc.h"
 
-class DeleteStmt;
+class Table;
 
-class DeleteOperator : public Operator
+class TableScanOperator : public Operator
 {
 public:
-  DeleteOperator(DeleteStmt *delete_stmt)
-    : delete_stmt_(delete_stmt)
+  TableScanOperator(Table *table)
+    : table_(table)
   {}
 
-  virtual ~DeleteOperator() = default;
+  virtual ~TableScanOperator() = default;
 
   RC open() override;
   RC next() override;
   RC close() override;
 
-  Tuple * current_tuple() override {
-    return nullptr;
-  }
+  Tuple * current_tuple() override;
+
   int tuple_cell_num() const override
   {
-    return 0;
+    return tuple_.cell_num();
   }
 
-  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override
-  {
-    return RC::NOTFOUND;
-  }
+  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
 private:
-  DeleteStmt *delete_stmt_ = nullptr;
+  Table *table_ = nullptr;
+  RecordFileScanner record_scanner_;
+  Record current_record_;
+  RowTuple tuple_;
 };

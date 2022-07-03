@@ -9,43 +9,32 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/7.
+// Created by WangYunlai on 2021/6/10.
 //
 
 #pragma once
 
-#include "sql/executor/predicate.h"
-#include "sql/executor/operator.h"
-#include "storage/common/record_manager.h"
+#include "sql/parser/parse.h"
+#include "sql/operator/operator.h"
 #include "rc.h"
 
-class Table;
-class Predicate;
+class JoinPredicate;
 
-class TableScanOperator : public Operator
+class JoinOperator : public Operator
 {
 public:
-  TableScanOperator(Table *table)
-    : table_(table)
+  JoinOperator(Operator *left, Operator *right)
   {}
 
-  virtual ~TableScanOperator() = default;
+  virtual ~JoinOperator() = default;
 
   RC open() override;
   RC next() override;
   RC close() override;
 
-  Tuple * current_tuple() override;
-
-  int tuple_cell_num() const override
-  {
-    return tuple_.cell_num();
-  }
-
-  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
 private:
-  Table *table_ = nullptr;
-  RecordFileScanner record_scanner_;
-  Record current_record_;
-  RowTuple tuple_;
+  Operator *left_ = nullptr;
+  Operator *right_ = nullptr;
+  JoinPredicate *predicate_ = nullptr;
+  bool round_done_ = true;
 };

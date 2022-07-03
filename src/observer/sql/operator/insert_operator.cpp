@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2021/6/9.
 //
 
-#include "sql/executor/insert_operator.h"
+#include "sql/operator/insert_operator.h"
 #include "sql/stmt/insert_stmt.h"
 #include "storage/common/table.h"
 #include "rc.h"

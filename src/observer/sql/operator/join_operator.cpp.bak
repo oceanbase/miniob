@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2021/6/10.
 //
 
-#include "sql/executor/join_operator.h"
+#include "sql/operator/join_operator.h"
 
 RC JoinOperator::open()
 {

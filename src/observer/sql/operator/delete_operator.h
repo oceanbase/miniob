@@ -9,32 +9,41 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/10.
+// Created by WangYunlai on 2022/6/9.
 //
 
 #pragma once
 
-#include "sql/parser/parse.h"
-#include "sql/executor/operator.h"
+#include "sql/operator/operator.h"
 #include "rc.h"
 
-class JoinPredicate;
+class DeleteStmt;
 
-class JoinOperator : public Operator
+class DeleteOperator : public Operator
 {
 public:
-  JoinOperator(Operator *left, Operator *right)
+  DeleteOperator(DeleteStmt *delete_stmt)
+    : delete_stmt_(delete_stmt)
   {}
 
-  virtual ~JoinOperator() = default;
+  virtual ~DeleteOperator() = default;
 
   RC open() override;
   RC next() override;
   RC close() override;
 
+  Tuple * current_tuple() override {
+    return nullptr;
+  }
+  int tuple_cell_num() const override
+  {
+    return 0;
+  }
+
+  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override
+  {
+    return RC::NOTFOUND;
+  }
 private:
-  Operator *left_ = nullptr;
-  Operator *right_ = nullptr;
-  JoinPredicate *predicate_ = nullptr;
-  bool round_done_ = true;
+  DeleteStmt *delete_stmt_ = nullptr;
 };
