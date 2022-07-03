@@ -161,14 +161,6 @@ void ExecuteStage::handle_request(common::StageEvent *event)
     case SCF_DESC_TABLE: {
       do_desc_table(sql_event);
     } break;
-    }
-  }
-
-  switch (sql->flag) {
-    //case SCF_SELECT: {  // select
-    // do_select(current_db, sql, exe_event->sql_event()->session_event());
-    // exe_event->done_immediate();
-    //} bre
 
     case SCF_DROP_TABLE:
     case SCF_DROP_INDEX:
@@ -202,6 +194,7 @@ void ExecuteStage::handle_request(common::StageEvent *event)
     } break;
     default: {
       LOG_ERROR("Unsupported command=%d\n", sql->flag);
+    }
     }
   }
 }
