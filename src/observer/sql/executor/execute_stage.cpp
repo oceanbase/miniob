@@ -266,8 +266,8 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
   pred_oper.add_child(&table_scan_operator);
   ProjectOperator project_oper;
   project_oper.add_child(&pred_oper);
-  for (const FieldDesc &field : select_stmt->query_fields()) {
-    project_oper.add_projection(field.table_, field.field_meta_);
+  for (const Field &field : select_stmt->query_fields()) {
+    project_oper.add_projection(field.table(), field.meta());
   }
   rc = project_oper.open();
   if (rc != RC::SUCCESS) {

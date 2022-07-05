@@ -25,7 +25,7 @@ public:
 
   virtual ~ProjectOperator() = default;
 
-  void add_projection(const Table *table, const FieldMeta *field); // TODO how to handle the memory in tupleCellSpec?
+  void add_projection(const Table *table, const FieldMeta *field);
 
   RC open() override;
   RC next() override;

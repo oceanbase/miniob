@@ -18,21 +18,12 @@ See the Mulan PSL v2 for more details. */
 
 #include "rc.h"
 #include "sql/stmt/stmt.h"
+#include "storage/common/field.h"
 
 class FieldMeta;
 class FilterStmt;
 class Db;
 class Table;
-
-// TODO better to create a field class 
-struct FieldDesc
-{
-  Table *table_ = nullptr;
-  const FieldMeta *field_meta_ = nullptr;
-
-  FieldDesc() = default;
-  FieldDesc(Table *table, const FieldMeta *field_meta) : table_(table), field_meta_(field_meta) {}
-};
 
 class SelectStmt : public Stmt
 {
@@ -47,11 +38,11 @@ public:
 
 public:
   const std::vector<Table *> &tables() const { return tables_; }
-  const std::vector<FieldDesc> &query_fields() const { return query_fields_; }
+  const std::vector<Field> &query_fields() const { return query_fields_; }
   FilterStmt *filter_stmt() const { return filter_stmt_; }
 
 private:
-  std::vector<FieldDesc> query_fields_;
+  std::vector<Field> query_fields_;
   std::vector<Table *> tables_;
   FilterStmt *filter_stmt_ = nullptr;
 };
