@@ -52,11 +52,14 @@ Tuple *ProjectOperator::current_tuple()
 
 void ProjectOperator::add_projection(const Table *table, const FieldMeta *field_meta)
 {
-  TupleCellSpec spec(table->name(), field_meta->name(), field_meta->name());
+  // 对单表来说，展示的(alias) 字段总是字段名称，
+  // 对多表查询来说，展示的alias 需要带表名字
+  TupleCellSpec *spec = new TupleCellSpec(new FieldExpr(table, field_meta));
+  spec->set_alias(field_meta->name());
   tuple_.add_cell_spec(spec);
 }
 
-RC ProjectOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
+RC ProjectOperator::tuple_cell_spec_at(int index, const TupleCellSpec *&spec) const
 {
   return tuple_.cell_spec_at(index, spec);
 }

@@ -31,12 +31,12 @@ public:
   RC next() override;
   RC close() override;
 
-  int tuple_cell_num() const override
+  int tuple_cell_num() const
   {
     return tuple_.cell_num();
   }
 
-  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
+  RC tuple_cell_spec_at(int index, const TupleCellSpec *&spec) const;
 
   Tuple * current_tuple() override;
 private:

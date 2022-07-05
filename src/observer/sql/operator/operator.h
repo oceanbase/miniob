@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <vector>
 #include "rc.h"
-#include "sql/executor/tuple.h"
+#include "sql/expr/tuple.h"
 
 class Record;
 class TupleCellSpec;
@@ -34,8 +34,8 @@ public:
   virtual RC close() = 0;
 
   virtual Tuple * current_tuple() = 0;
-  virtual int tuple_cell_num() const = 0;
-  virtual RC  tuple_cell_spec_at(int index, TupleCellSpec &spec) const = 0;
+  //virtual int tuple_cell_num() const = 0;
+  //virtual RC  tuple_cell_spec_at(int index, TupleCellSpec *&spec) const = 0;
 
   void add_child(Operator *oper) {
     children_.push_back(oper);

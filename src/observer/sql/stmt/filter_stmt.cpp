@@ -19,7 +19,15 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/db.h"
 #include "storage/common/table.h"
 
-RC FilterStmt::create(Db *db, Table *default_table,
+FilterStmt::~FilterStmt()
+{
+  for (FilterUnit *unit : filter_units_) {
+    delete unit;
+  }
+  filter_units_.clear();
+}
+
+RC FilterStmt::create(Db *db, Table *default_table, std::unordered_map<std::string_view, Table *> *tables,
 		      const Condition *conditions, int condition_num,
 		      FilterStmt *&stmt)
 {
@@ -28,8 +36,8 @@ RC FilterStmt::create(Db *db, Table *default_table,
 
   FilterStmt *tmp_stmt = new FilterStmt();
   for (int i = 0; i < condition_num; i++) {
-    FilterUnit filter_unit;
-    rc = create_filter_unit(db, default_table, conditions[i], filter_unit);
+    FilterUnit *filter_unit = nullptr;
+    rc = create_filter_unit(db, default_table, tables, conditions[i], filter_unit);
     if (rc != RC::SUCCESS) {
       delete tmp_stmt;
       LOG_WARN("failed to create filter unit. condition index=%d", i);
@@ -42,10 +50,16 @@ RC FilterStmt::create(Db *db, Table *default_table,
   return rc;
 }
 
-RC get_table_and_field(Db *db, Table *default_table, const RelAttr &attr, Table *&table, const FieldMeta *&field)
+RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::string_view, Table *> *tables,
+		       const RelAttr &attr, Table *&table, const FieldMeta *&field)
 {
   if (common::is_blank(attr.relation_name)) {
     table = default_table;
+  } else if (nullptr != tables) {
+    auto iter = tables->find(std::string_view(attr.relation_name));
+    if (iter != tables->end()) {
+      table = iter->second;
+    }
   } else {
     table = db->find_table(attr.relation_name);
   }
@@ -64,8 +78,8 @@ RC get_table_and_field(Db *db, Table *default_table, const RelAttr &attr, Table 
   return RC::SUCCESS;
 }
 
-RC FilterStmt::create_filter_unit(Db *db, Table *default_table,
-				  const Condition &condition, FilterUnit &filter_unit)
+RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_map<std::string_view, Table *> *tables,
+				  const Condition &condition, FilterUnit *&filter_unit)
 {
   RC rc = RC::SUCCESS;
   
@@ -75,38 +89,40 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table,
     return RC::INVALID_ARGUMENT;
   }
 
-  filter_unit.set_comp(comp);
-  FilterItem &left_item = filter_unit.left();
-  FilterItem &right_item = filter_unit.right();
-  
+  Expression *left = nullptr;
+  Expression *right = nullptr;
   if (condition.left_is_attr) {
     Table *table = nullptr;
     const FieldMeta *field = nullptr;
-    rc = get_table_and_field(db, default_table, condition.left_attr, table, field);  
+    rc = get_table_and_field(db, default_table, tables, condition.left_attr, table, field);  
     if (rc != RC::SUCCESS) {
       LOG_WARN("cannot find attr");
       return rc;
     }
-    left_item.set_field(table, field);
+    left = new FieldExpr(table, field);
   } else {
-    left_item.set_value(condition.left_value);
+    left = new ValueExpr(condition.left_value);
   }
 
   if (condition.right_is_attr) {
     Table *table = nullptr;
     const FieldMeta *field = nullptr;
-    rc = get_table_and_field(db, default_table, condition.right_attr, table, field);  
+    rc = get_table_and_field(db, default_table, tables, condition.right_attr, table, field);  
     if (rc != RC::SUCCESS) {
       LOG_WARN("cannot find attr");
+      delete left;
       return rc;
     }
-    right_item.set_field(table, field);
+    right = new FieldExpr(table, field);
   } else {
-    right_item.set_value(condition.right_value);
+    right = new ValueExpr(condition.right_value);
   }
+
+  filter_unit = new FilterUnit;
+  filter_unit->set_comp(comp);
+  filter_unit->set_left(left);
+  filter_unit->set_right(right);
 
   // 检查两个类型是否能够比较
   return rc;
 }
-
-

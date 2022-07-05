@@ -20,8 +20,7 @@ RC TableScanOperator::open()
 {
   RC rc = table_->get_record_scanner(record_scanner_);
   if (rc == RC::SUCCESS) {
-    tuple_.set_table(table_);
-    tuple_.set_schema(table_->table_meta().field_metas());
+    tuple_.set_schema(table_, table_->table_meta().field_metas());
   }
   return rc;
 }
@@ -46,7 +45,7 @@ Tuple * TableScanOperator::current_tuple()
   tuple_.set_record(&current_record_);
   return &tuple_;
 }
-RC TableScanOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
-{
-  return tuple_.cell_spec_at(index, spec);
-}
+// RC TableScanOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
+// {
+//   return tuple_.cell_spec_at(index, spec);
+// }

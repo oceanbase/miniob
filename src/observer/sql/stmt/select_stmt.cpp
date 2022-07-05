@@ -43,8 +43,9 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
     return RC::INVALID_ARGUMENT;
   }
 
+  // collect tables in `from` statement
   std::vector<Table *> tables;
-  std::map<std::string, Table *> table_map;
+  std::unordered_map<std::string_view, Table *> table_map;
   for (int i = 0; i < select_sql.relation_num; i++) {
     const char *table_name = select_sql.relations[i];
     if (nullptr == table_name) {
@@ -62,8 +63,9 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
     table_map.insert(std::pair<std::string, Table*>(table_name, table));
   }
   
+  // collect query fields in `select` statement
   std::vector<FieldDesc> query_fields;
-  for (int i = 0; i < select_sql.attr_num; i++) {
+  for (int i = select_sql.attr_num - 1; i >= 0; i--) {
     const RelAttr &relation_attr = select_sql.attributes[i];
 
     if (common::is_blank(relation_attr.relation_name) && 0 == strcmp(relation_attr.attribute_name, "*")) {
@@ -127,32 +129,13 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
     default_table = tables[0];
   }
 
+  // create filter statement in `where` statement
   FilterStmt *filter_stmt = nullptr;
-  RC rc = FilterStmt::create(db, default_table, select_sql.conditions, select_sql.condition_num, filter_stmt);
+  RC rc = FilterStmt::create(db, default_table, &table_map,
+			     select_sql.conditions, select_sql.condition_num, filter_stmt);
   if (rc != RC::SUCCESS) {
     LOG_WARN("cannot construct filter stmt");
     return rc;
-  }
-
-  // make sure all tables in predicate are exists in from stmt
-  const std::vector<FilterUnit> &filter_units = filter_stmt->filter_units();
-  for (const FilterUnit &filter_unit : filter_units) {
-    const FilterItem &left = filter_unit.left();
-    const FilterItem &right = filter_unit.right();
-    if (left.is_attr()) {
-      Table *table = left.field().table();
-      if (table_map.find(table->name()) == table_map.end()) {
-	LOG_WARN("the table in predicate is not in from stmt: %s", table->name());
-	return RC::SCHEMA_TABLE_NOT_EXIST;
-      }
-    }
-    if (right.is_attr()) {
-      Table *table = right.field().table();
-      if (table_map.find(table->name()) == table_map.end()) {
-	LOG_WARN("the table in predicate is not in from stmt: %s", table->name());
-	return RC::SCHEMA_TABLE_NOT_EXIST;
-      }
-    }
   }
 
   // everything alright

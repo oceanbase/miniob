@@ -59,31 +59,20 @@ Tuple * PredicateOperator::current_tuple()
   return children_[0]->current_tuple();
 }
 
-void get_cell(const RowTuple &tuple, const FilterItem &filter_item, TupleCell &cell)
-{
-  if (filter_item.is_attr()) {
-    cell.set_data(tuple.record().data() + filter_item.field().field()->offset());
-    cell.set_type(filter_item.field().field()->type());
-  } else {
-    cell.set_data((char *)filter_item.value().data);
-    cell.set_type(filter_item.value().type);
-  }
-}
-
 bool PredicateOperator::do_predicate(RowTuple &tuple)
 {
   if (filter_stmt_ == nullptr || filter_stmt_->filter_units().empty()) {
     return true;
   }
 
-  for (const FilterUnit &filter_unit : filter_stmt_->filter_units()) {
-    const FilterItem & left = filter_unit.left();
-    const FilterItem & right = filter_unit.right();
-    CompOp comp = filter_unit.comp();
+  for (const FilterUnit *filter_unit : filter_stmt_->filter_units()) {
+    Expression *left_expr = filter_unit->left();
+    Expression *right_expr = filter_unit->right();
+    CompOp comp = filter_unit->comp();
     TupleCell left_cell;
     TupleCell right_cell;
-    get_cell(tuple, left, left_cell);
-    get_cell(tuple, right, right_cell);
+    left_expr->get_value(tuple, left_cell);
+    right_expr->get_value(tuple, right_cell);
 
     const int compare = left_cell.compare(right_cell);
     bool filter_result = false;
@@ -117,11 +106,11 @@ bool PredicateOperator::do_predicate(RowTuple &tuple)
   return true;
 }
 
-int PredicateOperator::tuple_cell_num() const
-{
-  return children_[0]->tuple_cell_num();
-}
-RC PredicateOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
-{
-  return children_[0]->tuple_cell_spec_at(index, spec);
-}
+// int PredicateOperator::tuple_cell_num() const
+// {
+//   return children_[0]->tuple_cell_num();
+// }
+// RC PredicateOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
+// {
+//   return children_[0]->tuple_cell_spec_at(index, spec);
+// }

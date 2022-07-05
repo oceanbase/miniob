@@ -25,7 +25,7 @@ See the Mulan PSL v2 for more details. */
 #include "event/storage_event.h"
 #include "event/sql_event.h"
 #include "event/session_event.h"
-#include "sql/executor/tuple.h"
+#include "sql/expr/tuple.h"
 #include "sql/operator/table_scan_operator.h"
 #include "sql/operator/predicate_operator.h"
 #include "sql/operator/delete_operator.h"
@@ -210,18 +210,18 @@ void end_trx_if_need(Session *session, Trx *trx, bool all_right)
   }
 }
 
-void print_tuple_header(std::ostream &os, const Operator &oper)
+void print_tuple_header(std::ostream &os, const ProjectOperator &oper)
 {
   const int cell_num = oper.tuple_cell_num();
-  TupleCellSpec cell_spec;
+  const TupleCellSpec *cell_spec = nullptr;
   for (int i = 0; i < cell_num; i++) {
     oper.tuple_cell_spec_at(i, cell_spec);
     if (i != 0) {
       os << " | ";
     }
 
-    if (cell_spec.alias()) {
-      os << cell_spec.alias();
+    if (cell_spec->alias()) {
+      os << cell_spec->alias();
     }
   }
 

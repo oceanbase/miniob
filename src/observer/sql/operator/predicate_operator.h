@@ -17,6 +17,11 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/operator.h"
 
 class FilterStmt;
+
+/**
+ * PredicateOperator 用于单个表中的记录过滤
+ * 如果是多个表数据过滤，比如join条件的过滤，需要设计新的predicate或者扩展:w
+ */
 class PredicateOperator : public Operator
 {
 public:
@@ -31,8 +36,8 @@ public:
   RC close() override;
 
   Tuple * current_tuple() override;
-  int tuple_cell_num() const override;
-  RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
+  //int tuple_cell_num() const override;
+  //RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
 private:
   bool do_predicate(RowTuple &tuple);
 private:

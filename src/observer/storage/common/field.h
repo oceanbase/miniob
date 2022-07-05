@@ -1,31 +1,35 @@
 #pragma once
 
-#include <iostream>
 #include "storage/common/table.h"
 #include "storage/common/field_meta.h"
 
-class TupleCell // TODO rename to Cell
+class Field
 {
-public: 
-  TupleCell() = default;
-  
-  TupleCell(FieldMeta *meta, char *data) : TupleCell(nullptr, meta, data)
-  {}
-  TupleCell(Table *table, FieldMeta *meta, char *data)
-    : table_(table), attr_type_(meta->type()), data_(data)
+public:
+  Field() = default;
+  Field(const Table *table, const FieldMeta *field) : table_(table), field_(field)
   {}
 
-  void set_table(Table *table) { this->table_ = table; }
-  void set_type(AttrType type) { this->attr_type_ = type; }
-  void set_data(char *data) { this->data_ = data; }
-  void set_data(const char *data) { this->set_data(const_cast<char *>(data)); }
+  const Table *table() const { return table_; }
+  const FieldMeta *meta() const { return field_; }
 
-  void to_string(std::ostream &os) const;
+  AttrType attr_type() const
+  {
+    return field_->type();
+  }
 
-  int compare(const TupleCell &other) const;
+  const char *table_name() const { return table_->name(); }
+  const char *field_name() const { return field_->name(); }
 
+  void set_table(const Table *table)
+  {
+    this->table_ = table;
+  }
+  void set_field(const FieldMeta *field)
+  {
+    this->field_ = field;
+  }
 private:
-  Table *table_ = nullptr;
-  AttrType attr_type_ = UNDEFINED;
-  char *data_ = nullptr; // real data. no need to move to field_meta.offset
+  const Table *table_ = nullptr;
+  const FieldMeta *field_ = nullptr;
 };
