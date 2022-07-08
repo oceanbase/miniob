@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/io/io.h"
 #include "common/log/log.h"
+#include "common/lang/defer.h"
 #include "common/seda/timer_stage.h"
 #include "common/lang/string.h"
 #include "session/session.h"
@@ -27,6 +28,7 @@ See the Mulan PSL v2 for more details. */
 #include "event/session_event.h"
 #include "sql/expr/tuple.h"
 #include "sql/operator/table_scan_operator.h"
+#include "sql/operator/index_scan_operator.h"
 #include "sql/operator/predicate_operator.h"
 #include "sql/operator/delete_operator.h"
 #include "sql/operator/project_operator.h"
@@ -35,8 +37,10 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/update_stmt.h"
 #include "sql/stmt/delete_stmt.h"
 #include "sql/stmt/insert_stmt.h"
+#include "sql/stmt/filter_stmt.h"
 #include "storage/common/table.h"
 #include "storage/common/field.h"
+#include "storage/index/index.h"
 #include "storage/default/default_handler.h"
 #include "storage/common/condition_filter.h"
 #include "storage/trx/trx.h"
@@ -249,6 +253,131 @@ void tuple_to_string(std::ostream &os, const Tuple &tuple)
     cell.to_string(os);
   }
 }
+
+IndexScanOperator *try_to_create_index_scan_operator(FilterStmt *filter_stmt)
+{
+  const std::vector<FilterUnit *> &filter_units = filter_stmt->filter_units();
+  if (filter_units.empty() ) {
+    return nullptr;
+  }
+
+  // 在所有过滤条件中，找到字段与值做比较的条件，然后判断字段是否可以使用索引
+  // 如果是多列索引，这里的处理需要更复杂。
+  // 这里的查找规则是比较简单的，就是尽量找到使用相等比较的索引
+  // 如果没有就找范围比较的，但是直接排除不等比较的索引查询. (你知道为什么?)
+  const FilterUnit *better_filter = nullptr;
+  for (const FilterUnit * filter_unit : filter_units) {
+    if (filter_unit->comp() == NOT_EQUAL) {
+      continue;
+    }
+
+    Expression *left = filter_unit->left();
+    Expression *right = filter_unit->right();
+    CompOp comp = filter_unit->comp();
+    if (left->type() == ExprType::FIELD && right->type() == ExprType::VALUE) {
+    } else if (left->type() == ExprType::VALUE && right->type() == ExprType::FIELD) {
+      std::swap(left, right);
+    }
+    FieldExpr &left_field_expr = *(FieldExpr *)left;
+    const Field &field = left_field_expr.field();
+    const Table *table = field.table();
+    Index *index = table->find_index_by_field(field.field_name());
+    if (index != nullptr) {
+      if (better_filter == nullptr) {
+        better_filter = filter_unit;
+      } else if (filter_unit->comp() == EQUAL_TO) {
+        better_filter = filter_unit;
+    	break;
+      }
+    }
+  }
+
+  if (better_filter == nullptr) {
+    return nullptr;
+  }
+
+  Expression *left = better_filter->left();
+  Expression *right = better_filter->right();
+  CompOp comp = better_filter->comp();
+  if (left->type() == ExprType::VALUE && right->type() == ExprType::FIELD) {
+    std::swap(left, right);
+    switch (comp) {
+    case EQUAL_TO:    { comp = EQUAL_TO; }    break;
+    case LESS_EQUAL:  { comp = GREAT_THAN; }  break;
+    case NOT_EQUAL:   { comp = NOT_EQUAL; }   break;
+    case LESS_THAN:   { comp = GREAT_EQUAL; } break;
+    case GREAT_EQUAL: { comp = LESS_THAN; }   break;
+    case GREAT_THAN:  { comp = LESS_EQUAL; }  break;
+    default: {
+    	LOG_WARN("should not happen");
+    }
+    }
+  }
+
+
+  FieldExpr &left_field_expr = *(FieldExpr *)left;
+  const Field &field = left_field_expr.field();
+  const Table *table = field.table();
+  Index *index = table->find_index_by_field(field.field_name());
+  assert(index != nullptr);
+
+  ValueExpr &right_value_expr = *(ValueExpr *)right;
+  TupleCell value;
+  right_value_expr.get_tuple_cell(value);
+
+  const TupleCell *left_cell = nullptr;
+  const TupleCell *right_cell = nullptr;
+  bool left_inclusive = false;
+  bool right_inclusive = false;
+
+  switch (comp) {
+  case EQUAL_TO: {
+    left_cell = &value;
+    right_cell = &value;
+    left_inclusive = true;
+    right_inclusive = true;
+  } break;
+
+  case LESS_EQUAL: {
+    left_cell = nullptr;
+    left_inclusive = false;
+    right_cell = &value;
+    right_inclusive = true;
+  } break;
+
+  case LESS_THAN: {
+    left_cell = nullptr;
+    left_inclusive = false;
+    right_cell = &value;
+    right_inclusive = false;
+  } break;
+
+  case GREAT_EQUAL: {
+    left_cell = &value;
+    left_inclusive = true;
+    right_cell = nullptr;
+    right_inclusive = false;
+  } break;
+
+  case GREAT_THAN: {
+    left_cell = &value;
+    left_inclusive = false;
+    right_cell = nullptr;
+    right_inclusive = false;
+  } break;
+
+  default: {
+    LOG_WARN("should not happen. comp=%d", comp);
+  } break;
+  }
+
+  IndexScanOperator *oper = new IndexScanOperator(table, index,
+       left_cell, left_inclusive, right_cell, right_inclusive);
+
+  LOG_INFO("use index for scan: %s in table %s", index->index_meta().name(), table->name());
+  return oper;
+}
+
 RC ExecuteStage::do_select(SQLStageEvent *sql_event)
 {
   SelectStmt *select_stmt = (SelectStmt *)(sql_event->stmt());
@@ -260,10 +389,15 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
     return rc;
   }
 
-  Table *table = select_stmt->tables().front();
-  TableScanOperator table_scan_operator(table);
+  Operator *scan_oper = try_to_create_index_scan_operator(select_stmt->filter_stmt());
+  if (nullptr == scan_oper) {
+    scan_oper = new TableScanOperator(select_stmt->tables()[0]);
+  }
+
+  DEFER([&] () {delete scan_oper;});
+
   PredicateOperator pred_oper(select_stmt->filter_stmt());
-  pred_oper.add_child(&table_scan_operator);
+  pred_oper.add_child(scan_oper);
   ProjectOperator project_oper;
   project_oper.add_child(&pred_oper);
   for (const Field &field : select_stmt->query_fields()) {
@@ -300,150 +434,6 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
   session_event->set_response(ss.str());
   return rc;
 }
-
-#if 0
-// 这里没有对输入的某些信息做合法性校验，比如查询的列名、where条件中的列名等，没有做必要的合法性校验
-// 需要补充上这一部分. 校验部分也可以放在resolve，不过跟execution放一起也没有关系
-RC ExecuteStage::do_select(const char *db, Query *sql, SessionEvent *session_event)
-{
-
-  RC rc = RC::SUCCESS;
-  Session *session = session_event->get_client()->session;
-  Trx *trx = session->current_trx();
-  const Selects &selects = sql->sstr.selection;
-  // 把所有的表和只跟这张表关联的condition都拿出来，生成最底层的select 执行节点
-  std::vector<SelectExeNode *> select_nodes;
-  for (size_t i = 0; i < selects.relation_num; i++) {
-    const char *table_name = selects.relations[i];
-    SelectExeNode *select_node = new SelectExeNode;
-    rc = create_selection_executor(trx, selects, db, table_name, *select_node);
-    if (rc != RC::SUCCESS) {
-      delete select_node;
-      for (SelectExeNode *&tmp_node : select_nodes) {
-        delete tmp_node;
-      }
-      end_trx_if_need(session, trx, false);
-      return rc;
-    }
-    select_nodes.push_back(select_node);
-  }
-
-  if (select_nodes.empty()) {
-    LOG_ERROR("No table given");
-    end_trx_if_need(session, trx, false);
-    return RC::SQL_SYNTAX;
-  }
-
-  std::vector<TupleSet> tuple_sets;
-  for (SelectExeNode *&node : select_nodes) {
-    TupleSet tuple_set;
-    rc = node->execute(tuple_set);
-    if (rc != RC::SUCCESS) {
-      for (SelectExeNode *&tmp_node : select_nodes) {
-        delete tmp_node;
-      }
-      end_trx_if_need(session, trx, false);
-      return rc;
-    } else {
-      tuple_sets.push_back(std::move(tuple_set));
-    }
-  }
-
-  std::stringstream ss;
-  if (tuple_sets.size() > 1) {
-    // 本次查询了多张表，需要做join操作
-  } else {
-    // 当前只查询一张表，直接返回结果即可
-    tuple_sets.front().print(ss);
-  }
-
-  for (SelectExeNode *&tmp_node : select_nodes) {
-    delete tmp_node;
-  }
-  session_event->set_response(ss.str());
-  end_trx_if_need(session, trx, true);
-  return rc;
-}
-
-bool match_table(const Selects &selects, const char *table_name_in_condition, const char *table_name_to_match)
-{
-  if (table_name_in_condition != nullptr) {
-    return 0 == strcmp(table_name_in_condition, table_name_to_match);
-  }
-
-  return selects.relation_num == 1;
-}
-
-static RC schema_add_field(Table *table, const char *field_name, TupleSchema &schema)
-{
-  const FieldMeta *field_meta = table->table_meta().field(field_name);
-  if (nullptr == field_meta) {
-    LOG_WARN("No such field. %s.%s", table->name(), field_name);
-    return RC::SCHEMA_FIELD_MISSING;
-  }
-
-  schema.add_if_not_exists(field_meta->type(), table->name(), field_meta->name());
-  return RC::SUCCESS;
-}
-
-// 把所有的表和只跟这张表关联的condition都拿出来，生成最底层的select 执行节点
-RC create_selection_executor(
-    Trx *trx, const Selects &selects, const char *db, const char *table_name, SelectExeNode &select_node)
-{
-  // 列出跟这张表关联的Attr
-  TupleSchema schema;
-  Table *table = DefaultHandler::get_default().find_table(db, table_name);
-  if (nullptr == table) {
-    LOG_WARN("No such table [%s] in db [%s]", table_name, db);
-    return RC::SCHEMA_TABLE_NOT_EXIST;
-  }
-
-  for (int i = selects.attr_num - 1; i >= 0; i--) {
-    const RelAttr &attr = selects.attributes[i];
-    if (nullptr == attr.relation_name || 0 == strcmp(table_name, attr.relation_name)) {
-      if (0 == strcmp("*", attr.attribute_name)) {
-        // 列出这张表所有字段
-        TupleSchema::from_table(table, schema);
-        break;  // 没有校验，给出* 之后，再写字段的错误
-      } else {
-        // 列出这张表相关字段
-        RC rc = schema_add_field(table, attr.attribute_name, schema);
-        if (rc != RC::SUCCESS) {
-          return rc;
-        }
-      }
-    }
-  }
-
-  // 找出仅与此表相关的过滤条件, 或者都是值的过滤条件
-  std::vector<DefaultConditionFilter *> condition_filters;
-  for (size_t i = 0; i < selects.condition_num; i++) {
-    const Condition &condition = selects.conditions[i];
-    if ((condition.left_is_attr == 0 && condition.right_is_attr == 0) ||  // 两边都是值
-        (condition.left_is_attr == 1 && condition.right_is_attr == 0 &&
-            match_table(selects, condition.left_attr.relation_name, table_name)) ||  // 左边是属性右边是值
-        (condition.left_is_attr == 0 && condition.right_is_attr == 1 &&
-            match_table(selects, condition.right_attr.relation_name, table_name)) ||  // 左边是值，右边是属性名
-        (condition.left_is_attr == 1 && condition.right_is_attr == 1 &&
-            match_table(selects, condition.left_attr.relation_name, table_name) &&
-            match_table(selects, condition.right_attr.relation_name, table_name))  // 左右都是属性名，并且表名都符合
-    ) {
-      DefaultConditionFilter *condition_filter = new DefaultConditionFilter();
-      RC rc = condition_filter->init(*table, condition);
-      if (rc != RC::SUCCESS) {
-        delete condition_filter;
-        for (DefaultConditionFilter *&filter : condition_filters) {
-          delete filter;
-        }
-        return rc;
-      }
-      condition_filters.push_back(condition_filter);
-    }
-  }
-
-  return select_node.init(trx, table, std::move(schema), std::move(condition_filters));
-}
-#endif
 
 RC ExecuteStage::do_help(SQLStageEvent *sql_event)
 {

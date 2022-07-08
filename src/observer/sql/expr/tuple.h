@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Meiyi & Wangyunlai on 2021/5/14.
+// Created by Wangyunlai on 2021/5/14.
 //
 
 #pragma once
@@ -90,7 +90,7 @@ public:
     this->record_ = record;
   }
 
-  void set_schema(Table *table, const std::vector<FieldMeta> *fields)
+  void set_schema(const Table *table, const std::vector<FieldMeta> *fields)
   {
     table_ = table;
     this->speces_.reserve(fields->size());
@@ -158,7 +158,7 @@ public:
   }
 private:
   Record *record_ = nullptr;
-  Table *table_ = nullptr;
+  const Table *table_ = nullptr;
   std::vector<TupleCellSpec *> speces_;
 };
 

@@ -64,6 +64,11 @@ public:
 
   RC get_record_scanner(RecordFileScanner &scanner);
 
+  RecordFileHandler *record_handler() const
+  {
+    return record_handler_;
+  }
+
 public:
   const char *name() const;
 
@@ -98,8 +103,9 @@ private:
   RC init_record_handler(const char *base_dir);
   RC make_record(int value_num, const Value *values, char *&record_out);
 
-private:
+public:
   Index *find_index(const char *index_name) const;
+  Index *find_index_by_field(const char *field_name) const;
 
 private:
   std::string base_dir_;
