@@ -18,8 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/operator.h"
 #include "rc.h"
 
-class JoinPredicate;
-
+// TODO fixme
 class JoinOperator : public Operator
 {
 public:
@@ -35,6 +34,5 @@ public:
 private:
   Operator *left_ = nullptr;
   Operator *right_ = nullptr;
-  JoinPredicate *predicate_ = nullptr;
   bool round_done_ = true;
 };

@@ -55,7 +55,6 @@ public:
   }
 
 private:
-  // TODO table and field cannot describe all scenerio, should be expression
   const char *alias_ = nullptr;
   Expression *expression_ = nullptr;
 };

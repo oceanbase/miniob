@@ -29,7 +29,7 @@ void TupleCell::to_string(std::ostream &os) const
   case CHARS: {
     for (int i = 0; i < 4; i++) { // the max length of CHARS is 4
       if (data_[i] == '\0') {
-	break;
+        break;
       }
       os << data_[i];
     }
