@@ -47,7 +47,7 @@ RC DeleteStmt::create(Db *db, const Deletes &delete_sql, Stmt *&stmt)
   }
 
   std::unordered_map<std::string, Table *> table_map;
-  table_map.insert(std::pair<std::string_view, Table *>(std::string_view(table_name), table));
+  table_map.insert(std::pair<std::string, Table *>(std::string(table_name), table));
 
   FilterStmt *filter_stmt = nullptr;
   RC rc = FilterStmt::create(db, table, &table_map,
