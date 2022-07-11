@@ -27,7 +27,7 @@ FilterStmt::~FilterStmt()
   filter_units_.clear();
 }
 
-RC FilterStmt::create(Db *db, Table *default_table, std::unordered_map<std::string_view, Table *> *tables,
+RC FilterStmt::create(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
 		      const Condition *conditions, int condition_num,
 		      FilterStmt *&stmt)
 {
@@ -50,13 +50,13 @@ RC FilterStmt::create(Db *db, Table *default_table, std::unordered_map<std::stri
   return rc;
 }
 
-RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::string_view, Table *> *tables,
+RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
 		       const RelAttr &attr, Table *&table, const FieldMeta *&field)
 {
   if (common::is_blank(attr.relation_name)) {
     table = default_table;
   } else if (nullptr != tables) {
-    auto iter = tables->find(std::string_view(attr.relation_name));
+    auto iter = tables->find(std::string(attr.relation_name));
     if (iter != tables->end()) {
       table = iter->second;
     }
@@ -78,7 +78,7 @@ RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::str
   return RC::SUCCESS;
 }
 
-RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_map<std::string_view, Table *> *tables,
+RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
 				  const Condition &condition, FilterUnit *&filter_unit)
 {
   RC rc = RC::SUCCESS;

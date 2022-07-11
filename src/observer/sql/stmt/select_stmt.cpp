@@ -45,7 +45,7 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
 
   // collect tables in `from` statement
   std::vector<Table *> tables;
-  std::unordered_map<std::string_view, Table *> table_map;
+  std::unordered_map<std::string, Table *> table_map;
   for (int i = 0; i < select_sql.relation_num; i++) {
     const char *table_name = select_sql.relations[i];
     if (nullptr == table_name) {

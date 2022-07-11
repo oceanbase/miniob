@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <stddef.h>
 #include <vector>
+#include <limits>
 #include <sstream>
 
 #include "rc.h"
