@@ -176,8 +176,7 @@ void ExecuteStage::handle_request(common::StageEvent *event)
       session_event->set_response(strrc(rc));
     } break;
     case SCF_BEGIN: {
-      session->set_trx_multi_operation_mode(true);
-      session_event->set_response(strrc(RC::SUCCESS));
+      session_event->set_response("SUCCESS\n");
     } break;
     case SCF_COMMIT: {
       Trx *trx = session->current_trx();
@@ -273,7 +272,6 @@ IndexScanOperator *try_to_create_index_scan_operator(FilterStmt *filter_stmt)
 
     Expression *left = filter_unit->left();
     Expression *right = filter_unit->right();
-    CompOp comp = filter_unit->comp();
     if (left->type() == ExprType::FIELD && right->type() == ExprType::VALUE) {
     } else if (left->type() == ExprType::VALUE && right->type() == ExprType::FIELD) {
       std::swap(left, right);
@@ -458,9 +456,9 @@ RC ExecuteStage::do_create_table(SQLStageEvent *sql_event)
   RC rc = db->create_table(create_table.relation_name,
 			create_table.attribute_count, create_table.attributes);
   if (rc == RC::SUCCESS) {
-    session_event->set_response("SUCCESS");
+    session_event->set_response("SUCCESS\n");
   } else {
-    session_event->set_response("FAILURE");
+    session_event->set_response("FAILURE\n");
   }
   return rc;
 }
@@ -471,12 +469,12 @@ RC ExecuteStage::do_create_index(SQLStageEvent *sql_event)
   const CreateIndex &create_index = sql_event->query()->sstr.create_index;
   Table *table = db->find_table(create_index.relation_name);
   if (nullptr == table) {
-    session_event->set_response("FAILURE");
+    session_event->set_response("FAILURE\n");
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
 
   RC rc = table->create_index(nullptr, create_index.index_name, create_index.attribute_name);
-  sql_event->session_event()->set_response(rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
+  sql_event->session_event()->set_response(rc == RC::SUCCESS ? "SUCCESS\n" : "FAILURE\n");
   return rc;
 }
 
@@ -529,9 +527,9 @@ RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
   Table *table = insert_stmt->table();
   RC rc = table->insert_record(nullptr, insert_stmt->value_amount(), insert_stmt->values());
   if (rc == RC::SUCCESS) {
-    session_event->set_response("SUCCESS");
+    session_event->set_response("SUCCESS\n");
   } else {
-    session_event->set_response("FAILURE");
+    session_event->set_response("FAILURE\n");
   }
   return rc;
 }
@@ -555,9 +553,9 @@ RC ExecuteStage::do_delete(SQLStageEvent *sql_event)
 
   RC rc = delete_oper.open();
   if (rc != RC::SUCCESS) {
-    session_event->set_response("FAILURE");
+    session_event->set_response("FAILURE\n");
   } else {
-    session_event->set_response("SUCCESS");
+    session_event->set_response("SUCCESS\n");
   }
   return rc;
 }

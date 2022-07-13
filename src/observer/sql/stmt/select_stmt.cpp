@@ -78,44 +78,44 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
       const char *field_name = relation_attr.attribute_name;
 
       if (0 == strcmp(table_name, "*")) {
-	if (0 != strcmp(field_name, "*")) {
-	  LOG_WARN("invalid field name while table is *. attr=%s", field_name);
-	  return RC::SCHEMA_FIELD_MISSING;
-	}
-	for (Table *table : tables) {
-	  wildcard_fields(table, query_fields);
-	}
+        if (0 != strcmp(field_name, "*")) {
+          LOG_WARN("invalid field name while table is *. attr=%s", field_name);
+          return RC::SCHEMA_FIELD_MISSING;
+        }
+        for (Table *table : tables) {
+          wildcard_fields(table, query_fields);
+        }
       } else {
-	auto iter = table_map.find(table_name);
-	if (iter == table_map.end()) {
-	  LOG_WARN("no such table in from list: %s", table_name);
-	  return RC::SCHEMA_FIELD_MISSING;
-	}
+        auto iter = table_map.find(table_name);
+        if (iter == table_map.end()) {
+          LOG_WARN("no such table in from list: %s", table_name);
+          return RC::SCHEMA_FIELD_MISSING;
+        }
 
-	Table *table = iter->second;
-	if (0 == strcmp(field_name, "*")) {
-	  wildcard_fields(table, query_fields);
-	} else {
-	  const FieldMeta *field_meta = table->table_meta().field(field_name);
-	  if (nullptr == field_meta) {
-	    LOG_WARN("no such field. field=%s.%s.%s", db->name(), table->name(), field_name);
-	    return RC::SCHEMA_FIELD_MISSING;
-	  }
+        Table *table = iter->second;
+        if (0 == strcmp(field_name, "*")) {
+          wildcard_fields(table, query_fields);
+        } else {
+          const FieldMeta *field_meta = table->table_meta().field(field_name);
+          if (nullptr == field_meta) {
+            LOG_WARN("no such field. field=%s.%s.%s", db->name(), table->name(), field_name);
+            return RC::SCHEMA_FIELD_MISSING;
+          }
 
-	  query_fields.push_back(Field(table, field_meta));
-	}
+        query_fields.push_back(Field(table, field_meta));
+        }
       }
     } else {
       if (tables.size() != 1) {
-	LOG_WARN("invalid. I do not know the attr's table. attr=%s", relation_attr.attribute_name);
-	return RC::SCHEMA_FIELD_MISSING;
+        LOG_WARN("invalid. I do not know the attr's table. attr=%s", relation_attr.attribute_name);
+        return RC::SCHEMA_FIELD_MISSING;
       }
 
       Table *table = tables[0];
       const FieldMeta *field_meta = table->table_meta().field(relation_attr.attribute_name);
       if (nullptr == field_meta) {
-	LOG_WARN("no such field. field=%s.%s.%s", db->name(), table->name(), relation_attr.attribute_name);
-	return RC::SCHEMA_FIELD_MISSING;
+        LOG_WARN("no such field. field=%s.%s.%s", db->name(), table->name(), relation_attr.attribute_name);
+        return RC::SCHEMA_FIELD_MISSING;
       }
 
       query_fields.push_back(Field(table, field_meta));
@@ -132,7 +132,7 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
   // create filter statement in `where` statement
   FilterStmt *filter_stmt = nullptr;
   RC rc = FilterStmt::create(db, default_table, &table_map,
-			     select_sql.conditions, select_sql.condition_num, filter_stmt);
+           select_sql.conditions, select_sql.condition_num, filter_stmt);
   if (rc != RC::SUCCESS) {
     LOG_WARN("cannot construct filter stmt");
     return rc;
