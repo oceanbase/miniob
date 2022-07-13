@@ -26,7 +26,6 @@ See the Mulan PSL v2 for more details. */
 #include "event/session_event.h"
 #include "session/session.h"
 #include "sql/stmt/stmt.h"
-#include "storage/default/default_handler.h"
 
 using namespace common;
 
@@ -96,7 +95,6 @@ void ResolveStage::handle_event(StageEvent *event)
 
   SessionEvent *session_event = sql_event->session_event();
 
-  DefaultHandler &handler = DefaultHandler::get_default();
   Db *db = session_event->session()->get_current_db();
   if (nullptr == db) {
     LOG_ERROR("cannot current db");
