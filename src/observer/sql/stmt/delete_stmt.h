@@ -9,35 +9,34 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2021/5/11.
+// Created by Wangyunlai on 2022/5/27.
 //
 
-#ifndef __OBSERVER_EVENT_EXECUTION_PLAN_EVENT_H__
-#define __OBSERVER_EVENT_EXECUTION_PLAN_EVENT_H__
+#pragma once
 
-#include "common/seda/stage_event.h"
-#include "sql/parser/parse.h"
+#include "rc.h"
+#include "sql/stmt/stmt.h"
+#include "sql/parser/parse_defs.h"
 
-class SQLStageEvent;
+class Table;
+class FilterStmt;
 
-class ExecutionPlanEvent : public common::StageEvent {
+class DeleteStmt : public Stmt
+{
 public:
-  ExecutionPlanEvent(SQLStageEvent *sql_event, Query *sqls);
-  virtual ~ExecutionPlanEvent();
 
-  Query *sqls() const
-  {
-    return sqls_;
-  }
+  DeleteStmt(Table *table, FilterStmt *filter_stmt);
+  ~DeleteStmt() override;
 
-  SQLStageEvent *sql_event() const
-  {
-    return sql_event_;
-  }
+  Table *table() const { return table_; }
+  FilterStmt *filter_stmt() const { return filter_stmt_; }
+
+  StmtType type() const override { return StmtType::DELETE; }
+public:
+  static RC create(Db *db, const Deletes &delete_sql, Stmt *&stmt);
 
 private:
-  SQLStageEvent *sql_event_;
-  Query *sqls_;
+  Table *table_ = nullptr;
+  FilterStmt *filter_stmt_ = nullptr;
 };
 
-#endif  // __OBSERVER_EVENT_EXECUTION_PLAN_EVENT_H__

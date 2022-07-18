@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #define __OBSERVER_SQL_PARSE_STAGE_H__
 
 #include "common/seda/stage.h"
+#include "rc.h"
 
 class ParseStage : public common::Stage {
 public:
@@ -33,10 +34,11 @@ protected:
   void callback_event(common::StageEvent *event, common::CallbackContext *context);
 
 protected:
-  common::StageEvent *handle_request(common::StageEvent *event);
+  RC handle_request(common::StageEvent *event);
 
 private:
   Stage *optimize_stage_ = nullptr;
+  Stage *resolve_stage_ = nullptr;
 };
 
 #endif  //__OBSERVER_SQL_PARSE_STAGE_H__

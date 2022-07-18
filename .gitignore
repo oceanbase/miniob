@@ -1,6 +1,6 @@
-./deps/libevent/*
-./deps/googletest/*
-./deps/jsoncpp/*
+./deps/libevent
+./deps/googletest
+./deps/jsoncpp
 build/*
 cmake-build-*/*
 .vscode/*
@@ -12,3 +12,7 @@ compile_commands.json
 ./vcs.xml
 ./workspace.xml
 ./modules.xml
+GRTAGS
+GPATH
+GTAGS
+#*#

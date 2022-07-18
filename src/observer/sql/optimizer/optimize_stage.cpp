@@ -65,7 +65,7 @@ bool OptimizeStage::initialize()
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  execute_stage = *(stgp++);
+  execute_stage_ = *(stgp++);
 
   LOG_TRACE("Exit");
   return true;
@@ -84,7 +84,7 @@ void OptimizeStage::handle_event(StageEvent *event)
   LOG_TRACE("Enter\n");
 
   // optimize sql plan, here just pass the event to the next stage
-  execute_stage->handle_event(event);
+  execute_stage_->handle_event(event);
 
   LOG_TRACE("Exit\n");
   return;
@@ -93,7 +93,6 @@ void OptimizeStage::handle_event(StageEvent *event)
 void OptimizeStage::callback_event(StageEvent *event, CallbackContext *context)
 {
   LOG_TRACE("Enter\n");
-
   LOG_TRACE("Exit\n");
   return;
 }

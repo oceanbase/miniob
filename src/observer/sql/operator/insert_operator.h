@@ -9,20 +9,30 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/14.
+// Created by WangYunlai on 2021/6/7.
 //
 
-#include "event/storage_event.h"
-#include "event/execution_plan_event.h"
+#pragma once
 
-StorageEvent::StorageEvent(ExecutionPlanEvent *exe_event) : exe_event_(exe_event)
-{}
+#include "sql/operator/operator.h"
+#include "sql/parser/parse.h"
+#include "rc.h"
 
-StorageEvent::~StorageEvent()
+class InsertStmt;
+
+class InsertOperator : public Operator
 {
-  exe_event_ = nullptr;
-  // if (exe_event_ != nullptr) {
-  //   ExecutionPlanEvent *exe_event = exe_event_;
-  //   exe_event->doneImmediate();
-  // }
-}
+public:
+  InsertOperator(InsertStmt *insert_stmt)
+    : insert_stmt_(insert_stmt)
+  {}
+
+  virtual ~InsertOperator() = default;
+
+  RC open() override;
+  RC next() override;
+  RC close() override;
+
+private:
+  InsertStmt *insert_stmt_ = nullptr;
+};

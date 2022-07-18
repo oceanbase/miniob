@@ -59,7 +59,7 @@ RC Trx::insert_record(Table *table, Record *record)
 {
   RC rc = RC::SUCCESS;
   // 先校验是否以前是否存在过(应该不会存在)
-  Operation *old_oper = find_operation(table, record->rid);
+  Operation *old_oper = find_operation(table, record->rid());
   if (old_oper != nullptr) {
     return RC::GENERIC_ERROR;  // error code
   }
@@ -69,7 +69,7 @@ RC Trx::insert_record(Table *table, Record *record)
   // 设置record中trx_field为当前的事务号
   // set_record_trx_id(table, record, trx_id_, false);
   // 记录到operations中
-  insert_operation(table, Operation::Type::INSERT, record->rid);
+  insert_operation(table, Operation::Type::INSERT, record->rid());
   return rc;
 }
 
@@ -77,24 +77,24 @@ RC Trx::delete_record(Table *table, Record *record)
 {
   RC rc = RC::SUCCESS;
   start_if_not_started();
-  Operation *old_oper = find_operation(table, record->rid);
+  Operation *old_oper = find_operation(table, record->rid());
   if (old_oper != nullptr) {
     if (old_oper->type() == Operation::Type::INSERT) {
-      delete_operation(table, record->rid);
+      delete_operation(table, record->rid());
       return RC::SUCCESS;
     } else {
       return RC::GENERIC_ERROR;
     }
   }
   set_record_trx_id(table, *record, trx_id_, true);
-  insert_operation(table, Operation::Type::DELETE, record->rid);
+  insert_operation(table, Operation::Type::DELETE, record->rid());
   return rc;
 }
 
 void Trx::set_record_trx_id(Table *table, Record &record, int32_t trx_id, bool deleted) const
 {
   const FieldMeta *trx_field = table->table_meta().trx_field();
-  int32_t *ptrx_id = (int32_t *)(record.data + trx_field->offset());
+  int32_t *ptrx_id = (int32_t *)(record.data() + trx_field->offset());
   if (deleted) {
     trx_id |= DELETED_FLAG_BIT_MASK;
   }
@@ -104,7 +104,7 @@ void Trx::set_record_trx_id(Table *table, Record &record, int32_t trx_id, bool d
 void Trx::get_record_trx_id(Table *table, const Record &record, int32_t &trx_id, bool &deleted)
 {
   const FieldMeta *trx_field = table->table_meta().trx_field();
-  int32_t trx = *(int32_t *)(record.data + trx_field->offset());
+  int32_t trx = *(int32_t *)(record.data() + trx_field->offset());
   trx_id = trx & TRX_ID_BIT_MASK;
   deleted = (trx & DELETED_FLAG_BIT_MASK) != 0;
 }

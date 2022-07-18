@@ -17,20 +17,22 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/seda/stage_event.h"
 
-class ExecutionPlanEvent;
+class SQLStageEvent;
 
 class StorageEvent : public common::StageEvent {
 public:
-  StorageEvent(ExecutionPlanEvent *exe_event);
+  StorageEvent(SQLStageEvent *sql_event) : sql_event_(sql_event)
+  {}
+
   virtual ~StorageEvent();
 
-  ExecutionPlanEvent *exe_event() const
+  SQLStageEvent *sql_event() const
   {
-    return exe_event_;
+    return sql_event_;
   }
 
 private:
-  ExecutionPlanEvent *exe_event_;
+  SQLStageEvent *sql_event_;
 };
 
 #endif  //__OBSERVER_SQL_EVENT_STORAGEEVENT_H__

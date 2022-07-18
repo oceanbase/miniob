@@ -23,6 +23,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/seda/timer_stage.h"
 #include "event/sql_event.h"
+#include "event/session_event.h"
+#include "session/session.h"
+#include "sql/stmt/stmt.h"
 
 using namespace common;
 
@@ -66,7 +69,7 @@ bool ResolveStage::initialize()
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  query_cache_stage = *(stgp++);
+  query_cache_stage_ = *(stgp++);
 
   LOG_TRACE("Exit");
   return true;
@@ -85,9 +88,31 @@ void ResolveStage::handle_event(StageEvent *event)
   LOG_TRACE("Enter\n");
 
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
+  if (nullptr == sql_event) {
+    LOG_WARN("failed to get sql stage event");
+    return;
+  }
 
-  // do nothing here
-  query_cache_stage->handle_event(sql_event);
+  SessionEvent *session_event = sql_event->session_event();
+
+  Db *db = session_event->session()->get_current_db();
+  if (nullptr == db) {
+    LOG_ERROR("cannot current db");
+    return ;
+  }
+
+  Query *query = sql_event->query();
+  Stmt *stmt = nullptr;
+  RC rc = Stmt::create_stmt(db, *query, stmt);
+  if (rc != RC::SUCCESS && rc != RC::UNIMPLENMENT) {
+    LOG_WARN("failed to create stmt. rc=%d:%s", rc, strrc(rc));
+    session_event->set_response("FAILURE\n");
+    return;
+  }
+
+  sql_event->set_stmt(stmt);
+
+  query_cache_stage_->handle_event(sql_event);
 
   LOG_TRACE("Exit\n");
   return;

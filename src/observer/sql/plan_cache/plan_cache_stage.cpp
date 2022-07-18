@@ -65,8 +65,8 @@ bool PlanCacheStage::initialize()
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  execute_stage = *(stgp++);
-  parse_stage = *(stgp++);
+  //  execute_stage = *(stgp++);
+  parse_stage_ = *(stgp++);
 
   LOG_TRACE("Exit");
   return true;
@@ -96,7 +96,7 @@ void PlanCacheStage::handle_event(StageEvent *event)
   event->push_callback(cb);
    */
   // do nothing here, pass the event to the next stage
-  parse_stage->handle_event(event);
+  parse_stage_->handle_event(event);
 
   LOG_TRACE("Exit\n");
   return;

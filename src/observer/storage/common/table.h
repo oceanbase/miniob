@@ -17,12 +17,13 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/common/table_meta.h"
 
+struct RID;
+class Record;
 class DiskBufferPool;
 class RecordFileHandler;
+class RecordFileScanner;
 class ConditionFilter;
 class DefaultConditionFilter;
-struct Record;
-struct RID;
 class Index;
 class IndexScanner;
 class RecordDeleter;
@@ -54,11 +55,19 @@ public:
   RC update_record(Trx *trx, const char *attribute_name, const Value *value, int condition_num,
       const Condition conditions[], int *updated_count);
   RC delete_record(Trx *trx, ConditionFilter *filter, int *deleted_count);
+  RC delete_record(Trx *trx, Record *record);
 
   RC scan_record(Trx *trx, ConditionFilter *filter, int limit, void *context,
       void (*record_reader)(const char *data, void *context));
 
   RC create_index(Trx *trx, const char *index_name, const char *attribute_name);
+
+  RC get_record_scanner(RecordFileScanner &scanner);
+
+  RecordFileHandler *record_handler() const
+  {
+    return record_handler_;
+  }
 
 public:
   const char *name() const;
@@ -82,7 +91,6 @@ private:
   IndexScanner *find_index_for_scan(const DefaultConditionFilter &filter);
 
   RC insert_record(Trx *trx, Record *record);
-  RC delete_record(Trx *trx, Record *record);
 
 private:
   friend class RecordUpdater;
@@ -95,8 +103,9 @@ private:
   RC init_record_handler(const char *base_dir);
   RC make_record(int value_num, const Value *values, char *&record_out);
 
-private:
+public:
   Index *find_index(const char *index_name) const;
+  Index *find_index_by_field(const char *field_name) const;
 
 private:
   std::string base_dir_;

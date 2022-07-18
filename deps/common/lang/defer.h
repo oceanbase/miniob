@@ -9,21 +9,30 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2021/5/11.
+// Created by Wangyunlai on 2022/07/08.
 //
 
-#include "event/execution_plan_event.h"
-#include "event/sql_event.h"
+#pragma once
 
-ExecutionPlanEvent::ExecutionPlanEvent(SQLStageEvent *sql_event, Query *sqls) : sql_event_(sql_event), sqls_(sqls)
-{}
-ExecutionPlanEvent::~ExecutionPlanEvent()
+#include <functional>
+
+namespace common {
+
+class DeferHelper
 {
-  sql_event_ = nullptr;
-  // if (sql_event_) {
-  //   sql_event_->doneImmediate();
-  // }
+public: 
+  DeferHelper(const std::function<void()> &defer) : defer_(defer)
+  {}
 
-  query_destroy(sqls_);
-  sqls_ = nullptr;
-}
+  ~DeferHelper()
+  {
+    defer_();
+  }
+
+private:
+  const std::function<void()> &defer_;
+};
+
+} // namespace common
+
+#define DEFER(callback) common::DeferHelper defer_helper_##__LINE__(callback)

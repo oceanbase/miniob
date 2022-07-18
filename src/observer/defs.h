@@ -7,3 +7,12 @@ THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
+
+//
+// Created by Wangyunlai on 2022/6/23.
+//
+
+#pragma once
+
+using PageNum = int32_t;
+using SlotNum = int32_t;
