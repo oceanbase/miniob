@@ -51,6 +51,9 @@ docker中在/root/source/miniob目录下载了github的源码，可以根据个�
 # 数据库管理系统实现基础讲义
 由华中科技大学谢美意和左琼老师联合编撰数据库管理系统实现教材。参考 [数据库管理系统实现基础讲义](docs/lectures/index.md)
 
+# miniob 介绍
+[miniob代码架构框架设计和说明](https://github.com/OceanBase-Partner/lectures-on-dbms-implementation/blob/main/miniob-introduction.md)
+
 # miniob 题目
 [miniob 题目](docs/miniob_topics.md)
 
