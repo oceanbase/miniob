@@ -21,7 +21,7 @@ namespace common {
 class DeferHelper
 {
 public: 
-  DeferHelper(const std::function<void()> &defer) : defer_(defer)
+  DeferHelper(const std::function<void()> defer) : defer_(std::move(defer))
   {}
 
   ~DeferHelper()
@@ -30,9 +30,13 @@ public:
   }
 
 private:
-  const std::function<void()> &defer_;
+  const std::function<void()> defer_;
 };
 
 } // namespace common
 
-#define DEFER(callback) common::DeferHelper defer_helper_##__LINE__(callback)
+#define AA(B, C) B##C
+#define BB(B, C) AA(B,C)
+#define DEFER(callback) common::DeferHelper BB(defer_helper_, __LINE__)(callback)
+#undef AA
+#undef BB
