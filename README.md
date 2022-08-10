@@ -20,7 +20,7 @@ Dockerfile: https://github.com/oceanbase/miniob/blob/main/Dockerfile
 ```bash
 # build
 docker build -t miniob .
-docker run -d --name='miniob' miniob:lastest
+docker run -d --name='miniob' miniob:latest
 
 # 进入容器，开发调试
 docker exec -it miniob bash
