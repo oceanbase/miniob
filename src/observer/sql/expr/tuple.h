@@ -115,6 +115,7 @@ public:
     const FieldMeta *field_meta = field_expr->field().meta();
     cell.set_type(field_meta->type());
     cell.set_data(this->record_->data() + field_meta->offset());
+    cell.set_length(field_meta->len());
     return RC::SUCCESS;
   }
 

@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include <string.h>
 #include "storage/common/field.h"
 #include "sql/expr/tuple_cell.h"
 
@@ -79,7 +80,11 @@ class ValueExpr : public Expression
 public:
   ValueExpr() = default;
   ValueExpr(const Value &value) : tuple_cell_(value.type, (char *)value.data)
-  {}
+  {
+    if (value.type == CHARS) {
+      tuple_cell_.set_length(strlen((const char *)value.data));
+    }
+  }
 
   virtual ~ValueExpr() = default;
 

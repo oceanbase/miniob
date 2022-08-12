@@ -66,6 +66,8 @@ public:
     return comp_op_;
   }
 
+  AttrType attr_type() const { return attr_type_; }
+
 private:
   ConDesc left_;
   ConDesc right_;

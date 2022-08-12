@@ -31,6 +31,7 @@ using namespace common;
 #define INSERT_NUM (TIMES * ORDER * ORDER * ORDER * ORDER)
 #define POOL_NUM 2
 
+BufferPoolManager bpm;
 BplusTreeHandler *handler = nullptr;
 const char *index_name = "test.btree";
 int insert_num = INSERT_NUM;
@@ -38,6 +39,12 @@ const int page_size = 1024;
 RID rid, check_rid;
 int k = 0;
 
+void init_bpm()
+{
+  if (&BufferPoolManager::instance() == nullptr) {
+    BufferPoolManager::set_instance(&bpm);
+  }
+}
 void test_insert()
 {
   RC rc = RC::SUCCESS;
@@ -148,7 +155,7 @@ void test_get()
     }
 
     rids.clear();
-    RC rc = handler->get_entry((const char *)&i, rids);
+    RC rc = handler->get_entry((const char *)&i, 4, rids);
 
     ASSERT_EQ(RC::SUCCESS, rc);
     ASSERT_EQ(1, rids.size());
@@ -221,7 +228,7 @@ void test_delete()
       LOG_INFO("Begin to get entry of index, i=%d, rid: %s", i, rid.to_string().c_str());
     }
     rids.clear();
-    rc = handler->get_entry((const char *)&i, rids);
+    rc = handler->get_entry((const char *)&i, 4, rids);
     ASSERT_EQ(RC::SUCCESS, rc);
     int t = i % TIMES;
     if (t == 0 || t == 1) {
@@ -458,6 +465,50 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
     ASSERT_EQ(i, index);
   }
 }
+
+TEST(test_bplus_tree, test_chars)
+{
+  LoggerFactory::init_default("test_chars.log");
+
+  const char *index_name = "chars.btree";
+  ::remove(index_name);
+  handler = new BplusTreeHandler();
+  handler->create(index_name, CHARS, 8, ORDER, ORDER);
+
+  char keys[][9] = {
+    "abcdefg",
+    "12345678",
+    "12345678",
+    "abcdefg",
+    "abcdefga"
+  };
+
+  RID rid;
+  RC rc = RC::SUCCESS;
+  for (size_t i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
+    rid.page_num = 0;
+    rid.slot_num = i;
+    rc = handler->insert_entry(keys[i], &rid);
+    ASSERT_EQ(RC::SUCCESS, rc);
+  }
+
+  LOG_INFO("begin to print bplus tree of chars");
+  handler->print_tree();
+  LOG_INFO("end to print bplus tree of chars");
+
+  BplusTreeScanner scanner(*handler);
+  const char *key = "abcdefg";
+  rc = scanner.open(key, strlen(key), true, key, strlen(key), true);
+  ASSERT_EQ(rc, RC::SUCCESS);
+
+  int count = 0;
+  while (RC::SUCCESS == (rc = scanner.next_entry(&rid))) {
+    count++;
+  }
+  scanner.close();
+  ASSERT_EQ(2, count);
+}
+
 TEST(test_bplus_tree, test_scanner)
 {
   LoggerFactory::init_default("test.log");
@@ -484,7 +535,7 @@ TEST(test_bplus_tree, test_scanner)
 
   int begin = -100;
   int end = -20;
-  rc = scanner.open((const char *)&begin, false, (const char *)&end, false);
+  rc = scanner.open((const char *)&begin, 4, false, (const char *)&end, 4, false);
   ASSERT_EQ(RC::SUCCESS, rc);
 
   rc = scanner.next_entry(&rid);
@@ -494,7 +545,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = -100;
   end = 1;
-  rc = scanner.open((const char *)&begin, false, (const char *)&end, false);
+  rc = scanner.open((const char *)&begin, 4, false, (const char *)&end, 4, false);
   ASSERT_EQ(RC::SUCCESS, rc);
   rc = scanner.next_entry(&rid);
   ASSERT_EQ(RC::RECORD_EOF, rc);
@@ -503,7 +554,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = -100;
   end = 1;
-  rc = scanner.open((const char *)&begin, false, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, false, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   rc = scanner.next_entry(&rid);
   ASSERT_EQ(RC::SUCCESS, rc);
@@ -514,7 +565,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 1;
   end = 3;
-  rc = scanner.open((const char *)&begin, false, (const char *)&end, false/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, false, (const char *)&end, 4, false/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   rc = scanner.next_entry(&rid);
   ASSERT_EQ(RC::RECORD_EOF, rc);
@@ -523,7 +574,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 1;
   end = 3;
-  rc = scanner.open((const char *)&begin, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
     count++;
@@ -535,7 +586,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 0;
   end = 3;
-  rc = scanner.open((const char *)&begin, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
@@ -548,7 +599,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 11;
   end = 21;
-  rc = scanner.open((const char *)&begin, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
@@ -561,7 +612,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 11;
   end = 91;
-  rc = scanner.open((const char *)&begin, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
@@ -574,7 +625,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 191;
   end = 199;
-  rc = scanner.open((const char *)&begin, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
@@ -587,7 +638,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 191;
   end = 201;
-  rc = scanner.open((const char *)&begin, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
@@ -600,7 +651,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 200;
   end = 301;
-  rc = scanner.open((const char *)&begin, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   rc = scanner.next_entry(&rid);
   ASSERT_EQ(RC::RECORD_EOF, rc);
@@ -609,14 +660,14 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 300;
   end = 201;
-  rc = scanner.open((const char *)&begin, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::INVALID_ARGUMENT, rc);
 
   scanner.close();
 
   begin = 300;
   end = 201;
-  rc = scanner.open(nullptr, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open(nullptr, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
@@ -629,7 +680,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 300;
   end = 10;
-  rc = scanner.open(nullptr, true, (const char *)&end, true/*inclusive*/);
+  rc = scanner.open(nullptr, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
@@ -642,7 +693,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 190;
   end = 10;
-  rc = scanner.open((const char *)&begin, true, nullptr, true/*inclusive*/);
+  rc = scanner.open((const char *)&begin, 4, true, nullptr, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
@@ -655,7 +706,7 @@ TEST(test_bplus_tree, test_scanner)
 
   begin = 190;
   end = 10;
-  rc = scanner.open(nullptr, true, nullptr, true/*inclusive*/);
+  rc = scanner.open(nullptr, 0, true, nullptr, 0, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
   while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
@@ -695,6 +746,7 @@ int main(int argc, char **argv)
   // 调用RUN_ALL_TESTS()运行所有测试用例
   // main函数返回RUN_ALL_TESTS()的运行结果
 
+  init_bpm();
   int rc = RUN_ALL_TESTS();
 
   return rc;
