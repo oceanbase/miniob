@@ -69,7 +69,7 @@ char *my_readline(const char *prompt)
 bool is_exit_command(const char *cmd) {
   return 0 == strncasecmp("exit", cmd, 4) ||
          0 == strncasecmp("bye", cmd, 3) ||
-	 0 == strncasecmp("\\q", cmd, 2) ;
+         0 == strncasecmp("\\q", cmd, 2) ;
 }
 
 int init_unix_sock(const char *unix_sock_path)
