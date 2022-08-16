@@ -118,7 +118,14 @@ public:
       return std::to_string(*(float*)v);
     }
     case CHARS: {
-      return std::string(v, attr_length_);
+      std::string str;
+      for (int i = 0; i < attr_length_; i++) {
+	if (v[i] == 0) {
+	  break;
+	}
+	str.push_back(v[i]);
+      }
+      return str;
     }
     default:{
       LOG_ERROR("unknown attr type. %d", attr_type_);
@@ -400,12 +407,14 @@ public:
    * 此函数向IndexHandle对应的索引中插入一个索引项。
    * 参数user_key指向要插入的属性值，参数rid标识该索引项对应的元组，
    * 即向索引中插入一个值为（user_key，rid）的键值对
+   * @note 这里假设user_key的内存大小与attr_length 一致
    */
   RC insert_entry(const char *user_key, const RID *rid);
 
   /**
    * 从IndexHandle句柄对应的索引中删除一个值为（*pData，rid）的索引项
    * @return RECORD_INVALID_KEY 指定值不存在
+   * @note 这里假设user_key的内存大小与attr_length 一致
    */
   RC delete_entry(const char *user_key, const RID *rid);
 
@@ -413,9 +422,10 @@ public:
 
   /**
    * 获取指定值的record
+   * @param key_len user_key的长度
    * @param rid  返回值，记录记录所在的页面号和slot
    */
-  RC get_entry(const char *user_key, std::list<RID> &rids);
+  RC get_entry(const char *user_key, int key_len, std::list<RID> &rids);
 
   RC sync();
 
@@ -493,18 +503,26 @@ public:
 
   /**
    * 扫描指定范围的数据
-   * @param left_key 扫描范围的左边界，如果是null，则没有左边界
+   * @param left_user_key 扫描范围的左边界，如果是null，则没有左边界
+   * @param left_len left_user_key 的内存大小(只有在变长字段中才会关注)
    * @param left_inclusive 左边界的值是否包含在内
-   * @param right_key 扫描范围的右边界。如果是null，则没有右边界
+   * @param right_user_key 扫描范围的右边界。如果是null，则没有右边界
+   * @param right_len right_user_key 的内存大小(只有在变长字段中才会关注)
    * @param right_inclusive 右边界的值是否包含在内
    */
-  RC open(const char *left_user_key, bool left_inclusive,
-	  const char *right_user_key, bool right_inclusive);
+  RC open(const char *left_user_key, int left_len, bool left_inclusive,
+	  const char *right_user_key, int right_len, bool right_inclusive);
 
   RC next_entry(RID *rid);
 
   RC close();
 
+private:
+  /**
+   * 如果key的类型是CHARS, 扩展或缩减user_key的大小刚好是schema中定义的大小
+   */
+  RC fix_user_key(const char *user_key, int key_len, bool want_greater,
+		  char **fixed_key, bool *should_inclusive);
 private:
   bool inited_ = false;
   BplusTreeHandler &tree_handler_;

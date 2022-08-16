@@ -295,6 +295,8 @@ RC DiskBufferPool::allocate_page(Frame **frame)
 
 RC DiskBufferPool::unpin_page(Frame *frame)
 {
+  assert(frame->pin_count_ >= 1);
+
   if (--frame->pin_count_ == 0) {
     PageNum page_num = frame->page_num();
     auto pages_it = disposed_pages.find(page_num);

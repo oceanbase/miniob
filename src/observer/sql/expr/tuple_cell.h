@@ -31,6 +31,7 @@ public:
   {}
 
   void set_type(AttrType type) { this->attr_type_ = type; }
+  void set_length(int length) { this->length_ = length; }
   void set_data(char *data) { this->data_ = data; }
   void set_data(const char *data) { this->set_data(const_cast<char *>(data)); }
 
@@ -43,11 +44,15 @@ public:
     return data_;
   }
 
+  int length() const { return length_; }
+
   AttrType attr_type() const
   {
     return attr_type_;
   }
+
 private:
   AttrType attr_type_ = UNDEFINED;
+  int length_ = -1;
   char *data_ = nullptr; // real data. no need to move to field_meta.offset
 };

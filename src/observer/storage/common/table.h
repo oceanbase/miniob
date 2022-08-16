@@ -29,6 +29,7 @@ class IndexScanner;
 class RecordDeleter;
 class Trx;
 
+// TODO remove the routines with condition
 class Table {
 public:
   Table() = default;

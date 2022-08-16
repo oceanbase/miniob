@@ -36,8 +36,8 @@ RC IndexScanOperator::open()
   }
 
   
-  IndexScanner *index_scanner = index_->create_scanner(left_cell_.data(), left_inclusive_,
-					       right_cell_.data(), right_inclusive_);
+  IndexScanner *index_scanner = index_->create_scanner(left_cell_.data(), left_cell_.length(), left_inclusive_,
+                                                       right_cell_.data(), right_cell_.length(), right_inclusive_);
   if (nullptr == index_scanner) {
     LOG_WARN("failed to create index scanner");
     return RC::INTERNAL;

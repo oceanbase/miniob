@@ -326,7 +326,14 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
   for (int i = 0; i < value_num; i++) {
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
     const Value &value = values[i];
-    memcpy(record + field->offset(), value.data, field->len());
+    size_t copy_len = field->len();
+    if (field->type() == CHARS) {
+      const size_t data_len = strlen((const char *)value.data);
+      if (copy_len > data_len) {
+        copy_len = data_len + 1;
+      }
+    }
+    memcpy(record + field->offset(), value.data, copy_len);
   }
 
   record_out = record;
@@ -775,6 +782,8 @@ IndexScanner *Table::find_index_for_scan(const DefaultConditionFilter &filter)
 
   const char *left_key = nullptr;
   const char *right_key = nullptr;
+  int left_len = 4;
+  int right_len = 4;
   bool left_inclusive = false;
   bool right_inclusive = false;
   switch (filter.comp_op()) {
@@ -809,7 +818,12 @@ IndexScanner *Table::find_index_for_scan(const DefaultConditionFilter &filter)
     return nullptr;
   }
   }
-  return index->create_scanner(left_key, left_inclusive, right_key, right_inclusive);
+
+  if (filter.attr_type() == CHARS) {
+    left_len = left_key != nullptr ? strlen(left_key) : 0;
+    right_len = right_key != nullptr ? strlen(right_key) : 0;
+  }
+  return index->create_scanner(left_key, left_len, left_inclusive, right_key, right_len, right_inclusive);
 }
 
 IndexScanner *Table::find_index_for_scan(const ConditionFilter *filter)
