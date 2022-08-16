@@ -94,6 +94,7 @@ https://www.multiprecision.org/mpc/download.html
 3. build libevent
 
 ```bash
+git rm -r --cached deps/libevent
 git submodule add https://github.com/libevent/libevent deps/libevent
 cd deps
 cd libevent
@@ -108,6 +109,7 @@ sudo make install
 4. build google test
 
 ```bash
+git rm -r --cached deps/googletest
 git submodule add https://github.com/google/googletest deps/googletest
 cd deps
 cd googletest
@@ -121,6 +123,7 @@ sudo make install
 5. build jsoncpp
 
 ```bash
+git rm -r --cached deps/jsoncpp
 git submodule add https://github.com/open-source-parsers/jsoncpp.git deps/jsoncpp
 cd deps
 cd jsoncpp
