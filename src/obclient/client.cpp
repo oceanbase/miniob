@@ -62,9 +62,14 @@ char *my_readline(const char *prompt)
 }
 #endif // USE_READLINE
 
+/* this function config a exit-cmd list, strncasecmp func truncate the command from terminal according to the number,
+   'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from 
+   the beginning, then compare the result with 'exit', if they match, exit the obclient.
+*/
 bool is_exit_command(const char *cmd) {
   return 0 == strncasecmp("exit", cmd, 4) ||
-         0 == strncasecmp("bye", cmd, 3);
+         0 == strncasecmp("bye", cmd, 3) ||
+         0 == strncasecmp("\\q", cmd, 2) ;
 }
 
 int init_unix_sock(const char *unix_sock_path)
