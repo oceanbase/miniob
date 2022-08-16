@@ -93,6 +93,10 @@ https://www.multiprecision.org/mpc/download.html
 
 3. build libevent
 
+> libevent 编译过程中会使用 opessh 库，所以需要保证编译环境中已经安装 openssh，安装命令如下：
+>     Mac: `brew install openssh`
+>     CentOS: 'yum install openssh'
+
 ```bash
 git rm -r --cached deps/libevent
 git submodule add https://github.com/libevent/libevent deps/libevent
