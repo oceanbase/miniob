@@ -66,3 +66,8 @@ docker中在/root/source/miniob目录下载了github的源码，可以根据个�
 [miniob select-tables 实现解析](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-select-tables-implementation.html)
 
 [miniob 调试篇](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-how-to-debug.html)
+
+# Windows
+
+[如何在Windows上使用Docker开发miniob](docs/how_to_dev_miniob_by_docker_on_windows.md)
+
