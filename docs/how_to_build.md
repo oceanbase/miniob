@@ -61,7 +61,7 @@ cd gcc-11.3.0
 # 配置。可以通过prefix参数设置编译完成的GCC的安装目录，如果不指定，会安装在/usr/local下
 # 可以配置为当前用户的某个目录
 ./configure --prefix=/your/new/gcc/path --enable-threads=posix --disable-checking \
-    --enable--long-long --with-system-zlib --enable-languages=c,c++
+    --disable-multilib --enable--long-long --with-system-zlib --enable-languages=c,c++
 
 # 开始编译
 make -j
