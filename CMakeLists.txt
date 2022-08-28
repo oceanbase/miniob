@@ -2,6 +2,12 @@
 #INCLUDE(file1 [OPTIONAL])
 
 cmake_minimum_required(VERSION 3.10)
+
+set(CMAKE_MODULE_PATH
+    ${CMAKE_MODULE_PATH}
+    ${CMAKE_SOURCE_DIR}/cmake/modules
+)
+
 set(CMAKE_CXX_STANDARD 14)
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -67,6 +73,7 @@ MESSAGE("Install target dir is " ${CMAKE_INSTALL_PREFIX})
 
 
 # ADD_SUBDIRECTORY(src bin)  bin 为目标目录， 可以省略
+include(FindExtPackages)
 ADD_SUBDIRECTORY(deps)
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(test/perf)
