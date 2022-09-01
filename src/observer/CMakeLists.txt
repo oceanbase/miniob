@@ -24,7 +24,7 @@ FOREACH (F ${ALL_SRC})
 
 ENDFOREACH (F)
 
-SET(LIBRARIES common pthread dl event jsoncpp)
+SET(LIBRARIES common pthread dl event_pthreads event jsoncpp)
 
 # 指定目标文件位置
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../../bin)
