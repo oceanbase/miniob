@@ -126,6 +126,8 @@ public:
    */
   RC delete_record(const RID *rid);
 
+  RC destroy();
+
   /**
    * 插入一个新的记录到指定文件中，pData为指向新纪录内容的指针，返回该记录的标识符rid
    */

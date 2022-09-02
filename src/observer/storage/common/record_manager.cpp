@@ -346,6 +346,11 @@ RC RecordFileHandler::delete_record(const RID *rid)
   return page_handler.delete_record(rid);
 }
 
+RC RecordFileHandler::destroy()
+{
+  // TODO
+}
+
 RC RecordFileHandler::get_record(const RID *rid, Record *rec)
 {
   // lock?

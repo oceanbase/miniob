@@ -221,6 +221,8 @@ public:
    * 刷新所有页面到磁盘，即使pin count不是0
    */
   RC flush_all_pages();
+  
+  std::string file_name() const {return file_name_;}
 
 protected:
   RC allocate_frame(Frame **buf);
@@ -256,6 +258,7 @@ public:
   ~BufferPoolManager();
 
   RC create_file(const char *file_name);
+  RC remove_file(const char *file_name);
   RC open_file(const char *file_name, DiskBufferPool *&bp);
   RC close_file(const char *file_name);
 

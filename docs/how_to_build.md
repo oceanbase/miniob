@@ -10,7 +10,7 @@ MiniOB 需要使用：
 
 1. install cmake
 
-需要安装了3.12或以上版本的cmake，可以跳过此步骤。
+需要安装了3.10或以上版本的cmake，可以跳过此步骤。
 在[cmake官网](https://cmake.org/download/) 下载对应系统的cmake然后安装。
 比如
 ```bash

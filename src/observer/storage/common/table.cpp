@@ -118,6 +118,27 @@ RC Table::create(
   return rc;
 }
 
+RC Table::drop(const char *path)
+{
+  RC rc = RC::SUCCESS;
+  for (Index *index : indexes_) {
+    index->drop();
+  }
+  rc = record_handler_->destroy();
+  delete record_handler_;
+  record_handler_ = nullptr;
+
+  std::string data_file = table_data_file(base_dir_.c_str(), table_meta_.name());
+  BufferPoolManager &bpm = BufferPoolManager::instance();
+  rc = bpm.remove_file(data_file.c_str());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to drop disk buffer pool of data file. file name=%s", data_file.c_str());
+    return rc;
+  }
+  ::remove(path);
+  return rc;
+}
+
 RC Table::open(const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件
