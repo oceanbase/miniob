@@ -1,7 +1,7 @@
 # include 另外一个cmake 配置
 #INCLUDE(file1 [OPTIONAL])
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 set(CMAKE_CXX_STANDARD 14)
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 

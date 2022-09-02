@@ -5,12 +5,12 @@
 假设系统上已经安装了make等编译工具。
 
 MiniOB 需要使用：
-- cmake 版本 >= 3.10
+- cmake 版本 >= 3.13
 - gcc/clang gcc建议8.3以上，编译器需要支持c++14等新标准
 
 1. install cmake
 
-需要安装了3.10或以上版本的cmake，可以跳过此步骤。
+需要安装了3.12或以上版本的cmake，可以跳过此步骤。
 在[cmake官网](https://cmake.org/download/) 下载对应系统的cmake然后安装。
 比如
 ```bash
