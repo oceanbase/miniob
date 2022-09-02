@@ -147,6 +147,9 @@ void ExecuteStage::handle_request(common::StageEvent *event)
     case StmtType::DELETE: {
       do_delete(sql_event);
     } break;
+    default: {
+      LOG_WARN("should not happen. please implenment");
+    } break;
     }
   } else {
     switch (sql->flag) {
