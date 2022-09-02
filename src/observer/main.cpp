@@ -137,8 +137,6 @@ void *quit_thread_func(void *_signum)
   LOG_INFO("Receive signal: %ld", signum);
   if (g_server) {
     g_server->shutdown();
-    delete g_server;
-    g_server = nullptr;
   }
   return nullptr;
 }
@@ -169,4 +167,6 @@ int main(int argc, char **argv)
   LOG_INFO("Server stopped");
 
   cleanup();
+
+  delete g_server;
 }

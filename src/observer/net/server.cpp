@@ -26,6 +26,7 @@ See the Mulan PSL v2 for more details. */
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <event2/thread.h>
 
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
@@ -411,6 +412,7 @@ int Server::start_unix_socket_server()
 
 int Server::serve()
 {
+  evthread_use_pthreads();
   event_base_ = event_base_new();
   if (event_base_ == nullptr) {
     LOG_ERROR("Failed to create event base, %s.", strerror(errno));
@@ -425,19 +427,6 @@ int Server::serve()
 
   event_base_dispatch(event_base_);
 
-  return 0;
-}
-
-void Server::shutdown()
-{
-  LOG_INFO("Server shutting down");
-
-  // cleanup
-  struct timeval exit_time;
-  gettimeofday(&exit_time, nullptr);
-  exit_time.tv_sec += 10;
-  event_base_loopexit(event_base_, &exit_time);
-
   if (listen_ev_ != nullptr) {
     event_del(listen_ev_);
     event_free(listen_ev_);
@@ -451,4 +440,16 @@ void Server::shutdown()
 
   started_ = false;
   LOG_INFO("Server quit");
+  return 0;
+}
+
+void Server::shutdown()
+{
+  LOG_INFO("Server shutting down");
+
+  // cleanup
+  if (event_base_ != nullptr && started_) {
+    started_ = false;
+    event_base_loopexit(event_base_, nullptr);
+  }
 }
