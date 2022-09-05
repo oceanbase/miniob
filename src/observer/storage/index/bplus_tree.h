@@ -24,6 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/record_manager.h"
 #include "storage/default/disk_buffer_pool.h"
 #include "sql/parser/parse_defs.h"
+#include "util/comparator.h"
 
 #define EMPTY_RID_PAGE_NUM -1
 #define EMPTY_RID_SLOT_NUM -1
@@ -44,18 +45,14 @@ public:
   int operator()(const char *v1, const char *v2) const {
     switch (attr_type_) {
     case INTS: {
-      return *(int *)v1 - *(int *)v2;
+      return compare_int((void *)v1, (void *)v2);
     }
       break;
     case FLOATS: {
-      float result = *(float *)v1 - *(float *)v2;
-      if (-1e-6 < result && result < 1e-6) {
-        return 0;
-      }
-      return result > 0 ? 1 : -1;
+      return compare_float((void *)v1, (void *)v2);
     }
     case CHARS: {
-      return strncmp(v1, v2, attr_length_);
+      return compare_string((void *)v1, attr_length_, (void *)v2, attr_length_);
     }
     default:{
       LOG_ERROR("unknown attr type. %d", attr_type_);
