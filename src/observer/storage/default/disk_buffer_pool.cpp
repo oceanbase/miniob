@@ -18,11 +18,12 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
 #include "common/os/os.h"
+#include "common/io/io.h"
 
 using namespace common;
 
 static const PageNum BP_HEADER_PAGE = 0;
-static const int MEM_POOL_ITEM_NUM = 5;
+static const int MEM_POOL_ITEM_NUM = 128;
 
 unsigned long current_time()
 {
@@ -299,6 +300,12 @@ RC DiskBufferPool::allocate_page(Frame **frame)
     }
   }
 
+  if (file_header_->page_count >= BPFileHeader::MAX_PAGE_NUM) {
+    LOG_WARN("file buffer pool is full. page count %d, max page count %d",
+	     file_header_->page_count, BPFileHeader::MAX_PAGE_NUM);
+    return BUFFERPOOL_NOBUF;
+  }
+
   PageNum page_num = file_header_->page_count;
   Frame *allocated_frame = nullptr;
   if ((rc = allocate_frame(page_num, &allocated_frame)) != RC::SUCCESS) {
@@ -458,7 +465,7 @@ RC DiskBufferPool::flush_page(Frame &frame)
     return RC::IOERR_SEEK;
   }
 
-  if (write(file_desc_, &page, sizeof(Page)) != sizeof(Page)) {
+  if (writen(file_desc_, &page, sizeof(Page)) != 0) {
     LOG_ERROR("Failed to flush page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_WRITE;
   }
@@ -531,9 +538,11 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
 
     return RC::IOERR_SEEK;
   }
-  if (read(file_desc_, &(frame->page_), sizeof(Page)) != sizeof(Page)) {
-    LOG_ERROR("Failed to load page %s:%d, due to failed to read data:%s.",
-	      file_name_.c_str(), page_num, strerror(errno));
+
+  int ret = readn(file_desc_, &(frame->page_), sizeof(Page));
+  if (ret != 0) {
+    LOG_ERROR("Failed to load page %s:%d, due to failed to read data:%s, ret=%d, page count=%d",
+	      file_name_.c_str(), page_num, strerror(errno), ret, file_header_->allocated_pages);
     return RC::IOERR_READ;
   }
   return RC::SUCCESS;
@@ -598,7 +607,7 @@ RC BufferPoolManager::create_file(const char *file_name)
     return RC::IOERR_SEEK;
   }
 
-  if (write(fd, (char *)&page, sizeof(Page)) != sizeof(Page)) {
+  if (writen(fd, (char *)&page, sizeof(Page)) != 0) {
     LOG_ERROR("Failed to write header to file %s, due to %s.", file_name, strerror(errno));
     close(fd);
     return RC::IOERR_WRITE;

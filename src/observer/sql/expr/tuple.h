@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse.h"
 #include "sql/expr/tuple_cell.h"
 #include "sql/expr/expression.h"
-#include "storage/common/record.h"
+#include "storage/record/record.h"
 
 class Table;
 
