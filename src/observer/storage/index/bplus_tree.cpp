@@ -181,25 +181,6 @@ int LeafIndexNodeHandler::lookup(const KeyComparator &comparator, const char *ke
   common::BinaryIterator<char> iter_end(item_size(), __key_at(size));
   common::BinaryIterator<char> iter = lower_bound(iter_begin, iter_end, key, comparator, found);
   return iter - iter_begin;
-  /*
-  int i = 0;
-  for ( ; i < size; i++) {
-    int result = comparator(key, __key_at(i));
-    if (0 == result) {
-      if (found) {
-	*found = true;
-      }
-      return i;
-    }
-    if (result < 0) {
-      break;
-    }
-  }
-  if (found) {
-    *found = false;
-  }
-  return i;
-  */
 }
 
 void LeafIndexNodeHandler::insert(int index, const char *key, const char *value)
@@ -498,38 +479,6 @@ int InternalIndexNodeHandler::lookup(const KeyComparator &comparator, const char
     return ret - 1;
   }
   return ret;
-  
-  #if 0
-  for ( ; i < size; i++) {
-    int result = comparator(key, __key_at(i));
-    if (result == 0) {
-      if (found) {
-	*found = true;
-      }
-      if (insert_position) {
-	*insert_position = i;
-      }
-      return i;
-    }
-    if (result < 0) {
-      if (found) {
-	*found = false;
-      }
-      if (insert_position) {
-	*insert_position = i;
-      }
-
-      return i - 1;
-    }
-  }
-  if (found) {
-    *found = false;
-  }
-  if (insert_position) {
-    *insert_position = size;
-  }
-  return size - 1;
-  #endif
 }
 
 char *InternalIndexNodeHandler::key_at(int index)
