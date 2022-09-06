@@ -29,7 +29,9 @@ miniob作为一个具有“基本”功能的数据库，包含了需要的基�
 - 客户端：作为测试工具，接收用户请求，向服务端发起请求。
 
 
-SQL的执行流程可以参考 ![SQL 请求执行流程](images/miniob-introduction-sql-flow.png)。
+SQL的执行流程可以参考 
+
+![SQL 请求执行流程](images/miniob-introduction-sql-flow.png)。
 
 ## 各模块工作原理介绍
 ### seda异步事件框架
