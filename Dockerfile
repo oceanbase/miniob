@@ -24,8 +24,8 @@ ENV LD_LIBRARY_PATH /usr/local/lib64:$LD_LIBRARY_PATH
 # clone deps and compile deps
 RUN mkdir -p ${HOME_DIR}/deps
 WORKDIR ${HOME_DIR}/deps
-RUN wget http://yum-test.obvos.alibaba-inc.com/oceanbase/development-kit/el/7/x86_64/obdevtools-cmake-3.20.2-3.el7.x86_64.rpm \
-    && rpm -ivh obdevtools-cmake-3.20.2-3.el7.x86_64.rpm && rm -f obdevtools-cmake-3.20.2-3.el7.x86_64.rpm
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.24.0/cmake-3.24.0-linux-x86_64.sh \
+    && bash cmake-3.24.0-linux-x86_64.sh --prefix=/usr/local/ --exclude-subdir && rm -f cmake-3.24.0-linux-x86_64.sh
 
 RUN git clone https://github.com/libevent/libevent  -b release-2.1.12-stable  \
     && mkdir -p ${HOME_DIR}/deps/libevent/build  \
