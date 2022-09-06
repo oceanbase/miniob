@@ -37,7 +37,7 @@ Docker 环境已经预安装了相关的组件。
 
 [miniob 题目描述](docs/miniob_topics.md)
 
-为了满足训练营或比赛测试要求，代码的输出需要满足一定要求，请参考 [MiniOB 输出约定](docs/miniob-output-convention.md)。
+为了满足训练营或比赛测试要求，代码的输出需要满足一定要求，请参考 [MiniOB 输出约定](docs/miniob-output-convention.md)。一般情况下，不需要专门来看这篇文档，但是如果你的测试总是不正确，建议对照一下输出约定。
 
 # miniob 实现解析
 
