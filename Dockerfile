@@ -9,6 +9,9 @@ ARG GIT_SOURCE=github
 
 ENV LANG=en_US.UTF-8
 
+# install gdb
+RUN yum install -y gdb
+
 # install rpm
 RUN yum install -y make git wget centos-release-scl scl-utils which flex
 
