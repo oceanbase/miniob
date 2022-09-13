@@ -18,12 +18,14 @@ See the Mulan PSL v2 for more details. */
 #include <netinet/in.h>
 #include <unistd.h>
 #include <iostream>
+#include <TargetConditionals.h>
 
 #include "init.h"
 #include "common/os/process.h"
 #include "common/os/signal.h"
 #include "net/server.h"
 #include "net/server_param.h"
+#include "storage/default/default_handler.h"
 
 using namespace common;
 
@@ -135,6 +137,9 @@ void *quit_thread_func(void *_signum)
 {
   intptr_t signum = (intptr_t)_signum;
   LOG_INFO("Receive signal: %ld", signum);
+#if TARGET_OS_MAC
+  DefaultHandler::get_default().sync();
+#endif
   if (g_server) {
     g_server->shutdown();
   }
