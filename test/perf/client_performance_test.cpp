@@ -30,10 +30,11 @@ See the Mulan PSL v2 for more details. */
 #include "common/metrics/console_reporter.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
-#define PORT_DEFAULT 66789
+#define PORT_DEFAULT 6789
 
 using namespace common;
 char *server_host = (char *)LOCAL_HOST;
+int server_port = PORT_DEFAULT;
 
 void *test_server(void *param)
 {
@@ -60,7 +61,7 @@ void *test_server(void *param)
   }
 
   serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons((uint16_t)PORT_DEFAULT);
+  serv_addr.sin_port = htons((uint16_t)server_port);
   serv_addr.sin_addr = *((struct in_addr *)host->h_addr);
   bzero(&(serv_addr.sin_zero), 8);
 
@@ -95,9 +96,17 @@ void *test_server(void *param)
 
 int main(int argc, char *argv[])
 {
-
-  if (argc >= 2) {
-    server_host = argv[1];
+  int opt;
+  extern char *optarg;
+  while ((opt = getopt(argc, argv, "h:p:")) > 0) {
+    switch (opt) {
+      case 'p':
+        server_port = atoi(optarg);
+        break;
+      case 'h':
+        server_host = optarg;
+        break;
+    }
   }
 
   MetricsRegistry &metric_registry = get_metrics_registry();
