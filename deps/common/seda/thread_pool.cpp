@@ -107,8 +107,8 @@ unsigned int Threadpool::add_threads(unsigned int threads)
       LOG_WARN("Failed to create one thread\n");
       break;
     }
-    char tmp[32] = {};
-    sprintf(tmp,"%s%u",name_.c_str(), i);
+    char tmp[16] = {};
+    snprintf(tmp,sizeof(tmp), "%s%u",name_.c_str(), i);
     pthread_setname_np(pthread, tmp);
   }
   nthreads_ += i;

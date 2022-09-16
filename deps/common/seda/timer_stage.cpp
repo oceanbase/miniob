@@ -295,7 +295,8 @@ bool TimerStage::initialize()
   int status = pthread_create(&timer_thread_id_, thread_attrs, &TimerStage::start_timer_thread, thread_args);
   if (status != 0)
     LOG_ERROR("failed to create timer thread: status=%d\n", status);
-  pthread_setname_np(timer_thread_id_, "TimerStage");
+  else
+    pthread_setname_np(timer_thread_id_, "TimerStage");
 
   return (status == 0);
 }
