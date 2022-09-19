@@ -107,9 +107,11 @@ unsigned int Threadpool::add_threads(unsigned int threads)
       LOG_WARN("Failed to create one thread\n");
       break;
     }
+#ifdef __GLIBC__ // pthread_setname_np not work on MAC 
     char tmp[16] = {};
     snprintf(tmp,sizeof(tmp), "%s%u",name_.c_str(), i);
     pthread_setname_np(pthread, tmp);
+#endif
   }
   nthreads_ += i;
   MUTEX_UNLOCK(&thread_mutex_);
