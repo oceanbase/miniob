@@ -6,56 +6,38 @@ miniob设计的目标是让不熟悉数据库设计和实现的同学能够快�
 
 [GitHub 首页](https://github.com/oceanbase/miniob)
 
-# How to build
+# 如何开发
+## 搭建开发环境
+有多种方式搭建开发环境，可以直接在本地安装一些三方依赖，或者使用Docker。如果使用的是Windows，我们建议使用Docker来开发。
+
+### 搭建本地开发环境
 直接在本地搭建开发环境，可以参考 [how_to_build](docs/how_to_build.md)。
 
-# Docker
+### 使用Docker开发
 
-首先要确保本地已经安装了Docker。
+请参考 [如何使用Docker开发MiniOB](docs/how-to-dev-using-docker.md)
 
-- 使用 Dockerfile 构建
+### Windows上开发MiniOB
 
-Dockerfile: https://github.com/oceanbase/miniob/blob/main/Dockerfile
+[如何在Windows上使用Docker开发miniob](docs/how_to_dev_miniob_by_docker_on_windows.md)
 
-```bash
-# build
-docker build -t miniob .
-docker run -d --name='miniob' miniob:latest
+## 词法语法解析开发环境
 
-# 进入容器，开发调试
-docker exec -it miniob bash
-```
-
-- 使用docker hub 镜像运行
-
-```bash
-docker run oceanbase/miniob
-```
-
-Docker环境说明：
-docker基于`CentOS:7`制作。
-
-镜像包含：
-
-- jsoncpp
-- google test
-- libevent
-- flex
-- bison(3.7)
-- gcc/g++ (version=11)
-- miniob 源码(/root/source/miniob)
-
-docker中在/root/source/miniob目录下载了github的源码，可以根据个人需要，下载自己仓库的源代码，也可以直接使用git pull 拉取最新代码。
-/root/source/miniob/build.sh 提供了一个编译脚本，以DEBUG模式编译miniob。
+如果已经在处理一些SQL词法语法解析相关的问题，请参考 [MiniOB 词法语法解析开发与测试](docs/miniob-sql-parser.md)。
+Docker 环境已经预安装了相关的组件。
 
 # 数据库管理系统实现基础讲义
 由华中科技大学谢美意和左琼老师联合编撰数据库管理系统实现教材。参考 [数据库管理系统实现基础讲义](docs/lectures/index.md)
 
 # miniob 介绍
-[miniob代码架构框架设计和说明](https://github.com/OceanBase-Partner/lectures-on-dbms-implementation/blob/main/miniob-introduction.md)
+[miniob代码架构框架设计和说明](docs/miniob-introduction.md)
 
-# miniob 题目
-[miniob 题目](docs/miniob_topics.md)
+# miniob 训练
+我们为MiniOB设计了配套的训练题目，大家可以在 [MiniOB 训练营](https://open.oceanbase.com/train?questionId=200001) 上进行提交测试。
+
+[miniob 题目描述](docs/miniob_topics.md)
+
+为了满足训练营或比赛测试要求，代码的输出需要满足一定要求，请参考 [MiniOB 输出约定](docs/miniob-output-convention.md)。一般情况下，不需要专门来看这篇文档，但是如果你的测试总是不正确，建议对照一下输出约定。
 
 # miniob 实现解析
 
@@ -66,8 +48,3 @@ docker中在/root/source/miniob目录下载了github的源码，可以根据个�
 [miniob select-tables 实现解析](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-select-tables-implementation.html)
 
 [miniob 调试篇](https://oceanbase-partner.github.io/lectures-on-dbms-implementation/miniob-how-to-debug.html)
-
-# Windows
-
-[如何在Windows上使用Docker开发miniob](docs/how_to_dev_miniob_by_docker_on_windows.md)
-

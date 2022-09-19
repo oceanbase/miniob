@@ -1,8 +1,8 @@
 # how to use
 # docker build -t miniob .
 # make sure docker has been installed
-
-FROM centos:7
+# FROM rockylinux:8
+FROM openanolis/anolisos:8.6
 
 ARG HOME_DIR=/root
 ARG GIT_SOURCE=github
@@ -10,22 +10,20 @@ ARG GIT_SOURCE=github
 ENV LANG=en_US.UTF-8
 
 # install rpm
-RUN yum install -y make git wget centos-release-scl scl-utils which flex
+# note: gcc-c++ in rockylinux 8 and gcc-g++ in rockylinux 9. use `dnf groupinfo "Development Tools"` to list the tools
+RUN dnf install -y make cmake git wget which flex gdb gcc gcc-c++ diffutils readline-devel texinfo
+# rockylinux:9 RUN dnf --enablerepo=crb install -y texinfo
+# rockylinux:8
+# RUN dnf --enablerepo=powertools install -y texinfo
 
 # prepare env
-RUN yum install -y devtoolset-11-gcc devtoolset-11-gcc-c++
 WORKDIR ${HOME_DIR}
-RUN echo "export PATH=/opt/rh/devtoolset-11/root/bin:/usr/local/oceanbase/devtools/bin:$PATH" >> .bashrc
-RUN echo "export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH" >> .bashrc
-
-ENV PATH /opt/rh/devtoolset-11/root/bin:/usr/local/oceanbase/devtools/bin:$PATH
-ENV LD_LIBRARY_PATH /usr/local/lib64:$LD_LIBRARY_PATH
+RUN echo alias ls=\"ls --color=auto\" >> .bashrc
+RUN echo "export LD_LIBRARY_PATH=/usr/local/lib64:\$LD_LIBRARY_PATH" >> .bashrc
 
 # clone deps and compile deps
 RUN mkdir -p ${HOME_DIR}/deps
 WORKDIR ${HOME_DIR}/deps
-RUN wget http://yum-test.obvos.alibaba-inc.com/oceanbase/development-kit/el/7/x86_64/obdevtools-cmake-3.20.2-3.el7.x86_64.rpm \
-    && rpm -ivh obdevtools-cmake-3.20.2-3.el7.x86_64.rpm && rm -f obdevtools-cmake-3.20.2-3.el7.x86_64.rpm
 
 RUN git clone https://github.com/libevent/libevent  -b release-2.1.12-stable  \
     && mkdir -p ${HOME_DIR}/deps/libevent/build  \
@@ -65,5 +63,5 @@ RUN cmake -B ${HOME_DIR}/source/miniob/build -DDEBUG=ON -DCMAKE_C_COMPILER=`whic
 
 WORKDIR ${HOME_DIR}
 
-ENTRYPOINT exec /sbin/init
+ENTRYPOINT tail -f /dev/null
 
