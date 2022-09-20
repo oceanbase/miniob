@@ -298,6 +298,8 @@ bool TimerStage::initialize()
   else
 #ifdef __GLIBC__ // pthread_setname_np not work on MAC 
     pthread_setname_np(timer_thread_id_, "TimerStage");
+#else
+    pthread_setname_np("TimerStage");
 #endif
 
   return (status == 0);
