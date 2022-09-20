@@ -58,5 +58,8 @@ int touch(const std::string &fileName);
  */
 int getFileSize(const char *filePath, u64_t &fileLen);
 
+int writen(int fd, const void *buf, int size);
+int readn(int fd, void *buf, int size);
+
 }  // namespace common
 #endif /* __COMMON_IO_IO_H__ */

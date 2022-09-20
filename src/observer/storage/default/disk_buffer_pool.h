@@ -11,8 +11,7 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by Meiyi & Longda on 2021/4/13.
 //
-#ifndef __OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_
-#define __OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_
+#pragma once
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,11 +21,13 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include <time.h>
 #include <string>
+#include <mutex>
 #include <unordered_map>
 
 #include "rc.h"
 #include "defs.h"
 #include "common/mm/mem_pool.h"
+#include "common/lang/lru_cache.h"
 #include "common/lang/bitmap.h"
 
 class BufferPoolManager;
@@ -34,10 +35,9 @@ class DiskBufferPool;
 
 //
 #define BP_INVALID_PAGE_NUM (-1)
-#define BP_PAGE_SIZE (1 << 13)
+#define BP_PAGE_SIZE (1 << 14)
 #define BP_PAGE_DATA_SIZE (BP_PAGE_SIZE - sizeof(PageNum))
 #define BP_FILE_SUB_HDR_SIZE (sizeof(BPFileSubHeader))
-#define BP_BUFFER_SIZE 256
 
 struct Page {
   PageNum page_num;
@@ -116,20 +116,82 @@ private:
   Page          page_;
 };
 
-class BPFrameManager : public common::MemPoolSimple<Frame>
+class BPFrameId
+{
+public: 
+  BPFrameId(int file_desc, PageNum page_num) :
+    file_desc_(file_desc), page_num_(page_num)
+  {}
+
+  bool equal_to(const BPFrameId &other) const
+  {
+    return file_desc_ == other.file_desc_ && page_num_ == other.page_num_;
+  }
+
+  bool operator== (const BPFrameId &other) const
+  {
+    return this->equal_to(other);
+  }
+
+  size_t hash() const
+  {
+    return static_cast<size_t>(file_desc_) << 32L | page_num_;
+  }
+
+  int file_desc() const { return file_desc_; }
+  PageNum page_num() const { return page_num_; }
+
+private:
+  int file_desc_;
+  PageNum page_num_;
+};
+
+class BPFrameManager
 {
 public:
   BPFrameManager(const char *tag);
 
+  RC init(int pool_num);
+  RC cleanup();
+
   Frame *get(int file_desc, PageNum page_num);
 
   std::list<Frame *> find_list(int file_desc);
+
+  Frame *alloc(int file_desc, PageNum page_num);
+
+  /**
+   * 尽管frame中已经包含了file_desc和page_num，但是依然要求
+   * 传入，因为frame可能忘记初始化或者没有初始化
+   */
+  RC free(int file_desc, PageNum page_num, Frame *frame);
 
   /**
    * 如果不能从空闲链表中分配新的页面，就使用这个接口，
    * 尝试从pin count=0的页面中淘汰一个
    */
   Frame *begin_purge();
+
+  size_t frame_num() const { return frames_.count(); }
+
+  /**
+   * 测试使用。返回已经从内存申请的个数
+   */
+  size_t total_frame_num() const { return allocator_.get_size(); }
+
+private:
+  class BPFrameIdHasher {
+  public:
+    size_t operator() (const BPFrameId &frame_id) const {
+      return frame_id.hash();
+    }
+  };
+  using FrameLruCache = common::LruCache<BPFrameId, Frame *, BPFrameIdHasher>;
+  using FrameAllocator = common::MemPoolSimple<Frame>;
+
+  std::mutex lock_;
+  FrameLruCache frames_;
+  FrameAllocator allocator_;
 };
 
 class BufferPoolIterator
@@ -223,12 +285,12 @@ public:
   RC flush_all_pages();
 
 protected:
-  RC allocate_frame(Frame **buf);
+  RC allocate_frame(PageNum page_num, Frame **buf);
 
   /**
    * 刷新指定页面到磁盘(flush)，并且释放关联的Frame
    */
-  RC purge_frame(Frame *used_frame);
+  RC purge_frame(PageNum page_num, Frame *used_frame);
   RC check_page_num(PageNum page_num);
 
   /**
@@ -270,5 +332,3 @@ private:
   std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;
   std::unordered_map<int, DiskBufferPool *> fd_buffer_pools_;
 };
-
-#endif  //__OBSERVER_STORAGE_COMMON_PAGE_MANAGER_H_

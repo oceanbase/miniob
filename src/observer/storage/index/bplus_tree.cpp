@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "rc.h"
 #include "common/log/log.h"
 #include "sql/parser/parse_defs.h"
+#include "common/lang/lower_bound.h"
 
 #define FIRST_INDEX_PAGE 1
 
@@ -176,23 +177,10 @@ int LeafIndexNodeHandler::min_size() const
 int LeafIndexNodeHandler::lookup(const KeyComparator &comparator, const char *key, bool *found /* = nullptr */) const
 {
   const int size = this->size();
-  int i = 0;
-  for ( ; i < size; i++) {
-    int result = comparator(key, __key_at(i));
-    if (0 == result) {
-      if (found) {
-	*found = true;
-      }
-      return i;
-    }
-    if (result < 0) {
-      break;
-    }
-  }
-  if (found) {
-    *found = false;
-  }
-  return i;
+  common::BinaryIterator<char> iter_begin(item_size(), __key_at(0));
+  common::BinaryIterator<char> iter_end(item_size(), __key_at(size));
+  common::BinaryIterator<char> iter = lower_bound(iter_begin, iter_end, key, comparator, found);
+  return iter - iter_begin;
 }
 
 void LeafIndexNodeHandler::insert(int index, const char *key, const char *value)
@@ -468,37 +456,29 @@ int InternalIndexNodeHandler::min_size() const
 int InternalIndexNodeHandler::lookup(const KeyComparator &comparator, const char *key,
 				     bool *found /* = nullptr */, int *insert_position /*= nullptr */) const
 {
-  int i = 1;
   const int size = this->size();
-  for ( ; i < size; i++) {
-    int result = comparator(key, __key_at(i));
-    if (result == 0) {
-      if (found) {
-	*found = true;
-      }
-      if (insert_position) {
-	*insert_position = i;
-      }
-      return i;
+  if (size == 0) {
+    if (insert_position) {
+      *insert_position = 1;
     }
-    if (result < 0) {
-      if (found) {
-	*found = false;
-      }
-      if (insert_position) {
-	*insert_position = i;
-      }
+    if (found) {
+      *found = false;
+    }
+    return 0;
+  }
 
-      return i - 1;
-    }
-  }
-  if (found) {
-    *found = false;
-  }
+  common::BinaryIterator<char> iter_begin(item_size(), __key_at(1));
+  common::BinaryIterator<char> iter_end(item_size(), __key_at(size));
+  common::BinaryIterator<char> iter = lower_bound(iter_begin, iter_end, key, comparator, found);
+  int ret = static_cast<int>(iter - iter_begin) + 1;
   if (insert_position) {
-    *insert_position = size;
+    *insert_position = ret;
   }
-  return size - 1;
+
+  if (ret >= size || comparator(key, __key_at(ret)) < 0) {
+    return ret - 1;
+  }
+  return ret;
 }
 
 char *InternalIndexNodeHandler::key_at(int index)
@@ -1049,6 +1029,7 @@ bool BplusTreeHandler::validate_leaf_link()
   while (result && next_page_num != BP_INVALID_PAGE_NUM) {
     rc = disk_buffer_pool_->get_this_page(next_page_num, &frame);
     if (rc != RC::SUCCESS) {
+      free_key(prev_key);
       LOG_WARN("failed to fetch next page. page num=%d, rc=%d:%s", next_page_num, rc, strrc(rc));
       return false;
     }
@@ -1317,12 +1298,6 @@ RC BplusTreeHandler::split(Frame *frame, Frame *&new_frame)
 {
   IndexNodeHandlerType old_node(file_header_, frame);
 
-  char *new_parent_key = (char *)mem_pool_item_->alloc();
-  if (new_parent_key == nullptr) {
-    LOG_WARN("Failed to alloc memory for new key. size=%d", file_header_.key_length);
-    return RC::NOMEM;
-  }
-
   // add a new node
   RC rc = disk_buffer_pool_->allocate_page(&new_frame);
   if (rc != RC::SUCCESS) {
@@ -1417,7 +1392,9 @@ RC BplusTreeHandler::insert_entry(const char *user_key, const RID *rid)
   }
 
   if (is_empty()) {
-    return create_new_tree(key, rid);
+    RC rc = create_new_tree(key, rid);
+    mem_pool_item_->free(key);
+    return rc;
   }
 
   Frame *frame;

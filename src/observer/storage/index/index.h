@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "rc.h"
 #include "storage/common/index_meta.h"
 #include "storage/common/field_meta.h"
-#include "storage/common/record_manager.h"
+#include "storage/record/record_manager.h"
 
 class IndexDataOperator {
 public:

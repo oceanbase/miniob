@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/operator.h"
-#include "storage/common/record_manager.h"
+#include "storage/record/record_manager.h"
 #include "rc.h"
 
 class Table;
