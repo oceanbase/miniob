@@ -83,22 +83,6 @@ public:
   virtual void free(T *item) = 0;
 
   /**
-   * Find first used item which match the function of "func"
-   * @return
-   */
-  virtual T *find(match func, void *arg) = 0;
-
-  /**
-   * Find used item which match the function of "func"
-   */
-  virtual std::list<T *> find_all(match func, void *arg) = 0;
-
-  /**
-   * Mark the item has been changed;
-   */
-  virtual void mark_modified(T *item) = 0;
-
-  /**
    * Print the MemPool status
    * @return
    */
@@ -142,7 +126,7 @@ public:
    * init memory pool, the major job is to alloc memory for memory pool
    * @param pool_num, memory pool's number
    * @param item_num_per_pool, how many items per pool.
-   * @return
+   * @return 0 for success and others failure
    */
   int init(bool dynamic = true, int pool_num = DEFAULT_POOL_NUM, int item_num_per_pool = DEFAULT_ITEM_NUM_PER_POOL);
 
@@ -169,22 +153,6 @@ public:
   void free(T *item);
 
   /**
-   * Find first used item which match the function of "func"
-   * @return
-   */
-  T *find(match func, void *arg);
-
-  /**
-   * Find used item which match the function of "func"
-   */
-  std::list<T *> find_all(match func, void *arg);
-
-  /**
-   * Mark the item has been changed;
-   */
-  void mark_modified(T *item);
-
-  /**
    * Print the MemPool status
    * @return
    */
@@ -205,7 +173,6 @@ public:
 
 protected:
   std::list<T *> pools;
-  std::list<T *> lru_used;
   std::set<T *> used;
   std::list<T *> frees;
   int item_num_per_pool;
@@ -255,7 +222,6 @@ void MemPoolSimple<T>::cleanup()
 
   MUTEX_LOCK(&this->mutex);
 
-  lru_used.clear();
   used.clear();
   frees.clear();
   this->size = 0;
@@ -322,7 +288,6 @@ T *MemPoolSimple<T>::alloc()
   frees.pop_front();
 
   used.insert(buffer);
-  lru_used.push_back(buffer);
 
   MUTEX_UNLOCK(&this->mutex);
   return buffer;
@@ -341,67 +306,10 @@ void MemPoolSimple<T>::free(T *buf)
     return;
   }
 
-  lru_used.remove(buf);
   frees.push_back(buf);
 
   MUTEX_UNLOCK(&this->mutex);
   return;  // TODO for test
-}
-
-template <class T>
-T *MemPoolSimple<T>::find(match func, void *arg)
-{
-  T *buffer = nullptr;
-  MUTEX_LOCK(&this->mutex);
-  for (typename std::list<T *>::iterator it = lru_used.begin(); it != lru_used.end(); ++it) {
-    T *item = *it;
-
-    if ((*func)(item, arg) == false) {
-      continue;
-    }
-
-    buffer = item;
-    break;
-  }
-  MUTEX_UNLOCK(&this->mutex);
-  return buffer;
-}
-
-template <class T>
-std::list<T *> MemPoolSimple<T>::find_all(match func, void *arg)
-
-{
-  std::list<T *> ret;
-  MUTEX_LOCK(&this->mutex);
-  for (typename std::list<T *>::iterator it = lru_used.begin(); it != lru_used.end(); ++it) {
-    T *item = *it;
-
-    if ((*func)(item, arg) == false) {
-      continue;
-    }
-
-    ret.push_back(item);
-  }
-  MUTEX_UNLOCK(&this->mutex);
-  return ret;
-}
-
-template <class T>
-void MemPoolSimple<T>::mark_modified(T *buf)
-{
-  MUTEX_LOCK(&this->mutex);
-
-  if (used.find(buf) == used.end()) {
-    MUTEX_UNLOCK(&this->mutex);
-    LOG_WARN("No entry of %p in %s.", buf, this->name.c_str());
-    return;
-  }
-
-  lru_used.remove(buf);
-  lru_used.push_back(buf);
-
-  MUTEX_UNLOCK(&this->mutex);
-  return;
 }
 
 template <class T>

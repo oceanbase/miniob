@@ -11,13 +11,12 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by Meiyi & Longda on 2021/4/13.
 //
-#ifndef __OBSERVER_STORAGE_COMMON_RECORD_MANAGER_H_
-#define __OBSERVER_STORAGE_COMMON_RECORD_MANAGER_H_
+#pragma once
 
 #include <sstream>
 #include <limits>
 #include "storage/default/disk_buffer_pool.h"
-#include "storage/common/record.h"
+#include "storage/record/record.h"
 #include "common/lang/bitmap.h"
 
 class ConditionFilter;
@@ -28,15 +27,6 @@ struct PageHeader {
   int32_t record_real_size;     // 每条记录的实际大小
   int32_t record_size;          // 每条记录占用实际空间大小(可能对齐)
   int32_t first_record_offset;  // 第一条记录的偏移量
-};
-
-
-class RidDigest {
-public:
-  size_t operator()(const RID &rid) const
-  {
-    return ((size_t)(rid.page_num) << 32) | rid.slot_num;
-  }
 };
 
 class RecordPageHandler;
@@ -150,7 +140,11 @@ public:
   }
 
 private:
+  RC init_free_pages();
+  
+private:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
+  std::unordered_set<PageNum>  free_pages_; // 没有填充满的页面集合
 };
 
 class RecordFileScanner {
@@ -183,5 +177,3 @@ private:
   RecordPageIterator record_page_iterator_;
   Record next_record_;
 };
-
-#endif  //__OBSERVER_STORAGE_COMMON_RECORD_MANAGER_H_

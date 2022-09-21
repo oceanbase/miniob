@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/os/path.h"
 #include "common/log/log.h"
 #include "common/lang/string.h"
-#include "storage/common/record_manager.h"
+#include "storage/record/record_manager.h"
 #include "storage/index/bplus_tree.h"
 #include "storage/common/table.h"
 #include "storage/common/condition_filter.h"
