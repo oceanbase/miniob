@@ -259,7 +259,7 @@ void *Threadpool::run_thread(void *pool_ptr)
 #ifdef __APPLE__ 
   pthread_setname_np(pool->get_name().c_str());
 #else
-  pthread_setname_np(threadid, pool->get_name().c_str());
+  pthread_setname_np(pthread_self(), pool->get_name().c_str());
 #endif
 
   // enter a loop where we continuously look for events from Stages on
