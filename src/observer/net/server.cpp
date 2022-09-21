@@ -189,7 +189,6 @@ int Server::send(ConnectionContext *client, const char *buf, int data_len)
   TimerStat writeStat(*write_socket_metric_);
 
   MUTEX_LOCK(&client->mutex);
-  int wlen = 0;
   int ret = common::writen(client->fd, buf, data_len);
   if (ret < 0) {
     LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
