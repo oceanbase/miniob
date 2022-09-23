@@ -24,11 +24,10 @@ UBUNTU_CODENAME=focal
 2. cmake
 3. make
 4. gcc/g++
-
-3. libevent
-5. googletest
-6. jsoncpp
-7. git
+5. libevent
+6. googletest
+7. jsoncpp
+8. git
 
 ## 获取代码
 ```bash
