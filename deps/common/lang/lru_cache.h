@@ -215,6 +215,7 @@ private:
     }
 
     searcher_.erase(node);
+    delete node;
   }
 
 private:
