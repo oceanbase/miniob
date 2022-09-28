@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse.h"
 #include "sql/expr/tuple_cell.h"
 #include "sql/expr/expression.h"
-#include "storage/common/record.h"
+#include "storage/record/record.h"
 
 class Table;
 
@@ -105,7 +105,7 @@ public:
 
   RC cell_at(int index, TupleCell &cell) const override
   {
-    if (index < 0 || index >= speces_.size()) {
+    if (index < 0 || index >= static_cast<int>(speces_.size())) {
       LOG_WARN("invalid argument. index=%d", index);
       return RC::INVALID_ARGUMENT;
     }
@@ -127,7 +127,7 @@ public:
     }
 
     const char *field_name = field.field_name();
-    for (int i = 0; i < speces_.size(); ++i) {
+    for (size_t i = 0; i < speces_.size(); ++i) {
       const FieldExpr * field_expr = (const FieldExpr *)speces_[i]->expression();
       const Field &field = field_expr->field();
       if (0 == strcmp(field_name, field.field_name())) {
@@ -139,7 +139,7 @@ public:
 
   RC cell_spec_at(int index, const TupleCellSpec *&spec) const override
   {
-    if (index < 0 || index >= speces_.size()) {
+    if (index < 0 || index >= static_cast<int>(speces_.size())) {
       LOG_WARN("invalid argument. index=%d", index);
       return RC::INVALID_ARGUMENT;
     }
@@ -202,7 +202,7 @@ public:
 
   RC cell_at(int index, TupleCell &cell) const override
   {
-    if (index < 0 || index >= speces_.size()) {
+    if (index < 0 || index >= static_cast<int>(speces_.size())) {
       return RC::GENERIC_ERROR;
     }
     if (tuple_ == nullptr) {
@@ -219,7 +219,7 @@ public:
   }
   RC cell_spec_at(int index, const TupleCellSpec *&spec) const override
   {
-    if (index < 0 || index >= speces_.size()) {
+    if (index < 0 || index >= static_cast<int>(speces_.size())) {
       return RC::NOTFOUND;
     }
     spec = speces_[index];

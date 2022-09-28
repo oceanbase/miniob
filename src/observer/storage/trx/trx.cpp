@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/trx/trx.h"
 #include "storage/common/table.h"
-#include "storage/common/record_manager.h"
+#include "storage/record/record_manager.h"
 #include "storage/common/field_meta.h"
 #include "common/log/log.h"
 

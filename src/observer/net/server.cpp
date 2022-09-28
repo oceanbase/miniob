@@ -30,6 +30,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
+#include "common/io/io.h"
 #include "common/seda/seda_config.h"
 #include "event/session_event.h"
 #include "session/session.h"
@@ -188,20 +189,13 @@ int Server::send(ConnectionContext *client, const char *buf, int data_len)
   TimerStat writeStat(*write_socket_metric_);
 
   MUTEX_LOCK(&client->mutex);
-  int wlen = 0;
-  for (int i = 0; i < 3 && wlen < data_len; i++) {
-    int len = write(client->fd, buf + wlen, data_len - wlen);
-    if (len < 0) {
-      LOG_ERROR("Failed to send data back to client\n");
-      MUTEX_UNLOCK(&client->mutex);
+  int ret = common::writen(client->fd, buf, data_len);
+  if (ret < 0) {
+    LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
+    MUTEX_UNLOCK(&client->mutex);
 
-      close_connection(client);
-      return -STATUS_FAILED_NETWORK;
-    }
-    wlen += len;
-  }
-  if (wlen < data_len) {
-    LOG_WARN("Not all data has been send back to client");
+    close_connection(client);
+    return -STATUS_FAILED_NETWORK;
   }
 
   MUTEX_UNLOCK(&client->mutex);

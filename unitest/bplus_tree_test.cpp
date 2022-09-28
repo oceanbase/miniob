@@ -404,6 +404,12 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
   rid.page_num = 0;
   rid.slot_num = 0;
 
+  key = 0;
+  index = internal_node.lookup(key_comparator, key_mem, &found, &insert_position);
+  ASSERT_EQ(false, found);
+  ASSERT_EQ(0, index);
+  ASSERT_EQ(1, insert_position);
+
   key = 3;
   internal_node.create_new_root(1, key_mem, key);
   for (int i = 2; i < 5; i++) {

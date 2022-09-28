@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include <mutex>
 
 #include "sql/parser/parse.h"
-#include "storage/common/record_manager.h"
+#include "storage/record/record_manager.h"
 #include "rc.h"
 
 class Table;

@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "gtest/gtest.h"
 #include "storage/default/disk_buffer_pool.h"
-#include "storage/common/record_manager.h"
+#include "storage/record/record_manager.h"
 
 using namespace common;
 

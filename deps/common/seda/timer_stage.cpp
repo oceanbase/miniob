@@ -296,7 +296,11 @@ bool TimerStage::initialize()
   if (status != 0)
     LOG_ERROR("failed to create timer thread: status=%d\n", status);
   else
+#ifdef __APPLE__
+    pthread_setname_np("TimerStage");
+#else
     pthread_setname_np(timer_thread_id_, "TimerStage");
+#endif
 
   return (status == 0);
 }

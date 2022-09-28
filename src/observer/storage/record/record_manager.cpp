@@ -11,11 +11,11 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by Meiyi & Longda on 2021/4/13.
 //
-#include "storage/common/record_manager.h"
+#include "storage/record/record_manager.h"
 #include "rc.h"
 #include "common/log/log.h"
 #include "common/lang/bitmap.h"
-#include "condition_filter.h"
+#include "storage/common/condition_filter.h"
 
 using namespace common;
 
@@ -262,7 +262,9 @@ RC RecordFileHandler::init(DiskBufferPool *buffer_pool)
 
   disk_buffer_pool_ = buffer_pool;
 
-  LOG_INFO("Successfully open record file handle");
+  RC rc = init_free_pages();
+
+  LOG_INFO("open record file handle done. rc=%s", strrc(rc));
   return RC::SUCCESS;
 }
 
@@ -273,18 +275,42 @@ void RecordFileHandler::close()
   }
 }
 
+RC RecordFileHandler::init_free_pages()
+{
+  // 遍历当前文件上所有页面，找到没有满的页面
+  // 这个效率很低，会降低启动速度
+
+  RC rc = RC::SUCCESS;
+  BufferPoolIterator bp_iterator;
+  bp_iterator.init(*disk_buffer_pool_);
+  RecordPageHandler record_page_handler;
+  PageNum current_page_num = 0;
+  while (bp_iterator.has_next()) {
+    current_page_num = bp_iterator.next();
+    rc = record_page_handler.init(*disk_buffer_pool_, current_page_num);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to init record page handler. page num=%d, rc=%d:%s", current_page_num, rc, strrc(rc));
+      return rc;
+    }
+
+    if (!record_page_handler.is_full()) {
+      free_pages_.insert(current_page_num);
+    }
+    record_page_handler.cleanup();
+  }
+  return rc;
+}
+
 RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
 {
   RC ret = RC::SUCCESS;
   // 找到没有填满的页面
 
-  BufferPoolIterator bp_iterator;
-  bp_iterator.init(*disk_buffer_pool_);
   RecordPageHandler record_page_handler;
   bool page_found = false;
   PageNum current_page_num = 0;
-  while (bp_iterator.has_next()) {
-    current_page_num = bp_iterator.next();
+  while (!free_pages_.empty()) {
+    current_page_num = *free_pages_.begin();
     ret = record_page_handler.init(*disk_buffer_pool_, current_page_num);
     if (ret != RC::SUCCESS) {
       LOG_WARN("failed to init record page handler. page num=%d, rc=%d:%s", current_page_num, ret, strrc(ret));
@@ -296,6 +322,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
       break;
     }
     record_page_handler.cleanup();
+    free_pages_.erase(free_pages_.begin());
   }
 
   // 找不到就分配一个新的页面
@@ -317,6 +344,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
     }
 
     disk_buffer_pool_->unpin_page(frame);
+    free_pages_.insert(current_page_num);
   }
 
   // 找到空闲位置
@@ -337,13 +365,17 @@ RC RecordFileHandler::update_record(const Record *rec)
 
 RC RecordFileHandler::delete_record(const RID *rid)
 {
-  RC ret = RC::SUCCESS;
+  RC rc = RC::SUCCESS;
   RecordPageHandler page_handler;
-  if ((ret != page_handler.init(*disk_buffer_pool_, rid->page_num)) != RC::SUCCESS) {
-    LOG_ERROR("Failed to init record page handler.page number=%d", rid->page_num);
-    return ret;
+  if ((rc != page_handler.init(*disk_buffer_pool_, rid->page_num)) != RC::SUCCESS) {
+    LOG_ERROR("Failed to init record page handler.page number=%d. rc=%s", rid->page_num, strrc(rc));
+    return rc;
   }
-  return page_handler.delete_record(rid);
+  rc = page_handler.delete_record(rid);
+  if (rc == RC::SUCCESS) {
+    free_pages_.insert(rid->page_num);
+  }
+  return rc;
 }
 
 RC RecordFileHandler::get_record(const RID *rid, Record *rec)
