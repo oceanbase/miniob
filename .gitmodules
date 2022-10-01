@@ -1,0 +1,9 @@
+[submodule "deps/libevent"]
+	path = deps/libevent
+	url = https://github.com/libevent/libevent
+[submodule "deps/googletest"]
+	path = deps/googletest
+	url = https://github.com/google/googletest
+[submodule "deps/jsoncpp"]
+	path = deps/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp.git
