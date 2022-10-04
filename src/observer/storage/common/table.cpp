@@ -50,8 +50,7 @@ Table::~Table()
   LOG_INFO("Table has been closed: %s", name());
 }
 
-RC Table::create(
-    const char *path, const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[])
+RC Table::create(const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[])
 {
 
   if (common::is_blank(name)) {
@@ -66,16 +65,17 @@ RC Table::create(
   }
 
   RC rc = RC::SUCCESS;
-
+  std::string table_file_path = table_meta_file(base_dir, name);
+  
   // 使用 table_name.table记录一个表的元数据
   // 判断表文件是否已经存在
-  int fd = ::open(path, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+  int fd = ::open(table_file_path.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
   if (fd < 0) {
     if (EEXIST == errno) {
-      LOG_ERROR("Failed to create table file, it has been created. %s, EEXIST, %s", path, strerror(errno));
+      LOG_ERROR("Failed to create table file, it has been created. %s, EEXIST, %s", table_file_path, strerror(errno));
       return RC::SCHEMA_TABLE_EXIST;
     }
-    LOG_ERROR("Create table file failed. filename=%s, errmsg=%d:%s", path, errno, strerror(errno));
+    LOG_ERROR("Create table file failed. filename=%s, errmsg=%d:%s", table_file_path, errno, strerror(errno));
     return RC::IOERR;
   }
 
@@ -88,9 +88,9 @@ RC Table::create(
   }
 
   std::fstream fs;
-  fs.open(path, std::ios_base::out | std::ios_base::binary);
+  fs.open(table_file_path, std::ios_base::out | std::ios_base::binary);
   if (!fs.is_open()) {
-    LOG_ERROR("Failed to open file for write. file name=%s, errmsg=%s", path, strerror(errno));
+    LOG_ERROR("Failed to open file for write. file name=%s, errmsg=%s", table_file_path, strerror(errno));
     return RC::IOERR;
   }
 

@@ -61,10 +61,8 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo 
     return RC::SCHEMA_TABLE_EXIST;
   }
 
-  // 文件路径可以移到Table模块
-  std::string table_file_path = table_meta_file(path_.c_str(), table_name);
   Table *table = new Table();
-  rc = table->create(table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes);
+  rc = table->create(table_name, path_.c_str(), attribute_count, attributes);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;

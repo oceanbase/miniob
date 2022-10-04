@@ -43,7 +43,7 @@ public:
    * @param attribute_count 字段个数
    * @param attributes 字段
    */
-  RC create(const char *path, const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[]);
+  RC create(const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[]);
 
   /**
    * 打开一个表
