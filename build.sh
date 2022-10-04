@@ -13,7 +13,7 @@ git submodule update --init
 # build libevent
 cd deps/libevent
 rm -rf build
-git checkout release-2.1.12-stable
+# git checkout release-2.1.12-stable
 mkdir build
 cd build
 cmake .. -DEVENT__DISABLE_OPENSSL=ON
