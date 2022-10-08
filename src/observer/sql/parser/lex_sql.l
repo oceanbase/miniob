@@ -28,6 +28,7 @@ DIGIT            [0-9]+
 ID               [A-Za-z_]+[A-Za-z0-9_]*
 DOT              \.
 QUOTE            [\'\"]
+DATE             {QUOTE}[0-9]{4}\-(0?[1-9]|[1-9][0-9])\-(0?[1-9]|[123][0-9]){QUOTE}
 %x STR
 
 %%
@@ -68,9 +69,11 @@ QUOTE            [\'\"]
 [Ii][Nn][Tt]					                   RETURN_TOKEN(INT_T);
 [Cc][Hh][Aa][Rr]				                 RETURN_TOKEN(STRING_T);
 [Ff][Ll][Oo][Aa][Tt]			               RETURN_TOKEN(FLOAT_T);
+[Dd][Aa][Tt][Ee]                                RETURN_TOKEN(DATE_T);
 [Ll][Oo][Aa][Dd]			                   RETURN_TOKEN(LOAD);
 [Dd][Aa][Tt][Aa]	                       RETURN_TOKEN(DATA);
 [Ii][Nn][Ff][Ii][Ll][Ee]                 RETURN_TOKEN(INFILE);
+{DATE}                                      yylval->string=strdup(yytext); RETURN_TOKEN(DATE);
 {ID}							                       yylval->string=strdup(yytext); RETURN_TOKEN(ID);
 "("								                       RETURN_TOKEN(LBRACE);
 ")"								                       RETURN_TOKEN(RBRACE);

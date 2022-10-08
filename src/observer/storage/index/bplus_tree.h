@@ -43,7 +43,7 @@ public:
 
   int operator()(const char *v1, const char *v2) const {
     switch (attr_type_) {
-    case INTS: {
+      case INTS: case DATES:{
       return *(int *)v1 - *(int *)v2;
     }
       break;
@@ -112,6 +112,14 @@ public:
     switch (attr_type_) {
     case INTS: {
       return std::to_string(*(int*)v);
+    }
+    case DATES: {
+      std::string str;
+      int date = *(int *)v;
+      char buf[10];
+      snprintf(buf,sizeof(buf),"%04d-%02d-%02d", date/10000, (date%10000)/100, date%100); // 注意这里月份和天数，不足两位时需要填充0
+      str.append(buf, sizeof (buf));
+      return str;
     }
       break;
     case FLOATS: {

@@ -45,7 +45,9 @@ typedef enum
   UNDEFINED,
   CHARS,
   INTS,
-  FLOATS
+  FLOATS,
+  DATES,
+  TYPE_NUM,
 } AttrType;
 
 //属性值
@@ -155,6 +157,7 @@ union Queries {
 // 修改yacc中相关数字编码为宏定义
 enum SqlCommandFlag {
   SCF_ERROR = 0,
+  SCF_DATE_ERROR,
   SCF_SELECT,
   SCF_INSERT,
   SCF_UPDATE,
@@ -189,6 +192,7 @@ void relation_attr_destroy(RelAttr *relation_attr);
 void value_init_integer(Value *value, int v);
 void value_init_float(Value *value, float v);
 void value_init_string(Value *value, const char *v);
+int value_init_date(Value *value, const char *v);
 void value_destroy(Value *value);
 
 void condition_init(Condition *condition, CompOp comp, int left_is_attr, RelAttr *left_attr, Value *left_value,
