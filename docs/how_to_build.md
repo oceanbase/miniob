@@ -8,6 +8,18 @@ MiniOB 需要使用：
 - cmake 版本 >= 3.10
 - gcc/clang gcc建议8.3以上，编译器需要支持c++14等新标准
 
+获取MiniOB的submodule
+```bash
+cd `project home`
+git submodule init
+git submodule update
+# or
+git submodule update --init
+
+# 或者通过以下方式自动初始化并更新仓库中的每一个子模块
+git clone --recurse-submodules https://github.com/oceanbase/miniob.git
+```
+
 1. install cmake
 
 需要安装了3.10或以上版本的cmake，可以跳过此步骤。
@@ -94,7 +106,6 @@ https://www.multiprecision.org/mpc/download.html
 3. build libevent
 
 ```bash
-git submodule add https://github.com/libevent/libevent deps/libevent
 cd deps
 cd libevent
 git checkout release-2.1.12-stable
@@ -108,7 +119,6 @@ sudo make install
 4. build google test
 
 ```bash
-git submodule add https://github.com/google/googletest deps/googletest
 cd deps
 cd googletest
 mkdir build
@@ -121,7 +131,6 @@ sudo make install
 5. build jsoncpp
 
 ```bash
-git submodule add https://github.com/open-source-parsers/jsoncpp.git deps/jsoncpp
 cd deps
 cd jsoncpp
 mkdir build

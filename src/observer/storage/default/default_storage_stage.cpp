@@ -220,7 +220,9 @@ RC insert_record_from_file(
     const FieldMeta *field = table->table_meta().field(i + sys_field_num);
 
     std::string &file_value = file_values[i];
-    common::strip(file_value);
+    if (field->type() != CHARS) {
+      common::strip(file_value);
+    }
 
     switch (field->type()) {
       case INTS: {
