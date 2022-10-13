@@ -91,53 +91,14 @@ https://mpfr.loria.fr/mpfr-current/#download
 https://www.multiprecision.org/mpc/download.html
 ```
 
-3. build libevent
+3. build miniob
 
 ```bash
-git submodule add https://github.com/libevent/libevent deps/libevent
-cd deps
-cd libevent
-git checkout release-2.1.12-stable
-mkdir build
-cd build
-cmake .. -DEVENT__DISABLE_OPENSSL=ON
-make
-sudo make install
-```
-
-4. build google test
-
-```bash
-git submodule add https://github.com/google/googletest deps/googletest
-cd deps
-cd googletest
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-```
-
-5. build jsoncpp
-
-```bash
-git submodule add https://github.com/open-source-parsers/jsoncpp.git deps/jsoncpp
-cd deps
-cd jsoncpp
-mkdir build
-cd build
-cmake -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF ..
-make
-sudo make install
-```
-
-6. build miniob
-
-```bash
-cd `project home`
+git clone https://github.com/oceanbase/miniob
+cd miniob
 mkdir build
 cd build
 # 建议开启DEBUG模式编译，更方便调试
 cmake .. -DDEBUG=ON
-make
+make -j4
 ```
