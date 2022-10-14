@@ -166,6 +166,26 @@ enum RCAuth {
   USER = 1,
 };
 
+enum RCFILE {
+  F_EXIST = 1,
+  F_NOT_EXIST,
+  F_NAME,
+  F_BOUND,
+  F_CREATE,
+  F_OPEN,
+  F_NOT_OPENED,
+  F_CLOSE,
+  F_REMOVE,
+  F_SEEK,
+  F_READ,
+  F_WRITE,
+};
+
+enum RCLOGBUF {
+  LB_FULL = 1,
+  LB_EMPTY,
+};
+
 enum RC {
 
   SUCCESS = 0, /* Successful result */
@@ -201,6 +221,8 @@ enum RC {
   FORMAT,           /* Not used */
   RANGE,            /* 2nd parameter to bind out of range */
   NOTADB,           /* File opened that is not a database file */
+  FILE_ERROR,       /* File error */
+  LOGBUF,           /* clog buffer error */
   NOTICE = 100,     /* Notifications from log() */
 
   /* buffer pool part */
@@ -337,8 +359,26 @@ enum RC {
   NOTICE_RECOVER_ROLLBACK = (NOTICE | (RCNotice::RECOVER_ROLLBACK << 8)),
   NOTICE_AUTOINDEX = (NOTICE | (RCNotice::AUTOINDEX << 8)),
 
+  /* file part */
+  FILE_EXIST = ( FILE_ERROR | (RCFILE::F_EXIST << 8)),
+  FILE_NOT_EXIST = ( FILE_ERROR | (RCFILE::F_NOT_EXIST << 8)),
+  FILE_NAME = ( FILE_ERROR | (RCFILE::F_NAME << 8)),
+  FILE_BOUND = ( FILE_ERROR | (RCFILE::F_BOUND << 8)),
+  FILE_CREATE = ( FILE_ERROR | (RCFILE::F_CREATE << 8)),
+  FILE_OPEN = ( FILE_ERROR | (RCFILE::F_OPEN << 8)),
+  FILE_NOT_OPENED = ( FILE_ERROR | (RCFILE::F_NOT_OPENED << 8)),
+  FILE_CLOSE = ( FILE_ERROR | (RCFILE::F_CLOSE << 8)),
+  FILE_REMOVE = ( FILE_ERROR | (RCFILE::F_REMOVE << 8)),
+  FILE_SEEK = ( FILE_ERROR | (RCFILE::F_SEEK << 8)),
+  FILE_READ = ( FILE_ERROR | (RCFILE::F_READ << 8)),
+  FILE_WRITE = ( FILE_ERROR | (RCFILE::F_WRITE << 8)),
+
   /* auth part*/
   AUTH_USER = (AUTH | (RCAuth::USER << 8)),
+
+  /* clog buffer part */
+  LOGBUF_FULL = (LOGBUF | (RCLOGBUF::LB_FULL << 8)),
+  LOGBUF_EMPTY = (LOGBUF | (RCLOGBUF::LB_EMPTY << 8)),
 };
 
 extern const char *strrc(RC rc);

@@ -1736,12 +1736,12 @@ RC BplusTreeScanner::open(const char *left_user_key, int left_len, bool left_inc
       bool should_inclusive_after_fix = false;
       rc = fix_user_key(left_user_key, left_len, true/*greater*/, &fixed_left_key, &should_inclusive_after_fix);
       if (rc != RC::SUCCESS) {
-	LOG_WARN("failed to fix left user key. rc=%s", strrc(rc));
-	return rc;
+        LOG_WARN("failed to fix left user key. rc=%s", strrc(rc));
+        return rc;
       }
 
       if (should_inclusive_after_fix) {
-	left_inclusive = true;
+	      left_inclusive = true;
       }
     }
 
@@ -1769,14 +1769,14 @@ RC BplusTreeScanner::open(const char *left_user_key, int left_len, bool left_inc
     if (left_index >= left_node.size()) { // 超出了当前页，就需要向后移动一个位置
       const PageNum next_page_num = left_node.next_page();
       if (next_page_num == BP_INVALID_PAGE_NUM) { // 这里已经是最后一页，说明当前扫描，没有数据
-	return RC::SUCCESS;
+	      return RC::SUCCESS;
       }
 
       tree_handler_.disk_buffer_pool_->unpin_page(left_frame_);
       rc = tree_handler_.disk_buffer_pool_->get_this_page(next_page_num, &left_frame_);
       if (rc != RC::SUCCESS) {
-	LOG_WARN("failed to fetch next page. page num=%d, rc=%d:%s", next_page_num, rc, strrc(rc));
-	return rc;
+        LOG_WARN("failed to fetch next page. page num=%d, rc=%d:%s", next_page_num, rc, strrc(rc));
+        return rc;
       }
 
       left_index = 0;
@@ -1802,12 +1802,12 @@ RC BplusTreeScanner::open(const char *left_user_key, int left_len, bool left_inc
     if (tree_handler_.file_header_.attr_type == CHARS) {
       rc = fix_user_key(right_user_key, right_len, false/*want_greater*/, &fixed_right_key, &should_include_after_fix);
       if (rc != RC::SUCCESS) {
-	LOG_WARN("failed to fix right user key. rc=%s", strrc(rc));
-	return rc;
+        LOG_WARN("failed to fix right user key. rc=%s", strrc(rc));
+        return rc;
       }
 
       if (should_include_after_fix) {
-	right_inclusive = true;
+	      right_inclusive = true;
       }
     }
     if (right_inclusive) {
@@ -1840,15 +1840,15 @@ RC BplusTreeScanner::open(const char *left_user_key, int left_len, bool left_inc
       // 其它的叶子节点都不可能返回0，所以这段逻辑其实是可以简化的
       const PageNum prev_page_num = right_node.prev_page();
       if (prev_page_num == BP_INVALID_PAGE_NUM) {
-	end_index_ = -1;
-	return RC::SUCCESS;
+        end_index_ = -1;
+        return RC::SUCCESS;
       }
 
       tree_handler_.disk_buffer_pool_->unpin_page(right_frame_);
       rc = tree_handler_.disk_buffer_pool_->get_this_page(prev_page_num, &right_frame_);
       if (rc != RC::SUCCESS) {
-	LOG_WARN("failed to fetch prev page num. page num=%d, rc=%d:%s", prev_page_num, rc, strrc(rc));
-	return rc;
+        LOG_WARN("failed to fetch prev page num. page num=%d, rc=%d:%s", prev_page_num, rc, strrc(rc));
+        return rc;
       }
 
       LeafIndexNodeHandler tmp_node(tree_handler_.file_header_, right_frame_);
@@ -1904,7 +1904,7 @@ RC BplusTreeScanner::next_entry(RID *rid)
     } else {
       rc = tree_handler_.disk_buffer_pool_->get_this_page(page_num, &left_frame_);
       if (rc != RC::SUCCESS) {
-	left_frame_ = nullptr;
+	      left_frame_ = nullptr;
         LOG_WARN("failed to fetch next page. page num=%d, rc=%d:%s", page_num, rc, strrc(rc));
         return rc;
       }

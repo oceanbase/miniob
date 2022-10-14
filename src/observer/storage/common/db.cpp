@@ -24,6 +24,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/table_meta.h"
 #include "storage/common/table.h"
 #include "storage/common/meta_util.h"
+#include "storage/trx/trx.h"
+#include "storage/clog/clog.h"
 
 Db::~Db()
 {
@@ -46,6 +48,12 @@ RC Db::init(const char *name, const char *dbpath)
     return RC::GENERIC_ERROR;
   }
 
+  clog_manager_ = new CLogManager(dbpath);
+  if (clog_manager_ == nullptr) {
+    LOG_ERROR("Failed to init CLogManager.");
+    return RC::GENERIC_ERROR;
+  }
+
   name_ = name;
   path_ = dbpath;
 
@@ -64,7 +72,7 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo 
   // 文件路径可以移到Table模块
   std::string table_file_path = table_meta_file(path_.c_str(), table_name);
   Table *table = new Table();
-  rc = table->create(table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes);
+  rc = table->create(table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes, get_clog_manager());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;
@@ -97,7 +105,7 @@ RC Db::open_all_tables()
   RC rc = RC::SUCCESS;
   for (const std::string &filename : table_meta_files) {
     Table *table = new Table();
-    rc = table->open(filename.c_str(), path_.c_str());
+    rc = table->open(filename.c_str(), path_.c_str(), clog_manager_);
     if (rc != RC::SUCCESS) {
       delete table;
       LOG_ERROR("Failed to open table. filename=%s", filename.c_str());
@@ -146,4 +154,76 @@ RC Db::sync()
   }
   LOG_INFO("Successfully sync db. db=%s", name_.c_str());
   return rc;
+}
+
+RC Db::recover()
+{
+  RC rc = RC::SUCCESS;
+  if ((rc = clog_manager_->recover()) == RC::SUCCESS) {
+    uint32_t max_trx_id = 0;
+    CLogMTRManager *mtr_manager = clog_manager_->get_mtr_manager();
+    for (auto it = mtr_manager->log_redo_list.begin(); it != mtr_manager->log_redo_list.end(); it++) {
+      CLogRecord *clog_record = *it;
+      if (clog_record->get_log_type() != CLogType::REDO_INSERT && clog_record->get_log_type() != CLogType::REDO_DELETE) {
+        delete clog_record;
+        continue;
+      }
+      auto find_iter = mtr_manager->trx_commited.find(clog_record->get_trx_id());
+      if (find_iter == mtr_manager->trx_commited.end()) {
+        LOG_ERROR("CLog record without commit message! "); // unexpected error
+        delete clog_record;
+        return RC::GENERIC_ERROR;
+      } else if (find_iter->second == false ) {
+        delete clog_record;
+        continue;
+      }
+
+      Table *table = find_table(clog_record->log_record_.ins.table_name_);
+      if (table == nullptr) {
+        delete clog_record;
+        continue;
+      }
+
+      switch(clog_record->get_log_type()) {
+        case CLogType::REDO_INSERT: {
+          char *record_data = new char[clog_record->log_record_.ins.data_len_];
+          memcpy(record_data, clog_record->log_record_.ins.data_, clog_record->log_record_.ins.data_len_);
+          Record record;
+          record.set_data(record_data);
+          record.set_rid(clog_record->log_record_.ins.rid_);
+
+          rc = table->recover_insert_record(&record);
+          delete[] record_data;
+        } break;
+        case CLogType::REDO_DELETE: {
+          Record record;
+          record.set_rid(clog_record->log_record_.del.rid_);
+          rc = table->recover_delete_record(&record);
+        } break;
+        default: {
+          rc = RC::SUCCESS;
+        }
+      }
+
+      if (rc != RC::SUCCESS) {
+        LOG_ERROR("Failed to recover. rc=%d:%s", rc, strrc(rc));
+        break;
+      }
+      
+      if (max_trx_id < clog_record->get_trx_id()) {
+        max_trx_id = clog_record->get_trx_id();
+      }
+      delete clog_record;
+    }
+
+    if (rc == RC::SUCCESS && max_trx_id > 0) {
+      Trx::set_trx_id(max_trx_id);
+    }
+  }
+
+  return rc;
+}
+
+CLogManager *Db::get_clog_manager() {
+  return clog_manager_;
 }
