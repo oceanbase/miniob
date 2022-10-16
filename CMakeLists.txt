@@ -1,9 +1,9 @@
 # include 另外一个cmake 配置
 #INCLUDE(file1 [OPTIONAL])
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 cmake_minimum_required(VERSION 3.10)
-set(CMAKE_CXX_STANDARD 14)
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_STANDARD 17)
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 project(minidb)
 
@@ -37,7 +37,7 @@ ENDIF(WIN32)
 
 # This is for clangd plugin for vscode
 #SET(CMAKE_COMMON_FLAGS ${CMAKE_COMMON_FLAGS} " -Wstring-plus-int -Wsizeof-array-argument -Wunused-variable -Wmissing-braces")
-SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1")
+SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -Wall")
 IF(DEBUG)
     MESSAGE("DEBUG has been set as TRUE ${DEBUG}")
     #"${CMAKE_COMMON_FLAGS}  -O0 -g "  ${CMAKE_COMMON_FLAGS}最好在""以内，防止被cmake 增加了;

@@ -16,7 +16,9 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include <algorithm>
 
+#include <filesystem>
 #include "common/defs.h"
+#include "storage/common/index_meta.h"
 #include "storage/common/table.h"
 #include "storage/common/table_meta.h"
 #include "common/log/log.h"
@@ -117,6 +119,22 @@ RC Table::create(
   base_dir_ = base_dir;
   clog_manager_ = clog_manager;
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
+  return rc;
+}
+
+RC Table::drop()
+{
+  RC rc = RC::SUCCESS;
+  std::string data_file = table_data_file(base_dir_.data(), name());
+  std::string meta_file = table_meta_file(base_dir_.data(), name());
+  std::filesystem::remove(data_file);
+  std::filesystem::remove(meta_file);
+  for (auto index : indexes_) {
+    std::string index_file = table_index_file(base_dir_.c_str(), name(), index->index_meta().name());
+    std::filesystem::remove(index_file);
+  }
+
+  LOG_INFO("Successfully drop table %s:%s", base_dir_.data(), name());
   return rc;
 }
 
@@ -689,14 +707,14 @@ RC Table::delete_record(Trx *trx, ConditionFilter *filter, int *deleted_count)
 RC Table::delete_record(Trx *trx, Record *record)
 {
   RC rc = RC::SUCCESS;
-  
+
   rc = delete_entry_of_indexes(record->data(), record->rid(), false);  // 重复代码 refer to commit_delete
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to delete indexes of record (rid=%d.%d). rc=%d:%s",
                 record->rid().page_num, record->rid().slot_num, rc, strrc(rc));
     return rc;
   } 
-  
+
   rc = record_handler_->delete_record(&record->rid());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to delete record (rid=%d.%d). rc=%d:%s",
@@ -706,7 +724,7 @@ RC Table::delete_record(Trx *trx, Record *record)
 
   if (trx != nullptr) {
     rc = trx->delete_record(this, record);
-    
+
     CLogRecord *clog_record = nullptr;
     rc = clog_manager_->clog_gen_record(CLogType::REDO_DELETE, trx->get_current_id(), clog_record, name(), 0, record);
     if (rc != RC::SUCCESS) {
@@ -726,7 +744,7 @@ RC Table::recover_delete_record(Record *record)
 {
   RC rc = RC::SUCCESS;
   rc = record_handler_->delete_record(&record->rid());
-  
+
   return rc;
 }
 
