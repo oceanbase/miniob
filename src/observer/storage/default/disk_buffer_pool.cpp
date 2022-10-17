@@ -226,7 +226,8 @@ RC DiskBufferPool::close_file()
   }
 
   hdr_frame_->pin_count_--;
-  if ((rc = purge_all_pages()) != RC::SUCCESS) {
+  // TODO: 理论上是在回放时回滚未提交事务，但目前没有undo log，因此不下刷数据page，只通过redo log回放
+  if ((rc = purge_page(0)) != RC::SUCCESS) {
     hdr_frame_->pin_count_++;
     LOG_ERROR("Failed to close %s, due to failed to purge all pages.", file_name_.c_str());
     return rc;
@@ -253,6 +254,7 @@ RC DiskBufferPool::get_this_page(PageNum page_num, Frame **frame)
   if (used_match_frame != nullptr) {
     used_match_frame->pin_count_++;
     used_match_frame->acc_time_ = current_time();
+
 
     *frame = used_match_frame;
     return RC::SUCCESS;
@@ -342,7 +344,6 @@ RC DiskBufferPool::allocate_page(Frame **frame)
 RC DiskBufferPool::unpin_page(Frame *frame)
 {
   assert(frame->pin_count_ >= 1);
-
   if (--frame->pin_count_ == 0) {
     PageNum page_num = frame->page_num();
     auto pages_it = disposed_pages.find(page_num);
@@ -484,6 +485,21 @@ RC DiskBufferPool::flush_all_pages()
       LOG_WARN("failed to flush all pages");
       return rc;
     }
+  }
+  return RC::SUCCESS;
+}
+
+RC DiskBufferPool::recover_page(PageNum page_num)
+{
+  int byte = 0, bit = 0;
+  byte = page_num / 8;
+  bit = page_num % 8;
+
+  if (!(file_header_->bitmap[byte] & (1 << bit))) {
+    file_header_->bitmap[byte] |= (1 << bit);
+    file_header_->allocated_pages++;
+    file_header_->page_count++;
+    hdr_frame_->mark_dirty();
   }
   return RC::SUCCESS;
 }

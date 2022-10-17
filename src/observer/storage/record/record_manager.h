@@ -56,10 +56,12 @@ public:
   RecordPageHandler() = default;
   ~RecordPageHandler();
   RC init(DiskBufferPool &buffer_pool, PageNum page_num);
+  RC recover_init(DiskBufferPool &buffer_pool, PageNum page_num);
   RC init_empty_page(DiskBufferPool &buffer_pool, PageNum page_num, int record_size);
   RC cleanup();
 
   RC insert_record(const char *data, RID *rid);
+  RC recover_insert_record(const char *data, RID *rid);
   RC update_record(const Record *rec);
 
   template <class RecordUpdater>
@@ -120,6 +122,7 @@ public:
    * 插入一个新的记录到指定文件中，pData为指向新纪录内容的指针，返回该记录的标识符rid
    */
   RC insert_record(const char *data, int record_size, RID *rid);
+  RC recover_insert_record(const char *data, int record_size, RID *rid);
 
   /**
    * 获取指定文件中标识符为rid的记录内容到rec指向的记录结构中

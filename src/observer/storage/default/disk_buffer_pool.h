@@ -284,6 +284,11 @@ public:
    */
   RC flush_all_pages();
 
+  /**
+   * 回放日志时处理page0中已被认定为不存在的page
+   */
+  RC recover_page(PageNum page_num);
+protected:
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);
 

@@ -17,13 +17,14 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/operator.h"
 #include "rc.h"
 
+class Trx;
 class DeleteStmt;
 
 class DeleteOperator : public Operator
 {
 public:
-  DeleteOperator(DeleteStmt *delete_stmt)
-    : delete_stmt_(delete_stmt)
+  DeleteOperator(DeleteStmt *delete_stmt, Trx *trx)
+    : delete_stmt_(delete_stmt), trx_(trx)
   {}
 
   virtual ~DeleteOperator() = default;
@@ -39,4 +40,5 @@ public:
   //RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override
 private:
   DeleteStmt *delete_stmt_ = nullptr;
+  Trx *trx_ = nullptr;
 };

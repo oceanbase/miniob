@@ -372,6 +372,7 @@ void query_reset(Query *query)
     case SCF_LOAD_DATA: {
       load_data_destroy(&query->sstr.load_data);
     } break;
+    case SCF_CLOG_SYNC:
     case SCF_BEGIN:
     case SCF_COMMIT:
     case SCF_ROLLBACK:

@@ -22,6 +22,7 @@ See the Mulan PSL v2 for more details. */
 
 static const uint32_t DELETED_FLAG_BIT_MASK = 0x80000000;
 static const uint32_t TRX_ID_BIT_MASK = 0x7FFFFFFF;
+std::atomic<int32_t> Trx::trx_id(0);
 
 int32_t Trx::default_trx_id()
 {
@@ -30,8 +31,23 @@ int32_t Trx::default_trx_id()
 
 int32_t Trx::next_trx_id()
 {
-  static std::atomic<int32_t> trx_id;
   return ++trx_id;
+}
+
+void Trx::set_trx_id(int32_t id)
+{
+  trx_id = id;
+}
+
+void Trx::next_current_id()
+{
+  Trx::next_trx_id();
+  trx_id_ = trx_id;
+}
+
+int32_t Trx::get_current_id()
+{
+  return trx_id_;
 }
 
 const char *Trx::trx_field_name()
@@ -50,7 +66,9 @@ int Trx::trx_field_len()
 }
 
 Trx::Trx()
-{}
+{
+  start_if_not_started();
+}
 
 Trx::~Trx()
 {}
@@ -61,13 +79,15 @@ RC Trx::insert_record(Table *table, Record *record)
   // 先校验是否以前是否存在过(应该不会存在)
   Operation *old_oper = find_operation(table, record->rid());
   if (old_oper != nullptr) {
-    return RC::GENERIC_ERROR;  // error code
+    if (old_oper->type() == Operation::Type::DELETE) {
+      delete_operation(table, record->rid());
+    } else {
+      return RC::GENERIC_ERROR;
+    }
   }
 
-  start_if_not_started();
-
-  // 设置record中trx_field为当前的事务号
-  // set_record_trx_id(table, record, trx_id_, false);
+  // start_if_not_started();
+  
   // 记录到operations中
   insert_operation(table, Operation::Type::INSERT, record->rid());
   return rc;
