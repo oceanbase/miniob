@@ -16,6 +16,7 @@ typedef struct ParserContext {
   size_t condition_length;
   size_t from_length;
   size_t value_length;
+  size_t insert_index;
   Value values[MAX_NUM];
   Condition conditions[MAX_NUM];
   CompOp comp;
@@ -43,7 +44,10 @@ void yyerror(yyscan_t scanner, const char *str)
   context->from_length = 0;
   context->select_length = 0;
   context->value_length = 0;
-  context->ssql->sstr.insertion.value_num = 0;
+  context->insert_index = 0;
+  for(int i = 0; i < MAX_NUM; i++) {
+    context->ssql->sstr.insertion.value_num[i] = 0;
+  }
   printf("parse sql failed. error=%s", str);
 }
 
@@ -279,7 +283,7 @@ ID_get:
 
 	
 insert:				/*insert   语句的语法解析树*/
-    INSERT INTO ID VALUES LBRACE value value_list RBRACE SEMICOLON 
+    INSERT INTO ID VALUES multi_values SEMICOLON 
 		{
 			// CONTEXT->values[CONTEXT->value_length++] = *$6;
 
@@ -289,11 +293,25 @@ insert:				/*insert   语句的语法解析树*/
 			// for(i = 0; i < CONTEXT->value_length; i++){
 			// 	CONTEXT->ssql->sstr.insertion.values[i] = CONTEXT->values[i];
       // }
-			inserts_init(&CONTEXT->ssql->sstr.insertion, $3, CONTEXT->values, CONTEXT->value_length);
-
+      //CONTEXT->insert_index = 0;
+			inserts_init(&CONTEXT->ssql->sstr.insertion, $3, CONTEXT->values, CONTEXT->value_length, CONTEXT->insert_index);
+      CONTEXT->insert_index = 0;
       //临时变量清零
       CONTEXT->value_length=0;
     }
+    ;
+multi_values:
+    LBRACE value value_list RBRACE {
+    inserts_init(&CONTEXT->ssql->sstr.insertion, CONTEXT->id, CONTEXT->values, CONTEXT->value_length, CONTEXT->insert_index);
+    CONTEXT->insert_index++;
+    CONTEXT->value_length = 0;
+  }
+	|multi_values COMMA LBRACE value value_list RBRACE {
+    inserts_init(&CONTEXT->ssql->sstr.insertion, CONTEXT->id, CONTEXT->values, CONTEXT->value_length, CONTEXT->insert_index);
+    CONTEXT->insert_index++;
+    CONTEXT->value_length = 0;
+  }
+	;
 
 value_list:
     /* empty */

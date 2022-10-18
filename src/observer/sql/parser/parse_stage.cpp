@@ -132,6 +132,7 @@ RC ParseStage::handle_request(StageEvent *event)
   RC ret = parse(sql.c_str(), query_result);
   if (ret != RC::SUCCESS) {
     // set error information to event
+    std::cout<<"parse failed"<<std::endl;
     sql_event->session_event()->set_response("FAILURE\n");
     query_destroy(query_result);
     return RC::INTERNAL;

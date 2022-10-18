@@ -15,15 +15,30 @@
 
 客户端输出需要满足一定要求，如果你的测试结果不符合预期，请参考 [miniob 输出约定](docs/miniob-output-convention.md)。
 
-# 4. 数据库管理系统实现基础讲义
-由华中科技大学谢美意和左琼老师联合编撰的数据库管理系统实现教材：[《数据库管理系统实现基础讲义》](docs/lectures/index.md)
+# 4. 讲义
+[《数据库管理系统实现基础讲义》](docs/lectures/index.md)
 
 # 5. miniob 介绍
 [miniob 源码解析视频](https://open.oceanbase.com/activities/4921877)
 
 [miniob 源码解析文档](https://www.oceanbase.com/docs/community-developer-quickstart-10000000000627363)
 
-# 6. TODO
 
 
+INSERT INTO insert_table VALUES (1,'N1',1,1);
+
+ SUCCESS
+
+ INSERT INTO insert_table VALUES (2,'N2',1,1),(3,'N3',2,1); 
+
+-SUCCESS +FAILURE 
+
+2. ERROR 
+3. INSERT INTO ta VALUES (1,1),(2,2);
+
+
+
+create table ta(id1 int,id2 int);
+
+INSERT INTO ta VALUES (1,1),(2,2);
 
