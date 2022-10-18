@@ -102,7 +102,7 @@ RC Db::drop_table(const char *table_name) {
   if(table->drop_data_file(path_.c_str())!=RC::SUCCESS) {
     return RC::IOERR_DELETE;
   }
-
+  opened_tables_.erase(table_name);
   delete table;
   
   return RC::SUCCESS; 
