@@ -151,6 +151,7 @@ RC DefaultHandler::create_table(
   return db->create_table(relation_name, attribute_count, attributes);
 }
 
+//todo
 RC DefaultHandler::drop_table(const char *dbname, const char *relation_name)
 {
   return RC::GENERIC_ERROR;
