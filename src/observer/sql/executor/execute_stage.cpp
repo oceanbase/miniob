@@ -169,8 +169,9 @@ void ExecuteStage::handle_request(common::StageEvent *event)
     case SCF_DESC_TABLE: {
       do_desc_table(sql_event);
     } break;
-
-    case SCF_DROP_TABLE:
+    case SCF_DROP_TABLE: {
+      do_drop_table(sql_event);
+    } break;
     case SCF_DROP_INDEX:
     case SCF_LOAD_DATA: {
       default_storage_stage_->handle_event(event);
@@ -690,5 +691,19 @@ RC ExecuteStage::do_clog_sync(SQLStageEvent *sql_event)
     session_event->set_response("SUCCESS\n");
   }
 
+  return rc;
+}
+
+RC ExecuteStage::do_drop_table(SQLStageEvent *sql_event) {
+  RC rc = RC::SUCCESS;
+  const DropTable &drop_table = sql_event->query()->sstr.drop_table;
+  SessionEvent *session_event = sql_event->session_event();
+  Session *session = session_event->session();
+  Db *db = session->get_current_db();
+  rc = db->drop_table(drop_table.relation_name);
+  if(rc==RC::SUCCESS)
+    session_event->set_response("SUCCESS\n");
+  else
+    session_event->set_response("FAILURE\n");
   return rc;
 }

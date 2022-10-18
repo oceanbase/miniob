@@ -12,9 +12,12 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Wangyunlai on 2021/5/13.
 //
 
+#include <cstdio>
+#include <iterator>
 #include <limits.h>
 #include <string.h>
 #include <algorithm>
+#include <string>
 
 #include "common/defs.h"
 #include "storage/common/table.h"
@@ -636,6 +639,38 @@ RC Table::create_index(Trx *trx, const char *index_name, const char *attribute_n
   LOG_INFO("Successfully added a new index (%s) on the table (%s)", index_name, name());
 
   return rc;
+}
+
+
+RC Table::drop_all_index_files(const char *db_path) {
+  std::cout<<"droping all index files" <<std::endl;
+  for(auto index : indexes_) {
+    IndexMeta index_meta = index->index_meta();
+    std::string index_file_path = std::string(db_path) + "/" +  name() + "-" + index_meta.name() + TABLE_INDEX_SUFFIX;
+    std::cout<<index_file_path<<std::endl;
+    if(::remove(index_file_path.c_str()) != 0) {
+      return RC::IOERR_DELETE;
+    }
+  }
+  return RC::SUCCESS;
+}
+
+RC Table::drop_table_meta_file(const char *db_path) {
+  std::cout<<"droping table meta file"<<std::endl;
+  std::string table_meta_file_path =  table_meta_file(db_path, table_meta().name());
+  std::cout<<table_meta_file_path<<std::endl;
+  if(::remove(table_meta_file_path.c_str())!=0) {
+    return RC::IOERR_DELETE;
+  }
+  return RC::SUCCESS;
+}
+
+RC Table::drop_data_file(const char *db_path) {
+  std::string data_file_path = std::string(db_path) + "/" + table_meta().name() + TABLE_DATA_SUFFIX;
+  if(::remove(data_file_path.c_str())!=0) {
+    return RC::IOERR_DELETE;
+  }
+  return RC::SUCCESS;
 }
 
 RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value, int condition_num,

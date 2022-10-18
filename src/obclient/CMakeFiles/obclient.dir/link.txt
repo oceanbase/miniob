@@ -1,0 +1,1 @@
+/usr/bin/c++  -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1  -O2 -g  CMakeFiles/obclient.dir/client.cpp.o -o ../../bin/obclient   -L/usr/local/lib  -L/home/JUSTME/code/miniob/src/../../lib  -Wl,-rpath,/usr/local/lib:/home/JUSTME/code/miniob/src/../../lib:/home/JUSTME/code/miniob/lib: ../../lib/libcommon.so.1.0.0 -lpthread -ldl 

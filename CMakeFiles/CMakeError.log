@@ -1,0 +1,84 @@
+Determining if files stdio.h;readline/readline.h exist failed with the following output:
+Change Dir: /home/JUSTME/code/miniob/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_68512/fast && /usr/bin/make  -f CMakeFiles/cmTC_68512.dir/build.make CMakeFiles/cmTC_68512.dir/build
+make[1]: 进入目录“/home/JUSTME/code/miniob/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_68512.dir/HAVE_READLINE_HEADER.c.o
+/usr/bin/cc   -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1  -O2 -g   -o CMakeFiles/cmTC_68512.dir/HAVE_READLINE_HEADER.c.o -c /home/JUSTME/code/miniob/CMakeFiles/CheckIncludeFiles/HAVE_READLINE_HEADER.c
+/home/JUSTME/code/miniob/CMakeFiles/CheckIncludeFiles/HAVE_READLINE_HEADER.c:3:10: fatal error: readline/readline.h: 没有那个文件或目录
+ #include <readline/readline.h>
+          ^~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[1]: *** [CMakeFiles/cmTC_68512.dir/build.make:78：CMakeFiles/cmTC_68512.dir/HAVE_READLINE_HEADER.c.o] 错误 1
+make[1]: 离开目录“/home/JUSTME/code/miniob/CMakeFiles/CMakeTmp”
+make: *** [Makefile:127：cmTC_68512/fast] 错误 2
+
+
+Source:
+/* */
+#include <stdio.h>
+#include <readline/readline.h>
+
+
+int main(void){return 0;}
+
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/JUSTME/code/miniob/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_03c07/fast && /usr/bin/make  -f CMakeFiles/cmTC_03c07.dir/build.make CMakeFiles/cmTC_03c07.dir/build
+make[1]: 进入目录“/home/JUSTME/code/miniob/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_03c07.dir/src.c.o
+/usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD  -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1  -O2 -g   -o CMakeFiles/cmTC_03c07.dir/src.c.o -c /home/JUSTME/code/miniob/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_03c07
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_03c07.dir/link.txt --verbose=1
+/usr/bin/cc  -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1  -O2 -g   CMakeFiles/cmTC_03c07.dir/src.c.o -o cmTC_03c07 
+/usr/bin/ld: CMakeFiles/cmTC_03c07.dir/src.c.o: in function `main':
+/home/JUSTME/code/miniob/CMakeFiles/CMakeTmp/src.c:11: undefined reference to `pthread_create'
+/usr/bin/ld: /home/JUSTME/code/miniob/CMakeFiles/CMakeTmp/src.c:12: undefined reference to `pthread_detach'
+/usr/bin/ld: /home/JUSTME/code/miniob/CMakeFiles/CMakeTmp/src.c:13: undefined reference to `pthread_cancel'
+/usr/bin/ld: /home/JUSTME/code/miniob/CMakeFiles/CMakeTmp/src.c:14: undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_03c07.dir/build.make:99：cmTC_03c07] 错误 1
+make[1]: 离开目录“/home/JUSTME/code/miniob/CMakeFiles/CMakeTmp”
+make: *** [Makefile:127：cmTC_03c07/fast] 错误 2
+
+
+Source file was:
+#include <pthread.h>
+
+static void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/JUSTME/code/miniob/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_7d765/fast && /usr/bin/make  -f CMakeFiles/cmTC_7d765.dir/build.make CMakeFiles/cmTC_7d765.dir/build
+make[1]: 进入目录“/home/JUSTME/code/miniob/CMakeFiles/CMakeTmp”
+Building C object CMakeFiles/cmTC_7d765.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1  -O2 -g  -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_7d765.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_7d765
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7d765.dir/link.txt --verbose=1
+/usr/bin/cc  -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1  -O2 -g  -DCHECK_FUNCTION_EXISTS=pthread_create CMakeFiles/cmTC_7d765.dir/CheckFunctionExists.c.o -o cmTC_7d765  -lpthreads 
+/usr/bin/ld: 找不到 -lpthreads
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_7d765.dir/build.make:99：cmTC_7d765] 错误 1
+make[1]: 离开目录“/home/JUSTME/code/miniob/CMakeFiles/CMakeTmp”
+make: *** [Makefile:127：cmTC_7d765/fast] 错误 2
+
+
+

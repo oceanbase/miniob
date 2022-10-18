@@ -67,12 +67,14 @@ public:
       void (*record_reader)(const char *data, void *context));
 
   RC create_index(Trx *trx, const char *index_name, const char *attribute_name);
-
+  RC drop_all_index_files(const char *db_path);
+  RC drop_table_meta_file(const char *db_path);
+  RC drop_data_file(const char *db_path);
   RC get_record_scanner(RecordFileScanner &scanner);
 
   RecordFileHandler *record_handler() const
   {
-    return record_handler_;
+    return record_handler_; 
   }
 
 public:
