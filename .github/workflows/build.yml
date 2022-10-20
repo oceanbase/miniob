@@ -9,6 +9,7 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  DEPS_PREFIX: /usr/local/
 
 jobs:
   build:
@@ -24,7 +25,7 @@ jobs:
         submodules: recursive
         
     - name: build deps/googletest
-      run: cmake -DCMAKE_INSTALL_PREFIX=/usr -B ${{github.workspace}}/deps/googletest/build -S ${{github.workspace}}/deps/googletest && cmake --build ${{github.workspace}}/deps/googletest/build --config ${{env.BUILD_TYPE}} --target install
+      run: cmake -DCMAKE_INSTALL_PREFIX=${{env.DEPS_PREFIX}} -B ${{github.workspace}}/deps/googletest/build -S ${{github.workspace}}/deps/googletest && cmake --build ${{github.workspace}}/deps/googletest/build --config ${{env.BUILD_TYPE}} --target install
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
