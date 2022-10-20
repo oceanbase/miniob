@@ -22,6 +22,9 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
+        
+    - name: build deps/googletest
+      run: cmake -B ${{github.workspace}}/deps/googletest/build -S ${{github.workspace}}/deps/googletest && cmake --build ${{github.workspace}}/deps/googletest/build --config ${{env.BUILD_TYPE}} && cmake --install-prefix=/usr/ --install
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
