@@ -30,7 +30,7 @@ jobs:
       run: cmake -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/local -B ${{github.workspace}}/deps/jsoncpp/build -S ${{github.workspace}}/deps/jsoncpp && cmake --build ${{github.workspace}}/deps/jsoncpp/build --config ${{env.BUILD_TYPE}} --target install
       
     - name: build deps/libevent
-      run: cd ${{github.workspace}}/deps/libevent && git checkout release-2.1.12-stable && cd - && cmake -DEVENT__DISABLE_OPENSSL=ON -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/local -B ${{github.workspace}}/deps/libevent/build -S ${{github.workspace}}/deps/libevent && cmake --build ${{github.workspace}}/deps/libevent/build --config ${{env.BUILD_TYPE}} --target install
+      run: cmake -DEVENT__DISABLE_OPENSSL=ON -DEVENT__DISABLE_MBEDTLS=ON -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/local -B ${{github.workspace}}/deps/libevent/build -S ${{github.workspace}}/deps/libevent && cmake --build ${{github.workspace}}/deps/libevent/build --config ${{env.BUILD_TYPE}} --target install
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
