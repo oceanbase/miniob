@@ -91,6 +91,8 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
 
   Expression *left = nullptr;
   Expression *right = nullptr;
+  AttrType left_type = AttrType::UNDEFINED;
+  AttrType right_type = AttrType::UNDEFINED;
   if (condition.left_is_attr) {
     Table *table = nullptr;
     const FieldMeta *field = nullptr;
@@ -100,8 +102,10 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
       return rc;
     }
     left = new FieldExpr(table, field);
+    left_type = field->type();
   } else {
     left = new ValueExpr(condition.left_value);
+    left_type = condition.left_value.type;
   }
 
   if (condition.right_is_attr) {
@@ -114,14 +118,20 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
       return rc;
     }
     right = new FieldExpr(table, field);
+    right_type = field->type();
   } else {
     right = new ValueExpr(condition.right_value);
+    right_type = condition.right_value.type;
   }
 
-  filter_unit = new FilterUnit;
-  filter_unit->set_comp(comp);
-  filter_unit->set_left(left);
-  filter_unit->set_right(right);
+  if (left_type == right_type || (left_type == AttrType::INTS && right_type == AttrType::FLOATS) || (left_type == AttrType::FLOATS && right_type == AttrType::INTS)) {
+    filter_unit = new FilterUnit;
+    filter_unit->set_comp(comp);
+    filter_unit->set_left(left);
+    filter_unit->set_right(right);
+  } else {
+    return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+  }
 
   // 检查两个类型是否能够比较
   return rc;
