@@ -1,0 +1,49 @@
+name: build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        
+    - name: build deps/googletest
+      run: cmake -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/local -B ${{github.workspace}}/deps/googletest/build -S ${{github.workspace}}/deps/googletest && cmake --build ${{github.workspace}}/deps/googletest/build --config ${{env.BUILD_TYPE}} --target install
+      
+    - name: build deps/jsoncpp
+      run: cmake -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/local -B ${{github.workspace}}/deps/jsoncpp/build -S ${{github.workspace}}/deps/jsoncpp && cmake --build ${{github.workspace}}/deps/jsoncpp/build --config ${{env.BUILD_TYPE}} --target install
+      
+    - name: build deps/libevent
+      run: cmake -DEVENT__DISABLE_OPENSSL=ON -DEVENT__DISABLE_MBEDTLS=ON -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/local -B ${{github.workspace}}/deps/libevent/build -S ${{github.workspace}}/deps/libevent && cmake --build ${{github.workspace}}/deps/libevent/build --config ${{env.BUILD_TYPE}} --target install
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: cmake -DCMAKE_PREFIX_PATH=${{github.workspace}}/local -B ${{github.workspace}}/build -DENABLE_ASAN=ON
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake -DCMAKE_PREFIX_PATH=${{github.workspace}}/local --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.  
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest -C ${{env.BUILD_TYPE}}
+      
