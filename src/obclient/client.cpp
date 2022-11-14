@@ -31,6 +31,7 @@ See the Mulan PSL v2 for more details. */
 
 #ifdef USE_READLINE
 #include "readline/readline.h"
+#include "readline/history.h"
 #endif
 
 #define MAX_MEM_BUFFER_SIZE 8192
@@ -39,9 +40,26 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 #ifdef USE_READLINE
+const std::string HISTORY_FILE = std::string(getenv("HOME")) + "/.miniob.history";
+
 char *my_readline(const char *prompt) 
 {
-  return readline(prompt);
+  int size = history_length;
+  if (size == 0) {
+    read_history(HISTORY_FILE.c_str());
+
+    FILE *fp = fopen(HISTORY_FILE.c_str(), "a");
+    if (fp != nullptr) {
+      fclose(fp);
+    }
+  }
+
+  char *line = readline(prompt);
+  if (line != nullptr && line[0] != 0) {
+    add_history(line);
+    append_history(1, HISTORY_FILE.c_str());
+  }
+  return line;
 }
 #else // USE_READLINE
 char *my_readline(const char *prompt)
