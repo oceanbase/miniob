@@ -19,9 +19,6 @@ See the Mulan PSL v2 for more details. */
 
 RC parse(char *st, Query *sqln);
 
-#ifdef __cplusplus
-extern "C" {
-#endif  // __cplusplus
 void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name)
 {
   if (relation_name != nullptr) {
@@ -388,13 +385,10 @@ void query_destroy(Query *query)
   query_reset(query);
   free(query);
 }
-#ifdef __cplusplus
-}  // extern "C"
-#endif  // __cplusplus
 
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C" int sql_parse(const char *st, Query *sqls);
+int sql_parse(const char *st, Query *sqls);
 
 RC parse(const char *st, Query *sqln)
 {
