@@ -180,10 +180,6 @@ typedef struct Query {
   union Queries sstr;
 } Query;
 
-#ifdef __cplusplus
-extern "C" {
-#endif  // __cplusplus
-
 void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name);
 void relation_attr_destroy(RelAttr *relation_attr);
 
@@ -240,9 +236,5 @@ void query_init(Query *query);
 Query *query_create();  // create and init
 void query_reset(Query *query);
 void query_destroy(Query *query);  // reset and delete
-
-#ifdef __cplusplus
-}
-#endif  // __cplusplus
 
 #endif  // __OBSERVER_SQL_PARSER_PARSE_DEFS_H__

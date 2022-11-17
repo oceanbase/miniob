@@ -2,7 +2,9 @@
 #define yyHEADER_H 1
 #define yyIN_HEADER 1
 
-#line 6 "lex.yy.h"
+#line 6 "lex_sql.h"
+
+#line 8 "lex_sql.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -335,6 +337,6 @@ extern int yylex \
 #line 103 "lex_sql.l"
 
 
-#line 339 "lex.yy.h"
+#line 341 "lex_sql.h"
 #undef yyIN_HEADER
 #endif /* yyHEADER_H */

@@ -2,9 +2,9 @@
 %{
 
 #include "sql/parser/parse_defs.h"
-#include "sql/parser/yacc_sql.tab.h"
-#include "sql/parser/lex.yy.h"
-// #include "common/log/log.h" // 包含C++中的头文件
+#include "sql/parser/yacc_sql.hpp"
+#include "sql/parser/lex_sql.h"
+#include "common/log/log.h"
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -25,7 +25,7 @@ typedef struct ParserContext {
 //获取子串
 char *substr(const char *s,int n1,int n2)/*从s中提取下标为n1~n2的字符组成一个新字符串，然后返回这个新串的首地址*/
 {
-  char *sp = malloc(sizeof(char) * (n2 - n1 + 2));
+  char *sp = (char *)malloc(sizeof(char) * (n2 - n1 + 2));
   int i, j = 0;
   for (i = n1; i <= n2; i++) {
     sp[j++] = s[i];
@@ -240,14 +240,14 @@ attr_def:
     ID_get type LBRACE number RBRACE 
 		{
 			AttrInfo attribute;
-			attr_info_init(&attribute, CONTEXT->id, $2, $4);
+			attr_info_init(&attribute, CONTEXT->id, (AttrType)$2, $4);
 			create_table_append_attribute(&CONTEXT->ssql->sstr.create_table, &attribute);
 			CONTEXT->value_length++;
 		}
     |ID_get type
 		{
 			AttrInfo attribute;
-			attr_info_init(&attribute, CONTEXT->id, $2, 4);
+			attr_info_init(&attribute, CONTEXT->id, (AttrType)$2, 4);
 			create_table_append_attribute(&CONTEXT->ssql->sstr.create_table, &attribute);
 			CONTEXT->value_length++;
 		}

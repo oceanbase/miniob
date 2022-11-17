@@ -1,3 +1,3 @@
 #!/bin/bash
-flex --header-file=lex.yy.h lex_sql.l
-`which bison` -d -b yacc_sql yacc_sql.y
+flex --outfile lex_sql.cpp --header-file=lex_sql.h lex_sql.l
+`which bison` -d --output yacc_sql.cpp yacc_sql.y

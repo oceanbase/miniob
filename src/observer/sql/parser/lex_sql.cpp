@@ -1,5 +1,6 @@
+#line 2 "lex_sql.cpp"
 
-#line 3 "lex.yy.c"
+#line 4 "lex_sql.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -595,7 +596,7 @@ static yyconst flex_int16_t yy_chk[477] =
  */
 struct ParserContext;
 
-#include "yacc_sql.tab.h"
+#include "yacc_sql.hpp"
 extern int atoi();
 extern double atof();
 
@@ -613,7 +614,7 @@ extern double atof();
 /* 1. 匹配的规则长的优先 */
 /* 2. 写在最前面的优先 */
 /* yylval 就可以认为是 yacc 中 %union 定义的结构体(union 结构) */
-#line 617 "lex.yy.c"
+#line 618 "lex_sql.cpp"
 
 #define INITIAL 0
 #define STR 1
@@ -850,7 +851,7 @@ YY_DECL
 #line 46 "lex_sql.l"
 
 
-#line 854 "lex.yy.c"
+#line 855 "lex_sql.cpp"
 
     yylval = yylval_param;
 
@@ -1198,7 +1199,7 @@ YY_RULE_SETUP
 #line 103 "lex_sql.l"
 ECHO;
 	YY_BREAK
-#line 1202 "lex.yy.c"
+#line 1203 "lex_sql.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(STR):
 	yyterminate();
