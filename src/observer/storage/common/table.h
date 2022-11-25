@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Wangyunlai on 2021/5/12.
 //
 
-#ifndef __OBSERVER_STORAGE_COMMON_TABLE_H__
-#define __OBSERVER_STORAGE_COMMON_TABLE_H__
+#pragma once
 
 #include "storage/common/table_meta.h"
 
@@ -123,5 +122,3 @@ private:
   RecordFileHandler *record_handler_ = nullptr;  /// 记录操作
   std::vector<Index *> indexes_;
 };
-
-#endif  // __OBSERVER_STORAGE_COMMON_TABLE_H__

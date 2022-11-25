@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Wangyunlai on 2021/5/12.
 //
 
-#ifndef __OBSERVER_STORAGE_COMMON_FIELD_META_H__
-#define __OBSERVER_STORAGE_COMMON_FIELD_META_H__
+#pragma once
 
 #include <string>
 
@@ -53,4 +52,3 @@ protected:
   int attr_len_;
   bool visible_;
 };
-#endif  // __OBSERVER_STORAGE_COMMON_FIELD_META_H__

@@ -12,21 +12,20 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/13.
 //
 
-#ifndef __SRC_OBSERVER_NET_CONNECTION_CONTEXT_H__
-#define __SRC_OBSERVER_NET_CONNECTION_CONTEXT_H__
+#pragma once
 
 #include <event.h>
 #include <ini_setting.h>
+#include "rc.h"
 
 class Session;
+class Communicator;
 
-typedef struct _ConnectionContext {
+struct ConnectionContext {
   Session *session;
   int fd;
   struct event read_event;
-  pthread_mutex_t mutex;
+  Communicator *communicator;
   char addr[24];
   char buf[SOCKET_BUFFER_SIZE];
-} ConnectionContext;
-
-#endif  //__SRC_OBSERVER_NET_CONNECTION_CONTEXT_H__
+};

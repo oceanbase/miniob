@@ -25,38 +25,17 @@ See the Mulan PSL v2 for more details. */
 
 class Table;
 
-class TupleCellSpec
+class TupleSchema
 {
-public:
-  TupleCellSpec() = default;
-  TupleCellSpec(Expression *expr) : expression_(expr)
-  {}
-
-  ~TupleCellSpec()
-  {
-    if (expression_) {
-      delete expression_;
-      expression_ = nullptr;
-    }
-  }
-
-  void set_alias(const char *alias)
-  {
-    this->alias_ = alias;
-  }
-  const char *alias() const
-  {
-    return alias_;
-  }
-
-  Expression *expression() const
-  {
-    return expression_;
-  }
+public: 
+  void append_cell(const TupleCellSpec &cell) { cells_.push_back(cell); }
+  void append_cell(const char *table, const char *field) { append_cell(TupleCellSpec(table, field)); }
+  void append_cell(const char *alias) { append_cell(TupleCellSpec(alias)); }
+  int cell_num() const { return static_cast<int>(cells_.size()); }
+  const TupleCellSpec &cell_at(int i) const { return cells_[i]; }
 
 private:
-  const char *alias_ = nullptr;
-  Expression *expression_ = nullptr;
+  std::vector<TupleCellSpec> cells_;
 };
 
 class Tuple
@@ -67,9 +46,7 @@ public:
 
   virtual int cell_num() const = 0; 
   virtual RC  cell_at(int index, TupleCell &cell) const = 0;
-  virtual RC  find_cell(const Field &field, TupleCell &cell) const = 0;
-
-  virtual RC  cell_spec_at(int index, const TupleCellSpec *&spec) const = 0;
+  virtual RC  find_cell(const TupleCellSpec &spec, TupleCell &cell) const = 0;
 };
 
 class RowTuple : public Tuple
@@ -78,7 +55,7 @@ public:
   RowTuple() = default;
   virtual ~RowTuple()
   {
-    for (TupleCellSpec *spec : speces_) {
+    for (FieldExpr *spec : speces_) {
       delete spec;
     }
     speces_.clear();
@@ -94,7 +71,7 @@ public:
     table_ = table;
     this->speces_.reserve(fields->size());
     for (const FieldMeta &field : *fields) {
-      speces_.push_back(new TupleCellSpec(new FieldExpr(table, &field)));
+      speces_.push_back(new FieldExpr(table, &field));
     }
   }
 
@@ -110,8 +87,7 @@ public:
       return RC::INVALID_ARGUMENT;
     }
 
-    const TupleCellSpec *spec = speces_[index];
-    FieldExpr *field_expr = (FieldExpr *)spec->expression();
+    FieldExpr *field_expr = speces_[index];
     const FieldMeta *field_meta = field_expr->field().meta();
     cell.set_type(field_meta->type());
     cell.set_data(this->record_->data() + field_meta->offset());
@@ -119,16 +95,16 @@ public:
     return RC::SUCCESS;
   }
 
-  RC find_cell(const Field &field, TupleCell &cell) const override
+  RC find_cell(const TupleCellSpec &spec, TupleCell &cell) const override
   {
-    const char *table_name = field.table_name();
+    const char *table_name = spec.table_name();
+    const char *field_name = spec.field_name();
     if (0 != strcmp(table_name, table_->name())) {
       return RC::NOTFOUND;
     }
 
-    const char *field_name = field.field_name();
     for (size_t i = 0; i < speces_.size(); ++i) {
-      const FieldExpr * field_expr = (const FieldExpr *)speces_[i]->expression();
+      const FieldExpr * field_expr = speces_[i];
       const Field &field = field_expr->field();
       if (0 == strcmp(field_name, field.field_name())) {
 	return cell_at(i, cell);
@@ -137,6 +113,7 @@ public:
     return RC::NOTFOUND;
   }
 
+  #if 0
   RC cell_spec_at(int index, const TupleCellSpec *&spec) const override
   {
     if (index < 0 || index >= static_cast<int>(speces_.size())) {
@@ -146,6 +123,7 @@ public:
     spec = speces_[index];
     return RC::SUCCESS;
   }
+  #endif
 
   Record &record()
   {
@@ -159,20 +137,8 @@ public:
 private:
   Record *record_ = nullptr;
   const Table *table_ = nullptr;
-  std::vector<TupleCellSpec *> speces_;
+  std::vector<FieldExpr *> speces_;
 };
-
-/*
-class CompositeTuple : public Tuple
-{
-public:
-  int cell_num() const override; 
-  RC  cell_at(int index, TupleCell &cell) const = 0;
-private:
-  int cell_num_ = 0;
-  std::vector<Tuple *> tuples_;
-};
-*/
 
 class ProjectTuple : public Tuple
 {
@@ -210,13 +176,15 @@ public:
     }
 
     const TupleCellSpec *spec = speces_[index];
-    return spec->expression()->get_value(*tuple_, cell);
+    return tuple_->find_cell(*spec, cell);
   }
 
-  RC find_cell(const Field &field, TupleCell &cell) const override
+  RC find_cell(const TupleCellSpec &spec, TupleCell &cell) const override
   {
-    return tuple_->find_cell(field, cell);
+    return tuple_->find_cell(spec, cell);
   }
+
+  #if 0
   RC cell_spec_at(int index, const TupleCellSpec *&spec) const override
   {
     if (index < 0 || index >= static_cast<int>(speces_.size())) {
@@ -225,7 +193,43 @@ public:
     spec = speces_[index];
     return RC::SUCCESS;
   }
+  #endif
 private:
   std::vector<TupleCellSpec *> speces_;
   Tuple *tuple_ = nullptr;
+};
+
+class ValueListTuple : public Tuple
+{
+public: 
+  ValueListTuple() = default;
+  virtual ~ValueListTuple() = default;
+
+  void set_cells(const std::vector<TupleCell> &cells)
+  {
+    cells_ = cells;
+  }
+
+  virtual int cell_num() const override
+  {
+    return static_cast<int>(cells_.size());
+  }
+
+  virtual RC  cell_at(int index, TupleCell &cell) const override
+  {
+    if (index < 0 || index >= cell_num()) {
+      return RC::NOTFOUND;
+    }
+
+    cell = cells_[index];
+    return RC::SUCCESS;
+  }
+
+  virtual RC  find_cell(const TupleCellSpec &spec, TupleCell &cell) const override
+  {
+    return RC::INTERNAL;
+  }
+
+private:
+  std::vector<TupleCell> cells_;
 };

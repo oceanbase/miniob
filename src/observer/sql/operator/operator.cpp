@@ -9,37 +9,14 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/7.
+// Created by WangYunlai on 2022/11/18.
 //
 
-#pragma once
+#include "sql/operator/operator.h"
 
-#include <vector>
-#include "rc.h"
-#include "sql/expr/tuple.h"
-
-class Record;
-class TupleCellSpec;
-
-class Operator
+Operator::~Operator()
 {
-public:
-  Operator()
-  {}
-
-  virtual ~Operator();
-
-  virtual RC open() = 0;
-  virtual RC next() = 0;
-  virtual RC close() = 0;
-
-  virtual Tuple * current_tuple() = 0;
-
-  void add_child(Operator *oper) {
-    children_.push_back(oper);
+  for (Operator *oper : children_) {
+    delete oper;
   }
-
-
-protected:
-  std::vector<Operator *> children_;
-};
+}

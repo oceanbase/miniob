@@ -19,14 +19,14 @@ See the Mulan PSL v2 for more details. */
 
 RC parse(char *st, Query *sqln);
 
-void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name)
+void relation_attr_init(RelAttr *relation_attr, char *relation_name, char *attribute_name)
 {
   if (relation_name != nullptr) {
-    relation_attr->relation_name = strdup(relation_name);
+    relation_attr->relation_name = relation_name;
   } else {
     relation_attr->relation_name = nullptr;
   }
-  relation_attr->attribute_name = strdup(attribute_name);
+  relation_attr->attribute_name = attribute_name;
 }
 
 void relation_attr_destroy(RelAttr *relation_attr)
@@ -48,6 +48,11 @@ void value_init_float(Value *value, float v)
   value->type = FLOATS;
   value->data = malloc(sizeof(v));
   memcpy(value->data, &v, sizeof(v));
+}
+void value_init_string(Value *value, char *v)
+{
+  value->type = CHARS;
+  value->data = v;
 }
 void value_init_string(Value *value, const char *v)
 {
@@ -93,9 +98,9 @@ void condition_destroy(Condition *condition)
   }
 }
 
-void attr_info_init(AttrInfo *attr_info, const char *name, AttrType type, size_t length)
+void attr_info_init(AttrInfo *attr_info, char *name, AttrType type, size_t length)
 {
-  attr_info->name = strdup(name);
+  attr_info->name = name;
   attr_info->type = type;
   attr_info->length = length;
 }
@@ -110,9 +115,9 @@ void selects_append_attribute(Selects *selects, RelAttr *rel_attr)
 {
   selects->attributes[selects->attr_num++] = *rel_attr;
 }
-void selects_append_relation(Selects *selects, const char *relation_name)
+void selects_append_relation(Selects *selects, char *relation_name)
 {
-  selects->relations[selects->relation_num++] = strdup(relation_name);
+  selects->relations[selects->relation_num++] = relation_name;
 }
 
 void selects_append_conditions(Selects *selects, Condition conditions[], size_t condition_num)
@@ -143,11 +148,11 @@ void selects_destroy(Selects *selects)
   selects->condition_num = 0;
 }
 
-void inserts_init(Inserts *inserts, const char *relation_name, Value values[], size_t value_num)
+void inserts_init(Inserts *inserts, char *relation_name, Value values[], size_t value_num)
 {
   assert(value_num <= sizeof(inserts->values) / sizeof(inserts->values[0]));
 
-  inserts->relation_name = strdup(relation_name);
+  inserts->relation_name = relation_name;
   for (size_t i = 0; i < value_num; i++) {
     inserts->values[i] = values[i];
   }
@@ -164,9 +169,9 @@ void inserts_destroy(Inserts *inserts)
   inserts->value_num = 0;
 }
 
-void deletes_init_relation(Deletes *deletes, const char *relation_name)
+void deletes_init_relation(Deletes *deletes, char *relation_name)
 {
-  deletes->relation_name = strdup(relation_name);
+  deletes->relation_name = relation_name;
 }
 
 void deletes_set_conditions(Deletes *deletes, Condition conditions[], size_t condition_num)
@@ -187,11 +192,11 @@ void deletes_destroy(Deletes *deletes)
   deletes->relation_name = nullptr;
 }
 
-void updates_init(Updates *updates, const char *relation_name, const char *attribute_name, Value *value,
+void updates_init(Updates *updates, char *relation_name, char *attribute_name, Value *value,
     Condition conditions[], size_t condition_num)
 {
-  updates->relation_name = strdup(relation_name);
-  updates->attribute_name = strdup(attribute_name);
+  updates->relation_name = relation_name;
+  updates->attribute_name = attribute_name;
   updates->value = *value;
 
   assert(condition_num <= sizeof(updates->conditions) / sizeof(updates->conditions[0]));
@@ -221,9 +226,9 @@ void create_table_append_attribute(CreateTable *create_table, AttrInfo *attr_inf
   create_table->attributes[create_table->attribute_count++] = *attr_info;
 }
 
-void create_table_init_name(CreateTable *create_table, const char *relation_name)
+void create_table_init_name(CreateTable *create_table, char *relation_name)
 {
-  create_table->relation_name = strdup(relation_name);
+  create_table->relation_name = relation_name;
 }
 
 void create_table_destroy(CreateTable *create_table)
@@ -236,9 +241,9 @@ void create_table_destroy(CreateTable *create_table)
   create_table->relation_name = nullptr;
 }
 
-void drop_table_init(DropTable *drop_table, const char *relation_name)
+void drop_table_init(DropTable *drop_table, char *relation_name)
 {
-  drop_table->relation_name = strdup(relation_name);
+  drop_table->relation_name = relation_name;
 }
 
 void drop_table_destroy(DropTable *drop_table)
@@ -248,11 +253,11 @@ void drop_table_destroy(DropTable *drop_table)
 }
 
 void create_index_init(
-    CreateIndex *create_index, const char *index_name, const char *relation_name, const char *attr_name)
+    CreateIndex *create_index, char *index_name, char *relation_name, char *attr_name)
 {
-  create_index->index_name = strdup(index_name);
-  create_index->relation_name = strdup(relation_name);
-  create_index->attribute_name = strdup(attr_name);
+  create_index->index_name = index_name;
+  create_index->relation_name = relation_name;
+  create_index->attribute_name = attr_name;
 }
 
 void create_index_destroy(CreateIndex *create_index)
@@ -266,9 +271,9 @@ void create_index_destroy(CreateIndex *create_index)
   create_index->attribute_name = nullptr;
 }
 
-void drop_index_init(DropIndex *drop_index, const char *index_name)
+void drop_index_init(DropIndex *drop_index, char *index_name)
 {
-  drop_index->index_name = strdup(index_name);
+  drop_index->index_name = index_name;
 }
 
 void drop_index_destroy(DropIndex *drop_index)
@@ -277,9 +282,9 @@ void drop_index_destroy(DropIndex *drop_index)
   drop_index->index_name = nullptr;
 }
 
-void desc_table_init(DescTable *desc_table, const char *relation_name)
+void desc_table_init(DescTable *desc_table, char *relation_name)
 {
-  desc_table->relation_name = strdup(relation_name);
+  desc_table->relation_name = relation_name;
 }
 
 void desc_table_destroy(DescTable *desc_table)
@@ -288,14 +293,14 @@ void desc_table_destroy(DescTable *desc_table)
   desc_table->relation_name = nullptr;
 }
 
-void load_data_init(LoadData *load_data, const char *relation_name, const char *file_name)
+void load_data_init(LoadData *load_data, char *relation_name, char *file_name)
 {
-  load_data->relation_name = strdup(relation_name);
+  load_data->relation_name = relation_name;
 
   if (file_name[0] == '\'' || file_name[0] == '\"') {
     file_name++;
   }
-  char *dup_file_name = strdup(file_name);
+  char *dup_file_name = file_name;
   int len = strlen(dup_file_name);
   if (dup_file_name[len - 1] == '\'' || dup_file_name[len - 1] == '\"') {
     dup_file_name[len - 1] = 0;
@@ -384,6 +389,25 @@ void query_destroy(Query *query)
 {
   query_reset(query);
   free(query);
+}
+
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats"};
+
+const char *attr_type_to_string(AttrType type)
+{
+  if (type >= UNDEFINED && type <= FLOATS) {
+    return ATTR_TYPE_NAME[type];
+  }
+  return "unknown";
+}
+AttrType attr_type_from_string(const char *s)
+{
+  for (unsigned int i = 0; i < sizeof(ATTR_TYPE_NAME) / sizeof(ATTR_TYPE_NAME[0]); i++) {
+    if (0 == strcmp(ATTR_TYPE_NAME[i], s)) {
+      return (AttrType)i;
+    }
+  }
+  return UNDEFINED;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

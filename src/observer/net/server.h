@@ -12,14 +12,15 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/1.
 //
 
-#ifndef __OBSERVER_NET_SERVER_H__
-#define __OBSERVER_NET_SERVER_H__
+#pragma once
 
 #include "common/defs.h"
 #include "common/metrics/metrics.h"
 #include "common/seda/stage.h"
 #include "net/connection_context.h"
 #include "net/server_param.h"
+
+class Communicator;
 
 class Server {
 public:
@@ -28,7 +29,8 @@ public:
 
 public:
   static void init();
-  static int send(ConnectionContext *client, const char *buf, int data_len);
+  // static int send(ConnectionContext *client, const char *buf, int data_len);
+  static void close_connection(Communicator *comm);
 
 public:
   int serve();
@@ -37,7 +39,6 @@ public:
 private:
   static void accept(int fd, short ev, void *arg);
   // close connection
-  static void close_connection(ConnectionContext *client_context);
   static void recv(int fd, short ev, void *arg);
 
 private:
@@ -55,17 +56,9 @@ private:
 
   ServerParam server_param_;
 
+  CommunicatorFactory communicator_factory_;
+
   static common::Stage *session_stage_;
   static common::SimpleTimer *read_socket_metric_;
   static common::SimpleTimer *write_socket_metric_;
 };
-
-class Communicator {
-public:
-  virtual ~Communicator() = default;
-  virtual int init(const ServerParam &server_param) = 0;
-  virtual int start() = 0;
-  virtual int stop() = 0;
-};
-
-#endif  //__OBSERVER_NET_SERVER_H__

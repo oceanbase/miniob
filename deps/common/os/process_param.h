@@ -110,6 +110,16 @@ public:
     return unix_socket_path_;
   }
 
+  void set_protocol(const char *protocol)
+  {
+    protocol_ = protocol;
+  }
+
+  const std::string &get_protocol() const
+  {
+    return protocol_;
+  }
+
 private:
   std::string std_out_;           // The output file
   std::string std_err_;           // The err output file
@@ -119,6 +129,7 @@ private:
   std::vector<std::string> args;  // arguments
   int server_port_ = -1;          // server port(if valid, will overwrite the port in the config file)
   std::string unix_socket_path_;
+  std::string protocol_;
 };
 
 ProcessParam *&the_process_param();

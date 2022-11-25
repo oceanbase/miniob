@@ -148,7 +148,7 @@ void DefaultStorageStage::handle_event(StageEvent *event)
 
   SessionEvent *session_event = sql_event->session_event();
 
-  Session *session = session_event->get_client()->session;
+  Session *session = session_event->session();
   Db *db = session->get_current_db();
   const char *dbname = db->name();
 

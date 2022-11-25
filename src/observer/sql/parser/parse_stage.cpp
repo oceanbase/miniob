@@ -129,10 +129,13 @@ RC ParseStage::handle_request(StageEvent *event)
     return RC::INTERNAL;
   }
 
+  SqlResult *sql_result = new SqlResult;
   RC ret = parse(sql.c_str(), query_result);
   if (ret != RC::SUCCESS) {
     // set error information to event
-    sql_event->session_event()->set_response("Failed to parse sql\n");
+    sql_result->set_return_code(ret);
+    sql_result->set_state_string("Failed to parse sql");
+    sql_event->session_event()->set_sql_result(sql_result);
     query_destroy(query_result);
     return RC::INTERNAL;
   }

@@ -27,6 +27,7 @@ See the Mulan PSL v2 for more details. */
 #include "event/session_event.h"
 #include "event/sql_event.h"
 #include "net/server.h"
+#include "net/communicator.h"
 #include "session/session.h"
 
 using namespace common;
@@ -118,20 +119,14 @@ void SessionStage::callback_event(StageEvent *event, CallbackContext *context)
     return;
   }
 
-  const char *response = sev->get_response();
-  int len = sev->get_response_len();
-  if (len <= 0 || response == nullptr) {
-    response = "No data\n";
-    len = strlen(response) + 1;
-  }
-  Server::send(sev->get_client(), response, len);
-  if ('\0' != response[len - 1]) {
-    // 这里强制性的给发送一个消息终结符，如果需要发送多条消息，需要调整
-    char end = 0;
-    Server::send(sev->get_client(), &end, 1);
+  Communicator *communicator = sev->get_communicator();
+  bool need_disconnect = false;
+  RC rc = communicator->write_result(sev, need_disconnect);
+  LOG_INFO("write result return %s", strrc(rc));
+  if (need_disconnect) {
+    Server::close_connection(communicator); 
   }
 
-  // sev->done();
   LOG_TRACE("Exit\n");
   return;
 }

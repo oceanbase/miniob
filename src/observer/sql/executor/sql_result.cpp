@@ -9,37 +9,40 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/7.
+// Created by WangYunlai on 2022/11/18.
 //
 
-#pragma once
-
-#include <vector>
 #include "rc.h"
-#include "sql/expr/tuple.h"
+#include "sql/executor/sql_result.h"
 
-class Record;
-class TupleCellSpec;
-
-class Operator
+void SqlResult::set_tuple_schema(const TupleSchema &schema)
 {
-public:
-  Operator()
-  {}
+  tuple_schema_ = schema;
+}
 
-  virtual ~Operator();
+RC SqlResult::open()
+{
+  if (nullptr == operator_) {
+    return RC::INVALID_ARGUMENT;
+  }
+  return operator_->open();
+}
 
-  virtual RC open() = 0;
-  virtual RC next() = 0;
-  virtual RC close() = 0;
+RC SqlResult::close()
+{
+  if (nullptr == operator_) {
+    return RC::INVALID_ARGUMENT;
+  }
+  return operator_->close();
+}
 
-  virtual Tuple * current_tuple() = 0;
-
-  void add_child(Operator *oper) {
-    children_.push_back(oper);
+RC SqlResult::next_tuple(Tuple *&tuple)
+{
+  RC rc = operator_->next();
+  if (rc != RC::SUCCESS) {
+    return rc;
   }
 
-
-protected:
-  std::vector<Operator *> children_;
-};
+  tuple = operator_->current_tuple();
+  return rc;
+}

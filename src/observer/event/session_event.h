@@ -12,37 +12,44 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/13.
 //
 
-#ifndef __OBSERVER_SESSION_SESSIONEVENT_H__
-#define __OBSERVER_SESSION_SESSIONEVENT_H__
+#pragma once
 
 #include <string.h>
 #include <string>
 
 #include "common/seda/stage_event.h"
 #include "net/connection_context.h"
+#include "sql/executor/sql_result.h"
 
 class Session;
+class Communicator;
+class SqlResult;
 
 class SessionEvent : public common::StageEvent {
 public:
-  SessionEvent(ConnectionContext *client);
+  SessionEvent(Communicator *client);
   virtual ~SessionEvent();
 
-  ConnectionContext *get_client() const;
+  Communicator *get_communicator() const;
   Session *session() const;
+
+  void set_query(const std::string &query) { query_ = query; }
+  void set_sql_result(SqlResult *result) { sql_result_ = result; }
+  const std::string &query() const { return query_; }
+  SqlResult *sql_result() const { return sql_result_; }
 
   const char *get_response() const;
   void set_response(const char *response);
   void set_response(const char *response, int len);
   void set_response(std::string &&response);
   int get_response_len() const;
-  char *get_request_buf();
+  const char *get_request_buf(); // TODO remove me
   int get_request_buf_len();
 
 private:
-  ConnectionContext *client_;
+  Communicator *communicator_ = nullptr;
+  SqlResult *sql_result_ = nullptr;
 
+  std::string query_;
   std::string response_;
 };
-
-#endif  //__OBSERVER_SESSION_SESSIONEVENT_H__

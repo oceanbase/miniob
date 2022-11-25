@@ -105,12 +105,3 @@ bool PredicateOperator::do_predicate(RowTuple &tuple)
   }
   return true;
 }
-
-// int PredicateOperator::tuple_cell_num() const
-// {
-//   return children_[0]->tuple_cell_num();
-// }
-// RC PredicateOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
-// {
-//   return children_[0]->tuple_cell_spec_at(index, spec);
-// }
