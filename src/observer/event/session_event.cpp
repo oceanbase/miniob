@@ -66,8 +66,3 @@ const char *SessionEvent::get_request_buf()
 {
   return query_.c_str();
 }
-
-int SessionEvent::get_request_buf_len()
-{
-  return SOCKET_BUFFER_SIZE;
-}

@@ -15,7 +15,6 @@ See the Mulan PSL v2 for more details. */
 #include "net/communicator.h"
 #include "net/mysql_communicator.h"
 #include "sql/expr/tuple.h"
-#include "net/connection_context.h"
 #include "event/session_event.h"
 #include "common/lang/mutex.h"
 #include "common/io/io.h"

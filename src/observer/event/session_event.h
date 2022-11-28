@@ -18,7 +18,6 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 
 #include "common/seda/stage_event.h"
-#include "net/connection_context.h"
 #include "sql/executor/sql_result.h"
 
 class Session;
@@ -44,7 +43,6 @@ public:
   void set_response(std::string &&response);
   int get_response_len() const;
   const char *get_request_buf(); // TODO remove me
-  int get_request_buf_len();
 
 private:
   Communicator *communicator_ = nullptr;

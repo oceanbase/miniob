@@ -17,7 +17,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/defs.h"
 #include "common/metrics/metrics.h"
 #include "common/seda/stage.h"
-#include "net/connection_context.h"
 #include "net/server_param.h"
 
 class Communicator;
