@@ -178,9 +178,15 @@ int store_lenenc_string(char *buf, const char *s)
   store_fix_length_string(buf + pos, s, len);
   return pos + len;
 }
+
+/**
+ * 每个包都有一个包头
+ * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_packets.html
+ * https://mariadb.com/kb/en/0-packet/
+ */
 struct alignas(1) PacketHeader {
-  int32_t payload_length:24;
-  int8_t  sequence_id = 0;
+  int32_t payload_length:24; //! 当前packet的除掉头的长度
+  int8_t  sequence_id = 0;   //! 当前packet在当前处理过程中是第几个包
 };
 
 class BasePacket
@@ -197,7 +203,12 @@ public:
   virtual RC encode(uint32_t capabilities, std::vector<char> &net_packet) const = 0;
 };
 
-// https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase_packets_protocol_handshake_v10.html
+/**
+ * 握手包
+ * 先由服务端发送到客户端
+ * 这个包会交互capability与用户名密码
+ * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase_packets_protocol_handshake_v10.html
+ */
 struct HandshakeV10 : public BasePacket
 {
   int8_t       protocol = 10;
@@ -382,6 +393,8 @@ struct ErrPacket : public BasePacket
   }
 };
 
+// https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_command_phase.html
+// https://mariadb.com/kb/en/2-text-protocol/
 struct QueryPacket
 {
   PacketHeader packet_header;
@@ -389,12 +402,6 @@ struct QueryPacket
   std::string  query;   // the text of the SQL query to execute
 };
 
-struct MetadataPacket
-{
-  
-};
-
-// RC encode_metadata_packet(uint32_t capabilities_flag, )
 /**
  * decode query packet
  * packet_header is not included in net_packet
@@ -634,8 +641,12 @@ RC MysqlCommunicator::send_packet(const BasePacket &packet)
 }
 
 /**
+ * 发送列定义信息
  *  https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset.html
  *  https://mariadb.com/kb/en/result-set-packets/#column-definition-packet
+ *
+ * 先发送当前有多少个列
+ * 然后发送N个包，告诉客户端每个列的信息
  */
 RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_disconnect)
 {
@@ -746,6 +757,11 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
   need_disconnect = false;
   return RC::SUCCESS;
 }
+
+/**
+ * 发送每行数据
+ * 一行一个包
+ */
 RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool &need_disconnect)
 {
   RC rc = RC::SUCCESS;
@@ -789,6 +805,7 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool &need_disconn
     }
   }
 
+  // 所有行发送完成后，发送一个EOF或OK包
   if (client_capabilities_flag_ & CLIENT_DEPRECATE_EOF) {
     LOG_TRACE("client has CLIENT_DEPRECATE_EOF, send ok packet");
     OkPacket ok_packet;
