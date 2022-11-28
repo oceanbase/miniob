@@ -635,6 +635,7 @@ RC MysqlCommunicator::send_packet(const BasePacket &packet)
 
 /**
  *  https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset.html
+ *  https://mariadb.com/kb/en/result-set-packets/#column-definition-packet
  */
 RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_disconnect)
 {
@@ -713,7 +714,7 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
     pos += 2;
     store_int1(buf + pos, decimals);
     pos += 1;
-    store_int2(buf + pos, 0);
+    store_int2(buf + pos, 0); // 按照mariadb的文档描述，最后还有一个unused字段int<2>，不过mysql的文档没有给出这样的描述 
     pos += 2;
 
     payload_length = pos - 4;
