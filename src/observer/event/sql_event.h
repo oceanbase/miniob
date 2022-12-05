@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/14.
 //
 
-#ifndef __OBSERVER_SQL_EVENT_SQLEVENT_H__
-#define __OBSERVER_SQL_EVENT_SQLEVENT_H__
+#pragma once
 
 #include <string>
 #include "common/seda/stage_event.h"
@@ -48,4 +47,3 @@ private:
   Stmt *stmt_ = nullptr;
 };
 
-#endif  //__SRC_OBSERVER_SQL_EVENT_SQLEVENT_H__

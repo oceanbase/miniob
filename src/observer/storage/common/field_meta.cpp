@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include <common/lang/string.h>
 #include "storage/common/field_meta.h"
 #include "common/log/log.h"
+#include "sql/parser/parse_defs.h"
 
 #include "json/json.h"
 
@@ -24,25 +25,6 @@ const static Json::StaticString FIELD_OFFSET("offset");
 const static Json::StaticString FIELD_LEN("len");
 const static Json::StaticString FIELD_VISIBLE("visible");
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats"};
-
-const char *attr_type_to_string(AttrType type)
-{
-  if (type >= UNDEFINED && type <= FLOATS) {
-    return ATTR_TYPE_NAME[type];
-  }
-  return "unknown";
-}
-
-AttrType attr_type_from_string(const char *s)
-{
-  for (unsigned int i = 0; i < sizeof(ATTR_TYPE_NAME) / sizeof(ATTR_TYPE_NAME[0]); i++) {
-    if (0 == strcmp(ATTR_TYPE_NAME[i], s)) {
-      return (AttrType)i;
-    }
-  }
-  return UNDEFINED;
-}
 
 FieldMeta::FieldMeta() : attr_type_(AttrType::UNDEFINED), attr_offset_(-1), attr_len_(0), visible_(false)
 {}

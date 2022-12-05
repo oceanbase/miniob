@@ -118,7 +118,7 @@ union YYSTYPE
   char *string;
   int number;
   float floats;
-	char *position;
+  char *position;
 
 #line 124 "yacc_sql.hpp"
 

@@ -32,6 +32,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/predicate_operator.h"
 #include "sql/operator/delete_operator.h"
 #include "sql/operator/project_operator.h"
+#include "sql/operator/string_list_operator.h"
 #include "sql/stmt/stmt.h"
 #include "sql/stmt/select_stmt.h"
 #include "sql/stmt/update_stmt.h"
@@ -200,18 +201,25 @@ void ExecuteStage::handle_request(common::StageEvent *event)
       do_clog_sync(sql_event);
     }
     case SCF_ROLLBACK: {
-      Trx *trx = session_event->get_client()->session->current_trx();
+      Trx *trx = session_event->session()->current_trx();
       RC rc = trx->rollback();
       session->set_trx_multi_operation_mode(false);
-      session_event->set_response(strrc(rc));
+      SqlResult *sql_result = new SqlResult;
+      sql_result->set_return_code(rc);
+      session_event->set_sql_result(sql_result);
     } break;
     case SCF_EXIT: {
       // do nothing
-      const char *response = "Unsupported\n";
-      session_event->set_response(response);
+      SqlResult *sql_result = new SqlResult;
+      sql_result->set_return_code(RC::SUCCESS);
+      session_event->set_sql_result(sql_result);
     } break;
     default: {
       LOG_ERROR("Unsupported command=%d\n", sql->flag);
+      SqlResult *sql_result = new SqlResult;
+      sql_result->set_return_code(RC::UNIMPLENMENT);
+      sql_result->set_state_string("Unsupported command");
+      session_event->set_sql_result(sql_result);
     }
     }
   }
@@ -228,25 +236,6 @@ void end_trx_if_need(Session *session, Trx *trx, bool all_right)
   }
 }
 
-void print_tuple_header(std::ostream &os, const ProjectOperator &oper)
-{
-  const int cell_num = oper.tuple_cell_num();
-  const TupleCellSpec *cell_spec = nullptr;
-  for (int i = 0; i < cell_num; i++) {
-    oper.tuple_cell_spec_at(i, cell_spec);
-    if (i != 0) {
-      os << " | ";
-    }
-
-    if (cell_spec->alias()) {
-      os << cell_spec->alias();
-    }
-  }
-
-  if (cell_num > 0) {
-    os << '\n';
-  }
-}
 void tuple_to_string(std::ostream &os, const Tuple &tuple)
 {
   TupleCell cell;
@@ -409,15 +398,21 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
     scan_oper = new TableScanOperator(select_stmt->tables()[0]);
   }
 
-  DEFER([&] () {delete scan_oper;});
-
-  PredicateOperator pred_oper(select_stmt->filter_stmt());
-  pred_oper.add_child(scan_oper);
-  ProjectOperator project_oper;
-  project_oper.add_child(&pred_oper);
+  SqlResult *sql_result = new SqlResult;
+  
+  PredicateOperator *pred_oper = new PredicateOperator(select_stmt->filter_stmt());
+  pred_oper->add_child(scan_oper);
+  ProjectOperator *project_oper = new ProjectOperator;
+  project_oper->add_child(pred_oper);
+  TupleSchema schema;
   for (const Field &field : select_stmt->query_fields()) {
-    project_oper.add_projection(field.table(), field.meta());
+    project_oper->add_projection(field.table(), field.meta());
+    schema.append_cell(field.field_name());
   }
+  sql_result->set_tuple_schema(schema);
+  sql_result->set_operator(project_oper);
+
+  /*
   rc = project_oper.open();
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open operator");
@@ -447,21 +442,31 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
     rc = project_oper.close();
   }
   session_event->set_response(ss.str());
+  */
+  session_event->set_sql_result(sql_result);
   return rc;
 }
 
 RC ExecuteStage::do_help(SQLStageEvent *sql_event)
 {
   SessionEvent *session_event = sql_event->session_event();
-  const char *response = "show tables;\n"
-                         "desc `table name`;\n"
-                         "create table `table name` (`column name` `column type`, ...);\n"
-                         "create index `index name` on `table` (`column`);\n"
-                         "insert into `table` values(`value1`,`value2`);\n"
-                         "update `table` set column=value [where `column`=`value`];\n"
-                         "delete from `table` [where `column`=`value`];\n"
-                         "select [ * | `columns` ] from `table`;\n";
-  session_event->set_response(response);
+  const char *strings[] = {
+      "show tables;",
+      "desc `table name`;",
+      "create table `table name` (`column name` `column type`, ...);",
+      "create index `index name` on `table` (`column`);",
+      "insert into `table` values(`value1`,`value2`);",
+      "update `table` set column=value [where `column`=`value`];",
+      "delete from `table` [where `column`=`value`];",
+      "select [ * | `columns` ] from `table`;"
+  };
+  StringListOperator *oper = new StringListOperator();
+  for (size_t i = 0; i < sizeof(strings)/sizeof(strings[0]); i++) {
+    oper->append(strings[i]);
+  }
+  SqlResult *sql_result = new SqlResult;
+  sql_result->set_operator(oper);
+  session_event->set_sql_result(sql_result);
   return RC::SUCCESS;
 }
 
@@ -472,44 +477,45 @@ RC ExecuteStage::do_create_table(SQLStageEvent *sql_event)
   Db *db = session_event->session()->get_current_db();
   RC rc = db->create_table(create_table.relation_name,
 			create_table.attribute_count, create_table.attributes);
-  if (rc == RC::SUCCESS) {
-    session_event->set_response("SUCCESS\n");
-  } else {
-    session_event->set_response("FAILURE\n");
-  }
+  SqlResult *sql_result = new SqlResult;
+  sql_result->set_return_code(rc);
+  sql_event->session_event()->set_sql_result(sql_result);
   return rc;
 }
 RC ExecuteStage::do_create_index(SQLStageEvent *sql_event)
 {
+  SqlResult *sql_result = new SqlResult;
   SessionEvent *session_event = sql_event->session_event();
+  session_event->set_sql_result(sql_result);
   Db *db = session_event->session()->get_current_db();
   const CreateIndex &create_index = sql_event->query()->sstr.create_index;
   Table *table = db->find_table(create_index.relation_name);
   if (nullptr == table) {
-    session_event->set_response("FAILURE\n");
+    sql_result->set_return_code(RC::SCHEMA_TABLE_NOT_EXIST);
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
 
   RC rc = table->create_index(nullptr, create_index.index_name, create_index.attribute_name);
-  sql_event->session_event()->set_response(rc == RC::SUCCESS ? "SUCCESS\n" : "FAILURE\n");
+  sql_result->set_return_code(rc);
   return rc;
 }
 
 RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
 {
+  SqlResult *sql_result = new SqlResult;
   SessionEvent *session_event = sql_event->session_event();
+  session_event->set_sql_result(sql_result);
   Db *db = session_event->session()->get_current_db();
   std::vector<std::string> all_tables;
   db->all_tables(all_tables);
-  if (all_tables.empty()) {
-    session_event->set_response("No table\n");
-  } else {
-    std::stringstream ss;
-    for (const auto &table : all_tables) {
-      ss << table << std::endl;
-    }
-    session_event->set_response(ss.str().c_str());
+  TupleSchema tuple_schema;
+  tuple_schema.append_cell(TupleCellSpec("", "Tables_in_SYS", "Tables_in_SYS"));
+  sql_result->set_tuple_schema(tuple_schema);
+  StringListOperator *oper = new StringListOperator;
+  for (const std::string &s : all_tables) {
+    oper->append(s);
   }
+  sql_result->set_operator(oper);
   return RC::SUCCESS;
 }
 
@@ -519,13 +525,27 @@ RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
   Db *db = sql_event->session_event()->session()->get_current_db();
   const char *table_name = query->sstr.desc_table.relation_name;
   Table *table = db->find_table(table_name);
-  std::stringstream ss;
+  SqlResult *sql_result = new SqlResult;
+  sql_event->session_event()->set_sql_result(sql_result);
   if (table != nullptr) {
-    table->table_meta().desc(ss);
+    TupleSchema tuple_schema;
+    tuple_schema.append_cell(TupleCellSpec("", "Field", "Field"));
+    tuple_schema.append_cell(TupleCellSpec("", "Type", "Type"));
+    tuple_schema.append_cell(TupleCellSpec("", "Length", "Length"));
+    // TODO add Key
+    sql_result->set_tuple_schema(tuple_schema);
+    StringListOperator *oper = new StringListOperator;
+    const TableMeta &table_meta = table->table_meta();
+    for (int i = table_meta.sys_field_num(); i < table_meta.field_num(); i++) {
+      const FieldMeta *field_meta = table_meta.field(i);
+      oper->append({field_meta->name(), attr_type_to_string(field_meta->type()),
+          std::to_string(field_meta->len())});
+    }
+    sql_result->set_operator(oper);
   } else {
-    ss << "No such table: " << table_name << std::endl;
+    sql_result->set_return_code(RC::SCHEMA_TABLE_NOT_EXIST);
+    sql_result->set_state_string("Table not exists");
   }
-  sql_event->session_event()->set_response(ss.str().c_str());
   return RC::SUCCESS;
 }
 
@@ -533,6 +553,8 @@ RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
 {
   Stmt *stmt = sql_event->stmt();
   SessionEvent *session_event = sql_event->session_event();
+  SqlResult *sql_result = new SqlResult;
+  session_event->set_sql_result(sql_result);
   Session *session = session_event->session();
   Db *db = session->get_current_db();
   Trx *trx = session->current_trx();
@@ -552,23 +574,26 @@ RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
       CLogRecord *clog_record = nullptr;
       rc = clog_manager->clog_gen_record(CLogType::REDO_MTR_COMMIT, trx->get_current_id(), clog_record);
       if (rc != RC::SUCCESS || clog_record == nullptr) {
-        session_event->set_response("FAILURE\n");
+        if (rc == RC::SUCCESS) {
+          rc = RC::INTERNAL;
+        }
+        sql_result->set_return_code(rc);
         return rc;
       }
 
       rc = clog_manager->clog_append_record(clog_record);
       if (rc != RC::SUCCESS) {
-        session_event->set_response("FAILURE\n");
+        sql_result->set_return_code(rc);
         return rc;
       } 
 
       trx->next_current_id();
-      session_event->set_response("SUCCESS\n");
+      sql_result->set_return_code(RC::SUCCESS);
     } else {
-      session_event->set_response("SUCCESS\n");
+      sql_result->set_return_code(RC::SUCCESS);
     }
   } else {
-    session_event->set_response("FAILURE\n");
+    sql_result->set_return_code(rc);
   }
   return rc;
 }
@@ -624,6 +649,8 @@ RC ExecuteStage::do_begin(SQLStageEvent *sql_event)
 {
   RC rc = RC::SUCCESS;
   SessionEvent *session_event = sql_event->session_event();
+  SqlResult *sql_result = new SqlResult;
+  session_event->set_sql_result(sql_result);
   Session *session = session_event->session();
   Db *db = session->get_current_db();
   Trx *trx = session->current_trx();
@@ -634,16 +661,12 @@ RC ExecuteStage::do_begin(SQLStageEvent *sql_event)
   CLogRecord *clog_record = nullptr;
   rc = clog_manager->clog_gen_record(CLogType::REDO_MTR_BEGIN, trx->get_current_id(), clog_record);
   if (rc != RC::SUCCESS || clog_record == nullptr) {
-    session_event->set_response("FAILURE\n");
+    sql_result->set_return_code(rc);
     return rc;
   }
 
   rc = clog_manager->clog_append_record(clog_record);
-  if (rc != RC::SUCCESS) {
-    session_event->set_response("FAILURE\n");
-  } else {
-    session_event->set_response("SUCCESS\n");
-  }
+  sql_result->set_return_code(rc);
 
   return rc;
 }
@@ -652,6 +675,8 @@ RC ExecuteStage::do_commit(SQLStageEvent *sql_event)
 {
   RC rc = RC::SUCCESS;
   SessionEvent *session_event = sql_event->session_event();
+  SqlResult *sql_result = new SqlResult;
+  session_event->set_sql_result(sql_result);
   Session *session = session_event->session();
   Db *db = session->get_current_db();
   Trx *trx = session->current_trx();
@@ -662,16 +687,12 @@ RC ExecuteStage::do_commit(SQLStageEvent *sql_event)
   CLogRecord *clog_record = nullptr;
   rc = clog_manager->clog_gen_record(CLogType::REDO_MTR_COMMIT, trx->get_current_id(), clog_record);
   if (rc != RC::SUCCESS || clog_record == nullptr) {
-    session_event->set_response("FAILURE\n");
+    sql_result->set_return_code(rc);
     return rc;
   }
 
   rc = clog_manager->clog_append_record(clog_record);
-  if (rc != RC::SUCCESS) {
-    session_event->set_response("FAILURE\n");
-  } else {
-    session_event->set_response("SUCCESS\n");
-  }
+  sql_result->set_return_code(rc);
 
   trx->next_current_id();
 
@@ -681,16 +702,14 @@ RC ExecuteStage::do_commit(SQLStageEvent *sql_event)
 RC ExecuteStage::do_clog_sync(SQLStageEvent *sql_event)
 {
   RC rc = RC::SUCCESS;
+  SqlResult *sql_result = new SqlResult;
   SessionEvent *session_event = sql_event->session_event();
+  session_event->set_sql_result(sql_result);
   Db *db = session_event->session()->get_current_db();
   CLogManager *clog_manager = db->get_clog_manager();
 
   rc = clog_manager->clog_sync();
-  if (rc != RC::SUCCESS) {
-    session_event->set_response("FAILURE\n");
-  } else {
-    session_event->set_response("SUCCESS\n");
-  }
+  sql_result->set_return_code(rc);
 
   return rc;
 }

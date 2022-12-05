@@ -13,23 +13,28 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "session_event.h"
+#include "net/communicator.h"
 
-SessionEvent::SessionEvent(ConnectionContext *client) : client_(client)
+SessionEvent::SessionEvent(Communicator *comm) : communicator_(comm)
 {
 }
 
 SessionEvent::~SessionEvent()
 {
+  if (sql_result_) {
+    delete sql_result_;
+    sql_result_ = nullptr;
+  }
 }
 
-ConnectionContext *SessionEvent::get_client() const
+Communicator *SessionEvent::get_communicator() const
 {
-  return client_;
+  return communicator_;
 }
 
 Session *SessionEvent::session() const
 {
-  return client_->session;
+  return communicator_->session();
 }
 
 const char *SessionEvent::get_response() const
@@ -57,12 +62,7 @@ int SessionEvent::get_response_len() const
   return response_.size();
 }
 
-char *SessionEvent::get_request_buf()
+const char *SessionEvent::get_request_buf()
 {
-  return client_->buf;
-}
-
-int SessionEvent::get_request_buf_len()
-{
-  return SOCKET_BUFFER_SIZE;
+  return query_.c_str();
 }

@@ -34,6 +34,7 @@ public:
   
   virtual RC get_value(const Tuple &tuple, TupleCell &cell) const = 0;
   virtual ExprType type() const = 0;
+  virtual AttrType value_type() const = 0;
 };
 
 class FieldExpr : public Expression
@@ -48,6 +49,10 @@ public:
   ExprType type() const override
   {
     return ExprType::FIELD;
+  }
+  AttrType value_type() const override
+  {
+    return field_.attr_type();
   }
 
   Field &field()
@@ -92,6 +97,11 @@ public:
   ExprType type() const override
   {
     return ExprType::VALUE;
+  }
+
+  AttrType value_type() const override
+  {
+    return tuple_cell_.attr_type();
   }
 
   void get_tuple_cell(TupleCell &cell) const {

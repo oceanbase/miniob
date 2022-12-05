@@ -12,10 +12,10 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/13.
 //
 
-#ifndef __SRC_OBSERVER_NET_SERVER_PARAM_H__
-#define __SRC_OBSERVER_NET_SERVER_PARAM_H__
+#pragma once
 
 #include <string>
+#include "net/communicator.h"
 
 class ServerParam {
 public:
@@ -36,6 +36,6 @@ public:
 
   // 如果使用标准输入输出作为通信条件，就不再监听端口
   bool use_unix_socket = false;
-};
 
-#endif  //__SRC_OBSERVER_NET_SERVER_PARAM_H__
+  CommunicateProtocol protocol;
+};

@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/7.
+// Created by WangYunlai on 2022/6/7.
 //
 
 #pragma once
@@ -35,12 +35,6 @@ public:
 
   Tuple * current_tuple() override;
 
-  // int tuple_cell_num() const override
-  // {
-  //   return tuple_.cell_num();
-  // }
-
-  // RC tuple_cell_spec_at(int index, TupleCellSpec &spec) const override;
 private:
   Table *table_ = nullptr;
   RecordFileScanner record_scanner_;

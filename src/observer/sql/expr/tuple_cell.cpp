@@ -18,6 +18,27 @@ See the Mulan PSL v2 for more details. */
 #include "util/comparator.h"
 #include "util/util.h"
 
+TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, const char *alias)
+{
+  if (table_name) {
+    table_name_ = table_name;
+  }
+  if (field_name) {
+    field_name_ = field_name;
+  }
+  if (alias) {
+    alias_ = alias;
+  }
+}
+
+TupleCellSpec::TupleCellSpec(const char *alias)
+{
+  if (alias) {
+    alias_ = alias;
+  }
+}
+////////////////////////////////////////////////////////////////////////////////
+
 void TupleCell::to_string(std::ostream &os) const
 {
   switch (attr_type_) {
