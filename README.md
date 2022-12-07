@@ -15,6 +15,7 @@ miniob 设计的目标是让同学们快速了解数据库并深入学习数据�
 1. [本地配置gcc环境](docs/how_to_build.md)。
 2. [使用Docker开发](docs/how-to-dev-using-docker.md)。
 3. [在Windows上使用Docker](docs/how_to_dev_miniob_by_docker_on_windows.md)。
+4. [使用 Docker 和 VSCode 远程开发 Miniob (推荐)](docs/how_to_dev_in_docker_container_by_vscode.md)。
 
 ## 词法、语法解析
 请参考 [miniob 词法语法解析开发与测试](docs/miniob-sql-parser.md)。
