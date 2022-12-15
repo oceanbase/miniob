@@ -72,8 +72,8 @@ public:
     std::vector<TupleCell> cells;
     for (const std::string &s : string_list) {
 
-      TupleCell cell(CHARS, const_cast<char *>(s.data()));
-      cell.set_length(s.length());
+      TupleCell cell;
+      cell.set_string(s.c_str());
       cells.push_back(cell);
     }
     tuple_.set_cells(cells);

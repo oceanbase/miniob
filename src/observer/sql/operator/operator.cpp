@@ -16,7 +16,4 @@ See the Mulan PSL v2 for more details. */
 
 Operator::~Operator()
 {
-  for (Operator *oper : children_) {
-    delete oper;
-  }
 }

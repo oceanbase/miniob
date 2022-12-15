@@ -391,7 +391,7 @@ void query_destroy(Query *query)
   free(query);
 }
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
 
 const char *attr_type_to_string(AttrType type)
 {

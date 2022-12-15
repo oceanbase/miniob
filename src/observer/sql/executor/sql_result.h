@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <string>
+#include <memory>
+
 #include "sql/expr/tuple.h"
 #include "sql/operator/operator.h"
 
@@ -23,15 +25,13 @@ public:
   SqlResult() = default;
   ~SqlResult()
   {
-    delete operator_;
-    operator_ = nullptr;
   }
 
   void set_tuple_schema(const TupleSchema &schema);
   void set_return_code(RC rc) { return_code_ = rc; }
   void set_state_string(const std::string &state_string) { state_string_ = state_string; }
 
-  void set_operator(Operator *oper) { operator_ = oper; }
+  void set_operator(std::unique_ptr<Operator> oper) { operator_ = std::move(oper); }
   bool has_operator() const { return operator_ != nullptr; }
   const TupleSchema &tuple_schema() const { return tuple_schema_; }
   RC return_code() const { return return_code_; }
@@ -42,7 +42,7 @@ public:
   RC next_tuple(Tuple *&tuple);
 
 private:
-  Operator *operator_ = nullptr;
+  std::unique_ptr<Operator> operator_;
   TupleSchema tuple_schema_;
   RC return_code_ = RC::SUCCESS;
   std::string state_string_;

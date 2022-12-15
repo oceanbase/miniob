@@ -9,34 +9,25 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/27.
+// Created by Wangyunlai on 2022/12/13.
 //
 
-#pragma once
-
-#include <memory>
-#include "sql/operator/operator.h"
+#include "sql/optimizer/comparison_simplification_rule.h"
 #include "sql/expr/expression.h"
 
-class FilterStmt;
-
-/**
- * PredicateOperator 用于单个表中的记录过滤
- * 如果是多个表数据过滤，比如join条件的过滤，需要设计新的predicate或者扩展
- */
-class PredicateOperator : public Operator
+RC ComparisonSimplificationRule::rewrite(std::unique_ptr<Expression> &expr, bool &change_made)
 {
-public:
-  PredicateOperator(std::unique_ptr<Expression> expr);
-
-  virtual ~PredicateOperator() = default;
-
-  RC open() override;
-  RC next() override;
-  RC close() override;
-
-  Tuple * current_tuple() override;
-  
-private:
-  std::unique_ptr<Expression> expression_;
-};
+  RC rc = RC::SUCCESS;
+  change_made = false;
+  if (expr->type() == ExprType::COMPARISON) {
+    ComparisonExpr *cmp_expr = static_cast<ComparisonExpr *>(expr.get());
+    TupleCell cell;
+    RC sub_rc = cmp_expr->try_get_value(cell);
+    if (sub_rc == RC::SUCCESS) {
+      std::unique_ptr<Expression> new_expr(new ValueExpr(cell));
+      expr.swap(new_expr);
+      change_made = true;
+    }
+  }
+  return rc;
+}

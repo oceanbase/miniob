@@ -88,9 +88,9 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
     LOG_WARN("invalid compare operator : %d", comp);
     return RC::INVALID_ARGUMENT;
   }
-
-  Expression *left = nullptr;
-  Expression *right = nullptr;
+  
+  filter_unit = new FilterUnit;
+  
   if (condition.left_is_attr) {
     Table *table = nullptr;
     const FieldMeta *field = nullptr;
@@ -99,9 +99,13 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
       LOG_WARN("cannot find attr");
       return rc;
     }
-    left = new FieldExpr(table, field);
+    FilterObj filter_obj;
+    filter_obj.init_attr(Field(table, field));
+    filter_unit->set_left(filter_obj);
   } else {
-    left = new ValueExpr(condition.left_value);
+    FilterObj filter_obj;
+    filter_obj.init_value(condition.left_value);
+    filter_unit->set_left(filter_obj);
   }
 
   if (condition.right_is_attr) {
@@ -110,18 +114,19 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
     rc = get_table_and_field(db, default_table, tables, condition.right_attr, table, field);  
     if (rc != RC::SUCCESS) {
       LOG_WARN("cannot find attr");
-      delete left;
       return rc;
     }
-    right = new FieldExpr(table, field);
+    FilterObj filter_obj;
+    filter_obj.init_attr(Field(table, field));
+    filter_unit->set_right(filter_obj);
   } else {
-    right = new ValueExpr(condition.right_value);
+    FilterObj filter_obj;
+    filter_obj.init_value(condition.right_value);
+    filter_unit->set_right(filter_obj);
   }
 
-  filter_unit = new FilterUnit;
+  
   filter_unit->set_comp(comp);
-  filter_unit->set_left(left);
-  filter_unit->set_right(right);
 
   // 检查两个类型是否能够比较
   return rc;

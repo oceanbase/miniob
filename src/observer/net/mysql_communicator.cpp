@@ -429,7 +429,7 @@ RC create_version_comment_sql_result(SqlResult *&sql_result)
 
   StringListOperator *oper = new StringListOperator();
   oper->append(version_comments);
-  sql_result->set_operator(oper);
+  sql_result->set_operator(std::unique_ptr<Operator>(oper));
   return RC::SUCCESS;
 }
 

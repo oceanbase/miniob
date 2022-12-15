@@ -14,8 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <string.h>
 #include <algorithm>
-
-const double epsilon = 1E-6;
+#include "common/defs.h"
 
 int compare_int(void *arg1, void *arg2)
 {
@@ -29,10 +28,10 @@ int compare_float(void *arg1, void *arg2)
   float v1 = *(float *)arg1; 
   float v2 = *(float *)arg2; 
   float cmp = v1 - v2;
-  if (cmp > epsilon) {
+  if (cmp > EPSILON) {
     return 1;
   }
-  if (cmp < -epsilon) {
+  if (cmp < -EPSILON) {
     return -1;
   }
   return 0;

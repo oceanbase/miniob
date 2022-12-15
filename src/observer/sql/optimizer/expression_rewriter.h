@@ -9,38 +9,26 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/7.
+// Created by Wangyunlai on 2022/12/13.
 //
 
 #pragma once
 
-#include <vector>
 #include <memory>
 
 #include "rc.h"
-#include "sql/expr/tuple.h"
+#include "sql/operator/logical_operator.h"
+#include "sql/expr/expression.h"
+#include "sql/optimizer/rewrite_rule.h"
 
-class Record;
-class TupleCellSpec;
-
-class Operator
+class ExpressionRewriter
 {
-public:
-  Operator()
-  {}
+public: 
+  ExpressionRewriter();
+  virtual ~ExpressionRewriter() = default;
 
-  virtual ~Operator();
+  RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made);
 
-  virtual RC open() = 0;
-  virtual RC next() = 0;
-  virtual RC close() = 0;
-
-  virtual Tuple * current_tuple() = 0;
-
-  void add_child(std::unique_ptr<Operator> oper) {
-    children_.emplace_back(std::move(oper));
-  }
-
-protected:
-  std::vector<std::unique_ptr<Operator>> children_;
+private:
+  std::vector<std::unique_ptr<ExpressionRewriteRule>> expr_rewrite_rules_;
 };

@@ -12,10 +12,18 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/13.
 //
 
-#ifndef __OBSERVER_SQL_OPTIMIZE_STAGE_H__
-#define __OBSERVER_SQL_OPTIMIZE_STAGE_H__
+#pragma once
 
+#include <memory>
+
+#include "rc.h"
 #include "common/seda/stage.h"
+#include "sql/operator/logical_operator.h"
+#include "sql/operator/operator.h"
+#include "sql/optimizer/physical_plan_generator.h"
+
+class SQLStageEvent;
+class LogicalOperator;
 
 class OptimizeStage : public common::Stage {
 public:
@@ -32,9 +40,15 @@ protected:
   void handle_event(common::StageEvent *event);
   void callback_event(common::StageEvent *event, common::CallbackContext *context);
 
-protected:
+private:
+  RC handle_request(SQLStageEvent *event);
+  
+  RC create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> & logical_operator);
+  RC rewrite(std::unique_ptr<LogicalOperator> &logical_operator);
+  RC optimize(std::unique_ptr<LogicalOperator> &logical_operator);
+  RC generate_physical_plan(std::unique_ptr<LogicalOperator> &logical_operator, std::unique_ptr<Operator> &physical_operator);
+  
 private:
   Stage *execute_stage_ = nullptr;
+  PhysicalPlanGenerator physical_plan_generator_;
 };
-
-#endif  //__OBSERVER_SQL_OPTIMIZE_STAGE_H__

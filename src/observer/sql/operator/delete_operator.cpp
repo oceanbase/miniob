@@ -26,7 +26,7 @@ RC DeleteOperator::open()
     return RC::INTERNAL;
   }
 
-  Operator *child = children_[0];
+  std::unique_ptr<Operator> &child = children_[0];
   RC rc = child->open();
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open child operator: %s", strrc(rc));

@@ -9,34 +9,37 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/27.
+// Created by Wangyunlai on 2022/12/07.
 //
 
 #pragma once
 
 #include <memory>
-#include "sql/operator/operator.h"
+#include <vector>
+
 #include "sql/expr/expression.h"
 
-class FilterStmt;
+enum class LogicalOperatorType
+{
+  TABLE_GET,
+  PREDICATE,
+  PROJECTION,
+  JOIN,
+};
 
-/**
- * PredicateOperator 用于单个表中的记录过滤
- * 如果是多个表数据过滤，比如join条件的过滤，需要设计新的predicate或者扩展
- */
-class PredicateOperator : public Operator
+class LogicalOperator
 {
 public:
-  PredicateOperator(std::unique_ptr<Expression> expr);
+  LogicalOperator() = default;
+  virtual ~LogicalOperator();
 
-  virtual ~PredicateOperator() = default;
-
-  RC open() override;
-  RC next() override;
-  RC close() override;
-
-  Tuple * current_tuple() override;
+  virtual LogicalOperatorType type() const = 0;
   
-private:
-  std::unique_ptr<Expression> expression_;
+  void add_child(std::unique_ptr<LogicalOperator> oper);
+  std::vector<std::unique_ptr<LogicalOperator>> & children() { return children_; }
+  std::vector<std::unique_ptr<Expression>> &expressions() { return expressions_; }
+  
+protected:
+  std::vector<std::unique_ptr<LogicalOperator>> children_;
+  std::vector<std::unique_ptr<Expression>> expressions_;
 };

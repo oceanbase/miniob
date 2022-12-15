@@ -23,12 +23,12 @@ See the Mulan PSL v2 for more details. */
 #define MAX_DATA 50
 
 //属性结构体
-typedef struct {
+struct RelAttr {
   char *relation_name;   // relation name (may be NULL) 表名
   char *attribute_name;  // attribute name              属性名
-} RelAttr;
+};
 
-typedef enum {
+enum CompOp {
   EQUAL_TO,     //"="     0
   LESS_EQUAL,   //"<="    1
   NOT_EQUAL,    //"<>"    2
@@ -36,16 +36,17 @@ typedef enum {
   GREAT_EQUAL,  //">="    4
   GREAT_THAN,   //">"     5
   NO_OP
-} CompOp;
+};
 
 //属性值类型
-typedef enum
+enum AttrType
 {
   UNDEFINED,
   CHARS,
   INTS,
-  FLOATS
-} AttrType;
+  FLOATS,
+  BOOLEANS,
+};
 
 //属性值
 typedef struct _Value {

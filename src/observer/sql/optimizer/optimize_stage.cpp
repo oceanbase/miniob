@@ -22,7 +22,21 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/log/log.h"
 #include "common/seda/timer_stage.h"
+#include "sql/expr/expression.h"
+#include "sql/operator/logical_operator.h"
+#include "sql/operator/project_logical_operator.h"
+#include "sql/operator/predicate_logical_operator.h"
+#include "sql/operator/table_get_logical_operator.h"
+#include "sql/operator/join_logical_operator.h"
+#include "sql/operator/project_logical_operator.h"
+#include "sql/executor/sql_result.h"
+#include "sql/stmt/stmt.h"
+#include "sql/stmt/filter_stmt.h"
+#include "sql/stmt/select_stmt.h"
+#include "event/sql_event.h"
+#include "event/session_event.h"
 
+using namespace std;
 using namespace common;
 
 //! Constructor
@@ -81,13 +95,70 @@ void OptimizeStage::cleanup()
 
 void OptimizeStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
+  LOG_TRACE("Enter");
+  SQLStageEvent *sql_event = static_cast<SQLStageEvent*>(event);
 
-  // optimize sql plan, here just pass the event to the next stage
-  execute_stage_->handle_event(event);
+  RC rc = handle_request(sql_event);
+  if (rc != RC::UNIMPLENMENT && rc != RC::SUCCESS) {
+    SqlResult *sql_result = new SqlResult;
+    sql_result->set_return_code(rc);
+    sql_event->session_event()->set_sql_result(sql_result);    
+  } else {
+      execute_stage_->handle_event(event);
+  }
+  LOG_TRACE("Exit");
 
-  LOG_TRACE("Exit\n");
-  return;
+}
+RC OptimizeStage::handle_request(SQLStageEvent *sql_event)
+{
+  std::unique_ptr<LogicalOperator> logical_operator;
+  RC rc = create_logical_plan(sql_event, logical_operator);
+  if (rc != RC::SUCCESS) {
+    if (rc != RC::UNIMPLENMENT) {
+      LOG_WARN("failed to create logical plan. rc=%s", strrc(rc));
+    }
+    return rc;
+  }
+    
+  rc = rewrite(logical_operator);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to rewrite plan. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  rc = optimize(logical_operator);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to optimize plan. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  std::unique_ptr<Operator> physical_operator;
+  rc = generate_physical_plan(logical_operator, physical_operator);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to generate physical plan. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  sql_event->set_operator(std::move(physical_operator));
+
+  return rc;
+}
+
+RC OptimizeStage::optimize(std::unique_ptr<LogicalOperator> &oper)
+{
+  // do nothing
+  return RC::SUCCESS;
+}
+
+RC OptimizeStage::generate_physical_plan(std::unique_ptr<LogicalOperator> &logical_operator,
+                                         std::unique_ptr<Operator> &physical_operator)
+{
+  RC rc = RC::SUCCESS;
+  rc = physical_plan_generator_.create(*logical_operator, physical_operator);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to create physical operator. rc=%s", strrc(rc));
+  }
+  return rc;
 }
 
 void OptimizeStage::callback_event(StageEvent *event, CallbackContext *context)
@@ -95,4 +166,81 @@ void OptimizeStage::callback_event(StageEvent *event, CallbackContext *context)
   LOG_TRACE("Enter\n");
   LOG_TRACE("Exit\n");
   return;
+}
+
+RC OptimizeStage::rewrite(std::unique_ptr<LogicalOperator> &logical_operator)
+{
+  RC rc = RC::SUCCESS;
+  return rc;
+}
+
+RC OptimizeStage::create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> & logical_operator)
+{
+  Stmt *stmt = sql_event->stmt();
+  if (nullptr == stmt || stmt->type() != StmtType::SELECT) {
+    return RC::UNIMPLENMENT;
+  }
+
+  SelectStmt *select_stmt = static_cast<SelectStmt *>(stmt);
+
+  std::unique_ptr<LogicalOperator> table_oper(nullptr);
+
+  const std::vector<Table *> &tables = select_stmt->tables();
+  const std::vector<Field> &all_fields = select_stmt->query_fields();
+  for (Table *table : tables) {
+    std::vector<Field> fields;
+    for (const Field &field : all_fields) {
+      if (0 == strcmp(field.table_name(), table->name())) {
+        fields.push_back(field);
+      }
+    }
+    
+    std::unique_ptr<LogicalOperator> table_get_oper(new TableGetLogicalOperator(table, fields));
+    if (table_oper == nullptr) {
+      table_oper = std::move(table_get_oper);
+    } else {
+      JoinLogicalOperator * join_oper = new JoinLogicalOperator;
+      join_oper->add_child(std::move(table_oper));
+      join_oper->add_child(std::move(table_get_oper));
+      table_oper = std::unique_ptr<LogicalOperator>(join_oper);
+    }
+  }
+
+  std::vector<std::unique_ptr<Expression>> cmp_exprs;
+  FilterStmt *filter_stmt = select_stmt->filter_stmt();
+  const std::vector<FilterUnit *> &filter_units = filter_stmt->filter_units();
+  for (const FilterUnit * filter_unit : filter_units) {
+    const FilterObj &filter_obj_left = filter_unit->left();
+    const FilterObj &filter_obj_right = filter_unit->right();
+
+    std::unique_ptr<Expression> left(
+        filter_obj_left.is_attr ?
+          static_cast<Expression *>(new FieldExpr(filter_obj_left.field)) :
+          static_cast<Expression *>(new ValueExpr(filter_obj_left.value)));
+
+    std::unique_ptr<Expression> right(
+        filter_obj_right.is_attr ?
+          static_cast<Expression *>(new FieldExpr(filter_obj_right.field)) :
+          static_cast<Expression *>(new ValueExpr(filter_obj_right.value)));
+    
+    ComparisonExpr *cmp_expr = new ComparisonExpr(filter_unit->comp(), std::move(left), std::move(right));
+    cmp_exprs.emplace_back(cmp_expr);
+  }
+
+  std::unique_ptr<PredicateLogicalOperator> predicate_oper;
+  if (!cmp_exprs.empty()) {
+    std::unique_ptr<ConjunctionExpr> conjunction_expr(new ConjunctionExpr(ConjunctionExpr::Type::AND, cmp_exprs));
+    predicate_oper = std::unique_ptr<PredicateLogicalOperator>(new PredicateLogicalOperator(move(conjunction_expr)));
+    predicate_oper->add_child(move(table_oper));
+  }
+  
+  std::unique_ptr<LogicalOperator> project_oper(new ProjectLogicalOperator(all_fields));
+  if (predicate_oper) {
+    project_oper->add_child(move(predicate_oper));
+  } else {
+    project_oper->add_child(move(table_oper));
+  }
+
+  logical_operator.swap(project_oper);
+  return RC::SUCCESS;
 }

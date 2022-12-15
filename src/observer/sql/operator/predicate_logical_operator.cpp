@@ -9,38 +9,12 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/7.
+// Created by Wangyunlai on 2022/12/13.
 //
 
-#pragma once
+#include "sql/operator/predicate_logical_operator.h"
 
-#include <vector>
-#include <memory>
-
-#include "rc.h"
-#include "sql/expr/tuple.h"
-
-class Record;
-class TupleCellSpec;
-
-class Operator
+PredicateLogicalOperator::PredicateLogicalOperator(std::unique_ptr<Expression> expression)
 {
-public:
-  Operator()
-  {}
-
-  virtual ~Operator();
-
-  virtual RC open() = 0;
-  virtual RC next() = 0;
-  virtual RC close() = 0;
-
-  virtual Tuple * current_tuple() = 0;
-
-  void add_child(std::unique_ptr<Operator> oper) {
-    children_.emplace_back(std::move(oper));
-  }
-
-protected:
-  std::vector<std::unique_ptr<Operator>> children_;
-};
+  expressions_.emplace_back(std::move(expression));
+}
