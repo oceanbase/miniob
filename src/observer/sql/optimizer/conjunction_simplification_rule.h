@@ -9,30 +9,22 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2022/12/13.
+// Created by Wangyunlai on 2022/12/26.
 //
 
 #pragma once
 
-#include <memory>
-
 #include "rc.h"
-#include "sql/operator/logical_operator.h"
-#include "sql/expr/expression.h"
 #include "sql/optimizer/rewrite_rule.h"
 
-class ExpressionRewriter
+class LogicalOperator;
+
+class ConjunctionSimplificationRule : public ExpressionRewriteRule
 {
-public: 
-  ExpressionRewriter();
-  virtual ~ExpressionRewriter() = default;
+public:
+  ConjunctionSimplificationRule() = default;
+  virtual ~ConjunctionSimplificationRule() = default;
 
-  RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made);
-
+  RC rewrite(std::unique_ptr<Expression> &expr, bool &change_made) override;
 private:
-  RC rewrite_expression(std::unique_ptr<Expression> &expr, bool &change_made);
-  
-
-private:
-  std::vector<std::unique_ptr<ExpressionRewriteRule>> expr_rewrite_rules_;
 };

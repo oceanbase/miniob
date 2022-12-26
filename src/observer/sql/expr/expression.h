@@ -128,7 +128,7 @@ private:
 class CastExpr : public Expression
 {
 public: 
-  CastExpr(Expression *child, AttrType cast_type);
+  CastExpr(std::unique_ptr<Expression> child, AttrType cast_type);
   virtual ~CastExpr();
 
   ExprType type() const override { return ExprType::CAST; }
@@ -138,8 +138,9 @@ public:
     return cast_type_;
   }
 
+  std::unique_ptr<Expression> &child()  { return child_; }
 private:
-  Expression *child_ = nullptr;
+  std::unique_ptr<Expression> child_;
   AttrType cast_type_;
 };
 
@@ -153,8 +154,8 @@ public:
   RC get_value(const Tuple &tuple, TupleCell &cell) const override;
   AttrType value_type() const override { return BOOLEANS; }
 
-  Expression *left() { return left_.get(); }
-  Expression *right() { return right_.get(); }
+  std::unique_ptr<Expression> &left() { return left_; }
+  std::unique_ptr<Expression> &right() { return right_; }
 
   RC try_get_value(TupleCell &cell) const;
 
@@ -186,7 +187,8 @@ public:
   ExprType type() const override { return ExprType::CONJUNCTION; }
   AttrType value_type() const override { return BOOLEANS; }
   RC get_value(const Tuple &tuple, TupleCell &cell) const override;
-  
+
+  std::vector<std::unique_ptr<Expression>> &children() { return children_; }
 private:
   Type  conjunction_type_;
   std::vector<std::unique_ptr<Expression>> children_;

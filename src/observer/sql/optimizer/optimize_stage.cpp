@@ -171,6 +171,16 @@ void OptimizeStage::callback_event(StageEvent *event, CallbackContext *context)
 RC OptimizeStage::rewrite(std::unique_ptr<LogicalOperator> &logical_operator)
 {
   RC rc = RC::SUCCESS;
+  bool change_made = false;
+  do {
+    change_made = false;
+    rc = expression_rewriter_.rewrite(logical_operator, change_made);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to do expression rewrite on logical plan. rc=%s", strrc(rc));
+      return rc;
+    }
+  } while (change_made);
+
   return rc;
 }
 

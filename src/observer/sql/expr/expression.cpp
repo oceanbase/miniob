@@ -28,16 +28,12 @@ RC ValueExpr::get_value(const Tuple &tuple, TupleCell & cell) const
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-CastExpr::CastExpr(Expression *child, AttrType cast_type)
-    : child_(child), cast_type_(cast_type)
+CastExpr::CastExpr(std::unique_ptr<Expression> child, AttrType cast_type)
+    : child_(std::move(child)), cast_type_(cast_type)
 {}
 
 CastExpr::~CastExpr()
 {
-  if (child_ != nullptr) {
-    delete child_;
-    child_ = nullptr;
-  }
 }
 
 RC CastExpr::get_value(const Tuple &tuple, TupleCell &cell) const
@@ -181,7 +177,7 @@ RC ConjunctionExpr::get_value(const Tuple &tuple, TupleCell &cell) const
     }
   }
 
-  bool default_value = conjunction_type_ != Type::AND;
+  bool default_value = (conjunction_type_ == Type::AND);
   cell.set_boolean(default_value);
   return rc;
 }
