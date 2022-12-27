@@ -9,34 +9,30 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/07/01.
+// Created by WangYunlai on 2021/6/7.
 //
 
 #pragma once
 
-#include "sql/operator/operator.h"
+#include "sql/operator/physical_operator.h"
+#include "sql/parser/parse.h"
 #include "rc.h"
 
-class ProjectOperator : public Operator
+class InsertStmt;
+
+class InsertPhysicalOperator : public PhysicalOperator
 {
 public:
-  ProjectOperator()
+  InsertPhysicalOperator(InsertStmt *insert_stmt)
+    : insert_stmt_(insert_stmt)
   {}
 
-  virtual ~ProjectOperator() = default;
-
-  void add_projection(const Table *table, const FieldMeta *field);
+  virtual ~InsertPhysicalOperator() = default;
 
   RC open() override;
   RC next() override;
   RC close() override;
 
-  int tuple_cell_num() const
-  {
-    return tuple_.cell_num();
-  }
-
-  Tuple * current_tuple() override;
 private:
-  ProjectTuple tuple_;
+  InsertStmt *insert_stmt_ = nullptr;
 };

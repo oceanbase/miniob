@@ -15,14 +15,15 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <vector>
+#include "sql/operator/physical_operator.h"
 
-class StringListOperator : public Operator
+class StringListPhysicalOperator : public PhysicalOperator
 {
 public: 
-  StringListOperator()
+  StringListPhysicalOperator()
   {}
 
-  virtual ~StringListOperator() = default;
+  virtual ~StringListPhysicalOperator() = default;
 
   template <typename InputIt>
   void append(InputIt begin, InputIt end)

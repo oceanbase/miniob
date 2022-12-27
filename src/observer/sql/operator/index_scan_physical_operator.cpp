@@ -12,10 +12,10 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2022/07/08.
 //
 
-#include "sql/operator/index_scan_operator.h"
+#include "sql/operator/index_scan_physical_operator.h"
 #include "storage/index/index.h"
 
-IndexScanOperator::IndexScanOperator(const Table *table, Index *index,
+IndexScanPhysicalOperator::IndexScanPhysicalOperator(const Table *table, Index *index,
 		const TupleCell *left_cell, bool left_inclusive,
 		const TupleCell *right_cell, bool right_inclusive)
   : table_(table), index_(index),
@@ -29,7 +29,7 @@ IndexScanOperator::IndexScanOperator(const Table *table, Index *index,
   }
 }
 
-RC IndexScanOperator::open()
+RC IndexScanPhysicalOperator::open()
 {
   if (nullptr == table_ || nullptr == index_) {
     return RC::INTERNAL;
@@ -56,7 +56,7 @@ RC IndexScanOperator::open()
   return RC::SUCCESS;
 }
 
-RC IndexScanOperator::next()
+RC IndexScanPhysicalOperator::next()
 {
   RID rid;
   RC rc = index_scanner_->next_entry(&rid);
@@ -67,14 +67,14 @@ RC IndexScanOperator::next()
   return record_handler_->get_record(&rid, &current_record_);
 }
 
-RC IndexScanOperator::close()
+RC IndexScanPhysicalOperator::close()
 {
   index_scanner_->destroy();
   index_scanner_ = nullptr;
   return RC::SUCCESS;
 }
 
-Tuple * IndexScanOperator::current_tuple()
+Tuple * IndexScanPhysicalOperator::current_tuple()
 {
   tuple_.set_record(&current_record_);
   return &tuple_;

@@ -25,6 +25,7 @@ enum class LogicalOperatorType
   PREDICATE,
   PROJECTION,
   JOIN,
+  DELETE,
 };
 
 class LogicalOperator

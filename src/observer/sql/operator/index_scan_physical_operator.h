@@ -9,35 +9,39 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/7.
+// Created by Wangyunlai on 2022/07/08.
 //
 
 #pragma once
 
-#include "sql/operator/operator.h"
-#include "storage/record/record_manager.h"
-#include "rc.h"
+#include "sql/operator/physical_operator.h"
+#include "sql/expr/tuple.h"
 
-class Table;
-
-class TableScanOperator : public Operator
+class IndexScanPhysicalOperator : public PhysicalOperator
 {
-public:
-  TableScanOperator(Table *table)
-    : table_(table)
-  {}
+public: 
+  IndexScanPhysicalOperator(const Table *table, Index *index,
+		    const TupleCell *left_cell, bool left_inclusive,
+		    const TupleCell *right_cell, bool right_inclusive);
 
-  virtual ~TableScanOperator() = default;
-
+  virtual ~IndexScanPhysicalOperator() = default;
+  
   RC open() override;
   RC next() override;
   RC close() override;
 
   Tuple * current_tuple() override;
-
 private:
-  Table *table_ = nullptr;
-  RecordFileScanner record_scanner_;
+  const Table *table_ = nullptr;
+  Index *index_ = nullptr;
+  IndexScanner *index_scanner_ = nullptr;
+  RecordFileHandler *record_handler_ = nullptr;
+
   Record current_record_;
   RowTuple tuple_;
+
+  TupleCell left_cell_;
+  TupleCell right_cell_;
+  bool left_inclusive_;
+  bool right_inclusive_;
 };

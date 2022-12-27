@@ -9,34 +9,34 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/27.
+// Created by WangYunlai on 2022/6/9.
 //
 
 #pragma once
 
-#include <memory>
-#include "sql/operator/operator.h"
-#include "sql/expr/expression.h"
+#include "sql/operator/physical_operator.h"
+#include "rc.h"
 
-class FilterStmt;
+class Trx;
+class DeleteStmt;
 
-/**
- * PredicateOperator 用于单个表中的记录过滤
- * 如果是多个表数据过滤，比如join条件的过滤，需要设计新的predicate或者扩展
- */
-class PredicateOperator : public Operator
+class DeletePhysicalOperator : public PhysicalOperator
 {
 public:
-  PredicateOperator(std::unique_ptr<Expression> expr);
+  DeletePhysicalOperator(Table *table, Trx *trx)
+    : table_(table), trx_(trx)
+  {}
 
-  virtual ~PredicateOperator() = default;
+  virtual ~DeletePhysicalOperator() = default;
 
   RC open() override;
   RC next() override;
   RC close() override;
 
-  Tuple * current_tuple() override;
-  
+  Tuple * current_tuple() override {
+    return nullptr;
+  }
 private:
-  std::unique_ptr<Expression> expression_;
+  Table *table_ = nullptr;
+  Trx *trx_ = nullptr;
 };

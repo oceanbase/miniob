@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 
 #include "sql/expr/tuple.h"
-#include "sql/operator/operator.h"
+#include "sql/operator/physical_operator.h"
 
 class SqlResult {
 public:
@@ -31,7 +31,7 @@ public:
   void set_return_code(RC rc) { return_code_ = rc; }
   void set_state_string(const std::string &state_string) { state_string_ = state_string; }
 
-  void set_operator(std::unique_ptr<Operator> oper) { operator_ = std::move(oper); }
+  void set_operator(std::unique_ptr<PhysicalOperator> oper) { operator_ = std::move(oper); }
   bool has_operator() const { return operator_ != nullptr; }
   const TupleSchema &tuple_schema() const { return tuple_schema_; }
   RC return_code() const { return return_code_; }
@@ -42,7 +42,7 @@ public:
   RC next_tuple(Tuple *&tuple);
 
 private:
-  std::unique_ptr<Operator> operator_;
+  std::unique_ptr<PhysicalOperator> operator_;
   TupleSchema tuple_schema_;
   RC return_code_ = RC::SUCCESS;
   std::string state_string_;

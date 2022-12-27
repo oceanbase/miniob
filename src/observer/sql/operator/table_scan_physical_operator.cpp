@@ -12,11 +12,11 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2021/6/9.
 //
 
-#include "sql/operator/table_scan_operator.h"
+#include "sql/operator/table_scan_physical_operator.h"
 #include "storage/common/table.h"
 #include "rc.h"
 
-RC TableScanOperator::open()
+RC TableScanPhysicalOperator::open()
 {
   RC rc = table_->get_record_scanner(record_scanner_);
   if (rc == RC::SUCCESS) {
@@ -25,7 +25,7 @@ RC TableScanOperator::open()
   return rc;
 }
 
-RC TableScanOperator::next()
+RC TableScanPhysicalOperator::next()
 {
   if (!record_scanner_.has_next()) {
     return RC::RECORD_EOF;
@@ -35,17 +35,17 @@ RC TableScanOperator::next()
   return rc;
 }
 
-RC TableScanOperator::close()
+RC TableScanPhysicalOperator::close()
 {
   return record_scanner_.close_scan();
 }
 
-Tuple * TableScanOperator::current_tuple()
+Tuple * TableScanPhysicalOperator::current_tuple()
 {
   tuple_.set_record(&current_record_);
   return &tuple_;
 }
-// RC TableScanOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
+// RC TableScanPhysicalOperator::tuple_cell_spec_at(int index, TupleCellSpec &spec) const
 // {
 //   return tuple_.cell_spec_at(index, spec);
 // }

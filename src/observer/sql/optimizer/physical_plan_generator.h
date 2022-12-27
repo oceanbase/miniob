@@ -17,12 +17,13 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 
 #include "rc.h"
-#include "sql/operator/operator.h"
+#include "sql/operator/physical_operator.h"
 #include "sql/operator/logical_operator.h"
 
 class TableGetLogicalOperator;
 class PredicateLogicalOperator;
 class ProjectLogicalOperator;
+class DeleteLogicalOperator;
 
 class PhysicalPlanGenerator
 {
@@ -30,11 +31,12 @@ public:
   PhysicalPlanGenerator() = default;
   virtual ~PhysicalPlanGenerator() = default;
 
-  RC create(LogicalOperator &logical_operator, std::unique_ptr<Operator> &oper);
+  RC create(LogicalOperator &logical_operator, std::unique_ptr<PhysicalOperator> &oper);
   
 private:
 
-  RC create_plan(TableGetLogicalOperator &table_get_oper, std::unique_ptr<Operator> &oper);
-  RC create_plan(PredicateLogicalOperator &pred_oper, std::unique_ptr<Operator> &oper);
-  RC create_plan(ProjectLogicalOperator &project_oper, std::unique_ptr<Operator> &oper);
+  RC create_plan(TableGetLogicalOperator &table_get_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(PredicateLogicalOperator &pred_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(ProjectLogicalOperator &project_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(DeleteLogicalOperator &delete_oper, std::unique_ptr<PhysicalOperator> &oper);
 };

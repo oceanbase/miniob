@@ -19,12 +19,15 @@ See the Mulan PSL v2 for more details. */
 #include "rc.h"
 #include "common/seda/stage.h"
 #include "sql/operator/logical_operator.h"
-#include "sql/operator/operator.h"
+#include "sql/operator/physical_operator.h"
 #include "sql/optimizer/physical_plan_generator.h"
 #include "sql/optimizer/expression_rewriter.h"
 
 class SQLStageEvent;
 class LogicalOperator;
+class SelectStmt;
+class DeleteStmt;
+class FilterStmt;
 
 class OptimizeStage : public common::Stage {
 public:
@@ -45,9 +48,13 @@ private:
   RC handle_request(SQLStageEvent *event);
   
   RC create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> & logical_operator);
+  RC create_select_logical_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> & logical_operator);
+  RC create_predicate_logical_plan(FilterStmt *filter_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_delete_logical_plan(DeleteStmt *delete_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  
   RC rewrite(std::unique_ptr<LogicalOperator> &logical_operator);
   RC optimize(std::unique_ptr<LogicalOperator> &logical_operator);
-  RC generate_physical_plan(std::unique_ptr<LogicalOperator> &logical_operator, std::unique_ptr<Operator> &physical_operator);
+  RC generate_physical_plan(std::unique_ptr<LogicalOperator> &logical_operator, std::unique_ptr<PhysicalOperator> &physical_operator);
   
 private:
   Stage *execute_stage_ = nullptr;

@@ -13,18 +13,18 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "common/log/log.h"
-#include "sql/operator/predicate_operator.h"
+#include "sql/operator/predicate_physical_operator.h"
 #include "storage/record/record.h"
 #include "sql/stmt/filter_stmt.h"
 #include "storage/common/field.h"
 
-PredicateOperator::PredicateOperator(std::unique_ptr<Expression> expr)
+PredicatePhysicalOperator::PredicatePhysicalOperator(std::unique_ptr<Expression> expr)
     : expression_(std::move(expr))
 {
   ASSERT(expression_->value_type() == BOOLEANS, "predicate's expression should be BOOLEAN type");
 }
 
-RC PredicateOperator::open()
+RC PredicatePhysicalOperator::open()
 {
   if (children_.size() != 1) {
     LOG_WARN("predicate operator must has one child");
@@ -34,10 +34,10 @@ RC PredicateOperator::open()
   return children_[0]->open();
 }
 
-RC PredicateOperator::next()
+RC PredicatePhysicalOperator::next()
 {
   RC rc = RC::SUCCESS;
-  Operator *oper = children_.front().get();
+  PhysicalOperator *oper = children_.front().get();
   
   while (RC::SUCCESS == (rc = oper->next())) {
     Tuple *tuple = oper->current_tuple();
@@ -60,13 +60,13 @@ RC PredicateOperator::next()
   return rc;
 }
 
-RC PredicateOperator::close()
+RC PredicatePhysicalOperator::close()
 {
   children_[0]->close();
   return RC::SUCCESS;
 }
 
-Tuple * PredicateOperator::current_tuple()
+Tuple * PredicatePhysicalOperator::current_tuple()
 {
   return children_[0]->current_tuple();
 }

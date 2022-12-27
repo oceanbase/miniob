@@ -9,34 +9,22 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/9.
+// Created by WangYunlai on 2022/12/26.
 //
 
 #pragma once
 
-#include "sql/operator/operator.h"
-#include "rc.h"
+#include "sql/operator/logical_operator.h"
 
-class Trx;
-class DeleteStmt;
-
-class DeleteOperator : public Operator
+class DeleteLogicalOperator : public LogicalOperator
 {
 public:
-  DeleteOperator(DeleteStmt *delete_stmt, Trx *trx)
-    : delete_stmt_(delete_stmt), trx_(trx)
-  {}
+  DeleteLogicalOperator(Table *table);
+  virtual ~DeleteLogicalOperator() = default;
 
-  virtual ~DeleteOperator() = default;
-
-  RC open() override;
-  RC next() override;
-  RC close() override;
-
-  Tuple * current_tuple() override {
-    return nullptr;
-  }
+  LogicalOperatorType type() const override { return LogicalOperatorType::DELETE; }
+  Table *table() const { return table_; }
+  
 private:
-  DeleteStmt *delete_stmt_ = nullptr;
-  Trx *trx_ = nullptr;
+  Table *table_ = nullptr;
 };

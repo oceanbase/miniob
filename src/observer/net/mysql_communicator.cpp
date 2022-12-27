@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "net/mysql_communicator.h"
 #include "event/session_event.h"
-#include "sql/operator/string_list_operator.h"
+#include "sql/operator/string_list_physical_operator.h"
 
 // https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__capabilities__flags.html
 // the flags below are negotiate by handshake packet
@@ -427,9 +427,9 @@ RC create_version_comment_sql_result(SqlResult *&sql_result)
 
   const char *version_comments = "MiniOB";
 
-  StringListOperator *oper = new StringListOperator();
+  StringListPhysicalOperator *oper = new StringListPhysicalOperator();
   oper->append(version_comments);
-  sql_result->set_operator(std::unique_ptr<Operator>(oper));
+  sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
   return RC::SUCCESS;
 }
 

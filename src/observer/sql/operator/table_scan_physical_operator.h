@@ -14,33 +14,30 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <vector>
-#include <memory>
-
+#include "sql/operator/physical_operator.h"
+#include "storage/record/record_manager.h"
 #include "rc.h"
-#include "sql/expr/tuple.h"
 
-class Record;
-class TupleCellSpec;
+class Table;
 
-class Operator
+class TableScanPhysicalOperator : public PhysicalOperator
 {
 public:
-  Operator()
+  TableScanPhysicalOperator(Table *table)
+    : table_(table)
   {}
 
-  virtual ~Operator();
+  virtual ~TableScanPhysicalOperator() = default;
 
-  virtual RC open() = 0;
-  virtual RC next() = 0;
-  virtual RC close() = 0;
+  RC open() override;
+  RC next() override;
+  RC close() override;
 
-  virtual Tuple * current_tuple() = 0;
+  Tuple * current_tuple() override;
 
-  void add_child(std::unique_ptr<Operator> oper) {
-    children_.emplace_back(std::move(oper));
-  }
-
-protected:
-  std::vector<std::unique_ptr<Operator>> children_;
+private:
+  Table *table_ = nullptr;
+  RecordFileScanner record_scanner_;
+  Record current_record_;
+  RowTuple tuple_;
 };

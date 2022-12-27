@@ -14,13 +14,15 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/physical_plan_generator.h"
 #include "sql/operator/table_get_logical_operator.h"
-#include "sql/operator/table_scan_operator.h"
+#include "sql/operator/table_scan_physical_operator.h"
 #include "sql/operator/predicate_logical_operator.h"
-#include "sql/operator/predicate_operator.h"
+#include "sql/operator/predicate_physical_operator.h"
 #include "sql/operator/project_logical_operator.h"
-#include "sql/operator/project_operator.h"
+#include "sql/operator/project_physical_operator.h"
+#include "sql/operator/delete_logical_operator.h"
+#include "sql/operator/delete_physical_operator.h"
 
-RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, std::unique_ptr<Operator> &oper)
+RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, std::unique_ptr<PhysicalOperator> &oper)
 {
   RC rc = RC::SUCCESS;
 
@@ -37,6 +39,10 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, std::unique_
       return create_plan(static_cast<ProjectLogicalOperator &>(logical_operator), oper);
     } break;
 
+    case LogicalOperatorType::DELETE: {
+      return create_plan(static_cast<DeleteLogicalOperator &>(logical_operator), oper);
+    } break;
+
     default: {
       return RC::INVALID_ARGUMENT;
     }
@@ -44,22 +50,22 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, std::unique_
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, std::unique_ptr<Operator> &oper)
+RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, std::unique_ptr<PhysicalOperator> &oper)
 {
   // TODO table scan or index scan
   Table *table = table_get_oper.table();
-  oper = std::unique_ptr<Operator>(new TableScanOperator(table));
+  oper = std::unique_ptr<PhysicalOperator>(new TableScanPhysicalOperator(table));
   return RC::SUCCESS;
 }
 
-RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, std::unique_ptr<Operator> &oper)
+RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, std::unique_ptr<PhysicalOperator> &oper)
 {
   std::vector<std::unique_ptr<LogicalOperator>> &children_opers = pred_oper.children();
   ASSERT(children_opers.size() == 1, "predicate logical operator's sub oper number should be 1");
 
   LogicalOperator &child_oper = *children_opers.front();
 
-  std::unique_ptr<Operator> child_phy_oper;
+  std::unique_ptr<PhysicalOperator> child_phy_oper;
   RC rc = create(child_oper, child_phy_oper);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to create child operator of predicate operator. rc=%s", strrc(rc));
@@ -70,33 +76,50 @@ RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, std::
   ASSERT(expressions.size() == 1, "predicate logical operator's children should be 1");
 
   std::unique_ptr<Expression> expression = std::move(expressions.front());
-  oper = std::unique_ptr<Operator>(new PredicateOperator(std::move(expression)));
+  oper = std::unique_ptr<PhysicalOperator>(new PredicatePhysicalOperator(std::move(expression)));
   oper->add_child(std::move(child_phy_oper));
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, std::unique_ptr<Operator> &oper)
+RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, std::unique_ptr<PhysicalOperator> &oper)
 {
   std::vector<std::unique_ptr<LogicalOperator>> &child_opers = project_oper.children();
   ASSERT(child_opers.size() == 1, "project logical operator's child number should be 1");
 
   LogicalOperator *child_oper = child_opers.front().get();
-  std::unique_ptr<Operator> child_phy_oper;
+  std::unique_ptr<PhysicalOperator> child_phy_oper;
   RC rc = create(*child_oper, child_phy_oper);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to create project logical operator's child physical operator. rc=%s", strrc(rc));
     return rc;
   }
 
-  ProjectOperator *project_operator = new ProjectOperator;
+  ProjectPhysicalOperator *project_operator = new ProjectPhysicalOperator;
   const std::vector<Field> &project_fields = project_oper.fields();
   for (const Field & field : project_fields) {
     project_operator->add_projection(field.table(), field.meta());
   }
   project_operator->add_child(std::move(child_phy_oper));
 
-  oper = std::unique_ptr<Operator>(project_operator);
+  oper = std::unique_ptr<PhysicalOperator>(project_operator);
 
   LOG_TRACE("create a project physical operator");
+  return rc;
+}
+
+RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, std::unique_ptr<PhysicalOperator> &oper)
+{
+  std::vector<std::unique_ptr<LogicalOperator>> &child_opers = delete_oper.children();
+  ASSERT(child_opers.size() == 1, "delete logical operator's child number should be 1");
+
+  LogicalOperator *child_oper = child_opers.front().get();
+  std::unique_ptr<PhysicalOperator> child_physical_oper;
+  RC rc = create(*child_oper, child_physical_oper);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to create physical operator. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  oper = std::unique_ptr<PhysicalOperator>(new DeletePhysicalOperator(delete_oper.table(), nullptr));
   return rc;
 }

@@ -9,30 +9,34 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/10.
+// Created by WangYunlai on 2022/6/27.
 //
 
 #pragma once
 
-#include "sql/parser/parse.h"
-#include "sql/operator/operator.h"
-#include "rc.h"
+#include <memory>
+#include "sql/operator/physical_operator.h"
+#include "sql/expr/expression.h"
 
-// TODO fixme
-class JoinOperator : public Operator
+class FilterStmt;
+
+/**
+ * PredicateOperator 用于单个表中的记录过滤
+ * 如果是多个表数据过滤，比如join条件的过滤，需要设计新的predicate或者扩展
+ */
+class PredicatePhysicalOperator : public PhysicalOperator
 {
 public:
-  JoinOperator(Operator *left, Operator *right)
-  {}
+  PredicatePhysicalOperator(std::unique_ptr<Expression> expr);
 
-  virtual ~JoinOperator() = default;
+  virtual ~PredicatePhysicalOperator() = default;
 
   RC open() override;
   RC next() override;
   RC close() override;
 
+  Tuple * current_tuple() override;
+  
 private:
-  Operator *left_ = nullptr;
-  Operator *right_ = nullptr;
-  bool round_done_ = true;
+  std::unique_ptr<Expression> expression_;
 };

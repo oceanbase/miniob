@@ -9,11 +9,30 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/11/18.
+// Created by WangYunlai on 2021/6/10.
 //
 
-#include "sql/operator/operator.h"
+#pragma once
 
-Operator::~Operator()
+#include "sql/parser/parse.h"
+#include "sql/operator/physical_operator.h"
+#include "rc.h"
+
+// TODO fixme
+class JoinPhysicalOperator : public PhysicalOperator
 {
-}
+public:
+  JoinPhysicalOperator(PhysicalOperator *left, PhysicalOperator *right)
+  {}
+
+  virtual ~JoinPhysicalOperator() = default;
+
+  RC open() override;
+  RC next() override;
+  RC close() override;
+
+private:
+  Operator *left_ = nullptr;
+  Operator *right_ = nullptr;
+  bool round_done_ = true;
+};

@@ -27,12 +27,12 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_event.h"
 #include "event/session_event.h"
 #include "sql/expr/tuple.h"
-#include "sql/operator/table_scan_operator.h"
-#include "sql/operator/index_scan_operator.h"
-#include "sql/operator/predicate_operator.h"
-#include "sql/operator/delete_operator.h"
-#include "sql/operator/project_operator.h"
-#include "sql/operator/string_list_operator.h"
+#include "sql/operator/table_scan_physical_operator.h"
+#include "sql/operator/index_scan_physical_operator.h"
+#include "sql/operator/predicate_physical_operator.h"
+#include "sql/operator/delete_physical_operator.h"
+#include "sql/operator/project_physical_operator.h"
+#include "sql/operator/string_list_physical_operator.h"
 #include "sql/stmt/stmt.h"
 #include "sql/stmt/select_stmt.h"
 #include "sql/stmt/update_stmt.h"
@@ -106,21 +106,21 @@ void ExecuteStage::cleanup()
 
 void ExecuteStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
+  LOG_TRACE("Enter");
 
   handle_request(event);
 
-  LOG_TRACE("Exit\n");
+  LOG_TRACE("Exit");
   return;
 }
 
 void ExecuteStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
+  LOG_TRACE("Enter");
 
   // here finish read all data from disk or network, but do nothing here.
 
-  LOG_TRACE("Exit\n");
+  LOG_TRACE("Exit");
   return;
 }
 
@@ -128,7 +128,7 @@ RC ExecuteStage::handle_request(common::StageEvent *event)
 {
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   SessionEvent *session_event = sql_event->session_event();
-  const std::unique_ptr<Operator> &physical_operator = sql_event->physical_operator();
+  const std::unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
   Stmt *stmt = sql_event->stmt();
   Session *session = session_event->session();
   Query *sql = sql_event->query();
@@ -231,7 +231,7 @@ RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
   
   Stmt *stmt = sql_event->stmt();
   SelectStmt *select_stmt = static_cast<SelectStmt *>(stmt);
-  std::unique_ptr<Operator> &physical_operator = sql_event->physical_operator();
+  std::unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
   ASSERT(physical_operator != nullptr, "physical operator should not be null");
   
   TupleSchema schema;
@@ -489,12 +489,12 @@ RC ExecuteStage::do_help(SQLStageEvent *sql_event)
       "delete from `table` [where `column`=`value`];",
       "select [ * | `columns` ] from `table`;"
   };
-  StringListOperator *oper = new StringListOperator();
+  auto oper = new StringListPhysicalOperator();
   for (size_t i = 0; i < sizeof(strings)/sizeof(strings[0]); i++) {
     oper->append(strings[i]);
   }
   SqlResult *sql_result = new SqlResult;
-  sql_result->set_operator(std::unique_ptr<Operator>(oper));
+  sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
   session_event->set_sql_result(sql_result);
   return RC::SUCCESS;
 }
@@ -540,11 +540,11 @@ RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
   TupleSchema tuple_schema;
   tuple_schema.append_cell(TupleCellSpec("", "Tables_in_SYS", "Tables_in_SYS"));
   sql_result->set_tuple_schema(tuple_schema);
-  StringListOperator *oper = new StringListOperator;
+  auto oper = new StringListPhysicalOperator;
   for (const std::string &s : all_tables) {
     oper->append(s);
   }
-  sql_result->set_operator(std::unique_ptr<Operator>(oper));
+  sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
   return RC::SUCCESS;
 }
 
@@ -563,14 +563,14 @@ RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
     tuple_schema.append_cell(TupleCellSpec("", "Length", "Length"));
     // TODO add Key
     sql_result->set_tuple_schema(tuple_schema);
-    StringListOperator *oper = new StringListOperator;
+    auto oper = new StringListPhysicalOperator;
     const TableMeta &table_meta = table->table_meta();
     for (int i = table_meta.sys_field_num(); i < table_meta.field_num(); i++) {
       const FieldMeta *field_meta = table_meta.field(i);
       oper->append({field_meta->name(), attr_type_to_string(field_meta->type()),
           std::to_string(field_meta->len())});
     }
-    sql_result->set_operator(std::unique_ptr<Operator>(oper));
+    sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
   } else {
     sql_result->set_return_code(RC::SCHEMA_TABLE_NOT_EXIST);
     sql_result->set_state_string("Table not exists");
