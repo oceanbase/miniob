@@ -230,18 +230,26 @@ RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
   RC rc = RC::SUCCESS;
   
   Stmt *stmt = sql_event->stmt();
-  SelectStmt *select_stmt = static_cast<SelectStmt *>(stmt);
+  
   std::unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
   ASSERT(physical_operator != nullptr, "physical operator should not be null");
   
   TupleSchema schema;
-  bool with_table_name = select_stmt->tables().size() > 1;
-  for (const Field &field : select_stmt->query_fields()) {
-    if (with_table_name) {
-      schema.append_cell(field.table_name(), field.field_name());
-    } else {
-      schema.append_cell(field.field_name());
-    }
+  switch (stmt->type()) {
+    case StmtType::SELECT: {
+      SelectStmt *select_stmt = static_cast<SelectStmt *>(stmt);
+      bool with_table_name = select_stmt->tables().size() > 1;
+      for (const Field &field : select_stmt->query_fields()) {
+        if (with_table_name) {
+          schema.append_cell(field.table_name(), field.field_name());
+        } else {
+          schema.append_cell(field.field_name());
+        }
+      }
+    } break;
+    default: {
+      // 只有select返回结果
+    } break;
   }
   SqlResult *sql_result = new SqlResult;
   sql_result->set_tuple_schema(schema);

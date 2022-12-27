@@ -22,6 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/delete_logical_operator.h"
 #include "sql/operator/delete_physical_operator.h"
 
+using namespace std;
+
 RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, std::unique_ptr<PhysicalOperator> &oper)
 {
   RC rc = RC::SUCCESS;
@@ -121,5 +123,6 @@ RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, std::u
   }
 
   oper = std::unique_ptr<PhysicalOperator>(new DeletePhysicalOperator(delete_oper.table(), nullptr));
+  oper->add_child(move(child_physical_oper));
   return rc;
 }

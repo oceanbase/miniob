@@ -25,6 +25,7 @@ See the Mulan PSL v2 for more details. */
 #include <sys/un.h>
 #include <unistd.h>
 #include <termios.h>
+#include <time.h>
 
 #include "common/defs.h"
 #include "common/lang/string.h"
@@ -41,6 +42,7 @@ using namespace common;
 
 #ifdef USE_READLINE
 const std::string HISTORY_FILE = std::string(getenv("HOME")) + "/.miniob.history";
+time_t last_history_write_time = 0;
 
 char *my_readline(const char *prompt) 
 {
@@ -57,7 +59,11 @@ char *my_readline(const char *prompt)
   char *line = readline(prompt);
   if (line != nullptr && line[0] != 0) {
     add_history(line);
-    append_history(1, HISTORY_FILE.c_str());
+    if (time(NULL) - last_history_write_time > 5) {
+      write_history(HISTORY_FILE.c_str());
+    }
+    // append_history doesn't work on some readlines
+    // append_history(1, HISTORY_FILE.c_str());
   }
   return line;
 }

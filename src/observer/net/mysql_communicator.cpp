@@ -24,22 +24,22 @@ See the Mulan PSL v2 for more details. */
 // https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__capabilities__flags.html
 // the flags below are negotiate by handshake packet
 const uint32_t CLIENT_PROTOCOL_41   = 512;
-const uint32_t CLIENT_INTERACTIVE   = 1024;  // This is an interactive client
+//const uint32_t CLIENT_INTERACTIVE   = 1024;  // This is an interactive client
 const uint32_t CLIENT_TRANSACTIONS  = 8192;  // Client knows about transactions.
 const uint32_t CLIENT_SESSION_TRACK = (1UL << 23); // Capable of handling server state change information
 const uint32_t CLIENT_DEPRECATE_EOF = (1UL << 24); // Client no longer needs EOF_Packet and will use OK_Packet instead
 const uint32_t CLIENT_OPTIONAL_RESULTSET_METADATA = (1UL << 25); // The client can handle optional metadata information in the resultset. 
 // Support optional extension for query parameters into the COM_QUERY and COM_STMT_EXECUTE packets.
-const uint32_t CLIENT_QUERY_ATTRIBUTES = (1UL << 27); 
+//const uint32_t CLIENT_QUERY_ATTRIBUTES = (1UL << 27); 
 
 // https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__column__definition__flags.html
 // Column Definition Flags
-const uint32_t NOT_NULL_FLAG  = 1;
-const uint32_t PRI_KEY_FLAG   = 2;
-const uint32_t UNIQUE_KEY_FLAG   = 4;
-const uint32_t MULTIPLE_KEY_FLAG = 8;
-const uint32_t NUM_FLAG          = 32768; // Field is num (for clients)
-const uint32_t PART_KEY_FLAG     = 16384; // Intern; Part of some key.
+//const uint32_t NOT_NULL_FLAG  = 1;
+//const uint32_t PRI_KEY_FLAG   = 2;
+//const uint32_t UNIQUE_KEY_FLAG   = 4;
+//const uint32_t MULTIPLE_KEY_FLAG = 8;
+//const uint32_t NUM_FLAG          = 32768; // Field is num (for clients)
+//const uint32_t PART_KEY_FLAG     = 16384; // Intern; Part of some key.
 
 enum ResultSetMetaData
 {
@@ -184,7 +184,7 @@ int store_lenenc_string(char *buf, const char *s)
  * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_packets.html
  * https://mariadb.com/kb/en/0-packet/
  */
-struct alignas(1) PacketHeader {
+struct PacketHeader {
   int32_t payload_length:24; //! 当前packet的除掉头的长度
   int8_t  sequence_id = 0;   //! 当前packet在当前处理过程中是第几个包
 };
@@ -213,7 +213,7 @@ struct HandshakeV10 : public BasePacket
 {
   int8_t       protocol = 10;
   char         server_version[7] = "5.7.25";
-  int32_t      thread_id = 3221501807; // conn id
+  int32_t      thread_id = 21501807; // conn id
   char         auth_plugin_data_part_1[9] = "12345678"; // first 8 bytes of the plugin provided data (scramble) // and the filler 
   int16_t      capability_flags_1 = 0xF7DF; // The lower 2 bytes of the Capabilities Flags
   int8_t       character_set = 83;
