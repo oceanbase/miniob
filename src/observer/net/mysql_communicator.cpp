@@ -609,13 +609,20 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       return write_state(event, need_disconnect);
     }
 
-    // send metadata : Column Definition
-    rc = send_column_definition(sql_result, need_disconnect);
-    if (rc != RC::SUCCESS) {
-      return rc;
+    const TupleSchema &tuple_schema = sql_result->tuple_schema();
+    const int cell_num = tuple_schema.cell_num();
+    if (cell_num == 0) {
+      // maybe a dml that send nothing to client
+    } else {
+
+      // send metadata : Column Definition
+      rc = send_column_definition(sql_result, need_disconnect);
+      if (rc != RC::SUCCESS) {
+        return rc;
+      }
     }
 
-    rc = send_result_rows(sql_result, need_disconnect);
+    rc = send_result_rows(sql_result, cell_num == 0, need_disconnect);
   }
   
   return rc;
@@ -653,6 +660,10 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
   RC rc = RC::SUCCESS;
   const TupleSchema &tuple_schema = sql_result->tuple_schema();
   const int cell_num = tuple_schema.cell_num();
+
+  if (cell_num == 0) {
+    return rc;
+  }
 
   std::vector<char> net_packet;
   net_packet.resize(1024);
@@ -762,14 +773,24 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
  * 发送每行数据
  * 一行一个包
  */
-RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool &need_disconnect)
+RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool no_column_def, bool &need_disconnect)
 {
   RC rc = RC::SUCCESS;
   std::vector<char> packet;
   packet.resize(4 * 1024 * 1024); // TODO warning: length cannot be fix
-  
+
+  int affected_rows = 0;
   Tuple *tuple = nullptr;
   while (RC::SUCCESS == (rc = sql_result->next_tuple(tuple))) {
+    assert(tuple != nullptr);
+
+    affected_rows++;
+    
+    const int cell_num = tuple->cell_num();
+    if (cell_num == 0) {
+      continue;
+    }
+
     // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset.html
     // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset_row.html
     // note: if some field is null, send a 0xFB
@@ -777,11 +798,8 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool &need_disconn
     int pos = 0;
 
     pos += 3;
-    store_int1(buf + pos, sequence_id_++);
-    pos += 1;
+    pos += store_int1(buf + pos, sequence_id_++);
 
-    assert(tuple != nullptr);
-    const int cell_num = tuple->cell_num();
     TupleCell tuple_cell;
     for (int i = 0; i < cell_num; i++) {
       rc = tuple->cell_at(i, tuple_cell);
@@ -806,12 +824,14 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool &need_disconn
   }
 
   // 所有行发送完成后，发送一个EOF或OK包
-  if (client_capabilities_flag_ & CLIENT_DEPRECATE_EOF) {
-    LOG_TRACE("client has CLIENT_DEPRECATE_EOF, send ok packet");
+  if ((client_capabilities_flag_ & CLIENT_DEPRECATE_EOF) || no_column_def) {
+    LOG_TRACE("client has CLIENT_DEPRECATE_EOF or has empty column, send ok packet");
     OkPacket ok_packet;
     ok_packet.packet_header.sequence_id = sequence_id_++;
+    ok_packet.affected_rows = affected_rows;
     rc = send_packet(ok_packet);
   } else {
+    LOG_TRACE("send eof packet to client");
     EofPacket eof_packet;
     eof_packet.packet_header.sequence_id = sequence_id_++;
     rc = send_packet(eof_packet);
