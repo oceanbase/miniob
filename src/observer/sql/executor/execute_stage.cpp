@@ -247,6 +247,10 @@ RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
         }
       }
     } break;
+
+    case StmtType::EXPLAIN: {
+      schema.append_cell("Query Plan");
+    } break;
     default: {
       // 只有select返回结果
     } break;

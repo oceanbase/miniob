@@ -9,18 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct ParserContext {
-  Query * ssql;
-  size_t select_length;
-  size_t condition_length;
-  size_t from_length;
-  size_t value_length;
-  Value values[MAX_NUM];
-  Condition conditions[MAX_NUM];
-  CompOp comp;
-  char id[MAX_NUM];
-} ParserContext;
+#include <algorithm>
 
 //获取子串
 char *substr(const char *s,int n1,int n2)/*从s中提取下标为n1~n2的字符组成一个新字符串，然后返回这个新串的首地址*/
@@ -43,13 +32,6 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
   sql_result->add_command(std::move(error_query));
   return 0;
 }
-
-ParserContext *get_context(yyscan_t scanner)
-{
-  return (ParserContext *)yyget_extra(scanner);
-}
-
-#define CONTEXT get_context(scanner)
 
 %}
 
@@ -119,7 +101,6 @@ ParserContext *get_context(yyscan_t scanner)
   char *string;
   int number;
   float floats;
-  char *position;
 }
 
 %token <number> NUMBER
@@ -198,33 +179,28 @@ command:
 
 exit:      
     EXIT {
-      // CONTEXT->ssql->flag=SCF_EXIT;//"exit";
       $$ = new Query(SCF_EXIT);
     };
 
 help:
     HELP {
-      // CONTEXT->ssql->flag=SCF_HELP;//"help";
       $$ = new Query(SCF_HELP);
     };
 
 sync:
     SYNC {
-      // CONTEXT->ssql->flag = SCF_SYNC;
       $$ = new Query(SCF_SYNC);
     }
     ;
 
 begin:
     TRX_BEGIN  {
-      // CONTEXT->ssql->flag = SCF_BEGIN;
       $$ = new Query(SCF_BEGIN);
     }
     ;
 
 commit:
     TRX_COMMIT {
-      // CONTEXT->ssql->flag = SCF_COMMIT;
       $$ = new Query(SCF_COMMIT);
     }
     ;
@@ -259,7 +235,6 @@ desc_table:
 create_index:    /*create index 语句的语法解析树*/
     CREATE INDEX ID ON ID LBRACE ID RBRACE
     {
-      // CONTEXT->ssql->flag = SCF_CREATE_INDEX;//"create_index";
       $$ = new Query(SCF_CREATE_INDEX);
       CreateIndex &create_index = $$->create_index;
       create_index.index_name = $3;
@@ -293,6 +268,7 @@ create_table:    /*create table 语句的语法解析树*/
         create_table.attr_infos.swap(*src_attrs);
       }
       create_table.attr_infos.emplace_back(*$5);
+      std::reverse(create_table.attr_infos.begin(), create_table.attr_infos.end());
       delete $5;
     }
     ;
@@ -348,6 +324,7 @@ insert:        /*insert   语句的语法解析树*/
         $$->insertion.values.swap(*$7);
       }
       $$->insertion.values.emplace_back(*$6);
+      std::reverse($$->insertion.values.begin(), $$->insertion.values.end());
       delete $6;
       free($3);
     }
@@ -615,11 +592,8 @@ opt_semicolon: /*empty*/
 extern void scan_string(const char *str, yyscan_t scanner);
 
 int sql_parse(const char *s, ParsedSqlResult *sql_result){
-  ParserContext context;
-  memset(&context, 0, sizeof(context));
-
   yyscan_t scanner;
-  yylex_init_extra(&context, &scanner);
+  yylex_init(&scanner);
   scan_string(s, scanner);
   int result = yyparse(sql_result, scanner);
   yylex_destroy(scanner);
