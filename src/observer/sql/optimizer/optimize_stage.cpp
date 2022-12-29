@@ -256,8 +256,8 @@ RC OptimizeStage::create_select_logical_plan(SelectStmt *select_stmt, std::uniqu
   
   std::unique_ptr<LogicalOperator> project_oper(new ProjectLogicalOperator(all_fields));
   if (predicate_oper) {
-    project_oper->add_child(move(predicate_oper));
     predicate_oper->add_child(move(table_oper));
+    project_oper->add_child(move(predicate_oper));
   } else {
     project_oper->add_child(move(table_oper));
   }

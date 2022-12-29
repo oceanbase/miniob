@@ -231,30 +231,28 @@ commit:
 
 rollback:
     TRX_ROLLBACK  {
-      // CONTEXT->ssql->flag = SCF_ROLLBACK;
       $$ = new Query(SCF_ROLLBACK);
     }
     ;
 
 drop_table:    /*drop table 语句的语法解析树*/
     DROP TABLE ID {
-      // CONTEXT->ssql->flag = SCF_DROP_TABLE;//"drop_table";
       $$ = new Query(SCF_DROP_TABLE);
       $$->drop_table.relation_name = $3;
+      free($3);
     };
 
 show_tables:
     SHOW TABLES {
-      // CONTEXT->ssql->flag = SCF_SHOW_TABLES;
       $$ = new Query(SCF_SHOW_TABLES);
     }
     ;
 
 desc_table:
     DESC ID  {
-      // CONTEXT->ssql->flag = SCF_DESC_TABLE;
       $$ = new Query(SCF_DESC_TABLE);
       $$->desc_table.relation_name = $2;
+      free($2);
     }
     ;
 
@@ -267,6 +265,9 @@ create_index:    /*create index 语句的语法解析树*/
       create_index.index_name = $3;
       create_index.relation_name = $5;
       create_index.attribute_name = $7;
+      free($3);
+      free($5);
+      free($7);
     }
     ;
 
@@ -275,6 +276,7 @@ drop_index:      /*drop index 语句的语法解析树*/
     {
       $$ = new Query(SCF_DROP_INDEX);
       $$->drop_index.index_name = $3;
+      free($3);
     }
     ;
 create_table:    /*create table 语句的语法解析树*/
@@ -283,6 +285,7 @@ create_table:    /*create table 语句的语法解析树*/
       $$ = new Query(SCF_CREATE_TABLE);
       CreateTable &create_table = $$->create_table;
       create_table.relation_name = $3;
+      free($3);
 
       std::vector<AttrInfo> *src_attrs = $6;
 
@@ -317,6 +320,7 @@ attr_def:
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = $4;
+      free($1);
     }
     | ID type
     {
@@ -324,6 +328,7 @@ attr_def:
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = 4;
+      free($1);
     }
     ;
 number:
@@ -344,6 +349,7 @@ insert:        /*insert   语句的语法解析树*/
       }
       $$->insertion.values.emplace_back(*$6);
       delete $6;
+      free($3);
     }
     ;
 
@@ -391,6 +397,7 @@ delete:    /*  delete 语句的语法解析树*/
         $$->deletion.conditions.swap(*$4);
         delete $4;
       }
+      free($3);
     }
     ;
 update:      /*  update 语句的语法解析树*/
@@ -404,6 +411,8 @@ update:      /*  update 语句的语法解析树*/
         $$->update.conditions.swap(*$7);
         delete $7;
       }
+      free($2);
+      free($4);
     }
     ;
 select:        /*  select 语句的语法解析树*/
@@ -424,6 +433,7 @@ select:        /*  select 语句的语法解析树*/
         $$->selection.conditions.swap(*$6);
         delete $6;
       }
+      free($4);
     }
     ;
 
@@ -450,11 +460,14 @@ rel_attr:
     ID {
       $$ = new RelAttr;
       $$->attribute_name = $1;
+      free($1);
     }
     | ID DOT ID {
       $$ = new RelAttr;
       $$->relation_name = $1;
       $$->attribute_name = $3;
+      free($1);
+      free($3);
     }
     ;
 
@@ -488,6 +501,7 @@ rel_list:
       }
 
       $$->push_back($2);
+      free($2);
     }
     ;
 where:
@@ -524,6 +538,9 @@ condition:
       $$->right_is_attr = 0;
       $$->right_value = *$3;
       $$->comp = $2;
+
+      delete $1;
+      delete $3;
     }
     | value comp_op value 
     {
@@ -533,6 +550,9 @@ condition:
       $$->right_is_attr = 0;
       $$->right_value = *$3;
       $$->comp = $2;
+
+      delete $1;
+      delete $3;
     }
     | rel_attr comp_op rel_attr
     {
@@ -542,6 +562,9 @@ condition:
       $$->right_is_attr = 1;
       $$->right_attr = *$3;
       $$->comp = $2;
+
+      delete $1;
+      delete $3;
     }
     | value comp_op rel_attr
     {
@@ -551,6 +574,9 @@ condition:
       $$->right_is_attr = 1;
       $$->right_attr = *$3;
       $$->comp = $2;
+
+      delete $1;
+      delete $3;
     }
     ;
 
@@ -569,6 +595,7 @@ load_data:
       $$ = new Query(SCF_LOAD_DATA);
       $$->load_data.relation_name = $7;
       $$->load_data.file_name = $4;
+      free($7);
     }
     ;
 

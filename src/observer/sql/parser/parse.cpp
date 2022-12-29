@@ -47,6 +47,7 @@ const char *Value::data() const
     case CHARS: return (const char *)string_value.data();
     case UNDEFINED: return nullptr;
   }
+  return nullptr;
 }
 
 int Value::length()
@@ -58,6 +59,7 @@ int Value::length()
     case CHARS: return string_value.size();
     case UNDEFINED: return 0;
   }
+  return 0;
 }
 
 Query::Query()
