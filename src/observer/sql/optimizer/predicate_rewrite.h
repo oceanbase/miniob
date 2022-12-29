@@ -9,30 +9,18 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2022/12/13.
+// Created by Wangyunlai on 2022/12/29.
 //
 
 #pragma once
 
-#include <memory>
+#include "sql/optimizer/rewrite_rule.h"
 
-#include "rc.h"
-
-class LogicalOperator;
-class Expression;
-
-class RewriteRule
-{
-public: 
-  virtual ~RewriteRule() = default;
-
-  virtual RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) = 0;
-};
-
-class ExpressionRewriteRule
+class PredicateRewriteRule : public RewriteRule
 {
 public:
-  virtual ~ExpressionRewriteRule() = default;
-  
-  virtual RC rewrite(std::unique_ptr<Expression> &expr, bool &change_made) = 0;
+  PredicateRewriteRule() = default;
+  virtual ~PredicateRewriteRule() = default;
+
+  RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) override;
 };

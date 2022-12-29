@@ -21,9 +21,8 @@ See the Mulan PSL v2 for more details. */
 
 RC DeletePhysicalOperator::open()
 {
-  if (children_.size() != 1) {
-    LOG_WARN("delete operator must has 1 child");
-    return RC::INTERNAL;
+  if (children_.empty()) {
+    return RC::SUCCESS;
   }
 
   std::unique_ptr<PhysicalOperator> &child = children_[0];
@@ -39,6 +38,10 @@ RC DeletePhysicalOperator::open()
 RC DeletePhysicalOperator::next()
 {
   RC rc = RC::SUCCESS;
+  if (children_.empty()) {
+    return RC::RECORD_EOF;
+  }
+  
   PhysicalOperator *child = children_[0].get();
   while (RC::SUCCESS == (rc = child->next())) {
     Tuple *tuple = child->current_tuple();
@@ -61,6 +64,8 @@ RC DeletePhysicalOperator::next()
 
 RC DeletePhysicalOperator::close()
 {
-  children_[0]->close();
+  if (!children_.empty()) {
+    children_[0]->close();
+  }
   return RC::SUCCESS;
 }

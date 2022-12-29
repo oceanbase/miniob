@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/physical_operator.h"
 #include "sql/optimizer/physical_plan_generator.h"
-#include "sql/optimizer/expression_rewriter.h"
+#include "sql/optimizer/rewriter.h"
 
 class SQLStageEvent;
 class LogicalOperator;
@@ -63,5 +63,5 @@ private:
 private:
   Stage *execute_stage_ = nullptr;
   PhysicalPlanGenerator physical_plan_generator_;
-  ExpressionRewriter    expression_rewriter_;
+  Rewriter    rewriter_;
 };

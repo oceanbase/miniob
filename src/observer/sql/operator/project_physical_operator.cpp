@@ -19,9 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 RC ProjectPhysicalOperator::open()
 {
-  if (children_.size() != 1) {
-    LOG_WARN("project operator must has 1 child");
-    return RC::INTERNAL;
+  if (children_.empty()) {
+    return RC::SUCCESS;
   }
 
   PhysicalOperator *child = children_[0].get();
@@ -36,12 +35,17 @@ RC ProjectPhysicalOperator::open()
 
 RC ProjectPhysicalOperator::next()
 {
+  if (children_.empty()) {
+    return RC::RECORD_EOF;
+  }
   return children_[0]->next();
 }
 
 RC ProjectPhysicalOperator::close()
 {
-  children_[0]->close();
+  if (!children_.empty()) {
+    children_[0]->close();
+  }
   return RC::SUCCESS;
 }
 Tuple *ProjectPhysicalOperator::current_tuple()

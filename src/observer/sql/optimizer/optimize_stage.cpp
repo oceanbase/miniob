@@ -178,7 +178,7 @@ RC OptimizeStage::rewrite(std::unique_ptr<LogicalOperator> &logical_operator)
   bool change_made = false;
   do {
     change_made = false;
-    rc = expression_rewriter_.rewrite(logical_operator, change_made);
+    rc = rewriter_.rewrite(logical_operator, change_made);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to do expression rewrite on logical plan. rc=%s", strrc(rc));
       return rc;

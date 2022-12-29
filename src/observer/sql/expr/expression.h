@@ -203,6 +203,8 @@ public:
   AttrType value_type() const override { return BOOLEANS; }
   RC get_value(const Tuple &tuple, TupleCell &cell) const override;
 
+  Type conjunction_type() const { return conjunction_type_; }
+
   std::vector<std::unique_ptr<Expression>> &children() { return children_; }
 private:
   Type  conjunction_type_;

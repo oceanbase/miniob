@@ -92,14 +92,17 @@ RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, std::
 RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, std::unique_ptr<PhysicalOperator> &oper)
 {
   std::vector<std::unique_ptr<LogicalOperator>> &child_opers = project_oper.children();
-  ASSERT(child_opers.size() == 1, "project logical operator's child number should be 1");
-
-  LogicalOperator *child_oper = child_opers.front().get();
+  
   std::unique_ptr<PhysicalOperator> child_phy_oper;
-  RC rc = create(*child_oper, child_phy_oper);
-  if (rc != RC::SUCCESS) {
-    LOG_WARN("failed to create project logical operator's child physical operator. rc=%s", strrc(rc));
-    return rc;
+
+  RC rc = RC::SUCCESS;
+  if (!child_opers.empty()) {
+    LogicalOperator *child_oper = child_opers.front().get();
+    rc = create(*child_oper, child_phy_oper);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to create project logical operator's child physical operator. rc=%s", strrc(rc));
+      return rc;
+    }
   }
 
   ProjectPhysicalOperator *project_operator = new ProjectPhysicalOperator;
@@ -107,7 +110,10 @@ RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, std:
   for (const Field & field : project_fields) {
     project_operator->add_projection(field.table(), field.meta());
   }
-  project_operator->add_child(std::move(child_phy_oper));
+
+  if (child_phy_oper) {
+    project_operator->add_child(std::move(child_phy_oper));
+  }
 
   oper = std::unique_ptr<PhysicalOperator>(project_operator);
 
@@ -118,18 +124,24 @@ RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, std:
 RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, std::unique_ptr<PhysicalOperator> &oper)
 {
   std::vector<std::unique_ptr<LogicalOperator>> &child_opers = delete_oper.children();
-  ASSERT(child_opers.size() == 1, "delete logical operator's child number should be 1");
 
-  LogicalOperator *child_oper = child_opers.front().get();
   std::unique_ptr<PhysicalOperator> child_physical_oper;
-  RC rc = create(*child_oper, child_physical_oper);
-  if (rc != RC::SUCCESS) {
-    LOG_WARN("failed to create physical operator. rc=%s", strrc(rc));
-    return rc;
+
+  RC rc = RC::SUCCESS;
+  if (!child_opers.empty()) {
+    LogicalOperator *child_oper = child_opers.front().get();
+    rc = create(*child_oper, child_physical_oper);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to create physical operator. rc=%s", strrc(rc));
+      return rc;
+    }
   }
 
   oper = std::unique_ptr<PhysicalOperator>(new DeletePhysicalOperator(delete_oper.table(), nullptr));
-  oper->add_child(move(child_physical_oper));
+
+  if (child_physical_oper) {
+    oper->add_child(move(child_physical_oper));
+  }
   return rc;
 }
 

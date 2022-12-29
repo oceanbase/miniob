@@ -28,7 +28,7 @@ RC ComparisonSimplificationRule::rewrite(std::unique_ptr<Expression> &expr, bool
       std::unique_ptr<Expression> new_expr(new ValueExpr(cell));
       expr.swap(new_expr);
       change_made = true;
-      LOG_TRACE("expression is simplified");
+      LOG_TRACE("comparison expression is simplified");
     }
   }
   return rc;
