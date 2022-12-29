@@ -25,6 +25,8 @@ public:
 		    const TupleCell *right_cell, bool right_inclusive);
 
   virtual ~IndexScanPhysicalOperator() = default;
+
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::INDEX_SCAN; }
   
   RC open() override;
   RC next() override;

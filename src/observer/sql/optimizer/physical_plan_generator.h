@@ -24,6 +24,7 @@ class TableGetLogicalOperator;
 class PredicateLogicalOperator;
 class ProjectLogicalOperator;
 class DeleteLogicalOperator;
+class ExplainLogicalOperator;
 
 class PhysicalPlanGenerator
 {
@@ -39,4 +40,5 @@ private:
   RC create_plan(PredicateLogicalOperator &pred_oper, std::unique_ptr<PhysicalOperator> &oper);
   RC create_plan(ProjectLogicalOperator &project_oper, std::unique_ptr<PhysicalOperator> &oper);
   RC create_plan(DeleteLogicalOperator &delete_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(ExplainLogicalOperator &explain_oper, std::unique_ptr<PhysicalOperator> &oper);
 };

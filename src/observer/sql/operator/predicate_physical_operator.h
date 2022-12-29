@@ -31,6 +31,8 @@ public:
 
   virtual ~PredicatePhysicalOperator() = default;
 
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::PREDICATE; }
+  
   RC open() override;
   RC next() override;
   RC close() override;

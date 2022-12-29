@@ -361,12 +361,12 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
     const Value &value = values[i];
     size_t copy_len = field->len();
     if (field->type() == CHARS) {
-      const size_t data_len = strlen((const char *)value.data);
+      const size_t data_len = value.string_value.size();
       if (copy_len > data_len) {
         copy_len = data_len + 1;
       }
     }
-    memcpy(record + field->offset(), value.data, copy_len);
+    memcpy(record + field->offset(), value.data(), copy_len);
   }
 
   record_out = record;
@@ -848,29 +848,29 @@ IndexScanner *Table::find_index_for_scan(const DefaultConditionFilter &filter)
   bool right_inclusive = false;
   switch (filter.comp_op()) {
   case EQUAL_TO: {
-    left_key = (const char *)value_cond_desc->value;
-    right_key = (const char *)value_cond_desc->value;
+    left_key = (const char *)value_cond_desc->value.data();
+    right_key = (const char *)value_cond_desc->value.data();
     left_inclusive = true;
     right_inclusive = true;
   }
     break;
   case LESS_EQUAL: {
-    right_key = (const char *)value_cond_desc->value;
+    right_key = (const char *)value_cond_desc->value.data();
     right_inclusive = true;
   }
     break;
   case GREAT_EQUAL: {
-    left_key = (const char *)value_cond_desc->value;
+    left_key = (const char *)value_cond_desc->value.data();
     left_inclusive = true;
   }
     break;
   case LESS_THAN: {
-    right_key = (const char *)value_cond_desc->value;
+    right_key = (const char *)value_cond_desc->value.data();
     right_inclusive = false;
   }
     break;
   case GREAT_THAN: {
-    left_key = (const char *)value_cond_desc->value;
+    left_key = (const char *)value_cond_desc->value.data();
     left_inclusive = false;
   }
     break;

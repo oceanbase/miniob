@@ -29,6 +29,10 @@ public:
 
   virtual ~TableScanPhysicalOperator() = default;
 
+  std::string param() const override;
+  
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::TABLE_SCAN; }
+  
   RC open() override;
   RC next() override;
   RC close() override;

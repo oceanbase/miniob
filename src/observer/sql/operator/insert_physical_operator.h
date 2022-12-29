@@ -29,6 +29,8 @@ public:
 
   virtual ~InsertPhysicalOperator() = default;
 
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::INSERT; }
+  
   RC open() override;
   RC next() override;
   RC close() override;

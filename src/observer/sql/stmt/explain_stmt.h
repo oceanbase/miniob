@@ -9,52 +9,26 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2022/5/22.
+// Created by Wangyunlai on 2022/12/27.
 //
 
 #pragma once
 
-#include "rc.h"
-#include "sql/parser/parse_defs.h"
+#include <memory>
+#include "sql/stmt/stmt.h"
 
-class Db;
-
-enum class StmtType
-{
-  SELECT,
-  INSERT,
-  UPDATE,
-  DELETE,
-  CREATE_TABLE,
-  DROP_TABLE,
-  CREATE_INDEX,
-  DROP_INDEX,
-  SYNC,
-  SHOW_TABLES,
-  DESC_TABLE,
-  BEGIN,
-  COMMIT,
-  ROLLBACK,
-  LOAD_DATA,
-  HELP,
-  EXIT,
-  EXPLAIN,
-
-  PREDICATE,
-};
-
-class Stmt 
+class ExplainStmt : public Stmt
 {
 public:
+  ExplainStmt(std::unique_ptr<Stmt> child_stmt);
+  virtual ~ExplainStmt() = default;
 
-  Stmt() = default;
-  virtual ~Stmt() = default;
+  StmtType type() const override { return StmtType::EXPLAIN; }
 
-  virtual StmtType type() const = 0;
+  Stmt *child() const { return child_stmt_.get(); }
 
-public:
-  static RC create_stmt(Db *db, const Query &query, Stmt *&stmt);
-
+  static RC create(Db *db, const Explain &query, Stmt *& stmt);
+  
 private:
+  std::unique_ptr<Stmt> child_stmt_;
 };
-

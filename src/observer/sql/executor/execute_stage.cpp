@@ -131,7 +131,7 @@ RC ExecuteStage::handle_request(common::StageEvent *event)
   const std::unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
   Stmt *stmt = sql_event->stmt();
   Session *session = session_event->session();
-  Query *sql = sql_event->query();
+  Query *sql = sql_event->query().get();
 
   if (physical_operator != nullptr) {
     return handle_request_with_physical_operator(sql_event);
@@ -502,6 +502,9 @@ RC ExecuteStage::do_help(SQLStageEvent *sql_event)
     oper->append(strings[i]);
   }
   SqlResult *sql_result = new SqlResult;
+  TupleSchema schema;
+  schema.append_cell("Commands");
+  sql_result->set_tuple_schema(schema);
   sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
   session_event->set_sql_result(sql_result);
   return RC::SUCCESS;
@@ -509,11 +512,12 @@ RC ExecuteStage::do_help(SQLStageEvent *sql_event)
 
 RC ExecuteStage::do_create_table(SQLStageEvent *sql_event)
 {
-  const CreateTable &create_table = sql_event->query()->sstr.create_table;
+  const CreateTable &create_table = sql_event->query()->create_table;
   SessionEvent *session_event = sql_event->session_event();
   Db *db = session_event->session()->get_current_db();
-  RC rc = db->create_table(create_table.relation_name,
-			create_table.attribute_count, create_table.attributes);
+
+  const int attribute_count = static_cast<int>(create_table.attr_infos.size());
+  RC rc = db->create_table(create_table.relation_name.c_str(), attribute_count, create_table.attr_infos.data());
   SqlResult *sql_result = new SqlResult;
   sql_result->set_return_code(rc);
   sql_event->session_event()->set_sql_result(sql_result);
@@ -525,14 +529,14 @@ RC ExecuteStage::do_create_index(SQLStageEvent *sql_event)
   SessionEvent *session_event = sql_event->session_event();
   session_event->set_sql_result(sql_result);
   Db *db = session_event->session()->get_current_db();
-  const CreateIndex &create_index = sql_event->query()->sstr.create_index;
-  Table *table = db->find_table(create_index.relation_name);
+  const CreateIndex &create_index = sql_event->query()->create_index;
+  Table *table = db->find_table(create_index.relation_name.c_str());
   if (nullptr == table) {
     sql_result->set_return_code(RC::SCHEMA_TABLE_NOT_EXIST);
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
 
-  RC rc = table->create_index(nullptr, create_index.index_name, create_index.attribute_name);
+  RC rc = table->create_index(nullptr, create_index.index_name.c_str(), create_index.attribute_name.c_str());
   sql_result->set_return_code(rc);
   return rc;
 }
@@ -558,9 +562,9 @@ RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
 
 RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
 {
-  Query *query = sql_event->query();
+  Query *query = sql_event->query().get();
   Db *db = sql_event->session_event()->session()->get_current_db();
-  const char *table_name = query->sstr.desc_table.relation_name;
+  const char *table_name = query->desc_table.relation_name.c_str();
   Table *table = db->find_table(table_name);
   SqlResult *sql_result = new SqlResult;
   sql_event->session_event()->set_sql_result(sql_result);

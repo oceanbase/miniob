@@ -25,9 +25,11 @@ See the Mulan PSL v2 for more details. */
 
 class SQLStageEvent;
 class LogicalOperator;
+class Stmt;
 class SelectStmt;
 class DeleteStmt;
 class FilterStmt;
+class ExplainStmt;
 
 class OptimizeStage : public common::Stage {
 public:
@@ -48,9 +50,11 @@ private:
   RC handle_request(SQLStageEvent *event);
   
   RC create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> & logical_operator);
+  RC create_logical_plan(Stmt *stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_select_logical_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> & logical_operator);
   RC create_predicate_logical_plan(FilterStmt *filter_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_delete_logical_plan(DeleteStmt *delete_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_explain_logical_plan(ExplainStmt *explain_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   
   RC rewrite(std::unique_ptr<LogicalOperator> &logical_operator);
   RC optimize(std::unique_ptr<LogicalOperator> &logical_operator);

@@ -49,3 +49,8 @@ Tuple * TableScanPhysicalOperator::current_tuple()
 // {
 //   return tuple_.cell_spec_at(index, spec);
 // }
+
+std::string TableScanPhysicalOperator::param() const
+{
+  return table_->name();  
+}

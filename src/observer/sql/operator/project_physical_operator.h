@@ -27,6 +27,8 @@ public:
 
   void add_projection(const Table *table, const FieldMeta *field);
 
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::PROJECT; }
+  
   RC open() override;
   RC next() override;
   RC close() override;

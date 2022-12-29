@@ -29,6 +29,8 @@ public:
 
   virtual ~DeletePhysicalOperator() = default;
 
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::DELETE; }
+  
   RC open() override;
   RC next() override;
   RC close() override;

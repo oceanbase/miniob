@@ -42,6 +42,8 @@ public:
     strings_.emplace_back(1, v);
   }
 
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::STRING_LIST; }
+  
   RC open() override
   {
     return RC::SUCCESS;

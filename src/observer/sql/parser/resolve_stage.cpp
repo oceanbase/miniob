@@ -101,7 +101,7 @@ void ResolveStage::handle_event(StageEvent *event)
     return ;
   }
 
-  Query *query = sql_event->query();
+  Query *query = sql_event->query().get();
   Stmt *stmt = nullptr;
   RC rc = Stmt::create_stmt(db, *query, stmt);
   if (rc != RC::SUCCESS && rc != RC::UNIMPLENMENT) {

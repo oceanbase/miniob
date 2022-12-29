@@ -9,52 +9,30 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2022/5/22.
+// Created by WangYunlai on 2022/12/27.
 //
 
 #pragma once
 
-#include "rc.h"
-#include "sql/parser/parse_defs.h"
+#include "sql/operator/physical_operator.h"
 
-class Db;
-
-enum class StmtType
-{
-  SELECT,
-  INSERT,
-  UPDATE,
-  DELETE,
-  CREATE_TABLE,
-  DROP_TABLE,
-  CREATE_INDEX,
-  DROP_INDEX,
-  SYNC,
-  SHOW_TABLES,
-  DESC_TABLE,
-  BEGIN,
-  COMMIT,
-  ROLLBACK,
-  LOAD_DATA,
-  HELP,
-  EXIT,
-  EXPLAIN,
-
-  PREDICATE,
-};
-
-class Stmt 
+class ExplainPhysicalOperator : public PhysicalOperator
 {
 public:
+  ExplainPhysicalOperator() = default;
+  virtual ~ExplainPhysicalOperator() = default;
 
-  Stmt() = default;
-  virtual ~Stmt() = default;
-
-  virtual StmtType type() const = 0;
-
-public:
-  static RC create_stmt(Db *db, const Query &query, Stmt *&stmt);
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::EXPLAIN; }
+  
+  RC open() override;
+  RC next() override;
+  RC close() override;
+  Tuple *current_tuple() override;
 
 private:
-};
+  void to_string(std::ostream &os, PhysicalOperator *oper, int level);
 
+private:
+  std::string physical_plan_;
+  ValueListTuple tuple_;
+};

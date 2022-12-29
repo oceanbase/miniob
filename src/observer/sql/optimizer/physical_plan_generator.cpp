@@ -21,6 +21,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/project_physical_operator.h"
 #include "sql/operator/delete_logical_operator.h"
 #include "sql/operator/delete_physical_operator.h"
+#include "sql/operator/explain_logical_operator.h"
+#include "sql/operator/explain_physical_operator.h"
 
 using namespace std;
 
@@ -45,6 +47,10 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, std::unique_
       return create_plan(static_cast<DeleteLogicalOperator &>(logical_operator), oper);
     } break;
 
+    case LogicalOperatorType::EXPLAIN: {
+      return create_plan(static_cast<ExplainLogicalOperator &>(logical_operator), oper);
+    } break;
+      
     default: {
       return RC::INVALID_ARGUMENT;
     }
@@ -124,5 +130,26 @@ RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, std::u
 
   oper = std::unique_ptr<PhysicalOperator>(new DeletePhysicalOperator(delete_oper.table(), nullptr));
   oper->add_child(move(child_physical_oper));
+  return rc;
+}
+
+RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, std::unique_ptr<PhysicalOperator> &oper)
+{
+  std::vector<std::unique_ptr<LogicalOperator>> &child_opers = explain_oper.children();
+
+  RC rc = RC::SUCCESS;
+  std::unique_ptr<PhysicalOperator> explain_physical_oper(new ExplainPhysicalOperator);
+  for (std::unique_ptr<LogicalOperator> &child_oper : child_opers) {
+    std::unique_ptr<PhysicalOperator> child_physical_oper;
+    rc = create(*child_oper, child_physical_oper);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to create child physical operator. rc=%s", strrc(rc));
+      return rc;
+    }
+
+    explain_physical_oper->add_child(std::move(child_physical_oper));
+  }
+
+  oper = std::move(explain_physical_oper);
   return rc;
 }

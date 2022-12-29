@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 #include "storage/common/field.h"
 #include "sql/expr/tuple_cell.h"
+#include "common/log/log.h"
 
 class Tuple;
 
@@ -90,10 +91,24 @@ class ValueExpr : public Expression
 {
 public:
   ValueExpr() = default;
-  ValueExpr(const Value &value) : tuple_cell_(value.type, (char *)value.data)
+  ValueExpr(const Value &value)
   {
-    if (value.type == CHARS) {
-      tuple_cell_.set_data((char *)value.data, strlen((const char *)value.data));
+    switch (value.type) {
+      case UNDEFINED: {
+        ASSERT(false, "value's type is invalid");
+      } break;
+      case INTS: {
+        tuple_cell_.set_int(value.int_value);
+      } break;
+      case FLOATS: {
+        tuple_cell_.set_float(value.float_value);
+      } break;
+      case CHARS: {
+        tuple_cell_.set_string(value.string_value.c_str());
+      } break;
+      case BOOLEANS: {
+        tuple_cell_.set_boolean(value.bool_value);
+      } break;
     }
   }
   ValueExpr(const TupleCell &cell) : tuple_cell_(cell)

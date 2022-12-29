@@ -19,14 +19,16 @@ See the Mulan PSL v2 for more details. */
 #include "rc.h"
 
 // TODO fixme
-class JoinPhysicalOperator : public PhysicalOperator
+class NestedLoopJoinPhysicalOperator : public PhysicalOperator
 {
 public:
-  JoinPhysicalOperator(PhysicalOperator *left, PhysicalOperator *right)
+  NestedLoopJoinPhysicalOperator(PhysicalOperator *left, PhysicalOperator *right)
   {}
 
-  virtual ~JoinPhysicalOperator() = default;
+  virtual ~NestedLoopJoinPhysicalOperator() = default;
 
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::NESTED_LOOP_JOIN; }
+  
   RC open() override;
   RC next() override;
   RC close() override;

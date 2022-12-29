@@ -772,6 +772,8 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
 /**
  * 发送每行数据
  * 一行一个包
+ * @param no_column_def 为了特殊处理没有返回值的语句，比如insert/delete，需要做特殊处理。
+ *                      这种语句只需要返回一个ok packet即可
  */
 RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool no_column_def, bool &need_disconnect)
 {

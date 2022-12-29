@@ -16,12 +16,26 @@ See the Mulan PSL v2 for more details. */
 
 #include <vector>
 #include <memory>
+#include <string>
 
 #include "rc.h"
 #include "sql/expr/tuple.h"
 
 class Record;
 class TupleCellSpec;
+
+enum class PhysicalOperatorType
+{
+  TABLE_SCAN,
+  INDEX_SCAN,
+  NESTED_LOOP_JOIN,
+  EXPLAIN,
+  PREDICATE,
+  PROJECT,
+  STRING_LIST,
+  DELETE,
+  INSERT,
+};
 
 class PhysicalOperator
 {
@@ -31,6 +45,11 @@ public:
 
   virtual ~PhysicalOperator();
 
+  virtual std::string name() const;
+  virtual std::string param() const;
+
+  virtual PhysicalOperatorType type() const = 0;
+  
   virtual RC open() = 0;
   virtual RC next() = 0;
   virtual RC close() = 0;
@@ -40,6 +59,8 @@ public:
   void add_child(std::unique_ptr<PhysicalOperator> oper) {
     children_.emplace_back(std::move(oper));
   }
+
+  std::vector<std::unique_ptr<PhysicalOperator>> &children() { return children_; }
 
 protected:
   std::vector<std::unique_ptr<PhysicalOperator>> children_;

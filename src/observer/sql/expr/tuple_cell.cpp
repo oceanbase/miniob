@@ -94,6 +94,27 @@ void TupleCell::set_string(const char *s, int len /*= 0*/)
   length_ = str_value_.length();
 }
 
+void TupleCell::set_value(const Value &value)
+{
+  switch (value.type) {
+    case INTS: {
+      set_int(value.int_value);
+    } break;
+    case FLOATS: {
+      set_float(value.float_value);
+    } break;
+    case CHARS: {
+      set_string(value.string_value.c_str());
+    } break;
+    case BOOLEANS: {
+      set_boolean(value.bool_value);
+    } break;
+    case UNDEFINED: {
+      ASSERT(false, "got an invalid value type");
+    } break;
+  }
+}
+
 const char *TupleCell::data() const
 {
   switch (attr_type_) {

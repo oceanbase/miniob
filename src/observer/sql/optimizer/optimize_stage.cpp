@@ -30,11 +30,13 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/delete_logical_operator.h"
 #include "sql/operator/join_logical_operator.h"
 #include "sql/operator/project_logical_operator.h"
+#include "sql/operator/explain_logical_operator.h"
 #include "sql/executor/sql_result.h"
 #include "sql/stmt/stmt.h"
 #include "sql/stmt/filter_stmt.h"
 #include "sql/stmt/select_stmt.h"
 #include "sql/stmt/delete_stmt.h"
+#include "sql/stmt/explain_stmt.h"
 #include "event/sql_event.h"
 #include "event/session_event.h"
 
@@ -185,13 +187,9 @@ RC OptimizeStage::rewrite(std::unique_ptr<LogicalOperator> &logical_operator)
 
   return rc;
 }
-RC OptimizeStage::create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> & logical_operator)
-{
-  Stmt *stmt = sql_event->stmt();
-  if (nullptr == stmt) {
-    return RC::UNIMPLENMENT;
-  }
 
+RC OptimizeStage::create_logical_plan(Stmt *stmt, std::unique_ptr<LogicalOperator> &logical_operator)
+{
   RC rc = RC::SUCCESS;
   switch (stmt->type()) {
     case StmtType::SELECT: {
@@ -204,12 +202,24 @@ RC OptimizeStage::create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<
       rc = create_delete_logical_plan(delete_stmt, logical_operator);
     } break;
 
+    case StmtType::EXPLAIN: {
+      ExplainStmt *explain_stmt = static_cast<ExplainStmt *>(stmt);
+      rc = create_explain_logical_plan(explain_stmt, logical_operator);
+    } break;
     default: {
       rc = RC::UNIMPLENMENT;
     }
   }
-  
   return rc;
+}
+RC OptimizeStage::create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> & logical_operator)
+{
+  Stmt *stmt = sql_event->stmt();
+  if (nullptr == stmt) {
+    return RC::UNIMPLENMENT;
+  }
+
+  return create_logical_plan(stmt, logical_operator);
 }
 
 RC OptimizeStage::create_select_logical_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> & logical_operator)
@@ -315,5 +325,20 @@ RC OptimizeStage::create_delete_logical_plan(DeleteStmt *delete_stmt, std::uniqu
   }
 
   logical_operator = move(delete_oper);
+  return rc;
+}
+
+RC OptimizeStage::create_explain_logical_plan(ExplainStmt *explain_stmt, std::unique_ptr<LogicalOperator> &logical_operator)
+{
+  Stmt *child_stmt = explain_stmt->child();
+  std::unique_ptr<LogicalOperator> child_oper;
+  RC rc = create_logical_plan(child_stmt, child_oper);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to create explain's child operator. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  logical_operator = std::unique_ptr<LogicalOperator>(new ExplainLogicalOperator);
+  logical_operator->add_child(std::move(child_oper));
   return rc;
 }

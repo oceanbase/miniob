@@ -37,7 +37,7 @@ protected:
   RC handle_request(common::StageEvent *event);
 
 private:
-  Stage *optimize_stage_ = nullptr;
+  // Stage *optimize_stage_ = nullptr;
   Stage *resolve_stage_ = nullptr;
 };
 
