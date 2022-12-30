@@ -22,9 +22,7 @@ See the Mulan PSL v2 for more details. */
 class NestedLoopJoinPhysicalOperator : public PhysicalOperator
 {
 public:
-  NestedLoopJoinPhysicalOperator(PhysicalOperator *left, PhysicalOperator *right)
-  {}
-
+  NestedLoopJoinPhysicalOperator();
   virtual ~NestedLoopJoinPhysicalOperator() = default;
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::NESTED_LOOP_JOIN; }
@@ -32,9 +30,18 @@ public:
   RC open() override;
   RC next() override;
   RC close() override;
+  Tuple *current_tuple() override;
 
 private:
-  Operator *left_ = nullptr;
-  Operator *right_ = nullptr;
+  RC left_next();
+  RC right_next();
+  
+private:
+  PhysicalOperator *left_ = nullptr;
+  PhysicalOperator *right_ = nullptr;
+  Tuple *left_tuple_ = nullptr;
+  Tuple *right_tuple_ = nullptr;
+  JoinedTuple joined_tuple_;
   bool round_done_ = true;
+  bool right_closed_ = true;
 };

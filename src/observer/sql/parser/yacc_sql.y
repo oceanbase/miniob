@@ -405,6 +405,7 @@ select:        /*  select 语句的语法解析树*/
         delete $5;
       }
       $$->selection.relations.push_back($4);
+      std::reverse($$->selection.relations.begin(), $$->selection.relations.end());
 
       if ($6 != nullptr) {
         $$->selection.conditions.swap(*$6);

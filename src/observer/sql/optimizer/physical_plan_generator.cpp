@@ -24,6 +24,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/delete_physical_operator.h"
 #include "sql/operator/explain_logical_operator.h"
 #include "sql/operator/explain_physical_operator.h"
+#include "sql/operator/join_logical_operator.h"
+#include "sql/operator/join_physical_operator.h"
 #include "sql/expr/expression.h"
 #include "common/log/log.h"
 
@@ -52,6 +54,10 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, std::unique_
 
     case LogicalOperatorType::EXPLAIN: {
       return create_plan(static_cast<ExplainLogicalOperator &>(logical_operator), oper);
+    } break;
+
+    case LogicalOperatorType::JOIN: {
+      return create_plan(static_cast<JoinLogicalOperator &>(logical_operator), oper);
     } break;
       
     default: {
@@ -225,5 +231,31 @@ RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, std:
   }
 
   oper = std::move(explain_physical_oper);
+  return rc;
+}
+
+RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, std::unique_ptr<PhysicalOperator> &oper)
+{
+  RC rc = RC::SUCCESS;
+
+  std::vector<std::unique_ptr<LogicalOperator>> &child_opers = join_oper.children();
+  if (child_opers.size() != 2) {
+    LOG_WARN("join operator should have 2 children, but have %d", child_opers.size());
+    return RC::INTERNAL;
+  }
+
+  std::unique_ptr<PhysicalOperator> join_physical_oper(new NestedLoopJoinPhysicalOperator);
+  for (auto &child_oper : child_opers) {
+    std::unique_ptr<PhysicalOperator> child_physical_oper;
+    rc = create(*child_oper, child_physical_oper);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to create physical child oper. rc=%s", strrc(rc));
+      return rc;
+    }
+
+    join_physical_oper->add_child(std::move(child_physical_oper));
+  }
+
+  oper = std::move(join_physical_oper);
   return rc;
 }

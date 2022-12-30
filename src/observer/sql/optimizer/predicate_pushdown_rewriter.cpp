@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2022/12/30.
 //
 
-#include "sql/optimizer/predicate_pushdown_rewriter.hpp"
+#include "sql/optimizer/predicate_pushdown_rewriter.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/table_get_logical_operator.h"
 #include "sql/expr/expression.h"
