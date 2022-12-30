@@ -169,6 +169,7 @@ public:
   RC get_value(const Tuple &tuple, TupleCell &cell) const override;
   AttrType value_type() const override { return BOOLEANS; }
 
+  CompOp comp() const { return comp_; }
   std::unique_ptr<Expression> &left() { return left_; }
   std::unique_ptr<Expression> &right() { return right_; }
 

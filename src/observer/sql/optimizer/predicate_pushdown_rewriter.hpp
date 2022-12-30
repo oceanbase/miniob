@@ -9,16 +9,23 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2022/12/15
+// Created by Wangyunlai on 2022/12/30.
 //
 
-#include "sql/operator/table_get_logical_operator.h"
+#pragma once
 
-TableGetLogicalOperator::TableGetLogicalOperator(Table *table, const std::vector<Field> &fields)
-    : table_(table), fields_(fields)
-{}
+#include <vector>
+#include "sql/optimizer/rewrite_rule.h"
 
-void TableGetLogicalOperator::set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs)
+class PredicatePushdownRewriter : public RewriteRule
 {
-  predicates_ = std::move(exprs);
-}
+public:
+  PredicatePushdownRewriter() = default;
+  virtual ~PredicatePushdownRewriter() = default;
+
+  RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) override;
+
+private:
+  RC get_exprs_can_pushdown(std::unique_ptr<Expression> &expr,
+                            std::vector<std::unique_ptr<Expression>> &pushdown_exprs);
+};

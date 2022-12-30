@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/physical_plan_generator.h"
 #include "sql/operator/table_get_logical_operator.h"
 #include "sql/operator/table_scan_physical_operator.h"
+#include "sql/operator/index_scan_physical_operator.h"
 #include "sql/operator/predicate_logical_operator.h"
 #include "sql/operator/predicate_physical_operator.h"
 #include "sql/operator/project_logical_operator.h"
@@ -23,6 +24,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/delete_physical_operator.h"
 #include "sql/operator/explain_logical_operator.h"
 #include "sql/operator/explain_physical_operator.h"
+#include "sql/expr/expression.h"
+#include "common/log/log.h"
 
 using namespace std;
 
@@ -60,9 +63,68 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, std::unique_
 
 RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, std::unique_ptr<PhysicalOperator> &oper)
 {
-  // TODO table scan or index scan
+  std::vector<std::unique_ptr<Expression>> &predicates = table_get_oper.predicates();
+  // 看看是否有可以用于索引查找的表达式
   Table *table = table_get_oper.table();
-  oper = std::unique_ptr<PhysicalOperator>(new TableScanPhysicalOperator(table));
+
+  Index *index = nullptr;
+  ValueExpr *value_expr = nullptr;
+  for (auto &expr : predicates) {
+    if (expr->type() == ExprType::COMPARISON) {
+      auto comparison_expr = static_cast<ComparisonExpr *>(expr.get());
+      // 简单处理，就找等值查询
+      if (comparison_expr->comp() != EQUAL_TO) {
+        continue;
+      }
+
+      std::unique_ptr<Expression> &left_expr = comparison_expr->left();
+      std::unique_ptr<Expression> &right_expr = comparison_expr->right();
+      // 左右比较的一边最少是一个值
+      if (left_expr->type() != ExprType::VALUE && right_expr->type() != ExprType::VALUE) {
+        continue;
+      }
+
+      FieldExpr *field_expr = nullptr;
+      if (left_expr->type() == ExprType::FIELD) {
+        ASSERT(right_expr->type() == ExprType::VALUE, "right expr should be a value expr while left is field expr");
+        field_expr = static_cast<FieldExpr *>(left_expr.get());
+        value_expr = static_cast<ValueExpr *>(right_expr.get());
+      } else if (right_expr->type() == ExprType::FIELD) {
+        ASSERT(left_expr->type() == ExprType::VALUE, "left expr should be a value expr while right is a field expr");
+        field_expr = static_cast<FieldExpr *>(right_expr.get());
+        value_expr = static_cast<ValueExpr *>(left_expr.get());
+      }
+
+      if (field_expr == nullptr) {
+        continue;
+      }
+
+      const Field &field = field_expr->field();
+      index = table->find_index_by_field(field.field_name());
+      if (nullptr != index) {
+        break;
+      }
+    }
+  }
+
+  if (index != nullptr) {
+    ASSERT(value_expr != nullptr, "got an index but value expr is null ?");
+
+    const TupleCell &tuple_cell = value_expr->get_tuple_cell();
+    IndexScanPhysicalOperator *index_scan_oper =
+        new IndexScanPhysicalOperator(table, index,
+                                      &tuple_cell, true/*left_inclusive*/,
+                                      &tuple_cell, true /*right_inclusive*/);
+    index_scan_oper->set_predicates(std::move(predicates));
+    oper = std::unique_ptr<PhysicalOperator>(index_scan_oper);
+    LOG_TRACE("use index scan");
+  } else {
+    auto table_scan_oper = new TableScanPhysicalOperator(table);
+    table_scan_oper->set_predicates(std::move(predicates));
+    oper = std::unique_ptr<PhysicalOperator>(table_scan_oper);
+    LOG_TRACE("use table scan");
+  }
+  
   return RC::SUCCESS;
 }
 

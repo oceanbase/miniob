@@ -27,12 +27,21 @@ public:
   virtual ~IndexScanPhysicalOperator() = default;
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::INDEX_SCAN; }
+
+  std::string param() const override;
   
   RC open() override;
   RC next() override;
   RC close() override;
 
   Tuple * current_tuple() override;
+
+  void set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs);
+
+private:
+  // 与TableScanPhysicalOperator代码相同，可以优化
+  RC filter(RowTuple &tuple, bool &result);
+  
 private:
   const Table *table_ = nullptr;
   Index *index_ = nullptr;
@@ -46,4 +55,6 @@ private:
   TupleCell right_cell_;
   bool left_inclusive_;
   bool right_inclusive_;
+
+  std::vector<std::unique_ptr<Expression>> predicates_;
 };

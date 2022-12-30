@@ -59,12 +59,27 @@ RC IndexScanPhysicalOperator::open()
 RC IndexScanPhysicalOperator::next()
 {
   RID rid;
-  RC rc = index_scanner_->next_entry(&rid);
-  if (rc != RC::SUCCESS) {
-    return rc;
+  RC rc = RC::SUCCESS;
+
+  bool filter_result = false;
+  while (RC::SUCCESS == (rc = index_scanner_->next_entry(&rid))) {
+    rc = record_handler_->get_record(&rid, &current_record_);
+    if (rc != RC::SUCCESS) {
+      return rc;
+    }
+
+    tuple_.set_record(&current_record_);
+    rc = filter(tuple_, filter_result);
+    if (rc != RC::SUCCESS) {
+      return rc;
+    }
+
+    if (filter_result) {
+      return rc;
+    }
   }
 
-  return record_handler_->get_record(&rid, &current_record_);
+  return rc;
 }
 
 RC IndexScanPhysicalOperator::close()
@@ -78,4 +93,35 @@ Tuple * IndexScanPhysicalOperator::current_tuple()
 {
   tuple_.set_record(&current_record_);
   return &tuple_;
+}
+
+void IndexScanPhysicalOperator::set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs)
+{
+  predicates_ = std::move(exprs);
+}
+
+RC IndexScanPhysicalOperator::filter(RowTuple &tuple, bool &result)
+{
+  RC rc = RC::SUCCESS;
+  TupleCell value;
+  for (std::unique_ptr<Expression> &expr : predicates_) {
+    rc = expr->get_value(tuple, value);
+    if (rc != RC::SUCCESS) {
+      return rc;
+    }
+
+    bool tmp_result = value.get_boolean();
+    if (!tmp_result) {
+      result = false;
+      return rc;
+    }
+  }
+
+  result = true;
+  return rc;
+}
+
+std::string IndexScanPhysicalOperator::param() const
+{
+  return std::string(index_->index_meta().name()) + " ON " + table_->name();
 }
