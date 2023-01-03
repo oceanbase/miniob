@@ -8,23 +8,10 @@ MiniOB 依赖的第三方组件比较多，搭建开发环境比较繁琐，建�
 我们提供了原始的Dockerfile，也有已经打包好的镜像，可以选择自己喜欢的方式。
 自行构建参考[本文档](./how_to_dev_in_docker_container_by_vscode.md)。
 
-- 使用 Dockerfile 构建
-
-Dockerfile: https://github.com/oceanbase/miniob/blob/main/docker/Dockerfile
-
-```bash
-# build
-docker build -t miniob .
-docker run --privileged -d --name='miniob' miniob:latest
-
-# 进入容器，开发调试
-docker exec -it miniob /usr/bin/zsh
-```
-
 - 使用docker hub 镜像运行
 
 ```bash
-docker run -d --name=miniob oceanbase/miniob
+docker run --privileged -d --name=miniob oceanbase/miniob
 ```
 此命令会创建一个新的容器，然后可以执行下面的命令进入容器：
 
