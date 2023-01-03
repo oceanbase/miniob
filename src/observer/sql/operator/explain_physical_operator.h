@@ -30,7 +30,7 @@ public:
   Tuple *current_tuple() override;
 
 private:
-  void to_string(std::ostream &os, PhysicalOperator *oper, int level);
+  void to_string(std::ostream &os, PhysicalOperator *oper, int level, bool last_child, std::vector<bool> &ends);
 
 private:
   std::string physical_plan_;
