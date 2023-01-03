@@ -233,6 +233,10 @@ private:
   std::vector<TupleCell> cells_;
 };
 
+/**
+ * 将两个tuple合并为一个tuple
+ * 在join算子中使用
+ */
 class JoinedTuple : public Tuple
 {
 public:

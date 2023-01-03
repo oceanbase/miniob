@@ -29,6 +29,10 @@ enum class LogicalOperatorType
   EXPLAIN,
 };
 
+/**
+ * 逻辑算子描述当前执行计划要做什么
+ * 可以看OptimizeStage中相关的代码
+ */
 class LogicalOperator
 {
 public:

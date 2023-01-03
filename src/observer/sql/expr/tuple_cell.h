@@ -34,6 +34,10 @@ private:
   std::string alias_;
 };
 
+/**
+ * 表示tuple中某个元素的值
+ * @note 可以与value做合并
+ */
 class TupleCell
 {
 public: 
@@ -73,6 +77,10 @@ public:
   }
 
 public:
+  /**
+   * 获取对应的值
+   * 如果当前的类型与期望获取的类型不符，就会执行转换操作
+   */
   int get_int() const;
   float get_float() const;
   std::string get_string() const;

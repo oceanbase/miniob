@@ -19,6 +19,10 @@ See the Mulan PSL v2 for more details. */
 
 class LogicalOperator;
 
+/**
+ * 简化多个表达式联结的运算
+ * 比如只有一个表达式，或者表达式可以直接出来
+ */
 class ConjunctionSimplificationRule : public ExpressionRewriteRule
 {
 public:

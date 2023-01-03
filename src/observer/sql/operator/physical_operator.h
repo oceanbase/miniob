@@ -37,6 +37,9 @@ enum class PhysicalOperatorType
   INSERT,
 };
 
+/**
+ * 与LogicalOperator对应，物理算子描述执行计划将如何执行
+ */
 class PhysicalOperator
 {
 public:
@@ -45,6 +48,9 @@ public:
 
   virtual ~PhysicalOperator();
 
+  /**
+   * 这两个函数是为了打印时使用的，比如在explain中
+   */
   virtual std::string name() const;
   virtual std::string param() const;
 

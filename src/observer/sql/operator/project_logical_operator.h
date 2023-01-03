@@ -21,6 +21,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "storage/common/field.h"
 
+/**
+ * project 表示投影运算
+ */
 class ProjectLogicalOperator : public LogicalOperator
 {
 public:

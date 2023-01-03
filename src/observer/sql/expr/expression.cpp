@@ -77,7 +77,7 @@ RC ComparisonExpr::compare_tuple_cell(const TupleCell &left, const TupleCell &ri
   value = false;
   switch (comp_) {
     case EQUAL_TO: {
-      value = 0 == cmp_result;
+      value = (0 == cmp_result);
     } break;
     case LESS_EQUAL: {
       value = (cmp_result <= 0);

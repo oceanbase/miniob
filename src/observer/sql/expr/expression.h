@@ -31,14 +31,36 @@ enum class ExprType {
   CONJUNCTION,
 };
 
+/**
+ * 表达式的抽象描述
+ * 在SQL的元素中，任何需要得出值的元素都可以使用表达式来描述
+ * 比如获取某个字段的值、比较运算、类型转换
+ * 当然还有一些当前没有实现的表达式，比如算术运算。
+ *
+ * 通常表达式的值，是在真实的算子运算过程中，拿到具体的tuple后
+ * 才能计算出来真实的值。但是有些表达式可能就表示某一个固定的
+ * 值，比如ValueExpr。
+ */
 class Expression
 {
 public: 
   Expression() = default;
   virtual ~Expression() = default;
-  
+
+  /**
+   * 根据具体的tuple，来计算当前表达式的值
+   */
   virtual RC get_value(const Tuple &tuple, TupleCell &cell) const = 0;
+
+  /**
+   * 表达式的类型
+   * 可以根据表达式类型来转换为具体的子类
+   */
   virtual ExprType type() const = 0;
+
+  /**
+   * 表达式值的类型
+   */
   virtual AttrType value_type() const = 0;  
 };
 
@@ -173,6 +195,10 @@ public:
   std::unique_ptr<Expression> &left() { return left_; }
   std::unique_ptr<Expression> &right() { return right_; }
 
+  /**
+   * 尝试在没有tuple的情况下获取当前表达式的值
+   * 在优化的时候，可能会使用到
+   */
   RC try_get_value(TupleCell &cell) const;
 
   /**
@@ -187,6 +213,10 @@ private:
   std::unique_ptr<Expression> right_;
 };
 
+/**
+ * 多个表达式使用同一种关系(AND或OR)来联结
+ * 当前miniob仅有AND操作
+ */
 class ConjunctionExpr : public Expression
 {
 public:

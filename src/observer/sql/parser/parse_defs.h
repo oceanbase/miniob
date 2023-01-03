@@ -142,9 +142,9 @@ struct LoadData {
 };
 
 class Query;
-typedef struct {
+struct Explain {
   std::unique_ptr<Query> query;
-} Explain;
+};
 
 struct Error
 {
@@ -180,29 +180,34 @@ enum SqlCommandFlag {
 class Query {
 public:
   enum SqlCommandFlag flag;
-  Error   error;
-  Selects selection;
-  Inserts insertion;
-  Deletes deletion;
-  Updates update;
-  CreateTable create_table;
-  DropTable drop_table;
-  CreateIndex create_index;
-  DropIndex drop_index;
-  DescTable desc_table;
-  LoadData load_data;
-  Explain  explain;
+  Error         error;
+  Selects       selection;
+  Inserts       insertion;
+  Deletes       deletion;
+  Updates       update;
+  CreateTable   create_table;
+  DropTable     drop_table;
+  CreateIndex   create_index;
+  DropIndex     drop_index;
+  DescTable     desc_table;
+  LoadData      load_data;
+  Explain       explain;
 
 public:
   Query();
   Query(enum SqlCommandFlag flag);
 };
 
+/**
+ * 表示语法解析后的数据
+ * 叫ParsedSqlNode 可能会更清晰一点
+ */
 class ParsedSqlResult
 {
 public:
   void add_command(std::unique_ptr<Query> command);
   std::vector<std::unique_ptr<Query>> &commands()  { return sql_commands_; }
+  
 private:
   std::vector<std::unique_ptr<Query>> sql_commands_;
 };

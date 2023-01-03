@@ -17,6 +17,10 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 #include "sql/optimizer/rewrite_rule.h"
 
+/**
+ * 将一些谓词表达式下推到表数据扫描中
+ * 这样可以提前过滤一些数据
+ */
 class PredicatePushdownRewriter : public RewriteRule
 {
 public:
