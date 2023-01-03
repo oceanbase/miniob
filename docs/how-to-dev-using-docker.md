@@ -24,11 +24,16 @@ docker exec -it miniob /usr/bin/zsh
 - 使用docker hub 镜像运行
 
 ```bash
-docker run oceanbase/miniob
+docker run -d --name=miniob oceanbase/miniob
+```
+此命令会创建一个新的容器，然后可以执行下面的命令进入容器：
+
+```bash
+docker exec -it miniob /usr/bin/zsh
 ```
 
 Docker环境说明：
-docker基于`CentOS:7`制作。
+docker基于`anolisos:8.6`制作。
 
 镜像包含：
 
