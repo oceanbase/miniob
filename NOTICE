@@ -5,7 +5,7 @@ Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affi
 miniob is licensed under [Mulan PSL v2.](http://license.coscl.org.cn/MulanPSL2)
 
 
-============== Libevent ================
+=============================== Libevent ===============================
 Libevent is available for use under the following license, commonly known
 as the 3-clause (or "modified") BSD license:
 
@@ -36,7 +36,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ==============================
 
-=============================== JsonCpp  =========================================
+============================== JsonCpp =================================
 The JsonCpp library's source code, including accompanying documentation,
 tests and demonstration applications, are licensed under the following
 conditions...
@@ -85,7 +85,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ========================================================================
 
-=============================== googletest  =========================================
+=============================== googletest =============================
 Copyright 2008, Google Inc.
 All rights reserved.
 
