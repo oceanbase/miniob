@@ -1,4 +1,4 @@
-# 介绍
+# miniob 概述
 
 miniob 是 OceanBase 与华中科技大学联合开发的、面向"零"基础同学的数据库入门学习项目。
 
@@ -14,9 +14,9 @@ miniob 设计的目标是面向在校学生、数据库从业者、爱好者，�
 2. [如何编译 miniob 源码](https://github.com/oceanbase/miniob/blob/main/docs/how_to_build.md)
 3. [开发环境搭建(本地调试, 适用 Linux 和 Mac)](https://github.com/oceanbase/miniob/blob/main/docs/how_to_dev_miniob_by_vscode.md)
 4. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](https://github.com/oceanbase/miniob/blob/main/docs/how_to_dev_in_docker_container_by_vscode.md)
-5. [miniob 词法语法解析开发与测试](docs/miniob-sql-parser.md)
+5. [miniob 词法语法解析开发与测试](https://github.com/oceanbase/miniob/blob/main/docs/miniob-sql-parser.md)
 
-更多的文档, 可以参考 [docs](https://github.com/oceanbase/miniob/docs), 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
+更多的文档, 可以参考 [docs](https://github.com/oceanbase/miniob/tree/main/docs), 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
 
 1. [《从0到1数据库内核实战教程》  视频教程](https://open.oceanbase.com/activities/4921877?id=4921946)
 2. [《从0到1数据库内核实战教程》  基础讲义](https://github.com/oceanbase/kernel-quickstart)
@@ -58,7 +58,7 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 更多详情, 请参考 [OceanBase 大赛](https://open.oceanbase.com/competition/index)
 
-### 1. 大赛手把手入门
+### 1. 大赛手把手入门教程
 
 [大赛入门教程](https://github.com/oceanbase/kernel-quickstart/blob/V1.0.0/zh-CN/1.database-system-overview/5.miniob-github-gitee-instructions.md)
 
@@ -68,7 +68,7 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 ### 3. 提交测试
 
-题目完成并通过自测后，大家可以在 [miniob 训练营](https://open.oceanbase.com/train?questionId=200001) 上提交代码进行测试。
+题目完成并通过自测后，大家可以在 [miniob 训练营](https://open.oceanbase.com/train?questionId=500003) 上提交代码进行测试。
 
 在提交前, 请参考并学习 [训练营使用说明](https://ask.oceanbase.com/t/topic/35600372)
 
@@ -88,5 +88,5 @@ miniob 采用 [木兰宽松许可证，第2版](https://license.coscl.org.cn/Mul
 
 ## 社区组织
 
-[OceanBase 社区交流群 33254054](https://h5.dingtalk.com/circle/healthCheckin.html?corpId=dingd88359ef5e4c49ef87cda005313eea7a&1fe0ca69-72d=16c86a07-83c&cbdbhh=qwertyuiop&origin=1)
-[OceanBase 大赛官方交流群 35326455](https://qr.dingtalk.com/action/joingroup?code=v1,k1,g61jI0RwHQA8UMocuTbys2cyM7vck2c6jNE87vdxz9o=&_dt_no_comment=1&origin=11)
+- [OceanBase 社区交流群 33254054](https://h5.dingtalk.com/circle/healthCheckin.html?corpId=dingd88359ef5e4c49ef87cda005313eea7a&1fe0ca69-72d=16c86a07-83c&cbdbhh=qwertyuiop&origin=1)
+- [OceanBase 大赛官方交流群 35326455](https://qr.dingtalk.com/action/joingroup?code=v1,k1,g61jI0RwHQA8UMocuTbys2cyM7vck2c6jNE87vdxz9o=&_dt_no_comment=1&origin=11)
