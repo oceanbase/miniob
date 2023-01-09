@@ -13,18 +13,17 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "common/log/log.h"
-#include "sql/operator/project_operator.h"
+#include "sql/operator/project_physical_operator.h"
 #include "storage/record/record.h"
 #include "storage/common/table.h"
 
-RC ProjectOperator::open()
+RC ProjectPhysicalOperator::open()
 {
-  if (children_.size() != 1) {
-    LOG_WARN("project operator must has 1 child");
-    return RC::INTERNAL;
+  if (children_.empty()) {
+    return RC::SUCCESS;
   }
 
-  Operator *child = children_[0];
+  PhysicalOperator *child = children_[0].get();
   RC rc = child->open();
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open child operator: %s", strrc(rc));
@@ -34,23 +33,28 @@ RC ProjectOperator::open()
   return RC::SUCCESS;
 }
 
-RC ProjectOperator::next()
+RC ProjectPhysicalOperator::next()
 {
+  if (children_.empty()) {
+    return RC::RECORD_EOF;
+  }
   return children_[0]->next();
 }
 
-RC ProjectOperator::close()
+RC ProjectPhysicalOperator::close()
 {
-  children_[0]->close();
+  if (!children_.empty()) {
+    children_[0]->close();
+  }
   return RC::SUCCESS;
 }
-Tuple *ProjectOperator::current_tuple()
+Tuple *ProjectPhysicalOperator::current_tuple()
 {
   tuple_.set_tuple(children_[0]->current_tuple());
   return &tuple_;
 }
 
-void ProjectOperator::add_projection(const Table *table, const FieldMeta *field_meta)
+void ProjectPhysicalOperator::add_projection(const Table *table, const FieldMeta *field_meta)
 {
   // 对单表来说，展示的(alias) 字段总是字段名称，
   // 对多表查询来说，展示的alias 需要带表名字

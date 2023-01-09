@@ -17,23 +17,27 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/insert_stmt.h"
 #include "sql/stmt/delete_stmt.h"
 #include "sql/stmt/select_stmt.h"
+#include "sql/stmt/explain_stmt.h"
 
 RC Stmt::create_stmt(Db *db, const Query &query, Stmt *&stmt)
 {
   stmt = nullptr;
 
   switch (query.flag) {
-  case SCF_INSERT: {
-      return InsertStmt::create(db, query.sstr.insertion, stmt);
+    case SCF_INSERT: {
+      return InsertStmt::create(db, query.insertion, stmt);
     }
-    break;
-  case SCF_DELETE: {
-      return DeleteStmt::create(db, query.sstr.deletion, stmt);   
+    case SCF_DELETE: {
+      return DeleteStmt::create(db, query.deletion, stmt);   
     }
-  case SCF_SELECT: {
-    return SelectStmt::create(db, query.sstr.selection, stmt);
-  }
-  default: {
+    case SCF_SELECT: {
+      return SelectStmt::create(db, query.selection, stmt);
+    }
+
+    case SCF_EXPLAIN: {
+      return ExplainStmt::create(db, query.explain, stmt);
+    }
+    default: {
       LOG_WARN("unknown query command");
     }
     break;

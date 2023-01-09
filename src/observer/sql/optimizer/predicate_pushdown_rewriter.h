@@ -9,35 +9,27 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/27.
+// Created by Wangyunlai on 2022/12/30.
 //
 
 #pragma once
 
-#include "sql/operator/operator.h"
-
-class FilterStmt;
+#include <vector>
+#include "sql/optimizer/rewrite_rule.h"
 
 /**
- * PredicateOperator 用于单个表中的记录过滤
- * 如果是多个表数据过滤，比如join条件的过滤，需要设计新的predicate或者扩展:w
+ * 将一些谓词表达式下推到表数据扫描中
+ * 这样可以提前过滤一些数据
  */
-class PredicateOperator : public Operator
+class PredicatePushdownRewriter : public RewriteRule
 {
 public:
-  PredicateOperator(FilterStmt *filter_stmt)
-    : filter_stmt_(filter_stmt)
-  {}
+  PredicatePushdownRewriter() = default;
+  virtual ~PredicatePushdownRewriter() = default;
 
-  virtual ~PredicateOperator() = default;
+  RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) override;
 
-  RC open() override;
-  RC next() override;
-  RC close() override;
-
-  Tuple * current_tuple() override;
 private:
-  bool do_predicate(RowTuple &tuple);
-private:
-  FilterStmt *filter_stmt_ = nullptr;
+  RC get_exprs_can_pushdown(std::unique_ptr<Expression> &expr,
+                            std::vector<std::unique_ptr<Expression>> &pushdown_exprs);
 };

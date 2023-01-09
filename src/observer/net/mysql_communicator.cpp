@@ -19,27 +19,27 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "net/mysql_communicator.h"
 #include "event/session_event.h"
-#include "sql/operator/string_list_operator.h"
+#include "sql/operator/string_list_physical_operator.h"
 
 // https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__capabilities__flags.html
 // the flags below are negotiate by handshake packet
 const uint32_t CLIENT_PROTOCOL_41   = 512;
-const uint32_t CLIENT_INTERACTIVE   = 1024;  // This is an interactive client
+//const uint32_t CLIENT_INTERACTIVE   = 1024;  // This is an interactive client
 const uint32_t CLIENT_TRANSACTIONS  = 8192;  // Client knows about transactions.
 const uint32_t CLIENT_SESSION_TRACK = (1UL << 23); // Capable of handling server state change information
 const uint32_t CLIENT_DEPRECATE_EOF = (1UL << 24); // Client no longer needs EOF_Packet and will use OK_Packet instead
 const uint32_t CLIENT_OPTIONAL_RESULTSET_METADATA = (1UL << 25); // The client can handle optional metadata information in the resultset. 
 // Support optional extension for query parameters into the COM_QUERY and COM_STMT_EXECUTE packets.
-const uint32_t CLIENT_QUERY_ATTRIBUTES = (1UL << 27); 
+//const uint32_t CLIENT_QUERY_ATTRIBUTES = (1UL << 27); 
 
 // https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__column__definition__flags.html
 // Column Definition Flags
-const uint32_t NOT_NULL_FLAG  = 1;
-const uint32_t PRI_KEY_FLAG   = 2;
-const uint32_t UNIQUE_KEY_FLAG   = 4;
-const uint32_t MULTIPLE_KEY_FLAG = 8;
-const uint32_t NUM_FLAG          = 32768; // Field is num (for clients)
-const uint32_t PART_KEY_FLAG     = 16384; // Intern; Part of some key.
+//const uint32_t NOT_NULL_FLAG  = 1;
+//const uint32_t PRI_KEY_FLAG   = 2;
+//const uint32_t UNIQUE_KEY_FLAG   = 4;
+//const uint32_t MULTIPLE_KEY_FLAG = 8;
+//const uint32_t NUM_FLAG          = 32768; // Field is num (for clients)
+//const uint32_t PART_KEY_FLAG     = 16384; // Intern; Part of some key.
 
 enum ResultSetMetaData
 {
@@ -184,7 +184,7 @@ int store_lenenc_string(char *buf, const char *s)
  * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_packets.html
  * https://mariadb.com/kb/en/0-packet/
  */
-struct alignas(1) PacketHeader {
+struct PacketHeader {
   int32_t payload_length:24; //! 当前packet的除掉头的长度
   int8_t  sequence_id = 0;   //! 当前packet在当前处理过程中是第几个包
 };
@@ -213,7 +213,7 @@ struct HandshakeV10 : public BasePacket
 {
   int8_t       protocol = 10;
   char         server_version[7] = "5.7.25";
-  int32_t      thread_id = 3221501807; // conn id
+  int32_t      thread_id = 21501807; // conn id
   char         auth_plugin_data_part_1[9] = "12345678"; // first 8 bytes of the plugin provided data (scramble) // and the filler 
   int16_t      capability_flags_1 = 0xF7DF; // The lower 2 bytes of the Capabilities Flags
   int8_t       character_set = 83;
@@ -427,9 +427,9 @@ RC create_version_comment_sql_result(SqlResult *&sql_result)
 
   const char *version_comments = "MiniOB";
 
-  StringListOperator *oper = new StringListOperator();
+  StringListPhysicalOperator *oper = new StringListPhysicalOperator();
   oper->append(version_comments);
-  sql_result->set_operator(oper);
+  sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
   return RC::SUCCESS;
 }
 
@@ -609,13 +609,20 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       return write_state(event, need_disconnect);
     }
 
-    // send metadata : Column Definition
-    rc = send_column_definition(sql_result, need_disconnect);
-    if (rc != RC::SUCCESS) {
-      return rc;
+    const TupleSchema &tuple_schema = sql_result->tuple_schema();
+    const int cell_num = tuple_schema.cell_num();
+    if (cell_num == 0) {
+      // maybe a dml that send nothing to client
+    } else {
+
+      // send metadata : Column Definition
+      rc = send_column_definition(sql_result, need_disconnect);
+      if (rc != RC::SUCCESS) {
+        return rc;
+      }
     }
 
-    rc = send_result_rows(sql_result, need_disconnect);
+    rc = send_result_rows(sql_result, cell_num == 0, need_disconnect);
   }
   
   return rc;
@@ -653,6 +660,10 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
   RC rc = RC::SUCCESS;
   const TupleSchema &tuple_schema = sql_result->tuple_schema();
   const int cell_num = tuple_schema.cell_num();
+
+  if (cell_num == 0) {
+    return rc;
+  }
 
   std::vector<char> net_packet;
   net_packet.resize(1024);
@@ -761,15 +772,27 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
 /**
  * 发送每行数据
  * 一行一个包
+ * @param no_column_def 为了特殊处理没有返回值的语句，比如insert/delete，需要做特殊处理。
+ *                      这种语句只需要返回一个ok packet即可
  */
-RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool &need_disconnect)
+RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool no_column_def, bool &need_disconnect)
 {
   RC rc = RC::SUCCESS;
   std::vector<char> packet;
   packet.resize(4 * 1024 * 1024); // TODO warning: length cannot be fix
-  
+
+  int affected_rows = 0;
   Tuple *tuple = nullptr;
   while (RC::SUCCESS == (rc = sql_result->next_tuple(tuple))) {
+    assert(tuple != nullptr);
+
+    affected_rows++;
+    
+    const int cell_num = tuple->cell_num();
+    if (cell_num == 0) {
+      continue;
+    }
+
     // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset.html
     // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset_row.html
     // note: if some field is null, send a 0xFB
@@ -777,11 +800,8 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool &need_disconn
     int pos = 0;
 
     pos += 3;
-    store_int1(buf + pos, sequence_id_++);
-    pos += 1;
+    pos += store_int1(buf + pos, sequence_id_++);
 
-    assert(tuple != nullptr);
-    const int cell_num = tuple->cell_num();
     TupleCell tuple_cell;
     for (int i = 0; i < cell_num; i++) {
       rc = tuple->cell_at(i, tuple_cell);
@@ -806,12 +826,14 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool &need_disconn
   }
 
   // 所有行发送完成后，发送一个EOF或OK包
-  if (client_capabilities_flag_ & CLIENT_DEPRECATE_EOF) {
-    LOG_TRACE("client has CLIENT_DEPRECATE_EOF, send ok packet");
+  if ((client_capabilities_flag_ & CLIENT_DEPRECATE_EOF) || no_column_def) {
+    LOG_TRACE("client has CLIENT_DEPRECATE_EOF or has empty column, send ok packet");
     OkPacket ok_packet;
     ok_packet.packet_header.sequence_id = sequence_id_++;
+    ok_packet.affected_rows = affected_rows;
     rc = send_packet(ok_packet);
   } else {
+    LOG_TRACE("send eof packet to client");
     EofPacket eof_packet;
     eof_packet.packet_header.sequence_id = sequence_id_++;
     rc = send_packet(eof_packet);

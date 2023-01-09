@@ -27,12 +27,12 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_event.h"
 #include "event/session_event.h"
 #include "sql/expr/tuple.h"
-#include "sql/operator/table_scan_operator.h"
-#include "sql/operator/index_scan_operator.h"
-#include "sql/operator/predicate_operator.h"
-#include "sql/operator/delete_operator.h"
-#include "sql/operator/project_operator.h"
-#include "sql/operator/string_list_operator.h"
+#include "sql/operator/table_scan_physical_operator.h"
+#include "sql/operator/index_scan_physical_operator.h"
+#include "sql/operator/predicate_physical_operator.h"
+#include "sql/operator/delete_physical_operator.h"
+#include "sql/operator/project_physical_operator.h"
+#include "sql/operator/string_list_physical_operator.h"
 #include "sql/stmt/stmt.h"
 #include "sql/stmt/select_stmt.h"
 #include "sql/stmt/update_stmt.h"
@@ -48,9 +48,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/clog.h"
 
 using namespace common;
-
-//RC create_selection_executor(
-//   Trx *trx, const Selects &selects, const char *db, const char *table_name, SelectExeNode &select_node);
 
 //! Constructor
 ExecuteStage::ExecuteStage(const char *tag) : Stage(tag)
@@ -109,37 +106,39 @@ void ExecuteStage::cleanup()
 
 void ExecuteStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
+  LOG_TRACE("Enter");
 
   handle_request(event);
 
-  LOG_TRACE("Exit\n");
+  LOG_TRACE("Exit");
   return;
 }
 
 void ExecuteStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
+  LOG_TRACE("Enter");
 
   // here finish read all data from disk or network, but do nothing here.
 
-  LOG_TRACE("Exit\n");
+  LOG_TRACE("Exit");
   return;
 }
 
-void ExecuteStage::handle_request(common::StageEvent *event)
+RC ExecuteStage::handle_request(common::StageEvent *event)
 {
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   SessionEvent *session_event = sql_event->session_event();
+  const std::unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
   Stmt *stmt = sql_event->stmt();
   Session *session = session_event->session();
-  Query *sql = sql_event->query();
+  Query *sql = sql_event->query().get();
 
+  if (physical_operator != nullptr) {
+    return handle_request_with_physical_operator(sql_event);
+  }
+  
   if (stmt != nullptr) {
     switch (stmt->type()) {
-    case StmtType::SELECT: {
-      do_select(sql_event);
-    } break;
     case StmtType::INSERT: {
       do_insert(sql_event);
     } break;
@@ -223,6 +222,44 @@ void ExecuteStage::handle_request(common::StageEvent *event)
     }
     }
   }
+  return RC::SUCCESS;
+}
+
+RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
+{
+  RC rc = RC::SUCCESS;
+  
+  Stmt *stmt = sql_event->stmt();
+  
+  std::unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
+  ASSERT(physical_operator != nullptr, "physical operator should not be null");
+  
+  TupleSchema schema;
+  switch (stmt->type()) {
+    case StmtType::SELECT: {
+      SelectStmt *select_stmt = static_cast<SelectStmt *>(stmt);
+      bool with_table_name = select_stmt->tables().size() > 1;
+      for (const Field &field : select_stmt->query_fields()) {
+        if (with_table_name) {
+          schema.append_cell(field.table_name(), field.field_name());
+        } else {
+          schema.append_cell(field.field_name());
+        }
+      }
+    } break;
+
+    case StmtType::EXPLAIN: {
+      schema.append_cell("Query Plan");
+    } break;
+    default: {
+      // 只有select返回结果
+    } break;
+  }
+  SqlResult *sql_result = new SqlResult;
+  sql_result->set_tuple_schema(schema);
+  sql_result->set_operator(std::move(physical_operator));
+  sql_event->session_event()->set_sql_result(sql_result);
+  return rc;
 }
 
 void end_trx_if_need(Session *session, Trx *trx, bool all_right)
@@ -256,7 +293,7 @@ void tuple_to_string(std::ostream &os, const Tuple &tuple)
     cell.to_string(os);
   }
 }
-
+#if 0
 IndexScanOperator *try_to_create_index_scan_operator(FilterStmt *filter_stmt)
 {
   const std::vector<FilterUnit *> &filter_units = filter_stmt->filter_units();
@@ -382,8 +419,11 @@ IndexScanOperator *try_to_create_index_scan_operator(FilterStmt *filter_stmt)
   return oper;
 }
 
+#endif
+
 RC ExecuteStage::do_select(SQLStageEvent *sql_event)
 {
+  #if 0
   SelectStmt *select_stmt = (SelectStmt *)(sql_event->stmt());
   SessionEvent *session_event = sql_event->session_event();
   RC rc = RC::SUCCESS;
@@ -393,7 +433,7 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
     return rc;
   }
 
-  Operator *scan_oper = try_to_create_index_scan_operator(select_stmt->filter_stmt());
+  Operator *scan_oper = nullptr; // try_to_create_index_scan_operator(select_stmt->filter_stmt());
   if (nullptr == scan_oper) {
     scan_oper = new TableScanOperator(select_stmt->tables()[0]);
   }
@@ -444,7 +484,8 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
   session_event->set_response(ss.str());
   */
   session_event->set_sql_result(sql_result);
-  return rc;
+  #endif
+  return RC::SUCCESS;
 }
 
 RC ExecuteStage::do_help(SQLStageEvent *sql_event)
@@ -460,23 +501,27 @@ RC ExecuteStage::do_help(SQLStageEvent *sql_event)
       "delete from `table` [where `column`=`value`];",
       "select [ * | `columns` ] from `table`;"
   };
-  StringListOperator *oper = new StringListOperator();
+  auto oper = new StringListPhysicalOperator();
   for (size_t i = 0; i < sizeof(strings)/sizeof(strings[0]); i++) {
     oper->append(strings[i]);
   }
   SqlResult *sql_result = new SqlResult;
-  sql_result->set_operator(oper);
+  TupleSchema schema;
+  schema.append_cell("Commands");
+  sql_result->set_tuple_schema(schema);
+  sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
   session_event->set_sql_result(sql_result);
   return RC::SUCCESS;
 }
 
 RC ExecuteStage::do_create_table(SQLStageEvent *sql_event)
 {
-  const CreateTable &create_table = sql_event->query()->sstr.create_table;
+  const CreateTable &create_table = sql_event->query()->create_table;
   SessionEvent *session_event = sql_event->session_event();
   Db *db = session_event->session()->get_current_db();
-  RC rc = db->create_table(create_table.relation_name,
-			create_table.attribute_count, create_table.attributes);
+
+  const int attribute_count = static_cast<int>(create_table.attr_infos.size());
+  RC rc = db->create_table(create_table.relation_name.c_str(), attribute_count, create_table.attr_infos.data());
   SqlResult *sql_result = new SqlResult;
   sql_result->set_return_code(rc);
   sql_event->session_event()->set_sql_result(sql_result);
@@ -488,14 +533,14 @@ RC ExecuteStage::do_create_index(SQLStageEvent *sql_event)
   SessionEvent *session_event = sql_event->session_event();
   session_event->set_sql_result(sql_result);
   Db *db = session_event->session()->get_current_db();
-  const CreateIndex &create_index = sql_event->query()->sstr.create_index;
-  Table *table = db->find_table(create_index.relation_name);
+  const CreateIndex &create_index = sql_event->query()->create_index;
+  Table *table = db->find_table(create_index.relation_name.c_str());
   if (nullptr == table) {
     sql_result->set_return_code(RC::SCHEMA_TABLE_NOT_EXIST);
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
 
-  RC rc = table->create_index(nullptr, create_index.index_name, create_index.attribute_name);
+  RC rc = table->create_index(nullptr, create_index.index_name.c_str(), create_index.attribute_name.c_str());
   sql_result->set_return_code(rc);
   return rc;
 }
@@ -511,19 +556,19 @@ RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
   TupleSchema tuple_schema;
   tuple_schema.append_cell(TupleCellSpec("", "Tables_in_SYS", "Tables_in_SYS"));
   sql_result->set_tuple_schema(tuple_schema);
-  StringListOperator *oper = new StringListOperator;
+  auto oper = new StringListPhysicalOperator;
   for (const std::string &s : all_tables) {
     oper->append(s);
   }
-  sql_result->set_operator(oper);
+  sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
   return RC::SUCCESS;
 }
 
 RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
 {
-  Query *query = sql_event->query();
+  Query *query = sql_event->query().get();
   Db *db = sql_event->session_event()->session()->get_current_db();
-  const char *table_name = query->sstr.desc_table.relation_name;
+  const char *table_name = query->desc_table.relation_name.c_str();
   Table *table = db->find_table(table_name);
   SqlResult *sql_result = new SqlResult;
   sql_event->session_event()->set_sql_result(sql_result);
@@ -534,14 +579,14 @@ RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
     tuple_schema.append_cell(TupleCellSpec("", "Length", "Length"));
     // TODO add Key
     sql_result->set_tuple_schema(tuple_schema);
-    StringListOperator *oper = new StringListOperator;
+    auto oper = new StringListPhysicalOperator;
     const TableMeta &table_meta = table->table_meta();
     for (int i = table_meta.sys_field_num(); i < table_meta.field_num(); i++) {
       const FieldMeta *field_meta = table_meta.field(i);
       oper->append({field_meta->name(), attr_type_to_string(field_meta->type()),
           std::to_string(field_meta->len())});
     }
-    sql_result->set_operator(oper);
+    sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
   } else {
     sql_result->set_return_code(RC::SCHEMA_TABLE_NOT_EXIST);
     sql_result->set_state_string("Table not exists");
@@ -600,6 +645,7 @@ RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
 
 RC ExecuteStage::do_delete(SQLStageEvent *sql_event)
 {
+  #if 0
   Stmt *stmt = sql_event->stmt();
   SessionEvent *session_event = sql_event->session_event();
   Session *session = session_event->session();
@@ -643,6 +689,8 @@ RC ExecuteStage::do_delete(SQLStageEvent *sql_event)
     }
   }
   return rc;
+  #endif
+  return RC::SUCCESS;
 }
 
 RC ExecuteStage::do_begin(SQLStageEvent *sql_event)

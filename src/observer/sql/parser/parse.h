@@ -12,12 +12,9 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi
 //
 
-#ifndef __OBSERVER_SQL_PARSER_PARSE_H__
-#define __OBSERVER_SQL_PARSER_PARSE_H__
+#pragma once
 
 #include "rc.h"
 #include "sql/parser/parse_defs.h"
 
-RC parse(const char *st, Query *sqln);
-
-#endif  //__OBSERVER_SQL_PARSER_PARSE_H__
+RC parse(const char *st, ParsedSqlResult *sql_result);

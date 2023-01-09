@@ -9,28 +9,19 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/9.
+// Created by Wangyunlai on 2022/12/07
 //
 
-#include "sql/operator/insert_operator.h"
-#include "sql/stmt/insert_stmt.h"
-#include "storage/common/table.h"
-#include "rc.h"
+#pragma once
 
-RC InsertOperator::open()
-{
-  Table *table = insert_stmt_->table();
-  const Value *values = insert_stmt_->values();
-  int value_amount = insert_stmt_->value_amount();
-  return table->insert_record(nullptr, value_amount, values); // TODO trx
-}
+#include "sql/operator/logical_operator.h"
 
-RC InsertOperator::next()
+class JoinLogicalOperator : public LogicalOperator
 {
-  return RC::RECORD_EOF;
-}
+public:
+  JoinLogicalOperator() = default;
+  virtual ~JoinLogicalOperator() = default;
 
-RC InsertOperator::close()
-{
-  return RC::SUCCESS;
-}
+  LogicalOperatorType type() const override { return LogicalOperatorType::JOIN; }
+private:
+};

@@ -53,24 +53,24 @@ RC FilterStmt::create(Db *db, Table *default_table, std::unordered_map<std::stri
 RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
 		       const RelAttr &attr, Table *&table, const FieldMeta *&field)
 {
-  if (common::is_blank(attr.relation_name)) {
+  if (common::is_blank(attr.relation_name.c_str())) {
     table = default_table;
   } else if (nullptr != tables) {
-    auto iter = tables->find(std::string(attr.relation_name));
+    auto iter = tables->find(attr.relation_name);
     if (iter != tables->end()) {
       table = iter->second;
     }
   } else {
-    table = db->find_table(attr.relation_name);
+    table = db->find_table(attr.relation_name.c_str());
   }
   if (nullptr == table) {
-    LOG_WARN("No such table: attr.relation_name: %s", attr.relation_name);
+    LOG_WARN("No such table: attr.relation_name: %s", attr.relation_name.c_str());
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
 
-  field = table->table_meta().field(attr.attribute_name);
+  field = table->table_meta().field(attr.attribute_name.c_str());
   if (nullptr == field) {
-    LOG_WARN("no such field in table: table %s, field %s", table->name(), attr.attribute_name);
+    LOG_WARN("no such field in table: table %s, field %s", table->name(), attr.attribute_name.c_str());
     table = nullptr;
     return RC::SCHEMA_FIELD_NOT_EXIST;
   }
@@ -88,9 +88,9 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
     LOG_WARN("invalid compare operator : %d", comp);
     return RC::INVALID_ARGUMENT;
   }
-
-  Expression *left = nullptr;
-  Expression *right = nullptr;
+  
+  filter_unit = new FilterUnit;
+  
   if (condition.left_is_attr) {
     Table *table = nullptr;
     const FieldMeta *field = nullptr;
@@ -99,9 +99,13 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
       LOG_WARN("cannot find attr");
       return rc;
     }
-    left = new FieldExpr(table, field);
+    FilterObj filter_obj;
+    filter_obj.init_attr(Field(table, field));
+    filter_unit->set_left(filter_obj);
   } else {
-    left = new ValueExpr(condition.left_value);
+    FilterObj filter_obj;
+    filter_obj.init_value(condition.left_value);
+    filter_unit->set_left(filter_obj);
   }
 
   if (condition.right_is_attr) {
@@ -110,18 +114,19 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
     rc = get_table_and_field(db, default_table, tables, condition.right_attr, table, field);  
     if (rc != RC::SUCCESS) {
       LOG_WARN("cannot find attr");
-      delete left;
       return rc;
     }
-    right = new FieldExpr(table, field);
+    FilterObj filter_obj;
+    filter_obj.init_attr(Field(table, field));
+    filter_unit->set_right(filter_obj);
   } else {
-    right = new ValueExpr(condition.right_value);
+    FilterObj filter_obj;
+    filter_obj.init_value(condition.right_value);
+    filter_unit->set_right(filter_obj);
   }
 
-  filter_unit = new FilterUnit;
+  
   filter_unit->set_comp(comp);
-  filter_unit->set_left(left);
-  filter_unit->set_right(right);
 
   // 检查两个类型是否能够比较
   return rc;

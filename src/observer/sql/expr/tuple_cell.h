@@ -34,32 +34,41 @@ private:
   std::string alias_;
 };
 
+/**
+ * 表示tuple中某个元素的值
+ * @note 可以与value做合并
+ */
 class TupleCell
 {
 public: 
   TupleCell() = default;
   
-  TupleCell(FieldMeta *meta, char *data)
+  TupleCell(FieldMeta *meta, char *data, int length = 4)
     : TupleCell(meta->type(), data)
   {}
-  TupleCell(AttrType attr_type, char *data)
-    : attr_type_(attr_type), data_(data)
-  {}
+  TupleCell(AttrType attr_type, char *data, int length = 4)
+    : attr_type_(attr_type)
+  {
+    this->set_data(data, length);
+  }
+
+  TupleCell(const TupleCell &other) = default;
+  TupleCell &operator=(const TupleCell &other) = default;
 
   void set_type(AttrType type) { this->attr_type_ = type; }
-  void set_length(int length) { this->length_ = length; }
-  void set_data(char *data) { this->data_ = data; }
-  void set_data(const char *data) { this->set_data(const_cast<char *>(data)); }
+  void set_data(char *data, int length);
+  void set_data(const char *data, int length) { this->set_data(const_cast<char *>(data), length); }
+  void set_int(int val);
+  void set_float(float val);
+  void set_boolean(bool val);
+  void set_string(const char *s, int len = 0);
+  void set_value(const Value &value);
 
   void to_string(std::ostream &os) const;
 
   int compare(const TupleCell &other) const;
 
-  const char *data() const
-  {
-    return data_;
-  }
-
+  const char *data() const;
   int length() const { return length_; }
 
   AttrType attr_type() const
@@ -67,8 +76,24 @@ public:
     return attr_type_;
   }
 
+public:
+  /**
+   * 获取对应的值
+   * 如果当前的类型与期望获取的类型不符，就会执行转换操作
+   */
+  int get_int() const;
+  float get_float() const;
+  std::string get_string() const;
+  bool get_boolean() const;
+  
 private:
   AttrType attr_type_ = UNDEFINED;
-  int length_ = -1;
-  char *data_ = nullptr; // real data. no need to move to field_meta.offset
+  int length_;
+
+  union {
+    int   int_value_;
+    float float_value_;
+    bool  bool_value_;
+  } num_value_;
+  std::string str_value_;
 };

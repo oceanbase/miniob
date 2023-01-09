@@ -55,7 +55,7 @@ private:
    * 这里就分为两个函数
    */
   RC send_column_definition(SqlResult *sql_result, bool &need_disconnect);
-  RC send_result_rows(SqlResult *sql_result, bool &need_disconnect);
+  RC send_result_rows(SqlResult *sql_result, bool no_column_def, bool &need_disconnect);
 
   /**
    * 根据实际测试，客户端在连接上来时，会发起一个 version_comment的查询

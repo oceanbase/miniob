@@ -90,8 +90,7 @@ public:
     FieldExpr *field_expr = speces_[index];
     const FieldMeta *field_meta = field_expr->field().meta();
     cell.set_type(field_meta->type());
-    cell.set_data(this->record_->data() + field_meta->offset());
-    cell.set_length(field_meta->len());
+    cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
     return RC::SUCCESS;
   }
 
@@ -232,4 +231,51 @@ public:
 
 private:
   std::vector<TupleCell> cells_;
+};
+
+/**
+ * 将两个tuple合并为一个tuple
+ * 在join算子中使用
+ */
+class JoinedTuple : public Tuple
+{
+public:
+  JoinedTuple() = default;
+  virtual ~JoinedTuple() = default;
+
+  void set_left(Tuple *left) { left_ = left; }
+  void set_right(Tuple *right) { right_ = right; }
+  
+  int cell_num() const override
+  {
+    return left_->cell_num() + right_->cell_num();
+  }
+
+  RC cell_at(int index, TupleCell &cell) const override
+  {
+    const int left_cell_num = left_->cell_num();
+    if (index >0 && index < left_cell_num) {
+      return left_->cell_at(index, cell);
+    }
+
+    if (index >= left_cell_num && index < left_cell_num + right_->cell_num()) {
+      return right_->cell_at(index - left_cell_num, cell);
+    }
+
+    return RC::NOTFOUND;
+  }
+
+  RC find_cell(const TupleCellSpec &spec, TupleCell &cell) const override
+  {
+    RC rc = left_->find_cell(spec, cell);
+    if (rc == RC::SUCCESS || rc != RC::NOTFOUND) {
+      return rc;
+    }
+
+    return right_->find_cell(spec, cell);
+  }
+  
+private:
+  Tuple * left_ = nullptr;
+  Tuple * right_ = nullptr;
 };

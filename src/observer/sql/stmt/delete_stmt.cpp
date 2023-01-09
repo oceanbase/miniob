@@ -32,7 +32,7 @@ DeleteStmt::~DeleteStmt()
 
 RC DeleteStmt::create(Db *db, const Deletes &delete_sql, Stmt *&stmt)
 {
-  const char *table_name = delete_sql.relation_name;
+  const char *table_name = delete_sql.relation_name.c_str();
   if (nullptr == db || nullptr == table_name) {
     LOG_WARN("invalid argument. db=%p, table_name=%p", 
              db, table_name);
@@ -51,7 +51,8 @@ RC DeleteStmt::create(Db *db, const Deletes &delete_sql, Stmt *&stmt)
 
   FilterStmt *filter_stmt = nullptr;
   RC rc = FilterStmt::create(db, table, &table_map,
-			     delete_sql.conditions, delete_sql.condition_num, filter_stmt);
+			     delete_sql.conditions.data(), static_cast<int>(delete_sql.conditions.size()), 
+           filter_stmt);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to create filter statement. rc=%d:%s", rc, strrc(rc));
     return rc;

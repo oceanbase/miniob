@@ -13,27 +13,36 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "common/log/log.h"
-#include "sql/operator/delete_operator.h"
+#include "sql/operator/delete_physical_operator.h"
 #include "storage/record/record.h"
 #include "storage/common/table.h"
 #include "storage/trx/trx.h"
 #include "sql/stmt/delete_stmt.h"
 
-RC DeleteOperator::open()
+RC DeletePhysicalOperator::open()
 {
-  if (children_.size() != 1) {
-    LOG_WARN("delete operator must has 1 child");
-    return RC::INTERNAL;
+  if (children_.empty()) {
+    return RC::SUCCESS;
   }
 
-  Operator *child = children_[0];
+  std::unique_ptr<PhysicalOperator> &child = children_[0];
   RC rc = child->open();
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open child operator: %s", strrc(rc));
     return rc;
   }
 
-  Table *table = delete_stmt_->table();
+  return RC::SUCCESS;
+}
+
+RC DeletePhysicalOperator::next()
+{
+  RC rc = RC::SUCCESS;
+  if (children_.empty()) {
+    return RC::RECORD_EOF;
+  }
+  
+  PhysicalOperator *child = children_[0].get();
   while (RC::SUCCESS == (rc = child->next())) {
     Tuple *tuple = child->current_tuple();
     if (nullptr == tuple) {
@@ -43,22 +52,20 @@ RC DeleteOperator::open()
 
     RowTuple *row_tuple = static_cast<RowTuple *>(tuple);
     Record &record = row_tuple->record();
-    rc = table->delete_record(trx_, &record);
+    rc = table_->delete_record(trx_, &record);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to delete record: %s", strrc(rc));
       return rc;
     }
   }
-  return RC::SUCCESS;
-}
 
-RC DeleteOperator::next()
-{
   return RC::RECORD_EOF;
 }
 
-RC DeleteOperator::close()
+RC DeletePhysicalOperator::close()
 {
-  children_[0]->close();
+  if (!children_.empty()) {
+    children_[0]->close();
+  }
   return RC::SUCCESS;
 }

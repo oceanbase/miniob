@@ -10,7 +10,13 @@
  */
 struct ParserContext;
 
+#include "sql/parser/parse_defs.h"
 #include "yacc_sql.hpp"
+
+#ifndef register
+#define register 
+#endif // register
+
 extern int atoi();
 extern double atof();
 
@@ -25,10 +31,13 @@ extern double atof();
 
 /* Prevent the need for linking with -lfl */
 %option noyywrap
+%option nounput
+%option noinput
 %option bison-bridge
 %option reentrant
 /* 不区分大小写 */
 %option case-insensitive
+%option bison-locations
 
 WHITE_SAPCE      [\ \t\b\f]
 DIGIT            [0-9]+
@@ -84,6 +93,7 @@ FLOAT                                   RETURN_TOKEN(FLOAT_T);
 LOAD                                    RETURN_TOKEN(LOAD);
 DATA                                    RETURN_TOKEN(DATA);
 INFILE                                  RETURN_TOKEN(INFILE);
+EXPLAIN                                 RETURN_TOKEN(EXPLAIN);
 {ID}                                    yylval->string=strdup(yytext); RETURN_TOKEN(ID);
 "("                                     RETURN_TOKEN(LBRACE);
 ")"                                     RETURN_TOKEN(RBRACE);

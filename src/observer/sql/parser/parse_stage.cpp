@@ -123,23 +123,31 @@ RC ParseStage::handle_request(StageEvent *event)
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   const std::string &sql = sql_event->sql();
 
-  Query *query_result = query_create();
-  if (nullptr == query_result) {
-    LOG_ERROR("Failed to create query.");
-    return RC::INTERNAL;
-  }
+  ParsedSqlResult parsed_sql_result;
 
   SqlResult *sql_result = new SqlResult;
-  RC ret = parse(sql.c_str(), query_result);
-  if (ret != RC::SUCCESS) {
-    // set error information to event
-    sql_result->set_return_code(ret);
-    sql_result->set_state_string("Failed to parse sql");
+  parse(sql.c_str(), &parsed_sql_result);
+  if (parsed_sql_result.commands().empty()) {
+    sql_result->set_return_code(RC::SUCCESS);
+    sql_result->set_state_string("");
     sql_event->session_event()->set_sql_result(sql_result);
-    query_destroy(query_result);
     return RC::INTERNAL;
   }
 
-  sql_event->set_query(query_result);
+  if (parsed_sql_result.commands().size() > 1) {
+    LOG_WARN("got multi sql commands but only 1 will be handled");
+  }
+  
+  std::unique_ptr<Query> query_result = std::move(parsed_sql_result.commands().front());
+  if (query_result->flag == SCF_ERROR) {
+    // set error information to event
+    sql_result->set_return_code(RC::SQL_SYNTAX);
+    sql_result->set_state_string("Failed to parse sql");
+    sql_event->session_event()->set_sql_result(sql_result);
+    return RC::INTERNAL;
+  }
+
+  delete sql_result;
+  sql_event->set_query(std::move(query_result));
   return RC::SUCCESS;
 }

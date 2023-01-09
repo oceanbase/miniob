@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/13.
 //
 
-#ifndef __OBSERVER_SQL_EXECUTE_STAGE_H__
-#define __OBSERVER_SQL_EXECUTE_STAGE_H__
+#pragma once
 
 #include "common/seda/stage.h"
 #include "sql/parser/parse.h"
@@ -25,7 +24,7 @@ class SelectStmt;
 
 class ExecuteStage : public common::Stage {
 public:
-  ~ExecuteStage();
+  virtual ~ExecuteStage();
   static Stage *make_stage(const std::string &tag);
 
 protected:
@@ -38,7 +37,9 @@ protected:
   void handle_event(common::StageEvent *event) override;
   void callback_event(common::StageEvent *event, common::CallbackContext *context) override;
 
-  void handle_request(common::StageEvent *event);
+  RC handle_request(common::StageEvent *event);
+  RC handle_request_with_physical_operator(SQLStageEvent *sql_event);
+  
   RC do_help(SQLStageEvent *session_event);
   RC do_create_table(SQLStageEvent *sql_event);
   RC do_create_index(SQLStageEvent *sql_event);
@@ -56,5 +57,3 @@ private:
   Stage *default_storage_stage_ = nullptr;
   Stage *mem_storage_stage_ = nullptr;
 };
-
-#endif  //__OBSERVER_SQL_EXECUTE_STAGE_H__

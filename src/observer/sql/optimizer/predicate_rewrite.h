@@ -9,30 +9,18 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/10.
+// Created by Wangyunlai on 2022/12/29.
 //
 
 #pragma once
 
-#include "sql/parser/parse.h"
-#include "sql/operator/operator.h"
-#include "rc.h"
+#include "sql/optimizer/rewrite_rule.h"
 
-// TODO fixme
-class JoinOperator : public Operator
+class PredicateRewriteRule : public RewriteRule
 {
 public:
-  JoinOperator(Operator *left, Operator *right)
-  {}
+  PredicateRewriteRule() = default;
+  virtual ~PredicateRewriteRule() = default;
 
-  virtual ~JoinOperator() = default;
-
-  RC open() override;
-  RC next() override;
-  RC close() override;
-
-private:
-  Operator *left_ = nullptr;
-  Operator *right_ = nullptr;
-  bool round_done_ = true;
+  RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) override;
 };

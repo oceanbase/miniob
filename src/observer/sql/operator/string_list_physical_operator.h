@@ -15,14 +15,15 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <vector>
+#include "sql/operator/physical_operator.h"
 
-class StringListOperator : public Operator
+class StringListPhysicalOperator : public PhysicalOperator
 {
 public: 
-  StringListOperator()
+  StringListPhysicalOperator()
   {}
 
-  virtual ~StringListOperator() = default;
+  virtual ~StringListPhysicalOperator() = default;
 
   template <typename InputIt>
   void append(InputIt begin, InputIt end)
@@ -41,6 +42,8 @@ public:
     strings_.emplace_back(1, v);
   }
 
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::STRING_LIST; }
+  
   RC open() override
   {
     return RC::SUCCESS;
@@ -72,8 +75,8 @@ public:
     std::vector<TupleCell> cells;
     for (const std::string &s : string_list) {
 
-      TupleCell cell(CHARS, const_cast<char *>(s.data()));
-      cell.set_length(s.length());
+      TupleCell cell;
+      cell.set_string(s.c_str());
       cells.push_back(cell);
     }
     tuple_.set_cells(cells);

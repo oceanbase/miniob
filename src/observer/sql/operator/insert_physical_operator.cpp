@@ -9,30 +9,28 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2021/6/7.
+// Created by WangYunlai on 2021/6/9.
 //
 
-#pragma once
-
-#include "sql/operator/operator.h"
-#include "sql/parser/parse.h"
+#include "sql/operator/insert_physical_operator.h"
+#include "sql/stmt/insert_stmt.h"
+#include "storage/common/table.h"
 #include "rc.h"
 
-class InsertStmt;
-
-class InsertOperator : public Operator
+RC InsertPhysicalOperator::open()
 {
-public:
-  InsertOperator(InsertStmt *insert_stmt)
-    : insert_stmt_(insert_stmt)
-  {}
+  Table *table = insert_stmt_->table();
+  const Value *values = insert_stmt_->values();
+  int value_amount = insert_stmt_->value_amount();
+  return table->insert_record(nullptr, value_amount, values); // TODO trx
+}
 
-  virtual ~InsertOperator() = default;
+RC InsertPhysicalOperator::next()
+{
+  return RC::RECORD_EOF;
+}
 
-  RC open() override;
-  RC next() override;
-  RC close() override;
-
-private:
-  InsertStmt *insert_stmt_ = nullptr;
-};
+RC InsertPhysicalOperator::close()
+{
+  return RC::SUCCESS;
+}

@@ -442,7 +442,7 @@ void TimerStage::check_timer()
     now.tv_sec = ts_now.tv_sec;
     now.tv_usec = ts_now.tv_nsec / NSEC_PER_USEC;
 
-    LOG_TRACE("checking timer: sec=%ld, usec=%ld\n", now.tv_sec, now.tv_usec);
+    // LOG_TRACE("checking timer: sec=%ld, usec=%ld", now.tv_sec, now.tv_usec);
 
     // Trigger all events for which the trigger time has already passed.
     timer_queue_t::iterator first = timer_queue_.begin();
@@ -490,7 +490,7 @@ void TimerStage::check_timer()
       ts.tv_sec = first->first.get_time().tv_sec;
       ts.tv_nsec = first->first.get_time().tv_usec * NSEC_PER_USEC;
 
-      LOG_TRACE("sleeping until next deadline: sec=%ld, nsec=%ld\n", ts.tv_sec, ts.tv_nsec);
+      // LOG_TRACE("sleeping until next deadline: sec=%ld, nsec=%ld\n", ts.tv_sec, ts.tv_nsec);
       pthread_cond_timedwait(&timer_condv_, &timer_mutex_, &ts);
     }
   }

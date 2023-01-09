@@ -246,10 +246,18 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     }
   }
 
-  if (rc != RC::RECORD_EOF) {
-    LOG_WARN("operator is done with error. error=%s", strrc(rc));
-  } else {
+  if (rc == RC::RECORD_EOF) {
     rc = RC::SUCCESS;
+  }
+  
+  if (cell_num == 0) {
+    // 除了select之外，其它的消息通常不会通过operator来返回结果，表头和行数据都是空的
+    // 这里针对这种情况做特殊处理，当表头和行数据都是空的时候，就返回处理的结果
+    // 可能是insert/delete等操作，不直接返回给客户端数据，这里把处理结果返回给客户端
+    sql_result->set_return_code(rc);
+    return write_state(event, need_disconnect);
+  } else {
+
     int ret = common::writen(fd_, &message_terminate, sizeof(message_terminate));
     if (ret < 0) {
       LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));

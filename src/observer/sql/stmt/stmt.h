@@ -38,6 +38,7 @@ enum class StmtType
   LOAD_DATA,
   HELP,
   EXIT,
+  EXPLAIN,
 
   PREDICATE,
 };

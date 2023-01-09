@@ -9,35 +9,16 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/6/7.
+// Created by Wangyunlai on 2022/12/15
 //
 
-#pragma once
+#include "sql/operator/table_get_logical_operator.h"
 
-#include "sql/operator/operator.h"
-#include "storage/record/record_manager.h"
-#include "rc.h"
+TableGetLogicalOperator::TableGetLogicalOperator(Table *table, const std::vector<Field> &fields)
+    : table_(table), fields_(fields)
+{}
 
-class Table;
-
-class TableScanOperator : public Operator
+void TableGetLogicalOperator::set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs)
 {
-public:
-  TableScanOperator(Table *table)
-    : table_(table)
-  {}
-
-  virtual ~TableScanOperator() = default;
-
-  RC open() override;
-  RC next() override;
-  RC close() override;
-
-  Tuple * current_tuple() override;
-
-private:
-  Table *table_ = nullptr;
-  RecordFileScanner record_scanner_;
-  Record current_record_;
-  RowTuple tuple_;
-};
+  predicates_ = std::move(exprs);
+}

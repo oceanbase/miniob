@@ -144,7 +144,7 @@ void DefaultStorageStage::handle_event(StageEvent *event)
 
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
 
-  Query *sql = sql_event->query();
+  Query *sql = sql_event->query().get();
 
   SessionEvent *session_event = sql_event->session_event();
 
@@ -163,8 +163,8 @@ void DefaultStorageStage::handle_event(StageEvent *event)
         从文件导入数据，如果做性能测试，需要保持这些代码可以正常工作
         load data infile `your/file/path` into table `table-name`;
        */
-      const char *table_name = sql->sstr.load_data.relation_name;
-      const char *file_name = sql->sstr.load_data.file_name;
+      const char *table_name = sql->load_data.relation_name.c_str();
+      const char *file_name = sql->load_data.file_name.c_str();
       std::string result = load_data(dbname, table_name, file_name);
       snprintf(response, sizeof(response), "%s", result.c_str());
     } break;
@@ -236,7 +236,8 @@ RC insert_record_from_file(
 
           rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
         } else {
-          value_init_integer(&record_values[i], int_value);
+          record_values[i].type = INTS;
+          record_values[i].int_value = int_value;
         }
       }
 
@@ -251,11 +252,13 @@ RC insert_record_from_file(
           errmsg << "need a float number but got '" << file_values[i] << "'(field index:" << i << ")";
           rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
         } else {
-          value_init_float(&record_values[i], float_value);
+          record_values[i].type = FLOATS;
+          record_values[i].float_value = float_value;
         }
       } break;
       case CHARS: {
-        value_init_string(&record_values[i], file_value.c_str());
+        record_values[i].type = CHARS;
+        record_values[i].string_value = file_value.c_str();
       } break;
       default: {
         errmsg << "Unsupported field type to loading: " << field->type();
@@ -269,9 +272,6 @@ RC insert_record_from_file(
     if (rc != RC::SUCCESS) {
       errmsg << "insert failed.";
     }
-  }
-  for (int i = 0; i < field_num; i++) {
-    value_destroy(&record_values[i]);
   }
   return rc;
 }

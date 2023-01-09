@@ -9,14 +9,23 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by WangYunlai on 2022/11/18.
+// Created by Wangyunlai on 2022/12/13.
 //
 
-#include "sql/operator/operator.h"
+#pragma once
 
-Operator::~Operator()
+#include "rc.h"
+#include "sql/optimizer/rewrite_rule.h"
+
+class LogicalOperator;
+
+class ComparisonSimplificationRule : public ExpressionRewriteRule
 {
-  for (Operator *oper : children_) {
-    delete oper;
-  }
-}
+public: 
+  ComparisonSimplificationRule() = default;
+  virtual ~ComparisonSimplificationRule() = default;
+  
+  RC rewrite(std::unique_ptr<Expression> &expr, bool &change_made) override;
+
+private:
+};

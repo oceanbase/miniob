@@ -89,19 +89,20 @@ extern int yydebug;
     LOAD = 290,                    /* LOAD  */
     DATA = 291,                    /* DATA  */
     INFILE = 292,                  /* INFILE  */
-    EQ = 293,                      /* EQ  */
-    LT = 294,                      /* LT  */
-    GT = 295,                      /* GT  */
-    LE = 296,                      /* LE  */
-    GE = 297,                      /* GE  */
-    NE = 298,                      /* NE  */
-    NUMBER = 299,                  /* NUMBER  */
-    FLOAT = 300,                   /* FLOAT  */
-    ID = 301,                      /* ID  */
-    PATH = 302,                    /* PATH  */
-    SSS = 303,                     /* SSS  */
-    STAR = 304,                    /* STAR  */
-    STRING_V = 305                 /* STRING_V  */
+    EXPLAIN = 293,                 /* EXPLAIN  */
+    EQ = 294,                      /* EQ  */
+    LT = 295,                      /* LT  */
+    GT = 296,                      /* GT  */
+    LE = 297,                      /* LE  */
+    GE = 298,                      /* GE  */
+    NE = 299,                      /* NE  */
+    NUMBER = 300,                  /* NUMBER  */
+    FLOAT = 301,                   /* FLOAT  */
+    ID = 302,                      /* ID  */
+    PATH = 303,                    /* PATH  */
+    SSS = 304,                     /* SSS  */
+    STAR = 305,                    /* STAR  */
+    STRING_V = 306                 /* STRING_V  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -110,17 +111,24 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 106 "yacc_sql.y"
+#line 89 "yacc_sql.y"
 
-  struct _Attr *attr;
-  struct _Condition *condition1;
-  struct _Value *value1;
+  Query *query;
+  Condition *condition;
+  Value *value;
+  enum CompOp comp;
+  RelAttr *rel_attr;
+  std::vector<AttrInfo> *attr_infos;
+  AttrInfo *attr_info;
+  std::vector<Value> *value_list;
+  std::vector<Condition> *condition_list;
+  std::vector<RelAttr> *rel_attr_list;
+  std::vector<std::string> *relation_list;
   char *string;
   int number;
   float floats;
-  char *position;
 
-#line 124 "yacc_sql.hpp"
+#line 132 "yacc_sql.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -128,8 +136,22 @@ typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+/* Location type.  */
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
 
 
-int yyparse (void *scanner);
+
+int yyparse (ParsedSqlResult * sql_result, void * scanner);
 
 #endif /* !YY_YY_YACC_SQL_HPP_INCLUDED  */

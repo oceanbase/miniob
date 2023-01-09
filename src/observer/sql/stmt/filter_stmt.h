@@ -25,20 +25,29 @@ class Db;
 class Table;
 class FieldMeta;
 
+struct FilterObj
+{
+  bool is_attr;
+  Field field;
+  Value value;
+
+  void init_attr(const Field &field) {
+    is_attr = true;
+    this->field = field;
+  }
+
+  void init_value(const Value &value) {
+    is_attr = false;
+    this->value = value;
+  }
+};
+
 class FilterUnit
 {
 public:
   FilterUnit() = default;
   ~FilterUnit()
   {
-    if (left_) {
-      delete left_;
-      left_ = nullptr;
-    }
-    if (right_) {
-      delete right_;
-      right_ = nullptr;
-    }
   }
   
   void set_comp(CompOp comp) {
@@ -49,27 +58,28 @@ public:
     return comp_;
   }
 
-  void set_left(Expression *expr)
+  void set_left(const FilterObj &obj)
   {
-    left_ = expr;
+    left_ = obj;
   }
-  void set_right(Expression *expr)
+  void set_right(const FilterObj &obj)
   {
-    right_ = expr;
+    right_ = obj;
   }
-  Expression *left() const
+
+  const FilterObj &left() const
   {
     return left_;
   }
-  Expression *right() const
+  const FilterObj &right() const
   {
     return right_;
   }
 
 private:
   CompOp comp_ = NO_OP;
-  Expression *left_ = nullptr;
-  Expression *right_ = nullptr;
+  FilterObj left_;
+  FilterObj right_;
 };
 
 class FilterStmt 
