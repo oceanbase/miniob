@@ -12,7 +12,7 @@ OceanBase 社区热情欢迎每一位对数据库技术热爱的开发者，期�
 4. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](https://github.com/oceanbase/miniob/blob/main/docs/how_to_dev_in_docker_container_by_vscode.md)
 5. [miniob 词法语法解析开发与测试](docs/miniob-sql-parser.md)
 
-更多的文档, 可以参考 [docs](https://github.com/oceanbase/miniob/docs), 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
+更多的文档, 可以参考 [docs](https://github.com/oceanbase/miniob/tree/main/docs), 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
 
 1. [《从0到1数据库内核实战教程》  视频教程](https://open.oceanbase.com/activities/4921877?id=4921946)
 2. [《从0到1数据库内核实战教程》  基础讲义](https://github.com/oceanbase/kernel-quickstart)
@@ -46,12 +46,10 @@ user={GitHub账户名} # 和github上的用户名保持一致
 mkdir -p $working_dir
 cd $working_dir
 git clone git@github.com:$user/miniob.git
-# 也可以使用: git clone https://github.com/$user/miniob
 
 # 添加上游分支
 cd $working_dir/miniob
 git remote add upstream git@github.com:oceanbase/miniob.git
-# 或: git remote add upstream https://github.com/oceanbase/miniob
 
 # 为上游分支设置 no_push
 git remote set-url --push upstream no_push
@@ -67,8 +65,8 @@ git remote -v
 new_branch_name={issue_xxx} # 设定分支名，建议直接使用issue+id的命名
 cd $working_dir/oceanbase
 git fetch upstream
-git checkout master
-git rebase upstream/master
+git checkout main
+git rebase upstream/main
 git checkout -b $new_branch_name
 ```
 
@@ -91,7 +89,7 @@ git commit -m "commit-message: update the xx"
 
 # 在开发分支执行以下操作
 git fetch upstream
-git rebase upstream/master
+git rebase upstream/main
 git push -u origin $new_branch_name
 ```
 
