@@ -194,7 +194,7 @@ char *bin_to_hex(const char *s, const int len, char *hex_buff)
   int new_len = 0;
   unsigned char *end = (unsigned char *)s + len;
   for (unsigned char *p = (unsigned char *)s; p < end; p++) {
-    new_len += snprintf(hex_buff + new_len, 2, "%02x", *p);
+    new_len += snprintf(hex_buff + new_len, 3, "%02x", *p);
   }
 
   hex_buff[new_len] = '\0';
