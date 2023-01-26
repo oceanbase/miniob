@@ -69,7 +69,7 @@ bool ResolveStage::initialize()
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  query_cache_stage_ = *(stgp++);
+  plan_cache_stage_ = *(stgp++);
 
   LOG_TRACE("Exit");
   return true;
@@ -114,7 +114,7 @@ void ResolveStage::handle_event(StageEvent *event)
 
   sql_event->set_stmt(stmt);
 
-  query_cache_stage_->handle_event(sql_event);
+  plan_cache_stage_->handle_event(sql_event);
 
   LOG_TRACE("Exit\n");
   return;

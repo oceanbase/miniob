@@ -46,7 +46,7 @@ protected:
   void handle_request(common::StageEvent *event);
 
 private:
-  Stage *plan_cache_stage_ = nullptr;
+  Stage *query_cache_stage_ = nullptr;
   common::SimpleTimer *sql_metric_ = nullptr;
   static const std::string SQL_METRIC_TAG;
 };

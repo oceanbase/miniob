@@ -65,7 +65,7 @@ bool QueryCacheStage::initialize()
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  optimize_stage_ = *(stgp++);
+  parser_stage_ = *(stgp++);
 
   LOG_TRACE("Exit");
   return true;
@@ -83,7 +83,7 @@ void QueryCacheStage::handle_event(StageEvent *event)
 {
   LOG_TRACE("Enter\n");
 
-  optimize_stage_->handle_event(event);
+  parser_stage_->handle_event(event);
 
   LOG_TRACE("Exit\n");
   return;

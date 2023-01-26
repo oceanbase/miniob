@@ -34,7 +34,7 @@ protected:
 
 protected:
 private:
-  Stage *parse_stage_ = nullptr;
+  Stage *optimizer_stage_ = nullptr;
 };
 
 #endif  //__OBSERVER_SQL_PLAN_CACHE_STAGE_H__

@@ -34,7 +34,7 @@ protected:
 
 protected:
 private:
-  Stage *query_cache_stage_ = nullptr;
+  Stage *plan_cache_stage_ = nullptr;
 };
 
 #endif  //__OBSERVER_SQL_RESOLVE_STAGE_H__

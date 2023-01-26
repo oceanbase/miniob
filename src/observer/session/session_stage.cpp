@@ -35,7 +35,7 @@ using namespace common;
 const std::string SessionStage::SQL_METRIC_TAG = "SessionStage.sql";
 
 // Constructor
-SessionStage::SessionStage(const char *tag) : Stage(tag), plan_cache_stage_(nullptr), sql_metric_(nullptr)
+SessionStage::SessionStage(const char *tag) : Stage(tag), query_cache_stage_(nullptr), sql_metric_(nullptr)
 {}
 
 // Destructor
@@ -74,7 +74,7 @@ bool SessionStage::initialize()
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  plan_cache_stage_ = *(stgp++);
+  query_cache_stage_ = *(stgp++);
 
   MetricsRegistry &metricsRegistry = get_metrics_registry();
   sql_metric_ = new SimpleTimer();
@@ -163,5 +163,5 @@ void SessionStage::handle_request(StageEvent *event)
   sev->push_callback(cb);
 
   SQLStageEvent *sql_event = new SQLStageEvent(sev, sql);
-  plan_cache_stage_->handle_event(sql_event);
+  query_cache_stage_->handle_event(sql_event);
 }
