@@ -38,7 +38,7 @@ RC TableScanPhysicalOperator::next()
     if (rc != RC::SUCCESS) {
       return rc;
     }
-    
+
     tuple_.set_record(&current_record_);
     rc = filter(tuple_, filter_result);
     if (rc != RC::SUCCESS) {
@@ -59,7 +59,7 @@ RC TableScanPhysicalOperator::close()
   return record_scanner_.close_scan();
 }
 
-Tuple * TableScanPhysicalOperator::current_tuple()
+Tuple *TableScanPhysicalOperator::current_tuple()
 {
   tuple_.set_record(&current_record_);
   return &tuple_;
@@ -67,7 +67,7 @@ Tuple * TableScanPhysicalOperator::current_tuple()
 
 std::string TableScanPhysicalOperator::param() const
 {
-  return table_->name();  
+  return table_->name();
 }
 
 void TableScanPhysicalOperator::set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs)

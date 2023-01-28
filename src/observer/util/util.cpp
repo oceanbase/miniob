@@ -22,7 +22,6 @@ std::string double2string(double v)
   size_t len = strlen(buf);
   while (buf[len - 1] == '0') {
     len--;
-      
   }
   if (buf[len - 1] == '.') {
     len--;

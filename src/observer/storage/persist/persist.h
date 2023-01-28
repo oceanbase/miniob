@@ -24,8 +24,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "rc.h"
 
-class PersistHandler
-{
+class PersistHandler {
 public:
   PersistHandler();
   ~PersistHandler();
@@ -61,8 +60,8 @@ public:
   RC seek(uint64_t offset);
 
 private:
-  std::string        file_name_;
-  int                file_desc_ = -1;
+  std::string file_name_;
+  int file_desc_ = -1;
 };
 
 #endif  //__OBSERVER_STORAGE_PERSIST_HANDLER_H_

@@ -137,7 +137,7 @@ RC ParseStage::handle_request(StageEvent *event)
   if (parsed_sql_result.commands().size() > 1) {
     LOG_WARN("got multi sql commands but only 1 will be handled");
   }
-  
+
   std::unique_ptr<Command> cmd = std::move(parsed_sql_result.commands().front());
   if (cmd->flag == SCF_ERROR) {
     // set error information to event

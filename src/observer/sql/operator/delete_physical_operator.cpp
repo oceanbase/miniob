@@ -41,7 +41,7 @@ RC DeletePhysicalOperator::next()
   if (children_.empty()) {
     return RC::RECORD_EOF;
   }
-  
+
   PhysicalOperator *child = children_[0].get();
   while (RC::SUCCESS == (rc = child->next())) {
     Tuple *tuple = child->current_tuple();

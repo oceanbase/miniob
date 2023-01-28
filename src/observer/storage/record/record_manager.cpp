@@ -150,7 +150,7 @@ RC RecordPageHandler::init_empty_page(DiskBufferPool &buffer_pool, PageNum page_
   bitmap_ = frame_->data() + page_fix_size();
 
   memset(bitmap_, 0, page_bitmap_size(page_header_->record_capacity));
-  
+
   if ((ret = buffer_pool.flush_page(*frame_)) != RC::SUCCESS) {
     LOG_ERROR("Failed to flush page header %d:%d.", page_num);
     return ret;
@@ -225,15 +225,14 @@ RC RecordPageHandler::recover_insert_record(const char *data, RID *rid)
 RC RecordPageHandler::update_record(const Record *rec)
 {
   if (rec->rid().slot_num >= page_header_->record_capacity) {
-    LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, page_num %d.",
-	      rec->rid().slot_num, frame_->page_num());
+    LOG_ERROR(
+        "Invalid slot_num %d, exceed page's record capacity, page_num %d.", rec->rid().slot_num, frame_->page_num());
     return RC::INVALID_ARGUMENT;
   }
 
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
   if (!bitmap.get_bit(rec->rid().slot_num)) {
-    LOG_ERROR("Invalid slot_num %d, slot is empty, page_num %d.",
-	      rec->rid().slot_num, frame_->page_num());
+    LOG_ERROR("Invalid slot_num %d, slot is empty, page_num %d.", rec->rid().slot_num, frame_->page_num());
     return RC::RECORD_RECORD_NOT_EXIST;
   } else {
     char *record_data = get_record_data(rec->rid().slot_num);
@@ -248,8 +247,7 @@ RC RecordPageHandler::update_record(const Record *rec)
 RC RecordPageHandler::delete_record(const RID *rid)
 {
   if (rid->slot_num >= page_header_->record_capacity) {
-    LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, page_num %d.",
-	      rid->slot_num, frame_->page_num());
+    LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, page_num %d.", rid->slot_num, frame_->page_num());
     return RC::INVALID_ARGUMENT;
   }
 
@@ -267,8 +265,7 @@ RC RecordPageHandler::delete_record(const RID *rid)
     }
     return RC::SUCCESS;
   } else {
-    LOG_ERROR("Invalid slot_num %d, slot is empty, page_num %d.",
-	      rid->slot_num, frame_->page_num());
+    LOG_ERROR("Invalid slot_num %d, slot is empty, page_num %d.", rid->slot_num, frame_->page_num());
     return RC::RECORD_RECORD_NOT_EXIST;
   }
 }
@@ -276,15 +273,13 @@ RC RecordPageHandler::delete_record(const RID *rid)
 RC RecordPageHandler::get_record(const RID *rid, Record *rec)
 {
   if (rid->slot_num >= page_header_->record_capacity) {
-    LOG_ERROR("Invalid slot_num:%d, exceed page's record capacity, page_num %d.",
-	      rid->slot_num, frame_->page_num());
+    LOG_ERROR("Invalid slot_num:%d, exceed page's record capacity, page_num %d.", rid->slot_num, frame_->page_num());
     return RC::RECORD_INVALIDRID;
   }
 
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
   if (!bitmap.get_bit(rid->slot_num)) {
-    LOG_ERROR("Invalid slot_num:%d, slot is empty, page_num %d.",
-	      rid->slot_num, frame_->page_num());
+    LOG_ERROR("Invalid slot_num:%d, slot is empty, page_num %d.", rid->slot_num, frame_->page_num());
     return RC::RECORD_RECORD_NOT_EXIST;
   }
 
@@ -392,12 +387,12 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
     ret = record_page_handler.init_empty_page(*disk_buffer_pool_, current_page_num, record_size);
     if (ret != RC::SUCCESS) {
       LOG_ERROR("Failed to init empty page. ret:%d", ret);
-      if (RC::SUCCESS != disk_buffer_pool_->unpin_page(frame)) {
-        LOG_ERROR("Failed to unpin page. ");
-      }
+      // this is for allocate_page
+      disk_buffer_pool_->unpin_page(frame);
       return ret;
     }
 
+    // this is for allocate_page
     disk_buffer_pool_->unpin_page(frame);
     free_pages_.insert(current_page_num);
   }
@@ -555,7 +550,7 @@ bool RecordFileScanner::has_next()
 RC RecordFileScanner::next(Record &record)
 {
   record = next_record_;
-  
+
   RC rc = fetch_next_record();
   if (rc == RC::RECORD_EOF) {
     rc = RC::SUCCESS;

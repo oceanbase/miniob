@@ -52,7 +52,7 @@ RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bo
     // 所有的表达式都下推到了下层算子
     // 这个predicate operator其实就可以不要了。但是这里没办法删除，弄一个空的表达式吧
     LOG_TRACE("all expressions of predicate operator were pushdown to table get operator, then make a fake one");
-    
+
     Value value;
     value.type = BOOLEANS;
     value.bool_value = true;
@@ -73,8 +73,7 @@ RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bo
  *                       pushdown_exprs 只会增加，不要做清理操作
  */
 RC PredicatePushdownRewriter::get_exprs_can_pushdown(
-    std::unique_ptr<Expression> &expr,
-    std::vector<std::unique_ptr<Expression>> &pushdown_exprs)
+    std::unique_ptr<Expression> &expr, std::vector<std::unique_ptr<Expression>> &pushdown_exprs)
 {
   RC rc = RC::SUCCESS;
   if (expr->type() == ExprType::CONJUNCTION) {
@@ -85,7 +84,7 @@ RC PredicatePushdownRewriter::get_exprs_can_pushdown(
     }
 
     std::vector<std::unique_ptr<Expression>> &child_exprs = conjunction_expr->children();
-    for (auto iter = child_exprs.begin(); iter != child_exprs.end(); ) {
+    for (auto iter = child_exprs.begin(); iter != child_exprs.end();) {
       // 对每个子表达式，判断是否可以下放到table get 算子
       // 如果可以的话，就从当前孩子节点中删除他
       rc = get_exprs_can_pushdown(*iter, pushdown_exprs);

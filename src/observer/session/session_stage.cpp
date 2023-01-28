@@ -124,7 +124,7 @@ void SessionStage::callback_event(StageEvent *event, CallbackContext *context)
   RC rc = communicator->write_result(sev, need_disconnect);
   LOG_INFO("write result return %s", strrc(rc));
   if (need_disconnect) {
-    Server::close_connection(communicator); 
+    Server::close_connection(communicator);
   }
 
   LOG_TRACE("Exit\n");

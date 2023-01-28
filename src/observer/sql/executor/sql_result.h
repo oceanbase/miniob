@@ -24,18 +24,38 @@ class SqlResult {
 public:
   SqlResult() = default;
   ~SqlResult()
-  {
-  }
+  {}
 
   void set_tuple_schema(const TupleSchema &schema);
-  void set_return_code(RC rc) { return_code_ = rc; }
-  void set_state_string(const std::string &state_string) { state_string_ = state_string; }
+  void set_return_code(RC rc)
+  {
+    return_code_ = rc;
+  }
+  void set_state_string(const std::string &state_string)
+  {
+    state_string_ = state_string;
+  }
 
-  void set_operator(std::unique_ptr<PhysicalOperator> oper) { operator_ = std::move(oper); }
-  bool has_operator() const { return operator_ != nullptr; }
-  const TupleSchema &tuple_schema() const { return tuple_schema_; }
-  RC return_code() const { return return_code_; }
-  const std::string &state_string() const { return state_string_; }
+  void set_operator(std::unique_ptr<PhysicalOperator> oper)
+  {
+    operator_ = std::move(oper);
+  }
+  bool has_operator() const
+  {
+    return operator_ != nullptr;
+  }
+  const TupleSchema &tuple_schema() const
+  {
+    return tuple_schema_;
+  }
+  RC return_code() const
+  {
+    return return_code_;
+  }
+  const std::string &state_string() const
+  {
+    return state_string_;
+  }
 
   RC open();
   RC close();

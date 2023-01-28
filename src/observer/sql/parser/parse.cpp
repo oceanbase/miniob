@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Meiyi 
+// Created by Meiyi
 //
 
 #include <mutex>
@@ -41,11 +41,16 @@ AttrType attr_type_from_string(const char *s)
 const char *Value::data() const
 {
   switch (type) {
-    case INTS: return (const char *)&int_value;
-    case FLOATS: return (const char *)&float_value;
-    case BOOLEANS: return (const char *)&bool_value;
-    case CHARS: return (const char *)string_value.data();
-    case UNDEFINED: return nullptr;
+    case INTS:
+      return (const char *)&int_value;
+    case FLOATS:
+      return (const char *)&float_value;
+    case BOOLEANS:
+      return (const char *)&bool_value;
+    case CHARS:
+      return (const char *)string_value.data();
+    case UNDEFINED:
+      return nullptr;
   }
   return nullptr;
 }
@@ -53,22 +58,24 @@ const char *Value::data() const
 int Value::length()
 {
   switch (type) {
-    case INTS: return sizeof(int_value);
-    case FLOATS: return sizeof(float_value);
-    case BOOLEANS: return sizeof(bool_value);
-    case CHARS: return string_value.size();
-    case UNDEFINED: return 0;
+    case INTS:
+      return sizeof(int_value);
+    case FLOATS:
+      return sizeof(float_value);
+    case BOOLEANS:
+      return sizeof(bool_value);
+    case CHARS:
+      return string_value.size();
+    case UNDEFINED:
+      return 0;
   }
   return 0;
 }
 
-Command::Command()
-    : flag(SCF_ERROR)
-{
-}
+Command::Command() : flag(SCF_ERROR)
+{}
 
-Command::Command(enum SqlCommandFlag _flag)
-    : flag(_flag)
+Command::Command(enum SqlCommandFlag _flag) : flag(_flag)
 {}
 
 void ParsedSqlResult::add_command(std::unique_ptr<Command> command)

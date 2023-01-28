@@ -53,9 +53,9 @@ struct Page {
  *         效率非常低，你有办法优化吗？
  */
 struct BPFileHeader {
-  int32_t page_count;        //! 当前文件一共有多少个页面
-  int32_t allocated_pages;   //! 已经分配了多少个页面
-  char    bitmap[0];         //! 页面分配位图, 第0个页面(就是当前页面)，总是1
+  int32_t page_count;       //! 当前文件一共有多少个页面
+  int32_t allocated_pages;  //! 已经分配了多少个页面
+  char bitmap[0];           //! 页面分配位图, 第0个页面(就是当前页面)，总是1
 
   /**
    * 能够分配的最大的页面个数，即bitmap的字节数 乘以8
@@ -63,8 +63,7 @@ struct BPFileHeader {
   static const int MAX_PAGE_NUM = (BP_PAGE_DATA_SIZE - sizeof(page_count) - sizeof(allocated_pages)) * 8;
 };
 
-class Frame
-{
+class Frame {
 public:
   void clear_page()
   {
@@ -85,11 +84,13 @@ public:
    * 标记指定页面为“脏”页。如果修改了页面的内容，则应调用此函数，
    * 以便该页面被淘汰出缓冲区时系统将新的页面数据写入磁盘文件
    */
-  void mark_dirty() {
+  void mark_dirty()
+  {
     dirty_ = true;
   }
 
-  char *data() {
+  char *data()
+  {
     return page_.data;
   }
 
@@ -106,21 +107,20 @@ public:
   {
     return pin_count_ <= 0;
   }
+
 private:
   friend class DiskBufferPool;
 
-  bool          dirty_     = false;
-  unsigned int  pin_count_ = 0;
-  unsigned long acc_time_  = 0;
-  int           file_desc_ = -1;
-  Page          page_;
+  bool dirty_ = false;
+  unsigned int pin_count_ = 0;
+  unsigned long acc_time_ = 0;
+  int file_desc_ = -1;
+  Page page_;
 };
 
-class BPFrameId
-{
-public: 
-  BPFrameId(int file_desc, PageNum page_num) :
-    file_desc_(file_desc), page_num_(page_num)
+class BPFrameId {
+public:
+  BPFrameId(int file_desc, PageNum page_num) : file_desc_(file_desc), page_num_(page_num)
   {}
 
   bool equal_to(const BPFrameId &other) const
@@ -128,7 +128,7 @@ public:
     return file_desc_ == other.file_desc_ && page_num_ == other.page_num_;
   }
 
-  bool operator== (const BPFrameId &other) const
+  bool operator==(const BPFrameId &other) const
   {
     return this->equal_to(other);
   }
@@ -138,16 +138,21 @@ public:
     return static_cast<size_t>(file_desc_) << 32L | page_num_;
   }
 
-  int file_desc() const { return file_desc_; }
-  PageNum page_num() const { return page_num_; }
+  int file_desc() const
+  {
+    return file_desc_;
+  }
+  PageNum page_num() const
+  {
+    return page_num_;
+  }
 
 private:
   int file_desc_;
   PageNum page_num_;
 };
 
-class BPFrameManager
-{
+class BPFrameManager {
 public:
   BPFrameManager(const char *tag);
 
@@ -172,17 +177,24 @@ public:
    */
   Frame *begin_purge();
 
-  size_t frame_num() const { return frames_.count(); }
+  size_t frame_num() const
+  {
+    return frames_.count();
+  }
 
   /**
    * 测试使用。返回已经从内存申请的个数
    */
-  size_t total_frame_num() const { return allocator_.get_size(); }
+  size_t total_frame_num() const
+  {
+    return allocator_.get_size();
+  }
 
 private:
   class BPFrameIdHasher {
   public:
-    size_t operator() (const BPFrameId &frame_id) const {
+    size_t operator()(const BPFrameId &frame_id) const
+    {
       return frame_id.hash();
     }
   };
@@ -194,8 +206,7 @@ private:
   FrameAllocator allocator_;
 };
 
-class BufferPoolIterator
-{
+class BufferPoolIterator {
 public:
   BufferPoolIterator();
   ~BufferPoolIterator();
@@ -204,13 +215,13 @@ public:
   bool has_next();
   PageNum next();
   RC reset();
+
 private:
-  common::Bitmap   bitmap_;
-  PageNum  current_page_num_ = -1;
+  common::Bitmap bitmap_;
+  PageNum current_page_num_ = -1;
 };
 
-class DiskBufferPool
-{
+class DiskBufferPool {
 public:
   DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager);
   ~DiskBufferPool();
@@ -288,6 +299,7 @@ public:
    * 回放日志时处理page0中已被认定为不存在的page
    */
   RC recover_page(PageNum page_num);
+
 protected:
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);
@@ -305,19 +317,18 @@ protected:
 
 private:
   BufferPoolManager &bp_manager_;
-  BPFrameManager &   frame_manager_;
-  std::string        file_name_;
-  int                file_desc_ = -1;
-  Frame *            hdr_frame_ = nullptr;
-  BPFileHeader *     file_header_ = nullptr;
-  std::set<PageNum>  disposed_pages;
+  BPFrameManager &frame_manager_;
+  std::string file_name_;
+  int file_desc_ = -1;
+  Frame *hdr_frame_ = nullptr;
+  BPFileHeader *file_header_ = nullptr;
+  std::set<PageNum> disposed_pages;
 
 private:
   friend class BufferPoolIterator;
 };
 
-class BufferPoolManager
-{
+class BufferPoolManager {
 public:
   BufferPoolManager();
   ~BufferPoolManager();
@@ -331,7 +342,7 @@ public:
 public:
   static void set_instance(BufferPoolManager *bpm);
   static BufferPoolManager &instance();
-  
+
 private:
   BPFrameManager frame_manager_{"BufPool"};
   std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;

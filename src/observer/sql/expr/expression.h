@@ -41,9 +41,8 @@ enum class ExprType {
  * 才能计算出来真实的值。但是有些表达式可能就表示某一个固定的
  * 值，比如ValueExpr。
  */
-class Expression
-{
-public: 
+class Expression {
+public:
   Expression() = default;
   virtual ~Expression() = default;
 
@@ -61,11 +60,10 @@ public:
   /**
    * 表达式值的类型
    */
-  virtual AttrType value_type() const = 0;  
+  virtual AttrType value_type() const = 0;
 };
 
-class FieldExpr : public Expression
-{
+class FieldExpr : public Expression {
 public:
   FieldExpr() = default;
   FieldExpr(const Table *table, const FieldMeta *field) : field_(table, field)
@@ -105,12 +103,12 @@ public:
   }
 
   RC get_value(const Tuple &tuple, TupleCell &cell) const override;
+
 private:
   Field field_;
 };
 
-class ValueExpr : public Expression
-{
+class ValueExpr : public Expression {
 public:
   ValueExpr() = default;
   ValueExpr(const Value &value)
@@ -138,7 +136,7 @@ public:
 
   virtual ~ValueExpr() = default;
 
-  RC get_value(const Tuple &tuple, TupleCell & cell) const override;
+  RC get_value(const Tuple &tuple, TupleCell &cell) const override;
 
   ExprType type() const override
   {
@@ -150,11 +148,13 @@ public:
     return tuple_cell_.attr_type();
   }
 
-  void get_tuple_cell(TupleCell &cell) const {
+  void get_tuple_cell(TupleCell &cell) const
+  {
     cell = tuple_cell_;
   }
 
-  const TupleCell &get_tuple_cell() const {
+  const TupleCell &get_tuple_cell() const
+  {
     return tuple_cell_;
   }
 
@@ -162,38 +162,58 @@ private:
   TupleCell tuple_cell_;
 };
 
-class CastExpr : public Expression
-{
-public: 
+class CastExpr : public Expression {
+public:
   CastExpr(std::unique_ptr<Expression> child, AttrType cast_type);
   virtual ~CastExpr();
 
-  ExprType type() const override { return ExprType::CAST; }
+  ExprType type() const override
+  {
+    return ExprType::CAST;
+  }
   RC get_value(const Tuple &tuple, TupleCell &cell) const override;
   AttrType value_type() const override
   {
     return cast_type_;
   }
 
-  std::unique_ptr<Expression> &child()  { return child_; }
+  std::unique_ptr<Expression> &child()
+  {
+    return child_;
+  }
+
 private:
   std::unique_ptr<Expression> child_;
   AttrType cast_type_;
 };
 
-class ComparisonExpr : public Expression
-{
+class ComparisonExpr : public Expression {
 public:
   ComparisonExpr(CompOp comp, std::unique_ptr<Expression> left, std::unique_ptr<Expression> right);
   virtual ~ComparisonExpr();
-  
-  ExprType type() const override { return ExprType::COMPARISON; }
-  RC get_value(const Tuple &tuple, TupleCell &cell) const override;
-  AttrType value_type() const override { return BOOLEANS; }
 
-  CompOp comp() const { return comp_; }
-  std::unique_ptr<Expression> &left() { return left_; }
-  std::unique_ptr<Expression> &right() { return right_; }
+  ExprType type() const override
+  {
+    return ExprType::COMPARISON;
+  }
+  RC get_value(const Tuple &tuple, TupleCell &cell) const override;
+  AttrType value_type() const override
+  {
+    return BOOLEANS;
+  }
+
+  CompOp comp() const
+  {
+    return comp_;
+  }
+  std::unique_ptr<Expression> &left()
+  {
+    return left_;
+  }
+  std::unique_ptr<Expression> &right()
+  {
+    return right_;
+  }
 
   /**
    * 尝试在没有tuple的情况下获取当前表达式的值
@@ -217,27 +237,38 @@ private:
  * 多个表达式使用同一种关系(AND或OR)来联结
  * 当前miniob仅有AND操作
  */
-class ConjunctionExpr : public Expression
-{
+class ConjunctionExpr : public Expression {
 public:
-  enum class Type
-  {
+  enum class Type {
     AND,
     OR,
   };
-  
+
 public:
   ConjunctionExpr(Type type, std::vector<std::unique_ptr<Expression>> &children);
   virtual ~ConjunctionExpr() = default;
 
-  ExprType type() const override { return ExprType::CONJUNCTION; }
-  AttrType value_type() const override { return BOOLEANS; }
+  ExprType type() const override
+  {
+    return ExprType::CONJUNCTION;
+  }
+  AttrType value_type() const override
+  {
+    return BOOLEANS;
+  }
   RC get_value(const Tuple &tuple, TupleCell &cell) const override;
 
-  Type conjunction_type() const { return conjunction_type_; }
+  Type conjunction_type() const
+  {
+    return conjunction_type_;
+  }
 
-  std::vector<std::unique_ptr<Expression>> &children() { return children_; }
+  std::vector<std::unique_ptr<Expression>> &children()
+  {
+    return children_;
+  }
+
 private:
-  Type  conjunction_type_;
+  Type conjunction_type_;
   std::vector<std::unique_ptr<Expression>> children_;
 };

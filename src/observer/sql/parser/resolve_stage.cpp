@@ -98,7 +98,7 @@ void ResolveStage::handle_event(StageEvent *event)
   Db *db = session_event->session()->get_current_db();
   if (nullptr == db) {
     LOG_ERROR("cannot current db");
-    return ;
+    return;
   }
 
   Command *cmd = sql_event->command().get();

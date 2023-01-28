@@ -16,8 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "net/communicator.h"
 
 SessionEvent::SessionEvent(Communicator *comm) : communicator_(comm)
-{
-}
+{}
 
 SessionEvent::~SessionEvent()
 {

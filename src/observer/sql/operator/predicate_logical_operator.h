@@ -17,11 +17,13 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/logical_operator.h"
 #include "sql/expr/expression.h"
 
-class PredicateLogicalOperator : public LogicalOperator
-{
+class PredicateLogicalOperator : public LogicalOperator {
 public:
   PredicateLogicalOperator(std::unique_ptr<Expression> expression);
   virtual ~PredicateLogicalOperator() = default;
 
-  LogicalOperatorType type() const override { return LogicalOperatorType::PREDICATE; }
+  LogicalOperatorType type() const override
+  {
+    return LogicalOperatorType::PREDICATE;
+  }
 };

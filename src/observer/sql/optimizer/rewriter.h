@@ -20,12 +20,11 @@ See the Mulan PSL v2 for more details. */
 
 class LogicalOperator;
 
-class Rewriter
-{
-public:  
+class Rewriter {
+public:
   Rewriter();
   virtual ~Rewriter() = default;
-  
+
   RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made);
 
 private:

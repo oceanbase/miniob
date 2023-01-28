@@ -21,9 +21,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "sql/optimizer/rewrite_rule.h"
 
-class ExpressionRewriter : public RewriteRule
-{
-public: 
+class ExpressionRewriter : public RewriteRule {
+public:
   ExpressionRewriter();
   virtual ~ExpressionRewriter() = default;
 
@@ -31,7 +30,6 @@ public:
 
 private:
   RC rewrite_expression(std::unique_ptr<Expression> &expr, bool &change_made);
-  
 
 private:
   std::vector<std::unique_ptr<ExpressionRewriteRule>> expr_rewrite_rules_;

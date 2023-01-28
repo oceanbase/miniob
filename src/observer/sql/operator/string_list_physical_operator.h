@@ -17,9 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 #include "sql/operator/physical_operator.h"
 
-class StringListPhysicalOperator : public PhysicalOperator
-{
-public: 
+class StringListPhysicalOperator : public PhysicalOperator {
+public:
   StringListPhysicalOperator()
   {}
 
@@ -37,18 +36,21 @@ public:
   }
 
   template <typename T>
-  void append( const T &v)
+  void append(const T &v)
   {
     strings_.emplace_back(1, v);
   }
 
-  PhysicalOperatorType type() const override { return PhysicalOperatorType::STRING_LIST; }
-  
+  PhysicalOperatorType type() const override
+  {
+    return PhysicalOperatorType::STRING_LIST;
+  }
+
   RC open() override
   {
     return RC::SUCCESS;
   }
-      
+
   RC next() override
   {
     if (!started_) {
@@ -56,16 +58,17 @@ public:
       iterator_ = strings_.begin();
     } else if (iterator_ != strings_.end()) {
       ++iterator_;
-    } 
+    }
     return iterator_ == strings_.end() ? RC::RECORD_EOF : RC::SUCCESS;
   }
+
   virtual RC close() override
   {
     iterator_ = strings_.end();
     return RC::SUCCESS;
   }
 
-  virtual Tuple * current_tuple() override
+  virtual Tuple *current_tuple() override
   {
     if (iterator_ == strings_.end()) {
       return nullptr;
@@ -82,6 +85,7 @@ public:
     tuple_.set_cells(cells);
     return &tuple_;
   }
+
 private:
   using StringList = std::vector<std::string>;
   using StringListList = std::vector<StringList>;

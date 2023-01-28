@@ -18,15 +18,23 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/table.h"
 #include "storage/common/field_meta.h"
 
-class TupleCellSpec
-{
-public: 
+class TupleCellSpec {
+public:
   TupleCellSpec(const char *table_name, const char *field_name, const char *alias = nullptr);
   TupleCellSpec(const char *alias);
 
-  const char *table_name() const { return table_name_.c_str(); }
-  const char *field_name() const { return field_name_.c_str(); }
-  const char *alias() const { return alias_.c_str(); }
+  const char *table_name() const
+  {
+    return table_name_.c_str();
+  }
+  const char *field_name() const
+  {
+    return field_name_.c_str();
+  }
+  const char *alias() const
+  {
+    return alias_.c_str();
+  }
 
 private:
   std::string table_name_;
@@ -38,16 +46,13 @@ private:
  * 表示tuple中某个元素的值
  * @note 可以与value做合并
  */
-class TupleCell
-{
-public: 
+class TupleCell {
+public:
   TupleCell() = default;
-  
-  TupleCell(FieldMeta *meta, char *data, int length = 4)
-    : TupleCell(meta->type(), data)
+
+  TupleCell(FieldMeta *meta, char *data, int length = 4) : TupleCell(meta->type(), data)
   {}
-  TupleCell(AttrType attr_type, char *data, int length = 4)
-    : attr_type_(attr_type)
+  TupleCell(AttrType attr_type, char *data, int length = 4) : attr_type_(attr_type)
   {
     this->set_data(data, length);
   }
@@ -55,9 +60,15 @@ public:
   TupleCell(const TupleCell &other) = default;
   TupleCell &operator=(const TupleCell &other) = default;
 
-  void set_type(AttrType type) { this->attr_type_ = type; }
+  void set_type(AttrType type)
+  {
+    this->attr_type_ = type;
+  }
   void set_data(char *data, int length);
-  void set_data(const char *data, int length) { this->set_data(const_cast<char *>(data), length); }
+  void set_data(const char *data, int length)
+  {
+    this->set_data(const_cast<char *>(data), length);
+  }
   void set_int(int val);
   void set_float(float val);
   void set_boolean(bool val);
@@ -69,7 +80,10 @@ public:
   int compare(const TupleCell &other) const;
 
   const char *data() const;
-  int length() const { return length_; }
+  int length() const
+  {
+    return length_;
+  }
 
   AttrType attr_type() const
   {
@@ -85,15 +99,15 @@ public:
   float get_float() const;
   std::string get_string() const;
   bool get_boolean() const;
-  
+
 private:
   AttrType attr_type_ = UNDEFINED;
   int length_;
 
   union {
-    int   int_value_;
+    int int_value_;
     float float_value_;
-    bool  bool_value_;
+    bool bool_value_;
   } num_value_;
   std::string str_value_;
 };

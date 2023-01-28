@@ -87,7 +87,7 @@ RC Trx::insert_record(Table *table, Record *record)
   }
 
   // start_if_not_started();
-  
+
   // 记录到operations中
   insert_operation(table, Operation::Type::INSERT, record->rid());
   return rc;

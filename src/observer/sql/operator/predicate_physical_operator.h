@@ -20,21 +20,23 @@ See the Mulan PSL v2 for more details. */
 
 class FilterStmt;
 
-class PredicatePhysicalOperator : public PhysicalOperator
-{
+class PredicatePhysicalOperator : public PhysicalOperator {
 public:
   PredicatePhysicalOperator(std::unique_ptr<Expression> expr);
 
   virtual ~PredicatePhysicalOperator() = default;
 
-  PhysicalOperatorType type() const override { return PhysicalOperatorType::PREDICATE; }
-  
+  PhysicalOperatorType type() const override
+  {
+    return PhysicalOperatorType::PREDICATE;
+  }
+
   RC open() override;
   RC next() override;
   RC close() override;
 
-  Tuple * current_tuple() override;
-  
+  Tuple *current_tuple() override;
+
 private:
   std::unique_ptr<Expression> expression_;
 };

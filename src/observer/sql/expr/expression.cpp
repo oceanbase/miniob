@@ -15,13 +15,12 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "sql/expr/tuple.h"
 
-
 RC FieldExpr::get_value(const Tuple &tuple, TupleCell &cell) const
 {
   return tuple.find_cell(TupleCellSpec(table_name(), field_name()), cell);
 }
 
-RC ValueExpr::get_value(const Tuple &tuple, TupleCell & cell) const
+RC ValueExpr::get_value(const Tuple &tuple, TupleCell &cell) const
 {
   cell = tuple_cell_;
   return RC::SUCCESS;
@@ -33,8 +32,7 @@ CastExpr::CastExpr(std::unique_ptr<Expression> child, AttrType cast_type)
 {}
 
 CastExpr::~CastExpr()
-{
-}
+{}
 
 RC CastExpr::get_value(const Tuple &tuple, TupleCell &cell) const
 {
@@ -67,8 +65,7 @@ ComparisonExpr::ComparisonExpr(CompOp comp, std::unique_ptr<Expression> left, st
 {}
 
 ComparisonExpr::~ComparisonExpr()
-{
-}
+{}
 
 RC ComparisonExpr::compare_tuple_cell(const TupleCell &left, const TupleCell &right, bool &value) const
 {
@@ -99,7 +96,7 @@ RC ComparisonExpr::compare_tuple_cell(const TupleCell &left, const TupleCell &ri
       rc = RC::GENERIC_ERROR;
     } break;
   }
-  
+
   return rc;
 }
 
@@ -128,7 +125,7 @@ RC ComparisonExpr::get_value(const Tuple &tuple, TupleCell &cell) const
 {
   TupleCell left_cell;
   TupleCell right_cell;
-  
+
   RC rc = left_->get_value(tuple, left_cell);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to get value of left expression. rc=%s", strrc(rc));
@@ -151,8 +148,7 @@ RC ComparisonExpr::get_value(const Tuple &tuple, TupleCell &cell) const
 ////////////////////////////////////////////////////////////////////////////////
 ConjunctionExpr::ConjunctionExpr(Type type, std::vector<std::unique_ptr<Expression>> &children)
     : conjunction_type_(type), children_(std::move(children))
-{
-}
+{}
 
 RC ConjunctionExpr::get_value(const Tuple &tuple, TupleCell &cell) const
 {
@@ -161,7 +157,7 @@ RC ConjunctionExpr::get_value(const Tuple &tuple, TupleCell &cell) const
     cell.set_boolean(true);
     return rc;
   }
-  
+
   TupleCell tmp_cell;
   for (const std::unique_ptr<Expression> &expr : children_) {
     rc = expr->get_value(tuple, tmp_cell);
@@ -170,8 +166,7 @@ RC ConjunctionExpr::get_value(const Tuple &tuple, TupleCell &cell) const
       return rc;
     }
     bool value = tmp_cell.get_boolean();
-    if ((conjunction_type_ == Type::AND && !value)
-        || (conjunction_type_ == Type::OR && value)) {
+    if ((conjunction_type_ == Type::AND && !value) || (conjunction_type_ == Type::OR && value)) {
       cell.set_boolean(value);
       return rc;
     }

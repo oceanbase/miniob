@@ -16,13 +16,15 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/logical_operator.h"
 
-class ExplainLogicalOperator : public LogicalOperator
-{
+class ExplainLogicalOperator : public LogicalOperator {
 public:
   ExplainLogicalOperator() = default;
   virtual ~ExplainLogicalOperator() = default;
 
-  LogicalOperatorType type() const override { return LogicalOperatorType::EXPLAIN; }
-  
+  LogicalOperatorType type() const override
+  {
+    return LogicalOperatorType::EXPLAIN;
+  }
+
 private:
 };

@@ -19,12 +19,11 @@ See the Mulan PSL v2 for more details. */
 
 class LogicalOperator;
 
-class ComparisonSimplificationRule : public ExpressionRewriteRule
-{
-public: 
+class ComparisonSimplificationRule : public ExpressionRewriteRule {
+public:
   ComparisonSimplificationRule() = default;
   virtual ~ComparisonSimplificationRule() = default;
-  
+
   RC rewrite(std::unique_ptr<Expression> &expr, bool &change_made) override;
 
 private:

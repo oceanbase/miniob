@@ -16,14 +16,16 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/physical_operator.h"
 
-class ExplainPhysicalOperator : public PhysicalOperator
-{
+class ExplainPhysicalOperator : public PhysicalOperator {
 public:
   ExplainPhysicalOperator() = default;
   virtual ~ExplainPhysicalOperator() = default;
 
-  PhysicalOperatorType type() const override { return PhysicalOperatorType::EXPLAIN; }
-  
+  PhysicalOperatorType type() const override
+  {
+    return PhysicalOperatorType::EXPLAIN;
+  }
+
   RC open() override;
   RC next() override;
   RC close() override;

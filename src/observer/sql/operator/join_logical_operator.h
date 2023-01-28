@@ -16,12 +16,15 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/logical_operator.h"
 
-class JoinLogicalOperator : public LogicalOperator
-{
+class JoinLogicalOperator : public LogicalOperator {
 public:
   JoinLogicalOperator() = default;
   virtual ~JoinLogicalOperator() = default;
 
-  LogicalOperatorType type() const override { return LogicalOperatorType::JOIN; }
+  LogicalOperatorType type() const override
+  {
+    return LogicalOperatorType::JOIN;
+  }
+
 private:
 };

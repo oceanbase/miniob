@@ -41,8 +41,11 @@ public:
   const FieldMeta *field(int index) const;
   const FieldMeta *field(const char *name) const;
   const FieldMeta *find_field_by_offset(int offset) const;
-  const std::vector<FieldMeta> *field_metas() const { return &fields_; }
-  int field_num() const; // sys field included
+  const std::vector<FieldMeta> *field_metas() const
+  {
+    return &fields_;
+  }
+  int field_num() const;  // sys field included
   int sys_field_num() const;
 
   const IndexMeta *index(const char *name) const;

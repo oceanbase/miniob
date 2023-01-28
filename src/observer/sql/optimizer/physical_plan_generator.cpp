@@ -59,7 +59,7 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, std::unique_
     case LogicalOperatorType::JOIN: {
       return create_plan(static_cast<JoinLogicalOperator &>(logical_operator), oper);
     } break;
-      
+
     default: {
       return RC::INVALID_ARGUMENT;
     }
@@ -117,10 +117,8 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, s
     ASSERT(value_expr != nullptr, "got an index but value expr is null ?");
 
     const TupleCell &tuple_cell = value_expr->get_tuple_cell();
-    IndexScanPhysicalOperator *index_scan_oper =
-        new IndexScanPhysicalOperator(table, index,
-                                      &tuple_cell, true/*left_inclusive*/,
-                                      &tuple_cell, true /*right_inclusive*/);
+    IndexScanPhysicalOperator *index_scan_oper = new IndexScanPhysicalOperator(
+        table, index, &tuple_cell, true /*left_inclusive*/, &tuple_cell, true /*right_inclusive*/);
     index_scan_oper->set_predicates(std::move(predicates));
     oper = std::unique_ptr<PhysicalOperator>(index_scan_oper);
     LOG_TRACE("use index scan");
@@ -130,7 +128,7 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, s
     oper = std::unique_ptr<PhysicalOperator>(table_scan_oper);
     LOG_TRACE("use table scan");
   }
-  
+
   return RC::SUCCESS;
 }
 
@@ -147,7 +145,7 @@ RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, std::
     LOG_WARN("failed to create child operator of predicate operator. rc=%s", strrc(rc));
     return rc;
   }
-  
+
   std::vector<std::unique_ptr<Expression>> &expressions = pred_oper.expressions();
   ASSERT(expressions.size() == 1, "predicate logical operator's children should be 1");
 
@@ -160,7 +158,7 @@ RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, std::
 RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, std::unique_ptr<PhysicalOperator> &oper)
 {
   std::vector<std::unique_ptr<LogicalOperator>> &child_opers = project_oper.children();
-  
+
   std::unique_ptr<PhysicalOperator> child_phy_oper;
 
   RC rc = RC::SUCCESS;
@@ -175,7 +173,7 @@ RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, std:
 
   ProjectPhysicalOperator *project_operator = new ProjectPhysicalOperator;
   const std::vector<Field> &project_fields = project_oper.fields();
-  for (const Field & field : project_fields) {
+  for (const Field &field : project_fields) {
     project_operator->add_projection(field.table(), field.meta());
   }
 

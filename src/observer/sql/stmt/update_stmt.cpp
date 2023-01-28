@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/update_stmt.h"
 
 UpdateStmt::UpdateStmt(Table *table, Value *values, int value_amount)
-  : table_ (table), values_(values), value_amount_(value_amount)
+    : table_(table), values_(values), value_amount_(value_amount)
 {}
 
 RC UpdateStmt::create(Db *db, const Updates &update, Stmt *&stmt)

@@ -39,10 +39,7 @@ RC Stmt::create_stmt(Db *db, const Command &cmd, Stmt *&stmt)
     }
     default: {
       LOG_INFO("Command::type %d doesn't need to create statement.", cmd.flag);
-    }
-    break;
+    } break;
   }
   return RC::UNIMPLENMENT;
 }
-
-

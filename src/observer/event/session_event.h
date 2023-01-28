@@ -32,17 +32,29 @@ public:
   Communicator *get_communicator() const;
   Session *session() const;
 
-  void set_query(const std::string &query) { query_ = query; }
-  void set_sql_result(SqlResult *result) { sql_result_ = result; }
-  const std::string &query() const { return query_; }
-  SqlResult *sql_result() const { return sql_result_; }
+  void set_query(const std::string &query)
+  {
+    query_ = query;
+  }
+  void set_sql_result(SqlResult *result)
+  {
+    sql_result_ = result;
+  }
+  const std::string &query() const
+  {
+    return query_;
+  }
+  SqlResult *sql_result() const
+  {
+    return sql_result_;
+  }
 
   const char *get_response() const;
   void set_response(const char *response);
   void set_response(const char *response, int len);
   void set_response(std::string &&response);
   int get_response_len() const;
-  const char *get_request_buf(); // TODO remove me
+  const char *get_request_buf();  // TODO remove me
 
 private:
   Communicator *communicator_ = nullptr;

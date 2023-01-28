@@ -30,7 +30,7 @@ RC Rewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made)
   RC rc = RC::SUCCESS;
 
   change_made = false;
-  for (std::unique_ptr<RewriteRule> & rule : rewrite_rules_) {
+  for (std::unique_ptr<RewriteRule> &rule : rewrite_rules_) {
     bool sub_change_made = false;
     rc = rule->rewrite(oper, sub_change_made);
     if (rc != RC::SUCCESS) {
@@ -46,7 +46,7 @@ RC Rewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made)
   if (rc != RC::SUCCESS) {
     return rc;
   }
-  
+
   std::vector<std::unique_ptr<LogicalOperator>> &child_opers = oper->children();
   for (auto &child_oper : child_opers) {
     bool sub_change_made = false;

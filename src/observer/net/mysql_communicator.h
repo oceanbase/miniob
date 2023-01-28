@@ -27,7 +27,6 @@ class BasePacket;
  */
 class MysqlCommunicator : public Communicator {
 public:
-
   /**
    * 连接刚开始建立时，进行一些初始化
    * 参考MySQL或MariaDB的手册，服务端要首先向客户端发送一个握手包，等客户端回复后，

@@ -20,7 +20,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "session/session.h"
 
-
 RC Communicator::init(int fd, Session *session, const std::string &addr)
 {
   fd_ = fd;
@@ -88,7 +87,6 @@ RC PlainCommunicator::read_event(SessionEvent *&event)
     data_len += read_len;
   }
 
-
   if (data_len > max_packet_size) {
     LOG_WARN("The length of sql exceeds the limitation %d", max_packet_size);
     return RC::IOERR;
@@ -106,7 +104,6 @@ RC PlainCommunicator::read_event(SessionEvent *&event)
   event->set_query(std::string(buf.data()));
   return rc;
 }
-
 
 RC PlainCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
 {
@@ -137,12 +134,12 @@ RC PlainCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
 RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
 {
   need_disconnect = true;
-  
+
   const char message_terminate = '\0';
 
   SqlResult *sql_result = event->sql_result();
   if (nullptr == sql_result) {
-    
+
     const char *response = event->get_response();
     int len = event->get_response_len();
 
@@ -249,7 +246,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   if (rc == RC::RECORD_EOF) {
     rc = RC::SUCCESS;
   }
-  
+
   if (cell_num == 0) {
     // 除了select之外，其它的消息通常不会通过operator来返回结果，表头和行数据都是空的
     // 这里针对这种情况做特殊处理，当表头和行数据都是空的时候，就返回处理的结果
@@ -270,7 +267,6 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-
 
 Communicator *CommunicatorFactory::create(CommunicateProtocol protocol)
 {

@@ -28,10 +28,10 @@ class Session;
  * 在listener接收到一个新的连接(参考 server.cpp::accept), 就创建一个Communicator对象。
  * 并调用init进行初始化。
  * 在server中监听到某个连接有新的消息，就通过Communicator::read_event接收消息。
- 
+
  */
 class Communicator {
-public: 
+public:
   virtual ~Communicator();
 
   /**
@@ -57,18 +57,27 @@ public:
   /**
    * 关联的会话信息
    */
-  Session *session() const { return session_; }
+  Session *session() const
+  {
+    return session_;
+  }
 
   /**
    * libevent使用的数据，参考server.cpp
    */
-  struct event &read_event() { return read_event_; }
+  struct event &read_event()
+  {
+    return read_event_;
+  }
 
   /**
    * 对端地址
    * 如果是unix socket，可能没有意义
    */
-  const char *addr() const { return addr_.c_str(); }
+  const char *addr() const
+  {
+    return addr_.c_str();
+  }
 
 protected:
   Session *session_ = nullptr;
@@ -82,26 +91,23 @@ protected:
  * 使用简单的文本通讯协议，每个消息使用'\0'结尾
  */
 class PlainCommunicator : public Communicator {
-public: 
+public:
   RC read_event(SessionEvent *&event) override;
   RC write_result(SessionEvent *event, bool &need_disconnect) override;
 
 private:
   RC write_state(SessionEvent *event, bool &need_disconnect);
-
 };
 
 /**
  * 当前支持的通讯协议
  */
-enum class CommunicateProtocol
-{
+enum class CommunicateProtocol {
   PLAIN,  //! 以'\0'结尾的协议
   MYSQL,  //! mysql通讯协议。具体实现参考 MysqlCommunicator
 };
 
-class CommunicatorFactory
-{
-public: 
+class CommunicatorFactory {
+public:
   Communicator *create(CommunicateProtocol protocol);
 };

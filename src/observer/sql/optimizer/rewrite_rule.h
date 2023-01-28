@@ -21,18 +21,16 @@ See the Mulan PSL v2 for more details. */
 class LogicalOperator;
 class Expression;
 
-class RewriteRule
-{
-public: 
+class RewriteRule {
+public:
   virtual ~RewriteRule() = default;
 
   virtual RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) = 0;
 };
 
-class ExpressionRewriteRule
-{
+class ExpressionRewriteRule {
 public:
   virtual ~ExpressionRewriteRule() = default;
-  
+
   virtual RC rewrite(std::unique_ptr<Expression> &expr, bool &change_made) = 0;
 };

@@ -16,8 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/rewrite_rule.h"
 
-class PredicateRewriteRule : public RewriteRule
-{
+class PredicateRewriteRule : public RewriteRule {
 public:
   PredicateRewriteRule() = default;
   virtual ~PredicateRewriteRule() = default;

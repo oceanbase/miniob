@@ -17,31 +17,32 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/physical_operator.h"
 #include "sql/expr/tuple.h"
 
-class IndexScanPhysicalOperator : public PhysicalOperator
-{
-public: 
-  IndexScanPhysicalOperator(const Table *table, Index *index,
-		    const TupleCell *left_cell, bool left_inclusive,
-		    const TupleCell *right_cell, bool right_inclusive);
+class IndexScanPhysicalOperator : public PhysicalOperator {
+public:
+  IndexScanPhysicalOperator(const Table *table, Index *index, const TupleCell *left_cell, bool left_inclusive,
+      const TupleCell *right_cell, bool right_inclusive);
 
   virtual ~IndexScanPhysicalOperator() = default;
 
-  PhysicalOperatorType type() const override { return PhysicalOperatorType::INDEX_SCAN; }
+  PhysicalOperatorType type() const override
+  {
+    return PhysicalOperatorType::INDEX_SCAN;
+  }
 
   std::string param() const override;
-  
+
   RC open() override;
   RC next() override;
   RC close() override;
 
-  Tuple * current_tuple() override;
+  Tuple *current_tuple() override;
 
   void set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs);
 
 private:
   // 与TableScanPhysicalOperator代码相同，可以优化
   RC filter(RowTuple &tuple, bool &result);
-  
+
 private:
   const Table *table_ = nullptr;
   Index *index_ = nullptr;

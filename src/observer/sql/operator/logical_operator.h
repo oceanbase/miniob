@@ -19,8 +19,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/expr/expression.h"
 
-enum class LogicalOperatorType
-{
+enum class LogicalOperatorType {
   TABLE_GET,
   PREDICATE,
   PROJECTION,
@@ -33,18 +32,23 @@ enum class LogicalOperatorType
  * 逻辑算子描述当前执行计划要做什么
  * 可以看OptimizeStage中相关的代码
  */
-class LogicalOperator
-{
+class LogicalOperator {
 public:
   LogicalOperator() = default;
   virtual ~LogicalOperator();
 
   virtual LogicalOperatorType type() const = 0;
-  
+
   void add_child(std::unique_ptr<LogicalOperator> oper);
-  std::vector<std::unique_ptr<LogicalOperator>> & children() { return children_; }
-  std::vector<std::unique_ptr<Expression>> &expressions() { return expressions_; }
-  
+  std::vector<std::unique_ptr<LogicalOperator>> &children()
+  {
+    return children_;
+  }
+  std::vector<std::unique_ptr<Expression>> &expressions()
+  {
+    return expressions_;
+  }
+
 protected:
   std::vector<std::unique_ptr<LogicalOperator>> children_;
   std::vector<std::unique_ptr<Expression>> expressions_;

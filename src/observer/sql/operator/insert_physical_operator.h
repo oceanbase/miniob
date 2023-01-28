@@ -20,17 +20,18 @@ See the Mulan PSL v2 for more details. */
 
 class InsertStmt;
 
-class InsertPhysicalOperator : public PhysicalOperator
-{
+class InsertPhysicalOperator : public PhysicalOperator {
 public:
-  InsertPhysicalOperator(InsertStmt *insert_stmt)
-    : insert_stmt_(insert_stmt)
+  InsertPhysicalOperator(InsertStmt *insert_stmt) : insert_stmt_(insert_stmt)
   {}
 
   virtual ~InsertPhysicalOperator() = default;
 
-  PhysicalOperatorType type() const override { return PhysicalOperatorType::INSERT; }
-  
+  PhysicalOperatorType type() const override
+  {
+    return PhysicalOperatorType::INSERT;
+  }
+
   RC open() override;
   RC next() override;
   RC close() override;

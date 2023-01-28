@@ -25,7 +25,7 @@ See the Mulan PSL v2 for more details. */
 #define MAX_ERROR_MESSAGE 20
 #define MAX_DATA 50
 
-//属性结构体
+// 属性结构体
 struct RelAttr {
   std::string relation_name;   // relation name (may be NULL) 表名
   std::string attribute_name;  // attribute name              属性名
@@ -41,9 +41,8 @@ enum CompOp {
   NO_OP
 };
 
-//属性值类型
-enum AttrType
-{
+// 属性值类型
+enum AttrType {
   UNDEFINED,
   CHARS,
   INTS,
@@ -51,12 +50,12 @@ enum AttrType
   BOOLEANS,
 };
 
-//属性值
+// 属性值
 struct Value {
-  AttrType    type;  // type of value
-  int         int_value;
-  float       float_value;
-  bool        bool_value;
+  AttrType type;  // type of value
+  int int_value;
+  float float_value;
+  bool bool_value;
   std::string string_value;
 
   const char *data() const;
@@ -77,42 +76,41 @@ struct Condition {
 
 // struct of select
 struct Selects {
-  std::vector<RelAttr> attributes; // attributes in select clause
+  std::vector<RelAttr> attributes;  // attributes in select clause
   std::vector<std::string> relations;
   std::vector<Condition> conditions;
 };
 
 // struct of insert
 struct Inserts {
-  std::string relation_name;    // Relation to insert into
+  std::string relation_name;  // Relation to insert into
   std::vector<Value> values;
 };
 
 // struct of delete
 struct Deletes {
-  std::string relation_name;            // Relation to delete from
+  std::string relation_name;  // Relation to delete from
   std::vector<Condition> conditions;
 };
 
 // struct of update
 struct Updates {
-  std::string relation_name;            // Relation to update
-  std::string attribute_name;           // Attribute to update
-  Value value;                          // update value
+  std::string relation_name;   // Relation to update
+  std::string attribute_name;  // Attribute to update
+  Value value;                 // update value
   std::vector<Condition> conditions;
 };
 
-struct AttrInfo
-{
-  AttrType type;  // Type of attribute
-  std::string name; // Attribute name
-  size_t length;  // Length of attribute
+struct AttrInfo {
+  AttrType type;     // Type of attribute
+  std::string name;  // Attribute name
+  size_t length;     // Length of attribute
 };
 
 // struct of craete_table
 struct CreateTable {
-  std::string relation_name;           // Relation name
-  std::vector<AttrInfo> attr_infos; // attributes
+  std::string relation_name;         // Relation name
+  std::vector<AttrInfo> attr_infos;  // attributes
 };
 
 // struct of drop_table
@@ -129,8 +127,8 @@ struct CreateIndex {
 
 // struct of  drop_index
 struct DropIndex {
-  std::string index_name;  // Index name
-  std::string relation_name; //Relation name
+  std::string index_name;     // Index name
+  std::string relation_name;  // Relation name
 };
 
 struct DescTable {
@@ -147,8 +145,7 @@ struct Explain {
   std::unique_ptr<Command> cmd;
 };
 
-struct Error
-{
+struct Error {
   std::string error_msg;
   int line;
   int column;
@@ -181,18 +178,18 @@ enum SqlCommandFlag {
 class Command {
 public:
   enum SqlCommandFlag flag;
-  Error         error;
-  Selects       selection;
-  Inserts       insertion;
-  Deletes       deletion;
-  Updates       update;
-  CreateTable   create_table;
-  DropTable     drop_table;
-  CreateIndex   create_index;
-  DropIndex     drop_index;
-  DescTable     desc_table;
-  LoadData      load_data;
-  Explain       explain;
+  Error error;
+  Selects selection;
+  Inserts insertion;
+  Deletes deletion;
+  Updates update;
+  CreateTable create_table;
+  DropTable drop_table;
+  CreateIndex create_index;
+  DropIndex drop_index;
+  DescTable desc_table;
+  LoadData load_data;
+  Explain explain;
 
 public:
   Command();
@@ -203,12 +200,14 @@ public:
  * 表示语法解析后的数据
  * 叫ParsedSqlNode 可能会更清晰一点
  */
-class ParsedSqlResult
-{
+class ParsedSqlResult {
 public:
   void add_command(std::unique_ptr<Command> command);
-  std::vector<std::unique_ptr<Command>> &commands()  { return sql_commands_; }
-  
+  std::vector<std::unique_ptr<Command>> &commands()
+  {
+    return sql_commands_;
+  }
+
 private:
   std::vector<std::unique_ptr<Command>> sql_commands_;
 };

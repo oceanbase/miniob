@@ -48,20 +48,21 @@ protected:
 
 private:
   RC handle_request(SQLStageEvent *event);
-  
-  RC create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> & logical_operator);
+
+  RC create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_logical_plan(Stmt *stmt, std::unique_ptr<LogicalOperator> &logical_operator);
-  RC create_select_logical_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> & logical_operator);
+  RC create_select_logical_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_predicate_logical_plan(FilterStmt *filter_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_delete_logical_plan(DeleteStmt *delete_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_explain_logical_plan(ExplainStmt *explain_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
-  
+
   RC rewrite(std::unique_ptr<LogicalOperator> &logical_operator);
   RC optimize(std::unique_ptr<LogicalOperator> &logical_operator);
-  RC generate_physical_plan(std::unique_ptr<LogicalOperator> &logical_operator, std::unique_ptr<PhysicalOperator> &physical_operator);
-  
+  RC generate_physical_plan(
+      std::unique_ptr<LogicalOperator> &logical_operator, std::unique_ptr<PhysicalOperator> &physical_operator);
+
 private:
   Stage *execute_stage_ = nullptr;
   PhysicalPlanGenerator physical_plan_generator_;
-  Rewriter    rewriter_;
+  Rewriter rewriter_;
 };

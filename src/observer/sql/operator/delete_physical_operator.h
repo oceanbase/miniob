@@ -20,24 +20,27 @@ See the Mulan PSL v2 for more details. */
 class Trx;
 class DeleteStmt;
 
-class DeletePhysicalOperator : public PhysicalOperator
-{
+class DeletePhysicalOperator : public PhysicalOperator {
 public:
-  DeletePhysicalOperator(Table *table, Trx *trx)
-    : table_(table), trx_(trx)
+  DeletePhysicalOperator(Table *table, Trx *trx) : table_(table), trx_(trx)
   {}
 
   virtual ~DeletePhysicalOperator() = default;
 
-  PhysicalOperatorType type() const override { return PhysicalOperatorType::DELETE; }
-  
+  PhysicalOperatorType type() const override
+  {
+    return PhysicalOperatorType::DELETE;
+  }
+
   RC open() override;
   RC next() override;
   RC close() override;
 
-  Tuple * current_tuple() override {
+  Tuple *current_tuple() override
+  {
     return nullptr;
   }
+
 private:
   Table *table_ = nullptr;
   Trx *trx_ = nullptr;

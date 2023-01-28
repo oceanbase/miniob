@@ -39,7 +39,7 @@ protected:
 
   RC handle_request(common::StageEvent *event);
   RC handle_request_with_physical_operator(SQLStageEvent *sql_event);
-  
+
   RC do_help(SQLStageEvent *session_event);
   RC do_create_table(SQLStageEvent *sql_event);
   RC do_create_index(SQLStageEvent *sql_event);

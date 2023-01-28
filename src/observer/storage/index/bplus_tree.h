@@ -29,8 +29,7 @@ See the Mulan PSL v2 for more details. */
 #define EMPTY_RID_PAGE_NUM -1
 #define EMPTY_RID_SLOT_NUM -1
 
-class AttrComparator
-{
+class AttrComparator {
 public:
   void init(AttrType type, int length)
   {
@@ -38,46 +37,49 @@ public:
     attr_length_ = length;
   }
 
-  int attr_length() const {
+  int attr_length() const
+  {
     return attr_length_;
   }
 
-  int operator()(const char *v1, const char *v2) const {
+  int operator()(const char *v1, const char *v2) const
+  {
     switch (attr_type_) {
-    case INTS: {
-      return compare_int((void *)v1, (void *)v2);
-    }
-      break;
-    case FLOATS: {
-      return compare_float((void *)v1, (void *)v2);
-    }
-    case CHARS: {
-      return compare_string((void *)v1, attr_length_, (void *)v2, attr_length_);
-    }
-    default:{
-      LOG_ERROR("unknown attr type. %d", attr_type_);
-      abort();
-    }
+      case INTS: {
+        return compare_int((void *)v1, (void *)v2);
+      } break;
+      case FLOATS: {
+        return compare_float((void *)v1, (void *)v2);
+      }
+      case CHARS: {
+        return compare_string((void *)v1, attr_length_, (void *)v2, attr_length_);
+      }
+      default: {
+        LOG_ERROR("unknown attr type. %d", attr_type_);
+        abort();
+      }
     }
   }
+
 private:
   AttrType attr_type_;
   int attr_length_;
 };
 
-class KeyComparator
-{
+class KeyComparator {
 public:
   void init(AttrType type, int length)
   {
     attr_comparator_.init(type, length);
   }
 
-  const AttrComparator &attr_comparator() const {
+  const AttrComparator &attr_comparator() const
+  {
     return attr_comparator_;
   }
 
-  int operator() (const char *v1, const char *v2) const {
+  int operator()(const char *v1, const char *v2) const
+  {
     int result = attr_comparator_(v1, v2);
     if (result != 0) {
       return result;
@@ -92,8 +94,7 @@ private:
   AttrComparator attr_comparator_;
 };
 
-class AttrPrinter
-{
+class AttrPrinter {
 public:
   void init(AttrType type, int length)
   {
@@ -101,53 +102,56 @@ public:
     attr_length_ = length;
   }
 
-  int attr_length() const {
+  int attr_length() const
+  {
     return attr_length_;
   }
 
-  std::string operator()(const char *v) const {
+  std::string operator()(const char *v) const
+  {
     switch (attr_type_) {
-    case INTS: {
-      return std::to_string(*(int*)v);
-    }
-      break;
-    case FLOATS: {
-      return std::to_string(*(float*)v);
-    }
-    case CHARS: {
-      std::string str;
-      for (int i = 0; i < attr_length_; i++) {
-	if (v[i] == 0) {
-	  break;
-	}
-	str.push_back(v[i]);
+      case INTS: {
+        return std::to_string(*(int *)v);
+      } break;
+      case FLOATS: {
+        return std::to_string(*(float *)v);
       }
-      return str;
-    }
-    default:{
-      LOG_ERROR("unknown attr type. %d", attr_type_);
-      abort();
-    }
+      case CHARS: {
+        std::string str;
+        for (int i = 0; i < attr_length_; i++) {
+          if (v[i] == 0) {
+            break;
+          }
+          str.push_back(v[i]);
+        }
+        return str;
+      }
+      default: {
+        LOG_ERROR("unknown attr type. %d", attr_type_);
+        abort();
+      }
     }
   }
+
 private:
   AttrType attr_type_;
   int attr_length_;
 };
 
-class KeyPrinter
-{
+class KeyPrinter {
 public:
   void init(AttrType type, int length)
   {
     attr_printer_.init(type, length);
   }
 
-  const AttrPrinter &attr_printer() const {
+  const AttrPrinter &attr_printer() const
+  {
     return attr_printer_;
   }
 
-  std::string operator() (const char *v) const {
+  std::string operator()(const char *v) const
+  {
     std::stringstream ss;
     ss << "{key:" << attr_printer_(v) << ",";
 
@@ -171,11 +175,11 @@ struct IndexFileHeader {
     memset(this, 0, sizeof(IndexFileHeader));
     root_page = BP_INVALID_PAGE_NUM;
   }
-  PageNum  root_page;
-  int32_t  internal_max_size;
-  int32_t  leaf_max_size;
-  int32_t  attr_length;
-  int32_t  key_length; // attr length + sizeof(RID)
+  PageNum root_page;
+  int32_t internal_max_size;
+  int32_t leaf_max_size;
+  int32_t attr_length;
+  int32_t key_length;  // attr length + sizeof(RID)
   AttrType attr_type;
 
   const std::string to_string()
@@ -220,7 +224,7 @@ struct IndexNode {
  */
 struct LeafIndexNode : public IndexNode {
   static constexpr int HEADER_SIZE = IndexNode::HEADER_SIZE + 8;
-  
+
   PageNum prev_brother;
   PageNum next_brother;
   /**
@@ -232,7 +236,7 @@ struct LeafIndexNode : public IndexNode {
 /**
  * internal page of bplus tree
  * storage format:
- * | common header | 
+ * | common header |
  * | key(0),page_id(0) | key(1), page_id(1) | ... | key(n), page_id(n) |
  *
  * the first key is ignored(key0).
@@ -254,12 +258,12 @@ public:
   void init_empty(bool leaf);
 
   bool is_leaf() const;
-  int  key_size() const;
-  int  value_size() const;
-  int  item_size() const;
+  int key_size() const;
+  int value_size() const;
+  int item_size() const;
 
   void increase_size(int n);
-  int  size() const;
+  int size() const;
   void set_parent_page_num(PageNum page_num);
   PageNum parent_page_num() const;
 
@@ -276,7 +280,7 @@ protected:
 };
 
 class LeafIndexNodeHandler : public IndexNodeHandler {
-public: 
+public:
   LeafIndexNodeHandler(const IndexFileHeader &header, Frame *frame);
 
   void init_empty();
@@ -297,10 +301,10 @@ public:
 
   void insert(int index, const char *key, const char *value);
   void remove(int index);
-  int  remove(const char *key, const KeyComparator &comparator);
-  RC   move_half_to(LeafIndexNodeHandler &other, DiskBufferPool *bp);
-  RC   move_first_to_end(LeafIndexNodeHandler &other, DiskBufferPool *disk_buffer_pool);
-  RC   move_last_to_front(LeafIndexNodeHandler &other, DiskBufferPool *bp);
+  int remove(const char *key, const KeyComparator &comparator);
+  RC move_half_to(LeafIndexNodeHandler &other, DiskBufferPool *bp);
+  RC move_first_to_end(LeafIndexNodeHandler &other, DiskBufferPool *disk_buffer_pool);
+  RC move_last_to_front(LeafIndexNodeHandler &other, DiskBufferPool *bp);
   /**
    * move all items to left page
    */
@@ -312,6 +316,7 @@ public:
   bool validate(const KeyComparator &comparator, DiskBufferPool *bp) const;
 
   friend std::string to_string(const LeafIndexNodeHandler &handler, const KeyPrinter &printer);
+
 private:
   char *__item_at(int index) const;
   char *__key_at(int index) const;
@@ -332,14 +337,14 @@ public:
   void create_new_root(PageNum first_page_num, const char *key, PageNum page_num);
 
   void insert(const char *key, PageNum page_num, const KeyComparator &comparator);
-  RC   move_half_to(LeafIndexNodeHandler &other, DiskBufferPool *bp);
+  RC move_half_to(LeafIndexNodeHandler &other, DiskBufferPool *bp);
   char *key_at(int index);
   PageNum value_at(int index);
 
   /**
    * 返回指定子节点在当前节点中的索引
    */
-  int  value_index(PageNum page_num);
+  int value_index(PageNum page_num);
   void set_key_at(int index, const char *key);
   void remove(int index);
 
@@ -348,9 +353,9 @@ public:
    * 如果想要返回插入位置，就提供 `insert_position` 参数
    * NOTE: 查找效率不高，你可以优化它吗?
    */
-  int lookup(const KeyComparator &comparator, const char *key,
-	     bool *found = nullptr, int *insert_position = nullptr) const;
-  
+  int lookup(
+      const KeyComparator &comparator, const char *key, bool *found = nullptr, int *insert_position = nullptr) const;
+
   int max_size() const;
   int min_size() const;
 
@@ -362,6 +367,7 @@ public:
   bool validate(const KeyComparator &comparator, DiskBufferPool *bp) const;
 
   friend std::string to_string(const InternalIndexNodeHandler &handler, const KeyPrinter &printer);
+
 private:
   RC copy_from(const char *items, int num, DiskBufferPool *disk_buffer_pool);
   RC append(const char *item, DiskBufferPool *bp);
@@ -385,8 +391,8 @@ public:
    * 此函数创建一个名为fileName的索引。
    * attrType描述被索引属性的类型，attrLength描述被索引属性的长度
    */
-  RC create(const char *file_name, AttrType attr_type, int attr_length,
-	    int internal_max_size = -1, int leaf_max_size = -1);
+  RC create(
+      const char *file_name, AttrType attr_type, int attr_length, int internal_max_size = -1, int leaf_max_size = -1);
 
   /**
    * 打开名为fileName的索引文件。
@@ -449,11 +455,9 @@ protected:
   RC find_leaf(const char *key, Frame *&frame);
   RC left_most_page(Frame *&frame);
   RC right_most_page(Frame *&frame);
-  RC find_leaf_internal(const std::function<PageNum(InternalIndexNodeHandler &)> &child_page_getter,
-			Frame *&frame);
+  RC find_leaf_internal(const std::function<PageNum(InternalIndexNodeHandler &)> &child_page_getter, Frame *&frame);
 
-  RC insert_into_parent(
-      PageNum parent_page, Frame *left_frame, const char *pkey, Frame &right_frame);
+  RC insert_into_parent(PageNum parent_page, Frame *left_frame, const char *pkey, Frame &right_frame);
 
   RC delete_entry_internal(Frame *leaf_frame, const char *key);
 
@@ -477,14 +481,15 @@ protected:
 
 private:
   char *make_key(const char *user_key, const RID &rid);
-  void  free_key(char *key);
+  void free_key(char *key);
+
 protected:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
   bool header_dirty_ = false;
   IndexFileHeader file_header_;
 
   KeyComparator key_comparator_;
-  KeyPrinter    key_printer_;
+  KeyPrinter key_printer_;
 
   common::MemPoolItem *mem_pool_item_ = nullptr;
 
@@ -507,8 +512,8 @@ public:
    * @param right_len right_user_key 的内存大小(只有在变长字段中才会关注)
    * @param right_inclusive 右边界的值是否包含在内
    */
-  RC open(const char *left_user_key, int left_len, bool left_inclusive,
-	  const char *right_user_key, int right_len, bool right_inclusive);
+  RC open(const char *left_user_key, int left_len, bool left_inclusive, const char *right_user_key, int right_len,
+      bool right_inclusive);
 
   RC next_entry(RID *rid);
 
@@ -518,18 +523,18 @@ private:
   /**
    * 如果key的类型是CHARS, 扩展或缩减user_key的大小刚好是schema中定义的大小
    */
-  RC fix_user_key(const char *user_key, int key_len, bool want_greater,
-		  char **fixed_key, bool *should_inclusive);
+  RC fix_user_key(const char *user_key, int key_len, bool want_greater, char **fixed_key, bool *should_inclusive);
+
 private:
   bool inited_ = false;
   BplusTreeHandler &tree_handler_;
 
   /// 使用左右叶子节点和位置来表示扫描的起始位置和终止位置
   /// 起始位置和终止位置都是有效的数据
-  Frame *      left_frame_  = nullptr;
-  Frame *      right_frame_ = nullptr;
-  int          iter_index_  = -1;
-  int          end_index_   = -1; // use -1 for end of scan
+  Frame *left_frame_ = nullptr;
+  Frame *right_frame_ = nullptr;
+  int iter_index_ = -1;
+  int end_index_ = -1;  // use -1 for end of scan
 };
 
 #endif  //__OBSERVER_STORAGE_COMMON_INDEX_MANAGER_H_

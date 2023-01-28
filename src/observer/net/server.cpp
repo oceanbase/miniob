@@ -202,8 +202,8 @@ void Server::accept(int fd, short ev, void *arg)
 
   ret = event_base_set(instance->event_base_, &communicator->read_event());
   if (ret < 0) {
-    LOG_ERROR("Failed to do event_base_set for read event of %s into libevent, %s",
-              communicator->addr(), strerror(errno));
+    LOG_ERROR(
+        "Failed to do event_base_set for read event of %s into libevent, %s", communicator->addr(), strerror(errno));
     delete communicator;
     return;
   }

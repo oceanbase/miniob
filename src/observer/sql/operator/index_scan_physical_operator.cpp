@@ -15,11 +15,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/index_scan_physical_operator.h"
 #include "storage/index/index.h"
 
-IndexScanPhysicalOperator::IndexScanPhysicalOperator(const Table *table, Index *index,
-		const TupleCell *left_cell, bool left_inclusive,
-		const TupleCell *right_cell, bool right_inclusive)
-  : table_(table), index_(index),
-    left_inclusive_(left_inclusive), right_inclusive_(right_inclusive)
+IndexScanPhysicalOperator::IndexScanPhysicalOperator(const Table *table, Index *index, const TupleCell *left_cell,
+    bool left_inclusive, const TupleCell *right_cell, bool right_inclusive)
+    : table_(table), index_(index), left_inclusive_(left_inclusive), right_inclusive_(right_inclusive)
 {
   if (left_cell) {
     left_cell_ = *left_cell;
@@ -35,9 +33,12 @@ RC IndexScanPhysicalOperator::open()
     return RC::INTERNAL;
   }
 
-  
-  IndexScanner *index_scanner = index_->create_scanner(left_cell_.data(), left_cell_.length(), left_inclusive_,
-                                                       right_cell_.data(), right_cell_.length(), right_inclusive_);
+  IndexScanner *index_scanner = index_->create_scanner(left_cell_.data(),
+      left_cell_.length(),
+      left_inclusive_,
+      right_cell_.data(),
+      right_cell_.length(),
+      right_inclusive_);
   if (nullptr == index_scanner) {
     LOG_WARN("failed to create index scanner");
     return RC::INTERNAL;
@@ -52,7 +53,7 @@ RC IndexScanPhysicalOperator::open()
   index_scanner_ = index_scanner;
 
   tuple_.set_schema(table_, table_->table_meta().field_metas());
-  
+
   return RC::SUCCESS;
 }
 
@@ -89,7 +90,7 @@ RC IndexScanPhysicalOperator::close()
   return RC::SUCCESS;
 }
 
-Tuple * IndexScanPhysicalOperator::current_tuple()
+Tuple *IndexScanPhysicalOperator::current_tuple()
 {
   tuple_.set_record(&current_record_);
   return &tuple_;

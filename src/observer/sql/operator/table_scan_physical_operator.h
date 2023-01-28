@@ -20,30 +20,31 @@ See the Mulan PSL v2 for more details. */
 
 class Table;
 
-class TableScanPhysicalOperator : public PhysicalOperator
-{
+class TableScanPhysicalOperator : public PhysicalOperator {
 public:
-  TableScanPhysicalOperator(Table *table)
-    : table_(table)
+  TableScanPhysicalOperator(Table *table) : table_(table)
   {}
 
   virtual ~TableScanPhysicalOperator() = default;
 
   std::string param() const override;
-  
-  PhysicalOperatorType type() const override { return PhysicalOperatorType::TABLE_SCAN; }
-  
+
+  PhysicalOperatorType type() const override
+  {
+    return PhysicalOperatorType::TABLE_SCAN;
+  }
+
   RC open() override;
   RC next() override;
   RC close() override;
 
-  Tuple * current_tuple() override;
+  Tuple *current_tuple() override;
 
   void set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs);
 
 private:
   RC filter(RowTuple &tuple, bool &result);
-  
+
 private:
   Table *table_ = nullptr;
   RecordFileScanner record_scanner_;

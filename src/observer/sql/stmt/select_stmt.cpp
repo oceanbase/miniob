@@ -60,15 +60,16 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
     }
 
     tables.push_back(table);
-    table_map.insert(std::pair<std::string, Table*>(table_name, table));
+    table_map.insert(std::pair<std::string, Table *>(table_name, table));
   }
-  
+
   // collect query fields in `select` statement
   std::vector<Field> query_fields;
   for (int i = static_cast<int>(select_sql.attributes.size()) - 1; i >= 0; i--) {
     const RelAttr &relation_attr = select_sql.attributes[i];
 
-    if (common::is_blank(relation_attr.relation_name.c_str()) && 0 == strcmp(relation_attr.attribute_name.c_str(), "*")) {
+    if (common::is_blank(relation_attr.relation_name.c_str()) &&
+        0 == strcmp(relation_attr.attribute_name.c_str(), "*")) {
       for (Table *table : tables) {
         wildcard_fields(table, query_fields);
       }
@@ -131,8 +132,12 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
 
   // create filter statement in `where` statement
   FilterStmt *filter_stmt = nullptr;
-  RC rc = FilterStmt::create(db, default_table, &table_map,
-           select_sql.conditions.data(), static_cast<int>(select_sql.conditions.size()), filter_stmt);
+  RC rc = FilterStmt::create(db,
+      default_table,
+      &table_map,
+      select_sql.conditions.data(),
+      static_cast<int>(select_sql.conditions.size()),
+      filter_stmt);
   if (rc != RC::SUCCESS) {
     LOG_WARN("cannot construct filter stmt");
     return rc;

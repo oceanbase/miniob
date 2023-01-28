@@ -27,16 +27,14 @@ class DeleteLogicalOperator;
 class ExplainLogicalOperator;
 class JoinLogicalOperator;
 
-class PhysicalPlanGenerator
-{
-public: 
+class PhysicalPlanGenerator {
+public:
   PhysicalPlanGenerator() = default;
   virtual ~PhysicalPlanGenerator() = default;
 
   RC create(LogicalOperator &logical_operator, std::unique_ptr<PhysicalOperator> &oper);
-  
-private:
 
+private:
   RC create_plan(TableGetLogicalOperator &table_get_oper, std::unique_ptr<PhysicalOperator> &oper);
   RC create_plan(PredicateLogicalOperator &pred_oper, std::unique_ptr<PhysicalOperator> &oper);
   RC create_plan(ProjectLogicalOperator &project_oper, std::unique_ptr<PhysicalOperator> &oper);

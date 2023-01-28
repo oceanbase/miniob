@@ -35,7 +35,7 @@ RC PersistHandler::create_file(const char *file_name)
   } else if (!file_name_.empty()) {
     LOG_ERROR("Failed to create %s, because a file is already bound.", file_name);
     rc = RC::FILE_BOUND;
-  } else if (access(file_name, F_OK) != -1){
+  } else if (access(file_name, F_OK) != -1) {
     LOG_WARN("Failed to create %s, because file already exist.", file_name);
     rc = RC::FILE_EXIST;
   } else {
@@ -43,7 +43,7 @@ RC PersistHandler::create_file(const char *file_name)
     fd = open(file_name, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
     if (fd < 0) {
       LOG_ERROR("Failed to create %s, due to %s.", file_name, strerror(errno));
-      rc =  RC::FILE_CREATE;
+      rc = RC::FILE_CREATE;
     } else {
       file_name_ = file_name;
       close(fd);
@@ -61,7 +61,7 @@ RC PersistHandler::open_file(const char *file_name)
   if (file_name == nullptr) {
     if (file_name_.empty()) {
       LOG_ERROR("Failed to open file, because no file name.");
-      rc = RC::FILE_NAME;  
+      rc = RC::FILE_NAME;
     } else {
       if ((fd = open(file_name_.c_str(), O_RDWR)) < 0) {
         LOG_ERROR("Failed to open file %s, because %s.", file_name_.c_str(), strerror(errno));
@@ -86,7 +86,7 @@ RC PersistHandler::open_file(const char *file_name)
       }
     }
   }
-  
+
   return rc;
 }
 
@@ -143,7 +143,11 @@ RC PersistHandler::write_file(int size, const char *data, int64_t *out_size)
   } else {
     int64_t write_size = 0;
     if ((write_size = write(file_desc_, data, size)) != size) {
-      LOG_ERROR("Failed to write %d:%s due to %s. Write size: %lld", file_desc_, file_name_.c_str(), strerror(errno), write_size);
+      LOG_ERROR("Failed to write %d:%s due to %s. Write size: %lld",
+          file_desc_,
+          file_name_.c_str(),
+          strerror(errno),
+          write_size);
       rc = RC::FILE_WRITE;
     }
     if (out_size != nullptr) {
@@ -153,7 +157,6 @@ RC PersistHandler::write_file(int size, const char *data, int64_t *out_size)
 
   return rc;
 }
-
 
 RC PersistHandler::write_at(uint64_t offset, int size, const char *data, int64_t *out_size)
 {
@@ -166,12 +169,21 @@ RC PersistHandler::write_at(uint64_t offset, int size, const char *data, int64_t
     rc = RC::FILE_NOT_OPENED;
   } else {
     if (lseek(file_desc_, offset, SEEK_SET) == off_t(-1)) {
-      LOG_ERROR("Failed to write %lld of %d:%s due to failed to seek %s.", offset, file_desc_, file_name_.c_str(), strerror(errno));
+      LOG_ERROR("Failed to write %lld of %d:%s due to failed to seek %s.",
+          offset,
+          file_desc_,
+          file_name_.c_str(),
+          strerror(errno));
       rc = RC::FILE_SEEK;
     } else {
       int64_t write_size = 0;
       if ((write_size = write(file_desc_, data, size)) != size) {
-        LOG_ERROR("Failed to write %llu of %d:%s due to %s. Write size: %lld", offset, file_desc_, file_name_.c_str(), strerror(errno), write_size);
+        LOG_ERROR("Failed to write %llu of %d:%s due to %s. Write size: %lld",
+            offset,
+            file_desc_,
+            file_name_.c_str(),
+            strerror(errno),
+            write_size);
         rc = RC::FILE_WRITE;
       }
       if (out_size != nullptr) {
@@ -194,12 +206,17 @@ RC PersistHandler::append(int size, const char *data, int64_t *out_size)
     rc = RC::FILE_NOT_OPENED;
   } else {
     if (lseek(file_desc_, 0, SEEK_END) == off_t(-1)) {
-      LOG_ERROR("Failed to append file %d:%s due to failed to seek: %s.", file_desc_, file_name_.c_str(), strerror(errno));
+      LOG_ERROR(
+          "Failed to append file %d:%s due to failed to seek: %s.", file_desc_, file_name_.c_str(), strerror(errno));
       rc = RC::FILE_SEEK;
     } else {
       int64_t write_size = 0;
       if ((write_size = write(file_desc_, data, size)) != size) {
-        LOG_ERROR("Failed to append file %d:%s due to %s. Write size: %lld", file_desc_, file_name_.c_str(), strerror(errno), write_size);
+        LOG_ERROR("Failed to append file %d:%s due to %s. Write size: %lld",
+            file_desc_,
+            file_name_.c_str(),
+            strerror(errno),
+            write_size);
         rc = RC::FILE_WRITE;
       }
       if (out_size != nullptr) {
@@ -245,7 +262,11 @@ RC PersistHandler::read_at(uint64_t offset, int size, char *data, int64_t *out_s
     rc = RC::FILE_NOT_OPENED;
   } else {
     if (lseek(file_desc_, offset, SEEK_SET) == off_t(-1)) {
-      LOG_ERROR("Failed to read %llu of %d:%s due to failed to seek %s.", offset, file_desc_, file_name_.c_str(), strerror(errno));
+      LOG_ERROR("Failed to read %llu of %d:%s due to failed to seek %s.",
+          offset,
+          file_desc_,
+          file_name_.c_str(),
+          strerror(errno));
       return RC::FILE_SEEK;
     } else {
       int64_t read_size = 0;

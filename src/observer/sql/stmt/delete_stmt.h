@@ -21,17 +21,25 @@ See the Mulan PSL v2 for more details. */
 class Table;
 class FilterStmt;
 
-class DeleteStmt : public Stmt
-{
+class DeleteStmt : public Stmt {
 public:
-
   DeleteStmt(Table *table, FilterStmt *filter_stmt);
   ~DeleteStmt() override;
 
-  Table *table() const { return table_; }
-  FilterStmt *filter_stmt() const { return filter_stmt_; }
+  Table *table() const
+  {
+    return table_;
+  }
+  FilterStmt *filter_stmt() const
+  {
+    return filter_stmt_;
+  }
 
-  StmtType type() const override { return StmtType::DELETE; }
+  StmtType type() const override
+  {
+    return StmtType::DELETE;
+  }
+
 public:
   static RC create(Db *db, const Deletes &delete_sql, Stmt *&stmt);
 
@@ -39,4 +47,3 @@ private:
   Table *table_ = nullptr;
   FilterStmt *filter_stmt_ = nullptr;
 };
-

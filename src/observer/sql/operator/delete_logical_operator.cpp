@@ -14,7 +14,5 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/delete_logical_operator.h"
 
-DeleteLogicalOperator::DeleteLogicalOperator(Table *table)
-    : table_(table)
-{
-}
+DeleteLogicalOperator::DeleteLogicalOperator(Table *table) : table_(table)
+{}

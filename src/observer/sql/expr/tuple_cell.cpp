@@ -136,21 +136,21 @@ const char *TupleCell::data() const
 void TupleCell::to_string(std::ostream &os) const
 {
   switch (attr_type_) {
-  case INTS: {
-    os << num_value_.int_value_;
-  } break;
-  case FLOATS: {
-    os << double2string(num_value_.float_value_);
-  } break;
-  case BOOLEANS: {
-    os << num_value_.bool_value_;
-  } break;
-  case CHARS: {
-    os << str_value_;
-  } break;
-  default: {
-    LOG_WARN("unsupported attr type: %d", attr_type_);
-  } break;
+    case INTS: {
+      os << num_value_.int_value_;
+    } break;
+    case FLOATS: {
+      os << double2string(num_value_.float_value_);
+    } break;
+    case BOOLEANS: {
+      os << num_value_.bool_value_;
+    } break;
+    case CHARS: {
+      os << str_value_;
+    } break;
+    default: {
+      LOG_WARN("unsupported attr type: %d", attr_type_);
+    } break;
   }
 }
 
@@ -159,14 +159,16 @@ int TupleCell::compare(const TupleCell &other) const
   if (this->attr_type_ == other.attr_type_) {
     switch (this->attr_type_) {
       case INTS: {
-        return compare_int((void *)&this->num_value_.int_value_, (void *)&other.num_value_.int_value_); 
+        return compare_int((void *)&this->num_value_.int_value_, (void *)&other.num_value_.int_value_);
       } break;
       case FLOATS: {
-        return compare_float((void *)&this->num_value_.float_value_, (void *)&other.num_value_.float_value_); 
+        return compare_float((void *)&this->num_value_.float_value_, (void *)&other.num_value_.float_value_);
       } break;
       case CHARS: {
-        return compare_string((void *)this->str_value_.c_str(), this->str_value_.length(),
-                              (void *)other.str_value_.c_str(), other.str_value_.length()); 
+        return compare_string((void *)this->str_value_.c_str(),
+            this->str_value_.length(),
+            (void *)other.str_value_.c_str(),
+            other.str_value_.length());
       } break;
       case BOOLEANS: {
         return compare_int((void *)&this->num_value_.bool_value_, (void *)&other.num_value_.bool_value_);
@@ -183,9 +185,8 @@ int TupleCell::compare(const TupleCell &other) const
     return compare_float((void *)&this->num_value_.float_value_, (void *)&other_data);
   }
   LOG_WARN("not supported");
-  return -1; // TODO return rc?
+  return -1;  // TODO return rc?
 }
-
 
 int TupleCell::get_int() const
 {

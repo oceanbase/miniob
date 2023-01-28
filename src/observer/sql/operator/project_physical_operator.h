@@ -17,8 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/physical_operator.h"
 #include "rc.h"
 
-class ProjectPhysicalOperator : public PhysicalOperator
-{
+class ProjectPhysicalOperator : public PhysicalOperator {
 public:
   ProjectPhysicalOperator()
   {}
@@ -27,8 +26,11 @@ public:
 
   void add_projection(const Table *table, const FieldMeta *field);
 
-  PhysicalOperatorType type() const override { return PhysicalOperatorType::PROJECT; }
-  
+  PhysicalOperatorType type() const override
+  {
+    return PhysicalOperatorType::PROJECT;
+  }
+
   RC open() override;
   RC next() override;
   RC close() override;
@@ -38,7 +40,8 @@ public:
     return tuple_.cell_num();
   }
 
-  Tuple * current_tuple() override;
+  Tuple *current_tuple() override;
+
 private:
   ProjectTuple tuple_;
 };
