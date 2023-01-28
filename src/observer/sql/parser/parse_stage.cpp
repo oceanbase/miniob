@@ -138,8 +138,8 @@ RC ParseStage::handle_request(StageEvent *event)
     LOG_WARN("got multi sql commands but only 1 will be handled");
   }
   
-  std::unique_ptr<Query> query_result = std::move(parsed_sql_result.commands().front());
-  if (query_result->flag == SCF_ERROR) {
+  std::unique_ptr<Command> cmd = std::move(parsed_sql_result.commands().front());
+  if (cmd->flag == SCF_ERROR) {
     // set error information to event
     sql_result->set_return_code(RC::SQL_SYNTAX);
     sql_result->set_state_string("Failed to parse sql");
@@ -148,6 +148,6 @@ RC ParseStage::handle_request(StageEvent *event)
   }
 
   delete sql_result;
-  sql_event->set_query(std::move(query_result));
+  sql_event->set_command(std::move(cmd));
   return RC::SUCCESS;
 }

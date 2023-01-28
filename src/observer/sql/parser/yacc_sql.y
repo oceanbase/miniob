@@ -1,35 +1,25 @@
 
 %{
 
-#include "sql/parser/parse_defs.h"
-#include "sql/parser/yacc_sql.hpp"
-#include "sql/parser/lex_sql.h"
-#include "common/log/log.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
 
-//获取子串
-char *substr(const char *s,int n1,int n2)/*从s中提取下标为n1~n2的字符组成一个新字符串，然后返回这个新串的首地址*/
-{
-  char *sp = (char *)malloc(sizeof(char) * (n2 - n1 + 2));
-  int i, j = 0;
-  for (i = n1; i <= n2; i++) {
-    sp[j++] = s[i];
-  }
-  sp[j] = 0;
-  return sp;
-}
+#include "common/log/log.h"
+#include "common/lang/string.h"
+#include "sql/parser/parse_defs.h"
+#include "sql/parser/yacc_sql.hpp"
+#include "sql/parser/lex_sql.h"
+
 
 int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const char *msg)
 {
-  std::unique_ptr<Query> error_query = std::make_unique<Query>(SCF_ERROR);
-  error_query->error.error_msg = msg;
-  error_query->error.line = llocp->first_line;
-  error_query->error.column = llocp->first_column;
-  sql_result->add_command(std::move(error_query));
+  std::unique_ptr<Command> error_cmd = std::make_unique<Command>(SCF_ERROR);
+  error_cmd->error.error_msg = msg;
+  error_cmd->error.line = llocp->first_line;
+  error_cmd->error.column = llocp->first_column;
+  sql_result->add_command(std::move(error_cmd));
   return 0;
 }
 
@@ -87,7 +77,7 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
         NE
 
 %union {
-  Query *query;
+  Command *command;
   Condition *condition;
   Value *value;
   enum CompOp comp;
@@ -126,37 +116,37 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
 %type <rel_attr_list>       select_attr
 %type <relation_list>       rel_list
 %type <rel_attr_list>       attr_list
-%type <query> select
-%type <query> insert
-%type <query> update
-%type <query> delete
-%type <query> create_table
-%type <query> drop_table
-%type <query> show_tables
-%type <query> desc_table
-%type <query> create_index
-%type <query> drop_index
-%type <query> sync
-%type <query> begin
-%type <query> commit
-%type <query> rollback
-%type <query> load_data
-%type <query> explain
-%type <query> help
-%type <query> exit
-%type <query> command
+%type <command> select
+%type <command> insert
+%type <command> update
+%type <command> delete
+%type <command> create_table
+%type <command> drop_table
+%type <command> show_tables
+%type <command> desc_table
+%type <command> create_index
+%type <command> drop_index
+%type <command> sync
+%type <command> begin
+%type <command> commit
+%type <command> rollback
+%type <command> load_data
+%type <command> explain
+%type <command> help
+%type <command> exit
+%type <command> command_wrapper
 // commands should be a list but I use a single command instead
-%type <query> commands
+%type <command> commands
 %%
 
-commands: command opt_semicolon  //commands or sqls. parser starts here.
+commands: command_wrapper opt_semicolon  //commands or sqls. parser starts here.
   {
-    std::unique_ptr<Query> query_command = std::unique_ptr<Query>($1);
-    sql_result->add_command(std::move(query_command));
+    std::unique_ptr<Command> sql_command = std::unique_ptr<Command>($1);
+    sql_result->add_command(std::move(sql_command));
   }
   ;
 
-command:
+command_wrapper:
     select  
   | insert
   | update
@@ -179,54 +169,54 @@ command:
 
 exit:      
     EXIT {
-      $$ = new Query(SCF_EXIT);
+      $$ = new Command(SCF_EXIT);
     };
 
 help:
     HELP {
-      $$ = new Query(SCF_HELP);
+      $$ = new Command(SCF_HELP);
     };
 
 sync:
     SYNC {
-      $$ = new Query(SCF_SYNC);
+      $$ = new Command(SCF_SYNC);
     }
     ;
 
 begin:
     TRX_BEGIN  {
-      $$ = new Query(SCF_BEGIN);
+      $$ = new Command(SCF_BEGIN);
     }
     ;
 
 commit:
     TRX_COMMIT {
-      $$ = new Query(SCF_COMMIT);
+      $$ = new Command(SCF_COMMIT);
     }
     ;
 
 rollback:
     TRX_ROLLBACK  {
-      $$ = new Query(SCF_ROLLBACK);
+      $$ = new Command(SCF_ROLLBACK);
     }
     ;
 
 drop_table:    /*drop table 语句的语法解析树*/
     DROP TABLE ID {
-      $$ = new Query(SCF_DROP_TABLE);
+      $$ = new Command(SCF_DROP_TABLE);
       $$->drop_table.relation_name = $3;
       free($3);
     };
 
 show_tables:
     SHOW TABLES {
-      $$ = new Query(SCF_SHOW_TABLES);
+      $$ = new Command(SCF_SHOW_TABLES);
     }
     ;
 
 desc_table:
     DESC ID  {
-      $$ = new Query(SCF_DESC_TABLE);
+      $$ = new Command(SCF_DESC_TABLE);
       $$->desc_table.relation_name = $2;
       free($2);
     }
@@ -235,7 +225,7 @@ desc_table:
 create_index:    /*create index 语句的语法解析树*/
     CREATE INDEX ID ON ID LBRACE ID RBRACE
     {
-      $$ = new Query(SCF_CREATE_INDEX);
+      $$ = new Command(SCF_CREATE_INDEX);
       CreateIndex &create_index = $$->create_index;
       create_index.index_name = $3;
       create_index.relation_name = $5;
@@ -247,17 +237,19 @@ create_index:    /*create index 语句的语法解析树*/
     ;
 
 drop_index:      /*drop index 语句的语法解析树*/
-    DROP INDEX ID 
+    DROP INDEX ID ON ID
     {
-      $$ = new Query(SCF_DROP_INDEX);
+      $$ = new Command(SCF_DROP_INDEX);
       $$->drop_index.index_name = $3;
+      $$->drop_index.relation_name = $5;
       free($3);
+      free($5);
     }
     ;
 create_table:    /*create table 语句的语法解析树*/
     CREATE TABLE ID LBRACE attr_def attr_def_list RBRACE
     {
-      $$ = new Query(SCF_CREATE_TABLE);
+      $$ = new Command(SCF_CREATE_TABLE);
       CreateTable &create_table = $$->create_table;
       create_table.relation_name = $3;
       free($3);
@@ -318,7 +310,7 @@ type:
 insert:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 
     {
-      $$ = new Query(SCF_INSERT);
+      $$ = new Command(SCF_INSERT);
       $$->insertion.relation_name = $3;
       if ($7 != nullptr) {
         $$->insertion.values.swap(*$7);
@@ -357,7 +349,7 @@ value:
       $$->float_value = $1;
     }
     |SSS {
-      char *tmp = substr($1,1,strlen($1)-2);
+      char *tmp = common::substr($1,1,strlen($1)-2);
       $$ = new Value;
       $$->type = CHARS;
       $$->string_value = tmp;
@@ -368,7 +360,7 @@ value:
 delete:    /*  delete 语句的语法解析树*/
     DELETE FROM ID where 
     {
-      $$ = new Query(SCF_DELETE);
+      $$ = new Command(SCF_DELETE);
       $$->deletion.relation_name = $3;
       if ($4 != nullptr) {
         $$->deletion.conditions.swap(*$4);
@@ -380,7 +372,7 @@ delete:    /*  delete 语句的语法解析树*/
 update:      /*  update 语句的语法解析树*/
     UPDATE ID SET ID EQ value where 
     {
-      $$ = new Query(SCF_UPDATE);
+      $$ = new Command(SCF_UPDATE);
       $$->update.relation_name = $2;
       $$->update.attribute_name = $4;
       $$->update.value = *$6;
@@ -395,7 +387,7 @@ update:      /*  update 语句的语法解析树*/
 select:        /*  select 语句的语法解析树*/
     SELECT select_attr FROM ID rel_list where
     {
-      $$ = new Query(SCF_SELECT);
+      $$ = new Command(SCF_SELECT);
       if ($2 != nullptr) {
         $$->selection.attributes.swap(*$2);
         delete $2;
@@ -570,7 +562,7 @@ comp_op:
 load_data:
     LOAD DATA INFILE SSS INTO TABLE ID 
     {
-      $$ = new Query(SCF_LOAD_DATA);
+      $$ = new Command(SCF_LOAD_DATA);
       $$->load_data.relation_name = $7;
       $$->load_data.file_name = $4;
       free($7);
@@ -578,10 +570,10 @@ load_data:
     ;
 
 explain:
-    EXPLAIN command
+    EXPLAIN command_wrapper
     {
-      $$ = new Query(SCF_EXPLAIN);
-      $$->explain.query = std::unique_ptr<Query>($2);
+      $$ = new Command(SCF_EXPLAIN);
+      $$->explain.cmd = std::unique_ptr<Command>($2);
     }
     ;
 

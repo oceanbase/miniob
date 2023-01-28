@@ -111,9 +111,9 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 89 "yacc_sql.y"
+#line 79 "yacc_sql.y"
 
-  Query *query;
+  Command *command;
   Condition *condition;
   Value *value;
   enum CompOp comp;

@@ -23,7 +23,7 @@ ExplainStmt::ExplainStmt(std::unique_ptr<Stmt> child_stmt)
 RC ExplainStmt::create(Db *db, const Explain &explain, Stmt *& stmt)
 {
   Stmt *child_stmt = nullptr;
-  RC rc = Stmt::create_stmt(db, *explain.query, child_stmt);
+  RC rc = Stmt::create_stmt(db, *explain.cmd, child_stmt);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to create explain's child stmt. rc=%s", strrc(rc));
     return rc;

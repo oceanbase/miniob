@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "rc.h"
 #include "common/log/log.h"
 
-RC parse(char *st, Query *sqln);
+RC parse(char *st, Command *sqln);
 
 const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
 
@@ -62,16 +62,16 @@ int Value::length()
   return 0;
 }
 
-Query::Query()
+Command::Command()
     : flag(SCF_ERROR)
 {
 }
 
-Query::Query(enum SqlCommandFlag _flag)
+Command::Command(enum SqlCommandFlag _flag)
     : flag(_flag)
 {}
 
-void ParsedSqlResult::add_command(std::unique_ptr<Query> command)
+void ParsedSqlResult::add_command(std::unique_ptr<Command> command)
 {
   sql_commands_.emplace_back(std::move(command));
 }

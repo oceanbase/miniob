@@ -101,9 +101,9 @@ void ResolveStage::handle_event(StageEvent *event)
     return ;
   }
 
-  Query *query = sql_event->query().get();
+  Command *cmd = sql_event->command().get();
   Stmt *stmt = nullptr;
-  RC rc = Stmt::create_stmt(db, *query, stmt);
+  RC rc = Stmt::create_stmt(db, *cmd, stmt);
   if (rc != RC::SUCCESS && rc != RC::UNIMPLENMENT) {
     LOG_WARN("failed to create stmt. rc=%d:%s", rc, strrc(rc));
     SqlResult *sql_result = new SqlResult;

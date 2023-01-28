@@ -144,7 +144,7 @@ void DefaultStorageStage::handle_event(StageEvent *event)
 
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
 
-  Query *sql = sql_event->query().get();
+  Command *cmd = sql_event->command().get();
 
   SessionEvent *session_event = sql_event->session_event();
 
@@ -157,19 +157,19 @@ void DefaultStorageStage::handle_event(StageEvent *event)
   RC rc = RC::SUCCESS;
 
   char response[256];
-  switch (sql->flag) {
+  switch (cmd->flag) {
     case SCF_LOAD_DATA: {
       /*
         从文件导入数据，如果做性能测试，需要保持这些代码可以正常工作
         load data infile `your/file/path` into table `table-name`;
        */
-      const char *table_name = sql->load_data.relation_name.c_str();
-      const char *file_name = sql->load_data.file_name.c_str();
+      const char *table_name = cmd->load_data.relation_name.c_str();
+      const char *file_name = cmd->load_data.file_name.c_str();
       std::string result = load_data(dbname, table_name, file_name);
       snprintf(response, sizeof(response), "%s", result.c_str());
     } break;
     default:
-      snprintf(response, sizeof(response), "Unsupported sql: %d\n", sql->flag);
+      snprintf(response, sizeof(response), "Unsupported sql: %d\n", cmd->flag);
       break;
   }
 

@@ -130,6 +130,7 @@ struct CreateIndex {
 // struct of  drop_index
 struct DropIndex {
   std::string index_name;  // Index name
+  std::string relation_name; //Relation name
 };
 
 struct DescTable {
@@ -141,9 +142,9 @@ struct LoadData {
   std::string file_name;
 };
 
-class Query;
+class Command;
 struct Explain {
-  std::unique_ptr<Query> query;
+  std::unique_ptr<Command> cmd;
 };
 
 struct Error
@@ -177,7 +178,7 @@ enum SqlCommandFlag {
   SCF_EXPLAIN,
 };
 // struct of flag and sql_struct
-class Query {
+class Command {
 public:
   enum SqlCommandFlag flag;
   Error         error;
@@ -194,8 +195,8 @@ public:
   Explain       explain;
 
 public:
-  Query();
-  Query(enum SqlCommandFlag flag);
+  Command();
+  Command(enum SqlCommandFlag flag);
 };
 
 /**
@@ -205,11 +206,11 @@ public:
 class ParsedSqlResult
 {
 public:
-  void add_command(std::unique_ptr<Query> command);
-  std::vector<std::unique_ptr<Query>> &commands()  { return sql_commands_; }
+  void add_command(std::unique_ptr<Command> command);
+  std::vector<std::unique_ptr<Command>> &commands()  { return sql_commands_; }
   
 private:
-  std::vector<std::unique_ptr<Query>> sql_commands_;
+  std::vector<std::unique_ptr<Command>> sql_commands_;
 };
 
 const char *attr_type_to_string(AttrType type);
