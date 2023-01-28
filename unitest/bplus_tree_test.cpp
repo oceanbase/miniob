@@ -41,9 +41,7 @@ int k = 0;
 
 void init_bpm()
 {
-  if (&BufferPoolManager::instance() == nullptr) {
-    BufferPoolManager::set_instance(&bpm);
-  }
+  BufferPoolManager::set_instance(&bpm);
 }
 void test_insert()
 {

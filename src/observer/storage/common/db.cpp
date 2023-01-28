@@ -161,7 +161,7 @@ RC Db::recover()
 {
   RC rc = RC::SUCCESS;
   if ((rc = clog_manager_->recover()) == RC::SUCCESS) {
-    uint32_t max_trx_id = 0;
+    int32_t max_trx_id = 0;
     CLogMTRManager *mtr_manager = clog_manager_->get_mtr_manager();
     for (auto it = mtr_manager->log_redo_list.begin(); it != mtr_manager->log_redo_list.end(); it++) {
       CLogRecord *clog_record = *it;

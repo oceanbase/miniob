@@ -119,9 +119,9 @@ RC CLogRecord::copy_record(void *dest, int start_off, int copy_len)
   } else if (flag_ != REDO_INSERT) {
     memcpy(dest, (char *)log_rec + start_off, copy_len);
   } else {
-    if (start_off > CLOG_INS_REC_NODATA_SIZE) {
+    if (start_off > (int)CLOG_INS_REC_NODATA_SIZE) {
       memcpy(dest, log_rec->ins.data_ + start_off - CLOG_INS_REC_NODATA_SIZE, copy_len);
-    } else if (start_off + copy_len <= CLOG_INS_REC_NODATA_SIZE) {
+    } else if (start_off + copy_len <= (int)CLOG_INS_REC_NODATA_SIZE) {
       memcpy(dest, (char *)log_rec + start_off, copy_len);
     } else {
       memcpy(dest, (char *)log_rec + start_off, CLOG_INS_REC_NODATA_SIZE - start_off);
@@ -194,7 +194,7 @@ RC CLogBuffer::append_log_record(CLogRecord *log_rec, int &start_off)
     write_offset_ += CLOG_BLOCK_HDR_SIZE;
     return append_log_record(log_rec, start_off);
   } else {
-    if (logrec_left_len <= (CLOG_BLOCK_DATA_SIZE - log_block->log_block_hdr_.log_data_len_)) {  // 不需要再跨block存放
+    if (logrec_left_len <= ((int32_t)CLOG_BLOCK_DATA_SIZE - log_block->log_block_hdr_.log_data_len_)) {  // 不需要再跨block存放
       if (log_block->log_block_hdr_.log_data_len_ == 0) {                                       // 当前为新block
         if (start_off == 0) {
           log_block->log_block_hdr_.first_rec_offset_ = CLOG_BLOCK_HDR_SIZE;
@@ -315,7 +315,7 @@ RC CLogFile::recover(CLogMTRManager *mtr_mgr, CLogBuffer *log_buffer)
       log_buffer->set_current_block_no(log_block->log_block_hdr_.log_block_no);
 
       int16_t rec_offset = CLOG_BLOCK_HDR_SIZE;
-      while (rec_offset < CLOG_BLOCK_HDR_SIZE + log_block->log_block_hdr_.log_data_len_) {
+      while (rec_offset < (int16_t)CLOG_BLOCK_HDR_SIZE + log_block->log_block_hdr_.log_data_len_) {
         block_recover(log_block, rec_offset, &logrec_buf, log_rec);
         if (log_rec != nullptr) {
           CLogManager::gloabl_lsn_ = log_rec->get_lsn() + log_rec->get_logrec_len();
@@ -324,7 +324,7 @@ RC CLogFile::recover(CLogMTRManager *mtr_mgr, CLogBuffer *log_buffer)
         }
       }
 
-      if (log_block->log_block_hdr_.log_data_len_ < CLOG_BLOCK_DATA_SIZE) {  // 最后一个block
+      if (log_block->log_block_hdr_.log_data_len_ < (int16_t)CLOG_BLOCK_DATA_SIZE) {  // 最后一个block
         log_buffer->block_copy(0, log_block);
         log_buffer->set_write_block_offset(0);
         log_buffer->set_write_offset(log_block->log_block_hdr_.log_data_len_ + CLOG_BLOCK_HDR_SIZE);
@@ -355,7 +355,7 @@ RC CLogFile::block_recover(CLogBlock *block, int16_t &offset, CLogRecordBuf *log
     logrec_buf->write_offset_ += block->log_block_hdr_.first_rec_offset_ - CLOG_BLOCK_HDR_SIZE;
     offset += block->log_block_hdr_.first_rec_offset_ - CLOG_BLOCK_HDR_SIZE;
   } else {
-    if (CLOG_BLOCK_SIZE - offset < sizeof(CLogRecordHeader)) {  // 一定是跨block的第一部分
+    if (CLOG_BLOCK_SIZE - offset < (int32_t)sizeof(CLogRecordHeader)) {  // 一定是跨block的第一部分
       // 此时无法确定log record的长度
       // 开始写入logrec_buf
       memcpy(&logrec_buf->buffer_[logrec_buf->write_offset_], (char *)block + (int)offset, CLOG_BLOCK_SIZE - offset);
@@ -367,7 +367,7 @@ RC CLogFile::block_recover(CLogBlock *block, int16_t &offset, CLogRecordBuf *log
         memset(logrec_buf, 0, sizeof(CLogRecordBuf));
       } else {
         CLogRecordHeader *logrec_hdr = (CLogRecordHeader *)((char *)block + (int)offset);
-        if (logrec_hdr->logrec_len_ <= CLOG_BLOCK_SIZE - offset) {
+        if (logrec_hdr->logrec_len_ <= (int32_t)CLOG_BLOCK_SIZE - offset) {
           log_rec = new CLogRecord((char *)block + (int)offset);
           offset += logrec_hdr->logrec_len_;
         } else {  // 此时为跨block的第一部分

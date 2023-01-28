@@ -458,13 +458,20 @@ void TimerStage::check_timer()
       // It is ok to hold the mutex while executing this loop.
       // Triggering the events only enqueues the event on the
       // caller's queue--it does not perform any real work.
+#ifdef __MACH__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpotentially-evaluated-expression"
+#endif
       for (std::list<StageEvent *>::iterator i = done_events.begin(); i != done_events.end(); ++i) {
         LOG_TRACE(
-            "triggering timer event: sec=%ld, usec=%ld, typeid=%s\n", now.tv_sec, now.tv_usec, typeid(**i).name());
+            "triggering timer event: sec=%ld, usec=%ld, typeid=%s\n", now.tv_sec, now.tv_usec, typeid(*(*i)).name());
         (*i)->done();
         --num_events_;
       }
     }
+#ifdef __MACH__
+#pragma GCC diagnostic pop
+#endif
     done_events.clear();
 
     // Check if the 'shutdown' signal has been received.  The
