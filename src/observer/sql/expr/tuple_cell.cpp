@@ -16,8 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/tuple_cell.h"
 #include "storage/common/field.h"
 #include "common/log/log.h"
-#include "util/comparator.h"
-#include "util/util.h"
+#include "common/lang/comparator.h"
+#include "common/lang/string.h"
 
 TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, const char *alias)
 {
@@ -140,7 +140,7 @@ void TupleCell::to_string(std::ostream &os) const
       os << num_value_.int_value_;
     } break;
     case FLOATS: {
-      os << double2string(num_value_.float_value_);
+      os << common::double_to_str(num_value_.float_value_);
     } break;
     case BOOLEANS: {
       os << num_value_.bool_value_;
@@ -159,19 +159,19 @@ int TupleCell::compare(const TupleCell &other) const
   if (this->attr_type_ == other.attr_type_) {
     switch (this->attr_type_) {
       case INTS: {
-        return compare_int((void *)&this->num_value_.int_value_, (void *)&other.num_value_.int_value_);
+        return common::compare_int((void *)&this->num_value_.int_value_, (void *)&other.num_value_.int_value_);
       } break;
       case FLOATS: {
-        return compare_float((void *)&this->num_value_.float_value_, (void *)&other.num_value_.float_value_);
+        return common::compare_float((void *)&this->num_value_.float_value_, (void *)&other.num_value_.float_value_);
       } break;
       case CHARS: {
-        return compare_string((void *)this->str_value_.c_str(),
+        return common::compare_string((void *)this->str_value_.c_str(),
             this->str_value_.length(),
             (void *)other.str_value_.c_str(),
             other.str_value_.length());
       } break;
       case BOOLEANS: {
-        return compare_int((void *)&this->num_value_.bool_value_, (void *)&other.num_value_.bool_value_);
+        return common::compare_int((void *)&this->num_value_.bool_value_, (void *)&other.num_value_.bool_value_);
       }
       default: {
         LOG_WARN("unsupported type: %d", this->attr_type_);
@@ -179,10 +179,10 @@ int TupleCell::compare(const TupleCell &other) const
     }
   } else if (this->attr_type_ == INTS && other.attr_type_ == FLOATS) {
     float this_data = this->num_value_.int_value_;
-    return compare_float((void *)&this_data, (void *)&other.num_value_.float_value_);
+    return common::compare_float((void *)&this_data, (void *)&other.num_value_.float_value_);
   } else if (this->attr_type_ == FLOATS && other.attr_type_ == INTS) {
     float other_data = other.num_value_.int_value_;
-    return compare_float((void *)&this->num_value_.float_value_, (void *)&other_data);
+    return common::compare_float((void *)&this->num_value_.float_value_, (void *)&other_data);
   }
   LOG_WARN("not supported");
   return -1;  // TODO return rc?

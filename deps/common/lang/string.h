@@ -112,6 +112,13 @@ bool str_to_val(const std::string &str, T &val, std::ios_base &(*radix)(std::ios
 template <class T>
 void val_to_str(const T &val, std::string &str, std::ios_base &(*radix)(std::ios_base &) = std::dec);
 
+/**
+ * Double to string
+ * @param v
+ * @return
+ */
+std::string double_to_str(double v);
+
 bool is_blank(const char *s);
 
 /**

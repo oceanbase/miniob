@@ -265,4 +265,23 @@ char *substr(const char *s, int n1, int n2)
   return sp;
 }
 
+/**
+ * double to string
+ * @param v
+ * @return
+ */
+std::string double_to_str(double v)
+{
+  char buf[256];
+  snprintf(buf, sizeof(buf), "%.2f", v);
+  size_t len = strlen(buf);
+  while (buf[len - 1] == '0') {
+    len--;
+  }
+  if (buf[len - 1] == '.') {
+    len--;
+  }
+
+  return std::string(buf, len);
+}
 }  // namespace common
