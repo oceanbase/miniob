@@ -1,6 +1,6 @@
 # miniob 概述
 
-miniob 是 OceanBase 与华中科技大学联合开发的、面向"零"基础同学的数据库入门学习项目。
+miniob 是 [OceanBase](https://github.com/oceanbase/oceanbase) 与华中科技大学联合开发的、面向"零"基础同学的数据库入门学习项目。
 
 miniob 设计的目标是面向在校学生、数据库从业者、爱好者，或者对基础技术有兴趣的爱好者, 整体代码量少，易于上手并学习, 是一个系统性的数据库学习项目。miniob 设置了一系列由浅入深的题目，以帮助同学们"零"基础入门, 让同学们快速了解数据库并深入学习数据库内核，期望通过相关训练之后，能够熟练掌握数据库内核模块的功能与协同关系, 并能够在使用数据库时，设计出高效的 SQL 。miniob 为了更好的学习数据库实现原理, 对诸多模块都做了简化，比如不考虑并发操作, 安全特性, 复杂的事物管理等功能。
 
@@ -39,7 +39,7 @@ miniob 整体架构如下图所示:
 
 - 查询缓存：将执行的查询结果缓存在内存中，下次查询时，可以直接返回（未实现）；
 
-- 查询优化：根据一定规则和统计数据，调整/重写语法树。当前实现为空，留作实验题目；
+- 查询优化：根据一定规则和统计数据，调整/重写语法树。(部分实现）；
 
 - 计划执行：根据语法树描述，执行并生成结果；
 
@@ -50,7 +50,7 @@ miniob 整体架构如下图所示:
 - 客户端：作为测试工具，接收用户请求，向服务端发起请求。
 
 
-## OceanBase 大赛
+## [OceanBase 大赛](https://open.oceanbase.com/competition)
 
 2022 OceanBase 数据库大赛是由中国计算机学会（CCF）数据库专业委员会指导，OceanBase 与蚂蚁技术研究院学术合作团队联合举办的数据库内核实战赛事。本次大赛主要面向全国爱好数据库的高校学生，以“竞技、交流、成长”为宗旨，搭建基于赛事的技术交流平台，促进高校创新人才培养机制，不仅帮助学生从0开始系统化学习数据库理论知识，提升学生数据库实践能力，更能帮助学生走向企业积累经验，促进国内数据库人才的发展，碰撞出创新的火花。
 
@@ -90,3 +90,4 @@ miniob 采用 [木兰宽松许可证，第2版](https://license.coscl.org.cn/Mul
 
 - [OceanBase 社区交流群 33254054](https://h5.dingtalk.com/circle/healthCheckin.html?corpId=dingd88359ef5e4c49ef87cda005313eea7a&1fe0ca69-72d=16c86a07-83c&cbdbhh=qwertyuiop&origin=1)
 - [OceanBase 大赛官方交流群 35326455](https://qr.dingtalk.com/action/joingroup?code=v1,k1,g61jI0RwHQA8UMocuTbys2cyM7vck2c6jNE87vdxz9o=&_dt_no_comment=1&origin=11)
+- [OceanBase 官方论坛](https://ask.oceanbase.com/)
