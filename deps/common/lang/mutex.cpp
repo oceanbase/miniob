@@ -258,4 +258,93 @@ void LockTrace::toString(std::string &result)
   return;
 }
 
+void DebugMutex::lock()
+{
+#ifdef DEBUG
+  lock_.lock();
+#endif
+}
+
+void DebugMutex::unlock()
+{
+#ifdef DEBUG
+  lock_.unlock();
+#endif 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void Mutex::lock()
+{
+#ifdef CONCURRENCY
+  lock_.lock();
+#endif
+}
+
+bool Mutex::try_lock()
+{
+#ifdef CONCURRENCY
+  return lock_.try_lock();
+#else
+  return true;
+#endif
+}
+
+void Mutex::unlock()
+{
+#ifdef CONCURRENCY
+  lock_.unlock();
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#ifdef CONCURRENCY
+
+void SharedMutex::lock()
+{
+  lock_.lock();
+}
+bool SharedMutex::try_lock()
+{
+  return lock_.try_lock();
+}
+void SharedMutex::unlock() // unlock exclusive
+{
+  lock_.unlock();
+}
+
+void SharedMutex::lock_shared()
+{
+  lock_.lock_shared();
+}
+bool SharedMutex::try_lock_shared()
+{
+  return lock_.try_lock_shared();
+}
+void SharedMutex::unlock_shared()
+{
+  lock_.unlock_shared();
+}
+
+#else // CONCURRENCY undefined
+
+void SharedMutex::lock()
+{}
+bool SharedMutex::try_lock()
+{
+  return true;
+}
+void SharedMutex::unlock() // unlock exclusive
+{}
+
+void SharedMutex::lock_shared()
+{}
+bool SharedMutex::try_lock_shared()
+{
+  return true;
+}
+void SharedMutex::unlock_shared()
+{}
+
+#endif // CONCURRENCY end
+
 }  // namespace common

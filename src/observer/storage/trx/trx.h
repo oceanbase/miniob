@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2021/5/24.
 //
 
-#ifndef __OBSERVER_STORAGE_TRX_TRX_H_
-#define __OBSERVER_STORAGE_TRX_TRX_H_
+#pragma once
 
 #include <stddef.h>
 #include <unordered_map>
@@ -26,7 +25,8 @@ See the Mulan PSL v2 for more details. */
 
 class Table;
 
-class Operation {
+class Operation 
+{
 public:
   enum class Type : int {
     INSERT,
@@ -57,7 +57,9 @@ private:
   PageNum page_num_;
   SlotNum slot_num_;
 };
-class OperationHasher {
+
+class OperationHasher 
+{
 public:
   size_t operator()(const Operation &op) const
   {
@@ -65,7 +67,8 @@ public:
   }
 };
 
-class OperationEqualer {
+class OperationEqualer 
+{
 public:
   bool operator()(const Operation &op1, const Operation &op2) const
   {
@@ -77,7 +80,8 @@ public:
  * 这里是一个简单的事务实现，可以支持提交/回滚。但是没有对并发访问做控制
  * 可以在这个基础上做备份恢复，当然也可以重写
  */
-class Trx {
+class Trx 
+{
 public:
   static std::atomic<int32_t> trx_id;
 
@@ -129,5 +133,3 @@ private:
   int32_t trx_id_ = 0;
   std::unordered_map<Table *, OperationSet> operations_;
 };
-
-#endif  // __OBSERVER_STORAGE_TRX_TRX_H_

@@ -14,22 +14,33 @@ See the Mulan PSL v2 for more details. */
 // Rewritten by Longda & Wangyunlai
 //
 //
-#ifndef __OBSERVER_STORAGE_COMMON_INDEX_MANAGER_H_
-#define __OBSERVER_STORAGE_COMMON_INDEX_MANAGER_H_
+
+#pragma once
 
 #include <string.h>
 #include <sstream>
 #include <functional>
+#include <memory>
 
 #include "storage/record/record_manager.h"
 #include "storage/default/disk_buffer_pool.h"
+#include "storage/trx/latch_memo.h"
 #include "sql/parser/parse_defs.h"
 #include "common/lang/comparator.h"
+#include "common/log/log.h"
 
-#define EMPTY_RID_PAGE_NUM -1
+#define EMPTY_RID_PAGE_NUM -1 // TODO remove me
 #define EMPTY_RID_SLOT_NUM -1
 
-class AttrComparator {
+enum class BplusTreeOperationType
+{
+  READ,
+  INSERT,
+  DELETE,
+};
+
+class AttrComparator 
+{
 public:
   void init(AttrType type, int length)
   {
@@ -55,8 +66,7 @@ public:
         return common::compare_string((void *)v1, attr_length_, (void *)v2, attr_length_);
       }
       default: {
-        LOG_ERROR("unknown attr type. %d", attr_type_);
-        abort();
+        ASSERT(false, "unknown attr type. %d", attr_type_);
       }
     }
   }
@@ -66,7 +76,8 @@ private:
   int attr_length_;
 };
 
-class KeyComparator {
+class KeyComparator 
+{
 public:
   void init(AttrType type, int length)
   {
@@ -94,7 +105,8 @@ private:
   AttrComparator attr_comparator_;
 };
 
-class AttrPrinter {
+class AttrPrinter 
+{
 public:
   void init(AttrType type, int length)
   {
@@ -127,8 +139,7 @@ public:
         return str;
       }
       default: {
-        LOG_ERROR("unknown attr type. %d", attr_type_);
-        abort();
+        ASSERT(false, "unknown attr type. %d", attr_type_);
       }
     }
   }
@@ -138,7 +149,8 @@ private:
   int attr_length_;
 };
 
-class KeyPrinter {
+class KeyPrinter 
+{
 public:
   void init(AttrType type, int length)
   {
@@ -169,7 +181,8 @@ private:
  * this is the first page of bplus tree.
  * only one field can be supported, can you extend it to multi-fields?
  */
-struct IndexFileHeader {
+struct IndexFileHeader 
+{
   IndexFileHeader()
   {
     memset(this, 0, sizeof(IndexFileHeader));
@@ -197,17 +210,17 @@ struct IndexFileHeader {
   }
 };
 
-#define RECORD_RESERVER_PAIR_NUM 2
 /**
  * the common part of page describtion of bplus tree
  * storage format:
  * | page type | item number | parent page id |
  */
-struct IndexNode {
+struct IndexNode 
+{
   static constexpr int HEADER_SIZE = 12;
 
-  bool is_leaf;
-  int key_num;
+  bool    is_leaf;
+  int     key_num;
   PageNum parent;
 };
 
@@ -222,10 +235,10 @@ struct IndexNode {
  * the value is rid.
  * can you implenment a cluster index ?
  */
-struct LeafIndexNode : public IndexNode {
-  static constexpr int HEADER_SIZE = IndexNode::HEADER_SIZE + 8;
+struct LeafIndexNode : public IndexNode 
+{
+  static constexpr int HEADER_SIZE = IndexNode::HEADER_SIZE + 4;
 
-  PageNum prev_brother;
   PageNum next_brother;
   /**
    * leaf can store order keys and rids at most
@@ -242,7 +255,8 @@ struct LeafIndexNode : public IndexNode {
  * the first key is ignored(key0).
  * so it will waste space, can you fix this?
  */
-struct InternalIndexNode : public IndexNode {
+struct InternalIndexNode : public IndexNode 
+{
   static constexpr int HEADER_SIZE = IndexNode::HEADER_SIZE;
 
   /**
@@ -251,23 +265,33 @@ struct InternalIndexNode : public IndexNode {
   char array[0];
 };
 
-class IndexNodeHandler {
+/**
+ * IndexNode 仅作为数据在内存或磁盘中的表示
+ * IndexNodeHandler 负责对IndexNode做各种操作。
+ * 作为一个类来说，虚函数会影响“结构体”真实的内存布局，所以将数据存储与操作分开
+ */
+class IndexNodeHandler 
+{
 public:
   IndexNodeHandler(const IndexFileHeader &header, Frame *frame);
+  virtual ~IndexNodeHandler() = default;
 
   void init_empty(bool leaf);
 
   bool is_leaf() const;
-  int key_size() const;
-  int value_size() const;
-  int item_size() const;
+  int  key_size() const;
+  int  value_size() const;
+  int  item_size() const;
 
   void increase_size(int n);
-  int size() const;
+  int  size() const;
+  int  max_size() const;
+  int  min_size() const;
   void set_parent_page_num(PageNum page_num);
   PageNum parent_page_num() const;
-
   PageNum page_num() const;
+
+  bool is_safe(BplusTreeOperationType op, bool is_root_node);
 
   bool validate() const;
 
@@ -279,15 +303,15 @@ protected:
   IndexNode *node_;
 };
 
-class LeafIndexNodeHandler : public IndexNodeHandler {
+class LeafIndexNodeHandler : public IndexNodeHandler 
+{
 public:
   LeafIndexNodeHandler(const IndexFileHeader &header, Frame *frame);
+  virtual ~LeafIndexNodeHandler() = default;
 
   void init_empty();
   void set_next_page(PageNum page_num);
-  void set_prev_page(PageNum page_num);
   PageNum next_page() const;
-  PageNum prev_page() const;
 
   char *key_at(int index);
   char *value_at(int index);
@@ -301,7 +325,7 @@ public:
 
   void insert(int index, const char *key, const char *value);
   void remove(int index);
-  int remove(const char *key, const KeyComparator &comparator);
+  int  remove(const char *key, const KeyComparator &comparator);
   RC move_half_to(LeafIndexNodeHandler &other, DiskBufferPool *bp);
   RC move_first_to_end(LeafIndexNodeHandler &other, DiskBufferPool *disk_buffer_pool);
   RC move_last_to_front(LeafIndexNodeHandler &other, DiskBufferPool *bp);
@@ -309,9 +333,6 @@ public:
    * move all items to left page
    */
   RC move_to(LeafIndexNodeHandler &other, DiskBufferPool *bp);
-
-  int max_size() const;
-  int min_size() const;
 
   bool validate(const KeyComparator &comparator, DiskBufferPool *bp) const;
 
@@ -329,9 +350,11 @@ private:
   LeafIndexNode *leaf_node_;
 };
 
-class InternalIndexNodeHandler : public IndexNodeHandler {
+class InternalIndexNodeHandler : public IndexNodeHandler 
+{
 public:
   InternalIndexNodeHandler(const IndexFileHeader &header, Frame *frame);
+  virtual ~InternalIndexNodeHandler() = default;
 
   void init_empty();
   void create_new_root(PageNum first_page_num, const char *key, PageNum page_num);
@@ -351,13 +374,16 @@ public:
   /**
    * 与Leaf节点不同，lookup返回指定key应该属于哪个子节点，返回这个子节点在当前节点中的索引
    * 如果想要返回插入位置，就提供 `insert_position` 参数
+   * @param comparator 用于键值比较的函数
+   * @param key 查找的键值
+   * @param found 如果是有效指针，将会返回当前是否存在指定的键值
+   * @param insert_position 如果是有效指针，将会返回可以插入指定键值的位置
    * NOTE: 查找效率不高，你可以优化它吗?
    */
-  int lookup(
-      const KeyComparator &comparator, const char *key, bool *found = nullptr, int *insert_position = nullptr) const;
-
-  int max_size() const;
-  int min_size() const;
+  int lookup(const KeyComparator &comparator, 
+             const char *key, 
+             bool *found = nullptr, 
+             int *insert_position = nullptr) const;
 
   RC move_to(InternalIndexNodeHandler &other, DiskBufferPool *disk_buffer_pool);
   RC move_first_to_end(InternalIndexNodeHandler &other, DiskBufferPool *disk_buffer_pool);
@@ -382,17 +408,21 @@ private:
   int item_size() const;
 
 private:
-  InternalIndexNode *internal_node_;
+  InternalIndexNode *internal_node_ = nullptr;
 };
 
-class BplusTreeHandler {
+class BplusTreeHandler 
+{
 public:
   /**
    * 此函数创建一个名为fileName的索引。
    * attrType描述被索引属性的类型，attrLength描述被索引属性的长度
    */
-  RC create(
-      const char *file_name, AttrType attr_type, int attr_length, int internal_max_size = -1, int leaf_max_size = -1);
+  RC create(const char *file_name, 
+            AttrType attr_type, 
+            int attr_length, 
+            int internal_max_size = -1, 
+            int leaf_max_size = -1);
 
   /**
    * 打开名为fileName的索引文件。
@@ -434,71 +464,85 @@ public:
 
   /**
    * Check whether current B+ tree is invalid or not.
-   * return true means current tree is valid, return false means current tree is invalid.
-   * @return
+   * @return true means current tree is valid, return false means current tree is invalid.
+   * @note thread unsafe
    */
   bool validate_tree();
 
 public:
+  /**
+   * 这些函数都是线程不安全的，不要在多线程的环境下调用
+   */
   RC print_tree();
   RC print_leafs();
 
 private:
+  /**
+   * 这些函数都是线程不安全的，不要在多线程的环境下调用
+   */
   RC print_leaf(Frame *frame);
   RC print_internal_node_recursive(Frame *frame);
 
-  bool validate_node(IndexNode *node);
-  bool validate_leaf_link();
-  bool validate_node_recursive(Frame *frame);
+  bool validate_leaf_link(LatchMemo &latch_memo);
+  bool validate_node_recursive(LatchMemo &latch_memo, Frame *frame);
 
 protected:
-  RC find_leaf(const char *key, Frame *&frame);
-  RC left_most_page(Frame *&frame);
-  RC right_most_page(Frame *&frame);
-  RC find_leaf_internal(const std::function<PageNum(InternalIndexNodeHandler &)> &child_page_getter, Frame *&frame);
+  RC find_leaf(LatchMemo &latch_memo, BplusTreeOperationType op, const char *key, Frame *&frame);
+  RC left_most_page(LatchMemo &latch_memo, Frame *&frame);
+  RC find_leaf_internal(LatchMemo &latch_memo, BplusTreeOperationType op, 
+                        const std::function<PageNum(InternalIndexNodeHandler &)> &child_page_getter, 
+                        Frame *&frame);
+  RC crabing_protocal_fetch_page(LatchMemo &latch_memo, BplusTreeOperationType op, PageNum page_num, bool is_root_page,
+                                 Frame *&frame);
 
-  RC insert_into_parent(PageNum parent_page, Frame *left_frame, const char *pkey, Frame &right_frame);
+  RC insert_into_parent(LatchMemo &latch_memo, PageNum parent_page, Frame *left_frame, const char *pkey, 
+                        Frame &right_frame);
 
-  RC delete_entry_internal(Frame *leaf_frame, const char *key);
-
-  RC insert_into_new_root(Frame *left_frame, const char *pkey, Frame &right_frame);
+  RC delete_entry_internal(LatchMemo &latch_memo, Frame *leaf_frame, const char *key);
 
   template <typename IndexNodeHandlerType>
-  RC split(Frame *frame, Frame *&new_frame);
+  RC split(LatchMemo &latch_memo, Frame *frame, Frame *&new_frame);
   template <typename IndexNodeHandlerType>
-  RC coalesce_or_redistribute(Frame *frame);
+  RC coalesce_or_redistribute(LatchMemo &latch_memo, Frame *frame);
   template <typename IndexNodeHandlerType>
-  RC coalesce(Frame *neighbor_frame, Frame *frame, Frame *parent_frame, int index);
+  RC coalesce(LatchMemo &latch_memo, Frame *neighbor_frame, Frame *frame, Frame *parent_frame, int index);
   template <typename IndexNodeHandlerType>
   RC redistribute(Frame *neighbor_frame, Frame *frame, Frame *parent_frame, int index);
 
-  RC insert_entry_into_parent(Frame *frame, Frame *new_frame, const char *key);
-  RC insert_entry_into_leaf_node(Frame *frame, const char *pkey, const RID *rid);
-  RC update_root_page_num();
+  RC insert_entry_into_parent(LatchMemo &latch_memo, Frame *frame, Frame *new_frame, const char *key);
+  RC insert_entry_into_leaf_node(LatchMemo &latch_memo, Frame *frame, const char *pkey, const RID *rid);
   RC create_new_tree(const char *key, const RID *rid);
 
-  RC adjust_root(Frame *root_frame);
+  void update_root_page_num(PageNum root_page_num);
+  void update_root_page_num_locked(PageNum root_page_num);
+
+  RC adjust_root(LatchMemo &latch_memo, Frame *root_frame);
 
 private:
-  char *make_key(const char *user_key, const RID &rid);
+  common::MemPoolItem::unique_ptr make_key(const char *user_key, const RID &rid);
   void free_key(char *key);
 
 protected:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
-  bool header_dirty_ = false;
+  bool            header_dirty_ = false; // 
   IndexFileHeader file_header_;
 
-  KeyComparator key_comparator_;
-  KeyPrinter key_printer_;
+  // 在调整根节点时，需要加上这个锁。
+  // 这个锁可以使用递归读写锁，但是这里偷懒先不改
+  common::SharedMutex   root_lock_;
 
-  common::MemPoolItem *mem_pool_item_ = nullptr;
+  KeyComparator   key_comparator_;
+  KeyPrinter      key_printer_;
+
+  std::unique_ptr<common::MemPoolItem> mem_pool_item_;
 
 private:
   friend class BplusTreeScanner;
   friend class BplusTreeTester;
 };
 
-class BplusTreeScanner {
+class BplusTreeScanner 
+{
 public:
   BplusTreeScanner(BplusTreeHandler &tree_handler);
   ~BplusTreeScanner();
@@ -515,7 +559,7 @@ public:
   RC open(const char *left_user_key, int left_len, bool left_inclusive, const char *right_user_key, int right_len,
       bool right_inclusive);
 
-  RC next_entry(RID *rid);
+  RC next_entry(RID &rid);
 
   RC close();
 
@@ -525,16 +569,20 @@ private:
    */
   RC fix_user_key(const char *user_key, int key_len, bool want_greater, char **fixed_key, bool *should_inclusive);
 
+  void fetch_item(RID &rid);
+  bool touch_end();
+
 private:
   bool inited_ = false;
   BplusTreeHandler &tree_handler_;
 
+  LatchMemo latch_memo_;
+
   /// 使用左右叶子节点和位置来表示扫描的起始位置和终止位置
   /// 起始位置和终止位置都是有效的数据
-  Frame *left_frame_ = nullptr;
-  Frame *right_frame_ = nullptr;
-  int iter_index_ = -1;
-  int end_index_ = -1;  // use -1 for end of scan
-};
+  Frame *current_frame_ = nullptr;
 
-#endif  //__OBSERVER_STORAGE_COMMON_INDEX_MANAGER_H_
+  common::MemPoolItem::unique_ptr right_key_;
+  int iter_index_ = -1;
+  bool first_emitted_ = false;
+};

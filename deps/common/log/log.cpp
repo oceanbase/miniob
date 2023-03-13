@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include <exception>
 #include <stdarg.h>
 #include <stdio.h>
+#include <execinfo.h>
 
 #include "common/lang/string.h"
 #include "common/log/log.h"
@@ -344,6 +345,24 @@ int LoggerFactory::init_default(
   }
 
   return init(log_file, &g_log, log_level, console_level, rotate_type);
+}
+
+const char *lbt()
+{
+  constexpr int buffer_size = 100;
+  void *buffer[buffer_size];
+  
+  constexpr int bt_buffer_size = 4096;
+  thread_local char backtrace_buffer[bt_buffer_size];
+
+  int size = backtrace(buffer, buffer_size);
+  int offset = 0;
+  for (int i = 0; i < size; i++) {
+    const char *format = (0 == i) ? "0x%lx" : " 0x%lx";
+    offset += snprintf(backtrace_buffer + offset, sizeof(backtrace_buffer) - offset, format,
+                       reinterpret_cast<intptr_t>(buffer[i]));
+  }
+  return backtrace_buffer;
 }
 
 }  // namespace common

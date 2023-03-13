@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_LOG_LOG_H__
-#define __COMMON_LOG_LOG_H__
+#pragma once
 
 #include <assert.h>
 #include <errno.h>
@@ -47,7 +46,8 @@ typedef enum {
 
 typedef enum { LOG_ROTATE_BYDAY = 0, LOG_ROTATE_BYSIZE, LOG_ROTATE_LAST } LOG_ROTATE;
 
-class Log {
+class Log 
+{
 public:
   Log(const std::string &log_name, const LOG_LEVEL log_level = LOG_LEVEL_INFO,
       const LOG_LEVEL console_level = LOG_LEVEL_WARN);
@@ -302,5 +302,7 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
 #define SYS_OUTPUT_FILE_POS ", File:" << __FILE__ << ", line:" << __LINE__ << ",function:" << __FUNCTION__
 #define SYS_OUTPUT_ERROR ",error:" << errno << ":" << strerror(errno)
 
+const char *lbt();
+
 }  // namespace common
-#endif  //__COMMON_LOG_LOG_H__
+

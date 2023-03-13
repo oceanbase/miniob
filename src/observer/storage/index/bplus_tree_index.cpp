@@ -132,7 +132,7 @@ RC BplusTreeIndexScanner::open(
 
 RC BplusTreeIndexScanner::next_entry(RID *rid)
 {
-  return tree_scanner_.next_entry(rid);
+  return tree_scanner_.next_entry(*rid);
 }
 
 RC BplusTreeIndexScanner::destroy()
