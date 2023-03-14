@@ -86,7 +86,7 @@ ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(test/perf)
 
 IF(WITH_UNIT_TESTS)
-    ADD_SUBDIRECTORY(unitest)
+    ADD_SUBDIRECTORY(unittest)
 ENDIF()
 
 # install 准备安装的目录是cmakefile 的当前目录， 不是build 后生成的目录
