@@ -599,9 +599,13 @@ int DiskBufferPool::file_desc() const
   return file_desc_;
 }
 ////////////////////////////////////////////////////////////////////////////////
-BufferPoolManager::BufferPoolManager()
+BufferPoolManager::BufferPoolManager(int page_num /* = 0 */)
 {
-  frame_manager_.init(MEM_POOL_ITEM_NUM);
+  if (page_num <= 0) {
+    page_num = MEM_POOL_ITEM_NUM * DEFAULT_ITEM_NUM_PER_POOL;
+  }
+  const int pool_num = std::max(page_num / DEFAULT_ITEM_NUM_PER_POOL, 1);
+  frame_manager_.init(pool_num);
 }
 
 BufferPoolManager::~BufferPoolManager()

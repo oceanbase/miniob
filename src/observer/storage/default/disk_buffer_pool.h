@@ -251,7 +251,7 @@ private:
 class BufferPoolManager 
 {
 public:
-  BufferPoolManager();
+  BufferPoolManager(int page_num = 0);
   ~BufferPoolManager();
 
   RC create_file(const char *file_name);

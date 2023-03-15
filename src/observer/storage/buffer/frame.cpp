@@ -53,7 +53,12 @@ std::string to_string(const FrameId &frame_id)
 intptr_t get_default_debug_xid()
 {
   ThreadData *thd = ThreadData::current();
-  intptr_t xid = (thd == nullptr) ? reinterpret_cast<intptr_t>(pthread_self()) : reinterpret_cast<intptr_t>(thd);
+  intptr_t xid = (thd == nullptr) ? 
+                 // pthread_self的返回值类型是pthread_t，pthread_t在linux和mac上不同
+                 // 在Linux上是一个整数类型，而在mac上是一个指针。为了能在两个平台上都编译通过，
+                 // 就将pthread_self返回值转换两次
+                 reinterpret_cast<intptr_t>(reinterpret_cast<void*>(pthread_self())) : 
+                 reinterpret_cast<intptr_t>(thd);
   return xid;
 }
 
