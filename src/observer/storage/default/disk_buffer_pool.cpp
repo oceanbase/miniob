@@ -260,8 +260,9 @@ RC DiskBufferPool::close_file()
   hdr_frame_->unpin();
 
   // TODO: 理论上是在回放时回滚未提交事务，但目前没有undo log，因此不下刷数据page，只通过redo log回放
-  if ((rc = purge_page(0)) != RC::SUCCESS) {
-    LOG_ERROR("Failed to close %s, due to failed to purge header page. rc=%s", file_name_.c_str(), strrc(rc));
+  rc = purge_all_pages();
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("failed to close %s, due to failed to purge pages. rc=%s", file_name_.c_str(), strrc(rc));
     return rc;
   }
 
@@ -540,7 +541,7 @@ RC DiskBufferPool::allocate_frame(PageNum page_num, Frame **buffer)
     }
 
     if (rc != RC::SUCCESS) {
-      LOG_ERROR("Failed to aclloc block due to failed to flush old block.");
+      LOG_ERROR("Failed to aclloc block due to failed to flush old block. rc=%s", strrc(rc));
     }
     return rc;
   };
@@ -683,6 +684,7 @@ RC BufferPoolManager::open_file(const char *_file_name, DiskBufferPool *&_bp)
 
   buffer_pools_.insert(std::pair<std::string, DiskBufferPool *>(file_name, bp));
   fd_buffer_pools_.insert(std::pair<int, DiskBufferPool *>(bp->file_desc(), bp));
+  LOG_DEBUG("insert buffer pool into fd buffer pools. fd=%d, bp=%p, lbt=%s", bp->file_desc(), bp, lbt());
   _bp = bp;
   return RC::SUCCESS;
 }
@@ -700,7 +702,17 @@ RC BufferPoolManager::close_file(const char *_file_name)
   }
 
   int fd = iter->second->file_desc();
-  fd_buffer_pools_.erase(fd);
+  if (0 == fd_buffer_pools_.erase(fd)) {
+    int count = 0;
+    for (auto fd_iter = fd_buffer_pools_.begin(); fd_iter != fd_buffer_pools_.end(); ++fd_iter) {
+      if (fd_iter->second == iter->second) {
+        fd_buffer_pools_.erase(fd_iter);
+        count = 1;
+        break;
+      }
+    }
+    ASSERT(count == 1, "the buffer pool was not erased from fd buffer pools.");
+  }
 
   DiskBufferPool *bp = iter->second;
   buffer_pools_.erase(iter);

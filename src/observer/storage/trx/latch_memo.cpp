@@ -43,22 +43,9 @@ RC LatchMemo::get_page(PageNum page_num, Frame *&frame)
 {
   frame = nullptr;
 
-  /// 直接遍历当前的所有页面，看是否有可以满足要求的
-  /// 做法非常粗暴，但是通常页面比较少，我现在就忽略遍历速度比较慢的问题
-  for (LatchMemoItem &item : items_) {
-    if (item.frame != nullptr && item.frame->page_num() == page_num) {
-      frame = item.frame;
-      ASSERT(frame->pin_count() >= 1, "got an invalid frame. frame=%s", to_string(*frame).c_str());
-      frame->pin();
-      break;
-    }
-  }
-
-  if (nullptr == frame) {
-    RC rc = buffer_pool_->get_this_page(page_num, &frame);
-    if (rc != RC::SUCCESS) {
-      return rc;
-    }
+  RC rc = buffer_pool_->get_this_page(page_num, &frame);
+  if (rc != RC::SUCCESS) {
+    return rc;
   }
 
   items_.emplace_back(LatchMemoType::PIN, frame);
@@ -123,6 +110,7 @@ void LatchMemo::xlatch(common::SharedMutex *lock)
 {
   lock->lock();
   items_.emplace_back(LatchMemoType::EXCLUSIVE, lock);
+  LOG_DEBUG("lock root success");
 }
 
 void LatchMemo::slatch(common::SharedMutex *lock)
@@ -138,6 +126,7 @@ void LatchMemo::release_item(LatchMemoItem &item)
       if (item.frame != nullptr) {
         item.frame->write_unlatch();
       } else {
+        LOG_DEBUG("release root lock");
         item.lock->unlock();
       }
     } break;

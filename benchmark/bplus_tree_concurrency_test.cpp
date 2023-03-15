@@ -28,22 +28,22 @@ using namespace benchmark;
 class IntegerGenerator
 {
 public:
-  IntegerGenerator(int64_t min, int64_t max)
+  IntegerGenerator(int min, int max)
     : distrib_(min, max)
   {}
 
-  int64_t next()
+  int next()
   {
-    return distrib_(gen_);
+    return distrib_(rd_);
   }
 
 private:
-  mt19937 gen_ {std::random_device{}()};
+  random_device rd_;
   uniform_int_distribution<> distrib_;
 };
 
 once_flag init_bpm_flag;
-BufferPoolManager bpm;
+BufferPoolManager bpm{512};
 
 struct Stat
 {
@@ -178,7 +178,7 @@ public:
       stat.scan_open_failed_count++;
     } else {
       RID rid;
-      int count = 0;
+      uint32_t count = 0;
       while (RC::RECORD_EOF != (rc = scanner.next_entry(rid))) {
         count++;
       }
@@ -261,7 +261,7 @@ BENCHMARK_DEFINE_F(DeletionBenchmark, Deletion) (State &state)
   state.counters["other"] = Counter(stat.delete_other_count, Counter::kIsRate);
 }
 
-BENCHMARK_REGISTER_F(DeletionBenchmark, Deletion)->Threads(10)->Arg(100* 10000);
+BENCHMARK_REGISTER_F(DeletionBenchmark, Deletion)->Threads(10)->Arg(4* 10000);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -305,7 +305,7 @@ BENCHMARK_DEFINE_F(ScanBenchmark, Scan) (State &state)
   state.counters["other"] = Counter(stat.scan_other_count, Counter::kIsRate);
 }
 
-BENCHMARK_REGISTER_F(ScanBenchmark, Scan)->Threads(10)->Arg(100 * 10000);
+BENCHMARK_REGISTER_F(ScanBenchmark, Scan)->Threads(10)->Arg(4 * 10000);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -361,7 +361,7 @@ BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture) (State &state)
   });
 }
 
-BENCHMARK_REGISTER_F(MixtureBenchmark, Mixture)->Threads(10)->Arg(100 * 10000);
+BENCHMARK_REGISTER_F(MixtureBenchmark, Mixture)->Threads(10)->Arg(4 * 10000);
 
 ////////////////////////////////////////////////////////////////////////////////
 

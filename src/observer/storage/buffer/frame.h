@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 #include <mutex>
 #include <set>
+#include <atomic>
 
 #include "storage/buffer/page.h"
 #include "common/log/log.h"
@@ -70,11 +71,20 @@ public:
 
   char *data() { return page_.data; }
 
-  bool can_purge() { return pin_count_ == 0; }
+  bool can_purge() { return pin_count_.load() == 0; }
 
+  /**
+   * 给当前页帧增加引用计数
+   * pin通常都会加着frame manager锁来访问
+   */
   void pin();
+
+  /**
+   * 释放一个当前页帧的引用计数
+   * 与pin对应，但是通常不会加着frame manager的锁来访问
+   */
   int  unpin();
-  int  pin_count() const { return pin_count_; }
+  int  pin_count() const { return pin_count_.load(); }
 
   void write_latch();
   void write_latch(intptr_t xid);
@@ -94,18 +104,19 @@ public:
 private:
   friend class  BufferPool;
 
-  bool          dirty_     = false;
-  int           pin_count_ = 0;
-  unsigned long acc_time_  = 0;
-  int           file_desc_ = -1;
-  Page          page_;
+  bool              dirty_     = false;
+  std::atomic<int>  pin_count_{0};
+  unsigned long     acc_time_  = 0;
+  int               file_desc_ = -1;
+  Page              page_;
 
   //读写锁
-  pthread_rwlock_t rwlock_ = PTHREAD_RWLOCK_INITIALIZER;
-  /// 在非并发编译时，将什么都不做
-  common::Mutex    lock_;
+  pthread_rwlock_t  rwlock_ = PTHREAD_RWLOCK_INITIALIZER;
+  /// 在非并发编译时，加锁解锁动作将什么都不做
+  common::Mutex     lock_;
 
   /// 使用一些手段来做测试，提前检测出头疼的死锁问题
+  /// 如果编译时没有增加调试选项，这些代码什么都不做
   common::DebugMutex  debug_lock_;
   intptr_t            write_locker_ = 0;
   std::set<intptr_t>  read_lockers_;

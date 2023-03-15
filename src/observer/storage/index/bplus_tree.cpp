@@ -1081,7 +1081,7 @@ RC BplusTreeHandler::find_leaf_internal(
     Frame *&frame)
 {
   // root locked
-  if (op == BplusTreeOperationType::READ) {
+  if (op != BplusTreeOperationType::READ) {
     latch_memo.xlatch(&root_lock_);
   } else {
     latch_memo.slatch(&root_lock_);
@@ -1302,6 +1302,7 @@ void BplusTreeHandler::update_root_page_num_locked(PageNum root_page_num)
 {
   file_header_.root_page = root_page_num;
   header_dirty_ = true;
+  LOG_DEBUG("set root page to %d", root_page_num);
 }
 
 RC BplusTreeHandler::create_new_tree(const char *key, const RID *rid)
@@ -1618,8 +1619,13 @@ RC BplusTreeHandler::delete_entry(const char *user_key, const RID *rid)
 
   Frame *leaf_frame = nullptr;
   RC rc = find_leaf(latch_memo, op, key, leaf_frame);
+  if (rc == RC::EMPTY) {
+    rc = RC::RECORD_RECORD_NOT_EXIST;
+    return rc;
+  }
+  
   if (rc != RC::SUCCESS) {
-    LOG_WARN("failed to find leaf page. rc =%d:%s", rc, strrc(rc));
+    LOG_WARN("failed to find leaf page. rc =%s", strrc(rc));
     return rc;
   }
 
@@ -1700,10 +1706,15 @@ RC BplusTreeScanner::open(const char *left_user_key, int left_len, bool left_inc
     }
 
     rc = tree_handler_.find_leaf(latch_memo_, BplusTreeOperationType::READ, left_key, current_frame_);
-    if (rc != RC::SUCCESS) {
+    if (rc == RC::EMPTY) {
+      rc = RC::SUCCESS;
+      current_frame_ = nullptr;
+      return rc;
+    } else if (rc != RC::SUCCESS) {
       LOG_WARN("failed to find left page. rc=%s", strrc(rc));
       return rc;
     }
+    
 
     LeafIndexNodeHandler left_node(tree_handler_.file_header_, current_frame_);
     int left_index = left_node.lookup(tree_handler_.key_comparator_, left_key);

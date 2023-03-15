@@ -166,6 +166,7 @@ extern Log *g_log;
     struct tm *p = localtime(&tv.tv_sec);                                  \
     char sz_head[LOG_HEAD_SIZE] = {0};                                     \
     if (p) {                                                               \
+      int usec = (int)tv.tv_usec;                                          \
       snprintf(sz_head, LOG_HEAD_SIZE,                                     \
           "%04d-%02d-%02d %02d:%02d:%02u.%06d pid:%u tid:%llx ",           \
           p->tm_year + 1900,                                               \
@@ -174,7 +175,7 @@ extern Log *g_log;
           p->tm_hour,                                                      \
           p->tm_min,                                                       \
           p->tm_sec,                                                       \
-          tv.tv_usec,                                                      \
+          usec,                                                            \
           (u32_t)getpid(),                                                 \
           gettid());                                                       \
       common::g_log->rotate(p->tm_year + 1900, p->tm_mon + 1, p->tm_mday); \
@@ -289,21 +290,29 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
 }
 
 #ifndef ASSERT
+#ifdef DEBUG
 #define ASSERT(expression, description, ...)   \
   do {                                         \
     if (!(expression)) {                       \
       if (common::g_log) {                     \
         LOG_PANIC(description, ##__VA_ARGS__); \
-        LOG_PANIC("\n");                       \
       }                                        \
       assert(expression);                      \
     }                                          \
   } while (0)
+
+#else // DEBUG
+#define ASSERT(expression, description, ...)
+#endif // DEBUG
+
 #endif  // ASSERT
 
 #define SYS_OUTPUT_FILE_POS ", File:" << __FILE__ << ", line:" << __LINE__ << ",function:" << __FUNCTION__
 #define SYS_OUTPUT_ERROR ",error:" << errno << ":" << strerror(errno)
 
+/**
+ * 获取当前函数调用栈
+ */
 const char *lbt();
 
 }  // namespace common
