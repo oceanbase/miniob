@@ -136,7 +136,7 @@ MemPoolItem::unique_ptr MemPoolItem::alloc_unique_ptr()
 {
   void *item = this->alloc();
   auto deleter = [this](void *p) { this->free(p); };
-  return std::move(MemPoolItem::unique_ptr(item, deleter));
+  return MemPoolItem::unique_ptr(item, deleter);
 }
 
 void MemPoolItem::free(void *buf)

@@ -28,7 +28,6 @@ ENDIF ()
 
 find_package(GTest CONFIG REQUIRED)
 
-
 enable_testing()
 include(GoogleTest)
 #get_filename_component(<VAR> FileName

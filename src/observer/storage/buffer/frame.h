@@ -107,7 +107,7 @@ private:
 
   /// 使用一些手段来做测试，提前检测出头疼的死锁问题
   common::DebugMutex  debug_lock_;
-  intptr_t            write_locker_ = -1;
+  intptr_t            write_locker_ = 0;
   std::set<intptr_t>  read_lockers_;
 };
 

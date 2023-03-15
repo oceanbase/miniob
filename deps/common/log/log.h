@@ -14,11 +14,11 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include <sys/time.h>
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
 #include <string.h>
-#include <time.h>
 
 #include <fstream>
 #include <iostream>
@@ -161,31 +161,33 @@ extern Log *g_log;
 
 #define LOG_HEAD(prefix, level)                                            \
   if (common::g_log) {                                                     \
-    time_t now_time;                                                       \
-    time(&now_time);                                                       \
-    struct tm *p = localtime(&now_time);                                   \
+    struct timeval tv;                                                     \
+    gettimeofday(&tv, NULL);                                               \
+    struct tm *p = localtime(&tv.tv_sec);                                  \
     char sz_head[LOG_HEAD_SIZE] = {0};                                     \
     if (p) {                                                               \
       snprintf(sz_head, LOG_HEAD_SIZE,                                     \
-          "%d-%d-%d %d:%d:%u pid:%u tid:%llx ",                            \
+          "%04d-%02d-%02d %02d:%02d:%02u.%06d pid:%u tid:%llx ",           \
           p->tm_year + 1900,                                               \
           p->tm_mon + 1,                                                   \
           p->tm_mday,                                                      \
           p->tm_hour,                                                      \
           p->tm_min,                                                       \
           p->tm_sec,                                                       \
+          tv.tv_usec,                                                      \
           (u32_t)getpid(),                                                 \
           gettid());                                                       \
       common::g_log->rotate(p->tm_year + 1900, p->tm_mon + 1, p->tm_mday); \
     }                                                                      \
     snprintf(prefix,                                                       \
         sizeof(prefix),                                                    \
-        "[%s %s %s %s %u]>>",                                              \
+        "[%s %s %s:%u %s]>>",                                              \
         sz_head,                                                           \
         (common::g_log)->prefix_msg(level),                                \
         __FILE_NAME__,                                                     \
-        __FUNCTION__,                                                      \
-        (u32_t)__LINE__);                                                  \
+        (u32_t)__LINE__,                                                   \
+        __FUNCTION__                                                       \
+        );                                                                 \
   }
 
 #define LOG_OUTPUT(level, fmt, ...)                                    \

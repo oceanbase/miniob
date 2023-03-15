@@ -340,7 +340,7 @@ int LoggerFactory::init_default(
     const std::string &log_file, LOG_LEVEL log_level, LOG_LEVEL console_level, LOG_ROTATE rotate_type)
 {
   if (g_log != nullptr) {
-    LOG_WARN("Default logger has been initialized");
+    LOG_INFO("Default logger has been initialized");
     return 0;
   }
 

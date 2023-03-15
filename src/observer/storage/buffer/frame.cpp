@@ -53,7 +53,7 @@ std::string to_string(const FrameId &frame_id)
 intptr_t get_default_debug_xid()
 {
   ThreadData *thd = ThreadData::current();
-  intptr_t xid = (thd == nullptr) ? static_cast<intptr_t>(pthread_self()) : reinterpret_cast<intptr_t>(thd);
+  intptr_t xid = (thd == nullptr) ? reinterpret_cast<intptr_t>(pthread_self()) : reinterpret_cast<intptr_t>(thd);
   return xid;
 }
 
@@ -113,7 +113,7 @@ void Frame::write_unlatch(intptr_t xid)
   LOG_DEBUG("frame write unlock success. this=%p, pageNum=%d, xid=%lx, lbt=%s",
             this, page_.page_num, xid, lbt());
 
-  write_locker_ = -1;
+  write_locker_ = 0;
   lock_.unlock();
 //    pthread_rwlock_unlock(&rwlock_);
 }
@@ -241,7 +241,7 @@ int Frame::unpin()
   
   if (0 == count) {
     std::scoped_lock debug_lock(debug_lock_);
-    ASSERT(write_locker_ == -1,
+    ASSERT(write_locker_ == 0,
            "frame unpin to 0 failed while someone hold the write lock. write locker=%lx, pageNum=%d, fd=%d, xid=%lx",
            write_locker_, page_.page_num, file_desc_, xid);
     ASSERT(read_lockers_.empty(),

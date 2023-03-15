@@ -60,6 +60,7 @@ int BPFrameManager::purge_frames(int count, std::function<RC(Frame *frame)> purg
 
   auto purge_finder = [&frames_can_purge, count](const FrameId &frame_id, Frame *const frame) {
     if (frame->can_purge()) {
+      frame->pin();
       frames_can_purge.push_back(frame);
       if (frames_can_purge.size() >= static_cast<size_t>(count)) {
         return false;  // false to break the progress
@@ -80,6 +81,7 @@ int BPFrameManager::purge_frames(int count, std::function<RC(Frame *frame)> purg
       free_internal(frame->frame_id(), frame);
       freed_count++;
     } else {
+      frame->unpin();
       LOG_WARN("failed to purge frame. frame_id=%s, rc=%s", 
                to_string(frame->frame_id()).c_str(), strrc(rc));
     }
@@ -138,8 +140,8 @@ RC BPFrameManager::free_internal(const FrameId &frame_id, Frame *frame)
   Frame *frame_source = nullptr;
   bool found = frames_.get(frame_id, frame_source);
   ASSERT(found && frame == frame_source && frame->pin_count() == 1,
-         "filed to free frame. found=%d, frameId=%s, frame_source=%p, frame=%p, pinCount=%d",
-         found, to_string(frame_id).c_str(), frame_source, frame, frame->pin_count());
+         "failed to free frame. found=%d, frameId=%s, frame_source=%p, frame=%p, pinCount=%d, lbt=%s",
+         found, to_string(frame_id).c_str(), frame_source, frame, frame->pin_count(), lbt());
 
   frame->unpin();
   frames_.remove(frame_id);

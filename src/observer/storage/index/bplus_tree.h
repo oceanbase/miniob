@@ -556,8 +556,8 @@ public:
    * @param right_len right_user_key 的内存大小(只有在变长字段中才会关注)
    * @param right_inclusive 右边界的值是否包含在内
    */
-  RC open(const char *left_user_key, int left_len, bool left_inclusive, const char *right_user_key, int right_len,
-      bool right_inclusive);
+  RC open(const char *left_user_key, int left_len, bool left_inclusive, 
+          const char *right_user_key, int right_len, bool right_inclusive);
 
   RC next_entry(RID &rid);
 

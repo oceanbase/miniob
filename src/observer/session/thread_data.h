@@ -37,5 +37,4 @@ private:
 
 private:
   Session *session_ = nullptr;
-  Trx *trx_ = nullptr;
 };

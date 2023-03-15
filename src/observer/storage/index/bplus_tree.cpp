@@ -1007,7 +1007,7 @@ bool BplusTreeHandler::validate_leaf_link(LatchMemo &latch_memo)
   LeafIndexNodeHandler leaf_node(file_header_, frame);
   PageNum next_page_num = leaf_node.next_page();
 
-  MemPoolItem::unique_ptr prev_key = move(mem_pool_item_->alloc_unique_ptr());
+  MemPoolItem::unique_ptr prev_key = mem_pool_item_->alloc_unique_ptr();
   memcpy(prev_key.get(), leaf_node.key_at(leaf_node.size() - 1), file_header_.key_length);
 
   bool result = true;
@@ -1333,7 +1333,7 @@ RC BplusTreeHandler::create_new_tree(const char *key, const RID *rid)
 
 MemPoolItem::unique_ptr BplusTreeHandler::make_key(const char *user_key, const RID &rid)
 {
-  MemPoolItem::unique_ptr key = move(mem_pool_item_->alloc_unique_ptr());
+  MemPoolItem::unique_ptr key = mem_pool_item_->alloc_unique_ptr();
   if (key == nullptr) {
     LOG_WARN("Failed to alloc memory for key.");
     return nullptr;
@@ -1350,7 +1350,7 @@ RC BplusTreeHandler::insert_entry(const char *user_key, const RID *rid)
     return RC::INVALID_ARGUMENT;
   }
 
-  MemPoolItem::unique_ptr pkey = move(make_key(user_key, *rid));
+  MemPoolItem::unique_ptr pkey = make_key(user_key, *rid);
   if (pkey == nullptr) {
     LOG_WARN("Failed to alloc memory for key.");
     return RC::NOMEM;
@@ -1586,7 +1586,7 @@ RC BplusTreeHandler::delete_entry_internal(LatchMemo &latch_memo, Frame *leaf_fr
 
   const int remove_count = leaf_index_node.remove(key, key_comparator_);
   if (remove_count == 0) {
-    LOG_TRACE("no data to remove");
+    LOG_TRACE("no data need to remove");
     // disk_buffer_pool_->unpin_page(leaf_frame);
     return RC::RECORD_RECORD_NOT_EXIST;
   }
@@ -1623,13 +1623,7 @@ RC BplusTreeHandler::delete_entry(const char *user_key, const RID *rid)
     return rc;
   }
 
-  rc = delete_entry_internal(latch_memo, leaf_frame, key);
-  if (rc != RC::SUCCESS) {
-    LOG_WARN("Failed to delete index");
-    return rc;
-  }
-
-  return RC::SUCCESS;
+  return delete_entry_internal(latch_memo, leaf_frame, key);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1693,9 +1687,9 @@ RC BplusTreeScanner::open(const char *left_user_key, int left_len, bool left_inc
 
     MemPoolItem::unique_ptr left_pkey;
     if (left_inclusive) {
-      left_pkey = move(tree_handler_.make_key(fixed_left_key, *RID::min()));
+      left_pkey = tree_handler_.make_key(fixed_left_key, *RID::min());
     } else {
-      left_pkey = move(tree_handler_.make_key(fixed_left_key, *RID::max()));
+      left_pkey = tree_handler_.make_key(fixed_left_key, *RID::max());
     }
 
     const char *left_key = (const char *)left_pkey.get();
@@ -1753,9 +1747,9 @@ RC BplusTreeScanner::open(const char *left_user_key, int left_len, bool left_inc
       }
     }
     if (right_inclusive) {
-      right_key_ = move(tree_handler_.make_key(fixed_right_key, *RID::max()));
+      right_key_ = tree_handler_.make_key(fixed_right_key, *RID::max());
     } else {
-      right_key_ = move(tree_handler_.make_key(fixed_right_key, *RID::min()));
+      right_key_ = tree_handler_.make_key(fixed_right_key, *RID::min());
     }
 
     if (fixed_right_key != right_user_key) {
