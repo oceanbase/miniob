@@ -23,5 +23,5 @@ jobs:
         
     - name: Build
       shell: bash
-      run: sudo bash build.sh init && bash build.sh release
+      run: sudo bash build.sh init && bash build.sh release --make -j4
       
