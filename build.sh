@@ -10,8 +10,6 @@ ALL_ARGS=("$@")
 BUILD_ARGS=()
 MAKE_ARGS=(-j $CPU_CORES)
 MAKE=make
-NEED_INIT=false
-LLD_OPTION=ON
 ASAN_OPTION=ON
 
 echo "$0 ${ALL_ARGS[@]}"
@@ -89,6 +87,14 @@ function do_init
     mkdir build && \
     cd build && \
     cmake .. && \
+    make -j4 && \
+    make install
+
+  # build google benchmark
+  cd ${TOPDIR}/deps/benchmark && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DBENCHMARK_ENABLE_TESTING=OFF  -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF && \
     make -j4 && \
     make install
 
