@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 #define __OBSERVER_SESSION_SESSIONSTAGE_H__
 
 #include "common/seda/stage.h"
-#include "net/connection_context.h"
 #include "common/metrics/metrics.h"
 
 /**
@@ -47,7 +46,7 @@ protected:
   void handle_request(common::StageEvent *event);
 
 private:
-  Stage *plan_cache_stage_ = nullptr;
+  Stage *query_cache_stage_ = nullptr;
   common::SimpleTimer *sql_metric_ = nullptr;
   static const std::string SQL_METRIC_TAG;
 };

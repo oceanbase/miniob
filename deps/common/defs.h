@@ -82,6 +82,7 @@ typedef int s32_t;
 typedef long long s64_t;
 
 #define LOCAL_HOST "localhost"
+#define EPSILON (1E-6)
 
 }  // namespace common
 #endif  //__COMMON_DEFS_H__

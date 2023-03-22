@@ -20,6 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include <iostream>
 
 #include "init.h"
+#include "ini_setting.h"
 #include "common/os/process.h"
 #include "common/os/signal.h"
 #include "net/server.h"
@@ -37,6 +38,7 @@ void usage()
   std::cout << "-p: server port. if not specified, the item in the config file will be used" << std::endl;
   std::cout << "-f: path of config file." << std::endl;
   std::cout << "-s: use unix socket and the argument is socket address" << std::endl;
+  std::cout << "-P: protocol. {plain, mysql}. plain is default." << std::endl;
   exit(0);
 }
 
@@ -51,13 +53,16 @@ void parse_parameter(int argc, char **argv)
   // Process args
   int opt;
   extern char *optarg;
-  while ((opt = getopt(argc, argv, "dp:s:f:o:e:h")) > 0) {
+  while ((opt = getopt(argc, argv, "dp:P:s:f:o:e:h")) > 0) {
     switch (opt) {
       case 's':
         process_param->set_unix_socket_path(optarg);
         break;
       case 'p':
         process_param->set_server_port(atoi(optarg));
+        break;
+      case 'P':
+        process_param->set_protocol(optarg);
         break;
       case 'f':
         process_param->set_conf(optarg);
@@ -116,6 +121,11 @@ Server *init_server()
   server_param.listen_addr = listen_addr;
   server_param.max_connection_num = max_connection_num;
   server_param.port = port;
+  if (0 == strcasecmp(process_param->get_protocol().c_str(), "mysql")) {
+    server_param.protocol = CommunicateProtocol::MYSQL;
+  } else {
+    server_param.protocol = CommunicateProtocol::PLAIN;
+  }
 
   if (process_param->get_unix_socket_path().size() > 0) {
     server_param.use_unix_socket = true;

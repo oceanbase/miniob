@@ -19,8 +19,7 @@ See the Mulan PSL v2 for more details. */
 
 class Db;
 
-enum class StmtType
-{
+enum class StmtType {
   SELECT,
   INSERT,
   UPDATE,
@@ -38,22 +37,20 @@ enum class StmtType
   LOAD_DATA,
   HELP,
   EXIT,
+  EXPLAIN,
 
   PREDICATE,
 };
 
-class Stmt 
-{
+class Stmt {
 public:
-
   Stmt() = default;
   virtual ~Stmt() = default;
 
   virtual StmtType type() const = 0;
 
 public:
-  static RC create_stmt(Db *db, const Query &query, Stmt *&stmt);
+  static RC create_stmt(Db *db, const Command &cmd, Stmt *&stmt);
 
 private:
 };
-

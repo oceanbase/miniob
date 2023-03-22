@@ -113,6 +113,26 @@ template <class T>
 void val_to_str(const T &val, std::string &str, std::ios_base &(*radix)(std::ios_base &) = std::dec);
 
 /**
+ * Double to string
+ * @param v
+ * @return
+ */
+std::string double_to_str(double v);
+
+bool is_blank(const char *s);
+
+/**
+ * 获取子串
+ * 从s中提取下标为n1~n2的字符组成一个新字符串，然后返回这个新串的首地址
+ *
+ * @param s
+ * @param n1
+ * @param n2
+ * @return
+ */
+char *substr(const char *s, int n1, int n2);
+
+/**
  * get type's name
  */
 template <class T>
@@ -151,8 +171,6 @@ std::string get_type_name(const T &val)
   ::free(stmp);
   return sret;
 }
-
-bool is_blank(const char *s);
 
 }  // namespace common
 #endif  // __COMMON_LANG_STRING_H__

@@ -1,64 +1,36 @@
 
 %{
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <algorithm>
+
+#include "common/log/log.h"
+#include "common/lang/string.h"
 #include "sql/parser/parse_defs.h"
-#include "sql/parser/yacc_sql.tab.h"
-#include "sql/parser/lex.yy.h"
-// #include "common/log/log.h" // 包含C++中的头文件
+#include "sql/parser/yacc_sql.hpp"
+#include "sql/parser/lex_sql.h"
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
 
-typedef struct ParserContext {
-  Query * ssql;
-  size_t select_length;
-  size_t condition_length;
-  size_t from_length;
-  size_t value_length;
-  Value values[MAX_NUM];
-  Condition conditions[MAX_NUM];
-  CompOp comp;
-	char id[MAX_NUM];
-} ParserContext;
-
-//获取子串
-char *substr(const char *s,int n1,int n2)/*从s中提取下标为n1~n2的字符组成一个新字符串，然后返回这个新串的首地址*/
+int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const char *msg)
 {
-  char *sp = malloc(sizeof(char) * (n2 - n1 + 2));
-  int i, j = 0;
-  for (i = n1; i <= n2; i++) {
-    sp[j++] = s[i];
-  }
-  sp[j] = 0;
-  return sp;
+  std::unique_ptr<Command> error_cmd = std::make_unique<Command>(SCF_ERROR);
+  error_cmd->error.error_msg = msg;
+  error_cmd->error.line = llocp->first_line;
+  error_cmd->error.column = llocp->first_column;
+  sql_result->add_command(std::move(error_cmd));
+  return 0;
 }
-
-void yyerror(yyscan_t scanner, const char *str)
-{
-  ParserContext *context = (ParserContext *)(yyget_extra(scanner));
-  query_reset(context->ssql);
-  context->ssql->flag = SCF_ERROR;
-  context->condition_length = 0;
-  context->from_length = 0;
-  context->select_length = 0;
-  context->value_length = 0;
-  context->ssql->sstr.insertion.value_num = 0;
-  printf("parse sql failed. error=%s", str);
-}
-
-ParserContext *get_context(yyscan_t scanner)
-{
-  return (ParserContext *)yyget_extra(scanner);
-}
-
-#define CONTEXT get_context(scanner)
 
 %}
 
 %define api.pure full
+%define parse.error verbose
+%locations
 %lex-param { yyscan_t scanner }
-%parse-param { void *scanner }
+%parse-param { ParsedSqlResult * sql_result }
+%parse-param { void * scanner }
 
 //标识tokens
 %token  SEMICOLON
@@ -96,6 +68,7 @@ ParserContext *get_context(yyscan_t scanner)
         LOAD
         DATA
         INFILE
+        EXPLAIN
         EQ
         LT
         GT
@@ -104,13 +77,20 @@ ParserContext *get_context(yyscan_t scanner)
         NE
 
 %union {
-  struct _Attr *attr;
-  struct _Condition *condition1;
-  struct _Value *value1;
+  Command *command;
+  Condition *condition;
+  Value *value;
+  enum CompOp comp;
+  RelAttr *rel_attr;
+  std::vector<AttrInfo> *attr_infos;
+  AttrInfo *attr_info;
+  std::vector<Value> *value_list;
+  std::vector<Condition> *condition_list;
+  std::vector<RelAttr> *rel_attr_list;
+  std::vector<std::string> *relation_list;
   char *string;
   int number;
   float floats;
-	char *position;
 }
 
 %token <number> NUMBER
@@ -122,466 +102,493 @@ ParserContext *get_context(yyscan_t scanner)
 %token <string> STRING_V
 //非终结符
 
-%type <number> type;
-%type <condition1> condition;
-%type <value1> value;
-%type <number> number;
-
+%type <number>              type
+%type <condition>           condition
+%type <value>               value
+%type <number>              number
+%type <comp>                comp_op
+%type <rel_attr>            rel_attr
+%type <attr_infos>          attr_def_list
+%type <attr_info>           attr_def
+%type <value_list>          value_list
+%type <condition_list>      where
+%type <condition_list>      condition_list
+%type <rel_attr_list>       select_attr
+%type <relation_list>       rel_list
+%type <rel_attr_list>       attr_list
+%type <command> select
+%type <command> insert
+%type <command> update
+%type <command> delete
+%type <command> create_table
+%type <command> drop_table
+%type <command> show_tables
+%type <command> desc_table
+%type <command> create_index
+%type <command> drop_index
+%type <command> sync
+%type <command> begin
+%type <command> commit
+%type <command> rollback
+%type <command> load_data
+%type <command> explain
+%type <command> help
+%type <command> exit
+%type <command> command_wrapper
+// commands should be a list but I use a single command instead
+%type <command> commands
 %%
 
-commands:		//commands or sqls. parser starts here.
-    /* empty */
-    | commands command
+commands: command_wrapper opt_semicolon  //commands or sqls. parser starts here.
+  {
+    std::unique_ptr<Command> sql_command = std::unique_ptr<Command>($1);
+    sql_result->add_command(std::move(sql_command));
+  }
+  ;
+
+command_wrapper:
+    select  
+  | insert
+  | update
+  | delete
+  | create_table
+  | drop_table
+  | show_tables
+  | desc_table
+  | create_index  
+  | drop_index
+  | sync
+  | begin
+  | commit
+  | rollback
+  | load_data
+  | explain
+  | help
+  | exit
     ;
 
-command:
-	  select  
-	| insert
-	| update
-	| delete
-	| create_table
-	| drop_table
-	| show_tables
-	| desc_table
-	| create_index	
-	| drop_index
-	| sync
-	| begin
-	| commit
-	| rollback
-	| load_data
-	| help
-	| exit
-    ;
-
-exit:			
-    EXIT SEMICOLON {
-        CONTEXT->ssql->flag=SCF_EXIT;//"exit";
+exit:      
+    EXIT {
+      $$ = new Command(SCF_EXIT);
     };
 
 help:
-    HELP SEMICOLON {
-        CONTEXT->ssql->flag=SCF_HELP;//"help";
+    HELP {
+      $$ = new Command(SCF_HELP);
     };
 
 sync:
-    SYNC SEMICOLON {
-      CONTEXT->ssql->flag = SCF_SYNC;
+    SYNC {
+      $$ = new Command(SCF_SYNC);
     }
     ;
 
 begin:
-    TRX_BEGIN SEMICOLON {
-      CONTEXT->ssql->flag = SCF_BEGIN;
+    TRX_BEGIN  {
+      $$ = new Command(SCF_BEGIN);
     }
     ;
 
 commit:
-    TRX_COMMIT SEMICOLON {
-      CONTEXT->ssql->flag = SCF_COMMIT;
+    TRX_COMMIT {
+      $$ = new Command(SCF_COMMIT);
     }
     ;
 
 rollback:
-    TRX_ROLLBACK SEMICOLON {
-      CONTEXT->ssql->flag = SCF_ROLLBACK;
+    TRX_ROLLBACK  {
+      $$ = new Command(SCF_ROLLBACK);
     }
     ;
 
-drop_table:		/*drop table 语句的语法解析树*/
-    DROP TABLE ID SEMICOLON {
-        CONTEXT->ssql->flag = SCF_DROP_TABLE;//"drop_table";
-        drop_table_init(&CONTEXT->ssql->sstr.drop_table, $3);
+drop_table:    /*drop table 语句的语法解析树*/
+    DROP TABLE ID {
+      $$ = new Command(SCF_DROP_TABLE);
+      $$->drop_table.relation_name = $3;
+      free($3);
     };
 
 show_tables:
-    SHOW TABLES SEMICOLON {
-      CONTEXT->ssql->flag = SCF_SHOW_TABLES;
+    SHOW TABLES {
+      $$ = new Command(SCF_SHOW_TABLES);
     }
     ;
 
 desc_table:
-    DESC ID SEMICOLON {
-      CONTEXT->ssql->flag = SCF_DESC_TABLE;
-      desc_table_init(&CONTEXT->ssql->sstr.desc_table, $2);
+    DESC ID  {
+      $$ = new Command(SCF_DESC_TABLE);
+      $$->desc_table.relation_name = $2;
+      free($2);
     }
     ;
 
-create_index:		/*create index 语句的语法解析树*/
-    CREATE INDEX ID ON ID LBRACE ID RBRACE SEMICOLON 
-		{
-			CONTEXT->ssql->flag = SCF_CREATE_INDEX;//"create_index";
-			create_index_init(&CONTEXT->ssql->sstr.create_index, $3, $5, $7);
-		}
+create_index:    /*create index 语句的语法解析树*/
+    CREATE INDEX ID ON ID LBRACE ID RBRACE
+    {
+      $$ = new Command(SCF_CREATE_INDEX);
+      CreateIndex &create_index = $$->create_index;
+      create_index.index_name = $3;
+      create_index.relation_name = $5;
+      create_index.attribute_name = $7;
+      free($3);
+      free($5);
+      free($7);
+    }
     ;
 
-drop_index:			/*drop index 语句的语法解析树*/
-    DROP INDEX ID  SEMICOLON 
-		{
-			CONTEXT->ssql->flag=SCF_DROP_INDEX;//"drop_index";
-			drop_index_init(&CONTEXT->ssql->sstr.drop_index, $3);
-		}
+drop_index:      /*drop index 语句的语法解析树*/
+    DROP INDEX ID ON ID
+    {
+      $$ = new Command(SCF_DROP_INDEX);
+      $$->drop_index.index_name = $3;
+      $$->drop_index.relation_name = $5;
+      free($3);
+      free($5);
+    }
     ;
-create_table:		/*create table 语句的语法解析树*/
-    CREATE TABLE ID LBRACE attr_def attr_def_list RBRACE SEMICOLON 
-		{
-			CONTEXT->ssql->flag=SCF_CREATE_TABLE;//"create_table";
-			// CONTEXT->ssql->sstr.create_table.attribute_count = CONTEXT->value_length;
-			create_table_init_name(&CONTEXT->ssql->sstr.create_table, $3);
-			//临时变量清零	
-			CONTEXT->value_length = 0;
-		}
+create_table:    /*create table 语句的语法解析树*/
+    CREATE TABLE ID LBRACE attr_def attr_def_list RBRACE
+    {
+      $$ = new Command(SCF_CREATE_TABLE);
+      CreateTable &create_table = $$->create_table;
+      create_table.relation_name = $3;
+      free($3);
+
+      std::vector<AttrInfo> *src_attrs = $6;
+
+      if (src_attrs != nullptr) {
+        create_table.attr_infos.swap(*src_attrs);
+      }
+      create_table.attr_infos.emplace_back(*$5);
+      std::reverse(create_table.attr_infos.begin(), create_table.attr_infos.end());
+      delete $5;
+    }
     ;
 attr_def_list:
     /* empty */
-    | COMMA attr_def attr_def_list {    }
+    {
+      $$ = nullptr;
+    }
+    | COMMA attr_def attr_def_list
+    {
+      if ($3 != nullptr) {
+        $$ = $3;
+      } else {
+        $$ = new std::vector<AttrInfo>;
+      }
+      $$->emplace_back(*$2);
+      delete $2;
+    }
     ;
     
 attr_def:
-    ID_get type LBRACE number RBRACE 
-		{
-			AttrInfo attribute;
-			attr_info_init(&attribute, CONTEXT->id, $2, $4);
-			create_table_append_attribute(&CONTEXT->ssql->sstr.create_table, &attribute);
-			// CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].name =(char*)malloc(sizeof(char));
-			// strcpy(CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].name, CONTEXT->id); 
-			// CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].type = $2;  
-			// CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].length = $4;
-			CONTEXT->value_length++;
-		}
-    |ID_get type
-		{
-			AttrInfo attribute;
-			attr_info_init(&attribute, CONTEXT->id, $2, 4);
-			create_table_append_attribute(&CONTEXT->ssql->sstr.create_table, &attribute);
-			// CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].name=(char*)malloc(sizeof(char));
-			// strcpy(CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].name, CONTEXT->id); 
-			// CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].type=$2;  
-			// CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].length=4; // default attribute length
-			CONTEXT->value_length++;
-		}
+    ID type LBRACE number RBRACE 
+    {
+      $$ = new AttrInfo;
+      $$->type = (AttrType)$2;
+      $$->name = $1;
+      $$->length = $4;
+      free($1);
+    }
+    | ID type
+    {
+      $$ = new AttrInfo;
+      $$->type = (AttrType)$2;
+      $$->name = $1;
+      $$->length = 4;
+      free($1);
+    }
     ;
 number:
-		NUMBER {$$ = $1;}
-		;
+    NUMBER {$$ = $1;}
+    ;
 type:
-	INT_T { $$=INTS; }
-       | STRING_T { $$=CHARS; }
-       | FLOAT_T { $$=FLOATS; }
-       ;
-ID_get:
-	ID 
-	{
-		char *temp=$1; 
-		snprintf(CONTEXT->id, sizeof(CONTEXT->id), "%s", temp);
-	}
-	;
-
-	
-insert:				/*insert   语句的语法解析树*/
-    INSERT INTO ID VALUES LBRACE value value_list RBRACE SEMICOLON 
-		{
-			// CONTEXT->values[CONTEXT->value_length++] = *$6;
-
-			CONTEXT->ssql->flag=SCF_INSERT;//"insert";
-			// CONTEXT->ssql->sstr.insertion.relation_name = $3;
-			// CONTEXT->ssql->sstr.insertion.value_num = CONTEXT->value_length;
-			// for(i = 0; i < CONTEXT->value_length; i++){
-			// 	CONTEXT->ssql->sstr.insertion.values[i] = CONTEXT->values[i];
-      // }
-			inserts_init(&CONTEXT->ssql->sstr.insertion, $3, CONTEXT->values, CONTEXT->value_length);
-
-      //临时变量清零
-      CONTEXT->value_length=0;
+    INT_T      { $$=INTS; }
+    | STRING_T { $$=CHARS; }
+    | FLOAT_T  { $$=FLOATS; }
+    ;
+insert:        /*insert   语句的语法解析树*/
+    INSERT INTO ID VALUES LBRACE value value_list RBRACE 
+    {
+      $$ = new Command(SCF_INSERT);
+      $$->insertion.relation_name = $3;
+      if ($7 != nullptr) {
+        $$->insertion.values.swap(*$7);
+      }
+      $$->insertion.values.emplace_back(*$6);
+      std::reverse($$->insertion.values.begin(), $$->insertion.values.end());
+      delete $6;
+      free($3);
     }
+    ;
 
 value_list:
     /* empty */
+    {
+      $$ = nullptr;
+    }
     | COMMA value value_list  { 
-  		// CONTEXT->values[CONTEXT->value_length++] = *$2;
-	  }
-    ;
-value:
-    NUMBER{	
-  		value_init_integer(&CONTEXT->values[CONTEXT->value_length++], $1);
-		}
-    |FLOAT{
-  		value_init_float(&CONTEXT->values[CONTEXT->value_length++], $1);
-		}
-    |SSS {
-			$1 = substr($1,1,strlen($1)-2);
-  		value_init_string(&CONTEXT->values[CONTEXT->value_length++], $1);
-		}
-    ;
-    
-delete:		/*  delete 语句的语法解析树*/
-    DELETE FROM ID where SEMICOLON 
-		{
-			CONTEXT->ssql->flag = SCF_DELETE;//"delete";
-			deletes_init_relation(&CONTEXT->ssql->sstr.deletion, $3);
-			deletes_set_conditions(&CONTEXT->ssql->sstr.deletion, 
-					CONTEXT->conditions, CONTEXT->condition_length);
-			CONTEXT->condition_length = 0;	
+      if ($3 != nullptr) {
+        $$ = $3;
+      } else {
+        $$ = new std::vector<Value>;
+      }
+      $$->emplace_back(*$2);
+      delete $2;
     }
     ;
-update:			/*  update 语句的语法解析树*/
-    UPDATE ID SET ID EQ value where SEMICOLON
-		{
-			CONTEXT->ssql->flag = SCF_UPDATE;//"update";
-			Value *value = &CONTEXT->values[0];
-			updates_init(&CONTEXT->ssql->sstr.update, $2, $4, value, 
-					CONTEXT->conditions, CONTEXT->condition_length);
-			CONTEXT->condition_length = 0;
-		}
+value:
+    NUMBER {
+      $$ = new Value;
+      $$->type = INTS;
+      $$->int_value = $1;
+    }
+    |FLOAT {
+      $$ = new Value;
+      $$->type = FLOATS;
+      $$->float_value = $1;
+    }
+    |SSS {
+      char *tmp = common::substr($1,1,strlen($1)-2);
+      $$ = new Value;
+      $$->type = CHARS;
+      $$->string_value = tmp;
+      free(tmp);
+    }
     ;
-select:				/*  select 语句的语法解析树*/
-    SELECT select_attr FROM ID rel_list where SEMICOLON
-		{
-			// CONTEXT->ssql->sstr.selection.relations[CONTEXT->from_length++]=$4;
-			selects_append_relation(&CONTEXT->ssql->sstr.selection, $4);
+    
+delete:    /*  delete 语句的语法解析树*/
+    DELETE FROM ID where 
+    {
+      $$ = new Command(SCF_DELETE);
+      $$->deletion.relation_name = $3;
+      if ($4 != nullptr) {
+        $$->deletion.conditions.swap(*$4);
+        delete $4;
+      }
+      free($3);
+    }
+    ;
+update:      /*  update 语句的语法解析树*/
+    UPDATE ID SET ID EQ value where 
+    {
+      $$ = new Command(SCF_UPDATE);
+      $$->update.relation_name = $2;
+      $$->update.attribute_name = $4;
+      $$->update.value = *$6;
+      if ($7 != nullptr) {
+        $$->update.conditions.swap(*$7);
+        delete $7;
+      }
+      free($2);
+      free($4);
+    }
+    ;
+select:        /*  select 语句的语法解析树*/
+    SELECT select_attr FROM ID rel_list where
+    {
+      $$ = new Command(SCF_SELECT);
+      if ($2 != nullptr) {
+        $$->selection.attributes.swap(*$2);
+        delete $2;
+      }
+      if ($5 != nullptr) {
+        $$->selection.relations.swap(*$5);
+        delete $5;
+      }
+      $$->selection.relations.push_back($4);
+      std::reverse($$->selection.relations.begin(), $$->selection.relations.end());
 
-			selects_append_conditions(&CONTEXT->ssql->sstr.selection, CONTEXT->conditions, CONTEXT->condition_length);
-
-			CONTEXT->ssql->flag=SCF_SELECT;//"select";
-			// CONTEXT->ssql->sstr.selection.attr_num = CONTEXT->select_length;
-
-			//临时变量清零
-			CONTEXT->condition_length=0;
-			CONTEXT->from_length=0;
-			CONTEXT->select_length=0;
-			CONTEXT->value_length = 0;
-	}
-	;
+      if ($6 != nullptr) {
+        $$->selection.conditions.swap(*$6);
+        delete $6;
+      }
+      free($4);
+    }
+    ;
 
 select_attr:
-    STAR {  
-			RelAttr attr;
-			relation_attr_init(&attr, NULL, "*");
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-		}
-    | ID attr_list {
-			RelAttr attr;
-			relation_attr_init(&attr, NULL, $1);
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-		}
-  	| ID DOT ID attr_list {
-			RelAttr attr;
-			relation_attr_init(&attr, $1, $3);
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-		}
+    STAR {
+      $$ = new std::vector<RelAttr>;
+      RelAttr attr;
+      attr.relation_name = "";
+      attr.attribute_name = "*";
+      $$->emplace_back(attr);
+    }
+    | rel_attr attr_list {
+      if ($2 != nullptr) {
+        $$ = $2;
+      } else {
+        $$ = new std::vector<RelAttr>;
+      }
+      $$->emplace_back(*$1);
+      delete $1;
+    }
     ;
+
+rel_attr:
+    ID {
+      $$ = new RelAttr;
+      $$->attribute_name = $1;
+      free($1);
+    }
+    | ID DOT ID {
+      $$ = new RelAttr;
+      $$->relation_name = $1;
+      $$->attribute_name = $3;
+      free($1);
+      free($3);
+    }
+    ;
+
 attr_list:
     /* empty */
-    | COMMA ID attr_list {
-			RelAttr attr;
-			relation_attr_init(&attr, NULL, $2);
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-     	  // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length].relation_name = NULL;
-        // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length++].attribute_name=$2;
+    {
+      $$ = nullptr;
+    }
+    | COMMA rel_attr attr_list {
+      if ($3 != nullptr) {
+        $$ = $3;
+      } else {
+        $$ = new std::vector<RelAttr>;
       }
-    | COMMA ID DOT ID attr_list {
-			RelAttr attr;
-			relation_attr_init(&attr, $2, $4);
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-        // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length].attribute_name=$4;
-        // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length++].relation_name=$2;
-  	  }
-  	;
+
+      $$->emplace_back(*$2);
+      delete $2;
+    }
+    ;
 
 rel_list:
     /* empty */
-    | COMMA ID rel_list {	
-				selects_append_relation(&CONTEXT->ssql->sstr.selection, $2);
-		  }
+    {
+      $$ = nullptr;
+    }
+    | COMMA ID rel_list {
+      if ($3 != nullptr) {
+        $$ = $3;
+      } else {
+        $$ = new std::vector<std::string>;
+      }
+
+      $$->push_back($2);
+      free($2);
+    }
     ;
 where:
-    /* empty */ 
-    | WHERE condition condition_list {	
-				// CONTEXT->conditions[CONTEXT->condition_length++]=*$2;
-			}
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | WHERE condition_list {
+      $$ = $2;  
+    }
     ;
 condition_list:
     /* empty */
-    | AND condition condition_list {
-				// CONTEXT->conditions[CONTEXT->condition_length++]=*$2;
-			}
+    {
+      $$ = nullptr;
+    }
+    | condition {
+      $$ = new std::vector<Condition>;
+      $$->emplace_back(*$1);
+      delete $1;
+    }
+    | condition AND condition_list {
+      $$ = $3;
+      $$->emplace_back(*$1);
+      delete $1;
+    }
     ;
 condition:
-    ID comOp value 
-		{
-			RelAttr left_attr;
-			relation_attr_init(&left_attr, NULL, $1);
+    rel_attr comp_op value
+    {
+      $$ = new Condition;
+      $$->left_is_attr = 1;
+      $$->left_attr = *$1;
+      $$->right_is_attr = 0;
+      $$->right_value = *$3;
+      $$->comp = $2;
 
-			Value *right_value = &CONTEXT->values[CONTEXT->value_length - 1];
-
-			Condition condition;
-			condition_init(&condition, CONTEXT->comp, 1, &left_attr, NULL, 0, NULL, right_value);
-			CONTEXT->conditions[CONTEXT->condition_length++] = condition;
-			// $$ = ( Condition *)malloc(sizeof( Condition));
-			// $$->left_is_attr = 1;
-			// $$->left_attr.relation_name = NULL;
-			// $$->left_attr.attribute_name= $1;
-			// $$->comp = CONTEXT->comp;
-			// $$->right_is_attr = 0;
-			// $$->right_attr.relation_name = NULL;
-			// $$->right_attr.attribute_name = NULL;
-			// $$->right_value = *$3;
-
-		}
-		|value comOp value 
-		{
-			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 2];
-			Value *right_value = &CONTEXT->values[CONTEXT->value_length - 1];
-
-			Condition condition;
-			condition_init(&condition, CONTEXT->comp, 0, NULL, left_value, 0, NULL, right_value);
-			CONTEXT->conditions[CONTEXT->condition_length++] = condition;
-			// $$ = ( Condition *)malloc(sizeof( Condition));
-			// $$->left_is_attr = 0;
-			// $$->left_attr.relation_name=NULL;
-			// $$->left_attr.attribute_name=NULL;
-			// $$->left_value = *$1;
-			// $$->comp = CONTEXT->comp;
-			// $$->right_is_attr = 0;
-			// $$->right_attr.relation_name = NULL;
-			// $$->right_attr.attribute_name = NULL;
-			// $$->right_value = *$3;
-
-		}
-		|ID comOp ID 
-		{
-			RelAttr left_attr;
-			relation_attr_init(&left_attr, NULL, $1);
-			RelAttr right_attr;
-			relation_attr_init(&right_attr, NULL, $3);
-
-			Condition condition;
-			condition_init(&condition, CONTEXT->comp, 1, &left_attr, NULL, 1, &right_attr, NULL);
-			CONTEXT->conditions[CONTEXT->condition_length++] = condition;
-			// $$=( Condition *)malloc(sizeof( Condition));
-			// $$->left_is_attr = 1;
-			// $$->left_attr.relation_name=NULL;
-			// $$->left_attr.attribute_name=$1;
-			// $$->comp = CONTEXT->comp;
-			// $$->right_is_attr = 1;
-			// $$->right_attr.relation_name=NULL;
-			// $$->right_attr.attribute_name=$3;
-
-		}
-    |value comOp ID
-		{
-			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
-			RelAttr right_attr;
-			relation_attr_init(&right_attr, NULL, $3);
-
-			Condition condition;
-			condition_init(&condition, CONTEXT->comp, 0, NULL, left_value, 1, &right_attr, NULL);
-			CONTEXT->conditions[CONTEXT->condition_length++] = condition;
-
-			// $$=( Condition *)malloc(sizeof( Condition));
-			// $$->left_is_attr = 0;
-			// $$->left_attr.relation_name=NULL;
-			// $$->left_attr.attribute_name=NULL;
-			// $$->left_value = *$1;
-			// $$->comp=CONTEXT->comp;
-			
-			// $$->right_is_attr = 1;
-			// $$->right_attr.relation_name=NULL;
-			// $$->right_attr.attribute_name=$3;
-		
-		}
-    |ID DOT ID comOp value
-		{
-			RelAttr left_attr;
-			relation_attr_init(&left_attr, $1, $3);
-			Value *right_value = &CONTEXT->values[CONTEXT->value_length - 1];
-
-			Condition condition;
-			condition_init(&condition, CONTEXT->comp, 1, &left_attr, NULL, 0, NULL, right_value);
-			CONTEXT->conditions[CONTEXT->condition_length++] = condition;
-
-			// $$=( Condition *)malloc(sizeof( Condition));
-			// $$->left_is_attr = 1;
-			// $$->left_attr.relation_name=$1;
-			// $$->left_attr.attribute_name=$3;
-			// $$->comp=CONTEXT->comp;
-			// $$->right_is_attr = 0;   //属性值
-			// $$->right_attr.relation_name=NULL;
-			// $$->right_attr.attribute_name=NULL;
-			// $$->right_value =*$5;			
-							
+      delete $1;
+      delete $3;
     }
-    |value comOp ID DOT ID
-		{
-			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
+    | value comp_op value 
+    {
+      $$ = new Condition;
+      $$->left_is_attr = 0;
+      $$->left_value = *$1;
+      $$->right_is_attr = 0;
+      $$->right_value = *$3;
+      $$->comp = $2;
 
-			RelAttr right_attr;
-			relation_attr_init(&right_attr, $3, $5);
-
-			Condition condition;
-			condition_init(&condition, CONTEXT->comp, 0, NULL, left_value, 1, &right_attr, NULL);
-			CONTEXT->conditions[CONTEXT->condition_length++] = condition;
-			// $$=( Condition *)malloc(sizeof( Condition));
-			// $$->left_is_attr = 0;//属性值
-			// $$->left_attr.relation_name=NULL;
-			// $$->left_attr.attribute_name=NULL;
-			// $$->left_value = *$1;
-			// $$->comp =CONTEXT->comp;
-			// $$->right_is_attr = 1;//属性
-			// $$->right_attr.relation_name = $3;
-			// $$->right_attr.attribute_name = $5;
-									
+      delete $1;
+      delete $3;
     }
-    |ID DOT ID comOp ID DOT ID
-		{
-			RelAttr left_attr;
-			relation_attr_init(&left_attr, $1, $3);
-			RelAttr right_attr;
-			relation_attr_init(&right_attr, $5, $7);
+    | rel_attr comp_op rel_attr
+    {
+      $$ = new Condition;
+      $$->left_is_attr = 1;
+      $$->left_attr = *$1;
+      $$->right_is_attr = 1;
+      $$->right_attr = *$3;
+      $$->comp = $2;
 
-			Condition condition;
-			condition_init(&condition, CONTEXT->comp, 1, &left_attr, NULL, 1, &right_attr, NULL);
-			CONTEXT->conditions[CONTEXT->condition_length++] = condition;
-			// $$=( Condition *)malloc(sizeof( Condition));
-			// $$->left_is_attr = 1;		//属性
-			// $$->left_attr.relation_name=$1;
-			// $$->left_attr.attribute_name=$3;
-			// $$->comp =CONTEXT->comp;
-			// $$->right_is_attr = 1;		//属性
-			// $$->right_attr.relation_name=$5;
-			// $$->right_attr.attribute_name=$7;
+      delete $1;
+      delete $3;
+    }
+    | value comp_op rel_attr
+    {
+      $$ = new Condition;
+      $$->left_is_attr = 0;
+      $$->left_value = *$1;
+      $$->right_is_attr = 1;
+      $$->right_attr = *$3;
+      $$->comp = $2;
+
+      delete $1;
+      delete $3;
     }
     ;
 
-comOp:
-  	  EQ { CONTEXT->comp = EQUAL_TO; }
-    | LT { CONTEXT->comp = LESS_THAN; }
-    | GT { CONTEXT->comp = GREAT_THAN; }
-    | LE { CONTEXT->comp = LESS_EQUAL; }
-    | GE { CONTEXT->comp = GREAT_EQUAL; }
-    | NE { CONTEXT->comp = NOT_EQUAL; }
+comp_op:
+      EQ { $$ = EQUAL_TO; }
+    | LT { $$ = LESS_THAN; }
+    | GT { $$ = GREAT_THAN; }
+    | LE { $$ = LESS_EQUAL; }
+    | GE { $$ = GREAT_EQUAL; }
+    | NE { $$ = NOT_EQUAL; }
     ;
 
 load_data:
-		LOAD DATA INFILE SSS INTO TABLE ID SEMICOLON
-		{
-		  CONTEXT->ssql->flag = SCF_LOAD_DATA;
-			load_data_init(&CONTEXT->ssql->sstr.load_data, $7, $4);
-		}
-		;
+    LOAD DATA INFILE SSS INTO TABLE ID 
+    {
+      $$ = new Command(SCF_LOAD_DATA);
+      $$->load_data.relation_name = $7;
+      $$->load_data.file_name = $4;
+      free($7);
+    }
+    ;
+
+explain:
+    EXPLAIN command_wrapper
+    {
+      $$ = new Command(SCF_EXPLAIN);
+      $$->explain.cmd = std::unique_ptr<Command>($2);
+    }
+    ;
+
+opt_semicolon: /*empty*/
+    | SEMICOLON
+    ;
 %%
 //_____________________________________________________________________
 extern void scan_string(const char *str, yyscan_t scanner);
 
-int sql_parse(const char *s, Query *sqls){
-	ParserContext context;
-	memset(&context, 0, sizeof(context));
-
-	yyscan_t scanner;
-	yylex_init_extra(&context, &scanner);
-	context.ssql = sqls;
-	scan_string(s, scanner);
-	int result = yyparse(scanner);
-	yylex_destroy(scanner);
-	return result;
+int sql_parse(const char *s, ParsedSqlResult *sql_result){
+  yyscan_t scanner;
+  yylex_init(&scanner);
+  scan_string(s, scanner);
+  int result = yyparse(sql_result, scanner);
+  yylex_destroy(scanner);
+  return result;
 }

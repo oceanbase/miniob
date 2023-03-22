@@ -213,16 +213,15 @@ int Log::rotate_by_day(const int year, const int month, const int day)
   return 0;
 }
 
+#define MAX_LOG_NUM 999
+
 int Log::rename_old_logs()
 {
   int log_index = 1;
   int max_log_index = 0;
-  char log_index_str[4] = {0};
 
-  while (log_index < 999) {
-    snprintf(log_index_str, sizeof(log_index_str), "%03d", log_index);
-
-    std::string log_name = log_name_ + "." + log_index_str;
+  while (log_index < MAX_LOG_NUM) {
+    std::string log_name = log_name_ + "." + size_to_pad_str(log_index, 3);
     int result = access(log_name.c_str(), R_OK);
     if (result) {
       break;
@@ -232,15 +231,16 @@ int Log::rename_old_logs()
     log_index++;
   }
 
+  if (log_index == MAX_LOG_NUM) {
+    std::string log_name_rm = log_name_ + "." + size_to_pad_str(log_index, 3);
+    remove(log_name_rm.c_str());
+  }
+
   log_index = max_log_index;
   while (log_index > 0) {
-    snprintf(log_index_str, sizeof(log_index_str), "%03d", log_index);
+    std::string log_name_old = log_name_ + "." + size_to_pad_str(log_index, 3);
 
-    std::string log_name_old = log_name_ + "." + log_index_str;
-
-    snprintf(log_index_str, sizeof(log_index_str), "%03d", log_index + 1);
-
-    std::string log_name_new = log_name_ + "." + log_index_str;
+    std::string log_name_new = log_name_ + "." + size_to_pad_str(log_index + 1, 3);
 
     int result = rename(log_name_old.c_str(), log_name_new.c_str());
     if (result) {

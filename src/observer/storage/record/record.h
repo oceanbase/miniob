@@ -32,8 +32,7 @@ struct RID {
   // bool    valid;    // true means a valid record
 
   RID() = default;
-  RID(const PageNum _page_num, const SlotNum _slot_num)
-    : page_num(_page_num), slot_num(_slot_num)
+  RID(const PageNum _page_num, const SlotNum _slot_num) : page_num(_page_num), slot_num(_slot_num)
   {}
 
   const std::string to_string() const
@@ -82,25 +81,46 @@ struct RID {
   }
 };
 
-class Record
-{
+class Record {
 public:
   Record() = default;
   ~Record() = default;
 
-  void set_data(char *data) { this->data_ = data; }
-  char *data() { return this->data_; }
-  const char *data() const { return this->data_; }
+  void set_data(char *data)
+  {
+    this->data_ = data;
+  }
+  char *data()
+  {
+    return this->data_;
+  }
+  const char *data() const
+  {
+    return this->data_;
+  }
 
-  void set_rid(const RID &rid) { this->rid_ = rid; }
-  void set_rid(const PageNum page_num, const SlotNum slot_num) { this->rid_.page_num = page_num; this->rid_.slot_num = slot_num; }
-  RID & rid() { return rid_; }
-  const RID &rid() const { return rid_; };
+  void set_rid(const RID &rid)
+  {
+    this->rid_ = rid;
+  }
+  void set_rid(const PageNum page_num, const SlotNum slot_num)
+  {
+    this->rid_.page_num = page_num;
+    this->rid_.slot_num = slot_num;
+  }
+  RID &rid()
+  {
+    return rid_;
+  }
+  const RID &rid() const
+  {
+    return rid_;
+  };
 
 private:
-  RID                            rid_;
+  RID rid_;
 
   // the data buffer
   // record will not release the memory
-  char *                         data_ = nullptr;
+  char *data_ = nullptr;
 };

@@ -25,25 +25,35 @@ class FilterStmt;
 class Db;
 class Table;
 
-class SelectStmt : public Stmt
-{
+class SelectStmt : public Stmt {
 public:
-
   SelectStmt() = default;
   ~SelectStmt() override;
 
-  StmtType type() const override { return StmtType::SELECT; }
+  StmtType type() const override
+  {
+    return StmtType::SELECT;
+  }
+
 public:
   static RC create(Db *db, const Selects &select_sql, Stmt *&stmt);
 
 public:
-  const std::vector<Table *> &tables() const { return tables_; }
-  const std::vector<Field> &query_fields() const { return query_fields_; }
-  FilterStmt *filter_stmt() const { return filter_stmt_; }
+  const std::vector<Table *> &tables() const
+  {
+    return tables_;
+  }
+  const std::vector<Field> &query_fields() const
+  {
+    return query_fields_;
+  }
+  FilterStmt *filter_stmt() const
+  {
+    return filter_stmt_;
+  }
 
 private:
   std::vector<Field> query_fields_;
   std::vector<Table *> tables_;
   FilterStmt *filter_stmt_ = nullptr;
 };
-

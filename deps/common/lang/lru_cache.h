@@ -19,14 +19,12 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-template <typename Key, typename Value,
-          typename Hash = std::hash<Key>,
-	  typename Pred = std::equal_to<Key>>
+template <typename Key, typename Value, typename Hash = std::hash<Key>, typename Pred = std::equal_to<Key>>
 class LruCache {
 
   class ListNode {
   public:
-    Key   key_;
+    Key key_;
     Value value_;
 
     ListNode *prev_ = nullptr;
@@ -39,9 +37,10 @@ class LruCache {
 
   class PListNodeHasher {
   public:
-    size_t operator() (ListNode *node) const {
+    size_t operator()(ListNode *node) const
+    {
       if (node == nullptr) {
-	return 0;
+        return 0;
       }
       return hasher_(node->key_);
     }
@@ -52,26 +51,28 @@ class LruCache {
 
   class PListNodePredicator {
   public:
-    bool operator() (ListNode * const node1, ListNode * const node2) const {
+    bool operator()(ListNode *const node1, ListNode *const node2) const
+    {
       if (node1 == node2) {
-	return true;
+        return true;
       }
 
       if (node1 == nullptr || node2 == nullptr) {
-	return false;
+        return false;
       }
 
       return pred_(node1->key_, node2->key_);
     }
+
   private:
     Pred pred_;
   };
 
-public:  
+public:
   LruCache(size_t reserve = 0)
   {
     if (reserve > 0) {
-      searcher_.reserve(reserve);   
+      searcher_.reserve(reserve);
     }
   }
 
@@ -88,7 +89,7 @@ public:
     searcher_.clear();
 
     lru_front_ = nullptr;
-    lru_tail_  = nullptr;
+    lru_tail_ = nullptr;
   }
 
   size_t count() const
@@ -112,10 +113,10 @@ public:
   {
     auto iter = searcher_.find((ListNode *)&key);
     if (iter != searcher_.end()) {
-      ListNode * ln = *iter;
+      ListNode *ln = *iter;
       ln->value_ = value;
       lru_touch(ln);
-      return ;
+      return;
     }
 
     ListNode *ln = new ListNode(key, value);
@@ -136,7 +137,7 @@ public:
     value = nullptr;
   }
 
-  void foreach(std::function<bool(const Key &, const Value &)> func)
+  void foreach (std::function<bool(const Key &, const Value &)> func)
   {
     for (ListNode *node = lru_front_; node != nullptr; node = node->next_) {
       bool ret = func(node->key_, node->value_);
@@ -165,7 +166,7 @@ private:
     }
 
     node->prev_->next_ = node->next_;
-    
+
     if (node->next_ != nullptr) {
       node->next_->prev_ = node->prev_;
     } else {
@@ -220,9 +221,9 @@ private:
 
 private:
   using SearchType = std::unordered_set<ListNode *, PListNodeHasher, PListNodePredicator>;
-  SearchType   searcher_;
-  ListNode   * lru_front_ = nullptr;
-  ListNode   * lru_tail_  = nullptr;
+  SearchType searcher_;
+  ListNode *lru_front_ = nullptr;
+  ListNode *lru_tail_ = nullptr;
 };
 
-} // namespace common
+}  // namespace common

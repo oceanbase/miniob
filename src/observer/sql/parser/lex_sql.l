@@ -2,9 +2,21 @@
 #include<string.h>
 #include<stdio.h>
 
+/**
+ * flex 代码包含三个部分，使用 %% 分隔
+ * 第一个部分的代码是C代码，flex会原样复制到目标文件中
+ * 第二个部分是规则部分，使用正则表达式定义一系列规则
+ * 第三个部分还是C代码，flex 会复制此段代码
+ */
 struct ParserContext;
 
-#include "yacc_sql.tab.h"
+#include "sql/parser/parse_defs.h"
+#include "yacc_sql.hpp"
+
+#ifndef register
+#define register 
+#endif // register
+
 extern int atoi();
 extern double atof();
 
@@ -19,8 +31,13 @@ extern double atof();
 
 /* Prevent the need for linking with -lfl */
 %option noyywrap
+%option nounput
+%option noinput
 %option bison-bridge
 %option reentrant
+/* 不区分大小写 */
+%option case-insensitive
+%option bison-locations
 
 WHITE_SAPCE      [\ \t\b\f]
 DIGIT            [0-9]+
@@ -30,61 +47,69 @@ DOT              \.
 QUOTE            [\'\"]
 %x STR
 
+/* 规则匹配的优先级：*/
+/* 1. 匹配的规则长的优先 */
+/* 2. 写在最前面的优先 */
+
+/* yylval 就可以认为是 yacc 中 %union 定义的结构体(union 结构) */
 %%
 
 {WHITE_SAPCE}                                        // ignore whitespace
 \n                                                   ;
 
-[\-]?{DIGIT}+                                        yylval->number=atoi(yytext); RETURN_TOKEN(NUMBER);
-[\-]?{DIGIT}+{DOT}{DIGIT}+                           yylval->floats=(float)(atof(yytext)); RETURN_TOKEN(FLOAT);
+[\-]?{DIGIT}+                           yylval->number=atoi(yytext); RETURN_TOKEN(NUMBER);
+[\-]?{DIGIT}+{DOT}{DIGIT}+              yylval->floats=(float)(atof(yytext)); RETURN_TOKEN(FLOAT);
 
-";"                                                  RETURN_TOKEN(SEMICOLON);
-{DOT}                                                RETURN_TOKEN(DOT);
-"*"                                                  RETURN_TOKEN(STAR);
-[Ee][Xx][Ii][Tt]                                     RETURN_TOKEN(EXIT);
-[Hh][Ee][Ll][Pp]                                     RETURN_TOKEN(HELP);
-[Dd][Ee][Ss][Cc]                                     RETURN_TOKEN(DESC);
-[Cc][Rr][Ee][Aa][Tt][Ee]                             RETURN_TOKEN(CREATE);
-[Dd][Rr][Oo][Pp]                                     RETURN_TOKEN(DROP);
-[Tt][Aa][Bb][Ll][Ee]                                 RETURN_TOKEN(TABLE);
-[Tt][Aa][Bb][Ll][Ee][Ss]                             RETURN_TOKEN(TABLES);
-[Ii][Nn][Dd][Ee][Xx]                                 RETURN_TOKEN(INDEX);
-[Oo][Nn]                                             RETURN_TOKEN(ON);
-[Ss][Hh][Oo][Ww]                                     RETURN_TOKEN(SHOW);
-[Ss][Yy][Nn][Cc]                                     RETURN_TOKEN(SYNC);
-[Ss][Ee][Ll][Ee][Cc][Tt]                             RETURN_TOKEN(SELECT);
-[Ff][Rr][Oo][Mm]                                     RETURN_TOKEN(FROM);
-[Ww][Hh][Ee][Rr][Ee]                                 RETURN_TOKEN(WHERE);
-[Aa][Nn][Dd]                                         RETURN_TOKEN(AND);
-[Ii][Nn][Ss][Ee][rR][tT]                             RETURN_TOKEN(INSERT);
-[Ii][Nn][Tt][Oo]                                     RETURN_TOKEN(INTO);
-[Vv][Aa][Ll][Uu][Ee][Ss]                             RETURN_TOKEN(VALUES);
-[Dd][Ee][Ll][Ee][Tt][Ee]                             RETURN_TOKEN(DELETE);
-[Uu][Pp][Dd][Aa][Tt][Ee]                             RETURN_TOKEN(UPDATE);
-[Ss][Ee][Tt]                                         RETURN_TOKEN(SET);
-[Bb][Ee][Gg][Ii][Nn]                                 RETURN_TOKEN(TRX_BEGIN);
-[Cc][Oo][Mm][Mm][Ii][Tt]                             RETURN_TOKEN(TRX_COMMIT);
-[Rr][Oo][Ll][Ll][Bb][Aa][Cc][Kk]                     RETURN_TOKEN(TRX_ROLLBACK);
-[Ii][Nn][Tt]                                         RETURN_TOKEN(INT_T);
-[Cc][Hh][Aa][Rr]                                     RETURN_TOKEN(STRING_T);
-[Ff][Ll][Oo][Aa][Tt]                                 RETURN_TOKEN(FLOAT_T);
-[Ll][Oo][Aa][Dd]                                     RETURN_TOKEN(LOAD);
-[Dd][Aa][Tt][Aa]                                     RETURN_TOKEN(DATA);
-[Ii][Nn][Ff][Ii][Ll][Ee]                             RETURN_TOKEN(INFILE);
-{ID}                                                 yylval->string=strdup(yytext); RETURN_TOKEN(ID);
-"("                                                  RETURN_TOKEN(LBRACE);
-")"                                                  RETURN_TOKEN(RBRACE);
+";"                                     RETURN_TOKEN(SEMICOLON);
+{DOT}                                   RETURN_TOKEN(DOT);
+"*"                                     RETURN_TOKEN(STAR);
+EXIT                                    RETURN_TOKEN(EXIT);
+HELP                                    RETURN_TOKEN(HELP);
+DESC                                    RETURN_TOKEN(DESC);
+CREATE                                  RETURN_TOKEN(CREATE);
+DROP                                    RETURN_TOKEN(DROP);
+TABLE                                   RETURN_TOKEN(TABLE);
+TABLES                                  RETURN_TOKEN(TABLES);
+INDEX                                   RETURN_TOKEN(INDEX);
+ON                                      RETURN_TOKEN(ON);
+SHOW                                    RETURN_TOKEN(SHOW);
+SYNC                                    RETURN_TOKEN(SYNC);
+SELECT                                  RETURN_TOKEN(SELECT);
+FROM                                    RETURN_TOKEN(FROM);
+WHERE                                   RETURN_TOKEN(WHERE);
+AND                                     RETURN_TOKEN(AND);
+INSERT                                  RETURN_TOKEN(INSERT);
+INTO                                    RETURN_TOKEN(INTO);
+VALUES                                  RETURN_TOKEN(VALUES);
+DELETE                                  RETURN_TOKEN(DELETE);
+UPDATE                                  RETURN_TOKEN(UPDATE);
+SET                                     RETURN_TOKEN(SET);
+BEGIN                                   RETURN_TOKEN(TRX_BEGIN);
+COMMIT                                  RETURN_TOKEN(TRX_COMMIT);
+ROLLBACK                                RETURN_TOKEN(TRX_ROLLBACK);
+INT                                     RETURN_TOKEN(INT_T);
+CHAR                                    RETURN_TOKEN(STRING_T);
+FLOAT                                   RETURN_TOKEN(FLOAT_T);
+LOAD                                    RETURN_TOKEN(LOAD);
+DATA                                    RETURN_TOKEN(DATA);
+INFILE                                  RETURN_TOKEN(INFILE);
+EXPLAIN                                 RETURN_TOKEN(EXPLAIN);
+{ID}                                    yylval->string=strdup(yytext); RETURN_TOKEN(ID);
+"("                                     RETURN_TOKEN(LBRACE);
+")"                                     RETURN_TOKEN(RBRACE);
 
-","                                                  RETURN_TOKEN(COMMA);
-"="                                                  RETURN_TOKEN(EQ);
-"<="                                                 RETURN_TOKEN(LE);
-"<>"                                                 RETURN_TOKEN(NE);
-"<"                                                  RETURN_TOKEN(LT);
-">="                                                 RETURN_TOKEN(GE);
-">"                                                  RETURN_TOKEN(GT);
-{QUOTE}[\40\42\47A-Za-z0-9_/\.\-]*{QUOTE}            yylval->string=strdup(yytext); RETURN_TOKEN(SSS);
+","                                     RETURN_TOKEN(COMMA);
+"="                                     RETURN_TOKEN(EQ);
+"<="                                    RETURN_TOKEN(LE);
+"<>"                                    RETURN_TOKEN(NE);
+"!="                                    RETURN_TOKEN(NE);
+"<"                                     RETURN_TOKEN(LT);
+">="                                    RETURN_TOKEN(GE);
+">"                                     RETURN_TOKEN(GT);
+\"[^"]*\"                               yylval->string=strdup(yytext); RETURN_TOKEN(SSS);
+'[^']*\'                                yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
 
-.                                                    printf("Unknown character [%c]\n",yytext[0]); return yytext[0];
+.                                       printf("Unknown character [%c]\n",yytext[0]); return yytext[0];
 %%
 
 void scan_string(const char *str, yyscan_t scanner) {

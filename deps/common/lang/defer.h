@@ -37,5 +37,8 @@ private:
 
 } // namespace common
 
-#define DERFER_NAME(suffix) defer_helper_##suffix
-#define DEFER(callback) common::DeferHelper DERFER_NAME(__LINE__)(callback)
+#define AA(B, C) B##C
+
+#define BB(B, C) AA(B,C)
+
+#define DEFER(callback) common::DeferHelper BB(defer_helper_, __LINE__)(callback)

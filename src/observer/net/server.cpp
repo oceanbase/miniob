@@ -35,6 +35,7 @@ See the Mulan PSL v2 for more details. */
 #include "event/session_event.h"
 #include "session/session.h"
 #include "ini_setting.h"
+#include "net/communicator.h"
 #include <common/metrics/metrics_registry.h>
 
 using namespace common;
@@ -85,7 +86,6 @@ void Server::init()
 
 int Server::set_non_block(int fd)
 {
-
   int flags = fcntl(fd, F_GETFL);
   if (flags == -1) {
     LOG_INFO("Failed to get flags of fd :%d. ", fd);
@@ -100,87 +100,34 @@ int Server::set_non_block(int fd)
   return 0;
 }
 
-void Server::close_connection(ConnectionContext *client_context)
+void Server::close_connection(Communicator *communicator)
 {
-  LOG_INFO("Close connection of %s.", client_context->addr);
-  event_del(&client_context->read_event);
-  ::close(client_context->fd);
-  delete client_context->session;
-  client_context->session = nullptr;
-  delete client_context;
+  LOG_INFO("Close connection of %s.", communicator->addr());
+  event_del(&communicator->read_event());
+  delete communicator;
 }
 
 void Server::recv(int fd, short ev, void *arg)
 {
-  ConnectionContext *client = (ConnectionContext *)arg;
-  // Server::send(sev->getClient(), sev->getRequestBuf(), strlen(sev->getRequestBuf()));
+  Communicator *comm = (Communicator *)arg;
 
-  int data_len = 0;
-  int read_len = 0;
-  int buf_size = sizeof(client->buf);
-  memset(client->buf, 0, buf_size);
-
-  TimerStat timer_stat(*read_socket_metric_);
-  MUTEX_LOCK(&client->mutex);
-  // 持续接收消息，直到遇到'\0'。将'\0'遇到的后续数据直接丢弃没有处理，因为目前仅支持一收一发的模式
-  while (true) {
-    read_len = ::read(client->fd, client->buf + data_len, buf_size - data_len);
-    if (read_len < 0) {
-      if (errno == EAGAIN) {
-        continue;
-      }
-      break;
-    }
-    if (read_len == 0) {
-      break;
-    }
-
-    if (read_len + data_len > buf_size) {
-      data_len += read_len;
-      break;
-    }
-
-    bool msg_end = false;
-    for (int i = 0; i < read_len; i++) {
-      if (client->buf[data_len + i] == 0) {
-        data_len += i + 1;
-        msg_end = true;
-        break;
-      }
-    }
-
-    if (msg_end) {
-      break;
-    }
-
-    data_len += read_len;
-  }
-
-  MUTEX_UNLOCK(&client->mutex);
-  timer_stat.end();
-
-  if (data_len > buf_size) {
-    LOG_WARN("The length of sql exceeds the limitation %d\n", buf_size);
-    close_connection(client);
-    return;
-  }
-  if (read_len == 0) {
-    LOG_INFO("The peer has been closed %s\n", client->addr);
-    close_connection(client);
-    return;
-  } else if (read_len < 0) {
-    LOG_ERROR("Failed to read socket of %s, %s\n", client->addr, strerror(errno));
-    close_connection(client);
+  SessionEvent *event = nullptr;
+  RC rc = comm->read_event(event);
+  if (rc != RC::SUCCESS) {
+    close_connection(comm);
     return;
   }
 
-  LOG_INFO("receive command(size=%d): %s", data_len, client->buf);
-  SessionEvent *sev = new SessionEvent(client);
-  session_stage_->add_event(sev);
+  if (event == nullptr) {
+    LOG_WARN("event is null while read event return success");
+    return;
+  }
+  session_stage_->add_event(event);
 }
 
+#if 0
 // 这个函数仅负责发送数据，至于是否是一个完整的消息，由调用者控制
-int Server::send(ConnectionContext *client, const char *buf, int data_len)
+int Server::send( *client, const char *buf, int data_len)
 {
   if (buf == nullptr || data_len == 0) {
     return 0;
@@ -188,7 +135,6 @@ int Server::send(ConnectionContext *client, const char *buf, int data_len)
 
   TimerStat writeStat(*write_socket_metric_);
 
-  MUTEX_LOCK(&client->mutex);
   int ret = common::writen(client->fd, buf, data_len);
   if (ret < 0) {
     LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
@@ -198,9 +144,9 @@ int Server::send(ConnectionContext *client, const char *buf, int data_len)
     return -STATUS_FAILED_NETWORK;
   }
 
-  MUTEX_UNLOCK(&client->mutex);
   return 0;
 }
+#endif
 
 void Server::accept(int fd, short ev, void *arg)
 {
@@ -244,33 +190,32 @@ void Server::accept(int fd, short ev, void *arg)
     }
   }
 
-  ConnectionContext *client_context = new ConnectionContext();
-  memset(client_context, 0, sizeof(ConnectionContext));
-  client_context->fd = client_fd;
-  snprintf(client_context->addr, sizeof(client_context->addr), "%s", addr_str.c_str());
-  pthread_mutex_init(&client_context->mutex, nullptr);
+  Communicator *communicator = instance->communicator_factory_.create(instance->server_param_.protocol);
+  RC rc = communicator->init(client_fd, new Session(Session::default_session()), addr_str);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to init communicator. rc=%s", strrc(rc));
+    delete communicator;
+    return;
+  }
 
-  event_set(&client_context->read_event, client_context->fd, EV_READ | EV_PERSIST, recv, client_context);
+  event_set(&communicator->read_event(), client_fd, EV_READ | EV_PERSIST, recv, communicator);
 
-  ret = event_base_set(instance->event_base_, &client_context->read_event);
+  ret = event_base_set(instance->event_base_, &communicator->read_event());
   if (ret < 0) {
     LOG_ERROR(
-        "Failed to do event_base_set for read event of %s into libevent, %s", client_context->addr, strerror(errno));
-    delete client_context;
-    ::close(instance->server_socket_);
+        "Failed to do event_base_set for read event of %s into libevent, %s", communicator->addr(), strerror(errno));
+    delete communicator;
     return;
   }
 
-  ret = event_add(&client_context->read_event, nullptr);
+  ret = event_add(&communicator->read_event(), nullptr);
   if (ret < 0) {
-    LOG_ERROR("Failed to event_add for read event of %s into libevent, %s", client_context->addr, strerror(errno));
-    delete client_context;
-    ::close(instance->server_socket_);
+    LOG_ERROR("Failed to event_add for read event of %s into libevent, %s", communicator->addr(), strerror(errno));
+    delete communicator;
     return;
   }
 
-  client_context->session = new Session(Session::default_session());
-  LOG_INFO("Accepted connection from %s\n", client_context->addr);
+  LOG_INFO("Accepted connection from %s\n", communicator->addr());
 }
 
 int Server::start()

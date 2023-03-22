@@ -157,14 +157,16 @@ extern Log *g_log;
 #define __FILE_NAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
 
+#define LOG_HEAD_SIZE 64
+
 #define LOG_HEAD(prefix, level)                                            \
   if (common::g_log) {                                                     \
     time_t now_time;                                                       \
     time(&now_time);                                                       \
     struct tm *p = localtime(&now_time);                                   \
-    char sz_head[64] = {0};                                                \
+    char sz_head[LOG_HEAD_SIZE] = {0};                                     \
     if (p) {                                                               \
-      sprintf(sz_head,                                                     \
+      snprintf(sz_head, LOG_HEAD_SIZE,                                     \
           "%d-%d-%d %d:%d:%u pid:%u tid:%llx ",                            \
           p->tm_year + 1900,                                               \
           p->tm_mon + 1,                                                   \

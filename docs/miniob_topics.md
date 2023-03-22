@@ -66,6 +66,8 @@ miniob 题目
 
 常见测试失败场景有一个是 where 条件校验时 server core了。
 
+注意，训练营和此处关于 select-meta 题目的描述是过时的，错误地沿用了2021 select-meta 题目的描述。2022 select-meta 赛题的要求为：为 select 查询实现类似 **SELECT \*, attrbutes FROM RELATIONS [WHERE CONDITIONS]** 的功能。
+
 ### drop-table case测试
 
 目前遇到最多的失败情况是没有校验元数据，比如表删除后，再执行select，按照“元数据校验”规则，应该返回"FAILURE"。

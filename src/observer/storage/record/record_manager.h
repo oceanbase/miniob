@@ -30,8 +30,7 @@ struct PageHeader {
 };
 
 class RecordPageHandler;
-class RecordPageIterator
-{
+class RecordPageIterator {
 public:
   RecordPageIterator();
   ~RecordPageIterator();
@@ -39,15 +38,17 @@ public:
   void init(RecordPageHandler &record_page_handler);
 
   bool has_next();
-  RC   next(Record &record);
+  RC next(Record &record);
 
-  bool is_valid() const {
+  bool is_valid() const
+  {
     return record_page_handler_ != nullptr;
   }
+
 private:
   RecordPageHandler *record_page_handler_ = nullptr;
   PageNum page_num_ = BP_INVALID_PAGE_NUM;
-  common::Bitmap  bitmap_;
+  common::Bitmap bitmap_;
   SlotNum next_slot_num_ = 0;
 };
 
@@ -56,10 +57,12 @@ public:
   RecordPageHandler() = default;
   ~RecordPageHandler();
   RC init(DiskBufferPool &buffer_pool, PageNum page_num);
+  RC recover_init(DiskBufferPool &buffer_pool, PageNum page_num);
   RC init_empty_page(DiskBufferPool &buffer_pool, PageNum page_num, int record_size);
   RC cleanup();
 
   RC insert_record(const char *data, RID *rid);
+  RC recover_insert_record(const char *data, RID *rid);
   RC update_record(const Record *rec);
 
   template <class RecordUpdater>
@@ -120,6 +123,7 @@ public:
    * 插入一个新的记录到指定文件中，pData为指向新纪录内容的指针，返回该记录的标识符rid
    */
   RC insert_record(const char *data, int record_size, RID *rid);
+  RC recover_insert_record(const char *data, int record_size, RID *rid);
 
   /**
    * 获取指定文件中标识符为rid的记录内容到rec指向的记录结构中
@@ -141,10 +145,10 @@ public:
 
 private:
   RC init_free_pages();
-  
+
 private:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
-  std::unordered_set<PageNum>  free_pages_; // 没有填充满的页面集合
+  std::unordered_set<PageNum> free_pages_;  // 没有填充满的页面集合
 };
 
 class RecordFileScanner {
@@ -163,11 +167,12 @@ public:
   RC close_scan();
 
   bool has_next();
-  RC   next(Record &record);
+  RC next(Record &record);
 
 private:
   RC fetch_next_record();
   RC fetch_next_record_in_page();
+
 private:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
 

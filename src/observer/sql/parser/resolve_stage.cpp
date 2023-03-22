@@ -69,7 +69,7 @@ bool ResolveStage::initialize()
   LOG_TRACE("Enter");
 
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  query_cache_stage_ = *(stgp++);
+  plan_cache_stage_ = *(stgp++);
 
   LOG_TRACE("Exit");
   return true;
@@ -98,21 +98,23 @@ void ResolveStage::handle_event(StageEvent *event)
   Db *db = session_event->session()->get_current_db();
   if (nullptr == db) {
     LOG_ERROR("cannot current db");
-    return ;
+    return;
   }
 
-  Query *query = sql_event->query();
+  Command *cmd = sql_event->command().get();
   Stmt *stmt = nullptr;
-  RC rc = Stmt::create_stmt(db, *query, stmt);
+  RC rc = Stmt::create_stmt(db, *cmd, stmt);
   if (rc != RC::SUCCESS && rc != RC::UNIMPLENMENT) {
     LOG_WARN("failed to create stmt. rc=%d:%s", rc, strrc(rc));
-    session_event->set_response("FAILURE\n");
+    SqlResult *sql_result = new SqlResult;
+    sql_result->set_return_code(rc);
+    session_event->set_sql_result(sql_result);
     return;
   }
 
   sql_event->set_stmt(stmt);
 
-  query_cache_stage_->handle_event(sql_event);
+  plan_cache_stage_->handle_event(sql_event);
 
   LOG_TRACE("Exit\n");
   return;

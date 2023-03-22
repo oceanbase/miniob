@@ -27,14 +27,6 @@ SQLStageEvent::~SQLStageEvent() noexcept
 {
   if (session_event_ != nullptr) {
     session_event_ = nullptr;
-    // SessionEvent *session_event = session_event_;
-    // session_event_ = nullptr;
-    // session_event->doneImmediate();
-  }
-
-  if (query_ != nullptr) {
-    query_destroy(query_);
-    query_ = nullptr;
   }
 
   if (stmt_ != nullptr) {

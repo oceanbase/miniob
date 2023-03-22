@@ -194,7 +194,7 @@ char *bin_to_hex(const char *s, const int len, char *hex_buff)
   int new_len = 0;
   unsigned char *end = (unsigned char *)s + len;
   for (unsigned char *p = (unsigned char *)s; p < end; p++) {
-    new_len += sprintf(hex_buff + new_len, "%02x", *p);
+    new_len += snprintf(hex_buff + new_len, 3, "%02x", *p);
   }
 
   hex_buff[new_len] = '\0';
@@ -245,4 +245,43 @@ bool is_blank(const char *s)
   return true;
 }
 
+/**
+ * 获取子串
+ * 从s中提取下标为n1~n2的字符组成一个新字符串，然后返回这个新串的首地址
+ *
+ * @param s
+ * @param n1
+ * @param n2
+ * @return
+ */
+char *substr(const char *s, int n1, int n2)
+{
+  char *sp = (char *)malloc(sizeof(char) * (n2 - n1 + 2));
+  int i, j = 0;
+  for (i = n1; i <= n2; i++) {
+    sp[j++] = s[i];
+  }
+  sp[j] = 0;
+  return sp;
+}
+
+/**
+ * double to string
+ * @param v
+ * @return
+ */
+std::string double_to_str(double v)
+{
+  char buf[256];
+  snprintf(buf, sizeof(buf), "%.2f", v);
+  size_t len = strlen(buf);
+  while (buf[len - 1] == '0') {
+    len--;
+  }
+  if (buf[len - 1] == '.') {
+    len--;
+  }
+
+  return std::string(buf, len);
+}
 }  // namespace common

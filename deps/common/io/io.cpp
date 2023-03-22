@@ -72,6 +72,8 @@ int readFromFile(const std::string &fileName, char *&outputData, size_t &fileSiz
 
   fclose(file);
 
+  data = (char *)lrealloc(data, readSize + 1);
+  data[readSize] = '\0';
   outputData = data;
   fileSize = readSize;
   return 0;

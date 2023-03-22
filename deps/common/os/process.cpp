@@ -63,7 +63,14 @@ int daemonize_service(bool close_std_streams)
 {
   int nochdir = 1;
   int noclose = close_std_streams ? 0 : 1;
+#ifdef __MACH__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
   int rc = daemon(nochdir, noclose);
+#ifdef __MACH__
+#pragma GCC diagnostic pop
+#endif
   // Here after the fork; the parent is dead and setsid() is called
   if (rc != 0) {
     std::cerr << "Error: unable to daemonize: " << strerror(errno) << "\n";

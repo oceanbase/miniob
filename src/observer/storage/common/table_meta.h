@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Wangyunlai on 2021/5/12.
 //
 
-#ifndef __OBSERVER_STORAGE_COMMON_TABLE_META_H__
-#define __OBSERVER_STORAGE_COMMON_TABLE_META_H__
+#pragma once
 
 #include <string>
 #include <vector>
@@ -42,8 +41,11 @@ public:
   const FieldMeta *field(int index) const;
   const FieldMeta *field(const char *name) const;
   const FieldMeta *find_field_by_offset(int offset) const;
-  const std::vector<FieldMeta> *field_metas() const { return &fields_; }
-  int field_num() const; // sys field included
+  const std::vector<FieldMeta> *field_metas() const
+  {
+    return &fields_;
+  }
+  int field_num() const;  // sys field included
   int sys_field_num() const;
 
   const IndexMeta *index(const char *name) const;
@@ -73,5 +75,3 @@ protected:
   //@@@ TODO why used static variable?
   static std::vector<FieldMeta> sys_fields_;
 };
-
-#endif  // __OBSERVER_STORAGE_COMMON_TABLE_META_H__
