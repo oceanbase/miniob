@@ -4,6 +4,9 @@
 [submodule "deps/googletest"]
 	path = deps/googletest
 	url = https://github.com/google/googletest
+[submodule "deps/benchmark"]
+  path = deps/benchmark
+  url = https://github.com/google/benchmark
 [submodule "deps/jsoncpp"]
 	path = deps/jsoncpp
 	url = https://github.com/open-source-parsers/jsoncpp.git
