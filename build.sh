@@ -3,7 +3,6 @@
 TOPDIR=`readlink -f \`dirname $0\``
 BUILD_SH=$TOPDIR/build.sh
 
-DEP_DIR=${TOPDIR}/deps
 CMAKE_COMMAND="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1"
 
 ALL_ARGS=("$@")
@@ -74,7 +73,7 @@ function do_init
   current_dir=$PWD
 
   # build libevent
-  cd ${TOPDIR}/deps/libevent && \
+  cd ${TOPDIR}/deps/3rd/libevent && \
     git checkout release-2.1.12-stable && \
     mkdir build && \
     cd build && \
@@ -83,7 +82,7 @@ function do_init
     make install
 
   # build googletest
-  cd ${TOPDIR}/deps/googletest && \
+  cd ${TOPDIR}/deps/3rd/googletest && \
     mkdir build && \
     cd build && \
     cmake .. && \
@@ -91,7 +90,7 @@ function do_init
     make install
 
   # build google benchmark
-  cd ${TOPDIR}/deps/benchmark && \
+  cd ${TOPDIR}/deps/3rd/benchmark && \
     mkdir build && \
     cd build && \
     cmake .. -DBENCHMARK_ENABLE_TESTING=OFF  -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF && \
@@ -99,7 +98,7 @@ function do_init
     make install
 
   # build jsoncpp
-  cd ${TOPDIR}/deps/jsoncpp && \
+  cd ${TOPDIR}/deps/3rd/jsoncpp && \
     mkdir build && \
     cd build && \
     cmake -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF .. && \
