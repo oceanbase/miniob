@@ -1,6 +1,7 @@
 ./deps/libevent
 ./deps/googletest
 ./deps/jsoncpp
+./deps/benchmark
 build/*
 build_*
 cmake-build-*/*
