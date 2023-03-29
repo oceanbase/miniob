@@ -12,14 +12,15 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_MM_MPOOL_H__
-#define __COMMON_MM_MPOOL_H__
+#pragma once
 
 #include <queue>
 #include <list>
 #include <set>
 #include <string>
 #include <sstream>
+#include <functional>
+#include <memory>
 
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
@@ -290,12 +291,15 @@ T *MemPoolSimple<T>::alloc()
   used.insert(buffer);
 
   MUTEX_UNLOCK(&this->mutex);
+  new (buffer) T();
   return buffer;
 }
 
 template <class T>
 void MemPoolSimple<T>::free(T *buf)
 {
+  buf->~T();
+  
   MUTEX_LOCK(&this->mutex);
 
   size_t num = used.erase(buf);
@@ -327,6 +331,9 @@ std::string MemPoolSimple<T>::to_string()
 }
 
 class MemPoolItem {
+public:
+  using unique_ptr = std::unique_ptr<void, std::function<void(void * const)>>;
+
 public:
   MemPoolItem(const char *tag) : name(tag)
   {
@@ -369,6 +376,7 @@ public:
    * @return
    */
   void *alloc();
+  unique_ptr alloc_unique_ptr();
 
   /**
    * Free one item, the resouce will return to memory Pool
@@ -446,4 +454,3 @@ protected:
 };
 
 }  // namespace common
-#endif /* __COMMON_MM_MPOOL_H__ */

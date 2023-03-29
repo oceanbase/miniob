@@ -128,7 +128,7 @@ void test_insert()
     int t = i % TIMES;
     if (t == 0 || t == 1 || t == 2) {
       if (rc != RC::RECORD_DUPLICATE_KEY) {
-	LOG_WARN("insert duplicate key success");
+	      LOG_WARN("insert duplicate key success");
       }
       ASSERT_EQ(RC::RECORD_DUPLICATE_KEY, rc);
     } else {
@@ -184,7 +184,7 @@ void test_delete()
 
       rc = handler->delete_entry((const char *)&i, &rid);
       if (rc != RC::SUCCESS) {
-	LOG_WARN("failed to delete entry. i=%d, rid=%s", i, rid.to_string().c_str());
+	      LOG_WARN("failed to delete entry. i=%d, rid=%s", i, rid.to_string().c_str());
       }
       ASSERT_EQ(RC::SUCCESS, rc);
 
@@ -233,12 +233,12 @@ void test_delete()
       ASSERT_EQ(0, rids.size());
     } else {
       if (rids.size() != 1) {
-	LOG_WARN("invalid. i=%d, rid=%s, check rid=%s", i, rid.to_string().c_str(), check_rid.to_string().c_str());
+	      LOG_WARN("invalid. i=%d, rid=%s, check rid=%s", i, rid.to_string().c_str(), check_rid.to_string().c_str());
       }
       ASSERT_EQ(1, rids.size());
       check_rid = rids.front();
       if (rid != check_rid) {
-	LOG_WARN("invalid. i=%d, rid=%s, check rid=%s", i, rid.to_string().c_str(), check_rid.to_string().c_str());
+	      LOG_WARN("invalid. i=%d, rid=%s, check rid=%s", i, rid.to_string().c_str(), check_rid.to_string().c_str());
       }
       ASSERT_EQ(rid.page_num, check_rid.page_num);
       ASSERT_EQ(rid.slot_num, check_rid.slot_num);
@@ -315,8 +315,6 @@ void test_delete()
 
 TEST(test_bplus_tree, test_leaf_index_node_handle)
 {
-  LoggerFactory::init_default("test.log");
-
   IndexFileHeader index_file_header;
   index_file_header.root_page = BP_INVALID_PAGE_NUM;
   index_file_header.internal_max_size = 5;
@@ -374,8 +372,6 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
 }
 TEST(test_bplus_tree, test_internal_index_node_handle)
 {
-  LoggerFactory::init_default("test.log");
-
   IndexFileHeader index_file_header;
   index_file_header.root_page = BP_INVALID_PAGE_NUM;
   index_file_header.internal_max_size = 5;
@@ -506,7 +502,7 @@ TEST(test_bplus_tree, test_chars)
   ASSERT_EQ(rc, RC::SUCCESS);
 
   int count = 0;
-  while (RC::SUCCESS == (rc = scanner.next_entry(&rid))) {
+  while (RC::SUCCESS == (rc = scanner.next_entry(rid))) {
     count++;
   }
   scanner.close();
@@ -525,6 +521,7 @@ TEST(test_bplus_tree, test_scanner)
   int count = 0;
   RC rc = RC::SUCCESS;
   RID rid;
+  // 初始化B树，插入数据[1 - 199] 所有奇数
   for (int i = 0; i < 100; i++) {
     int key = i * 2 + 1;
     rid.page_num = 0;
@@ -542,7 +539,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open((const char *)&begin, 4, false, (const char *)&end, 4, false);
   ASSERT_EQ(RC::SUCCESS, rc);
 
-  rc = scanner.next_entry(&rid);
+  rc = scanner.next_entry(rid);
   ASSERT_EQ(RC::RECORD_EOF, rc);
 
   scanner.close();
@@ -551,7 +548,7 @@ TEST(test_bplus_tree, test_scanner)
   end = 1;
   rc = scanner.open((const char *)&begin, 4, false, (const char *)&end, 4, false);
   ASSERT_EQ(RC::SUCCESS, rc);
-  rc = scanner.next_entry(&rid);
+  rc = scanner.next_entry(rid);
   ASSERT_EQ(RC::RECORD_EOF, rc);
 
   scanner.close();
@@ -560,9 +557,9 @@ TEST(test_bplus_tree, test_scanner)
   end = 1;
   rc = scanner.open((const char *)&begin, 4, false, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
-  rc = scanner.next_entry(&rid);
+  rc = scanner.next_entry(rid);
   ASSERT_EQ(RC::SUCCESS, rc);
-  rc = scanner.next_entry(&rid);
+  rc = scanner.next_entry(rid);
   ASSERT_EQ(RC::RECORD_EOF, rc);
 
   scanner.close();
@@ -571,7 +568,7 @@ TEST(test_bplus_tree, test_scanner)
   end = 3;
   rc = scanner.open((const char *)&begin, 4, false, (const char *)&end, 4, false/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
-  rc = scanner.next_entry(&rid);
+  rc = scanner.next_entry(rid);
   ASSERT_EQ(RC::RECORD_EOF, rc);
 
   scanner.close();
@@ -580,7 +577,7 @@ TEST(test_bplus_tree, test_scanner)
   end = 3;
   rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ(2, count);
@@ -593,7 +590,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ(2, count);
@@ -606,7 +603,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ((end - begin) / 2 + 1, count);
@@ -619,7 +616,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ((end - begin) / 2 + 1, count);
@@ -632,7 +629,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ((end - begin) / 2 + 1, count);
@@ -645,7 +642,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ(5, count);
@@ -657,7 +654,7 @@ TEST(test_bplus_tree, test_scanner)
   end = 301;
   rc = scanner.open((const char *)&begin, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
-  rc = scanner.next_entry(&rid);
+  rc = scanner.next_entry(rid);
   ASSERT_EQ(RC::RECORD_EOF, rc);
 
   scanner.close();
@@ -674,7 +671,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open(nullptr, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ(100, count);
@@ -687,7 +684,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open(nullptr, 4, true, (const char *)&end, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ(5, count);
@@ -700,7 +697,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open((const char *)&begin, 4, true, nullptr, 4, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ(5, count);
@@ -713,7 +710,7 @@ TEST(test_bplus_tree, test_scanner)
   rc = scanner.open(nullptr, 0, true, nullptr, 0, true/*inclusive*/);
   ASSERT_EQ(RC::SUCCESS, rc);
   count = 0;
-  while ((rc = scanner.next_entry(&rid)) == RC::SUCCESS) {
+  while ((rc = scanner.next_entry(rid)) == RC::SUCCESS) {
     count++;
   }
   ASSERT_EQ(100, count);
@@ -750,6 +747,7 @@ int main(int argc, char **argv)
   // 调用RUN_ALL_TESTS()运行所有测试用例
   // main函数返回RUN_ALL_TESTS()的运行结果
 
+    LoggerFactory::init_default("test.log", LOG_LEVEL_TRACE);
   init_bpm();
   int rc = RUN_ALL_TESTS();
 

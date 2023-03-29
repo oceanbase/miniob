@@ -12,17 +12,18 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_LANG_MUTEX_H__
-#define __COMMON_LANG_MUTEX_H__
+#pragma once
 
+#include <sys/types.h>
 #include <errno.h>
-#include <map>
 #include <pthread.h>
+#include <string.h>
+#include <map>
 #include <set>
 #include <sstream>
-#include <string.h>
 #include <string>
-#include <sys/types.h>
+#include <mutex>
+#include <shared_mutex>
 
 #include "common/log/log.h"
 
@@ -239,5 +240,54 @@ protected:
 
 #endif  // DEBUG_LOCK
 
+class DebugMutex final
+{
+public:
+  DebugMutex() = default;
+  ~DebugMutex() = default;
+
+  void lock();
+  void unlock();
+private:
+#ifdef DEBUG
+  std::mutex lock_;
+#endif
+};
+
+class Mutex final
+{
+public:
+  Mutex() = default;
+  ~Mutex() = default;
+
+  void lock();
+  bool try_lock();
+  void unlock();
+
+private:
+#ifdef CONCURRENCY
+  std::mutex lock_;
+#endif
+};
+
+class SharedMutex final
+{
+public:
+  SharedMutex() = default;
+  ~SharedMutex() = default;
+
+  void lock(); // lock exclusive
+  bool try_lock();
+  void unlock(); // unlock exclusive
+
+  void lock_shared();
+  bool try_lock_shared();
+  void unlock_shared();
+
+private:
+#ifdef CONCURRENCY
+  std::shared_mutex lock_;
+#endif
+};
+
 }  // namespace common
-#endif  // __COMMON_LANG_MUTEX_H__

@@ -132,6 +132,13 @@ void *MemPoolItem::alloc()
   return buffer;
 }
 
+MemPoolItem::unique_ptr MemPoolItem::alloc_unique_ptr()
+{
+  void *item = this->alloc();
+  auto deleter = [this](void *p) { this->free(p); };
+  return MemPoolItem::unique_ptr(item, deleter);
+}
+
 void MemPoolItem::free(void *buf)
 {
   MUTEX_LOCK(&this->mutex);

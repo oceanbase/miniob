@@ -12,14 +12,13 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_LOG_LOG_H__
-#define __COMMON_LOG_LOG_H__
+#pragma once
 
+#include <sys/time.h>
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
 #include <string.h>
-#include <time.h>
 
 #include <fstream>
 #include <iostream>
@@ -47,7 +46,8 @@ typedef enum {
 
 typedef enum { LOG_ROTATE_BYDAY = 0, LOG_ROTATE_BYSIZE, LOG_ROTATE_LAST } LOG_ROTATE;
 
-class Log {
+class Log 
+{
 public:
   Log(const std::string &log_name, const LOG_LEVEL log_level = LOG_LEVEL_INFO,
       const LOG_LEVEL console_level = LOG_LEVEL_WARN);
@@ -161,31 +161,34 @@ extern Log *g_log;
 
 #define LOG_HEAD(prefix, level)                                            \
   if (common::g_log) {                                                     \
-    time_t now_time;                                                       \
-    time(&now_time);                                                       \
-    struct tm *p = localtime(&now_time);                                   \
+    struct timeval tv;                                                     \
+    gettimeofday(&tv, NULL);                                               \
+    struct tm *p = localtime(&tv.tv_sec);                                  \
     char sz_head[LOG_HEAD_SIZE] = {0};                                     \
     if (p) {                                                               \
+      int usec = (int)tv.tv_usec;                                          \
       snprintf(sz_head, LOG_HEAD_SIZE,                                     \
-          "%d-%d-%d %d:%d:%u pid:%u tid:%llx ",                            \
+          "%04d-%02d-%02d %02d:%02d:%02u.%06d pid:%u tid:%llx ",           \
           p->tm_year + 1900,                                               \
           p->tm_mon + 1,                                                   \
           p->tm_mday,                                                      \
           p->tm_hour,                                                      \
           p->tm_min,                                                       \
           p->tm_sec,                                                       \
+          usec,                                                            \
           (u32_t)getpid(),                                                 \
           gettid());                                                       \
       common::g_log->rotate(p->tm_year + 1900, p->tm_mon + 1, p->tm_mday); \
     }                                                                      \
     snprintf(prefix,                                                       \
         sizeof(prefix),                                                    \
-        "[%s %s %s %s %u]>>",                                              \
+        "[%s %s %s:%u %s]>>",                                              \
         sz_head,                                                           \
         (common::g_log)->prefix_msg(level),                                \
         __FILE_NAME__,                                                     \
-        __FUNCTION__,                                                      \
-        (u32_t)__LINE__);                                                  \
+        (u32_t)__LINE__,                                                   \
+        __FUNCTION__                                                       \
+        );                                                                 \
   }
 
 #define LOG_OUTPUT(level, fmt, ...)                                    \
@@ -287,20 +290,30 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
 }
 
 #ifndef ASSERT
+#ifdef DEBUG
 #define ASSERT(expression, description, ...)   \
   do {                                         \
     if (!(expression)) {                       \
       if (common::g_log) {                     \
         LOG_PANIC(description, ##__VA_ARGS__); \
-        LOG_PANIC("\n");                       \
       }                                        \
       assert(expression);                      \
     }                                          \
   } while (0)
+
+#else // DEBUG
+#define ASSERT(expression, description, ...)
+#endif // DEBUG
+
 #endif  // ASSERT
 
 #define SYS_OUTPUT_FILE_POS ", File:" << __FILE__ << ", line:" << __LINE__ << ",function:" << __FUNCTION__
 #define SYS_OUTPUT_ERROR ",error:" << errno << ":" << strerror(errno)
 
+/**
+ * 获取当前函数调用栈
+ */
+const char *lbt();
+
 }  // namespace common
-#endif  //__COMMON_LOG_LOG_H__
+

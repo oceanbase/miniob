@@ -20,8 +20,16 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/bitmap.h"
 
 class ConditionFilter;
+class RecordPageHandler;
 
-struct PageHeader {
+/**
+ * 数据文件，按照页面来组织，每一页都存放一些记录/数据行
+ * 每一页都有一个这样的页头，虽然看起来浪费，但是现在就简单的这么做
+ * 从这个页头描述的信息来看，当前仅支持定长行/记录。如果要支持变长记录，
+ * 或者超长（超出一页）的记录，这么做是不合适的。
+ */
+struct PageHeader 
+{
   int32_t record_num;           // 当前页面记录的个数
   int32_t record_capacity;      // 最大记录个数
   int32_t record_real_size;     // 每条记录的实际大小
@@ -29,8 +37,11 @@ struct PageHeader {
   int32_t first_record_offset;  // 第一条记录的偏移量
 };
 
-class RecordPageHandler;
-class RecordPageIterator {
+/**
+ * 遍历一个页面中每条记录的iterator
+ */
+class RecordPageIterator 
+{
 public:
   RecordPageIterator();
   ~RecordPageIterator();
@@ -52,7 +63,11 @@ private:
   SlotNum next_slot_num_ = 0;
 };
 
-class RecordPageHandler {
+/**
+ * 负责处理一个页面中各种操作，比如插入记录、删除记录或者查找记录
+ */
+class RecordPageHandler 
+{
 public:
   RecordPageHandler() = default;
   ~RecordPageHandler();
@@ -63,20 +78,6 @@ public:
 
   RC insert_record(const char *data, RID *rid);
   RC recover_insert_record(const char *data, RID *rid);
-  RC update_record(const Record *rec);
-
-  template <class RecordUpdater>
-  RC update_record_in_place(const RID *rid, RecordUpdater updater)
-  {
-    Record record;
-    RC rc = get_record(rid, &record);
-    if (rc != RC::SUCCESS) {
-      return rc;
-    }
-    rc = updater(record);
-    frame_->mark_dirty();
-    return rc;
-  }
 
   RC delete_record(const RID *rid);
 
@@ -102,7 +103,8 @@ private:
   friend class RecordPageIterator;
 };
 
-class RecordFileHandler {
+class RecordFileHandler 
+{
 public:
   RecordFileHandler() = default;
   RC init(DiskBufferPool *buffer_pool);
@@ -130,19 +132,6 @@ public:
    */
   RC get_record(const RID *rid, Record *rec);
 
-  template <class RecordUpdater>  // 改成普通模式, 不使用模板
-  RC update_record_in_place(const RID *rid, RecordUpdater updater)
-  {
-
-    RC rc = RC::SUCCESS;
-    RecordPageHandler page_handler;
-    if ((rc != page_handler.init(*disk_buffer_pool_, rid->page_num)) != RC::SUCCESS) {
-      return rc;
-    }
-
-    return page_handler.update_record_in_place(rid, updater);
-  }
-
 private:
   RC init_free_pages();
 
@@ -151,7 +140,8 @@ private:
   std::unordered_set<PageNum> free_pages_;  // 没有填充满的页面集合
 };
 
-class RecordFileScanner {
+class RecordFileScanner 
+{
 public:
   RecordFileScanner() = default;
 
