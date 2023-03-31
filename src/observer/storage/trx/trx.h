@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/parser/parse.h"
 #include "storage/record/record_manager.h"
+#include "storage/common/field_meta.h"
 #include "rc.h"
 
 class Table;
@@ -54,6 +55,7 @@ public:
 
 private:
   Type type_;
+  // TODO table id
   PageNum page_num_;
   SlotNum slot_num_;
 };
@@ -76,9 +78,86 @@ public:
   }
 };
 
+class TrxKit
+{
+public:
+  enum Type
+  {
+    VACUOUS,
+    MVCC,
+  };
+
+public:
+  TrxKit() = default;
+  virtual ~TrxKit() = default;
+
+  virtual RC init() = 0;
+  virtual const TableMeta *trx_fields() const = 0;
+  virtual Trx *create_trx() = 0;
+
+public:
+  static std::unique_ptr<TrxKit> create(Type type);
+};
+
+class VacuousTrxKit : public TrxKit
+{
+public:
+  VacuousTrxKit() = default;
+  virtual ~VacuousTrxKit() = default;
+
+  RC init() override;
+  const TableMeta *trx_fields() const override;
+  Trx *create_trx() override;
+};
+
+class MvccTrxKit : public TrxKit
+{
+public:
+  MvccTrxKit() = default;
+  virtual ~MvccTrxKit() = default;
+
+  RC init() override;
+  const TableMeta *trx_fields() const override;
+  Trx *create_trx() override; // TODO unique_ptr?
+
+public:
+  int32_t max_trx_id() const;
+public:
+  TableMeta table_meta_; // 存储事务数据需要用到的字段元数据，所有表结构都需要带的
+};
+
+class Trx
+{
+public:
+  Trx() = default;
+  virtual ~Trx() = default;
+};
+
+class VacuousTrx : public Trx
+{
+public:
+  VacuousTrx() = default;
+  virtual ~VacuousTrx() = default;
+};
+
+class MvccTrx : public Trx
+{
+public:
+  MvccTrx(MvccTrxKit &trx_kit);
+  virtual ~MvccTrx() = default;
+
+  void init_record_insert(Table *table, Record &record) override;
+  void mark_record_delete(Table *table, Record &record) override;
+
+private:
+  MvccTrxKit &trx_kit_;
+};
+
+#if 0
 /**
  * 这里是一个简单的事务实现，可以支持提交/回滚。但是没有对并发访问做控制
  * 可以在这个基础上做备份恢复，当然也可以重写
+ * Trx: Transaction
  */
 class Trx 
 {
@@ -93,9 +172,11 @@ public:
   static AttrType trx_field_type();
   static int trx_field_len();
 
+  static TableMeta record_field_meta;
+
 public:
-  Trx();
-  ~Trx();
+  Trx() = default;
+  virtual ~Trx() = default;
 
 public:
   RC insert_record(Table *table, Record *record);
@@ -110,6 +191,7 @@ public:
   bool is_visible(Table *table, const Record *record);
 
   void init_trx_info(Table *table, Record &record);
+  void init_insert_record(Table *table, Record &record);
 
   void next_current_id();
 
@@ -133,3 +215,4 @@ private:
   int32_t trx_id_ = 0;
   std::unordered_map<Table *, OperationSet> operations_;
 };
+#endif

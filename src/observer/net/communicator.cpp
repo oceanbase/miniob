@@ -140,8 +140,8 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   SqlResult *sql_result = event->sql_result();
   if (nullptr == sql_result) {
 
-    const char *response = event->get_response();
-    int len = event->get_response_len();
+    const char *response = "Unexpected error: no result";
+    int len = strlen(response);
 
     int ret = common::writen(fd_, response, len);
     if (ret < 0) {

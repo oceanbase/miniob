@@ -24,9 +24,11 @@ class Value;
 }  // namespace Json
 
 // Take care of shallow copy
-class FieldMeta {
+class FieldMeta 
+{
 public:
   FieldMeta();
+  FieldMeta(const char *name, AttrType attr_type, int attr_offset, int attr_len, bool visible);
   ~FieldMeta() = default;
 
   RC init(const char *name, AttrType attr_type, int attr_offset, int attr_len, bool visible);

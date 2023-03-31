@@ -24,7 +24,8 @@ class Session;
 class Communicator;
 class SqlResult;
 
-class SessionEvent : public common::StageEvent {
+class SessionEvent : public common::StageEvent 
+{
 public:
   SessionEvent(Communicator *client);
   virtual ~SessionEvent();
@@ -36,30 +37,19 @@ public:
   {
     query_ = query;
   }
-  void set_sql_result(SqlResult *result)
-  {
-    sql_result_ = result;
-  }
+
   const std::string &query() const
   {
     return query_;
   }
   SqlResult *sql_result() const
   {
-    return sql_result_;
+    return &sql_result_;
   }
-
-  const char *get_response() const;
-  void set_response(const char *response);
-  void set_response(const char *response, int len);
-  void set_response(std::string &&response);
-  int get_response_len() const;
-  const char *get_request_buf();  // TODO remove me
 
 private:
   Communicator *communicator_ = nullptr;
-  SqlResult *sql_result_ = nullptr;
+  SqlResult     sql_result_;
 
-  std::string query_;
-  std::string response_;
+  std::string   query_;
 };

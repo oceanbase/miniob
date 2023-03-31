@@ -127,6 +127,7 @@ void ExecuteStage::callback_event(StageEvent *event, CallbackContext *context)
 RC ExecuteStage::handle_request(common::StageEvent *event)
 {
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
+  SqlResult *sql_result = sql_event->session_event()->sql_result();
 
   const std::unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
   if (physical_operator != nullptr) {
@@ -176,26 +177,11 @@ RC ExecuteStage::handle_request(common::StageEvent *event)
       case SCF_LOAD_DATA: {
         default_storage_stage_->handle_event(event);
       } break;
-      case SCF_SYNC: {
-        /*
-        RC rc = DefaultHandler::get_default().sync();
-        session_event->set_response(strrc(rc));
-        */
-      } break;
       case SCF_BEGIN: {
         do_begin(sql_event);
-        /*
-        session_event->set_response("SUCCESS\n");
-        */
       } break;
       case SCF_COMMIT: {
         do_commit(sql_event);
-        /*
-        Trx *trx = session->current_trx();
-        RC rc = trx->commit();
-        session->set_trx_multi_operation_mode(false);
-        session_event->set_response(strrc(rc));
-        */
       } break;
       case SCF_CLOG_SYNC: {
         do_clog_sync(sql_event);
@@ -207,28 +193,18 @@ RC ExecuteStage::handle_request(common::StageEvent *event)
 
         session->set_trx_multi_operation_mode(false);
 
-        SqlResult *sql_result = new SqlResult;
         sql_result->set_return_code(rc);
-
-        session_event->set_sql_result(sql_result);
       } break;
       case SCF_EXIT: {
         // do nothing
-        SqlResult *sql_result = new SqlResult;
         sql_result->set_return_code(RC::SUCCESS);
-
-        session_event->set_sql_result(sql_result);
       } break;
       default: {
 
         LOG_ERROR("Unsupported command=%d\n", sql->flag);
 
-        SqlResult *sql_result = new SqlResult;
-
         sql_result->set_return_code(RC::UNIMPLENMENT);
         sql_result->set_state_string("Unsupported command");
-
-        session_event->set_sql_result(sql_result);
       }
     }
   }
@@ -268,11 +244,9 @@ RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
     } break;
   }
 
-  SqlResult *sql_result = new SqlResult;
+  SqlResult *sql_result = sql_event->session_event()->sql_result();
   sql_result->set_tuple_schema(schema);
   sql_result->set_operator(std::move(physical_operator));
-
-  sql_event->session_event()->set_sql_result(sql_result);
   return rc;
 }
 
@@ -526,7 +500,7 @@ RC ExecuteStage::do_help(SQLStageEvent *sql_event)
     oper->append(strings[i]);
   }
 
-  SqlResult *sql_result = new SqlResult;
+  SqlResult *sql_result = sql_event->session_event()->sql_result();
 
   TupleSchema schema;
   schema.append_cell("Commands");
@@ -534,7 +508,6 @@ RC ExecuteStage::do_help(SQLStageEvent *sql_event)
   sql_result->set_tuple_schema(schema);
   sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
 
-  session_event->set_sql_result(sql_result);
   return RC::SUCCESS;
 }
 
@@ -548,17 +521,14 @@ RC ExecuteStage::do_create_table(SQLStageEvent *sql_event)
 
   RC rc = db->create_table(create_table.relation_name.c_str(), attribute_count, create_table.attr_infos.data());
 
-  SqlResult *sql_result = new SqlResult;
+  SqlResult *sql_result = sql_event->session_event()->sql_result();
   sql_result->set_return_code(rc);
-
-  sql_event->session_event()->set_sql_result(sql_result);
   return rc;
 }
 RC ExecuteStage::do_create_index(SQLStageEvent *sql_event)
 {
-  SqlResult *sql_result = new SqlResult;
+  SqlResult *sql_result = sql_event->session_event()->sql_result();
   SessionEvent *session_event = sql_event->session_event();
-  session_event->set_sql_result(sql_result);
 
   Db *db = session_event->session()->get_current_db();
 
@@ -577,9 +547,8 @@ RC ExecuteStage::do_create_index(SQLStageEvent *sql_event)
 
 RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
 {
-  SqlResult *sql_result = new SqlResult;
+  SqlResult *sql_result = sql_event->session_event()->sql_result();
   SessionEvent *session_event = sql_event->session_event();
-  session_event->set_sql_result(sql_result);
 
   Db *db = session_event->session()->get_current_db();
 
@@ -601,8 +570,7 @@ RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
 
 RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
 {
-  SqlResult *sql_result = new SqlResult;
-  sql_event->session_event()->set_sql_result(sql_result);
+  SqlResult *sql_result = sql_event->session_event()->sql_result();
 
   Command *cmd = sql_event->command().get();
   const char *table_name = cmd->desc_table.relation_name.c_str();
@@ -638,8 +606,7 @@ RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
 RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
 {
   SessionEvent *session_event = sql_event->session_event();
-  SqlResult *sql_result = new SqlResult;
-  session_event->set_sql_result(sql_result);
+  SqlResult *sql_result = session_event->sql_result();
 
   Session *session = session_event->session();
   Db *db = session->get_current_db();
@@ -657,6 +624,7 @@ RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
   Table *table = insert_stmt->table();
 
   RC rc = table->insert_record(trx, insert_stmt->value_amount(), insert_stmt->values());
+  #if 0
   if (rc == RC::SUCCESS) {
     if (!session->is_trx_multi_operation_mode()) {
 
@@ -684,6 +652,7 @@ RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
   } else {
     sql_result->set_return_code(rc);
   }
+  #endif
   return rc;
 }
 
@@ -745,8 +714,7 @@ RC ExecuteStage::do_delete(SQLStageEvent *sql_event)
 RC ExecuteStage::do_begin(SQLStageEvent *sql_event)
 {
   SessionEvent *session_event = sql_event->session_event();
-  SqlResult *sql_result = new SqlResult;
-  session_event->set_sql_result(sql_result);
+  SqlResult *sql_result = session_event->sql_result();
 
   Session *session = session_event->session();
   Db *db = session->get_current_db();
@@ -772,8 +740,7 @@ RC ExecuteStage::do_commit(SQLStageEvent *sql_event)
 {
 
   SessionEvent *session_event = sql_event->session_event();
-  SqlResult *sql_result = new SqlResult;
-  session_event->set_sql_result(sql_result);
+  SqlResult *sql_result = session_event->sql_result();
 
   Session *session = session_event->session();
   session->set_trx_multi_operation_mode(false);
@@ -802,7 +769,7 @@ RC ExecuteStage::do_clog_sync(SQLStageEvent *sql_event)
 
   SqlResult *sql_result = new SqlResult;
   SessionEvent *session_event = sql_event->session_event();
-  session_event->set_sql_result(sql_result);
+  SqlResult *sql_result = session_event->sql_result();
 
   Db *db = session_event->session()->get_current_db();
   CLogManager *clog_manager = db->get_clog_manager();

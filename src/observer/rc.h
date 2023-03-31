@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/5/2.
 //
 
-#ifndef __OBSERVER_RC_H__
-#define __OBSERVER_RC_H__
+#pragma once
 
 #define rc2SimpleStr(rc) #rc
 
@@ -383,4 +382,3 @@ enum RC {
 
 extern const char *strrc(RC rc);
 
-#endif  //__OBSERVER_RC_H__

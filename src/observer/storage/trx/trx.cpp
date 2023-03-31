@@ -19,10 +19,67 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/common/field_meta.h"
 #include "common/log/log.h"
+#include "trx.h"
 
 static const uint32_t DELETED_FLAG_BIT_MASK = 0x80000000;
 static const uint32_t TRX_ID_BIT_MASK = 0x7FFFFFFF;
 std::atomic<int32_t> Trx::trx_id(0);
+
+RC VacuousTrxKit::init()
+{
+  return RC::SUCCESS;
+}
+
+const TableMeta *VacuousTrxKit::trx_fields()
+{
+  return nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+RC MvccTrxKit::init()
+{
+  AttrInfo fields[] = {
+    {AttrType::INTS, "__trx_xid_begin", 4},
+    {AttrType::INTS, "__trx_xid_end", 4},
+    // 作为一个通用的MVCC，这里应该有串联各个版本数据的指针，但是当前仅有插入和删除，
+    // 可以不用指针字段
+  };
+
+  const int field_num = sizeof(fields) / sizeof(fields[0]);
+  RC rc = table_meta_.init("mvcc_trx_fields", field_num, fields);
+  LOG_INFO("init mvcc trx kit done. rc=%s", strrc(rc));
+  return rc;
+}
+
+void MvccTrx::init_record_insert(Table *table, Record &record)
+{
+  const TableMeta &table_meta = table->table_meta();
+  const std::pair<const FieldMeta *, int> trx_fields = table_meta.trx_fields();
+  ASSERT(trx_fields.second >= 2, "invalid trx fields number. %d", trx_fields.second);
+  const FieldMeta *begin_field_meta = trx_fields.first[0];
+  const FieldMeta *end_field_meta = trx_fields.first[1];
+
+  Field begin_field(table, begin_field_meta);
+  Field end_field(table, end_field_meta);
+
+  begin_field.set_int(record, -trx_id_);
+  end_field.set_int(record, trx_kit_.max_trx_id());
+}
+
+void MvccTrx::mark_record_delete(Table * table, Record & record)
+{
+  const TableMeta &table_meta = table->table_meta();
+  const std::pair<const FieldMeta *, int> trx_fields = table_meta.trx_fields();
+  ASSERT(trx_fields.second >= 2, "invalid trx fields number. %d", trx_fields.second);
+  const FieldMeta *end_field_meta = trx_fields.first[1];
+
+  Field end_field(table, end_field_meta);
+
+  int32_t end_xid = end_field.get_int(record);
+  ASSERT(end_xid == trx_kit_.max_trx_id(), "cannot delete an old version record. end_xid=%d", end_xid);
+  end_field.set_int(record, -trx_kit_.max_trx_id());
+}
 
 int32_t Trx::default_trx_id()
 {
@@ -276,9 +333,21 @@ void Trx::init_trx_info(Table *table, Record &record)
   set_record_trx_id(table, record, trx_id_, false);
 }
 
+void Trx::init_insert_record(Table *table, Record &record)
+{
+  const FieldMeta *trx_field = table->table_meta().trx_field();
+  int32_t *ptrx_id = (int32_t *)(record.data() + trx_field->offset());
+  if (deleted) {
+    trx_id |= DELETED_FLAG_BIT_MASK;
+  }
+  *ptrx_id = trx_id;
+}
+
 void Trx::start_if_not_started()
 {
   if (trx_id_ == 0) {
     trx_id_ = next_trx_id();
   }
+
+
 }

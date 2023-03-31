@@ -36,31 +36,6 @@ Session *SessionEvent::session() const
   return communicator_->session();
 }
 
-const char *SessionEvent::get_response() const
-{
-  return response_.c_str();
-}
-
-void SessionEvent::set_response(const char *response)
-{
-  set_response(response, strlen(response));
-}
-
-void SessionEvent::set_response(const char *response, int len)
-{
-  response_.assign(response, len);
-}
-
-void SessionEvent::set_response(std::string &&response)
-{
-  response_ = std::move(response);
-}
-
-int SessionEvent::get_response_len() const
-{
-  return response_.size();
-}
-
 const char *SessionEvent::get_request_buf()
 {
   return query_.c_str();

@@ -237,18 +237,7 @@ RC Table::insert_record(Trx *trx, Record *record)
 
   if (trx != nullptr) {
     rc = trx->insert_record(this, record);
-    if (rc != RC::SUCCESS) {
-      LOG_ERROR("Failed to log operation(insertion) to trx");
-
-      RC rc2 = record_handler_->delete_record(&record->rid());
-      if (rc2 != RC::SUCCESS) {
-        LOG_ERROR("Failed to rollback record data when insert index entries failed. table name=%s, rc=%d:%s",
-            name(),
-            rc2,
-            strrc(rc2));
-      }
-      return rc;
-    }
+    ASSERT(rc == RC::SUCCESS, "failed to create trx insert record. rc=%s", strrc(rc));
   }
 
   rc = insert_entry_of_indexes(record->data(), record->rid());

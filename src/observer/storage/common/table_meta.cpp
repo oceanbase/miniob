@@ -115,6 +115,11 @@ const FieldMeta *TableMeta::trx_field() const
   return &fields_[0];
 }
 
+const std::pair<const FieldMeta *, int> TableMeta::trx_fields() const
+{
+  return std::pair<const FieldMeta *, int>{fields_.data(), sys_field_num()};
+}
+
 const FieldMeta *TableMeta::field(int index) const
 {
   return &fields_[index];

@@ -409,13 +409,12 @@ RC decode_query_packet(std::vector<char> &net_packet, QueryPacket &query_packet)
   return RC::SUCCESS;
 }
 
-RC create_version_comment_sql_result(SqlResult *&sql_result)
+RC create_version_comment_sql_result(SqlResult *sql_result)
 {
   TupleSchema tuple_schema;
   TupleCellSpec cell_spec("", "", "@@version_comment");
   tuple_schema.append_cell(cell_spec);
 
-  sql_result = new SqlResult;
   sql_result->set_return_code(RC::SUCCESS);
   sql_result->set_tuple_schema(tuple_schema);
 
@@ -449,15 +448,13 @@ RC MysqlCommunicator::init(int fd, Session *session, const std::string &addr)
 
 RC MysqlCommunicator::handle_version_comment(bool &need_disconnect)
 {
-  SqlResult *sql_result = nullptr;
-  RC rc = create_version_comment_sql_result(sql_result);
+  SessionEvent session_event(this);
+  RC rc = create_version_comment_sql_result(session_event.sql_result());
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to handle version comment. rc=%s", strrc(rc));
     return rc;
   }
 
-  SessionEvent session_event(this);
-  session_event.set_sql_result(sql_result);
   rc = write_result(&session_event, need_disconnect);
   return rc;
 }
@@ -583,9 +580,9 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   need_disconnect = true;
   SqlResult *sql_result = event->sql_result();
   if (nullptr == sql_result) {
-    const char *response = event->get_response();
-    int len = event->get_response_len();
 
+    const char *response = "Unexpected error: no result";
+    const int len = strlen(response);
     OkPacket ok_packet;  // TODO if error occurs, we should send an error packet to client
     ok_packet.info.assign(response, len);
     rc = send_packet(ok_packet);

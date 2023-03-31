@@ -94,6 +94,7 @@ void ResolveStage::handle_event(StageEvent *event)
   }
 
   SessionEvent *session_event = sql_event->session_event();
+  SqlResult *sql_result = session_event->sql_result();
 
   Db *db = session_event->session()->get_current_db();
   if (nullptr == db) {
@@ -108,7 +109,6 @@ void ResolveStage::handle_event(StageEvent *event)
     LOG_WARN("failed to create stmt. rc=%d:%s", rc, strrc(rc));
     SqlResult *sql_result = new SqlResult;
     sql_result->set_return_code(rc);
-    session_event->set_sql_result(sql_result);
     return;
   }
 

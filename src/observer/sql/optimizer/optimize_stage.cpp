@@ -101,12 +101,11 @@ void OptimizeStage::handle_event(StageEvent *event)
 {
   LOG_TRACE("Enter");
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
+  SqlResult *sql_result = sql_event->session_event()->sql_result();
 
   RC rc = handle_request(sql_event);
   if (rc != RC::UNIMPLENMENT && rc != RC::SUCCESS) {
-    SqlResult *sql_result = new SqlResult;
     sql_result->set_return_code(rc);
-    sql_event->session_event()->set_sql_result(sql_result);
   } else {
     execute_stage_->handle_event(event);
   }
