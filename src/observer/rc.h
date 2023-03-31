@@ -14,8 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#define rc2SimpleStr(rc) #rc
-
 enum RCBufferPool {
   BP_EXIST = 1,
   BP_FILEERR,
