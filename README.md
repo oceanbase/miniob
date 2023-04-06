@@ -78,6 +78,14 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 [大赛 FAQ ](https://ask.oceanbase.com/t/topic/35601465)
 
+## 在线开发平台
+
+本仓库基于 Gitpod 建立了快速在线开发平台, 点击下面按钮一键体验（建议使用 Chrome 浏览器）
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/oceanbase/miniob)
+
+首次进入 Gitpod 时需要安装一些依赖，依赖安装完成后，终端界面会显示 "Dependency installed successfully"。运行 `bash build.sh --make -j4` 命令即可编译miniob。
+
 ## Contributing
 
 OceanBase 社区热情欢迎每一位对数据库技术热爱的开发者，期待携手开启思维碰撞之旅。无论是文档格式调整或文字修正、问题修复还是增加新功能，都是对 OceanBase 社区参与和贡献方式之一，立刻开启您的 First Contribution 吧！更多详情, 请参考 [社区贡献](https://github.com/oceanbase/miniob/blob/main/CONTRIBUTING.md).
