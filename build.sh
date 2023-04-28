@@ -1,6 +1,8 @@
 #!/bin/bash
 
-TOPDIR=`readlink -f \`dirname $0\``
+# readlink -f cannot work on mac
+TOPDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
 BUILD_SH=$TOPDIR/build.sh
 
 CMAKE_COMMAND="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1"
@@ -119,7 +121,7 @@ function do_build
   TYPE=$1; shift
   prepare_build_dir $TYPE || return
   echo "${CMAKE_COMMAND} ${TOPDIR} $@"
-  ${CMAKE_COMMAND} ${TOPDIR} $@
+  ${CMAKE_COMMAND} -S ${TOPDIR} $@
 }
 
 function do_clean
