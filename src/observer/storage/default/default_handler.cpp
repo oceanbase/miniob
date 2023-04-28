@@ -123,9 +123,6 @@ RC DefaultHandler::open_db(const char *dbname)
   if ((ret = db->init(dbname, dbpath.c_str())) != RC::SUCCESS) {
     LOG_ERROR("Failed to open db: %s. error=%d", dbname, ret);
   }
-  if ((ret = db->recover()) != RC::SUCCESS) {
-    LOG_ERROR("Failed to recover db: %s. error=%d", dbname, ret);
-  }
 
   opened_dbs_[dbname] = db;
   return RC::SUCCESS;
@@ -154,59 +151,6 @@ RC DefaultHandler::create_table(
 RC DefaultHandler::drop_table(const char *dbname, const char *relation_name)
 {
   return RC::GENERIC_ERROR;
-}
-
-RC DefaultHandler::create_index(
-    Trx *trx, const char *dbname, const char *relation_name, const char *index_name, const char *attribute_name)
-{
-  Table *table = find_table(dbname, relation_name);
-  if (nullptr == table) {
-    return RC::SCHEMA_TABLE_NOT_EXIST;
-  }
-  return table->create_index(trx, index_name, attribute_name);
-}
-
-RC DefaultHandler::drop_index(Trx *trx, const char *dbname, const char *relation_name, const char *index_name)
-{
-
-  return RC::GENERIC_ERROR;
-}
-
-RC DefaultHandler::insert_record(
-    Trx *trx, const char *dbname, const char *relation_name, int value_num, const Value *values)
-{
-  Table *table = find_table(dbname, relation_name);
-  if (nullptr == table) {
-    return RC::SCHEMA_TABLE_NOT_EXIST;
-  }
-
-  return table->insert_record(trx, value_num, values);
-}
-RC DefaultHandler::delete_record(Trx *trx, const char *dbname, const char *relation_name, int condition_num,
-    const Condition *conditions, int *deleted_count)
-{
-  Table *table = find_table(dbname, relation_name);
-  if (nullptr == table) {
-    return RC::SCHEMA_TABLE_NOT_EXIST;
-  }
-
-  CompositeConditionFilter condition_filter;
-  RC rc = condition_filter.init(*table, conditions, condition_num);
-  if (rc != RC::SUCCESS) {
-    return rc;
-  }
-  return table->delete_record(trx, &condition_filter, deleted_count);
-}
-
-RC DefaultHandler::update_record(Trx *trx, const char *dbname, const char *relation_name, const char *attribute_name,
-    const Value *value, int condition_num, const Condition *conditions, int *updated_count)
-{
-  Table *table = find_table(dbname, relation_name);
-  if (nullptr == table) {
-    return RC::SCHEMA_TABLE_NOT_EXIST;
-  }
-
-  return table->update_record(trx, attribute_name, value, condition_num, conditions, updated_count);
 }
 
 Db *DefaultHandler::find_db(const char *dbname) const

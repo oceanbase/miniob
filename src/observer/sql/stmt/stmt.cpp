@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/delete_stmt.h"
 #include "sql/stmt/select_stmt.h"
 #include "sql/stmt/explain_stmt.h"
+#include "sql/stmt/create_index_stmt.h"
 
 RC Stmt::create_stmt(Db *db, const Command &cmd, Stmt *&stmt)
 {
@@ -36,6 +37,10 @@ RC Stmt::create_stmt(Db *db, const Command &cmd, Stmt *&stmt)
 
     case SCF_EXPLAIN: {
       return ExplainStmt::create(db, cmd.explain, stmt);
+    }
+
+    case SCF_CREATE_INDEX: {
+      return CreateIndexStmt::create(db, cmd.create_index, stmt);
     }
     default: {
       LOG_INFO("Command::type %d doesn't need to create statement.", cmd.flag);

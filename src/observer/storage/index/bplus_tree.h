@@ -67,6 +67,7 @@ public:
       }
       default: {
         ASSERT(false, "unknown attr type. %d", attr_type_);
+        return 0;
       }
     }
   }
@@ -142,6 +143,7 @@ public:
         ASSERT(false, "unknown attr type. %d", attr_type_);
       }
     }
+    return std::string();
   }
 
 private:

@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
-RC ExplainPhysicalOperator::open()
+RC ExplainPhysicalOperator::open(Trx *)
 {
   ASSERT(children_.size() == 1, "explain must has 1 child");
   return RC::SUCCESS;
@@ -54,7 +54,7 @@ RC ExplainPhysicalOperator::next()
 
   physical_plan_ = ss.str();
 
-  std::vector<TupleCell> cells;
+  vector<TupleCell> cells;
   TupleCell cell;
   cell.set_string(physical_plan_.c_str());
   cells.emplace_back(cell);
@@ -106,7 +106,7 @@ void ExplainPhysicalOperator::to_string(
   }
   ends[level + 1] = false;
 
-  std::vector<std::unique_ptr<PhysicalOperator>> &children = oper->children();
+  vector<std::unique_ptr<PhysicalOperator>> &children = oper->children();
   const auto size = static_cast<int>(children.size());
   for (auto i = 0; i < size - 1; i++) {
     to_string(os, children[i].get(), level + 1, false /*last_child*/, ends);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "gtest/gtest.h"
 #include "storage/default/disk_buffer_pool.h"
 #include "storage/record/record_manager.h"
+#include "storage/trx/vacuous_trx.h"
 
 using namespace common;
 
@@ -123,8 +124,9 @@ TEST(test_record_page_handler, test_record_file_iterator)
   rc = file_handler.init(bp);
   ASSERT_EQ(rc, RC::SUCCESS);
 
+  VacuousTrx trx;
   RecordFileScanner file_scanner;
-  rc = file_scanner.open_scan(*bp, nullptr);
+  rc = file_scanner.open_scan(nullptr/*table*/, *bp, &trx, true/*readonly*/, nullptr/*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   int count = 0;
@@ -147,7 +149,7 @@ TEST(test_record_page_handler, test_record_file_iterator)
     rids.push_back(rid);
   }
 
-  rc = file_scanner.open_scan(*bp, nullptr);
+  rc = file_scanner.open_scan(nullptr/*table*/, *bp, &trx, true/*readonly*/, nullptr/*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;
@@ -164,7 +166,7 @@ TEST(test_record_page_handler, test_record_file_iterator)
     ASSERT_EQ(rc, RC::SUCCESS);
   }
 
-  rc = file_scanner.open_scan(*bp, nullptr);
+  rc = file_scanner.open_scan(nullptr/*table*/, *bp, &trx, true/*readonly*/, nullptr/*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;

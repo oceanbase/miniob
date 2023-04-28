@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -189,6 +189,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       int ret = common::writen(fd_, alias, len);
       if (ret != 0) {
         LOG_WARN("failed to send data to client. err=%s", strerror(errno));
+        sql_result->close();
         return RC::IOERR;
       }
     }
@@ -199,6 +200,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     int ret = common::writen(fd_, &newline, 1);
     if (ret != 0) {
       LOG_WARN("failed to send data to client. err=%s", strerror(errno));
+      sql_result->close();
       return RC::IOERR;
     }
   }
@@ -215,6 +217,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
         int ret = common::writen(fd_, delim, strlen(delim));
         if (ret != 0) {
           LOG_WARN("failed to send data to client. err=%s", strerror(errno));
+          sql_result->close();
           return RC::IOERR;
         }
       }
@@ -222,6 +225,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       TupleCell cell;
       rc = tuple->cell_at(i, cell);
       if (rc != RC::SUCCESS) {
+        sql_result->close();
         return rc;
       }
 
@@ -231,6 +235,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       int ret = common::writen(fd_, cell_str.data(), cell_str.size());
       if (ret != RC::SUCCESS) {
         LOG_WARN("failed to send data to client. err=%s", strerror(errno));
+        sql_result->close();
         return RC::IOERR;
       }
     }
@@ -239,6 +244,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     int ret = common::writen(fd_, &newline, 1);
     if (ret != 0) {
       LOG_WARN("failed to send data to client. err=%s", strerror(errno));
+      sql_result->close();
       return RC::IOERR;
     }
   }
@@ -251,6 +257,10 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     // 除了select之外，其它的消息通常不会通过operator来返回结果，表头和行数据都是空的
     // 这里针对这种情况做特殊处理，当表头和行数据都是空的时候，就返回处理的结果
     // 可能是insert/delete等操作，不直接返回给客户端数据，这里把处理结果返回给客户端
+    RC rc_close = sql_result->close();
+    if (rc == RC::SUCCESS) {
+      rc = rc_close;
+    }
     sql_result->set_return_code(rc);
     return write_state(event, need_disconnect);
   } else {
@@ -258,10 +268,16 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     int ret = common::writen(fd_, &message_terminate, sizeof(message_terminate));
     if (ret < 0) {
       LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
+      sql_result->close();
       return RC::IOERR;
     }
 
     need_disconnect = false;
+  }
+
+  RC rc_close = sql_result->close();
+  if (rc == RC::SUCCESS) {
+    rc = rc_close;
   }
   return rc;
 }

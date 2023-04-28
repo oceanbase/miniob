@@ -14,6 +14,11 @@ See the Mulan PSL v2 for more details. */
 
 #include "rc.h"
 #include "sql/executor/sql_result.h"
+#include "session/session.h"
+#include "storage/trx/trx.h"
+
+SqlResult::SqlResult(Session *session) : session_(session)
+{}
 
 void SqlResult::set_tuple_schema(const TupleSchema &schema)
 {
@@ -25,7 +30,10 @@ RC SqlResult::open()
   if (nullptr == operator_) {
     return RC::INVALID_ARGUMENT;
   }
-  return operator_->open();
+
+  Trx *trx = session_->current_trx();
+  trx->start_if_need();
+  return operator_->open(trx);
 }
 
 RC SqlResult::close()
@@ -33,7 +41,22 @@ RC SqlResult::close()
   if (nullptr == operator_) {
     return RC::INVALID_ARGUMENT;
   }
-  return operator_->close();
+  RC rc = operator_->close();
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to close operator. rc=%s", strrc(rc));
+  }
+
+  if (session_ && !session_->is_trx_multi_operation_mode()) {
+    if (rc == RC::SUCCESS) {
+      rc = session_->current_trx()->commit();
+    } else {
+      RC rc2 = session_->current_trx()->rollback();
+      if (rc2 != RC::SUCCESS) {
+        LOG_PANIC("rollback failed. rc=%s", strrc(rc2));
+      }
+    }
+  }
+  return rc;
 }
 
 RC SqlResult::next_tuple(Tuple *&tuple)

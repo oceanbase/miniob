@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -21,12 +21,14 @@ See the Mulan PSL v2 for more details. */
 
 #include "rc.h"
 #include "defs.h"
+#include "common/log/log.h"
 #include "storage/common/index_meta.h"
 #include "storage/common/field_meta.h"
 
 class Field;
 
-struct RID {
+struct RID
+{
   PageNum page_num;  // record's page number
   SlotNum slot_num;  // record's slot number
   // bool    valid;    // true means a valid record
@@ -81,15 +83,59 @@ struct RID {
   }
 };
 
-class Record {
+class Record 
+{
 public:
   Record() = default;
-  ~Record() = default;
+  ~Record()
+  {
+    if (owner_ && data_ != nullptr) {
+      free(data_);
+      data_ = nullptr;
+    }
+  }
 
-  void set_data(char *data)
+  Record(const Record &other)
+  {
+    rid_ = other.rid_;
+    data_ = other.data_;
+    len_ = other.len_;
+    owner_ = other.owner_;
+
+    if (other.owner_) {
+      char *tmp = (char *)malloc(other.len_);
+      ASSERT(nullptr != tmp, "failed to allocate memory. size=%d", other.len_);
+      memcpy(tmp, other.data_, other.len_);
+      data_ = tmp;
+    }
+  }
+
+  Record &operator =(const Record &other)
+  {
+    if (this == &other) {
+      return *this;
+    }
+
+    this->~Record();
+    new (this) Record(other);
+    return *this;
+  }
+
+  void set_data(char *data, int len = 0)
   {
     this->data_ = data;
+    this->len_ = len;
   }
+  void set_data_owner(char *data, int len)
+  {
+    ASSERT(len != 0, "the len of data should not be 0");
+    this->~Record();
+
+    this->data_ = data;
+    this->len_ = len;
+    this->owner_ = true;
+  }
+  
   char *data()
   {
     return this->data_;
@@ -115,12 +161,12 @@ public:
   const RID &rid() const
   {
     return rid_;
-  };
+  }
 
 private:
   RID rid_;
 
-  // the data buffer
-  // record will not release the memory
   char *data_ = nullptr;
+  int   len_ = 0;
+  bool  owner_ = false;
 };

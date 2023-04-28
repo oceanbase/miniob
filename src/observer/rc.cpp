@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -84,6 +84,7 @@ const char *strrc(RC rc)
     RC_CASE_STRING(RECORD_SCANOPENNED);
     RC_CASE_STRING(RECORD_EOF);
     RC_CASE_STRING(RECORD_RECORD_NOT_EXIST);
+    RC_CASE_STRING(RECORD_INVISIBLE);
 
     RC_CASE_STRING(SCHEMA_DB_EXIST);
     RC_CASE_STRING(SCHEMA_DB_NOT_EXIST);
@@ -138,6 +139,7 @@ const char *strrc(RC rc)
     RC_CASE_STRING(LOCKED_VIRT);
     RC_CASE_STRING(LOCKED_NEED_WAIT);
     RC_CASE_STRING(LOCKED_RESOURCE_DELETED);
+    RC_CASE_STRING(LOCKED_CONCURRENCY_CONFLICT);
 
     RC_CASE_STRING(BUSY_RECOVERY);
     RC_CASE_STRING(BUSY_SNAPSHOT);

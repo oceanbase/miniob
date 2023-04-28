@@ -157,6 +157,7 @@ RC Db::sync()
   return rc;
 }
 
+#if 0
 RC Db::recover()
 {
   RC rc = RC::SUCCESS;
@@ -225,6 +226,7 @@ RC Db::recover()
 
   return rc;
 }
+#endif
 
 CLogManager *Db::get_clog_manager()
 {

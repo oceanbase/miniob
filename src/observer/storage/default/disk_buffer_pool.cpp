@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-static const int MEM_POOL_ITEM_NUM = 128;
+static const int MEM_POOL_ITEM_NUM = 20;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -138,7 +138,7 @@ RC BPFrameManager::free(int file_desc, PageNum page_num, Frame *frame)
 RC BPFrameManager::free_internal(const FrameId &frame_id, Frame *frame)
 {
   Frame *frame_source = nullptr;
-  bool found = frames_.get(frame_id, frame_source);
+  [[maybe_unused]] bool found = frames_.get(frame_id, frame_source);
   ASSERT(found && frame == frame_source && frame->pin_count() == 1,
          "failed to free frame. found=%d, frameId=%s, frame_source=%p, frame=%p, pinCount=%d, lbt=%s",
          found, to_string(frame_id).c_str(), frame_source, frame, frame->pin_count(), lbt());

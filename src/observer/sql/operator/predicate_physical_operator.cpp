@@ -23,14 +23,14 @@ PredicatePhysicalOperator::PredicatePhysicalOperator(std::unique_ptr<Expression>
   ASSERT(expression_->value_type() == BOOLEANS, "predicate's expression should be BOOLEAN type");
 }
 
-RC PredicatePhysicalOperator::open()
+RC PredicatePhysicalOperator::open(Trx *trx)
 {
   if (children_.size() != 1) {
     LOG_WARN("predicate operator must has one child");
     return RC::INTERNAL;
   }
 
-  return children_[0]->open();
+  return children_[0]->open(trx);
 }
 
 RC PredicatePhysicalOperator::next()

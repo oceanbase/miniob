@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -49,6 +49,9 @@ struct LatchMemoItem
 class LatchMemo final
 {
 public:
+  /**
+   * @brief 当前遇到的场景都是针对单个BufferPool的，不过从概念上讲，不一定做这个限制
+   */
   LatchMemo(DiskBufferPool *buffer_pool);
   ~LatchMemo();
 
@@ -65,7 +68,6 @@ public:
 
   void release();
 
-  /// 除了最后一个锁，其它的都释放掉
   void release_to(int point);
 
   int  memo_point() const { return static_cast<int>(items_.size()); }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -17,7 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/table.h"
 #include "storage/common/field_meta.h"
 
-class Field {
+class Field 
+{
 public:
   Field() = default;
   Field(const Table *table, const FieldMeta *field) : table_(table), field_(field)
@@ -55,6 +56,9 @@ public:
   {
     this->field_ = field;
   }
+
+  void set_int(Record &record, int value);
+  int  get_int(const Record &record);
 
 private:
   const Table *table_ = nullptr;

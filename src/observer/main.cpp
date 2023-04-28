@@ -38,7 +38,8 @@ void usage()
   std::cout << "-p: server port. if not specified, the item in the config file will be used" << std::endl;
   std::cout << "-f: path of config file." << std::endl;
   std::cout << "-s: use unix socket and the argument is socket address" << std::endl;
-  std::cout << "-P: protocol. {plain, mysql}. plain is default." << std::endl;
+  std::cout << "-P: protocol. {plain(default), mysql}." << std::endl;
+  std::cout << "-t: transaction model. {vacuous(default), mvcc}." << std::endl;
   exit(0);
 }
 
@@ -53,7 +54,7 @@ void parse_parameter(int argc, char **argv)
   // Process args
   int opt;
   extern char *optarg;
-  while ((opt = getopt(argc, argv, "dp:P:s:f:o:e:h")) > 0) {
+  while ((opt = getopt(argc, argv, "dp:P:s:t:f:o:e:h")) > 0) {
     switch (opt) {
       case 's':
         process_param->set_unix_socket_path(optarg);
@@ -75,6 +76,9 @@ void parse_parameter(int argc, char **argv)
         break;
       case 'd':
         process_param->set_demon(true);
+        break;
+      case 't':
+        process_param->set_trx_kit_name(optarg);
         break;
       case 'h':
       default:

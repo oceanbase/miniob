@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -17,7 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 #include "sql/operator/physical_operator.h"
 
-class StringListPhysicalOperator : public PhysicalOperator {
+class StringListPhysicalOperator : public PhysicalOperator
+{
 public:
   StringListPhysicalOperator()
   {}
@@ -46,7 +47,7 @@ public:
     return PhysicalOperatorType::STRING_LIST;
   }
 
-  RC open() override
+  RC open(Trx *) override
   {
     return RC::SUCCESS;
   }

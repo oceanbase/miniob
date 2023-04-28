@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Longda & Wangyunlai on 2021/5/12.
 //
 
-#ifndef __OBSERVER_STORAGE_COMMON_DB_H__
-#define __OBSERVER_STORAGE_COMMON_DB_H__
+#pragma once
 
 #include <vector>
 #include <string>
@@ -42,7 +41,7 @@ public:
 
   RC sync();
 
-  RC recover();
+  // RC recover();
 
   CLogManager *get_clog_manager();
 
@@ -55,5 +54,3 @@ private:
   std::unordered_map<std::string, Table *> opened_tables_;
   CLogManager *clog_manager_ = nullptr;
 };
-
-#endif  // __OBSERVER_STORAGE_COMMON_DB_H__

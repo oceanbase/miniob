@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -15,14 +15,29 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/insert_physical_operator.h"
 #include "sql/stmt/insert_stmt.h"
 #include "storage/common/table.h"
+#include "storage/trx/trx.h"
 #include "rc.h"
 
-RC InsertPhysicalOperator::open()
+using namespace std;
+
+InsertPhysicalOperator::InsertPhysicalOperator(Table *table, vector<Value> &&values)
+    : table_(table), values_(move(values))
+{}
+
+RC InsertPhysicalOperator::open(Trx *trx)
 {
-  Table *table = insert_stmt_->table();
-  const Value *values = insert_stmt_->values();
-  int value_amount = insert_stmt_->value_amount();
-  return table->insert_record(nullptr, value_amount, values);  // TODO trx
+  Record record;
+  RC rc = table_->make_record(static_cast<int>(values_.size()), values_.data(), record);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to make record. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  rc = trx->insert_record(table_, record);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to insert record by transaction. rc=%s", strrc(rc));
+  }
+  return rc;
 }
 
 RC InsertPhysicalOperator::next()

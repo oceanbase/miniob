@@ -19,7 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 class Db;
 
-enum class StmtType {
+enum class StmtType
+{
   SELECT,
   INSERT,
   UPDATE,
@@ -42,7 +43,12 @@ enum class StmtType {
   PREDICATE,
 };
 
-class Stmt {
+/**
+ * Stmt for Statement
+ * 
+ */
+class Stmt
+{
 public:
   Stmt() = default;
   virtual ~Stmt() = default;

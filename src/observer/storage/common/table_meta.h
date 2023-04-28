@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Meiyi & Wangyunlai on 2021/5/12.
+// Created by Wangyunlai on 2021/5/12.
 //
 
 #pragma once
@@ -22,7 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/index_meta.h"
 #include "common/lang/serializable.h"
 
-class TableMeta : public common::Serializable {
+class TableMeta : public common::Serializable
+{
 public:
   TableMeta() = default;
   ~TableMeta() = default;
@@ -65,15 +66,9 @@ public:
   void desc(std::ostream &os) const;
 
 protected:
-  static RC init_sys_fields();
-
-protected:
   std::string name_;
   std::vector<FieldMeta> fields_;  // 包含sys_fields
   std::vector<IndexMeta> indexes_;
 
   int record_size_ = 0;
-
-  //@@@ TODO why used static variable?
-  static std::vector<FieldMeta> sys_fields_;
 };

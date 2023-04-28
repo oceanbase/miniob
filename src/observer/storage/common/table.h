@@ -55,19 +55,16 @@ public:
    */
   RC open(const char *meta_file, const char *base_dir, CLogManager *clog_manager);
 
-  RC insert_record(Trx *trx, int value_num, const Value *values);
-  RC update_record(Trx *trx, const char *attribute_name, const Value *value, int condition_num,
-      const Condition conditions[], int *updated_count);
-  RC delete_record(Trx *trx, ConditionFilter *filter, int *deleted_count);
-  RC delete_record(Trx *trx, Record *record);
-  RC recover_delete_record(Record *record);
+  RC make_record(int value_num, const Value *values, Record &record);
+  RC insert_record(Record &record);
+  RC delete_record(const Record &record);
+  RC visit_record(const RID &rid, bool readonly, std::function<void(Record &)> visitor);
+  RC get_record(const RID &rid, Record &record);
 
-  RC scan_record(Trx *trx, ConditionFilter *filter, int limit, void *context,
-      void (*record_reader)(const char *data, void *context));
+  // TODO refactor
+  RC create_index(Trx *trx, const FieldMeta *field_meta, const char *index_name);
 
-  RC create_index(Trx *trx, const char *index_name, const char *attribute_name);
-
-  RC get_record_scanner(RecordFileScanner &scanner);
+  RC get_record_scanner(RecordFileScanner &scanner, Trx *trx, bool readonly);
 
   RecordFileHandler *record_handler() const
   {
@@ -75,46 +72,26 @@ public:
   }
 
 public:
+  int32_t table_id() const { return table_id_; }
   const char *name() const;
 
   const TableMeta &table_meta() const;
 
   RC sync();
 
-public:
-  RC commit_insert(Trx *trx, const RID &rid);
-  RC commit_delete(Trx *trx, const RID &rid);
-  RC rollback_insert(Trx *trx, const RID &rid);
-  RC rollback_delete(Trx *trx, const RID &rid);
-
 private:
-  RC scan_record(
-      Trx *trx, ConditionFilter *filter, int limit, void *context, RC (*record_reader)(Record *record, void *context));
-  RC scan_record_by_index(Trx *trx, IndexScanner *scanner, ConditionFilter *filter, int limit, void *context,
-      RC (*record_reader)(Record *record, void *context));
-  IndexScanner *find_index_for_scan(const ConditionFilter *filter);
-  IndexScanner *find_index_for_scan(const DefaultConditionFilter &filter);
-  RC insert_record(Trx *trx, Record *record);
-
-public:
-  RC recover_insert_record(Record *record);
-
-private:
-  friend class RecordUpdater;
-  friend class RecordDeleter;
-
   RC insert_entry_of_indexes(const char *record, const RID &rid);
   RC delete_entry_of_indexes(const char *record, const RID &rid, bool error_on_not_exists);
 
 private:
   RC init_record_handler(const char *base_dir);
-  RC make_record(int value_num, const Value *values, char *&record_out);
 
 public:
   Index *find_index(const char *index_name) const;
   Index *find_index_by_field(const char *field_name) const;
 
 private:
+  int32_t     table_id_ = -1;
   std::string base_dir_;
   CLogManager *clog_manager_;
   TableMeta table_meta_;

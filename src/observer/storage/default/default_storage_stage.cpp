@@ -266,8 +266,11 @@ RC insert_record_from_file(Table *table,
   }
 
   if (RC::SUCCESS == rc) {
-    rc = table->insert_record(nullptr, field_num, record_values.data());
+    Record record;
+    rc = table->make_record(field_num, record_values.data(), record);
     if (rc != RC::SUCCESS) {
+      errmsg << "insert failed.";
+    } else if (RC::SUCCESS != (rc = table->insert_record(record))) {
       errmsg << "insert failed.";
     }
   }

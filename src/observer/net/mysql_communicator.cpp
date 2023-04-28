@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -466,9 +466,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
   int ret = common::readn(fd_, &packet_header, sizeof(packet_header));
   if (ret != 0) {
     LOG_WARN("failed to read packet header. length=%d, addr=%s. error=%s",
-        sizeof(packet_header),
-        addr_.c_str(),
-        strerror(errno));
+             sizeof(packet_header), addr_.c_str(), strerror(errno));
     return RC::IOERR;
   }
 
@@ -478,10 +476,8 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
   std::vector<char> buf(packet_header.payload_length);
   ret = common::readn(fd_, buf.data(), packet_header.payload_length);
   if (ret != 0) {
-    LOG_WARN("failed to read packet payload. length=%d, addr=%s, error=%s",
-        packet_header.payload_length,
-        addr_.c_str(),
-        strerror(errno));
+    LOG_WARN("failed to read packet payload. length=%d, addr=%s, error=%s", 
+             packet_header.payload_length, addr_.c_str(), strerror(errno));
     return RC::IOERR;
   }
 
@@ -614,6 +610,7 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       // send metadata : Column Definition
       rc = send_column_definition(sql_result, need_disconnect);
       if (rc != RC::SUCCESS) {
+        sql_result->close();
         return rc;
       }
     }
@@ -621,6 +618,10 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     rc = send_result_rows(sql_result, cell_num == 0, need_disconnect);
   }
 
+  RC close_rc = sql_result->close();
+  if (rc == RC::SUCCESS) {
+    rc = close_rc;
+  }
   return rc;
 }
 

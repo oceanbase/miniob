@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -45,6 +45,7 @@ enum RCRecord {
   RD_SCANOPENNED,
   RD_EOF,
   RD_NOT_EXIST,
+  RD_INVISIBLE,
 };
 
 enum RCSchema {
@@ -107,6 +108,7 @@ enum RCLock {
   LVIRT,
   NEED_WAIT,
   RESOURCE_DELETED,
+  CONCURRENCY_CONFLICT,
 };
 
 enum RCBusy {
@@ -252,6 +254,7 @@ enum RC {
   RECORD_SCANOPENNED = (RECORD | (RCRecord::RD_SCANOPENNED << 8)),
   RECORD_EOF = (RECORD | (RCRecord::RD_EOF << 8)),
   RECORD_RECORD_NOT_EXIST = (RECORD | (RCRecord::RD_NOT_EXIST << 8)),
+  RECORD_INVISIBLE = (RECORD | (RCRecord::RD_INVISIBLE << 8)),
 
   /* schema part */
   SCHEMA_DB_EXIST = (SCHEMA | (RCSchema::DB_EXIST << 8)),
@@ -309,6 +312,7 @@ enum RC {
   LOCKED_VIRT = (LOCKED | (RCLock::LVIRT << 8)),
   LOCKED_NEED_WAIT = (LOCKED | (RCLock::NEED_WAIT << 8)),
   LOCKED_RESOURCE_DELETED = (LOCKED | (RCLock::RESOURCE_DELETED << 8)),
+  LOCKED_CONCURRENCY_CONFLICT = (LOCKED | (RCLock::CONCURRENCY_CONFLICT << 8)),
 
   /* busy part */
   BUSY_RECOVERY = (BUSY | (RCBusy::BRECOVERY << 8)),

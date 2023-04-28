@@ -17,14 +17,14 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record.h"
 #include "storage/common/table.h"
 
-RC ProjectPhysicalOperator::open()
+RC ProjectPhysicalOperator::open(Trx *trx)
 {
   if (children_.empty()) {
     return RC::SUCCESS;
   }
 
   PhysicalOperator *child = children_[0].get();
-  RC rc = child->open();
+  RC rc = child->open(trx);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open child operator: %s", strrc(rc));
     return rc;

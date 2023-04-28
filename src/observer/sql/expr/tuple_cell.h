@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -46,11 +46,12 @@ private:
  * 表示tuple中某个元素的值
  * @note 可以与value做合并
  */
-class TupleCell {
+class TupleCell 
+{
 public:
   TupleCell() = default;
 
-  TupleCell(FieldMeta *meta, char *data, int length = 4) : TupleCell(meta->type(), data)
+  TupleCell(const FieldMeta *meta, char *data, int length = 4) : TupleCell(meta->type(), data)
   {}
   TupleCell(AttrType attr_type, char *data, int length = 4) : attr_type_(attr_type)
   {
