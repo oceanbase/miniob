@@ -532,8 +532,8 @@ RC RecordFileScanner::fetch_next_record_in_page()
       return rc;
     }
 
-    if (condition_filter_ == nullptr || condition_filter_->filter(next_record_)) {
-      return rc;
+    if (condition_filter_ != nullptr && !condition_filter_->filter(next_record_)) {
+      continue;
     }
 
     if (trx_ == nullptr) {
@@ -541,6 +541,9 @@ RC RecordFileScanner::fetch_next_record_in_page()
     }
 
     rc = trx_->visit_record(table_, next_record_, readonly_);
+    if (rc == RC::RECORD_INVISIBLE) {
+      continue;
+    }
     return rc;
   }
 

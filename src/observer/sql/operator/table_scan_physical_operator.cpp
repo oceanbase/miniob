@@ -20,7 +20,7 @@ using namespace std;
 
 RC TableScanPhysicalOperator::open(Trx *trx)
 {
-  RC rc = table_->get_record_scanner(record_scanner_, trx_, readonly_);
+  RC rc = table_->get_record_scanner(record_scanner_, trx, readonly_);
   if (rc == RC::SUCCESS) {
     tuple_.set_schema(table_, table_->table_meta().field_metas());
   }

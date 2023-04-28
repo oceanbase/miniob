@@ -87,7 +87,7 @@ RC MvccTrx::delete_record(Table * table, Record &record)
   [[maybe_unused]] int32_t end_xid = end_field.get_int(record);
   /// 在删除之前，第一次获取record时，就已经对record做了对应的检查，并且保证不会有其它的事务来访问这条数据
   ASSERT(end_xid == trx_kit_.max_trx_id(), "cannot delete an old version record. end_xid=%d", end_xid);
-  end_field.set_int(record, -trx_kit_.max_trx_id());
+  end_field.set_int(record, -trx_id_);
 
   operations_.insert(Operation(Operation::Type::DELETE, table, record.rid()));
 
@@ -160,6 +160,8 @@ RC MvccTrx::commit()
 {
   // TODO 这里存在一个很大的问题，不能让其他事务一次性看到当前事务更新到的数据或同时看不到
   RC rc = RC::SUCCESS;
+  started_ = false;
+  
   int32_t commit_xid = trx_kit_.next_trx_id();
   for (const Operation &operation : operations_) {
     switch (operation.type()) {
@@ -173,15 +175,15 @@ RC MvccTrx::commit()
         auto record_updater = [ this, &begin_xid_field, commit_xid](Record &record) {
           (void)this;
           ASSERT(begin_xid_field.get_int(record) == -this->trx_id_, 
-                "got an invalid record while committing. begin xid=%d, this trx id=%d", 
-                begin_xid_field.get_int(record), trx_id_);
+                 "got an invalid record while committing. begin xid=%d, this trx id=%d", 
+                 begin_xid_field.get_int(record), trx_id_);
 
           begin_xid_field.set_int(record, commit_xid);
         };
 
         rc = operation.table()->visit_record(rid, false/*readonly*/, record_updater);
         ASSERT(rc == RC::SUCCESS, "failed to get record while committing. rid=%s, rc=%s",
-              rid.to_string().c_str(), strrc(rc));
+               rid.to_string().c_str(), strrc(rc));
       } break;
 
       case Operation::Type::DELETE: {
@@ -194,15 +196,15 @@ RC MvccTrx::commit()
         auto record_updater = [this, &end_xid_field, commit_xid](Record &record) {
           (void)this;
           ASSERT(end_xid_field.get_int(record) == -trx_id_, 
-                "got an invalid record while committing. end xid=%d, this trx id=%d", 
-                end_xid_field.get_int(record), trx_id_);
+                 "got an invalid record while committing. end xid=%d, this trx id=%d", 
+                 end_xid_field.get_int(record), trx_id_);
                 
           end_xid_field.set_int(record, commit_xid);
         };
 
         rc = operation.table()->visit_record(rid, false/*readonly*/, record_updater);
         ASSERT(rc == RC::SUCCESS, "failed to get record while committing. rid=%s, rc=%s",
-              rid.to_string().c_str(), strrc(rc));
+               rid.to_string().c_str(), strrc(rc));
       } break;
 
       default: {
@@ -218,6 +220,8 @@ RC MvccTrx::commit()
 RC MvccTrx::rollback()
 {
   RC rc = RC::SUCCESS;
+  started_ = false;
+  
   for (const Operation &operation : operations_) {
     switch (operation.type()) {
       case Operation::Type::INSERT: {

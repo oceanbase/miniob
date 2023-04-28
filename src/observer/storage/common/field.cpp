@@ -15,11 +15,15 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/field.h"
 #include "sql/expr/tuple_cell.h"
 #include "storage/record/record.h"
+#include "common/log/log.h"
 
 void Field::set_int(Record &record, int value)
 {
-  TupleCell cell(field_, record.data() + field_->offset(), field_->len());
-  cell.set_int(value);
+  ASSERT(field_->type() == AttrType::INTS, "could not set int value to a non-int field");
+  ASSERT(field_->len() == sizeof(value), "invalid field len");
+  
+  char *field_data = record.data() + field_->offset();
+  memcpy(field_data, &value, sizeof(value));
 }
 
 int Field::get_int(const Record &record)

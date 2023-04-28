@@ -46,6 +46,8 @@ RC SqlResult::close()
     LOG_WARN("failed to close operator. rc=%s", strrc(rc));
   }
 
+  operator_.reset();
+
   if (session_ && !session_->is_trx_multi_operation_mode()) {
     if (rc == RC::SUCCESS) {
       rc = session_->current_trx()->commit();
