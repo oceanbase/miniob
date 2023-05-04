@@ -211,7 +211,7 @@ public:
       stat.scan_open_failed_count++;
     } else {
       Record record;
-      uint32_t count = 0;
+      int32_t count = 0;
       while (scanner.has_next()) {
         rc = scanner.next(record);
         ASSERT(rc == RC::SUCCESS, "failed to get record, rc=%s", strrc(rc));

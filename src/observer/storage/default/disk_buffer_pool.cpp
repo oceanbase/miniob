@@ -354,6 +354,8 @@ RC DiskBufferPool::allocate_page(Frame **frame)
     return rc;
   }
 
+  LOG_INFO("allocate new page. file=%s, page num=%d", file_name_.c_str(), page_num);
+
   file_header_->allocated_pages++;
   file_header_->page_count++;
 
@@ -583,7 +585,7 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
   Page &page = frame->page();
   int ret = readn(file_desc_, &page, BP_PAGE_SIZE);
   if (ret != 0) {
-    LOG_ERROR("Failed to load page %s:%d, due to failed to read data:%s, ret=%d, page count=%d",
+    LOG_ERROR("Failed to load page %s, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
         file_name_.c_str(), page_num, strerror(errno), ret, file_header_->allocated_pages);
     return RC::IOERR_READ;
   }
@@ -697,7 +699,7 @@ RC BufferPoolManager::close_file(const char *_file_name)
 
   auto iter = buffer_pools_.find(file_name);
   if (iter == buffer_pools_.end()) {
-    LOG_WARN("file has not opened: %s", _file_name);
+    LOG_TRACE("file has not opened: %s", _file_name);
     lock_.unlock();
     return RC::INTERNAL;
   }

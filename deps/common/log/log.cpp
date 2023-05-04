@@ -29,7 +29,7 @@ Log::Log(const std::string &log_file_name, const LOG_LEVEL log_level, const LOG_
 {
   prefix_map_[LOG_LEVEL_PANIC] = "PANIC:";
   prefix_map_[LOG_LEVEL_ERR] = "ERROR:";
-  prefix_map_[LOG_LEVEL_WARN] = "WARNNING:";
+  prefix_map_[LOG_LEVEL_WARN] = "WARN:";
   prefix_map_[LOG_LEVEL_INFO] = "INFO:";
   prefix_map_[LOG_LEVEL_DEBUG] = "DEBUG:";
   prefix_map_[LOG_LEVEL_TRACE] = "TRACE:";
