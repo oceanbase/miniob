@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -9,11 +9,10 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Meiyi & Wangyunlai on 2021/5/7.
+// Created by Wangyunlai on 2021/5/7.
 //
 
-#ifndef __OBSERVER_STORAGE_COMMON_CONDITION_FILTER_H_
-#define __OBSERVER_STORAGE_COMMON_CONDITION_FILTER_H_
+#pragma once
 
 #include "rc.h"
 #include "sql/parser/parse.h"
@@ -21,14 +20,16 @@ See the Mulan PSL v2 for more details. */
 class Record;
 class Table;
 
-struct ConDesc {
+struct ConDesc 
+{
   bool is_attr;     // 是否属性，false 表示是值
   int attr_length;  // 如果是属性，表示属性值长度
   int attr_offset;  // 如果是属性，表示在记录中的偏移量
   Value value;      // 如果是值类型，这里记录值的数据
 };
 
-class ConditionFilter {
+class ConditionFilter 
+{
 public:
   virtual ~ConditionFilter();
 
@@ -40,7 +41,8 @@ public:
   virtual bool filter(const Record &rec) const = 0;
 };
 
-class DefaultConditionFilter : public ConditionFilter {
+class DefaultConditionFilter : public ConditionFilter 
+{
 public:
   DefaultConditionFilter();
   virtual ~DefaultConditionFilter();
@@ -78,7 +80,8 @@ private:
   CompOp comp_op_ = NO_OP;
 };
 
-class CompositeConditionFilter : public ConditionFilter {
+class CompositeConditionFilter : public ConditionFilter 
+{
 public:
   CompositeConditionFilter() = default;
   virtual ~CompositeConditionFilter();
@@ -105,5 +108,3 @@ private:
   int filter_num_ = 0;
   bool memory_owner_ = false;  // filters_的内存是否由自己来控制
 };
-
-#endif  // __OBSERVER_STORAGE_COMMON_CONDITION_FILTER_H_

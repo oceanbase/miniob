@@ -693,11 +693,12 @@ RC BufferPoolManager::close_file(const char *_file_name)
 {
   std::string file_name(_file_name);
 
-  std::scoped_lock lock_guard(lock_);
+  lock_.lock();
 
   auto iter = buffer_pools_.find(file_name);
   if (iter == buffer_pools_.end()) {
     LOG_WARN("file has not opened: %s", _file_name);
+    lock_.unlock();
     return RC::INTERNAL;
   }
 
@@ -716,6 +717,8 @@ RC BufferPoolManager::close_file(const char *_file_name)
 
   DiskBufferPool *bp = iter->second;
   buffer_pools_.erase(iter);
+  lock_.unlock();
+  
   delete bp;
   return RC::SUCCESS;
 }

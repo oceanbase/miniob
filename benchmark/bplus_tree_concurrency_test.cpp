@@ -12,7 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/03/14
 //
 #include <inttypes.h>
-#include <random>
 #include <stdexcept>
 #include <benchmark/benchmark.h>
 
@@ -20,27 +19,11 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/disk_buffer_pool.h"
 #include "rc.h"
 #include "common/log/log.h"
+#include "integer_generator.h"
 
 using namespace std;
 using namespace common;
 using namespace benchmark;
-
-class IntegerGenerator
-{
-public:
-  IntegerGenerator(int min, int max)
-    : distrib_(min, max)
-  {}
-
-  int next()
-  {
-    return distrib_(rd_);
-  }
-
-private:
-  random_device rd_;
-  uniform_int_distribution<> distrib_;
-};
 
 once_flag init_bpm_flag;
 BufferPoolManager bpm{512};
