@@ -110,15 +110,14 @@ private:
   int               file_desc_ = -1;
   Page              page_;
 
-  //读写锁
-  pthread_rwlock_t  rwlock_ = PTHREAD_RWLOCK_INITIALIZER;
   /// 在非并发编译时，加锁解锁动作将什么都不做
-  common::Mutex     lock_;
+  common::RecursiveSharedMutex     lock_;
 
   /// 使用一些手段来做测试，提前检测出头疼的死锁问题
   /// 如果编译时没有增加调试选项，这些代码什么都不做
   common::DebugMutex  debug_lock_;
   intptr_t            write_locker_ = 0;
-  std::set<intptr_t>  read_lockers_;
+  int                 write_recursive_count_ = 0;
+  std::unordered_map<intptr_t, int>  read_lockers_;
 };
 

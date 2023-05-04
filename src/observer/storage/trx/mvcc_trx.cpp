@@ -152,6 +152,7 @@ RC MvccTrx::start_if_need()
   if (!started_) {
     ASSERT(operations_.empty(), "try to start a new trx while operations is not empty");
     trx_id_ = trx_kit_.next_trx_id();
+    started_ = true;
   }
   return RC::SUCCESS;
 }

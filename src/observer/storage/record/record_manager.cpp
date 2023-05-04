@@ -254,7 +254,6 @@ RC RecordPageHandler::delete_record(const RID *rid)
     if (page_header_->record_num == 0) {
       // PageNum page_num = get_page_num();
       cleanup();
-      // disk_buffer_pool->dispose_page(page_num); // TODO 确认是否可以不删除页面
     }
     return RC::SUCCESS;
   } else {
