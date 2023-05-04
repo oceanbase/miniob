@@ -296,6 +296,11 @@ bool RecordPageHandler::is_full() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+RecordFileHandler::~RecordFileHandler()
+{
+  this->close();
+}
+
 RC RecordFileHandler::init(DiskBufferPool *buffer_pool)
 {
   if (disk_buffer_pool_ != nullptr) {
@@ -322,6 +327,7 @@ RC RecordFileHandler::init_free_pages()
 {
   // 遍历当前文件上所有页面，找到没有满的页面
   // 这个效率很低，会降低启动速度
+  // NOTE: 由于是初始化时的动作，所以不需要加锁控制并发
 
   RC rc = RC::SUCCESS;
   BufferPoolIterator bp_iterator;
@@ -352,10 +358,12 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
   RecordPageHandler record_page_handler;
   bool page_found = false;
   PageNum current_page_num = 0;
+  lock_.lock();
   while (!free_pages_.empty()) {
     current_page_num = *free_pages_.begin();
     ret = record_page_handler.init(*disk_buffer_pool_, current_page_num, false/*readonly*/);
     if (ret != RC::SUCCESS) {
+      lock_.unlock();
       LOG_WARN("failed to init record page handler. page num=%d, rc=%d:%s", current_page_num, ret, strrc(ret));
       return ret;
     }
@@ -367,6 +375,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
     record_page_handler.cleanup();
     free_pages_.erase(free_pages_.begin());
   }
+  lock_.unlock(); // 如果找到了一个有效的页面，那么此时已经拿到了页面的写锁
 
   // 找不到就分配一个新的页面
   if (!page_found) {
@@ -381,13 +390,16 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
     if (ret != RC::SUCCESS) {
       LOG_ERROR("Failed to init empty page. ret:%d", ret);
       // this is for allocate_page
-      disk_buffer_pool_->unpin_page(frame);
       return ret;
     }
 
-    // this is for allocate_page
-    disk_buffer_pool_->unpin_page(frame);
+    // 这里的加锁顺序看起来与上面是相反的，但是不会出现死锁
+    // 上面的逻辑是先加lock锁，然后加页面写锁，这里是先加上
+    // 了页面写锁，然后加lock的锁，但是不会引起死锁。
+    // 为什么？
+    lock_.lock();
     free_pages_.insert(current_page_num);
+    lock_.unlock();
   }
 
   // 找到空闲位置
@@ -412,13 +424,16 @@ RC RecordFileHandler::delete_record(const RID *rid)
 {
   RC rc = RC::SUCCESS;
   RecordPageHandler page_handler;
-  if ((rc != page_handler.init(*disk_buffer_pool_, rid->page_num, false/*readonly*/)) != RC::SUCCESS) {
+  if ((rc = page_handler.init(*disk_buffer_pool_, rid->page_num, false/*readonly*/)) != RC::SUCCESS) {
     LOG_ERROR("Failed to init record page handler.page number=%d. rc=%s", rid->page_num, strrc(rc));
     return rc;
   }
   rc = page_handler.delete_record(rid);
+  page_handler.cleanup(); // 📢 这里注意要清理掉资源，否则会与insert_record中的加锁顺序冲突而可能出现死锁
   if (rc == RC::SUCCESS) {
+    lock_.lock();
     free_pages_.insert(rid->page_num);
+    lock_.unlock();
   }
   return rc;
 }
