@@ -21,8 +21,19 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 
 using namespace common;
+using namespace std;
 
 static const int MEM_POOL_ITEM_NUM = 20;
+
+////////////////////////////////////////////////////////////////////////////////
+
+string BPFileHeader::to_string() const
+{
+  stringstream ss;
+  ss << "pageCount:" << page_count
+     << ", allocatedCount:" << allocated_pages;
+  return ss.str();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -246,7 +257,8 @@ RC DiskBufferPool::open_file(const char *file_name)
 
   file_header_ = (BPFileHeader *)hdr_frame_->data();
 
-  LOG_INFO("Successfully open %s. file_desc=%d, hdr_frame=%p", file_name, file_desc_, hdr_frame_);
+  LOG_INFO("Successfully open %s. file_desc=%d, hdr_frame=%p, file header=%s",
+           file_name, file_desc_, hdr_frame_, file_header_->to_string().c_str());
   return RC::SUCCESS;
 }
 
@@ -354,7 +366,8 @@ RC DiskBufferPool::allocate_page(Frame **frame)
     return rc;
   }
 
-  LOG_INFO("allocate new page. file=%s, page num=%d", file_name_.c_str(), page_num);
+  LOG_INFO("allocate new page. file=%s, pageNum=%d, pin=%d",
+           file_name_.c_str(), page_num, allocated_frame->pin_count());
 
   file_header_->allocated_pages++;
   file_header_->page_count++;
@@ -494,7 +507,7 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
     return RC::IOERR_WRITE;
   }
   frame.clear_dirty();
-  LOG_DEBUG("Flush block. file desc=%d, pageNum=%d", file_desc_, page.page_num);
+  LOG_DEBUG("Flush block. file desc=%d, pageNum=%d, pin count=%d", file_desc_, page.page_num, frame.pin_count());
 
   return RC::SUCCESS;
 }
@@ -585,8 +598,8 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
   Page &page = frame->page();
   int ret = readn(file_desc_, &page, BP_PAGE_SIZE);
   if (ret != 0) {
-    LOG_ERROR("Failed to load page %s, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
-        file_name_.c_str(), page_num, strerror(errno), ret, file_header_->allocated_pages);
+    LOG_ERROR("Failed to load page %s, file_desc:%d, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
+              file_name_.c_str(), file_desc_, page_num, strerror(errno), ret, file_header_->allocated_pages);
     return RC::IOERR_READ;
   }
   return RC::SUCCESS;

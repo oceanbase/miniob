@@ -86,6 +86,7 @@ public:
   virtual string Name() const = 0;
 
   string record_filename() const { return this->Name() + ".record"; }
+  
   virtual void SetUp(const State &state)
   {
     if (0 != state.thread_index()) {

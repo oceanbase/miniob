@@ -258,7 +258,7 @@ RC RecordPageHandler::delete_record(const RID *rid)
     }
     return RC::SUCCESS;
   } else {
-    LOG_ERROR("Invalid slot_num %d, slot is empty, page_num %d.", rid->slot_num, frame_->page_num());
+    LOG_DEBUG("Invalid slot_num %d, slot is empty, page_num %d.", rid->slot_num, frame_->page_num());
     return RC::RECORD_RECORD_NOT_EXIST;
   }
 }
@@ -319,6 +319,7 @@ RC RecordFileHandler::init(DiskBufferPool *buffer_pool)
 void RecordFileHandler::close()
 {
   if (disk_buffer_pool_ != nullptr) {
+    free_pages_.clear();
     disk_buffer_pool_ = nullptr;
   }
 }
@@ -347,6 +348,7 @@ RC RecordFileHandler::init_free_pages()
     }
     record_page_handler.cleanup();
   }
+  LOG_INFO("record file handler init free pages done. free page num=%d, rc=%s", free_pages_.size(), strrc(rc));
   return rc;
 }
 
@@ -388,10 +390,13 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
     current_page_num = frame->page_num();
     ret = record_page_handler.init_empty_page(*disk_buffer_pool_, current_page_num, record_size);
     if (ret != RC::SUCCESS) {
+      frame->unpin();
       LOG_ERROR("Failed to init empty page. ret:%d", ret);
       // this is for allocate_page
       return ret;
     }
+
+    frame->unpin(); // frame 在allocate_page的时候，是有一个pin的，在init_empty_page时又会增加一个，所以这里手动释放一个
 
     // 这里的加锁顺序看起来与上面是相反的，但是不会出现死锁
     // 上面的逻辑是先加lock锁，然后加页面写锁，这里是先加上
