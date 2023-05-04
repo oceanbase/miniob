@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_IO_IO_H__
-#define __COMMON_IO_IO_H__
+#pragma once
 
 #include <string>
 #include <vector>
@@ -58,8 +57,15 @@ int touch(const std::string &fileName);
  */
 int getFileSize(const char *filePath, u64_t &fileLen);
 
+/**
+ * @brief 一次性写入所有指定数据
+ * 
+ * @param fd  写入的描述符
+ * @param buf 写入的数据
+ * @param size 写入多少数据
+ * @return int 0 表示成功，否则返回errno
+ */
 int writen(int fd, const void *buf, int size);
 int readn(int fd, void *buf, int size);
 
 }  // namespace common
-#endif /* __COMMON_IO_IO_H__ */
