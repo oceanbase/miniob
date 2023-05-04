@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -25,7 +25,8 @@ See the Mulan PSL v2 for more details. */
 
 class Table;
 
-class TupleSchema {
+class TupleSchema 
+{
 public:
   void append_cell(const TupleCellSpec &cell)
   {
@@ -52,7 +53,8 @@ private:
   std::vector<TupleCellSpec> cells_;
 };
 
-class Tuple {
+class Tuple 
+{
 public:
   Tuple() = default;
   virtual ~Tuple() = default;
@@ -62,7 +64,8 @@ public:
   virtual RC find_cell(const TupleCellSpec &spec, TupleCell &cell) const = 0;
 };
 
-class RowTuple : public Tuple {
+class RowTuple : public Tuple 
+{
 public:
   RowTuple() = default;
   virtual ~RowTuple()
@@ -152,7 +155,8 @@ private:
   std::vector<FieldExpr *> speces_;
 };
 
-class ProjectTuple : public Tuple {
+class ProjectTuple : public Tuple 
+{
 public:
   ProjectTuple() = default;
   virtual ~ProjectTuple()
@@ -210,7 +214,8 @@ private:
   Tuple *tuple_ = nullptr;
 };
 
-class ValueListTuple : public Tuple {
+class ValueListTuple : public Tuple 
+{
 public:
   ValueListTuple() = default;
   virtual ~ValueListTuple() = default;
@@ -248,7 +253,8 @@ private:
  * 将两个tuple合并为一个tuple
  * 在join算子中使用
  */
-class JoinedTuple : public Tuple {
+class JoinedTuple : public Tuple 
+{
 public:
   JoinedTuple() = default;
   virtual ~JoinedTuple() = default;

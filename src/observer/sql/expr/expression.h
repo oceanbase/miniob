@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -22,7 +22,8 @@ See the Mulan PSL v2 for more details. */
 
 class Tuple;
 
-enum class ExprType {
+enum class ExprType 
+{
   NONE,
   FIELD,
   VALUE,
@@ -41,7 +42,8 @@ enum class ExprType {
  * 才能计算出来真实的值。但是有些表达式可能就表示某一个固定的
  * 值，比如ValueExpr。
  */
-class Expression {
+class Expression 
+{
 public:
   Expression() = default;
   virtual ~Expression() = default;
@@ -63,7 +65,8 @@ public:
   virtual AttrType value_type() const = 0;
 };
 
-class FieldExpr : public Expression {
+class FieldExpr : public Expression 
+{
 public:
   FieldExpr() = default;
   FieldExpr(const Table *table, const FieldMeta *field) : field_(table, field)
@@ -108,7 +111,8 @@ private:
   Field field_;
 };
 
-class ValueExpr : public Expression {
+class ValueExpr : public Expression 
+{
 public:
   ValueExpr() = default;
   ValueExpr(const Value &value)
@@ -162,7 +166,8 @@ private:
   TupleCell tuple_cell_;
 };
 
-class CastExpr : public Expression {
+class CastExpr : public Expression 
+{
 public:
   CastExpr(std::unique_ptr<Expression> child, AttrType cast_type);
   virtual ~CastExpr();
@@ -187,7 +192,8 @@ private:
   AttrType cast_type_;
 };
 
-class ComparisonExpr : public Expression {
+class ComparisonExpr : public Expression 
+{
 public:
   ComparisonExpr(CompOp comp, std::unique_ptr<Expression> left, std::unique_ptr<Expression> right);
   virtual ~ComparisonExpr();
@@ -237,7 +243,8 @@ private:
  * 多个表达式使用同一种关系(AND或OR)来联结
  * 当前miniob仅有AND操作
  */
-class ConjunctionExpr : public Expression {
+class ConjunctionExpr : public Expression 
+{
 public:
   enum class Type {
     AND,

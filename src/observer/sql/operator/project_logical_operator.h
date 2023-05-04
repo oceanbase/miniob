@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -24,7 +24,8 @@ See the Mulan PSL v2 for more details. */
 /**
  * project 表示投影运算
  */
-class ProjectLogicalOperator : public LogicalOperator {
+class ProjectLogicalOperator : public LogicalOperator 
+{
 public:
   ProjectLogicalOperator(const std::vector<Field> &fields);
   virtual ~ProjectLogicalOperator() = default;

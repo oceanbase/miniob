@@ -31,7 +31,8 @@ class Trx;
 class CLogManager;
 
 // TODO remove the routines with condition
-class Table {
+class Table 
+{
 public:
   Table() = default;
   ~Table();

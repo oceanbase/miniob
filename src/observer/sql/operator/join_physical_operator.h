@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -44,7 +44,7 @@ private:
 
 private:
   Trx *trx_ = nullptr;
-  
+
   //! 左表右表的真实对象是在PhysicalOperator::children_中，这里是为了写的时候更简单
   PhysicalOperator *left_ = nullptr;
   PhysicalOperator *right_ = nullptr;

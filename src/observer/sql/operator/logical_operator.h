@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -19,7 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/expr/expression.h"
 
-enum class LogicalOperatorType {
+enum class LogicalOperatorType 
+{
   TABLE_GET,
   PREDICATE,
   PROJECTION,
@@ -33,7 +34,8 @@ enum class LogicalOperatorType {
  * 逻辑算子描述当前执行计划要做什么
  * 可以看OptimizeStage中相关的代码
  */
-class LogicalOperator {
+class LogicalOperator 
+{
 public:
   LogicalOperator() = default;
   virtual ~LogicalOperator();

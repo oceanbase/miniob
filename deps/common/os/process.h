@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -12,8 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_OS_PROCESS_H__
-#define __COMMON_OS_PROCESS_H__
+#pragma once
+
 namespace common {
 
 //! Get process Name
@@ -43,4 +43,3 @@ int daemonize_service(const char *std_out_file, const char *std_err_file);
 void sys_log_redirect(const char *std_out_file, const char *std_err_file);
 
 }  // namespace common
-#endif  //__COMMON_OS_PROCESS_H__

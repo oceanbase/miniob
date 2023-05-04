@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -9,11 +9,10 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Meiyi & Wangyunlai on 2021/5/12.
+// Created by Wangyunlai on 2021/5/12.
 //
 
-#ifndef __OBSERVER_STORAGE_COMMON_INDEX_META_H__
-#define __OBSERVER_STORAGE_COMMON_INDEX_META_H__
+#pragma once
 
 #include <string>
 #include "rc.h"
@@ -25,7 +24,8 @@ namespace Json {
 class Value;
 }  // namespace Json
 
-class IndexMeta {
+class IndexMeta 
+{
 public:
   IndexMeta() = default;
 
@@ -45,4 +45,3 @@ protected:
   std::string name_;   // index's name
   std::string field_;  // field's name
 };
-#endif  // __OBSERVER_STORAGE_COMMON_INDEX_META_H__
