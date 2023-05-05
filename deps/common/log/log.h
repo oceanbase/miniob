@@ -294,7 +294,6 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
 #define ASSERT(expression, description, ...)   \
   do {                                         \
     if (!(expression)) {                       \
-      if (common::g_log) {                     \
         LOG_PANIC(description, ##__VA_ARGS__); \
       }                                        \
       assert(expression);                      \
@@ -302,7 +301,12 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
   } while (0)
 
 #else // DEBUG
-#define ASSERT(expression, description, ...)
+#define ASSERT(expression, description, ...)   \
+  do {                                         \
+    if (!(expression)) {                       \
+        LOG_ERROR(description, ##__VA_ARGS__); \
+    }                                          \
+  } while (0)
 #endif // DEBUG
 
 #endif  // ASSERT
