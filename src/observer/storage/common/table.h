@@ -28,7 +28,6 @@ class Index;
 class IndexScanner;
 class RecordDeleter;
 class Trx;
-class CLogManager;
 
 // TODO remove the routines with condition
 class Table 
@@ -44,18 +43,15 @@ public:
    * @param base_dir 表数据存放的路径
    * @param attribute_count 字段个数
    * @param attributes 字段
-   * @param clog_manager clog管理器，用于维护redo log
    */
-  RC create(const char *path, const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[],
-      CLogManager *clog_manager);
+  RC create(const char *path, const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[]);
 
   /**
    * 打开一个表
    * @param meta_file 保存表元数据的文件完整路径
    * @param base_dir 表所在的文件夹，表记录数据文件、索引数据文件存放位置
-   * @param clog_manager clog管理器
    */
-  RC open(const char *meta_file, const char *base_dir, CLogManager *clog_manager);
+  RC open(const char *meta_file, const char *base_dir);
 
   RC make_record(int value_num, const Value *values, Record &record);
   RC insert_record(Record &record);
@@ -95,7 +91,6 @@ public:
 private:
   int32_t     table_id_ = -1;
   std::string base_dir_;
-  CLogManager *clog_manager_;
   TableMeta table_meta_;
   DiskBufferPool *data_buffer_pool_ = nullptr;   /// 数据文件关联的buffer pool
   RecordFileHandler *record_handler_ = nullptr;  /// 记录操作

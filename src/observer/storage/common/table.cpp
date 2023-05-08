@@ -28,7 +28,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/index.h"
 #include "storage/index/bplus_tree_index.h"
 #include "storage/trx/trx.h"
-#include "storage/clog/clog.h"
 
 Table::~Table()
 {
@@ -51,8 +50,11 @@ Table::~Table()
   LOG_INFO("Table has been closed: %s", name());
 }
 
-RC Table::create(const char *path, const char *name, const char *base_dir, int attribute_count,
-    const AttrInfo attributes[], CLogManager *clog_manager)
+RC Table::create(const char *path, 
+                 const char *name, 
+                 const char *base_dir, 
+                 int attribute_count, 
+                 const AttrInfo attributes[])
 {
 
   if (common::is_blank(name)) {
@@ -115,12 +117,11 @@ RC Table::create(const char *path, const char *name, const char *base_dir, int a
   }
 
   base_dir_ = base_dir;
-  clog_manager_ = clog_manager;
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
   return rc;
 }
 
-RC Table::open(const char *meta_file, const char *base_dir, CLogManager *clog_manager)
+RC Table::open(const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件
   std::fstream fs;
@@ -173,9 +174,6 @@ RC Table::open(const char *meta_file, const char *base_dir, CLogManager *clog_ma
     indexes_.push_back(index);
   }
 
-  if (clog_manager_ == nullptr) {
-    clog_manager_ = clog_manager;
-  }
   return rc;
 }
 
