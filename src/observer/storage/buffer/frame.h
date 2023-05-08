@@ -44,6 +44,21 @@ private:
 class Frame
 {
 public:
+  ~Frame()
+  {
+    LOG_INFO("deallocate frame. this=%p, lbt=%s", this, common::lbt());
+  }
+
+  /**
+   * reinit 和 reset 在 MemPoolSimple 中使用
+   * 在 MemPoolSimple 分配和释放一个Frame对象时，不会调用构造函数和析构函数，
+   * 而是调用reinit和reset。
+   */
+  void reinit()
+  {}
+  void reset()
+  {}
+  
   void clear_page()
   {
     memset(&page_, 0, sizeof(page_));

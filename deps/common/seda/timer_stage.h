@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_SEDA_TIMER_STAGE_H__
-#define __COMMON_SEDA_TIMER_STAGE_H__
+#pragma once
 
 #include <pthread.h>
 #include <sys/time.h>
@@ -321,4 +320,4 @@ private:
 };
 
 }  // namespace common
-#endif  // __COMMON_SEDA_TIMER_STAGE_H__
+

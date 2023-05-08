@@ -90,6 +90,11 @@ RC IndexScanPhysicalOperator::next()
     }
 
     rc = trx_->visit_record(table_, current_record_, readonly_);
+    if (rc == RC::RECORD_INVISIBLE) {
+      continue;
+    } else {
+      return rc;
+    }
   }
 
   return rc;
