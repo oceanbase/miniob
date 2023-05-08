@@ -73,7 +73,7 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo 
   std::string table_file_path = table_meta_file(path_.c_str(), table_name);
   Table *table = new Table();
   rc = table->create(
-      table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes, get_clog_manager());
+      table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;
@@ -106,7 +106,7 @@ RC Db::open_all_tables()
   RC rc = RC::SUCCESS;
   for (const std::string &filename : table_meta_files) {
     Table *table = new Table();
-    rc = table->open(filename.c_str(), path_.c_str(), clog_manager_);
+    rc = table->open(filename.c_str(), path_.c_str());
     if (rc != RC::SUCCESS) {
       delete table;
       LOG_ERROR("Failed to open table. filename=%s", filename.c_str());

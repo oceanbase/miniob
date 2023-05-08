@@ -19,7 +19,7 @@ function usage
 {
   echo "Usage:"
   echo "./build.sh -h"
-  echo "./build.sh init"
+  echo "./build.sh init # install dependence"
   echo "./build.sh clean"
   echo "./build.sh [BuildType] [--make [MakeOptions]]"
   echo ""
