@@ -77,7 +77,7 @@ function do_init
   # build libevent
   cd ${TOPDIR}/deps/3rd/libevent && \
     git checkout release-2.1.12-stable && \
-    mkdir build && \
+    mkdir -p build && \
     cd build && \
     cmake .. -DEVENT__DISABLE_OPENSSL=ON && \
     make -j4 && \
@@ -85,7 +85,7 @@ function do_init
 
   # build googletest
   cd ${TOPDIR}/deps/3rd/googletest && \
-    mkdir build && \
+    mkdir -p build && \
     cd build && \
     cmake .. && \
     make -j4 && \
@@ -93,7 +93,7 @@ function do_init
 
   # build google benchmark
   cd ${TOPDIR}/deps/3rd/benchmark && \
-    mkdir build && \
+    mkdir -p build && \
     cd build && \
     cmake .. -DBENCHMARK_ENABLE_TESTING=OFF  -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF && \
     make -j4 && \
@@ -101,7 +101,7 @@ function do_init
 
   # build jsoncpp
   cd ${TOPDIR}/deps/3rd/jsoncpp && \
-    mkdir build && \
+    mkdir -p build && \
     cd build && \
     cmake -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF .. && \
     make && \
