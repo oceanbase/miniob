@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -121,16 +121,15 @@ void ParseStage::callback_event(StageEvent *event, CallbackContext *context)
 RC ParseStage::handle_request(StageEvent *event)
 {
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
+  SqlResult *sql_result = sql_event->session_event()->sql_result();
   const std::string &sql = sql_event->sql();
 
   ParsedSqlResult parsed_sql_result;
 
-  SqlResult *sql_result = new SqlResult;
   parse(sql.c_str(), &parsed_sql_result);
   if (parsed_sql_result.commands().empty()) {
     sql_result->set_return_code(RC::SUCCESS);
     sql_result->set_state_string("");
-    sql_event->session_event()->set_sql_result(sql_result);
     return RC::INTERNAL;
   }
 
@@ -143,11 +142,9 @@ RC ParseStage::handle_request(StageEvent *event)
     // set error information to event
     sql_result->set_return_code(RC::SQL_SYNTAX);
     sql_result->set_state_string("Failed to parse sql");
-    sql_event->session_event()->set_sql_result(sql_result);
     return RC::INTERNAL;
   }
 
-  delete sql_result;
   sql_event->set_command(std::move(cmd));
   return RC::SUCCESS;
 }

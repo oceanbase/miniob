@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -23,6 +23,7 @@ See the Mulan PSL v2 for more details. */
 class TableGetLogicalOperator;
 class PredicateLogicalOperator;
 class ProjectLogicalOperator;
+class InsertLogicalOperator;
 class DeleteLogicalOperator;
 class ExplainLogicalOperator;
 class JoinLogicalOperator;
@@ -35,10 +36,11 @@ public:
   RC create(LogicalOperator &logical_operator, std::unique_ptr<PhysicalOperator> &oper);
 
 private:
-  RC create_plan(TableGetLogicalOperator &table_get_oper, std::unique_ptr<PhysicalOperator> &oper);
-  RC create_plan(PredicateLogicalOperator &pred_oper, std::unique_ptr<PhysicalOperator> &oper);
-  RC create_plan(ProjectLogicalOperator &project_oper, std::unique_ptr<PhysicalOperator> &oper);
-  RC create_plan(DeleteLogicalOperator &delete_oper, std::unique_ptr<PhysicalOperator> &oper);
-  RC create_plan(ExplainLogicalOperator &explain_oper, std::unique_ptr<PhysicalOperator> &oper);
-  RC create_plan(JoinLogicalOperator &join_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(TableGetLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(PredicateLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(ProjectLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(InsertLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(DeleteLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(ExplainLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(JoinLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
 };

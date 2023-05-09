@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -20,9 +20,12 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/tuple.h"
 #include "sql/operator/physical_operator.h"
 
-class SqlResult {
+class Session;
+
+class SqlResult 
+{
 public:
-  SqlResult() = default;
+  SqlResult(Session *session);
   ~SqlResult()
   {}
 
@@ -62,6 +65,7 @@ public:
   RC next_tuple(Tuple *&tuple);
 
 private:
+  Session *session_ = nullptr;
   std::unique_ptr<PhysicalOperator> operator_;
   TupleSchema tuple_schema_;
   RC return_code_ = RC::SUCCESS;

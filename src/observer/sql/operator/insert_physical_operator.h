@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -14,16 +14,17 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include <vector>
 #include "sql/operator/physical_operator.h"
 #include "sql/parser/parse.h"
 #include "rc.h"
 
 class InsertStmt;
 
-class InsertPhysicalOperator : public PhysicalOperator {
+class InsertPhysicalOperator : public PhysicalOperator
+{
 public:
-  InsertPhysicalOperator(InsertStmt *insert_stmt) : insert_stmt_(insert_stmt)
-  {}
+  InsertPhysicalOperator(Table *table, std::vector<Value> &&values);
 
   virtual ~InsertPhysicalOperator() = default;
 
@@ -32,10 +33,13 @@ public:
     return PhysicalOperatorType::INSERT;
   }
 
-  RC open() override;
+  RC open(Trx *trx) override;
   RC next() override;
   RC close() override;
 
+  Tuple *current_tuple() override { return nullptr; }
+
 private:
-  InsertStmt *insert_stmt_ = nullptr;
+  Table *table_ = nullptr;
+  std::vector<Value> values_;
 };

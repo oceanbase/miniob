@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -257,7 +257,7 @@ int Server::start_tcp_server()
   sa.sin_port = htons(server_param_.port);
   sa.sin_addr.s_addr = htonl(server_param_.listen_addr);
 
-  ret = bind(server_socket_, (struct sockaddr *)&sa, sizeof(sa));
+  ret = ::bind(server_socket_, (struct sockaddr *)&sa, sizeof(sa));
   if (ret < 0) {
     LOG_ERROR("bind(): can not bind server socket, %s", strerror(errno));
     ::close(server_socket_);
@@ -315,7 +315,7 @@ int Server::start_unix_socket_server()
   sockaddr.sun_family = PF_UNIX;
   snprintf(sockaddr.sun_path, sizeof(sockaddr.sun_path), "%s", server_param_.unix_socket_path.c_str());
 
-  ret = bind(server_socket_, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
+  ret = ::bind(server_socket_, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
   if (ret < 0) {
     LOG_ERROR("bind(): can not bind server socket(path=%s), %s", sockaddr.sun_path, strerror(errno));
     ::close(server_socket_);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -14,10 +14,17 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/index_scan_physical_operator.h"
 #include "storage/index/index.h"
+#include "storage/trx/trx.h"
 
-IndexScanPhysicalOperator::IndexScanPhysicalOperator(const Table *table, Index *index, const TupleCell *left_cell,
-    bool left_inclusive, const TupleCell *right_cell, bool right_inclusive)
-    : table_(table), index_(index), left_inclusive_(left_inclusive), right_inclusive_(right_inclusive)
+IndexScanPhysicalOperator::IndexScanPhysicalOperator(
+    Table *table, Index *index, bool readonly, 
+    const TupleCell *left_cell, bool left_inclusive, 
+    const TupleCell *right_cell, bool right_inclusive)
+    : table_(table), 
+      index_(index), 
+      readonly_(readonly), 
+      left_inclusive_(left_inclusive), 
+      right_inclusive_(right_inclusive)
 {
   if (left_cell) {
     left_cell_ = *left_cell;
@@ -27,7 +34,7 @@ IndexScanPhysicalOperator::IndexScanPhysicalOperator(const Table *table, Index *
   }
 }
 
-RC IndexScanPhysicalOperator::open()
+RC IndexScanPhysicalOperator::open(Trx *trx)
 {
   if (nullptr == table_ || nullptr == index_) {
     return RC::INTERNAL;
@@ -54,6 +61,7 @@ RC IndexScanPhysicalOperator::open()
 
   tuple_.set_schema(table_, table_->table_meta().field_metas());
 
+  trx_ = trx;
   return RC::SUCCESS;
 }
 
@@ -62,9 +70,11 @@ RC IndexScanPhysicalOperator::next()
   RID rid;
   RC rc = RC::SUCCESS;
 
+  record_page_handler_.cleanup();
+
   bool filter_result = false;
   while (RC::SUCCESS == (rc = index_scanner_->next_entry(&rid))) {
-    rc = record_handler_->get_record(&rid, &current_record_);
+    rc = record_handler_->get_record(record_page_handler_, &rid, readonly_, &current_record_);
     if (rc != RC::SUCCESS) {
       return rc;
     }
@@ -75,7 +85,14 @@ RC IndexScanPhysicalOperator::next()
       return rc;
     }
 
-    if (filter_result) {
+    if (!filter_result) {
+      continue;
+    }
+
+    rc = trx_->visit_record(table_, current_record_, readonly_);
+    if (rc == RC::RECORD_INVISIBLE) {
+      continue;
+    } else {
       return rc;
     }
   }

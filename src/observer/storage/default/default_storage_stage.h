@@ -12,13 +12,13 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Longda on 2021/4/13.
 //
 
-#ifndef __OBSERVER_STORAGE_DEFAULT_STORAGE_STAGE_H__
-#define __OBSERVER_STORAGE_DEFAULT_STORAGE_STAGE_H__
+#pragma once
 
 #include "common/seda/stage.h"
 #include "common/metrics/metrics.h"
 
 class DefaultHandler;
+class SqlResult;
 
 class DefaultStorageStage : public common::Stage {
 public:
@@ -36,7 +36,7 @@ protected:
   void callback_event(common::StageEvent *event, common::CallbackContext *context) override;
 
 private:
-  std::string load_data(const char *db_name, const char *table_name, const char *file_name);
+  void load_data(const char *db_name, const char *table_name, const char *file_name, SqlResult *sql_result);
 
 protected:
   common::SimpleTimer *query_metric_ = nullptr;
@@ -45,5 +45,3 @@ protected:
 private:
   DefaultHandler *handler_;
 };
-
-#endif  //__OBSERVER_STORAGE_DEFAULT_STORAGE_STAGE_H__

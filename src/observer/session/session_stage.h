@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/13.
 //
 
-#ifndef __OBSERVER_SESSION_SESSIONSTAGE_H__
-#define __OBSERVER_SESSION_SESSIONSTAGE_H__
+#pragma once
 
 #include "common/seda/stage.h"
 #include "common/metrics/metrics.h"
@@ -25,7 +24,8 @@ See the Mulan PSL v2 for more details. */
  * 每个stage使用handleEvent函数处理任务，并且使用StageEvent::pushCallback注册回调函数。
  * 这时当调用StageEvent::done(Immediate)时，就会调用该事件注册的回调函数。
  */
-class SessionStage : public common::Stage {
+class SessionStage : public common::Stage 
+{
 public:
   ~SessionStage();
   static Stage *make_stage(const std::string &tag);
@@ -50,5 +50,3 @@ private:
   common::SimpleTimer *sql_metric_ = nullptr;
   static const std::string SQL_METRIC_TAG;
 };
-
-#endif  //__OBSERVER_SESSION_SESSIONSTAGE_H__

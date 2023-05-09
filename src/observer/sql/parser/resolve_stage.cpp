@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -94,6 +94,7 @@ void ResolveStage::handle_event(StageEvent *event)
   }
 
   SessionEvent *session_event = sql_event->session_event();
+  SqlResult *sql_result = session_event->sql_result();
 
   Db *db = session_event->session()->get_current_db();
   if (nullptr == db) {
@@ -106,9 +107,7 @@ void ResolveStage::handle_event(StageEvent *event)
   RC rc = Stmt::create_stmt(db, *cmd, stmt);
   if (rc != RC::SUCCESS && rc != RC::UNIMPLENMENT) {
     LOG_WARN("failed to create stmt. rc=%d:%s", rc, strrc(rc));
-    SqlResult *sql_result = new SqlResult;
     sql_result->set_return_code(rc);
-    session_event->set_sql_result(sql_result);
     return;
   }
 

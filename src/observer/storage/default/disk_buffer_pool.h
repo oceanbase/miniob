@@ -56,6 +56,8 @@ struct BPFileHeader
    * 能够分配的最大的页面个数，即bitmap的字节数 乘以8
    */
   static const int MAX_PAGE_NUM = (BP_PAGE_DATA_SIZE - sizeof(page_count) - sizeof(allocated_pages)) * 8;
+
+  std::string to_string() const;
 };
 
 class BPFrameManager 

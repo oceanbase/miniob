@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -42,15 +42,10 @@ protected:
 
   RC do_help(SQLStageEvent *session_event);
   RC do_create_table(SQLStageEvent *sql_event);
-  RC do_create_index(SQLStageEvent *sql_event);
   RC do_show_tables(SQLStageEvent *sql_event);
   RC do_desc_table(SQLStageEvent *sql_event);
-  RC do_select(SQLStageEvent *sql_event);
-  RC do_insert(SQLStageEvent *sql_event);
-  RC do_delete(SQLStageEvent *sql_event);
   RC do_begin(SQLStageEvent *sql_event);
   RC do_commit(SQLStageEvent *sql_event);
-  RC do_clog_sync(SQLStageEvent *sql_event);
 
 protected:
 private:

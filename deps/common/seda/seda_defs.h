@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/21.
 //
 
-#ifndef __COMMON_SEDA_SEDA_DEFS_H__
-#define __COMMON_SEDA_SEDA_DEFS_H__
+#pragma once
 
 #define SEDA_BASE_NAME "SEDA_BASE"
 #define THREAD_POOLS_NAME "ThreadPools"
@@ -29,5 +28,3 @@ See the Mulan PSL v2 for more details. */
 #define NEXT_STAGES "NextStages"
 #define DEFAULT_THREAD_POOL "DefaultThreads"
 #define METRCS_REPORT_INTERVAL "MetricsReportInterval"
-
-#endif  //__COMMON_SEDA_SEDA_DEFS_H__

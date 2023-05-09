@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -20,11 +20,11 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "storage/trx/trx.h"
 
+using namespace std;
+
 static const Json::StaticString FIELD_TABLE_NAME("table_name");
 static const Json::StaticString FIELD_FIELDS("fields");
 static const Json::StaticString FIELD_INDEXES("indexes");
-
-std::vector<FieldMeta> TableMeta::sys_fields_;
 
 TableMeta::TableMeta(const TableMeta &other)
     : name_(other.name_), fields_(other.fields_), indexes_(other.indexes_), record_size_(other.record_size_)
@@ -38,19 +38,6 @@ void TableMeta::swap(TableMeta &other) noexcept
   std::swap(record_size_, other.record_size_);
 }
 
-RC TableMeta::init_sys_fields()
-{
-  sys_fields_.reserve(1);
-  FieldMeta field_meta;
-  RC rc = field_meta.init(Trx::trx_field_name(), Trx::trx_field_type(), 0, Trx::trx_field_len(), false);
-  if (rc != RC::SUCCESS) {
-    LOG_ERROR("Failed to init trx field. rc = %d:%s", rc, strrc(rc));
-    return rc;
-  }
-
-  sys_fields_.push_back(field_meta);
-  return rc;
-}
 RC TableMeta::init(const char *name, int field_num, const AttrInfo attributes[])
 {
   if (common::is_blank(name)) {
@@ -64,26 +51,28 @@ RC TableMeta::init(const char *name, int field_num, const AttrInfo attributes[])
   }
 
   RC rc = RC::SUCCESS;
-  if (sys_fields_.empty()) {
-    rc = init_sys_fields();
-    if (rc != RC::SUCCESS) {
-      LOG_ERROR("Failed to init_sys_fields, name:%s ", name);
-      return rc;
+  
+  int field_offset = 0;
+  int trx_field_num = 0;
+  const vector<FieldMeta> *trx_fields = TrxKit::instance()->trx_fields();
+  if (trx_fields != nullptr) {
+    fields_.resize(field_num + trx_fields->size());
+
+    for (size_t i = 0; i < trx_fields->size(); i++) {
+      const FieldMeta &field_meta = (*trx_fields)[i];
+      fields_[i] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false/*visible*/);
+      field_offset += field_meta.len();
     }
-  }
 
-  fields_.resize(field_num + sys_fields_.size());
-  for (size_t i = 0; i < sys_fields_.size(); i++) {
-    fields_[i] = sys_fields_[i];
+    trx_field_num = static_cast<int>(trx_fields->size());
+  } else {
+    fields_.resize(field_num);
   }
-
-  // 当前实现下，所有类型都是4字节对齐的，所以不再考虑字节对齐问题
-  int field_offset = sys_fields_.back().offset() + sys_fields_.back().len();
 
   for (int i = 0; i < field_num; i++) {
     const AttrInfo &attr_info = attributes[i];
-    rc = fields_[i + sys_fields_.size()].init(
-        attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true);
+    rc = fields_[i + trx_field_num].init(attr_info.name.c_str(), 
+            attr_info.type, field_offset, attr_info.length, true/*visible*/);
     if (rc != RC::SUCCESS) {
       LOG_ERROR("Failed to init field meta. table name=%s, field name: %s", name, attr_info.name.c_str());
       return rc;
@@ -113,6 +102,11 @@ const char *TableMeta::name() const
 const FieldMeta *TableMeta::trx_field() const
 {
   return &fields_[0];
+}
+
+const std::pair<const FieldMeta *, int> TableMeta::trx_fields() const
+{
+  return std::pair<const FieldMeta *, int>{fields_.data(), sys_field_num()};
 }
 
 const FieldMeta *TableMeta::field(int index) const
@@ -148,7 +142,11 @@ int TableMeta::field_num() const
 
 int TableMeta::sys_field_num() const
 {
-  return sys_fields_.size();
+  const vector<FieldMeta> *trx_fields = TrxKit::instance()->trx_fields();
+  if (nullptr == trx_fields) {
+    return 0;
+  }
+  return static_cast<int>(trx_fields->size());
 }
 
 const IndexMeta *TableMeta::index(const char *name) const
@@ -222,10 +220,6 @@ int TableMeta::serialize(std::ostream &ss) const
 
 int TableMeta::deserialize(std::istream &is)
 {
-  if (sys_fields_.empty()) {
-    init_sys_fields();
-  }
-
   Json::Value table_value;
   Json::CharReaderBuilder builder;
   std::string errors;
@@ -264,8 +258,8 @@ int TableMeta::deserialize(std::istream &is)
     }
   }
 
-  std::sort(
-      fields.begin(), fields.end(), [](const FieldMeta &f1, const FieldMeta &f2) { return f1.offset() < f2.offset(); });
+  auto comparator = [](const FieldMeta &f1, const FieldMeta &f2) { return f1.offset() < f2.offset(); };
+  std::sort(fields.begin(), fields.end(), comparator);
 
   name_.swap(table_name);
   fields_.swap(fields);

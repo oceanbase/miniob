@@ -40,7 +40,6 @@ ELSE()
 ENDIF(WIN32)
 
 # This is for clangd plugin for vscode
-#SET(CMAKE_COMMON_FLAGS ${CMAKE_COMMON_FLAGS} " -Wstring-plus-int -Wsizeof-array-argument -Wunused-variable -Wmissing-braces")
 SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1")
 IF(DEBUG)
     MESSAGE("DEBUG has been set as TRUE ${DEBUG}")

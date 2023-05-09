@@ -1,6 +1,8 @@
 #!/bin/bash
 
-TOPDIR=`readlink -f \`dirname $0\``
+# readlink -f cannot work on mac
+TOPDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
 BUILD_SH=$TOPDIR/build.sh
 
 CMAKE_COMMAND="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1"
@@ -17,7 +19,7 @@ function usage
 {
   echo "Usage:"
   echo "./build.sh -h"
-  echo "./build.sh init"
+  echo "./build.sh init # install dependence"
   echo "./build.sh clean"
   echo "./build.sh [BuildType] [--make [MakeOptions]]"
   echo ""
@@ -75,7 +77,7 @@ function do_init
   # build libevent
   cd ${TOPDIR}/deps/3rd/libevent && \
     git checkout release-2.1.12-stable && \
-    mkdir build && \
+    mkdir -p build && \
     cd build && \
     cmake .. -DEVENT__DISABLE_OPENSSL=ON && \
     make -j4 && \
@@ -83,7 +85,7 @@ function do_init
 
   # build googletest
   cd ${TOPDIR}/deps/3rd/googletest && \
-    mkdir build && \
+    mkdir -p build && \
     cd build && \
     cmake .. && \
     make -j4 && \
@@ -91,7 +93,7 @@ function do_init
 
   # build google benchmark
   cd ${TOPDIR}/deps/3rd/benchmark && \
-    mkdir build && \
+    mkdir -p build && \
     cd build && \
     cmake .. -DBENCHMARK_ENABLE_TESTING=OFF  -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF && \
     make -j4 && \
@@ -99,7 +101,7 @@ function do_init
 
   # build jsoncpp
   cd ${TOPDIR}/deps/3rd/jsoncpp && \
-    mkdir build && \
+    mkdir -p build && \
     cd build && \
     cmake -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF .. && \
     make && \
@@ -119,7 +121,7 @@ function do_build
   TYPE=$1; shift
   prepare_build_dir $TYPE || return
   echo "${CMAKE_COMMAND} ${TOPDIR} $@"
-  ${CMAKE_COMMAND} ${TOPDIR} $@
+  ${CMAKE_COMMAND} -S ${TOPDIR} $@
 }
 
 function do_clean

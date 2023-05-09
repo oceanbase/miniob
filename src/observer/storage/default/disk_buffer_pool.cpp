@@ -21,8 +21,19 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 
 using namespace common;
+using namespace std;
 
-static const int MEM_POOL_ITEM_NUM = 128;
+static const int MEM_POOL_ITEM_NUM = 20;
+
+////////////////////////////////////////////////////////////////////////////////
+
+string BPFileHeader::to_string() const
+{
+  stringstream ss;
+  ss << "pageCount:" << page_count
+     << ", allocatedCount:" << allocated_pages;
+  return ss.str();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -138,7 +149,7 @@ RC BPFrameManager::free(int file_desc, PageNum page_num, Frame *frame)
 RC BPFrameManager::free_internal(const FrameId &frame_id, Frame *frame)
 {
   Frame *frame_source = nullptr;
-  bool found = frames_.get(frame_id, frame_source);
+  [[maybe_unused]] bool found = frames_.get(frame_id, frame_source);
   ASSERT(found && frame == frame_source && frame->pin_count() == 1,
          "failed to free frame. found=%d, frameId=%s, frame_source=%p, frame=%p, pinCount=%d, lbt=%s",
          found, to_string(frame_id).c_str(), frame_source, frame, frame->pin_count(), lbt());
@@ -246,7 +257,8 @@ RC DiskBufferPool::open_file(const char *file_name)
 
   file_header_ = (BPFileHeader *)hdr_frame_->data();
 
-  LOG_INFO("Successfully open %s. file_desc=%d, hdr_frame=%p", file_name, file_desc_, hdr_frame_);
+  LOG_INFO("Successfully open %s. file_desc=%d, hdr_frame=%p, file header=%s",
+           file_name, file_desc_, hdr_frame_, file_header_->to_string().c_str());
   return RC::SUCCESS;
 }
 
@@ -353,6 +365,9 @@ RC DiskBufferPool::allocate_page(Frame **frame)
     lock_.unlock();
     return rc;
   }
+
+  LOG_INFO("allocate new page. file=%s, pageNum=%d, pin=%d",
+           file_name_.c_str(), page_num, allocated_frame->pin_count());
 
   file_header_->allocated_pages++;
   file_header_->page_count++;
@@ -492,7 +507,7 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
     return RC::IOERR_WRITE;
   }
   frame.clear_dirty();
-  LOG_DEBUG("Flush block. file desc=%d, pageNum=%d", file_desc_, page.page_num);
+  LOG_DEBUG("Flush block. file desc=%d, pageNum=%d, pin count=%d", file_desc_, page.page_num, frame.pin_count());
 
   return RC::SUCCESS;
 }
@@ -583,8 +598,8 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
   Page &page = frame->page();
   int ret = readn(file_desc_, &page, BP_PAGE_SIZE);
   if (ret != 0) {
-    LOG_ERROR("Failed to load page %s:%d, due to failed to read data:%s, ret=%d, page count=%d",
-        file_name_.c_str(), page_num, strerror(errno), ret, file_header_->allocated_pages);
+    LOG_ERROR("Failed to load page %s, file_desc:%d, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
+              file_name_.c_str(), file_desc_, page_num, strerror(errno), ret, file_header_->allocated_pages);
     return RC::IOERR_READ;
   }
   return RC::SUCCESS;
@@ -693,11 +708,12 @@ RC BufferPoolManager::close_file(const char *_file_name)
 {
   std::string file_name(_file_name);
 
-  std::scoped_lock lock_guard(lock_);
+  lock_.lock();
 
   auto iter = buffer_pools_.find(file_name);
   if (iter == buffer_pools_.end()) {
-    LOG_WARN("file has not opened: %s", _file_name);
+    LOG_TRACE("file has not opened: %s", _file_name);
+    lock_.unlock();
     return RC::INTERNAL;
   }
 
@@ -716,6 +732,8 @@ RC BufferPoolManager::close_file(const char *_file_name)
 
   DiskBufferPool *bp = iter->second;
   buffer_pools_.erase(iter);
+  lock_.unlock();
+  
   delete bp;
   return RC::SUCCESS;
 }

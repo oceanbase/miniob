@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -21,7 +21,8 @@ See the Mulan PSL v2 for more details. */
  * 将一些谓词表达式下推到表数据扫描中
  * 这样可以提前过滤一些数据
  */
-class PredicatePushdownRewriter : public RewriteRule {
+class PredicatePushdownRewriter : public RewriteRule 
+{
 public:
   PredicatePushdownRewriter() = default;
   virtual ~PredicatePushdownRewriter() = default;

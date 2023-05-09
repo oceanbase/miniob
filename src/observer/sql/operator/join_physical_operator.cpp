@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 NestedLoopJoinPhysicalOperator::NestedLoopJoinPhysicalOperator()
 {}
 
-RC NestedLoopJoinPhysicalOperator::open()
+RC NestedLoopJoinPhysicalOperator::open(Trx *trx)
 {
   if (children_.size() != 2) {
     LOG_WARN("nlj operator should have 2 children");
@@ -30,7 +30,8 @@ RC NestedLoopJoinPhysicalOperator::open()
   right_closed_ = true;
   round_done_ = true;
 
-  rc = left_->open();
+  rc = left_->open(trx);
+  trx_ = trx;
   return rc;
 }
 
@@ -112,7 +113,7 @@ RC NestedLoopJoinPhysicalOperator::right_next()
       }
     }
 
-    rc = right_->open();
+    rc = right_->open(trx_);
     if (rc != RC::SUCCESS) {
       return rc;
     }

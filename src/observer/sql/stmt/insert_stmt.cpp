@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -26,9 +26,7 @@ RC InsertStmt::create(Db *db, const Inserts &inserts, Stmt *&stmt)
   const char *table_name = inserts.relation_name.c_str();
   if (nullptr == db || nullptr == table_name || inserts.values.empty()) {
     LOG_WARN("invalid argument. db=%p, table_name=%p, value_num=%d",
-        db,
-        table_name,
-        static_cast<int>(inserts.values.size()));
+        db, table_name, static_cast<int>(inserts.values.size()));
     return RC::INVALID_ARGUMENT;
   }
 
@@ -57,10 +55,7 @@ RC InsertStmt::create(Db *db, const Inserts &inserts, Stmt *&stmt)
     const AttrType value_type = values[i].type;
     if (field_type != value_type) {  // TODO try to convert the value type to field type
       LOG_WARN("field type mismatch. table=%s, field=%s, field type=%d, value_type=%d",
-          table_name,
-          field_meta->name(),
-          field_type,
-          value_type);
+          table_name, field_meta->name(), field_type, value_type);
       return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
   }

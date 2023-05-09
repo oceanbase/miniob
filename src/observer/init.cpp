@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -38,6 +38,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/mem/mem_storage_stage.h"
 #include "storage/default/disk_buffer_pool.h"
 #include "storage/default/default_handler.h"
+#include "storage/trx/trx.h"
 
 using namespace common;
 
@@ -158,7 +159,7 @@ int prepare_init_seda()
   return 0;
 }
 
-int init_global_objects()
+int init_global_objects(ProcessParam *process_param)
 {
   BufferPoolManager *bpm = new BufferPoolManager();
   BufferPoolManager::set_instance(bpm);
@@ -166,7 +167,13 @@ int init_global_objects()
   DefaultHandler *handler = new DefaultHandler();
   DefaultHandler::set_default(handler);
 
-  return 0;
+  int ret = 0;
+  RC rc = TrxKit::init_global(process_param->trx_kit_name().c_str());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("failed to init trx kit. rc=%s", strrc(rc));
+    ret = -1;
+  }
+  return ret;
 }
 
 int uninit_global_objects()
@@ -229,7 +236,7 @@ int init(ProcessParam *process_param)
   get_properties()->to_string(conf_data);
   LOG_INFO("Output configuration \n%s", conf_data.c_str());
 
-  rc = init_global_objects();
+  rc = init_global_objects(process_param);
   if (rc != 0) {
     LOG_ERROR("failed to init global objects");
     return rc;

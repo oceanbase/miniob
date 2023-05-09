@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -409,13 +409,12 @@ RC decode_query_packet(std::vector<char> &net_packet, QueryPacket &query_packet)
   return RC::SUCCESS;
 }
 
-RC create_version_comment_sql_result(SqlResult *&sql_result)
+RC create_version_comment_sql_result(SqlResult *sql_result)
 {
   TupleSchema tuple_schema;
   TupleCellSpec cell_spec("", "", "@@version_comment");
   tuple_schema.append_cell(cell_spec);
 
-  sql_result = new SqlResult;
   sql_result->set_return_code(RC::SUCCESS);
   sql_result->set_tuple_schema(tuple_schema);
 
@@ -449,15 +448,13 @@ RC MysqlCommunicator::init(int fd, Session *session, const std::string &addr)
 
 RC MysqlCommunicator::handle_version_comment(bool &need_disconnect)
 {
-  SqlResult *sql_result = nullptr;
-  RC rc = create_version_comment_sql_result(sql_result);
+  SessionEvent session_event(this);
+  RC rc = create_version_comment_sql_result(session_event.sql_result());
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to handle version comment. rc=%s", strrc(rc));
     return rc;
   }
 
-  SessionEvent session_event(this);
-  session_event.set_sql_result(sql_result);
   rc = write_result(&session_event, need_disconnect);
   return rc;
 }
@@ -469,9 +466,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
   int ret = common::readn(fd_, &packet_header, sizeof(packet_header));
   if (ret != 0) {
     LOG_WARN("failed to read packet header. length=%d, addr=%s. error=%s",
-        sizeof(packet_header),
-        addr_.c_str(),
-        strerror(errno));
+             sizeof(packet_header), addr_.c_str(), strerror(errno));
     return RC::IOERR;
   }
 
@@ -481,10 +476,8 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
   std::vector<char> buf(packet_header.payload_length);
   ret = common::readn(fd_, buf.data(), packet_header.payload_length);
   if (ret != 0) {
-    LOG_WARN("failed to read packet payload. length=%d, addr=%s, error=%s",
-        packet_header.payload_length,
-        addr_.c_str(),
-        strerror(errno));
+    LOG_WARN("failed to read packet payload. length=%d, addr=%s, error=%s", 
+             packet_header.payload_length, addr_.c_str(), strerror(errno));
     return RC::IOERR;
   }
 
@@ -583,9 +576,9 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   need_disconnect = true;
   SqlResult *sql_result = event->sql_result();
   if (nullptr == sql_result) {
-    const char *response = event->get_response();
-    int len = event->get_response_len();
 
+    const char *response = "Unexpected error: no result";
+    const int len = strlen(response);
     OkPacket ok_packet;  // TODO if error occurs, we should send an error packet to client
     ok_packet.info.assign(response, len);
     rc = send_packet(ok_packet);
@@ -617,6 +610,7 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       // send metadata : Column Definition
       rc = send_column_definition(sql_result, need_disconnect);
       if (rc != RC::SUCCESS) {
+        sql_result->close();
         return rc;
       }
     }
@@ -624,6 +618,10 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     rc = send_result_rows(sql_result, cell_num == 0, need_disconnect);
   }
 
+  RC close_rc = sql_result->close();
+  if (rc == RC::SUCCESS) {
+    rc = close_rc;
+  }
   return rc;
 }
 

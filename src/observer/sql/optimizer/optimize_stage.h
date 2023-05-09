@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -27,11 +27,13 @@ class SQLStageEvent;
 class LogicalOperator;
 class Stmt;
 class SelectStmt;
+class InsertStmt;
 class DeleteStmt;
 class FilterStmt;
 class ExplainStmt;
 
-class OptimizeStage : public common::Stage {
+class OptimizeStage : public common::Stage
+{
 public:
   ~OptimizeStage();
   static Stage *make_stage(const std::string &tag);
@@ -53,6 +55,7 @@ private:
   RC create_logical_plan(Stmt *stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_select_logical_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_predicate_logical_plan(FilterStmt *filter_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_insert_logical_plan(InsertStmt *insert_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_delete_logical_plan(DeleteStmt *delete_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_explain_logical_plan(ExplainStmt *explain_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -15,20 +15,21 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <stddef.h>
-#include <unordered_map>
 #include <unordered_set>
 #include <mutex>
+#include <utility>
 
 #include "sql/parser/parse.h"
 #include "storage/record/record_manager.h"
+#include "storage/common/field_meta.h"
+#include "storage/common/table.h"
 #include "rc.h"
-
-class Table;
 
 class Operation 
 {
 public:
-  enum class Type : int {
+  enum class Type : int 
+  {
     INSERT,
     UPDATE,
     DELETE,
@@ -36,25 +37,23 @@ public:
   };
 
 public:
-  Operation(Type type, const RID &rid) : type_(type), page_num_(rid.page_num), slot_num_(rid.slot_num)
+  Operation(Type type, Table *table, const RID &rid) 
+      : type_(type), 
+        table_(table),
+        page_num_(rid.page_num), 
+        slot_num_(rid.slot_num)
   {}
 
-  Type type() const
-  {
-    return type_;
-  }
-  PageNum page_num() const
-  {
-    return page_num_;
-  }
-  SlotNum slot_num() const
-  {
-    return slot_num_;
-  }
+  Type    type() const { return type_; }
+  int32_t table_id() const { return table_->table_id(); }
+  Table * table() const { return table_; }
+  PageNum page_num() const { return page_num_; }
+  SlotNum slot_num() const { return slot_num_; }
 
 private:
   Type type_;
-  PageNum page_num_;
+  Table * table_ = nullptr;
+  PageNum page_num_; // TODO use RID instead of page num and slot num
   SlotNum slot_num_;
 };
 
@@ -72,64 +71,45 @@ class OperationEqualer
 public:
   bool operator()(const Operation &op1, const Operation &op2) const
   {
-    return op1.page_num() == op2.page_num() && op1.slot_num() == op2.slot_num();
+    return op1.table_id() == op2.table_id() &&
+        op1.page_num() == op2.page_num() && op1.slot_num() == op2.slot_num();
   }
 };
 
-/**
- * 这里是一个简单的事务实现，可以支持提交/回滚。但是没有对并发访问做控制
- * 可以在这个基础上做备份恢复，当然也可以重写
- */
-class Trx 
+class TrxKit
 {
 public:
-  static std::atomic<int32_t> trx_id;
-
-  static int32_t default_trx_id();
-  static int32_t next_trx_id();
-  static void set_trx_id(int32_t id);
-
-  static const char *trx_field_name();
-  static AttrType trx_field_type();
-  static int trx_field_len();
+  enum Type
+  {
+    VACUOUS,
+    MVCC,
+  };
 
 public:
-  Trx();
-  ~Trx();
+  TrxKit() = default;
+  virtual ~TrxKit() = default;
+
+  virtual RC init() = 0;
+  virtual const std::vector<FieldMeta> *trx_fields() const = 0;
+  virtual Trx *create_trx() = 0;
 
 public:
-  RC insert_record(Table *table, Record *record);
-  RC delete_record(Table *table, Record *record);
+  static TrxKit *create(const char *name);
+  static RC init_global(const char *name);
+  static TrxKit *instance();
+};
 
-  RC commit();
-  RC rollback();
+class Trx
+{
+public:
+  Trx() = default;
+  virtual ~Trx() = default;
 
-  RC commit_insert(Table *table, Record &record);
-  RC rollback_delete(Table *table, Record &record);
+  virtual RC insert_record(Table *table, Record &record) = 0;
+  virtual RC delete_record(Table *table, Record &record) = 0;
+  virtual RC visit_record(Table *table, Record &record, bool readonly) = 0;
 
-  bool is_visible(Table *table, const Record *record);
-
-  void init_trx_info(Table *table, Record &record);
-
-  void next_current_id();
-
-  int32_t get_current_id();
-
-private:
-  void set_record_trx_id(Table *table, Record &record, int32_t trx_id, bool deleted) const;
-  static void get_record_trx_id(Table *table, const Record &record, int32_t &trx_id, bool &deleted);
-
-private:
-  using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
-
-  Operation *find_operation(Table *table, const RID &rid);
-  void insert_operation(Table *table, Operation::Type type, const RID &rid);
-  void delete_operation(Table *table, const RID &rid);
-
-private:
-  void start_if_not_started();
-
-private:
-  int32_t trx_id_ = 0;
-  std::unordered_map<Table *, OperationSet> operations_;
+  virtual RC start_if_need() = 0;
+  virtual RC commit() = 0;
+  virtual RC rollback() = 0;
 };

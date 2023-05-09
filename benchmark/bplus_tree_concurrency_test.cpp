@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -12,7 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/03/14
 //
 #include <inttypes.h>
-#include <random>
 #include <stdexcept>
 #include <benchmark/benchmark.h>
 
@@ -20,27 +19,11 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/disk_buffer_pool.h"
 #include "rc.h"
 #include "common/log/log.h"
+#include "integer_generator.h"
 
 using namespace std;
 using namespace common;
 using namespace benchmark;
-
-class IntegerGenerator
-{
-public:
-  IntegerGenerator(int min, int max)
-    : distrib_(min, max)
-  {}
-
-  int next()
-  {
-    return distrib_(rd_);
-  }
-
-private:
-  random_device rd_;
-  uniform_int_distribution<> distrib_;
-};
 
 once_flag init_bpm_flag;
 BufferPoolManager bpm{512};
@@ -116,7 +99,7 @@ public:
     for (uint32_t value = min; value < max; ++value) {
       const char *key = reinterpret_cast<const char *>(&value);
       RID rid(value, value);
-      RC rc = handler_.insert_entry(key, &rid);
+      [[maybe_unused]] RC rc = handler_.insert_entry(key, &rid);
       ASSERT(rc == RC::SUCCESS, "failed to insert entry into btree. key=%" PRIu32, value);
     }
   }

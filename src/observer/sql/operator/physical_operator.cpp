@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -27,6 +27,10 @@ std::string physical_operator_type_name(PhysicalOperatorType type)
       return "EXPLAIN";
     case PhysicalOperatorType::PREDICATE:
       return "PREDICATE";
+    case PhysicalOperatorType::INSERT:
+      return "INSERT";
+    case PhysicalOperatorType::DELETE:
+      return "DELETE";
     case PhysicalOperatorType::PROJECT:
       return "PROJECT";
     case PhysicalOperatorType::STRING_LIST:

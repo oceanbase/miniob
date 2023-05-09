@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -140,13 +140,8 @@ void SessionStage::handle_request(StageEvent *event)
   }
 
   TimerStat sql_stat(*sql_metric_);
-  if (nullptr == sev->get_request_buf()) {
-    LOG_ERROR("Invalid request buffer.");
-    sev->done_immediate();
-    return;
-  }
 
-  std::string sql = sev->get_request_buf();
+  std::string sql = sev->query();
   if (common::is_blank(sql.c_str())) {
     sev->done_immediate();
     return;

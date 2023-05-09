@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -16,12 +16,15 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/table.h"
 #include "rc.h"
 
-RC TableScanPhysicalOperator::open()
+using namespace std;
+
+RC TableScanPhysicalOperator::open(Trx *trx)
 {
-  RC rc = table_->get_record_scanner(record_scanner_);
+  RC rc = table_->get_record_scanner(record_scanner_, trx, readonly_);
   if (rc == RC::SUCCESS) {
     tuple_.set_schema(table_, table_->table_meta().field_metas());
   }
+  trx_ = trx;
   return rc;
 }
 
@@ -65,21 +68,21 @@ Tuple *TableScanPhysicalOperator::current_tuple()
   return &tuple_;
 }
 
-std::string TableScanPhysicalOperator::param() const
+string TableScanPhysicalOperator::param() const
 {
   return table_->name();
 }
 
-void TableScanPhysicalOperator::set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs)
+void TableScanPhysicalOperator::set_predicates(vector<unique_ptr<Expression>> &&exprs)
 {
-  predicates_ = std::move(exprs);
+  predicates_ = move(exprs);
 }
 
 RC TableScanPhysicalOperator::filter(RowTuple &tuple, bool &result)
 {
   RC rc = RC::SUCCESS;
   TupleCell value;
-  for (std::unique_ptr<Expression> &expr : predicates_) {
+  for (unique_ptr<Expression> &expr : predicates_) {
     rc = expr->get_value(tuple, value);
     if (rc != RC::SUCCESS) {
       return rc;

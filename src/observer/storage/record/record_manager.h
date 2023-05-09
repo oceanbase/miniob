@@ -16,11 +16,14 @@ See the Mulan PSL v2 for more details. */
 #include <sstream>
 #include <limits>
 #include "storage/default/disk_buffer_pool.h"
+#include "storage/trx/latch_memo.h"
 #include "storage/record/record.h"
 #include "common/lang/bitmap.h"
 
 class ConditionFilter;
 class RecordPageHandler;
+class Trx;
+class Table;
 
 /**
  * 数据文件，按照页面来组织，每一页都存放一些记录/数据行
@@ -46,7 +49,7 @@ public:
   RecordPageIterator();
   ~RecordPageIterator();
 
-  void init(RecordPageHandler &record_page_handler);
+  void init(RecordPageHandler &record_page_handler, SlotNum start_slot_num = 0);
 
   bool has_next();
   RC next(Record &record);
@@ -71,7 +74,7 @@ class RecordPageHandler
 public:
   RecordPageHandler() = default;
   ~RecordPageHandler();
-  RC init(DiskBufferPool &buffer_pool, PageNum page_num);
+  RC init(DiskBufferPool &buffer_pool, PageNum page_num, bool readonly);
   RC recover_init(DiskBufferPool &buffer_pool, PageNum page_num);
   RC init_empty_page(DiskBufferPool &buffer_pool, PageNum page_num, int record_size);
   RC cleanup();
@@ -95,6 +98,7 @@ protected:
 
 protected:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
+  bool readonly_ = false;
   Frame *frame_ = nullptr;
   PageHeader *page_header_ = nullptr;
   char *bitmap_ = nullptr;
@@ -107,6 +111,8 @@ class RecordFileHandler
 {
 public:
   RecordFileHandler() = default;
+  ~RecordFileHandler();
+  
   RC init(DiskBufferPool *buffer_pool);
   void close();
 
@@ -122,7 +128,7 @@ public:
   RC delete_record(const RID *rid);
 
   /**
-   * 插入一个新的记录到指定文件中，pData为指向新纪录内容的指针，返回该记录的标识符rid
+   * 插入一个新的记录到指定文件中，data为指向新纪录内容的指针，返回该记录的标识符rid
    */
   RC insert_record(const char *data, int record_size, RID *rid);
   RC recover_insert_record(const char *data, int record_size, RID *rid);
@@ -130,7 +136,9 @@ public:
   /**
    * 获取指定文件中标识符为rid的记录内容到rec指向的记录结构中
    */
-  RC get_record(const RID *rid, Record *rec);
+  RC get_record(RecordPageHandler &page_handler, const RID *rid, bool readonly, Record *rec);
+
+  RC visit_record(const RID &rid, bool readonly, std::function<void(Record &)> visitor);
 
 private:
   RC init_free_pages();
@@ -138,18 +146,29 @@ private:
 private:
   DiskBufferPool *disk_buffer_pool_ = nullptr;
   std::unordered_set<PageNum> free_pages_;  // 没有填充满的页面集合
+  common::Mutex lock_; // 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
 };
 
 class RecordFileScanner 
 {
 public:
   RecordFileScanner() = default;
+  ~RecordFileScanner();
 
   /**
    * 打开一个文件扫描。
    * 如果条件不为空，则要对每条记录进行条件比较，只有满足所有条件的记录才被返回
+   * @param table        遍历的哪张表
+   * @param buffer_pool  访问的文件
+   * @param readonly     当前是否只读操作。访问数据时，需要对页面加锁。比如
+   *                     删除时也需要遍历找到数据，然后删除，这时就需要加写锁
+   * @param condition_filter 做一些初步过滤操作
    */
-  RC open_scan(DiskBufferPool &buffer_pool, ConditionFilter *condition_filter);
+  RC open_scan(Table *table, 
+               DiskBufferPool &buffer_pool, 
+               Trx *trx, 
+               bool readonly, 
+               ConditionFilter *condition_filter);
 
   /**
    * 关闭一个文件扫描，释放相应的资源
@@ -164,11 +183,14 @@ private:
   RC fetch_next_record_in_page();
 
 private:
-  DiskBufferPool *disk_buffer_pool_ = nullptr;
+  Table *              table_ = nullptr;
+  DiskBufferPool *     disk_buffer_pool_ = nullptr;
+  Trx *                trx_ = nullptr;
+  bool                 readonly_ = false;  // 遍历出来的数据，是否可能对它做修改
 
-  BufferPoolIterator bp_iterator_;
-  ConditionFilter *condition_filter_ = nullptr;
-  RecordPageHandler record_page_handler_;
-  RecordPageIterator record_page_iterator_;
-  Record next_record_;
+  BufferPoolIterator   bp_iterator_;    // 遍历buffer pool的所有页面
+  ConditionFilter *    condition_filter_ = nullptr; // 过滤record
+  RecordPageHandler    record_page_handler_; 
+  RecordPageIterator   record_page_iterator_; // 遍历某个页面上的所有record
+  Record               next_record_;
 };

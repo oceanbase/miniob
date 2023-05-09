@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -23,14 +23,14 @@ PredicatePhysicalOperator::PredicatePhysicalOperator(std::unique_ptr<Expression>
   ASSERT(expression_->value_type() == BOOLEANS, "predicate's expression should be BOOLEAN type");
 }
 
-RC PredicatePhysicalOperator::open()
+RC PredicatePhysicalOperator::open(Trx *trx)
 {
   if (children_.size() != 1) {
     LOG_WARN("predicate operator must has one child");
     return RC::INTERNAL;
   }
 
-  return children_[0]->open();
+  return children_[0]->open(trx);
 }
 
 RC PredicatePhysicalOperator::next()

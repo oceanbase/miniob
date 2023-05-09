@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -18,14 +18,17 @@ See the Mulan PSL v2 for more details. */
 #include <errno.h>
 #include <pthread.h>
 #include <string.h>
+#include <unordered_map>
 #include <map>
-#include <set>
 #include <sstream>
 #include <string>
 #include <mutex>
 #include <shared_mutex>
+#include <thread>
 
 #include "common/log/log.h"
+
+using namespace std;
 
 namespace common {
 
@@ -288,6 +291,37 @@ private:
 #ifdef CONCURRENCY
   std::shared_mutex lock_;
 #endif
+};
+
+/**
+ * 支持写锁递归加锁的读写锁
+ * 读锁本身就可以递归加锁。但是某个线程加了读锁后，也不能再加写锁。
+ * 但是一个线程可以加多次写锁
+ * 与其它类型的锁一样，在CONCURRENCY编译模式下才会真正的生效
+ */
+class RecursiveSharedMutex
+{
+ public:
+  RecursiveSharedMutex() = default;
+  ~RecursiveSharedMutex() = default;
+  
+  void lock_shared();
+  bool try_lock_shared();
+  void unlock_shared();
+
+  void lock();
+  void unlock();
+
+private:
+#ifdef CONCURRENCY
+  std::mutex mutex_;
+  std::condition_variable shared_lock_cv_;
+  std::condition_variable exclusive_lock_cv_;
+  int shared_lock_count_ = 0;
+  int exclusive_lock_count_ = 0;
+  std::thread::id recursive_owner_;
+  int recursive_count_ = 0; // 表示当前线程加写锁加了多少次
+#endif // CONCURRENCY
 };
 
 }  // namespace common

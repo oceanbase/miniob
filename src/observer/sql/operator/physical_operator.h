@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -23,8 +23,10 @@ See the Mulan PSL v2 for more details. */
 
 class Record;
 class TupleCellSpec;
+class Trx;
 
-enum class PhysicalOperatorType {
+enum class PhysicalOperatorType
+{
   TABLE_SCAN,
   INDEX_SCAN,
   NESTED_LOOP_JOIN,
@@ -39,10 +41,10 @@ enum class PhysicalOperatorType {
 /**
  * 与LogicalOperator对应，物理算子描述执行计划将如何执行
  */
-class PhysicalOperator {
+class PhysicalOperator
+{
 public:
-  PhysicalOperator()
-  {}
+  PhysicalOperator() = default;
 
   virtual ~PhysicalOperator();
 
@@ -54,7 +56,7 @@ public:
 
   virtual PhysicalOperatorType type() const = 0;
 
-  virtual RC open() = 0;
+  virtual RC open(Trx *trx) = 0;
   virtual RC next() = 0;
   virtual RC close() = 0;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -26,12 +26,14 @@ See the Mulan PSL v2 for more details. */
 #define MAX_DATA 50
 
 // 属性结构体
-struct RelAttr {
+struct RelAttr 
+{
   std::string relation_name;   // relation name (may be NULL) 表名
   std::string attribute_name;  // attribute name              属性名
 };
 
-enum CompOp {
+enum CompOp 
+{
   EQUAL_TO,     //"="     0
   LESS_EQUAL,   //"<="    1
   NOT_EQUAL,    //"<>"    2
@@ -42,7 +44,8 @@ enum CompOp {
 };
 
 // 属性值类型
-enum AttrType {
+enum AttrType
+{
   UNDEFINED,
   CHARS,
   INTS,
@@ -51,7 +54,8 @@ enum AttrType {
 };
 
 // 属性值
-struct Value {
+struct Value
+{
   AttrType type;  // type of value
   int int_value;
   float float_value;
@@ -62,7 +66,8 @@ struct Value {
   int length();
 };
 
-struct Condition {
+struct Condition
+{
   int left_is_attr;    // TRUE if left-hand side is an attribute
                        // 1时，操作符左边是属性名，0时，是属性值
   Value left_value;    // left-hand side value if left_is_attr = FALSE
@@ -75,84 +80,98 @@ struct Condition {
 };
 
 // struct of select
-struct Selects {
+struct Selects
+{
   std::vector<RelAttr> attributes;  // attributes in select clause
   std::vector<std::string> relations;
   std::vector<Condition> conditions;
 };
 
 // struct of insert
-struct Inserts {
+struct Inserts
+{
   std::string relation_name;  // Relation to insert into
   std::vector<Value> values;
 };
 
 // struct of delete
-struct Deletes {
+struct Deletes
+{
   std::string relation_name;  // Relation to delete from
   std::vector<Condition> conditions;
 };
 
 // struct of update
-struct Updates {
+struct Updates
+{
   std::string relation_name;   // Relation to update
   std::string attribute_name;  // Attribute to update
   Value value;                 // update value
   std::vector<Condition> conditions;
 };
 
-struct AttrInfo {
+struct AttrInfo
+{
   AttrType type;     // Type of attribute
   std::string name;  // Attribute name
   size_t length;     // Length of attribute
 };
 
 // struct of craete_table
-struct CreateTable {
+struct CreateTable
+{
   std::string relation_name;         // Relation name
   std::vector<AttrInfo> attr_infos;  // attributes
 };
 
 // struct of drop_table
-struct DropTable {
+struct DropTable
+{
   std::string relation_name;  // Relation name
 };
 
 // struct of create_index
-struct CreateIndex {
+struct CreateIndex
+{
   std::string index_name;      // Index name
   std::string relation_name;   // Relation name
   std::string attribute_name;  // Attribute name
 };
 
 // struct of  drop_index
-struct DropIndex {
+struct DropIndex
+{
   std::string index_name;     // Index name
   std::string relation_name;  // Relation name
 };
 
-struct DescTable {
+struct DescTable
+{
   std::string relation_name;
 };
 
-struct LoadData {
+struct LoadData
+{
   std::string relation_name;
   std::string file_name;
 };
 
 class Command;
-struct Explain {
+struct Explain
+{
   std::unique_ptr<Command> cmd;
 };
 
-struct Error {
+struct Error
+{
   std::string error_msg;
   int line;
   int column;
 };
 
 // 修改yacc中相关数字编码为宏定义
-enum SqlCommandFlag {
+enum SqlCommandFlag
+{
   SCF_ERROR = 0,
   SCF_SELECT,
   SCF_INSERT,
@@ -175,7 +194,8 @@ enum SqlCommandFlag {
   SCF_EXPLAIN,
 };
 // struct of flag and sql_struct
-class Command {
+class Command
+{
 public:
   enum SqlCommandFlag flag;
   Error error;
@@ -200,7 +220,8 @@ public:
  * 表示语法解析后的数据
  * 叫ParsedSqlNode 可能会更清晰一点
  */
-class ParsedSqlResult {
+class ParsedSqlResult
+{
 public:
   void add_command(std::unique_ptr<Command> command);
   std::vector<std::unique_ptr<Command>> &commands()

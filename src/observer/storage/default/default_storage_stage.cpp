@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Meiyi & Longda on 2021/4/13.
+// Created by Longda on 2021/4/13.
 //
 
 #include <string.h>
@@ -143,20 +143,16 @@ void DefaultStorageStage::handle_event(StageEvent *event)
   TimerStat timerStat(*query_metric_);
 
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
-
   Command *cmd = sql_event->command().get();
-
   SessionEvent *session_event = sql_event->session_event();
-
   Session *session = session_event->session();
+  SqlResult *sql_result = session_event->sql_result();
   Db *db = session->get_current_db();
   const char *dbname = db->name();
-
   Trx *current_trx = session->current_trx();
 
   RC rc = RC::SUCCESS;
 
-  char response[256];
   switch (cmd->flag) {
     case SCF_LOAD_DATA: {
       /*
@@ -165,11 +161,13 @@ void DefaultStorageStage::handle_event(StageEvent *event)
        */
       const char *table_name = cmd->load_data.relation_name.c_str();
       const char *file_name = cmd->load_data.file_name.c_str();
-      std::string result = load_data(dbname, table_name, file_name);
-      snprintf(response, sizeof(response), "%s", result.c_str());
+      load_data(dbname, table_name, file_name, sql_result);
     } break;
     default:
+      char response[256];
       snprintf(response, sizeof(response), "Unsupported sql: %d\n", cmd->flag);
+      sql_result->set_return_code(RC::UNIMPLENMENT);
+      sql_result->set_state_string(response);
       break;
   }
 
@@ -179,8 +177,6 @@ void DefaultStorageStage::handle_event(StageEvent *event)
       LOG_ERROR("Failed to commit trx. rc=%d:%s", rc, strrc(rc));
     }
   }
-
-  session_event->set_response(response);
 
   LOG_TRACE("Exit\n");
 }
@@ -202,8 +198,10 @@ void DefaultStorageStage::callback_event(StageEvent *event, CallbackContext *con
  * @param errmsg 如果出现错误，通过这个参数返回错误信息
  * @return 成功返回RC::SUCCESS
  */
-RC insert_record_from_file(
-    Table *table, std::vector<std::string> &file_values, std::vector<Value> &record_values, std::stringstream &errmsg)
+RC insert_record_from_file(Table *table, 
+                           std::vector<std::string> &file_values, 
+                           std::vector<Value> &record_values, 
+                           std::stringstream &errmsg)
 {
 
   const int field_num = record_values.size();
@@ -268,29 +266,38 @@ RC insert_record_from_file(
   }
 
   if (RC::SUCCESS == rc) {
-    rc = table->insert_record(nullptr, field_num, record_values.data());
+    Record record;
+    rc = table->make_record(field_num, record_values.data(), record);
     if (rc != RC::SUCCESS) {
+      errmsg << "insert failed.";
+    } else if (RC::SUCCESS != (rc = table->insert_record(record))) {
       errmsg << "insert failed.";
     }
   }
   return rc;
 }
 
-std::string DefaultStorageStage::load_data(const char *db_name, const char *table_name, const char *file_name)
+void DefaultStorageStage::load_data(const char *db_name, 
+                                    const char *table_name, 
+                                    const char *file_name, 
+                                    SqlResult *sql_result)
 {
-
   std::stringstream result_string;
   Table *table = handler_->find_table(db_name, table_name);
   if (nullptr == table) {
     result_string << "No such table " << db_name << "." << table_name << std::endl;
-    return result_string.str();
+    sql_result->set_return_code(RC::SCHEMA_TABLE_NOT_EXIST);
+    sql_result->set_state_string(result_string.str());
+    return;
   }
 
   std::fstream fs;
   fs.open(file_name, std::ios_base::in | std::ios_base::binary);
   if (!fs.is_open()) {
     result_string << "Failed to open file: " << file_name << ". system error=" << strerror(errno) << std::endl;
-    return result_string.str();
+    sql_result->set_return_code(RC::FILE_NOT_EXIST);
+    sql_result->set_state_string(result_string.str());
+    return;
   }
 
   struct timespec begin_time;
@@ -332,5 +339,6 @@ std::string DefaultStorageStage::load_data(const char *db_name, const char *tabl
     result_string << strrc(rc) << ". total " << line_num << " line(s) handled and " << insertion_count
                   << " record(s) loaded, total cost " << cost_nano / 1000000000.0 << " second(s)" << std::endl;
   }
-  return result_string.str();
+  sql_result->set_return_code(RC::SUCCESS);
+  sql_result->set_state_string(result_string.str());
 }
