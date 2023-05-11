@@ -50,4 +50,5 @@ jobs:
         shell: bash
         run: |
           sudo bash build.sh init
+          sudo pip3 install argparse
           bash test/case/miniob_test.py --test-cases=basic | tail -1 | grep "basic is success"
