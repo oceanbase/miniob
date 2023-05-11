@@ -12,6 +12,7 @@ miniob 设计的目标是面向在校学生、数据库从业者、爱好者，�
 
 1. [miniob 框架介绍](https://github.com/oceanbase/miniob/blob/main/docs/miniob-introduction.md)
 2. [如何编译 miniob 源码](https://github.com/oceanbase/miniob/blob/main/docs/how_to_build.md)
+3. [使用 GitPod 开发 MiniOB](docs/dev_by_gitpod)
 3. [开发环境搭建(本地调试, 适用 Linux 和 Mac)](https://github.com/oceanbase/miniob/blob/main/docs/how_to_dev_miniob_by_vscode.md)
 4. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](https://github.com/oceanbase/miniob/blob/main/docs/how_to_dev_in_docker_container_by_vscode.md)
 5. [miniob 词法语法解析开发与测试](https://github.com/oceanbase/miniob/blob/main/docs/miniob-sql-parser.md)
