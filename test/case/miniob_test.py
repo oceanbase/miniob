@@ -3,7 +3,6 @@
 from genericpath import exists
 import os
 import json
-import http.client
 import sys
 import logging
 import subprocess
@@ -11,6 +10,8 @@ import socket
 import select
 import time
 import shutil
+import tempfile
+from typing import List, Tuple
 from enum import Enum
 try:
   from optparse import OptionParser
@@ -18,43 +19,36 @@ except:
   print("cannot load optparse module")
   exit(1)
 
+_logger = logging.getLogger('MiniOBTest')
+
 """
-为OceanBase 大赛测试平台设计的自动化测试程序
+Case程序自动化运行脚本
 测试流程：
-获取源码 -> 
 编译源码 ->
 获取测试用例文件 ->
 启动observer ->
 执行测试用例 ->
 对比执行结果与预先设置的结果文件
+输出结果
 
-- 获取源码的方式：支持通过git获取，也可以指定源码的zip压缩包路径
+- 源码路径即为脚本所在路径
+- 默认结果会输出在控制台上
+- 默认的工作目录，就是测试程序执行时输出的文件，在 /tmp/miniob 下。
 - 编译源码：可以指定编译的cmake和make参数。也可以跳过这个步骤。
-- 测试用例文件：测试用例文件都以.test结尾，当前放在test目录下，分为necessary和option(后续可以考虑删除)
+- 测试用例文件：测试用例文件都以.test结尾，当前放在test目录下
 - 测试结果文件：预先设置的结果文件，以.result结尾，放在result目录下
 - 启动observer: 启动observer，使用unix socket，这样可以每个observer使用自己的socket文件
 - 执行测试用例：测试用例文件中，每行都是一个命令。命令可以是SQL语句，也可以是预先定义的命令，比如 echo，sort等
-- 评分文件：当前为 case-scores.json 文件，内容为json格式，描述每个case的分值
 - 测试：使用参数直接连接已经启动的observer
 
-TODO list
-- 控制所有用例一共执行的时长
-- 简化部分配置项，已知：增加测试base-dir目录，在base-dir下查找test/result/case-scores.json文件
-
 How to use:
- 使用git下载代码然后测试
-python3 miniob_test.py \
-        --test-case-dir=./test  \
-        --test-case-scores=case-scores.json \
-        --test-result-dir=result \
-        --test-result-tmp-dir=./result_tmp \
-        --use-unix-socket \
-        --git-repo=https://github.com/oceanbase/miniob.git \
-        --git-branch=main \
-        --code-type=git \
-        --target-dir=./miniob \
-        --log=stdout \
-        --compile-make-args=-j4
+运行所有测试用例：
+python3 miniob_test.py
+
+运行 basic 测试用例
+python3 miniob_test.py --test-cases=basic
+
+如果要运行多个测试用例，则在 --test-cases 参数中使用 ',' 分隔写多个即可
 """
 
 class TimeoutException(BaseException):
@@ -73,15 +67,6 @@ class GlobalConfig:
   default_encoding = "UTF-8"
   debug = False
   source_code_build_path_name = "build"
-
-def __get_source_path(project_dir: str):
-  return project_dir
-
-def __get_data_path(work_dir: str):
-  return work_dir + '/data'
-
-def __get_result_path(target_dir: str):
-  return target_dir + '/result'
 
 def __get_build_path(work_dir: str):
   return work_dir + '/' + GlobalConfig.source_code_build_path_name
@@ -173,21 +158,21 @@ class MiniObServer:
       raise(Exception("config file does not exists: " + config_file))
 
   def init_server(self):
-    logging.info("miniob-server inited")
+    _logger.info("miniob-server inited")
     # do nothing now
 
-  def start_server(self):
+  def start_server(self) -> bool:
     '''
     启动服务端程序，并使用探测端口的方式检测程序是否正常启动
     调试模式如果可以使用调试器启动程序就好了
     '''
 
     if self.__process != None:
-      logging.warn("Server has already been started")
+      _logger.warn("Server has already been started")
       return False
 
     time_begin = time.time()
-    logging.debug("use '%s' as observer work path", os.getcwd())
+    _logger.debug("use '%s' as observer work path", os.getcwd())
     observer_command = [self.__observer_path(self.__base_dir), '-f', self.__config]
     if len(self.__server_socket) > 0:
       observer_command.append('-s')
@@ -199,26 +184,26 @@ class MiniObServer:
     process = subprocess.Popen(observer_command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, cwd=self.__data_dir)
     return_code = process.poll()
     if return_code != None:
-      logging.error("Failed to start observer, exit with code %d", return_code)
+      _logger.error("Failed to start observer, exit with code %d", return_code)
       return False
     
-    logging.info('start subprocess with pid=%d', process.pid)
+    _logger.info('start subprocess with pid=%d', process.pid)
     #os.setpgid(process.pid, GlobalConfig.group_id)
 
     self.__process = process
     time.sleep(0.2)
     if not self.__wait_server_started(10):
       time_span = time.time() - time_begin
-      logging.error("Failed to start server in %f seconds", time_span)
+      _logger.error("Failed to start server in %f seconds", time_span)
       return False
 
     time_span = time.time() - time_begin
-    logging.info("miniob-server started in %f seconds", time_span)
+    _logger.info("miniob-server started in %f seconds", time_span)
     return True
 
   def stop_server(self):
     if self.__process == None:
-      logging.warning("Server has not been started")
+      _logger.warning("Server has not been started")
       return True
 
     self.__process.terminate()
@@ -227,14 +212,14 @@ class MiniObServer:
       return_code = self.__process.wait(10)
       if return_code is None:
         self.__process.kill()
-        logging.warning("Failed to stop server: %s", self.__base_dir)
+        _logger.warning("Failed to stop server: %s", self.__base_dir)
         return False
     except Exception as ex:
       self.__process.kill()
-      logging.warning("wait server exit timedout: %s", self.__base_dir)
+      _logger.warning("wait server exit timedout: %s", self.__base_dir)
       return False
 
-    logging.info("miniob-server exit with code %d. pid=%s", return_code, str(self.__process.pid))
+    _logger.info("miniob-server exit with code %d. pid=%s", return_code, str(self.__process.pid))
     return True
 
   def clean(self):
@@ -245,7 +230,7 @@ class MiniObServer:
 
     if GlobalConfig.debug is False:
       shutil.rmtree(self.__data_dir)
-    logging.info("miniob-server cleaned")
+    _logger.info("miniob-server cleaned")
 
   def __check_unix_socket_server(self):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
@@ -253,7 +238,7 @@ class MiniObServer:
       if errno == 0:
         return True
       else:
-        logging.debug("Failed to connect to server. err=%d:%s", errno, os.strerror(errno))
+        _logger.debug("Failed to connect to server. err=%d:%s", errno, os.strerror(errno))
         return False
 
   def __check_tcp_socket_server(self):
@@ -262,7 +247,7 @@ class MiniObServer:
       if errno == 0:
         return True
       else:
-        logging.debug("Failed to connect to server. err=%d:%s", errno, os.strerror(errno))
+        _logger.debug("Failed to connect to server. err=%d:%s", errno, os.strerror(errno))
         return False
 
   def __wait_server_started(self, timeout_seconds: int):
@@ -313,7 +298,7 @@ class MiniObClient:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     errno = s.connect_ex(('127.0.0.1', server_port))
     if errno != 0:
-      logging.error("Failed to connect to server with port %d. errno=%d:%s", 
+      _logger.error("Failed to connect to server with port %d. errno=%d:%s", 
                     server_port, errno, os.strerror(errno))
       s = None
     return s
@@ -322,7 +307,7 @@ class MiniObClient:
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     errno = sock.connect_ex(server_socket)
     if errno != 0:
-      logging.error("Failed to connect to server with address '%s'. errno=%d:%s", 
+      _logger.error("Failed to connect to server with address '%s'. errno=%d:%s", 
                     server_socket, errno, os.strerror(errno))
       sock = None
     return sock
@@ -341,13 +326,13 @@ class MiniObClient:
       (_, event) = events[0]
       if event & (select.POLLHUP | select.POLLERR):
         msg = "Failed to receive from server. poll return POLLHUP(%s) or POLLERR(%s)" % ( str(event & select.POLLHUP), str(event & select.POLLERR))
-        logging.info(msg)
+        _logger.info(msg)
         raise Exception(msg)
       
       data = self.__socket.recv(self.__buffer_size)
       if len(data) > 0:
         result_tmp = data.decode(encoding= GlobalConfig.default_encoding)
-        logging.debug("receive from server[size=%d]: '%s'", len(data), result_tmp)
+        _logger.debug("receive from server[size=%d]: '%s'", len(data), result_tmp)
         if data[len(data) - 1] == 0:
           result += result_tmp[0:-2]
           return result.strip() + '\n'
@@ -355,21 +340,21 @@ class MiniObClient:
           result += result_tmp # TODO 返回数据量比较大的时候，python可能会hang住
                                # 可以考虑返回列表
       else:
-        logging.info("receive from server error. result len=%d", len(data))
+        _logger.info("receive from server error. result len=%d", len(data))
         raise Exception("receive return error. the connection may be closed")
           
 
-  def run_sql(self, sql: str):
+  def run_sql(self, sql: str) -> Tuple[bool, str]:
     try:
       data = str.encode(sql, GlobalConfig.default_encoding)
       self.__socket.sendall(data)
       self.__socket.sendall(b'\0')
-      logging.debug("send command to server(size=%d) '%s'", len(data) + 1, sql)
+      _logger.debug("send command to server(size=%d) '%s'", len(data) + 1, sql)
       result = self.__recv_response()
-      logging.debug("receive result from server '%s'", result)
+      _logger.debug("receive result from server '%s'", result)
       return True, result
     except Exception as ex:
-      logging.error("Failed to send message to server: '%s'", str(ex))
+      _logger.error("Failed to send message to server: '%s'", str(ex))
       return False, None
 
   def close(self):
@@ -420,7 +405,7 @@ class CommandRunner:
 
     client = self.__clients[name]
     if client == None:
-      logging.error("No such client named %s", name)
+      _logger.error("No such client named %s", name)
       return False
 
     self.__current_client = client
@@ -432,17 +417,17 @@ class CommandRunner:
     '''
     name = name.strip()
     if len(name) == 0:
-      logging.error("Found empty client name")
+      _logger.error("Found empty client name")
       return False
 
     client = self.__clients[name]
     if client != None:
-      logging.error("Client with name %s already exists", name)
+      _logger.error("Client with name %s already exists", name)
       return False
 
     client = MiniObClient(self.__server_port, self.__unix_socket)
     if not(client.is_valid()):
-      logging.error("Failed to create client with name: %s", name)
+      _logger.error("Failed to create client with name: %s", name)
       return False
 
     self.__clients[name] = client
@@ -498,7 +483,7 @@ class CommandRunner:
     elif 'sort' == command:
       result = self.run_sort(command_arg)
     else:
-      logging.error("No such command %s", command)
+      _logger.error("No such command %s", command)
       result = False
 
     return result
@@ -518,6 +503,10 @@ class CommandRunner:
     return self.run_sql(argline)
 
 class TestCase:
+  '''
+  表示一个测试用例
+  测试用例有一个名字和内容
+  '''
 
   def __init__(self):
     self.__name = ''
@@ -549,6 +538,9 @@ class TestCase:
     return result_file + '.tmp'
 
 class TestCaseLister:
+  '''
+  列出指定目录或者指定名称的测试用例
+  '''
 
   def __init__(self, suffix = None):
     if suffix != None:
@@ -556,7 +548,7 @@ class TestCaseLister:
     else:
       self.__suffix = ".test"
 
-  def list_directory(self, base_dir : str):
+  def list_directory(self, base_dir : str) -> List[TestCase]:
     test_case_files = []
 
     is_dir = os.path.isdir(base_dir)
@@ -565,7 +557,7 @@ class TestCaseLister:
 
     files = os.listdir(base_dir)
     for filename in files:
-      logging.debug("find file %s", filename)
+      _logger.debug("find file %s", filename)
       if filename.startswith('.'):
         continue
 
@@ -583,11 +575,11 @@ class TestCaseLister:
       test_case = TestCase()
       test_case.init_with_file(test_case_name, full_path)
       test_cases.append(test_case)
-      logging.debug("got a test case file %s", str(test_case_file))
+      _logger.debug("got a test case file %s", str(test_case_file))
 
     return test_cases
 
-  def list_all(self, base_dir, test_names):
+  def list_all(self, base_dir, test_names) -> List[TestCase]:
     is_dir = os.path.isdir(base_dir)
     if False == is_dir:
       raise("Failed to list all test cases. " + base_dir + " is not a directory")
@@ -601,14 +593,13 @@ class TestCaseLister:
       test_case = TestCase()
       test_case.init_with_file(test_name, full_path)
       test_cases.append(test_case)
-      logging.debug("got a test case %s", test_case)
+      _logger.debug("got a test case %s", test_case)
 
     return test_cases
 
 class EvalResult:
   def __init__(self):
     self.__message = []
-    self.__status = -1
     
   def clear_message(self):
     self.__message = []
@@ -619,24 +610,8 @@ class EvalResult:
   def get_message(self):
     return "\n".join(self.__message)
 
-  def add_option_score(self, score: int):
-    self.__option_score += score
-
-  def set_cost(self):
-    self.__status = 0
-    
-  def set_no_cost(self):
-    self.__status = -1
-    
-  def get_status(self):
-    return self.__status
-  
-  def is_success(self):
-    return self.__status == 0
-
   def to_json_string(self):
     json_dict = {}
-    json_dict['score'] = self.get_score()
     json_dict['message'] = self.get_message()
 
     json_encoder = json.encoder.JSONEncoder()
@@ -659,7 +634,6 @@ class TestSuite:
     self.__need_start_server = True
     self.__test_names = None # 如果指定测试哪些Case，就不再遍历所有的cases
     self.__miniob_server = None
-    self.__test_case_scores = TestScores()
   
   def set_test_names(self, tests):
     self.__test_names = tests
@@ -707,11 +681,11 @@ class TestSuite:
       line_num = len(lines1)
       for i in range(line_num):
         if lines1[i].upper() != lines2[i].upper():
-          logging.info('file1=%s, file2=%s, line1=%s, line2=%s', file1, file2, lines1[i], lines2[i])
+          _logger.info('file1=%s, file2=%s, line1=%s, line2=%s', file1, file2, lines1[i], lines2[i])
           return False
       return True
 
-  def run_case(self, test_case, timeout=20):
+  def run_case(self, test_case, timeout=20) -> Result:
     # eventlet.monkey_patch()
     #@timeout_decorator.timeout(timeout)
     #def decorator():
@@ -725,15 +699,7 @@ class TestSuite:
     except TimeoutException as ex:
       return Result.timeout
 
-    # try:
-    #   ret = decorator()
-    #   if ret:
-    #     return Result.true
-    #   return Result.false
-    # except TimeoutError:
-    #   return Result.timeout
-
-  def __run_case(self, test_case: TestCase):
+  def __run_case(self, test_case: TestCase) -> int:
     result_tmp_file_name = test_case.tmp_result_file(self.__test_result_tmp_dir)
 
     unix_socket = ''
@@ -750,7 +716,7 @@ class TestSuite:
         for command_line in test_case.command_lines():
           result = command_runner.run_anything(command_line)
           if result is False:
-            logging.error("Failed to run command %s in case %s", command_line, test_case.get_name())
+            _logger.error("Failed to run command %s in case %s", command_line, test_case.get_name())
             return result
 
     result_file_name = test_case.result_file(self.__test_result_base_dir)
@@ -767,7 +733,7 @@ class TestSuite:
   def __get_unix_socket_address(self):
     return self.__db_data_dir + '/miniob.sock'
 
-  def __get_all_test_cases(self):
+  def __get_all_test_cases(self) -> List[TestCase]:
     test_case_lister = TestCaseLister()
     test_cases = test_case_lister.list_directory(self.__test_case_base_dir)
 
@@ -782,10 +748,10 @@ class TestSuite:
       for test_case in test_cases:
         if test_case.get_name() == case_name:
           test_case_result.append(test_case)
-          logging.debug("got case: " + case_name)
+          _logger.debug("got case: " + case_name)
           found = True
       if found == False:
-        logging.error("No such test case with name '%s'" % case_name)
+        _logger.error("No such test case with name '%s'" % case_name)
         return []
 
     return test_case_result
@@ -795,11 +761,11 @@ class TestSuite:
     # 找出所有需要测试Case
     test_cases = self.__get_all_test_cases()
     
-    if test_cases is None or len(test_cases) == 0:
-      logging.info("Cannot find any test cases")
+    if not test_cases:
+      _logger.info("Cannot find any test cases")
       return True
 
-    logging.info("Starting observer server")
+    _logger.info("Starting observer server")
 
     # 测试每个Case
     success_count = 0
@@ -813,40 +779,32 @@ class TestSuite:
         result = self.__start_server_if_need(True)
         if result is False:
           eval_result.append_message('Failed to start server.')
-          eval_result.set_no_cost()
           return False
 
-        logging.info(test_case.get_name() + " starting ...")
+        _logger.info(test_case.get_name() + " starting ...")
         result = self.run_case(test_case)
 
         if result is Result.true:
-          logging.info("Case passed: %s", test_case.get_name())
+          _logger.info("Case passed: %s", test_case.get_name())
           success_count += 1
-          if test_case.is_necessary():
-            eval_result.add_necessary_score(test_case.get_score())
-          else:
-            eval_result.add_option_score(test_case.get_score())
           eval_result.append_message("%s is success" % test_case.get_name())
         else: 
 
           if result is Result.false:
-            logging.info("Case failed: %s", test_case.get_name())
+            _logger.info("Case failed: %s", test_case.get_name())
             failure_count += 1
             eval_result.append_message("%s is error" % test_case.get_name())
           else:
-            logging.info("Case timeout: %s", test_case.get_name())
+            _logger.info("Case timeout: %s", test_case.get_name())
             timeout_count += 1
             eval_result.append_message("%s is timeout" % test_case.get_name())
       except Exception as ex:
-        logging.error("Failed to run case %s", test_case.get_name())
+        _logger.error("Failed to run case %s", test_case.get_name())
         self.__clean_server_if_need()
         raise ex
 
-    logging.info("All done. %d passed, %d failed, %d timeout", success_count, failure_count, timeout_count)
-    logging.debug(eval_result.get_message())
-    if necessary_all_passed is False:
-      eval_result.clear_option_score()
-    eval_result.set_cost()
+    _logger.info("All done. %d passed, %d failed, %d timeout", success_count, failure_count, timeout_count)
+    _logger.debug(eval_result.get_message())
     self.__clean_server_if_need()
     return True
 
@@ -864,7 +822,7 @@ class TestSuite:
       miniob_server.init_server()
       result = miniob_server.start_server()
       if result is False:
-        logging.error("Failed to start db server")
+        _logger.error("Failed to start db server")
         miniob_server.stop_server()
         miniob_server.clean()
         return False
@@ -885,6 +843,7 @@ def __init_options():
   options_parser.add_option('', '--report-only', action='store_true', dest='report_only', default=False, 
                             help='just report the result')
 
+  # 当前miniob的代码目录
   options_parser.add_option('', '--project-dir', action='store', type='string', dest='project_dir', default='')
 
   # 测试哪些用例。不指定就会扫描test-case-dir目录下面的所有测试用例。指定的话，就从test-case-dir目录下面按照名字找
@@ -898,11 +857,11 @@ def __init_options():
   # 服务程序端口号，客户端也使用这个端口连接服务器。目前还不具备通过配置文件解析端口配置的能力
   options_parser.add_option('', '--server-port', action='store', type='int', dest='server_port', default=6789,
                             help='the server port. should be the same with the value in the config')
-  options_parser.add_option('', '--use-unix-socket', action='store_true', dest='use_unix_socket',
-                            help='If true, server-port will be ignored and will use a random address socket.')
+  options_parser.add_option('', '--not-use-unix-socket', action='store_true', dest='not_use_unix_socket', default=False,
+                            help='If false, server-port will be ignored and will use a random address socket.')
   
   # 测试过程中生成的日志存放的文件。使用stdout/stderr输出到控制台
-  options_parser.add_option('', '--log', action='store', type='string', dest='log_file', default='miniob-test.log',
+  options_parser.add_option('', '--log', action='store', type='string', dest='log_file', default='stdout',
                             help='log file. stdout=standard output and stderr=standard error')
   # 是否启动调试模式。调试模式不会清理服务器的数据目录
   options_parser.add_option('-d', '--debug', action='store_true', dest='debug', default=False,
@@ -921,11 +880,11 @@ def __init_options():
   realpath = os.path.realpath(__file__)
   current_path = os.path.dirname(realpath)
   if not options.work_dir:
-    options.work_dir = current_path
-    logging.info('use %s as work directory', options.work_dir)
+    options.work_dir = tempfile.gettempdir() + '/miniob'
+    _logger.info('use %s as work directory', options.work_dir)
   if not options.project_dir:
     options.project_dir = os.path.realpath(current_path + '/../..')
-    logging.info('Auto detect project dir: %s', options.project_dir)
+    _logger.info('Auto detect project dir: %s', options.project_dir)
   return options
 
 def __init_log(options):
@@ -952,6 +911,8 @@ def __init_log(options):
   else:
     logging.basicConfig(level=log_level, stream=log_stream, format=log_format, datefmt=log_date_format)
 
+  _logger.debug('init log done')
+
 def __init_test_suite(options) -> TestSuite:
   test_suite = TestSuite()
   test_suite.set_test_case_base_dir(os.path.abspath(options.project_dir + '/test/case/test'))
@@ -959,7 +920,7 @@ def __init_test_suite(options) -> TestSuite:
   test_suite.set_test_result_tmp_dir(os.path.abspath(options.work_dir + '/result_output'))
 
   test_suite.set_server_port(options.server_port)
-  test_suite.set_use_unix_socket(options.use_unix_socket)
+  test_suite.set_use_unix_socket(not options.not_use_unix_socket)
   test_suite.set_db_server_base_dir(__get_build_path(options.work_dir))
   test_suite.set_db_data_dir(options.work_dir + '/data')
   test_suite.set_db_config(os.path.abspath(options.project_dir + '/etc/observer.ini'))
@@ -982,13 +943,13 @@ def __init_test_suite_with_source_code(options, eval_result):
                  options.compile_rebuild, 
                  eval_result):
     message = "Failed to compile source code"
-    logging.error(message)
+    _logger.error(message)
     return None
 
-  logging.info("compile source code done")
+  _logger.info("compile source code done")
 
   # 覆盖一些测试的路径
-  logging.info("some config will be override if exists")
+  _logger.info("some config will be override if exists")
   test_suite = __init_test_suite(options)
   return test_suite
 
@@ -998,7 +959,7 @@ def __run_shell_command(command_args):
   返回的控制台信息是每行一个字符串的字符串列表
   '''
 
-  logging.info("running command: '%s'", ' '.join(command_args))
+  _logger.info("running command: '%s'", ' '.join(command_args))
 
   outputs = []
   command_process = subprocess.Popen(command_args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
@@ -1024,9 +985,9 @@ def run_cmake(work_dir: str, build_path: str, cmake_args: str):
 
   ret, outputs = __run_shell_command(cmake_command)
   if ret != 0:
-    logging.error("Failed to run cmake command")
+    _logger.error("Failed to run cmake command")
     for output in outputs:
-      logging.error(output)
+      _logger.error(output)
     return False, outputs
   return True, []
 
@@ -1036,18 +997,18 @@ def compile(work_dir: str, build_dir: str, cmake_args: str, make_args: str, rebu
   build_dir 是编译结果的目录
   '''
   if not os.path.exists(work_dir):
-    logging.error('The work_dir %s doesn\'t exist, please provide a vaild work path.', work_dir)
+    _logger.error('The work_dir %s doesn\'t exist, please provide a vaild work path.', work_dir)
     return False
 
   #now_path = os.getcwd()
   build_path = build_dir
   if os.path.exists(build_path) and rebuild_all:
-    logging.info('build directory is not empty but will be cleaned before compile: %s', build_path)
+    _logger.info('build directory is not empty but will be cleaned before compile: %s', build_path)
     shutil.rmtree(build_path)
 
   os.makedirs(build_path, exist_ok=True)
   
-  logging.info("start compiling ... build path=%s", build_path)
+  _logger.info("start compiling ... build path=%s", build_path)
   ret, outputs = run_cmake(work_dir, build_path, cmake_args)
   if ret == False:
     # cmake 执行失败时，清空整个Build目录，再重新执行一次cmake命令
@@ -1056,29 +1017,32 @@ def compile(work_dir: str, build_dir: str, cmake_args: str, make_args: str, rebu
     ret, outputs = run_cmake(work_dir, build_path, cmake_args)
     if ret == False:
       for output in outputs:
-        logging.error(output)
+        _logger.error(output)
         eval_result.append_message(output)
       return False
 
   make_command = ["make", "--silent", "-C", build_path]
   if isinstance(make_args, str):
-    args = make_args.split(';')
-    for arg in args:
-      arg = arg.strip()
-      if len(arg) > 0:
-        make_command.append(arg)
+    if not make_args:
+      make_command.append('-j4')
+    else:
+      args = make_args.split(';')
+      for arg in args:
+        arg = arg.strip()
+        if len(arg) > 0:
+          make_command.append(arg)
 
   ret, outputs = __run_shell_command(make_command)
   if ret != 0:
-    logging.error("Compile failed")
+    _logger.error("Compile failed")
     for output in outputs:
-      logging.error(output.strip())
+      _logger.error(output.strip())
       eval_result.append_message(output.strip())
     return False
 
   return True
 
-def run(options):
+def run(options) -> Tuple[bool, str]:
   '''
   return result, reason
   result: True or False
@@ -1086,7 +1050,7 @@ def run(options):
   '''
   __init_log(options)
 
-  logging.info("miniob test starting ...")
+  _logger.info("miniob test starting ...")
 
   # 由于miniob-test测试程序导致的失败，才认为是失败
   # 比如目录没有权限等，对miniob-test来说是成功的
@@ -1100,12 +1064,10 @@ def run(options):
       result = test_suite.run(eval_result)
     # result = True
   except Exception as ex:
-    logging.exception(ex)
+    _logger.exception(ex)
     result = False
     #eval_result.clear_message()
     eval_result.append_message(str(ex.args))
-    eval_result.set_no_cost()
-    eval_result.clear_score()
 
   return result, eval_result.to_json_string()
 
@@ -1119,6 +1081,5 @@ if __name__ == '__main__':
   if result is False:
     exit_code = 1
   else:
-    logging.info(evaluation)
+    _logger.info(evaluation)
   exit(exit_code)
-
