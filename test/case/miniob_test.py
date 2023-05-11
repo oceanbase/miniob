@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
 
-from genericpath import exists
 import os
 import json
 import sys
