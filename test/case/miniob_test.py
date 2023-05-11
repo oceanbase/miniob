@@ -14,9 +14,9 @@ import tempfile
 from typing import List, Tuple
 from enum import Enum
 try:
-  from optparse import OptionParser
+  from argparse import ArgumentParser
 except:
-  print("cannot load optparse module")
+  print("cannot load argparse module")
   exit(1)
 
 _logger = logging.getLogger('MiniOBTest')
@@ -838,44 +838,44 @@ class TestSuite:
       self.__miniob_server = None
 
 def __init_options():
-  options_parser = OptionParser()
+  options_parser = ArgumentParser()
   # 是否仅仅生成结果，而不对结果做校验。一般在新生成一个case时使用
-  options_parser.add_option('', '--report-only', action='store_true', dest='report_only', default=False, 
+  options_parser.add_argument('--report-only', action='store_true', dest='report_only', default=False, 
                             help='just report the result')
 
   # 当前miniob的代码目录
-  options_parser.add_option('', '--project-dir', action='store', type='string', dest='project_dir', default='')
+  options_parser.add_argument('--project-dir', action='store', dest='project_dir', default='')
 
   # 测试哪些用例。不指定就会扫描test-case-dir目录下面的所有测试用例。指定的话，就从test-case-dir目录下面按照名字找
-  options_parser.add_option('', '--test-cases', action='store', type='string', dest='test_cases', 
+  options_parser.add_argument('--test-cases', action='store', dest='test_cases', 
                             help='test cases. If none, we will iterate the test case directory. Split with \',\' if more than one')
 
   # 测试时服务器程序的数据文件存放目录
-  options_parser.add_option('', '--work-dir', action='store', type='string', dest='work_dir', default='',
+  options_parser.add_argument('--work-dir', action='store', dest='work_dir', default='',
                             help='the directory of miniob database\'s data for test')
 
   # 服务程序端口号，客户端也使用这个端口连接服务器。目前还不具备通过配置文件解析端口配置的能力
-  options_parser.add_option('', '--server-port', action='store', type='int', dest='server_port', default=6789,
+  options_parser.add_argument('--server-port', action='store', type=int, dest='server_port', default=6789,
                             help='the server port. should be the same with the value in the config')
-  options_parser.add_option('', '--not-use-unix-socket', action='store_true', dest='not_use_unix_socket', default=False,
+  options_parser.add_argument('--not-use-unix-socket', action='store_true', dest='not_use_unix_socket', default=False,
                             help='If false, server-port will be ignored and will use a random address socket.')
   
   # 测试过程中生成的日志存放的文件。使用stdout/stderr输出到控制台
-  options_parser.add_option('', '--log', action='store', type='string', dest='log_file', default='stdout',
+  options_parser.add_argument('--log', action='store', dest='log_file', default='stdout',
                             help='log file. stdout=standard output and stderr=standard error')
   # 是否启动调试模式。调试模式不会清理服务器的数据目录
-  options_parser.add_option('-d', '--debug', action='store_true', dest='debug', default=False,
+  options_parser.add_argument('-d', '--debug', action='store_true', dest='debug', default=False,
                             help='enable debug mode')
 
-  options_parser.add_option('', '--compile-make-args', action='store', type='string', dest='compile_make_args', default='',
+  options_parser.add_argument('--compile-make-args', action='store', dest='compile_make_args', default='',
                             help='compile args used by make')
-  options_parser.add_option('', '--compile-cmake-args', action='store', type='string', dest='compile_cmake_args', default='',
+  options_parser.add_argument('--compile-cmake-args', action='store', dest='compile_cmake_args', default='',
                             help='compile args used by cmake')
   # 之前已经编译过，是否需要重新编译，还是直接执行make就可以了
-  options_parser.add_option('', '--compile-rebuild', action='store_true', default=False, dest='compile_rebuild',
+  options_parser.add_argument('--compile-rebuild', action='store_true', default=False, dest='compile_rebuild',
                             help='whether rebuild if build path exists')
 
-  options, args = options_parser.parse_args(sys.argv[1:])
+  options = options_parser.parse_args(sys.argv[1:])
 
   realpath = os.path.realpath(__file__)
   current_path = os.path.dirname(realpath)
