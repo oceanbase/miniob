@@ -11,10 +11,7 @@ import socket
 import select
 import time
 import shutil
-#import timeout_decorator
 from enum import Enum
-#import eventlet
-#from timeout_decorator import TimeoutError
 try:
   from optparse import OptionParser
 except:
@@ -60,7 +57,6 @@ python3 miniob_test.py \
         --compile-make-args=-j4
 """
 
-
 class TimeoutException(BaseException):
   def __init__(self, value="Timed Out"):
     self.value = value
@@ -78,20 +74,17 @@ class GlobalConfig:
   debug = False
   source_code_build_path_name = "build"
 
-def __get_source_path(target_dir: str):
-  return target_dir + '/miniob'
+def __get_source_path(project_dir: str):
+  return project_dir
 
-def __get_project_path(target_dir: str):
-  return __get_source_path(target_dir)
-
-def __get_data_path(target_dir: str):
-  return target_dir + '/data'
+def __get_data_path(work_dir: str):
+  return work_dir + '/data'
 
 def __get_result_path(target_dir: str):
   return target_dir + '/result'
 
-def __get_build_path(target_dir: str):
-  return target_dir + '/' + GlobalConfig.source_code_build_path_name
+def __get_build_path(work_dir: str):
+  return work_dir + '/' + GlobalConfig.source_code_build_path_name
 
 class ResultWriter:
   '''
@@ -526,10 +519,8 @@ class CommandRunner:
 
 class TestCase:
 
-  def __init__(self, is_necessary: bool, score: int):
+  def __init__(self):
     self.__name = ''
-    self.__necessary = is_necessary
-    self.__score = score
     self.__lines = []
 
   def init_with_file(self, name, filename):
@@ -549,18 +540,8 @@ class TestCase:
   def get_name(self):
     return self.__name
 
-  def is_necessary(self):
-    return self.__necessary
-
-  def get_score(self):
-    return self.__score
-
   def result_file(self, base_dir):
     subdir = ''
-    #if self.__necessary:
-    #  subdir = self.NECESSARY_DIR
-    #else:
-    #  subdir = self.OPTION_DIR
     return base_dir + "/" + subdir + "/" + self.__name + ".result"
 
   def tmp_result_file(self, base_dir):
@@ -575,21 +556,7 @@ class TestCaseLister:
     else:
       self.__suffix = ".test"
 
-  def list_by_test_score_file(self, test_scores, test_case_file_dir: str):
-    '''
-    从test-score文件中加载所有测试用例
-    '''
-    test_cases = []
-    test_score_infos = test_scores.get_all()
-    for case_name, test_score in test_score_infos.items():
-      test_case = TestCase(test_score.is_necessary(), test_score.score())
-      test_case_file = test_case_file_dir + '/' + case_name + self.__suffix
-      test_case.init_with_file(case_name, test_case_file)
-      test_cases.append(test_case)
-
-    return test_cases
-
-  def list_directory(self, base_dir : str, is_necessary: bool):
+  def list_directory(self, base_dir : str):
     test_case_files = []
 
     is_dir = os.path.isdir(base_dir)
@@ -613,7 +580,7 @@ class TestCaseLister:
     for test_case_file in test_case_files:
       full_path = base_dir + "/" + test_case_file
       test_case_name = test_case_file[0 : -len(self.__suffix)]
-      test_case = TestCase(is_necessary, 0)
+      test_case = TestCase()
       test_case.init_with_file(test_case_name, full_path)
       test_cases.append(test_case)
       logging.debug("got a test case file %s", str(test_case_file))
@@ -631,67 +598,16 @@ class TestCaseLister:
       if not(os.path.isfile(full_path)):
         raise(Exception(full_path + " is not a file"))
       
-      test_case = TestCase(False, 0)
+      test_case = TestCase()
       test_case.init_with_file(test_name, full_path)
       test_cases.append(test_case)
       logging.debug("got a test case %s", test_case)
 
     return test_cases
 
-class TestScore:
-  def __init__(self, is_necessary: bool, score: int):
-    self.__necessary = is_necessary
-    self.__score = score
-
-  def is_necessary(self):
-    return self.__necessary
-  def score(self):
-    return self.__score
-
-class TestScores:
-  def __init__(self):
-    self.__scores = {}
-    self.__is_valid = False
-
-  def is_valid(self):
-    return self.__is_valid
-
-  def init_file(self, fp):
-    score_infos = json.load(fp)
-    self.__init(score_infos)
-
-  def init_content(self, content: str):
-    score_infos = json.loads(content)
-    self.__init(score_infos)
-
-  def __init(self, score_info_dict: dict):
-    scores = {}
-    for name, score_info in score_info_dict.items():
-      scores[name] = TestScore(score_info['necessary'], score_info['score'])
-
-    self.__scores = scores
-    self.__is_valid = True
-  
-  def is_necessary(self, name):
-    if name in self.__scores.keys():
-      return self.__scores[name].is_necessary()
-
-    return None
-  
-  def acquire_score(self, name):
-    if name in self.__scores.keys():
-      return self.__scores[name].score()
-
-    return None
-
-  def get_all(self):
-    return self.__scores
-
 class EvalResult:
   def __init__(self):
     self.__message = []
-    self.__necessary_score = 0
-    self.__option_score = 0
     self.__status = -1
     
   def clear_message(self):
@@ -702,23 +618,10 @@ class EvalResult:
     
   def get_message(self):
     return "\n".join(self.__message)
-  
-  def add_necessary_score(self, score: int):
-    self.__necessary_score += score
 
   def add_option_score(self, score: int):
     self.__option_score += score
 
-  def clear_option_score(self):
-    self.__option_score = 0
-
-  def clear_score(self):
-    self.__option_score = 0
-    self.__necessary_score = 0
-    
-  def get_score(self):
-    return self.__necessary_score + self.__option_score
-  
   def set_cost(self):
     self.__status = 0
     
@@ -773,10 +676,6 @@ class TestSuite:
     if not(os.path.isdir(test_result_tmp_dir)):
       raise(Exception("Failed to set test result temp directory. " + test_result_tmp_dir + " is not a directory or failed to create"))
   
-  def set_test_case_scores(self, scores_path: str):
-    with open(scores_path) as fp:
-      self.__test_case_scores.init_file(fp)
-
   def set_db_server_base_dir(self, db_server_base_dir):
     self.__db_server_base_dir = db_server_base_dir
 
@@ -870,13 +769,9 @@ class TestSuite:
 
   def __get_all_test_cases(self):
     test_case_lister = TestCaseLister()
-    test_cases = []
-    if self.__test_case_scores.is_valid():
-      test_cases = test_case_lister.list_by_test_score_file(self.__test_case_scores, self.__test_case_base_dir)
-    else:
-      test_cases = test_case_lister.list_directory(self.__test_case_base_dir)
+    test_cases = test_case_lister.list_directory(self.__test_case_base_dir)
 
-    if self.__test_names is None: # 没有指定测试哪个case
+    if not self.__test_names: # 没有指定测试哪个case
       return test_cases
 
     # 指定了测试case，就从中捞出来
@@ -910,7 +805,6 @@ class TestSuite:
     success_count = 0
     failure_count = 0
     timeout_count = 0
-    necessary_all_passed = True
     for test_case in test_cases:
       try:
         # 每个case都清理并重启一下服务端，这样可以方式某个case core之后，还能测试其它case
@@ -934,8 +828,6 @@ class TestSuite:
             eval_result.add_option_score(test_case.get_score())
           eval_result.append_message("%s is success" % test_case.get_name())
         else: 
-          if self.__test_case_scores.is_necessary(test_case.get_name()):
-            necessary_all_passed = False
 
           if result is Result.false:
             logging.info("Case failed: %s", test_case.get_name())
@@ -992,44 +884,23 @@ def __init_options():
   # 是否仅仅生成结果，而不对结果做校验。一般在新生成一个case时使用
   options_parser.add_option('', '--report-only', action='store_true', dest='report_only', default=False, 
                             help='just report the result')
-  # 测试case文件存放的目录
-  options_parser.add_option('', '--test-case-dir', action='store', type='string', dest='test_case_base_dir', default='test',
-                            help='the directory that contains the test files')
-  # 测试case文件存放的目录
-  options_parser.add_option('', '--test-case-scores', action='store', type='string', dest='test_case_scores', default='score.json',
-                            help='a json file that records score of the test cases')
-  # 测试结果文件存放目录
-  options_parser.add_option('', '--test-result-dir', action='store', type='string', dest='test_result_base_dir', default='result',
-                            help='the directory that contains the test result files')
-  # 生成的测试结果文件临时目录
-  options_parser.add_option('', '--test-result-tmp-dir', action='store', type='string', dest='test_result_tmp_dir', default='result/tmp',
-                            help='the directory that contains the generated test result files')
+
+  options_parser.add_option('', '--project-dir', action='store', type='string', dest='project_dir', default='')
 
   # 测试哪些用例。不指定就会扫描test-case-dir目录下面的所有测试用例。指定的话，就从test-case-dir目录下面按照名字找
   options_parser.add_option('', '--test-cases', action='store', type='string', dest='test_cases', 
                             help='test cases. If none, we will iterate the test case directory. Split with \',\' if more than one')
 
-  # 测试时服务器程序基础路径，下面包含bin/observer执行主程序和etc/observer.ini配置文件
-  options_parser.add_option('', '--db-base-dir', action='store', type='string', dest='db_base_dir',
-                            help='the directory of miniob database which db-base-dir/bin contains the binary executor file')
-  
   # 测试时服务器程序的数据文件存放目录
-  options_parser.add_option('', '--db-data-dir', action='store', type='string', dest='db_data_dir', default='miniob_data_test',
+  options_parser.add_option('', '--work-dir', action='store', type='string', dest='work_dir', default='',
                             help='the directory of miniob database\'s data for test')
 
-  # 服务程序配置文件
-  options_parser.add_option('', '--db-config', action='store', type='string', dest='db_config',
-                            help='the configuration of db for test. default is base_dir/etc/observer.ini')
   # 服务程序端口号，客户端也使用这个端口连接服务器。目前还不具备通过配置文件解析端口配置的能力
   options_parser.add_option('', '--server-port', action='store', type='int', dest='server_port', default=6789,
                             help='the server port. should be the same with the value in the config')
   options_parser.add_option('', '--use-unix-socket', action='store_true', dest='use_unix_socket',
                             help='If true, server-port will be ignored and will use a random address socket.')
   
-  # 可以手动启动服务端程序，然后添加这个选项，就不会再启动服务器程序。一般调试时使用
-  options_parser.add_option('', '--server-started', action='store_true', dest='server_started', default=False,
-                            help='Whether the server is already started. If true, we will not start the server')
-
   # 测试过程中生成的日志存放的文件。使用stdout/stderr输出到控制台
   options_parser.add_option('', '--log', action='store', type='string', dest='log_file', default='miniob-test.log',
                             help='log file. stdout=standard output and stderr=standard error')
@@ -1037,18 +908,6 @@ def __init_options():
   options_parser.add_option('-d', '--debug', action='store_true', dest='debug', default=False,
                             help='enable debug mode')
 
-  # 测试时代码压缩文件的路径
-  options_parser.add_option('', '--db-code-dir', action='store', type='string', dest='db_code_dir',
-                            help='the directory of miniob\'s code')
-  # 测试时代码压缩文件的解压目录
-  options_parser.add_option('', '--target-dir', action='store', type='string', dest='target_dir',
-                            help='the working directory of miniob database')
-  # 解压的目录存在时，是否覆盖
-  options_parser.add_option('', '--decompress-overwrite', action='store_true', dest='decompress_overwrite', default=False,
-                            help='whether overwrite the decompress target path if exists')
-  # 是否需要解压和编译代码
-  options_parser.add_option('', '--code-type', action='store', dest='code_type', default='compress',
-                            help='compress/git/none. Compress: decompress the code and compile. git: git clone and compile. none: do nothing')
   options_parser.add_option('', '--compile-make-args', action='store', type='string', dest='compile_make_args', default='',
                             help='compile args used by make')
   options_parser.add_option('', '--compile-cmake-args', action='store', type='string', dest='compile_cmake_args', default='',
@@ -1056,18 +915,17 @@ def __init_options():
   # 之前已经编译过，是否需要重新编译，还是直接执行make就可以了
   options_parser.add_option('', '--compile-rebuild', action='store_true', default=False, dest='compile_rebuild',
                             help='whether rebuild if build path exists')
-  options_parser.add_option('', '--git-repo', action='store', dest='git_repo', 
-                            help='the git repo in https')
-  options_parser.add_option('', '--git-branch', action='store', dest='git_branch', default='',
-                            help='the git repo branch')
-  options_parser.add_option('', '--git-repo-prefix', action='store', dest='git_repo_prefix', default='https://github.com',
-                            help='the git repo prefix in https')
-  options_parser.add_option('', '--git-user', action='store', dest='git_user', default='',
-                            help='git user name to download source code')
-  options_parser.add_option('', '--git-token', action='store', dest='git_token', default='',
-                            help='git token to download source code')
 
   options, args = options_parser.parse_args(sys.argv[1:])
+
+  realpath = os.path.realpath(__file__)
+  current_path = os.path.dirname(realpath)
+  if not options.work_dir:
+    options.work_dir = current_path
+    logging.info('use %s as work directory', options.work_dir)
+  if not options.project_dir:
+    options.project_dir = os.path.realpath(current_path + '/../..')
+    logging.info('Auto detect project dir: %s', options.project_dir)
   return options
 
 def __init_log(options):
@@ -1094,26 +952,17 @@ def __init_log(options):
   else:
     logging.basicConfig(level=log_level, stream=log_stream, format=log_format, datefmt=log_date_format)
 
-def __init_test_suite(options):
+def __init_test_suite(options) -> TestSuite:
   test_suite = TestSuite()
-  test_suite.set_test_case_base_dir(os.path.abspath(options.test_case_base_dir))
-  test_suite.set_test_case_scores(os.path.abspath(options.test_case_scores))
-  test_suite.set_test_result_base_dir(os.path.abspath(options.test_result_base_dir))
-  test_suite.set_test_result_tmp_dir(os.path.abspath(options.test_result_tmp_dir))
-
-  if options.db_base_dir is not None:
-    test_suite.set_db_server_base_dir(os.path.abspath(options.db_base_dir))
-  if options.db_data_dir is not None:
-    test_suite.set_db_data_dir(os.path.abspath(options.db_data_dir))
+  test_suite.set_test_case_base_dir(os.path.abspath(options.project_dir + '/test/case/test'))
+  test_suite.set_test_result_base_dir(os.path.abspath(options.project_dir + '/test/case/result'))
+  test_suite.set_test_result_tmp_dir(os.path.abspath(options.work_dir + '/result_output'))
 
   test_suite.set_server_port(options.server_port)
   test_suite.set_use_unix_socket(options.use_unix_socket)
-
-  if options.server_started:
-    test_suite.donot_need_start_server()
-
-  if options.db_config is not None:
-    test_suite.set_db_config(os.path.abspath(options.db_config))
+  test_suite.set_db_server_base_dir(__get_build_path(options.work_dir))
+  test_suite.set_db_data_dir(options.work_dir + '/data')
+  test_suite.set_db_config(os.path.abspath(options.project_dir + '/etc/observer.ini'))
 
   if options.test_cases is not None:
     test_suite.set_test_names(options.test_cases.split(','))
@@ -1124,26 +973,14 @@ def __init_test_suite(options):
   return test_suite
 
 def __init_test_suite_with_source_code(options, eval_result):
-  os.makedirs(options.target_dir, exist_ok=True)
-  target_path = os.path.abspath(options.target_dir)
-  proj_path = __get_project_path(target_path)
-  build_path = __get_build_path(target_path)
+  proj_path = os.path.abspath(options.project_dir)
+  build_path = __get_build_path(options.work_dir)
 
-  if options.code_type == 'compress':
-    code_path = os.path.abspath(options.db_code_dir)
-    if not unzip(code_path, target_path, options.decompress_overwrite):
-      message = "decompress the code failed"
-      logging.error(message)
-      raise Exception(message)
-    else:
-      logging.info("decompress source code done")
-  elif options.code_type == 'git':
-    result = git_clone(options.git_repo, options.git_branch, options.git_repo_prefix, 
-                        options.git_user, options.git_token, proj_path, 10, eval_result)
-    if not result:
-      return None
-
-  if not compile(proj_path, build_path, options.compile_cmake_args, options.compile_make_args, options.compile_rebuild, eval_result):
+  if not compile(proj_path, build_path, 
+                 options.compile_cmake_args, 
+                 options.compile_make_args, 
+                 options.compile_rebuild, 
+                 eval_result):
     message = "Failed to compile source code"
     logging.error(message)
     return None
@@ -1153,9 +990,6 @@ def __init_test_suite_with_source_code(options, eval_result):
   # 覆盖一些测试的路径
   logging.info("some config will be override if exists")
   test_suite = __init_test_suite(options)
-  test_suite.set_db_data_dir(__get_data_path(target_path))
-  test_suite.set_db_server_base_dir(__get_build_path(target_path))
-  test_suite.set_db_config(proj_path + '/etc/observer.ini')
   return test_suite
 
 def __run_shell_command(command_args):
@@ -1177,104 +1011,6 @@ def __run_shell_command(command_args):
     return_code = command_process.poll()
     if return_code is not None:
       return return_code, outputs
-
-def git_pull(to_path: str, timeout:int, eval_result:EvalResult):
-  logging.info('running git pull in %s and will wait %d seconds', to_path, timeout)
-  command_args = ['git', 'pull']
-  process = subprocess.Popen(command_args, cwd=to_path)
-  try:
-    return_code = process.wait(timeout=timeout)
-    if return_code != 0:
-      logging.error("Failed to pull source code from repo. return code=%d", return_code)
-      return False
-    logging.info("pull source code success")
-    return True
-  except Exception as ex:
-    process.kill()
-    logging.error("Failed to pull source code from repo. exception=%s", str(ex))
-    return False
-  return True
-
-def git_clone(repo: str, branch: str, repo_prefix: str, 
-              user_name: str, password: str, 
-              to_path: str, timeout:int, eval_result: EvalResult):
-  '''
-  从指定仓库拉取代码。
-  to_path： 拉取的代码放的目录。比如 test-tmp/ob_rookie/miniob
-  '''
-  if os.path.exists(to_path):
-    # 目标目录已经存在，可以尝试直接执行git pull
-    result = git_pull(to_path, timeout, eval_result)
-    if result:  # 如果拉取失败，就尝试重新clone
-      return True
-
-    # 清理原有目录，再重新拉取
-    logging.info("Failed to pull source code. clean the directory and clone it. path=%s", to_path)
-    shutil.rmtree(to_path)
-
-  if not repo.startswith(repo_prefix):
-    error = 'git repo must be starts with ' + repo_prefix + ', but got ' + repo
-    logging.error(error)
-    eval_result.append_message(error)
-    return False
-
-  if user_name or password:
-    target_repo = repo.replace(repo_prefix, 'https://' + user_name + ':' + password + '@github.com/')
-    target_repo_in_log = target_repo.replace(password, '****')
-  else:
-    target_repo = repo
-    target_repo_in_log = target_repo
-
-  logging.info('git clone from %s', target_repo_in_log)
-  command_args = ['git', 'clone', target_repo, to_path]
-  if len(branch) != 0:
-    command_args.append('-b')
-    command_args.append(branch)
-  process = subprocess.Popen(command_args)
-  try:
-    return_code = process.wait(timeout=timeout)
-    if return_code != 0:
-      error = 'Failed to clone repo from ' + target_repo_in_log + ', return code =' + str(return_code)
-      logging.error(error)
-      eval_result.append_message(error)
-      return False
-  except Exception as ex:
-    process.kill()
-    error = 'failed to clone repo from ' + target_repo_in_log + '. exception=' + str(ex)
-    logging.error(error)
-    eval_result.append_message(error)
-    return False
-  return True
-
-def unzip(source_dir: str, target_dir: str, overwrite: bool):
-  if not os.path.exists(source_dir):
-    logging.error('The source_dir %s doesn\'t exist, please provide a vaild source path.', source_dir)
-    return False
-
-  if os.path.isdir(target_dir) and len(os.listdir(target_dir)) != 0:
-    if overwrite:
-      shutil.rmtree(target_dir)
-      logging.info("target directory will be cleaned: %s", target_dir)
-    else:
-      logging.error('target directory is not empty: %s', target_dir)
-      return False
-
-  if not os.path.exists(target_dir):
-    logging.info("decompress target directory does not exists, try to create it")
-    os.makedirs(target_dir)
-
-  ret, outputs = __run_shell_command(["unzip", "-q", "-d", target_dir, source_dir])
-  if ret != 0:
-    logging.error("Failed to decompress the zip package. source_dir=%s, target_dir=%s",
-                  source_dir, target_dir)
-    
-    for output in outputs:
-      logging.error(output)
-    return False
-
-  logging.info("decompress the zip package success. source_dir=%s, target_dir=%s",
-                source_dir, target_dir)
-  return True
 
 def run_cmake(work_dir: str, build_path: str, cmake_args: str):
   cmake_command = ["cmake", "-B", build_path, "--log-level=WARNING"]
@@ -1353,17 +1089,12 @@ def run(options):
   logging.info("miniob test starting ...")
 
   # 由于miniob-test测试程序导致的失败，才认为是失败
-  # 比如解压代码失败，git clone超时，目录没有权限等，对miniob-test来说都是成功的
-  # git clone由于权限原因失败、编译失败等，对miniob-test来说是成功的
+  # 比如目录没有权限等，对miniob-test来说是成功的
   result = True
   eval_result = EvalResult()
 
   try:
-    test_suite = None
-    if options.code_type == 'compress' or options.code_type == 'git':
-      test_suite = __init_test_suite_with_source_code(options, eval_result)
-    else:
-      test_suite = __init_test_suite(options)
+    test_suite:TestSuite = __init_test_suite_with_source_code(options, eval_result)
 
     if test_suite != None:
       result = test_suite.run(eval_result)
