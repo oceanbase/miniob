@@ -43,6 +43,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+
       - name: run basic test
         shell: bash
         run: |
