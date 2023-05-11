@@ -39,3 +39,12 @@ jobs:
       shell: bash
       run: sudo bash build.sh init && bash build.sh release --make -j4
       
+  basic-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: run basic test
+        shell: bash
+        run: |
+          sudo bash build.sh init
+          bash test/case/miniob_test.py --test-cases=basic | tail -1 | grep "basic is success"
