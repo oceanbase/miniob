@@ -11,7 +11,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build-on-ubuntu:
+  build-and-test-on-ubuntu:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
@@ -20,10 +20,24 @@ jobs:
     steps:
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
-        
-    - name: Build
+
+    - name: Init
       shell: bash
-      run: sudo bash build.sh init && bash build.sh release --make -j4
+      run: sudo bash build.sh init
+
+    - name: BuildRelease
+      shell: bash
+      run: bash build.sh release --make -j4
+
+    - name: BuildDebug
+      shell: bash
+      run: bash build.sh debug --make -j4
+
+    - name: Test
+      shell: bash
+      run: |
+        cd build_debug
+        make test
 
   build-on-mac:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.

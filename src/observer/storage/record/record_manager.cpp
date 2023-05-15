@@ -580,6 +580,8 @@ RC RecordFileScanner::close_scan()
     condition_filter_ = nullptr;
   }
 
+  record_page_handler_.cleanup();
+
   return RC::SUCCESS;
 }
 

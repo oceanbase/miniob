@@ -25,10 +25,8 @@ ELSE ()
     LINK_DIRECTORIES(/usr/local/lib)
 ENDIF ()
 
-
 find_package(GTest CONFIG REQUIRED)
 
-enable_testing()
 include(GoogleTest)
 #get_filename_component(<VAR> FileName
 #        PATH|ABSOLUTE|NAME|EXT|NAME_WE|REALPATH
