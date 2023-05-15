@@ -255,6 +255,7 @@ RC CLogBuffer::block_copy(int32_t offset, CLogBlock *log_block)
 //
 CLogFile::CLogFile(const char *path)
 {
+  // TODO move to init routine 
   log_file_ = new PersistHandler();
   RC rc = RC::SUCCESS;
   std::string clog_file_path = std::string(path) + common::FILE_PATH_SPLIT_STR + CLOG_FILE_NAME;
@@ -265,6 +266,8 @@ CLogFile::CLogFile(const char *path)
   } else if (rc == RC::FILE_EXIST) {
     log_file_->open_file(clog_file_path.c_str());
     log_file_->read_at(0, CLOG_BLOCK_SIZE, (char *)&log_fhd_);
+  } else {
+    LOG_WARN("failed to create clog file: %s, rc=%s", clog_file_path.c_str(), strrc(rc));
   }
 }
 

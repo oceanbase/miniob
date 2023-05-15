@@ -14,8 +14,11 @@ See the Mulan PSL v2 for more details. */
 
 #include <string.h>
 
+#include "common/log/log.h"
 #include "storage/clog/clog.h"
 #include "gtest/gtest.h"
+
+using namespace common;
 
 Record *gen_ins_record(int32_t page_num, int32_t slot_num, int data_len)
 {
@@ -36,7 +39,7 @@ Record *gen_del_record(int32_t page_num, int32_t slot_num)
 
 TEST(test_clog, test_clog)
 {
-  CLogManager *log_mgr = new CLogManager("/home/huhaosheng.hhs/Alibaba/miniob");
+  CLogManager *log_mgr = new CLogManager("./");
 
   CLogRecord *log_rec[6];
   CLogRecord *log_mtr_rec = nullptr;
@@ -44,7 +47,7 @@ TEST(test_clog, test_clog)
   //
   log_mgr->clog_gen_record(REDO_MTR_BEGIN, 1, log_mtr_rec);
   log_mgr->clog_append_record(log_mtr_rec);  // NOTE: 需要保留log_rec
-  delete log_mtr_rec;
+  // delete log_mtr_rec;
 
   rec = gen_ins_record(1, 1, 100);
   log_mgr->clog_gen_record(REDO_INSERT, 1, log_rec[0], "table1", 100, rec);
@@ -60,7 +63,7 @@ TEST(test_clog, test_clog)
 
   log_mgr->clog_gen_record(REDO_MTR_BEGIN, 2, log_mtr_rec);
   log_mgr->clog_append_record(log_mtr_rec);
-  delete log_mtr_rec;
+  // delete log_mtr_rec;
 
   rec = gen_ins_record(1, 1, 200);
   log_mgr->clog_gen_record(REDO_INSERT, 1, log_rec[2], "table3", 200, rec);
@@ -82,7 +85,7 @@ TEST(test_clog, test_clog)
 
   log_mgr->clog_gen_record(REDO_MTR_COMMIT, 2, log_mtr_rec);
   log_mgr->clog_append_record(log_mtr_rec);
-  delete log_mtr_rec;
+  // delete log_mtr_rec;
 
   rec = gen_del_record(1, 1);
   log_mgr->clog_gen_record(REDO_DELETE, 1, log_rec[5], "table1", 0, rec);
@@ -91,7 +94,7 @@ TEST(test_clog, test_clog)
 
   log_mgr->clog_gen_record(REDO_MTR_COMMIT, 1, log_mtr_rec);
   log_mgr->clog_append_record(log_mtr_rec);
-  delete log_mtr_rec;
+  // delete log_mtr_rec;
 
   log_mgr->recover();
 
@@ -102,6 +105,8 @@ TEST(test_clog, test_clog)
 
   ASSERT_EQ(6, log_mtr_mgr->log_redo_list.size());
 
+  /*
+  // record 已经被删掉了，不能再访问
   int i = 0;
   for (auto iter = log_mtr_mgr->log_redo_list.begin(); iter != log_mtr_mgr->log_redo_list.end();
        iter++) {
@@ -110,10 +115,7 @@ TEST(test_clog, test_clog)
     delete tmp;
     i++;
   }
-
-  for (i = 0; i < 6; i++) {
-    delete log_rec[i];
-  }
+  */
 }
 
 int main(int argc, char **argv)
@@ -121,6 +123,8 @@ int main(int argc, char **argv)
   // 分析gtest程序的命令行参数
   testing::InitGoogleTest(&argc, argv);
 
+  LoggerFactory::init_default("test.log", LOG_LEVEL_TRACE);
+  
   // 调用RUN_ALL_TESTS()运行所有测试用例
   // main函数返回RUN_ALL_TESTS()的运行结果
   return RUN_ALL_TESTS();

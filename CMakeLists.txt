@@ -86,6 +86,7 @@ ADD_SUBDIRECTORY(test/perf)
 ADD_SUBDIRECTORY(benchmark)
 
 IF(WITH_UNIT_TESTS)
+    enable_testing()
     ADD_SUBDIRECTORY(unittest)
 ENDIF()
 
