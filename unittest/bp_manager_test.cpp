@@ -26,6 +26,7 @@ void test_get(BPFrameManager &frame_manager)
   frame1->set_page_num(page_num);
 
   ASSERT_EQ(frame1, frame_manager.get(file_desc, 1));
+  frame1->unpin();
 
   Frame *frame2 = frame_manager.alloc(file_desc, 2);
   ASSERT_NE(frame2, nullptr);
@@ -33,6 +34,7 @@ void test_get(BPFrameManager &frame_manager)
   frame2->set_page_num(2);
 
   ASSERT_EQ(frame1, frame_manager.get(file_desc, 1));
+  frame1->unpin();
 
   Frame *frame3 = frame_manager.alloc(file_desc, 3);
   ASSERT_NE(frame3, nullptr);
@@ -41,6 +43,7 @@ void test_get(BPFrameManager &frame_manager)
 
   frame2 = frame_manager.get(file_desc, 2);
   ASSERT_NE(frame2, nullptr);
+  frame2->unpin();
 
   Frame *frame4 = frame_manager.alloc(file_desc, 4);
   frame4->set_file_desc(file_desc);
@@ -51,8 +54,10 @@ void test_get(BPFrameManager &frame_manager)
   ASSERT_EQ(frame1, nullptr);
 
   ASSERT_EQ(frame3, frame_manager.get(file_desc, 3));
+  frame3->unpin();
 
   ASSERT_EQ(frame4, frame_manager.get(file_desc, 4));
+  frame4->unpin();
 
   frame_manager.free(file_desc, frame2->page_num(), frame2);
   frame_manager.free(file_desc, frame3->page_num(), frame3);
