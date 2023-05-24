@@ -22,11 +22,6 @@
             "label": "build_release",
             "type": "shell",
             "command": "bash build.sh release"
-        },
-        {
-            "label": "build_release_asan",
-            "type": "shell",
-            "command": "bash build.sh release_asan"
         }
     ]
 }
