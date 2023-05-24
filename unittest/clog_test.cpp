@@ -39,6 +39,9 @@ Record *gen_del_record(int32_t page_num, int32_t slot_num)
 
 TEST(test_clog, test_clog)
 {
+  const char *clog_file = "./clog";
+  remove(clog_file);
+  
   CLogManager *log_mgr = new CLogManager("./");
 
   CLogRecord *log_rec[6];
