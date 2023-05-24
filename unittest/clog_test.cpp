@@ -119,6 +119,7 @@ TEST(test_clog, test_clog)
     i++;
   }
   */
+  delete log_mgr;
 }
 
 int main(int argc, char **argv)

@@ -399,6 +399,14 @@ void CLogMTRManager::log_record_manage(CLogRecord *log_rec)
   }
 }
 
+CLogMTRManager::~CLogMTRManager()
+{
+  for (auto log_rec: log_redo_list) {
+    delete log_rec;
+  }
+  log_redo_list.clear();
+}
+
 ////////////////////
 std::atomic<int32_t> CLogManager::gloabl_lsn_(0);
 CLogManager::CLogManager(const char *path)
@@ -412,6 +420,17 @@ CLogManager::~CLogManager()
 {
   if (log_buffer_) {
     delete log_buffer_;
+    log_buffer_ = nullptr;
+  }
+
+  if (log_file_ != nullptr) {
+    delete log_file_;
+    log_file_ = nullptr;
+  }
+
+  if (log_mtr_mgr_ != nullptr) {
+    delete log_mtr_mgr_;
+    log_mtr_mgr_ = nullptr;
   }
 }
 
