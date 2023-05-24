@@ -82,9 +82,20 @@ ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T
   return lower_bound<ForwardIterator, T, Comparator<T>>(first, last, val, Comparator<T>(), _found);
 }
 
+// std::iterator is deprecated
+// refer to https://www.fluentcpp.com/2018/05/08/std-iterator-deprecated/#:~:text=std%3A%3Aiterator%20is%20deprecated%2C%20so%20we%20should%20stop%20using,the%205%20aliases%20inside%20of%20your%20custom%20iterators.
+// a sample code:
+// https://github.com/google/googletest/commit/25208a60a27c2e634f46327595b281cb67355700
 template <typename T, typename Distance = ptrdiff_t>
-class BinaryIterator : public std::iterator<std::random_access_iterator_tag, T *, Distance>
+class BinaryIterator
 {
+public:
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = T;
+  using difference_type = Distance;
+  using pointer = value_type *;
+  using reference = value_type &;
+  
 public: 
   BinaryIterator() = default;
   BinaryIterator(size_t item_num, T *data) : item_num_(item_num), data_(data)

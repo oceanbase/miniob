@@ -189,19 +189,21 @@ int list_file(const char *path, const char *filter_pattern, std::vector<std::str
 
   files.clear();
 
-  struct dirent entry;
-  struct dirent *pentry = NULL;
+  // readdir_r is deprecated in some systems, so we use readdir instead
+  // as readdir is not thread-safe, it is better to use C++ directory
+  // TODO
+  struct dirent *pentry;
   char tmp_path[PATH_MAX];
-  while ((0 == readdir_r(pdir, &entry, &pentry)) && (NULL != pentry)) {
-    if ('.' == entry.d_name[0])  // 跳过./..文件和隐藏文件
+  while ((pentry = readdir(pdir)) != NULL) {
+    if ('.' == pentry->d_name[0])  // 跳过./..文件和隐藏文件
       continue;
 
-    snprintf(tmp_path, sizeof(tmp_path), "%s/%s", path, entry.d_name);
+    snprintf(tmp_path, sizeof(tmp_path), "%s/%s", path, pentry->d_name);
     if (is_directory(tmp_path))
       continue;
 
-    if (!filter_pattern || 0 == regexec(&reg, entry.d_name, 0, NULL, 0))
-      files.push_back(entry.d_name);
+    if (!filter_pattern || 0 == regexec(&reg, pentry->d_name, 0, NULL, 0))
+      files.push_back(pentry->d_name);
   }
 
   if (filter_pattern)
