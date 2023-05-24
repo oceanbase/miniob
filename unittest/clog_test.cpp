@@ -39,6 +39,9 @@ Record *gen_del_record(int32_t page_num, int32_t slot_num)
 
 TEST(test_clog, test_clog)
 {
+  const char *clog_file = "./clog";
+  remove(clog_file);
+  
   CLogManager *log_mgr = new CLogManager("./");
 
   CLogRecord *log_rec[6];
@@ -116,6 +119,7 @@ TEST(test_clog, test_clog)
     i++;
   }
   */
+  delete log_mgr;
 }
 
 int main(int argc, char **argv)
@@ -123,7 +127,7 @@ int main(int argc, char **argv)
   // 分析gtest程序的命令行参数
   testing::InitGoogleTest(&argc, argv);
 
-  LoggerFactory::init_default("test.log", LOG_LEVEL_TRACE);
+  LoggerFactory::init_default("clog_test.log", LOG_LEVEL_TRACE);
   
   // 调用RUN_ALL_TESTS()运行所有测试用例
   // main函数返回RUN_ALL_TESTS()的运行结果

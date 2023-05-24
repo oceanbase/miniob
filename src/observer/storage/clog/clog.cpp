@@ -223,13 +223,15 @@ RC CLogBuffer::flush_buffer(CLogFile *log_file)
 {
   if (write_offset_ == CLOG_BUFFER_SIZE) {  // 如果是buffer满触发的下刷
     CLogBlock *log_block = (CLogBlock *)buffer_;
-    log_file->write(log_block->log_block_hdr_.log_block_no, CLOG_BUFFER_SIZE, buffer_);
+    RC rc = log_file->write(log_block->log_block_hdr_.log_block_no, CLOG_BUFFER_SIZE, buffer_);
+    ASSERT(rc == RC::SUCCESS, "failed to write buffer block to file. error=%s", strerror(errno));
     write_block_offset_ = 0;
     write_offset_ = 0;
     memset(buffer_, 0, CLOG_BUFFER_SIZE);
   } else {
     CLogBlock *log_block = (CLogBlock *)buffer_;
-    log_file->write(log_block->log_block_hdr_.log_block_no, write_block_offset_ + CLOG_BLOCK_SIZE, buffer_);
+    RC rc = log_file->write(log_block->log_block_hdr_.log_block_no, write_block_offset_ + CLOG_BLOCK_SIZE, buffer_);
+    ASSERT(rc == RC::SUCCESS, "failed to write buffer block to file. error=%s", strerror(errno));
     log_block = (CLogBlock *)&buffer_[write_block_offset_];
     if (log_block->log_block_hdr_.log_data_len_ == CLOG_BLOCK_DATA_SIZE) {  // 最后一个block已写满
       write_block_offset_ = 0;
@@ -397,6 +399,14 @@ void CLogMTRManager::log_record_manage(CLogRecord *log_rec)
   }
 }
 
+CLogMTRManager::~CLogMTRManager()
+{
+  for (auto log_rec: log_redo_list) {
+    delete log_rec;
+  }
+  log_redo_list.clear();
+}
+
 ////////////////////
 std::atomic<int32_t> CLogManager::gloabl_lsn_(0);
 CLogManager::CLogManager(const char *path)
@@ -410,6 +420,17 @@ CLogManager::~CLogManager()
 {
   if (log_buffer_) {
     delete log_buffer_;
+    log_buffer_ = nullptr;
+  }
+
+  if (log_file_ != nullptr) {
+    delete log_file_;
+    log_file_ = nullptr;
+  }
+
+  if (log_mtr_mgr_ != nullptr) {
+    delete log_mtr_mgr_;
+    log_mtr_mgr_ = nullptr;
   }
 }
 
