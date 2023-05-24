@@ -198,7 +198,4 @@ RC Client::execute(const char *sql, ostream &result_stream)
 
 #endif
 
-int main(void)
-{
-  return 0;
-}
+int main(void) { return 0; }
