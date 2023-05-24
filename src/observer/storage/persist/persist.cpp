@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "persist.h"
 #include "common/log/log.h"
+#include "common/io/io.h"
 
 PersistHandler::PersistHandler()
 {}
@@ -269,13 +270,11 @@ RC PersistHandler::read_at(uint64_t offset, int size, char *data, int64_t *out_s
           strerror(errno));
       return RC::FILE_SEEK;
     } else {
-      int64_t read_size = 0;
-      if ((read_size = read(file_desc_, data, size)) != size) {
+      if (0 != common::readn(file_desc_, data, size)) {
         LOG_WARN("Failed to read %lld of %d:%s due to %s.", offset, file_desc_, file_name_.c_str(), strerror(errno));
         rc = RC::FILE_READ;
-      }
-      if (out_size != nullptr) {
-        *out_size = read_size;
+      } else if (out_size != nullptr) {
+        *out_size = size;
       }
     }
   }
