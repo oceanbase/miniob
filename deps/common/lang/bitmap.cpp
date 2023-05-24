@@ -36,6 +36,11 @@ int find_first_setted(char byte, int start)
   return -1;
 }
 
+int bytes(int size)
+{
+  return size % 8 == 0 ? size / 8 : size / 8 + 1;
+}
+
 Bitmap::Bitmap() : bitmap_(nullptr), size_(0)
 {}
 Bitmap::Bitmap(char *bitmap, int size) : bitmap_(bitmap), size_(size)
@@ -69,7 +74,7 @@ int Bitmap::next_unsetted_bit(int start)
 {
   int ret = -1;
   int start_in_byte = start % 8;
-  for (int iter = start / 8, end = (size_ % 8 == 0 ? size_ / 8 : size_ / 8 + 1); iter <= end; iter++) {
+  for (int iter = start / 8, end = bytes(size_); iter < end; iter++) {
     char byte = bitmap_[iter];
     if (byte != -1) {
       int index_in_byte = find_first_zero(byte, start_in_byte);
@@ -92,7 +97,7 @@ int Bitmap::next_setted_bit(int start)
 {
   int ret = -1;
   int start_in_byte = start % 8;
-  for (int iter = start / 8, end = (size_ % 8 == 0 ? size_ / 8 : size_ / 8 + 1); iter <= end; iter++) {
+  for (int iter = start / 8, end = bytes(size_); iter < end; iter++) {
     char byte = bitmap_[iter];
     if (byte != 0x00) {
       int index_in_byte = find_first_setted(byte, start_in_byte);
