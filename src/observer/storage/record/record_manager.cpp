@@ -29,7 +29,7 @@ int page_fix_size() { return sizeof(PageHeader); }
 
 /**
  * @brief 计算指定大小的页面，可以容纳多少个记录
- * 
+ *
  * @param page_size   页面的大小
  * @param record_size 记录的大小
  */
@@ -42,14 +42,14 @@ int page_record_capacity(int page_size, int record_size)
 
 /**
  * @brief bitmap 记录了某个位置是否有有效的记录数据，这里给定记录个数时需要多少字节来存放bitmap数据
- * 
+ *
  * @param record_capacity 想要存放多少记录
  */
 int page_bitmap_size(int record_capacity) { return record_capacity / 8 + ((record_capacity % 8 == 0) ? 0 : 1); }
 
 /**
  * @brief 页面头固定信息加上bitmap需要的字节
- * 
+ *
  * @param record_capacity 想要存放多少记录
  */
 int page_header_size(int record_capacity)
@@ -400,7 +400,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
     }
 
     // frame 在allocate_page的时候，是有一个pin的，在init_empty_page时又会增加一个，所以这里手动释放一个
-    frame->unpin();  
+    frame->unpin();
 
     // 这里的加锁顺序看起来与上面是相反的，但是不会出现死锁
     // 上面的逻辑是先加lock锁，然后加页面写锁，这里是先加上
@@ -444,7 +444,7 @@ RC RecordFileHandler::delete_record(const RID *rid)
   // 📢 这里注意要清理掉资源，否则会与insert_record中的加锁顺序冲突而可能出现死锁
   // delete record的加锁逻辑是拿到页面锁，删除指定记录，然后加上和释放record manager锁
   // insert record是加上 record manager锁，然后拿到指定页面锁再释放record manager锁
-  page_handler.cleanup();  
+  page_handler.cleanup();
   if (rc == RC::SUCCESS) {
     // 因为这里已经释放了页面锁，并发时，其它线程可能又把该页面填满了，那就不应该再放入 free_pages_
     // 中。但是这里可以不关心，因为在查找空闲页面时，会自动过滤掉已经满的页面
@@ -476,6 +476,7 @@ RC RecordFileHandler::get_record(RecordPageHandler &page_handler, const RID *rid
 RC RecordFileHandler::visit_record(const RID &rid, bool readonly, std::function<void(Record &)> visitor)
 {
   RecordPageHandler page_handler;
+
   RC rc = page_handler.init(*disk_buffer_pool_, rid.page_num, readonly);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to init record page handler.page number=%d", rid.page_num);
@@ -523,7 +524,7 @@ RC RecordFileScanner::open_scan(
 
 /**
  * @brief 从当前位置开始找到下一条有效的记录
- * 
+ *
  * 如果当前页面还有记录没有访问，就遍历当前的页面。
  * 当前页面遍历完了，就遍历下一个页面，然后找到有效的记录
  */
@@ -568,8 +569,8 @@ RC RecordFileScanner::fetch_next_record()
 
 /**
  * @brief 遍历当前页面，尝试找到一条有效的记录
- * 
- * @return RC 
+ *
+ * @return RC
  */
 RC RecordFileScanner::fetch_next_record_in_page()
 {
