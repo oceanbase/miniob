@@ -46,13 +46,13 @@ RC BPFrameManager::init(int pool_num)
   if (ret == 0) {
     return RC::SUCCESS;
   }
-  return RC::GENERIC_ERROR;
+  return RC::NOMEM;
 }
 
 RC BPFrameManager::cleanup()
 {
   if (frames_.count() > 0) {
-    return RC::GENERIC_ERROR;
+    return RC::INTERNAL;
   }
 
   frames_.destroy();

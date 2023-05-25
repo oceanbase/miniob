@@ -79,7 +79,7 @@ RC Table::create(const char *path,
       return RC::SCHEMA_TABLE_EXIST;
     }
     LOG_ERROR("Create table file failed. filename=%s, errmsg=%d:%s", path, errno, strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_OPEN;
   }
 
   close(fd);
@@ -94,7 +94,7 @@ RC Table::create(const char *path,
   fs.open(path, std::ios_base::out | std::ios_base::binary);
   if (!fs.is_open()) {
     LOG_ERROR("Failed to open file for write. file name=%s, errmsg=%s", path, strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_OPEN;
   }
 
   // 记录元数据到文件中
@@ -129,12 +129,12 @@ RC Table::open(const char *meta_file, const char *base_dir)
   fs.open(meta_file_path, std::ios_base::in | std::ios_base::binary);
   if (!fs.is_open()) {
     LOG_ERROR("Failed to open meta file for read. file name=%s, errmsg=%s", meta_file_path.c_str(), strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_OPEN;
   }
   if (table_meta_.deserialize(fs) < 0) {
     LOG_ERROR("Failed to deserialize table meta. file name=%s", meta_file_path.c_str());
     fs.close();
-    return RC::GENERIC_ERROR;
+    return RC::INTERNAL;
   }
   fs.close();
 
@@ -157,7 +157,7 @@ RC Table::open(const char *meta_file, const char *base_dir)
                 name(), index_meta->name(), index_meta->field());
       // skip cleanup
       //  do all cleanup action in destructive Table function
-      return RC::GENERIC_ERROR;
+      return RC::INTERNAL;
     }
 
     BplusTreeIndex *index = new BplusTreeIndex();
@@ -381,11 +381,11 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
   fs.open(tmp_file, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
   if (!fs.is_open()) {
     LOG_ERROR("Failed to open file for write. file name=%s, errmsg=%s", tmp_file.c_str(), strerror(errno));
-    return RC::IOERR;  // 创建索引中途出错，要做还原操作
+    return RC::IOERR_OPEN;  // 创建索引中途出错，要做还原操作
   }
   if (new_table_meta.serialize(fs) < 0) {
     LOG_ERROR("Failed to dump new table meta to file: %s. sys err=%d:%s", tmp_file.c_str(), errno, strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_WRITE;
   }
   fs.close();
 
@@ -396,7 +396,7 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
     LOG_ERROR("Failed to rename tmp meta file (%s) to normal meta file (%s) while creating index (%s) on table (%s). "
               "system error=%d:%s",
               tmp_file.c_str(), meta_file.c_str(), index_name, name(), errno, strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_WRITE;
   }
 
   table_meta_.swap(new_table_meta);

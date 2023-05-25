@@ -89,14 +89,14 @@ RC PlainCommunicator::read_event(SessionEvent *&event)
 
   if (data_len > max_packet_size) {
     LOG_WARN("The length of sql exceeds the limitation %d", max_packet_size);
-    return RC::IOERR;
+    return RC::IOERR_TOO_LONG;
   }
   if (read_len == 0) {
     LOG_INFO("The peer has been closed %s\n", addr());
-    return RC::IOERR;
+    return RC::IOERR_CLOSE;
   } else if (read_len < 0) {
     LOG_ERROR("Failed to read socket of %s, %s\n", addr(), strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_READ;
   }
 
   LOG_INFO("receive command(size=%d): %s", data_len, buf.data());
@@ -123,7 +123,7 @@ RC PlainCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
     LOG_WARN("failed to send data to client. err=%s", strerror(errno));
     need_disconnect = true;
     delete[] buf;
-    return RC::IOERR;
+    return RC::IOERR_WRITE;
   }
 
   need_disconnect = false;
@@ -147,12 +147,12 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     if (ret < 0) {
       LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
 
-      return RC::IOERR;
+      return RC::IOERR_WRITE;
     }
     ret = common::writen(fd_, &message_terminate, sizeof(message_terminate));
     if (ret < 0) {
       LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
-      return RC::IOERR;
+      return RC::IOERR_WRITE;
     }
 
     need_disconnect = false;
@@ -181,7 +181,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
         int ret = common::writen(fd_, delim, strlen(delim));
         if (ret != 0) {
           LOG_WARN("failed to send data to client. err=%s", strerror(errno));
-          return RC::IOERR;
+          return RC::IOERR_WRITE;
         }
       }
 
@@ -190,7 +190,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       if (ret != 0) {
         LOG_WARN("failed to send data to client. err=%s", strerror(errno));
         sql_result->close();
-        return RC::IOERR;
+        return RC::IOERR_WRITE;
       }
     }
   }
@@ -201,7 +201,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     if (ret != 0) {
       LOG_WARN("failed to send data to client. err=%s", strerror(errno));
       sql_result->close();
-      return RC::IOERR;
+      return RC::IOERR_WRITE;
     }
   }
 
@@ -218,7 +218,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
         if (ret != 0) {
           LOG_WARN("failed to send data to client. err=%s", strerror(errno));
           sql_result->close();
-          return RC::IOERR;
+          return RC::IOERR_WRITE;
         }
       }
 
@@ -236,7 +236,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       if (ret != RC::SUCCESS) {
         LOG_WARN("failed to send data to client. err=%s", strerror(errno));
         sql_result->close();
-        return RC::IOERR;
+        return RC::IOERR_WRITE;
       }
     }
 
@@ -245,7 +245,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     if (ret != 0) {
       LOG_WARN("failed to send data to client. err=%s", strerror(errno));
       sql_result->close();
-      return RC::IOERR;
+      return RC::IOERR_WRITE;
     }
   }
 
@@ -269,7 +269,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     if (ret < 0) {
       LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
       sql_result->close();
-      return RC::IOERR;
+      return RC::IOERR_WRITE;
     }
 
     need_disconnect = false;
