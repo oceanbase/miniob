@@ -14,6 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+/**
+ * @brief 这个文件定义函数返回码/错误码(Return Code)
+ */
+
 #define DEFINE_RCS                          \
   DEFINE_RC(SUCCESS)                        \
   DEFINE_RC(INVALID_ARGUMENT)               \
