@@ -14,373 +14,71 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-enum RCBufferPool {
-  BP_EXIST = 1,
-  BP_FILEERR,
-  BP_INVALIDNAME,
-  BP_WINDOWS,
-  BP_CLOSED,
-  BP_OPEN,
-  BP_NOBUF,
-  BP_EOF,
-  BP_INVALIDPAGENUM,
-  BP_NOTINBUF,
-  BP_PAGE_PINNED,
-  BP_OPEN_TOO_MANY_FILES,
-  BP_ILLEGAL_FILE_ID,
-};
+/**
+ * @brief 这个文件定义函数返回码/错误码(Return Code)
+ */
 
-enum RCRecord {
-  RD_CLOSED = 1,
-  RD_OPENNED,
-  RD_INVALIDRECSIZE,
-  RD_INVALIDRID,
-  RD_NO_MORE_RECINMEM,
-  RD_OPEN,
-  RD_NO_MORE_IDXINMEM,
-  RD_INVALID_KEY,
-  RD_DUPLICATE_KEY,
-  RD_NOMEM,
-  RD_SCANCLOSED,
-  RD_SCANOPENNED,
-  RD_EOF,
-  RD_NOT_EXIST,
-  RD_INVISIBLE,
-};
+#define DEFINE_RCS                          \
+  DEFINE_RC(SUCCESS)                        \
+  DEFINE_RC(INVALID_ARGUMENT)               \
+  DEFINE_RC(UNIMPLENMENT)                   \
+  DEFINE_RC(SQL_SYNTAX)                     \
+  DEFINE_RC(INTERNAL)                       \
+  DEFINE_RC(NOMEM)                          \
+  DEFINE_RC(NOTFOUND)                       \
+  DEFINE_RC(EMPTY)                          \
+  DEFINE_RC(BUFFERPOOL_OPEN)                \
+  DEFINE_RC(BUFFERPOOL_NOBUF)               \
+  DEFINE_RC(BUFFERPOOL_INVALID_PAGE_NUM)    \
+  DEFINE_RC(RECORD_OPENNED)                 \
+  DEFINE_RC(RECORD_INVALID_RID)             \
+  DEFINE_RC(RECORD_INVALID_KEY)             \
+  DEFINE_RC(RECORD_DUPLICATE_KEY)           \
+  DEFINE_RC(RECORD_NOMEM)                   \
+  DEFINE_RC(RECORD_EOF)                     \
+  DEFINE_RC(RECORD_NOT_EXIST)               \
+  DEFINE_RC(RECORD_INVISIBLE)               \
+  DEFINE_RC(SCHEMA_DB_EXIST)                \
+  DEFINE_RC(SCHEMA_DB_NOT_EXIST)            \
+  DEFINE_RC(SCHEMA_DB_NOT_OPENED)           \
+  DEFINE_RC(SCHEMA_TABLE_NOT_EXIST)         \
+  DEFINE_RC(SCHEMA_TABLE_EXIST)             \
+  DEFINE_RC(SCHEMA_FIELD_NOT_EXIST)         \
+  DEFINE_RC(SCHEMA_FIELD_MISSING)           \
+  DEFINE_RC(SCHEMA_FIELD_TYPE_MISMATCH)     \
+  DEFINE_RC(SCHEMA_INDEX_NAME_REPEAT)       \
+  DEFINE_RC(IOERR_READ)                     \
+  DEFINE_RC(IOERR_WRITE)                    \
+  DEFINE_RC(IOERR_ACCESS)                   \
+  DEFINE_RC(IOERR_OPEN)                     \
+  DEFINE_RC(IOERR_CLOSE)                    \
+  DEFINE_RC(IOERR_SEEK)                     \
+  DEFINE_RC(IOERR_TOO_LONG)                 \
+  DEFINE_RC(LOCKED_UNLOCK)                  \
+  DEFINE_RC(LOCKED_NEED_WAIT)               \
+  DEFINE_RC(LOCKED_CONCURRENCY_CONFLICT)    \
+  DEFINE_RC(FILE_EXIST)                     \
+  DEFINE_RC(FILE_NOT_EXIST)                 \
+  DEFINE_RC(FILE_NAME)                      \
+  DEFINE_RC(FILE_BOUND)                     \
+  DEFINE_RC(FILE_CREATE)                    \
+  DEFINE_RC(FILE_OPEN)                      \
+  DEFINE_RC(FILE_NOT_OPENED)                \
+  DEFINE_RC(FILE_CLOSE)                     \
+  DEFINE_RC(FILE_REMOVE)                    \
+  DEFINE_RC(FILE_SEEK)                      \
+  DEFINE_RC(FILE_READ)                      \
+  DEFINE_RC(FILE_WRITE)                     \
+  DEFINE_RC(LOGBUF_FULL)
 
-enum RCSchema {
-  DB_EXIST = 1,
-  DB_NOT_EXIST,
-  DB_NOT_OPENED,
-  TABLE_NOT_EXIST,
-  TABLE_EXIST,
-  TABLE_NAME_ILLEGAL,
-  FIELD_NOT_EXIST,
-  FIELD_EXIST,
-  FIELD_NAME_ILLEGAL,
-  FIELD_MISSING,
-  FIELD_REDUNDAN,
-  FIELD_TYPE_MISMATCH,
-  INDEX_NAME_REPEAT,
-  INDEX_EXIST,
-  INDEX_NOT_EXIST,
-  INDEX_NAME_ILLEGAL,
-};
-
-enum RCSQL { SQL_SELECT = 1 };
-
-enum RCIOError {
-  READ = 1,
-  SHORT_READ,
-  WRITE,
-  FSYNC,
-  DIR_FSYNC,
-  TRUNCATE,
-  FSTAT,
-  IO_DELETE,
-  BLOCKED,
-  ACCESS,
-  CHECKRESERVEDLOCK,
-  CLOSE,
-  DIR_CLOSE,
-  SHMOPEN,
-  SHMSIZE,
-  SHMLOCK,
-  SHMMAP,
-  SEEK,
-  DELETE_NOENT,
-  MMAP,
-  GETTEMPPATH,
-  IO_CONVPATH,
-  VNODE,
-  BEGIN_ATOMIC,
-  COMMIT_ATOMIC,
-  ROLLBACK_ATOMIC,
-  DATA,
-  CORRUPTFS,
-  OPEN_TOO_MANY_FILES,
-};
-
-enum RCLock {
-  LOCK = 1,
-  UNLOCK,
-  SHAREDCACHE,
-  LVIRT,
-  NEED_WAIT,
-  RESOURCE_DELETED,
-  CONCURRENCY_CONFLICT,
-};
-
-enum RCBusy {
-  BRECOVERY = 1,
-  SNAPSHOT,
-  TIMEOUT,
-};
-
-enum RCCantOpen {
-  NOTEMPDIR = 1,
-  ISDIR,
-  FULLPATH,
-  CO_CONVPATH,
-  DIRTYWAL,
-  SYMLINK,
-};
-
-enum RCCorrupt { CORRUPT_VIRT = 1, CORRUPT_SEQUENCE, CORRUPT_INDEX };
-
-enum RCReadonly {
-  RO_RECOVERY = 1,
-  CANTLOCK,
-  RO_ROLLBACK,
-  DBMOVED,
-  CANTINIT,
-  DIRECTORY,
-};
-
-enum RCAbort {
-  AROLLBACK = 1,
-};
-
-enum RCContraint {
-  CHECK = 1,
-  COMMITHOOK,
-  FOREIGNKEY,
-  FUNCTION,
-  NOTNULL,
-  PRIMARYKEY,
-  TRIGGER,
-  UNIQUE,
-  CVIRT,
-  ROWID,
-  PINNED,
-};
-
-enum RCNotice {
-  RECOVER_WAL = 1,
-  RECOVER_ROLLBACK,
-  AUTOINDEX,
-};
-
-enum RCAuth {
-  USER = 1,
-};
-
-enum RCFILE {
-  F_EXIST = 1,
-  F_NOT_EXIST,
-  F_NAME,
-  F_BOUND,
-  F_CREATE,
-  F_OPEN,
-  F_NOT_OPENED,
-  F_CLOSE,
-  F_REMOVE,
-  F_SEEK,
-  F_READ,
-  F_WRITE,
-};
-
-enum RCLOGBUF {
-  LB_FULL = 1,
-  LB_EMPTY,
-};
-
-enum RC {
-
-  SUCCESS = 0, /* Successful result */
-  /* beginning-of-error-codes */
-  GENERIC_ERROR,    /* Generic error */
-  INVALID_ARGUMENT, /* Invalid argument */
-  UNIMPLENMENT,     /* not implenment yet */
-  SQL_SYNTAX,       /* SQL Syntax error */
-  BUFFERPOOL,       /* Buffer pool error*/
-  RECORD,           /* Record error */
-  INTERNAL,         /* Internal logic error in SQL */
-  PERM,             /* Access permission denied */
-  ABORT,            /* Callback routine requested an abort */
-  BUSY,             /* The database file is locked */
-  LOCKED,           /* A table in the database is locked */
-  NOMEM,            /* A malloc() failed */
-  READONLY,         /* Attempt to write a readonly database */
-  INTERRUPT,        /* Operation terminated by interrupt()*/
-  IOERR,            /* Some kind of disk I/O error occurred */
-  CORRUPT,          /* The database disk image is malformed */
-  NOTFOUND,         /* Unknown opcode in file_control() */
-  FULL,             /* Insertion failed because database is full */
-  CANTOPEN,         /* Unable to open the database file */
-  PROTOCOL,         /* Database lock protocol error */
-  EMPTY,            /* Internal use only */
-  SCHEMA,           /* The database schema error */
-  TOOBIG,           /* String or BLOB exceeds size limit */
-  CONSTRAINT,       /* Abort due to constraint violation */
-  MISMATCH,         /* Data type mismatch */
-  MISUSE,           /* Library used incorrectly */
-  NOLFS,            /* Uses OS features not supported on host */
-  AUTH,             /* Authorization denied */
-  FORMAT,           /* Not used */
-  RANGE,            /* 2nd parameter to bind out of range */
-  NOTADB,           /* File opened that is not a database file */
-  FILE_ERROR,       /* File error */
-  LOGBUF,           /* clog buffer error */
-  NOTICE = 100,     /* Notifications from log() */
-
-  /* buffer pool part */
-  BUFFERPOOL_EXIST = (BUFFERPOOL | (RCBufferPool::BP_EXIST << 8)),
-  BUFFERPOOL_FILEERR = (BUFFERPOOL | (RCBufferPool::BP_FILEERR << 8)),
-  BUFFERPOOL_INVALIDNAME = (BUFFERPOOL | (RCBufferPool::BP_INVALIDNAME << 8)),
-  BUFFERPOOL_WINDOWS = (BUFFERPOOL | (RCBufferPool::BP_WINDOWS << 8)),
-  BUFFERPOOL_CLOSED = (BUFFERPOOL | (RCBufferPool::BP_CLOSED << 8)),
-  BUFFERPOOL_OPEN = (BUFFERPOOL | (RCBufferPool::BP_OPEN << 8)),
-  BUFFERPOOL_NOBUF = (BUFFERPOOL | (RCBufferPool::BP_NOBUF << 8)),
-  BUFFERPOOL_EOF = (BUFFERPOOL | (RCBufferPool::BP_EOF << 8)),
-  BUFFERPOOL_INVALID_PAGE_NUM = (BUFFERPOOL | (RCBufferPool::BP_INVALIDPAGENUM << 8)),
-  BUFFERPOOL_NOTINBUF = (BUFFERPOOL | (RCBufferPool::BP_NOTINBUF << 8)),
-  BUFFERPOOL_PAGE_PINNED = (BUFFERPOOL | (RCBufferPool::BP_PAGE_PINNED << 8)),
-  BUFFERPOOL_OPEN_TOO_MANY_FILES = (BUFFERPOOL | (RCBufferPool::BP_OPEN_TOO_MANY_FILES << 8)),
-  BUFFERPOOL_ILLEGAL_FILE_ID = (BUFFERPOOL | (RCBufferPool::BP_ILLEGAL_FILE_ID << 8)),
-
-  /* record part */
-  RECORD_CLOSED = (RECORD | (RCRecord::RD_CLOSED << 8)),
-  RECORD_OPENNED = (RECORD | (RCRecord::RD_OPENNED << 8)),
-  RECORD_INVALIDRECSIZE = (RECORD | (RCRecord::RD_INVALIDRECSIZE << 8)),
-  RECORD_INVALIDRID = (RECORD | (RCRecord::RD_INVALIDRID << 8)),
-  RECORD_NOMORERECINMEM = (RECORD | (RCRecord::RD_NO_MORE_RECINMEM << 8)),
-  RECORD_OPEN = (RECORD | (RCRecord::RD_OPEN << 8)),
-  RECORD_NO_MORE_IDX_IN_MEM = (RECORD | (RCRecord::RD_NO_MORE_IDXINMEM << 8)),
-  RECORD_INVALID_KEY = (RECORD | (RCRecord::RD_INVALID_KEY << 8)),
-  RECORD_DUPLICATE_KEY = (RECORD | (RCRecord::RD_DUPLICATE_KEY << 8)),
-  RECORD_NOMEM = (RECORD | (RCRecord::RD_NOMEM << 8)),
-  RECORD_SCANCLOSED = (RECORD | (RCRecord::RD_SCANCLOSED << 8)),
-  RECORD_SCANOPENNED = (RECORD | (RCRecord::RD_SCANOPENNED << 8)),
-  RECORD_EOF = (RECORD | (RCRecord::RD_EOF << 8)),
-  RECORD_RECORD_NOT_EXIST = (RECORD | (RCRecord::RD_NOT_EXIST << 8)),
-  RECORD_INVISIBLE = (RECORD | (RCRecord::RD_INVISIBLE << 8)),
-
-  /* schema part */
-  SCHEMA_DB_EXIST = (SCHEMA | (RCSchema::DB_EXIST << 8)),
-  SCHEMA_DB_NOT_EXIST = (SCHEMA | (RCSchema::DB_NOT_EXIST << 8)),
-  SCHEMA_DB_NOT_OPENED = (SCHEMA | (RCSchema::DB_NOT_OPENED << 8)),
-  SCHEMA_TABLE_NOT_EXIST = (SCHEMA | (RCSchema::TABLE_NOT_EXIST << 8)),
-  SCHEMA_TABLE_EXIST = (SCHEMA | (RCSchema::TABLE_EXIST << 8)),
-  SCHEMA_TABLE_NAME_ILLEGAL = (SCHEMA | (RCSchema::TABLE_NAME_ILLEGAL << 8)),
-  SCHEMA_FIELD_NOT_EXIST = (SCHEMA | (RCSchema::FIELD_NOT_EXIST << 8)),
-  SCHEMA_FIELD_EXIST = (SCHEMA | (RCSchema::FIELD_EXIST << 8)),
-  SCHEMA_FIELD_NAME_ILLEGAL = (SCHEMA | (RCSchema::FIELD_NAME_ILLEGAL << 8)),
-  SCHEMA_FIELD_MISSING = (SCHEMA | (RCSchema::FIELD_MISSING << 8)),
-  SCHEMA_FIELD_REDUNDAN = (SCHEMA | (RCSchema::FIELD_REDUNDAN << 8)),
-  SCHEMA_FIELD_TYPE_MISMATCH = (SCHEMA | (RCSchema::FIELD_TYPE_MISMATCH << 8)),
-  SCHEMA_INDEX_NAME_REPEAT = (SCHEMA | (RCSchema::INDEX_NAME_REPEAT << 8)),
-  SCHEMA_INDEX_EXIST = (SCHEMA | (RCSchema::INDEX_EXIST << 8)),
-  SCHEMA_INDEX_NOT_EXIST = (SCHEMA | (RCSchema::INDEX_NOT_EXIST << 8)),
-  SCHEMA_INDEX_NAME_ILLEGAL = (SCHEMA | (RCSchema::INDEX_NAME_ILLEGAL << 8)),
-
-  /*ioerror part*/
-  IOERR_READ = (IOERR | (RCIOError::READ << 8)),
-  IOERR_SHORT_READ = (IOERR | (RCIOError::SHORT_READ << 8)),
-  IOERR_WRITE = (IOERR | (RCIOError::WRITE << 8)),
-  IOERR_FSYNC = (IOERR | (RCIOError::FSYNC << 8)),
-  IOERR_DIR_FSYNC = (IOERR | (RCIOError::DIR_FSYNC << 8)),
-  IOERR_TRUNCATE = (IOERR | (RCIOError::TRUNCATE << 8)),
-  IOERR_FSTAT = (IOERR | (RCIOError::FSTAT << 8)),
-  IOERR_DELETE = (IOERR | (RCIOError::IO_DELETE << 8)),
-  IOERR_BLOCKED = (IOERR | (RCIOError::BLOCKED << 8)),
-  IOERR_ACCESS = (IOERR | (RCIOError::ACCESS << 8)),
-  IOERR_CHECKRESERVEDLOCK = (IOERR | (RCIOError::CHECKRESERVEDLOCK << 8)),
-  IOERR_CLOSE = (IOERR | (RCIOError::CLOSE << 8)),
-  IOERR_DIR_CLOSE = (IOERR | (RCIOError::DIR_CLOSE << 8)),
-  IOERR_SHMOPEN = (IOERR | (RCIOError::SHMOPEN << 8)),
-  IOERR_SHMSIZE = (IOERR | (RCIOError::SHMSIZE << 8)),
-  IOERR_SHMLOCK = (IOERR | (RCIOError::SHMLOCK << 8)),
-  IOERR_SHMMAP = (IOERR | (RCIOError::SHMMAP << 8)),
-  IOERR_SEEK = (IOERR | (RCIOError::SEEK << 8)),
-  IOERR_DELETE_NOENT = (IOERR | (RCIOError::DELETE_NOENT << 8)),
-  IOERR_MMAP = (IOERR | (RCIOError::MMAP << 8)),
-  IOERR_GETTEMPPATH = (IOERR | (RCIOError::GETTEMPPATH << 8)),
-  IOERR_CONVPATH = (IOERR | (RCIOError::IO_CONVPATH << 8)),
-  IOERR_VNODE = (IOERR | (RCIOError::VNODE << 8)),
-  IOERR_BEGIN_ATOMIC = (IOERR | (RCIOError::BEGIN_ATOMIC << 8)),
-  IOERR_COMMIT_ATOMIC = (IOERR | (RCIOError::COMMIT_ATOMIC << 8)),
-  IOERR_ROLLBACK_ATOMIC = (IOERR | (RCIOError::ROLLBACK_ATOMIC << 8)),
-  IOERR_DATA = (IOERR | (RCIOError::DATA << 8)),
-  IOERR_CORRUPTFS = (IOERR | (RCIOError::CORRUPTFS << 8)),
-  IOERR_OPEN_TOO_MANY_FILES = (IOERR | RCIOError::OPEN_TOO_MANY_FILES << 8),
-
-  /* Lock part*/
-  LOCKED_LOCK = (LOCKED | (RCLock::LOCK << 8)),
-  LOCKED_UNLOCK = (LOCKED | (RCLock::UNLOCK << 8)),
-  LOCKED_SHAREDCACHE = (LOCKED | (RCLock::SHAREDCACHE << 8)),
-  LOCKED_VIRT = (LOCKED | (RCLock::LVIRT << 8)),
-  LOCKED_NEED_WAIT = (LOCKED | (RCLock::NEED_WAIT << 8)),
-  LOCKED_RESOURCE_DELETED = (LOCKED | (RCLock::RESOURCE_DELETED << 8)),
-  LOCKED_CONCURRENCY_CONFLICT = (LOCKED | (RCLock::CONCURRENCY_CONFLICT << 8)),
-
-  /* busy part */
-  BUSY_RECOVERY = (BUSY | (RCBusy::BRECOVERY << 8)),
-  BUSY_SNAPSHOT = (BUSY | (RCBusy::SNAPSHOT << 8)),
-  BUSY_TIMEOUT = (BUSY | (RCBusy::TIMEOUT << 8)),
-
-  /* Can't open part */
-  CANTOPEN_NOTEMPDIR = (CANTOPEN | (RCCantOpen::NOTEMPDIR << 8)),
-  CANTOPEN_ISDIR = (CANTOPEN | (RCCantOpen::ISDIR << 8)),
-  CANTOPEN_FULLPATH = (CANTOPEN | (RCCantOpen::FULLPATH << 8)),
-  CANTOPEN_CONVPATH = (CANTOPEN | (RCCantOpen::CO_CONVPATH << 8)),
-  CANTOPEN_DIRTYWAL = (CANTOPEN | (RCCantOpen::DIRTYWAL << 8)),
-  CANTOPEN_SYMLINK = (CANTOPEN | (RCCantOpen::SYMLINK << 8)),
-
-  /* corrupt part */  // compile error
-  // CORRUPT_VIRT = (CORRUPT | (RCCorrupt::CORRUPT_VIRT << 8)),
-  // CORRUPT_SEQUENCE = (CORRUPT | (RCCorrupt::CORRUPT_SEQUENCE << 8)),
-  // CORRUPT_INDEX = (CORRUPT | (RCCorrupt::CORRUPT_INDEX << 8)),
-
-  /*readonly part*/
-  READONLY_RECOVERY = (READONLY | (RCReadonly::RO_RECOVERY << 8)),
-  READONLY_CANTLOCK = (READONLY | (RCReadonly::CANTLOCK << 8)),
-  READONLY_ROLLBACK = (READONLY | (RCReadonly::RO_ROLLBACK << 8)),
-  READONLY_DBMOVED = (READONLY | (RCReadonly::DBMOVED << 8)),
-  READONLY_CANTINIT = (READONLY | (RCReadonly::CANTINIT << 8)),
-  READONLY_DIRECTORY = (READONLY | (RCReadonly::DIRECTORY << 8)),
-
-  ABORT_ROLLBACK = (ABORT | (RCAbort::AROLLBACK << 8)),
-
-  /* contraint part */
-  CONSTRAINT_CHECK = (CONSTRAINT | (RCContraint::CHECK << 8)),
-  CONSTRAINT_COMMITHOOK = (CONSTRAINT | (RCContraint::COMMITHOOK << 8)),
-  CONSTRAINT_FOREIGNKEY = (CONSTRAINT | (RCContraint::FOREIGNKEY << 8)),
-  CONSTRAINT_FUNCTION = (CONSTRAINT | (RCContraint::FUNCTION << 8)),
-  CONSTRAINT_NOTNULL = (CONSTRAINT | (RCContraint::NOTNULL << 8)),
-  CONSTRAINT_PRIMARYKEY = (CONSTRAINT | (RCContraint::PRIMARYKEY << 8)),
-  CONSTRAINT_TRIGGER = (CONSTRAINT | (RCContraint::TRIGGER << 8)),
-  CONSTRAINT_UNIQUE = (CONSTRAINT | (RCContraint::UNIQUE << 8)),
-  CONSTRAINT_VIRT = (CONSTRAINT | (RCContraint::CVIRT << 8)),
-  CONSTRAINT_ROWID = (CONSTRAINT | (RCContraint::ROWID << 8)),
-  CONSTRAINT_PINNED = (CONSTRAINT | (RCContraint::PINNED << 8)),
-
-  /* notic part */
-  NOTICE_RECOVER_WAL = (NOTICE | (RCNotice::RECOVER_WAL << 8)),
-  NOTICE_RECOVER_ROLLBACK = (NOTICE | (RCNotice::RECOVER_ROLLBACK << 8)),
-  NOTICE_AUTOINDEX = (NOTICE | (RCNotice::AUTOINDEX << 8)),
-
-  /* file part */
-  FILE_EXIST = ( FILE_ERROR | (RCFILE::F_EXIST << 8)),
-  FILE_NOT_EXIST = ( FILE_ERROR | (RCFILE::F_NOT_EXIST << 8)),
-  FILE_NAME = ( FILE_ERROR | (RCFILE::F_NAME << 8)),
-  FILE_BOUND = ( FILE_ERROR | (RCFILE::F_BOUND << 8)),
-  FILE_CREATE = ( FILE_ERROR | (RCFILE::F_CREATE << 8)),
-  FILE_OPEN = ( FILE_ERROR | (RCFILE::F_OPEN << 8)),
-  FILE_NOT_OPENED = ( FILE_ERROR | (RCFILE::F_NOT_OPENED << 8)),
-  FILE_CLOSE = ( FILE_ERROR | (RCFILE::F_CLOSE << 8)),
-  FILE_REMOVE = ( FILE_ERROR | (RCFILE::F_REMOVE << 8)),
-  FILE_SEEK = ( FILE_ERROR | (RCFILE::F_SEEK << 8)),
-  FILE_READ = ( FILE_ERROR | (RCFILE::F_READ << 8)),
-  FILE_WRITE = ( FILE_ERROR | (RCFILE::F_WRITE << 8)),
-
-  /* auth part*/
-  AUTH_USER = (AUTH | (RCAuth::USER << 8)),
-
-  /* clog buffer part */
-  LOGBUF_FULL = (LOGBUF | (RCLOGBUF::LB_FULL << 8)),
-  LOGBUF_EMPTY = (LOGBUF | (RCLOGBUF::LB_EMPTY << 8)),
+enum RC
+{
+#define DEFINE_RC(name) name,
+  DEFINE_RCS
+#undef DEFINE_RC
 };
 
 extern const char *strrc(RC rc);
 
+extern bool OB_SUCC(RC rc);
+extern bool OB_FAIL(RC rc);

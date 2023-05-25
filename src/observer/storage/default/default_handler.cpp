@@ -55,7 +55,7 @@ RC DefaultHandler::init(const char *base_dir)
   tmp += "/db";
   if (!common::check_directory(tmp)) {
     LOG_ERROR("Cannot access base dir: %s. msg=%d:%s", tmp.c_str(), errno, strerror(errno));
-    return RC::GENERIC_ERROR;
+    return RC::INTERNAL;
   }
 
   base_dir_ = base_dir;
@@ -91,14 +91,14 @@ RC DefaultHandler::create_db(const char *dbname)
 
   if (!common::check_directory(dbpath)) {
     LOG_ERROR("Create db fail: %s", dbpath.c_str());
-    return RC::GENERIC_ERROR;  // io error
+    return RC::INTERNAL;  // io error
   }
   return RC::SUCCESS;
 }
 
 RC DefaultHandler::drop_db(const char *dbname)
 {
-  return RC::GENERIC_ERROR;
+  return RC::INTERNAL;
 }
 
 RC DefaultHandler::open_db(const char *dbname)
@@ -130,12 +130,12 @@ RC DefaultHandler::open_db(const char *dbname)
 
 RC DefaultHandler::close_db(const char *dbname)
 {
-  return RC::GENERIC_ERROR;
+  return RC::UNIMPLENMENT;
 }
 
 RC DefaultHandler::execute(const char *sql)
 {
-  return RC::GENERIC_ERROR;
+  return RC::UNIMPLENMENT;
 }
 
 RC DefaultHandler::create_table(
@@ -150,7 +150,7 @@ RC DefaultHandler::create_table(
 
 RC DefaultHandler::drop_table(const char *dbname, const char *relation_name)
 {
-  return RC::GENERIC_ERROR;
+  return RC::UNIMPLENMENT;
 }
 
 Db *DefaultHandler::find_db(const char *dbname) const

@@ -47,14 +47,14 @@ RC IndexMeta::from_json(const TableMeta &table, const Json::Value &json_value, I
   const Json::Value &field_value = json_value[FIELD_FIELD_NAME];
   if (!name_value.isString()) {
     LOG_ERROR("Index name is not a string. json value=%s", name_value.toStyledString().c_str());
-    return RC::GENERIC_ERROR;
+    return RC::INTERNAL;
   }
 
   if (!field_value.isString()) {
     LOG_ERROR("Field name of index [%s] is not a string. json value=%s",
         name_value.asCString(),
         field_value.toStyledString().c_str());
-    return RC::GENERIC_ERROR;
+    return RC::INTERNAL;
   }
 
   const FieldMeta *field = table.field(field_value.asCString());

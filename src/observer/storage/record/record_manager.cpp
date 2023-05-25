@@ -258,7 +258,7 @@ RC RecordPageHandler::delete_record(const RID *rid)
     return RC::SUCCESS;
   } else {
     LOG_DEBUG("Invalid slot_num %d, slot is empty, page_num %d.", rid->slot_num, frame_->page_num());
-    return RC::RECORD_RECORD_NOT_EXIST;
+    return RC::RECORD_NOT_EXIST;
   }
 }
 
@@ -266,13 +266,13 @@ RC RecordPageHandler::get_record(const RID *rid, Record *rec)
 {
   if (rid->slot_num >= page_header_->record_capacity) {
     LOG_ERROR("Invalid slot_num:%d, exceed page's record capacity, page_num %d.", rid->slot_num, frame_->page_num());
-    return RC::RECORD_INVALIDRID;
+    return RC::RECORD_INVALID_RID;
   }
 
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
   if (!bitmap.get_bit(rid->slot_num)) {
     LOG_ERROR("Invalid slot_num:%d, slot is empty, page_num %d.", rid->slot_num, frame_->page_num());
-    return RC::RECORD_RECORD_NOT_EXIST;
+    return RC::RECORD_NOT_EXIST;
   }
 
   rec->set_rid(*rid);

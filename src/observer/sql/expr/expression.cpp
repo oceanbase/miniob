@@ -93,7 +93,7 @@ RC ComparisonExpr::compare_tuple_cell(const TupleCell &left, const TupleCell &ri
     } break;
     default: {
       LOG_WARN("unsupported comparison. %d", comp_);
-      rc = RC::GENERIC_ERROR;
+      rc = RC::INTERNAL;
     } break;
   }
 

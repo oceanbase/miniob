@@ -113,7 +113,7 @@ RC CLogRecord::copy_record(void *dest, int start_off, int copy_len)
 {
   CLogRecords *log_rec = &log_record_;
   if (start_off + copy_len > get_logrec_len()) {
-    return RC::GENERIC_ERROR;
+    return RC::INTERNAL;
   } else if (flag_ != REDO_INSERT) {
     memcpy(dest, (char *)log_rec + start_off, copy_len);
   } else {
@@ -167,7 +167,7 @@ CLogBuffer::~CLogBuffer()
 RC CLogBuffer::append_log_record(CLogRecord *log_rec, int &start_off)
 {
   if (!log_rec) {
-    return RC::GENERIC_ERROR;
+    return RC::INTERNAL;
   }
   if (write_offset_ == CLOG_BUFFER_SIZE) {
     return RC::LOGBUF_FULL;

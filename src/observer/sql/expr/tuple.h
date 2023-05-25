@@ -184,10 +184,10 @@ public:
   RC cell_at(int index, TupleCell &cell) const override
   {
     if (index < 0 || index >= static_cast<int>(speces_.size())) {
-      return RC::GENERIC_ERROR;
+      return RC::INTERNAL;
     }
     if (tuple_ == nullptr) {
-      return RC::GENERIC_ERROR;
+      return RC::INTERNAL;
     }
 
     const TupleCellSpec *spec = speces_[index];

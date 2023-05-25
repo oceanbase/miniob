@@ -45,13 +45,13 @@ RC Db::init(const char *name, const char *dbpath)
 
   if (!common::is_directory(dbpath)) {
     LOG_ERROR("Failed to init DB, path is not a directory: %s", dbpath);
-    return RC::GENERIC_ERROR;
+    return RC::INTERNAL;
   }
 
   clog_manager_ = new CLogManager(dbpath);
   if (clog_manager_ == nullptr) {
     LOG_ERROR("Failed to init CLogManager.");
-    return RC::GENERIC_ERROR;
+    return RC::INTERNAL;
   }
 
   name_ = name;
@@ -100,7 +100,7 @@ RC Db::open_all_tables()
   int ret = common::list_file(path_.c_str(), TABLE_META_FILE_PATTERN, table_meta_files);
   if (ret < 0) {
     LOG_ERROR("Failed to list table meta files under %s.", path_.c_str());
-    return RC::IOERR;
+    return RC::IOERR_READ;
   }
 
   RC rc = RC::SUCCESS;
@@ -118,7 +118,7 @@ RC Db::open_all_tables()
       LOG_ERROR("Duplicate table with difference file name. table=%s, the other filename=%s",
           table->name(),
           filename.c_str());
-      return RC::GENERIC_ERROR;
+      return RC::INTERNAL;
     }
 
     opened_tables_[table->name()] = table;
@@ -175,7 +175,7 @@ RC Db::recover()
       if (find_iter == mtr_manager->trx_commited.end()) {
         LOG_ERROR("CLog record without commit message! ");  // unexpected error
         delete clog_record;
-        return RC::GENERIC_ERROR;
+        return RC::INTERNAL;
       } else if (find_iter->second == false) {
         delete clog_record;
         continue;

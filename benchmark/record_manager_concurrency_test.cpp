@@ -187,7 +187,7 @@ public:
       case RC::SUCCESS: {
         stat.delete_success_count++;
       } break;
-      case RC::RECORD_RECORD_NOT_EXIST: {
+      case RC::RECORD_NOT_EXIST: {
         stat.not_exist_count++;
       } break;
       default: {
