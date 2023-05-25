@@ -16,7 +16,11 @@ See the Mulan PSL v2 for more details. */
 
 const char *strrc(RC rc)
 {
-#define DEFINE_RC(name) case RC::name: {return #name; } break;
+#define DEFINE_RC(name) \
+  case RC::name: {      \
+    return #name;       \
+  } break;
+
   switch (rc) {
     DEFINE_RCS;
     default: {
@@ -26,12 +30,6 @@ const char *strrc(RC rc)
 #undef DEFINE_RC
 }
 
-bool OB_SUCC(RC rc)
-{
-  return rc == RC::SUCCESS;
-}
+bool OB_SUCC(RC rc) { return rc == RC::SUCCESS; }
 
-bool OB_FAIL(RC rc)
-{
-  return rc != RC::SUCCESS;
-}
+bool OB_FAIL(RC rc) { return rc != RC::SUCCESS; }
