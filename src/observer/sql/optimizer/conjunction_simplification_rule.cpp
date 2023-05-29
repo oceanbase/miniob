@@ -23,7 +23,7 @@ RC try_to_get_bool_constant(std::unique_ptr<Expression> &expr, bool &constant_va
     constant_value = value_expr->get_tuple_cell().get_boolean();
     return RC::SUCCESS;
   }
-  return RC::GENERIC_ERROR;
+  return RC::INTERNAL;
 }
 RC ConjunctionSimplificationRule::rewrite(std::unique_ptr<Expression> &expr, bool &change_made)
 {

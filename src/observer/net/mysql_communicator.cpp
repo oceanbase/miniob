@@ -467,7 +467,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
   if (ret != 0) {
     LOG_WARN("failed to read packet header. length=%d, addr=%s. error=%s",
              sizeof(packet_header), addr_.c_str(), strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_READ;
   }
 
   LOG_TRACE("read packet header. length=%d, sequence_id=%d", sizeof(packet_header), packet_header.sequence_id);
@@ -478,7 +478,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
   if (ret != 0) {
     LOG_WARN("failed to read packet payload. length=%d, addr=%s, error=%s", 
              packet_header.payload_length, addr_.c_str(), strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_READ;
   }
 
   LOG_TRACE("read packet payload length=%d", packet_header.payload_length);
@@ -637,7 +637,7 @@ RC MysqlCommunicator::send_packet(const BasePacket &packet)
   int ret = common::writen(fd_, net_packet.data(), net_packet.size());
   if (ret != 0) {
     LOG_WARN("failed to send packet to client. addr=%s, error=%s", addr(), strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_WRITE;
   }
 
   LOG_TRACE("send ok packet success. packet length=%d", net_packet.size());
@@ -689,7 +689,7 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
   if (ret != 0) {
     LOG_WARN("failed to send column count to client. addr=%s, error=%s", addr(), strerror(errno));
     need_disconnect = true;
-    return RC::IOERR;
+    return RC::IOERR_WRITE;
   }
 
   for (int i = 0; i < cell_num; i++) {
@@ -744,7 +744,7 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
     if (ret != 0) {
       LOG_WARN("failed to write column definition to client. addr=%s, error=%s", addr(), strerror(errno));
       need_disconnect = true;
-      return RC::IOERR;
+      return RC::IOERR_WRITE;
     }
   }
 
@@ -818,7 +818,7 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool no_column_def
     if (ret != 0) {
       LOG_WARN("failed to send row packet to client. addr=%s, error=%s", addr(), strerror(errno));
       need_disconnect = true;
-      return RC::IOERR;
+      return RC::IOERR_WRITE;
     }
   }
 

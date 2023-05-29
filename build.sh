@@ -11,7 +11,6 @@ ALL_ARGS=("$@")
 BUILD_ARGS=()
 MAKE_ARGS=(-j $CPU_CORES)
 MAKE=make
-ASAN_OPTION=ON
 
 echo "$0 ${ALL_ARGS[@]}"
 
@@ -24,7 +23,7 @@ function usage
   echo "./build.sh [BuildType] [--make [MakeOptions]]"
   echo ""
   echo "OPTIONS:"
-  echo "BuildType => debug(default), release, debug_asan, release_asan"
+  echo "BuildType => debug(default), release"
   echo "MakeOptions => Options to make command, default: -j N"
 
   echo ""
@@ -137,14 +136,8 @@ function build
     xrelease)
       do_build "$@" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDEBUG=OFF
       ;;
-    xrelease_asan)
-      do_build "$@" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDEBUG=OFF -DENABLE_ASAN=$ASAN_OPTION
-      ;;
     xdebug)
       do_build "$@" -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON
-      ;;
-    xdebug_asan)
-      do_build "$@" -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON -DENABLE_ASAN=$ASAN_OPTION
       ;;
     *)
       BUILD_ARGS=(debug "${BUILD_ARGS[@]}")

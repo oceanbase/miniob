@@ -227,6 +227,8 @@ struct CLogMTRManager {
   std::unordered_map<int32_t, bool> trx_commited;  // <trx_id, commited>
 
   void log_record_manage(CLogRecord *log_rec);
+
+  ~CLogMTRManager();
 };
 
 //

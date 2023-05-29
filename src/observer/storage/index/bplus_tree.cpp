@@ -1589,7 +1589,7 @@ RC BplusTreeHandler::delete_entry_internal(LatchMemo &latch_memo, Frame *leaf_fr
   if (remove_count == 0) {
     LOG_TRACE("no data need to remove");
     // disk_buffer_pool_->unpin_page(leaf_frame);
-    return RC::RECORD_RECORD_NOT_EXIST;
+    return RC::RECORD_NOT_EXIST;
   }
   // leaf_index_node.validate(key_comparator_, disk_buffer_pool_, file_id_);
 
@@ -1620,7 +1620,7 @@ RC BplusTreeHandler::delete_entry(const char *user_key, const RID *rid)
   Frame *leaf_frame = nullptr;
   RC rc = find_leaf(latch_memo, op, key, leaf_frame);
   if (rc == RC::EMPTY) {
-    rc = RC::RECORD_RECORD_NOT_EXIST;
+    rc = RC::RECORD_NOT_EXIST;
     return rc;
   }
   

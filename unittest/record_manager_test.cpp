@@ -104,7 +104,9 @@ TEST(test_record_page_handler, test_record_page_handler)
   }
   ASSERT_EQ(count, 6);
 
+  record_page_handle.cleanup();
   bpm->close_file(record_manager_file);
+  delete bpm;
 }
 
 TEST(test_record_page_handler, test_record_file_iterator)
@@ -179,6 +181,7 @@ TEST(test_record_page_handler, test_record_file_iterator)
   ASSERT_EQ(count, rids.size() / 2);
   
   bpm->close_file(record_manager_file);
+  delete bpm;
 }
 
 int main(int argc, char **argv)

@@ -29,40 +29,38 @@ using namespace std;
 using namespace common;
 using namespace benchmark;
 
-once_flag init_bpm_flag;
+once_flag         init_bpm_flag;
 BufferPoolManager bpm{512};
 
 struct Stat
 {
   int64_t insert_success_count = 0;
-  int64_t insert_other_count = 0;
+  int64_t insert_other_count   = 0;
 
   int64_t delete_success_count = 0;
-  int64_t not_exist_count = 0;
-  int64_t delete_other_count = 0;
+  int64_t not_exist_count      = 0;
+  int64_t delete_other_count   = 0;
 
-  int64_t scan_success_count = 0;
+  int64_t scan_success_count     = 0;
   int64_t scan_open_failed_count = 0;
-  int64_t mismatch_count = 0;
-  int64_t scan_other_count = 0;
+  int64_t mismatch_count         = 0;
+  int64_t scan_other_count       = 0;
 };
 
 struct TestRecord
 {
-  int32_t  int_fields[15];
+  int32_t int_fields[15];
 };
 
 class TestConditionFilter : public ConditionFilter
 {
 public:
-  TestConditionFilter(int32_t begin, int32_t end)
-    : begin_(begin), end_(end)
-  {}
+  TestConditionFilter(int32_t begin, int32_t end) : begin_(begin), end_(end) {}
 
   bool filter(const Record &rec) const override
   {
-    const char *data = rec.data();
-    int32_t value = *(int32_t *)data;
+    const char *data  = rec.data();
+    int32_t     value = *(int32_t *)data;
     return value >= begin_ && value <= end_;
   }
 
@@ -74,26 +72,21 @@ private:
 class BenchmarkBase : public Fixture
 {
 public:
-  BenchmarkBase()
-  {
-  }
+  BenchmarkBase() {}
 
-  virtual ~BenchmarkBase()
-  {
-    BufferPoolManager::set_instance(nullptr);
-  }
+  virtual ~BenchmarkBase() { BufferPoolManager::set_instance(nullptr); }
 
   virtual string Name() const = 0;
 
   string record_filename() const { return this->Name() + ".record"; }
-  
+
   virtual void SetUp(const State &state)
   {
     if (0 != state.thread_index()) {
       return;
     }
 
-    string log_name = this->Name() + ".log";
+    string log_name        = this->Name() + ".log";
     string record_filename = this->record_filename();
     LoggerFactory::init_default(log_name.c_str(), LOG_LEVEL_TRACE);
 
@@ -103,25 +96,23 @@ public:
 
     RC rc = bpm.create_file(record_filename.c_str());
     if (rc != RC::SUCCESS) {
-      LOG_WARN("failed to create record buffer pool file. filename=%s, rc=%s",
-               record_filename.c_str(), strrc(rc));
+      LOG_WARN("failed to create record buffer pool file. filename=%s, rc=%s", record_filename.c_str(), strrc(rc));
       throw runtime_error("failed to create record buffer pool file.");
     }
 
     rc = bpm.open_file(record_filename.c_str(), buffer_pool_);
     if (rc != RC::SUCCESS) {
-      LOG_WARN("failed to open record file. filename=%s, rc=%s",
-               record_filename.c_str(), strrc(rc));
+      LOG_WARN("failed to open record file. filename=%s, rc=%s", record_filename.c_str(), strrc(rc));
       throw runtime_error("failed to open record file");
     }
-    
+
     rc = handler_.init(buffer_pool_);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to init record file handler. rc=%s", strrc(rc));
       throw runtime_error("failed to init record file handler");
     }
-    LOG_INFO("test %s setup done. threads=%d, thread index=%d", 
-             this->Name().c_str(), state.threads(), state.thread_index());
+    LOG_INFO(
+        "test %s setup done. threads=%d, thread index=%d", this->Name().c_str(), state.threads(), state.thread_index());
   }
 
   virtual void TearDown(const State &state)
@@ -133,15 +124,17 @@ public:
     handler_.close();
     bpm.close_file(this->record_filename().c_str());
     buffer_pool_ = nullptr;
-    LOG_INFO("test %s teardown done. threads=%d, thread index=%d", 
-             this->Name().c_str(), state.threads(), state.thread_index());
+    LOG_INFO("test %s teardown done. threads=%d, thread index=%d",
+        this->Name().c_str(),
+        state.threads(),
+        state.thread_index());
   }
 
   void FillUp(int32_t min, int32_t max, vector<RID> &rids)
   {
     rids.reserve(max - min);
-    RID rid;
-    TestRecord record;
+    RID             rid;
+    TestRecord      record;
     vector<int32_t> record_values;
     record_values.reserve(max - min);
     for (int32_t value = min; value < max; ++value) {
@@ -149,17 +142,17 @@ public:
     }
 
     random_device rd;
-    mt19937 random_generator(rd());
+    mt19937       random_generator(rd());
     shuffle(record_values.begin(), record_values.end(), random_generator);
 
     for (int32_t record_value : record_values) {
-      record.int_fields[0] = record_value;
+      record.int_fields[0]   = record_value;
       [[maybe_unused]] RC rc = handler_.insert_record(reinterpret_cast<const char *>(&record), sizeof(record), &rid);
       ASSERT(rc == RC::SUCCESS, "failed to insert record into record file. record value=%" PRIu32, record_value);
       rids.push_back(rid);
     }
 
-    LOG_INFO("fill up done. min=%" PRIu32 ", max=%" PRIu32 ", distance=%" PRIu32, min, max, (max-min));
+    LOG_INFO("fill up done. min=%" PRIu32 ", max=%" PRIu32 ", distance=%" PRIu32, min, max, (max - min));
   }
 
   uint32_t GetRangeMax(const State &state) const
@@ -175,6 +168,7 @@ public:
   {
     TestRecord record;
     record.int_fields[0] = value;
+
     RC rc = handler_.insert_record(reinterpret_cast<const char *>(&record), sizeof(record), &rid);
     switch (rc) {
       case RC::SUCCESS: {
@@ -193,7 +187,7 @@ public:
       case RC::SUCCESS: {
         stat.delete_success_count++;
       } break;
-      case RC::RECORD_RECORD_NOT_EXIST: {
+      case RC::RECORD_NOT_EXIST: {
         stat.not_exist_count++;
       } break;
       default: {
@@ -205,13 +199,13 @@ public:
   void Scan(int32_t begin, int32_t end, Stat &stat)
   {
     TestConditionFilter condition_filter(begin, end);
-    RecordFileScanner scanner;
-    VacuousTrx trx;
-    RC rc = scanner.open_scan(nullptr/*table*/, *buffer_pool_, &trx, true/*readonly*/, &condition_filter);
+    RecordFileScanner   scanner;
+    VacuousTrx          trx;
+    RC rc = scanner.open_scan(nullptr /*table*/, *buffer_pool_, &trx, true /*readonly*/, &condition_filter);
     if (rc != RC::SUCCESS) {
       stat.scan_open_failed_count++;
     } else {
-      Record record;
+      Record  record;
       int32_t count = 0;
       while (scanner.has_next()) {
         rc = scanner.next(record);
@@ -232,8 +226,8 @@ public:
   }
 
 protected:
-  DiskBufferPool    * buffer_pool_ = nullptr;
-  RecordFileHandler   handler_;
+  DiskBufferPool   *buffer_pool_ = nullptr;
+  RecordFileHandler handler_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -243,10 +237,10 @@ struct InsertionBenchmark : public BenchmarkBase
   string Name() const override { return "insertion"; }
 };
 
-BENCHMARK_DEFINE_F(InsertionBenchmark, Insertion) (State &state)
+BENCHMARK_DEFINE_F(InsertionBenchmark, Insertion)(State &state)
 {
   IntegerGenerator generator(1, 1 << 31);
-  Stat stat;
+  Stat             stat;
 
   RID rid;
   for (auto _ : state) {
@@ -254,7 +248,7 @@ BENCHMARK_DEFINE_F(InsertionBenchmark, Insertion) (State &state)
   }
 
   state.counters["success"] = Counter(stat.insert_success_count, Counter::kIsRate);
-  state.counters["other"] = Counter(stat.insert_other_count, Counter::kIsRate);
+  state.counters["other"]   = Counter(stat.insert_other_count, Counter::kIsRate);
 }
 
 BENCHMARK_REGISTER_F(InsertionBenchmark, Insertion)->Threads(10);
@@ -264,7 +258,6 @@ BENCHMARK_REGISTER_F(InsertionBenchmark, Insertion)->Threads(10);
 class DeletionBenchmark : public BenchmarkBase
 {
 public:
-
   string Name() const override { return "deletion"; }
 
   void SetUp(const State &state) override
@@ -284,30 +277,29 @@ protected:
   vector<RID> rids_;
 };
 
-BENCHMARK_DEFINE_F(DeletionBenchmark, Deletion) (State &state)
+BENCHMARK_DEFINE_F(DeletionBenchmark, Deletion)(State &state)
 {
   IntegerGenerator generator(0, static_cast<int>(rids_.size()));
-  Stat stat;
+  Stat             stat;
 
   for (auto _ : state) {
     int32_t value = generator.next();
-    RID rid = rids_[value];
+    RID     rid   = rids_[value];
     Delete(rid, stat);
   }
 
-  state.counters["success"] = Counter(stat.delete_success_count, Counter::kIsRate);
+  state.counters["success"]   = Counter(stat.delete_success_count, Counter::kIsRate);
   state.counters["not_exist"] = Counter(stat.not_exist_count, Counter::kIsRate);
-  state.counters["other"] = Counter(stat.delete_other_count, Counter::kIsRate);
+  state.counters["other"]     = Counter(stat.delete_other_count, Counter::kIsRate);
 }
 
-BENCHMARK_REGISTER_F(DeletionBenchmark, Deletion)->Threads(10)->Arg(4* 10000);
+BENCHMARK_REGISTER_F(DeletionBenchmark, Deletion)->Threads(10)->Arg(4 * 10000);
 
 ////////////////////////////////////////////////////////////////////////////////
 
 class ScanBenchmark : public BenchmarkBase
 {
 public:
-
   string Name() const override { return "scan"; }
 
   void SetUp(const State &state) override
@@ -325,13 +317,13 @@ public:
   }
 };
 
-BENCHMARK_DEFINE_F(ScanBenchmark, Scan) (State &state)
+BENCHMARK_DEFINE_F(ScanBenchmark, Scan)(State &state)
 {
-  int max_range_size = 100;
-  uint32_t max = GetRangeMax(state);
+  int              max_range_size = 100;
+  uint32_t         max            = GetRangeMax(state);
   IntegerGenerator begin_generator(1, max - max_range_size);
   IntegerGenerator range_generator(1, max_range_size);
-  Stat stat;
+  Stat             stat;
 
   for (auto _ : state) {
     int32_t begin = begin_generator.next();
@@ -339,10 +331,10 @@ BENCHMARK_DEFINE_F(ScanBenchmark, Scan) (State &state)
     Scan(begin, end, stat);
   }
 
-  state.counters["success"] = Counter(stat.scan_success_count, Counter::kIsRate);
-  state.counters["open_failed_count"] = Counter(stat.scan_open_failed_count, Counter::kIsRate);
+  state.counters["success"]               = Counter(stat.scan_success_count, Counter::kIsRate);
+  state.counters["open_failed_count"]     = Counter(stat.scan_open_failed_count, Counter::kIsRate);
   state.counters["mismatch_number_count"] = Counter(stat.mismatch_count, Counter::kIsRate);
-  state.counters["other"] = Counter(stat.scan_other_count, Counter::kIsRate);
+  state.counters["other"]                 = Counter(stat.scan_other_count, Counter::kIsRate);
 }
 
 BENCHMARK_REGISTER_F(ScanBenchmark, Scan)->Threads(10)->Arg(4 * 10000);
@@ -354,7 +346,7 @@ struct MixtureBenchmark : public BenchmarkBase
   string Name() const override { return "mixture"; }
 };
 
-BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture) (State &state)
+BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture)(State &state)
 {
   pair<int32_t, int32_t> data_range{0, GetRangeMax(state)};
   pair<int32_t, int32_t> scan_range{1, 100};
@@ -369,15 +361,15 @@ BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture) (State &state)
   for (auto _ : state) {
     int operation_type = operation_generator.next();
     switch (operation_type) {
-      case 0: { // insert
+      case 0: {  // insert
         int32_t value = data_generator.next();
-        RID rid;
+        RID     rid;
         Insert(value, stat, rid);
         if (rids.size() < 1000000) {
           rids.push_back(rid);
         }
       } break;
-      case 1: { // delete
+      case 1: {  // delete
         int32_t index = data_generator.next();
         if (!rids.empty()) {
           index %= rids.size();
@@ -386,9 +378,9 @@ BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture) (State &state)
           Delete(rid, stat);
         }
       } break;
-      case 2: { // scan
+      case 2: {  // scan
         int32_t begin = data_generator.next();
-        int32_t end = begin + scan_range_generator.next();
+        int32_t end   = begin + scan_range_generator.next();
         Scan(begin, end, stat);
       } break;
       default: {
@@ -397,17 +389,15 @@ BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture) (State &state)
     }
   }
 
-  state.counters.insert({
-    {"insert_success", Counter(stat.insert_success_count, Counter::kIsRate)},
-    {"insert_other", Counter(stat.insert_other_count, Counter::kIsRate)},
-    {"delete_success", Counter(stat.delete_success_count, Counter::kIsRate)},
-    {"delete_other", Counter(stat.delete_other_count, Counter::kIsRate)},
-    {"delete_not_exist", Counter(stat.not_exist_count, Counter::kIsRate)},
-    {"scan_success", Counter(stat.scan_success_count, Counter::kIsRate)},
-    {"scan_other", Counter(stat.scan_other_count, Counter::kIsRate)},
-    {"scan_mismatch", Counter(stat.mismatch_count, Counter::kIsRate)},
-    {"scan_open_failed", Counter(stat.scan_open_failed_count, Counter::kIsRate)}
-  });
+  state.counters.insert({{"insert_success", Counter(stat.insert_success_count, Counter::kIsRate)},
+      {"insert_other", Counter(stat.insert_other_count, Counter::kIsRate)},
+      {"delete_success", Counter(stat.delete_success_count, Counter::kIsRate)},
+      {"delete_other", Counter(stat.delete_other_count, Counter::kIsRate)},
+      {"delete_not_exist", Counter(stat.not_exist_count, Counter::kIsRate)},
+      {"scan_success", Counter(stat.scan_success_count, Counter::kIsRate)},
+      {"scan_other", Counter(stat.scan_other_count, Counter::kIsRate)},
+      {"scan_mismatch", Counter(stat.mismatch_count, Counter::kIsRate)},
+      {"scan_open_failed", Counter(stat.scan_open_failed_count, Counter::kIsRate)}});
 }
 
 BENCHMARK_REGISTER_F(MixtureBenchmark, Mixture)->Threads(10)->Arg(4 * 10000);

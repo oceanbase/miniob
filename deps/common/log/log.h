@@ -182,7 +182,7 @@ extern Log *g_log;
     }                                                                      \
     snprintf(prefix,                                                       \
         sizeof(prefix),                                                    \
-        "[%s %s %s:%u %s]>>",                                              \
+        "[%s %s %s:%u %s] >> ",                                            \
         sz_head,                                                           \
         (common::g_log)->prefix_msg(level),                                \
         __FILE_NAME__,                                                     \

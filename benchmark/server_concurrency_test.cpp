@@ -82,13 +82,13 @@ RC Client::init(string host, int port)
 
   if ((host = gethostbyname(host.c_str())) == NULL) {
     LOG_WARN("failed to gethostbyname. rc=%s", strerror(errno));
-    return RC::IOERR;
+    return RC::IOERR_READ;
   }
 
   int sockfd = -1;
   if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     LOG_WARN("failed to create socket. rc=%s", strerror(errno));
-    return RC::IOERROR;
+    return RC::IOERR_OPEN;
   }
 
   memset(&serv_addr, 0, sizeof(serv_addr));
@@ -198,7 +198,4 @@ RC Client::execute(const char *sql, ostream &result_stream)
 
 #endif
 
-int main(void)
-{
-  return 0;
-}
+int main(void) { return 0; }
