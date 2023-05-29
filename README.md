@@ -16,6 +16,7 @@ miniob 设计的目标是面向在校学生、数据库从业者、爱好者，�
 4. [开发环境搭建(本地调试, 适用 Linux 和 Mac)](docs/how_to_dev_miniob_by_vscode.md)
 5. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](docs/how_to_dev_in_docker_container_by_vscode.md)
 6. [miniob 词法语法解析开发与测试](docs/miniob-sql-parser.md)
+7. [doxygen 代码文档](docs/doxy/html/index.html)
 
 更多的文档, 可以参考 docs 目录下的文档, 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
 
