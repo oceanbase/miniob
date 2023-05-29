@@ -3,6 +3,7 @@
 ./deps/googletest
 ./deps/jsoncpp
 ./deps/benchmark
+./docs/doxy/
 build/*
 build_*
 cmake-build-*/*
