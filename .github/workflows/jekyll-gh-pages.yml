@@ -32,9 +32,10 @@ jobs:
           submodules: false
 
       - name: Doxygen Action
-        run: mattnotmitt/doxygen-action@v1.9.5
-        working-directory: .
-        doxyfile-path: ./Doxyfile
+        uses: mattnotmitt/doxygen-action@v1.9.5
+        with:
+          working-directory: .
+          doxyfile-path: ./Doxyfile
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
