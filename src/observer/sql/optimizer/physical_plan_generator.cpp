@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2022/12/14.
 //
 
+#include <utility>
+
 #include "sql/optimizer/physical_plan_generator.h"
 #include "sql/operator/table_get_logical_operator.h"
 #include "sql/operator/table_scan_physical_operator.h"
@@ -128,12 +130,12 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
           &tuple_cell, true /*left_inclusive*/, 
           &tuple_cell, true /*right_inclusive*/);
           
-    index_scan_oper->set_predicates(move(predicates));
+    index_scan_oper->set_predicates(std::move(predicates));
     oper = unique_ptr<PhysicalOperator>(index_scan_oper);
     LOG_TRACE("use index scan");
   } else {
     auto table_scan_oper = new TableScanPhysicalOperator(table, table_get_oper.readonly());
-    table_scan_oper->set_predicates(move(predicates));
+    table_scan_oper->set_predicates(std::move(predicates));
     oper = unique_ptr<PhysicalOperator>(table_scan_oper);
     LOG_TRACE("use table scan");
   }
@@ -158,9 +160,9 @@ RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, uniqu
   vector<unique_ptr<Expression>> &expressions = pred_oper.expressions();
   ASSERT(expressions.size() == 1, "predicate logical operator's children should be 1");
 
-  unique_ptr<Expression> expression = move(expressions.front());
-  oper = unique_ptr<PhysicalOperator>(new PredicatePhysicalOperator(move(expression)));
-  oper->add_child(move(child_phy_oper));
+  unique_ptr<Expression> expression = std::move(expressions.front());
+  oper = unique_ptr<PhysicalOperator>(new PredicatePhysicalOperator(std::move(expression)));
+  oper->add_child(std::move(child_phy_oper));
   return rc;
 }
 
@@ -187,7 +189,7 @@ RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, uniq
   }
 
   if (child_phy_oper) {
-    project_operator->add_child(move(child_phy_oper));
+    project_operator->add_child(std::move(child_phy_oper));
   }
 
   oper = unique_ptr<PhysicalOperator>(project_operator);
@@ -200,7 +202,7 @@ RC PhysicalPlanGenerator::create_plan(InsertLogicalOperator &insert_oper, unique
 {
   Table *table = insert_oper.table();
   vector<Value> &values = insert_oper.values();
-  InsertPhysicalOperator *insert_phy_oper = new InsertPhysicalOperator(table, move(values));
+  InsertPhysicalOperator *insert_phy_oper = new InsertPhysicalOperator(table, std::move(values));
   oper.reset(insert_phy_oper);
   return RC::SUCCESS;
 }
@@ -224,7 +226,7 @@ RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, unique
   oper = unique_ptr<PhysicalOperator>(new DeletePhysicalOperator(delete_oper.table()));
 
   if (child_physical_oper) {
-    oper->add_child(move(child_physical_oper));
+    oper->add_child(std::move(child_physical_oper));
   }
   return rc;
 }
@@ -243,10 +245,10 @@ RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, uniq
       return rc;
     }
 
-    explain_physical_oper->add_child(move(child_physical_oper));
+    explain_physical_oper->add_child(std::move(child_physical_oper));
   }
 
-  oper = move(explain_physical_oper);
+  oper = std::move(explain_physical_oper);
   return rc;
 }
 
@@ -269,9 +271,9 @@ RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr
       return rc;
     }
 
-    join_physical_oper->add_child(move(child_physical_oper));
+    join_physical_oper->add_child(std::move(child_physical_oper));
   }
 
-  oper = move(join_physical_oper);
+  oper = std::move(join_physical_oper);
   return rc;
 }

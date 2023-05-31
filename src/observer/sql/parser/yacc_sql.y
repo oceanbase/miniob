@@ -169,6 +169,7 @@ command_wrapper:
 
 exit:      
     EXIT {
+      (void)yynerrs;  // 这么写为了消除yynerrs未使用的告警。如果你有更好的方法欢迎提PR
       $$ = new Command(SCF_EXIT);
     };
 
