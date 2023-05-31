@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 
 InsertPhysicalOperator::InsertPhysicalOperator(Table *table, vector<Value> &&values)
-    : table_(table), values_(move(values))
+    : table_(table), values_(std::move(values))
 {}
 
 RC InsertPhysicalOperator::open(Trx *trx)
