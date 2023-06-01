@@ -21,6 +21,16 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
+MvccTrxKit::~MvccTrxKit()
+{
+  vector<Trx *> tmp_trxes;
+  tmp_trxes.swap(trxes_);
+  
+  for (Trx *trx : tmp_trxes) {
+    delete trx;
+  }
+}
+
 RC MvccTrxKit::init()
 {
   fields_ = vector<FieldMeta>{
@@ -49,32 +59,64 @@ int32_t MvccTrxKit::max_trx_id() const
 
 Trx *MvccTrxKit::create_trx(CLogManager *log_manager)
 {
-  return new MvccTrx(*this, log_manager);
+  Trx *trx = new MvccTrx(*this, log_manager);
+  if (trx != nullptr) {
+    lock_.lock();
+    trxes_.push_back(trx);
+    lock_.unlock();
+  }
+  return trx;
 }
 
 Trx *MvccTrxKit::create_trx(int32_t trx_id)
 {
   Trx *trx = new MvccTrx(*this, trx_id);
-  trxes_.insert(make_pair(trx_id, trx));
+  if (trx != nullptr) {
+    lock_.lock();
+    trxes_.push_back(trx);
+    lock_.unlock();
+  }
   return trx;
 }
 
 Trx *MvccTrxKit::find_trx(int32_t trx_id)
 {
-  auto iter = trxes_.find(trx_id);
-  if (iter != trxes_.end()) {
-    return iter->second;
+  lock_.lock();
+  for (Trx *trx : trxes_) {
+    if (trx->id() == trx_id) {
+      return trx;
+    }
   }
+  lock_.unlock();
+
   return nullptr;
 }
 
 void MvccTrxKit::all_trxes(std::vector<Trx *> &trxes)
 {
-  trxes.clear();
-  trxes.reserve(trxes_.size());
-  for (auto pair : trxes_) {
-    trxes.push_back(pair.second);
+  lock_.lock();
+  trxes = trxes_;
+  lock_.unlock();
+}
+
+#if 0
+void MvccTrxKit::register(Trx *_trx)
+{
+  lock_guard<Mutex> lock_guard(lock_);
+  for (Trx *trx : trxes_) {
+    if (trx == _trx) {
+      return;
+    }
   }
+  trxes_.push_back(_trx);
+}
+#endif
+
+void MvccTrxKit::unregister(Trx *_trx)
+{
+  lock_.lock();
+  erase(trxes_, _trx);
+  lock_.unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +128,11 @@ MvccTrx::MvccTrx(MvccTrxKit &kit, int32_t trx_id) : trx_kit_(kit), trx_id_(trx_i
 {
   started_ = true;
   recovering_ = true;
+}
+
+MvccTrx::~MvccTrx()
+{
+  trx_kit_.unregister(this);
 }
 
 RC MvccTrx::insert_record(Table *table, Record &record)
@@ -327,10 +374,14 @@ RC MvccTrx::rollback()
 
 RC MvccTrx::redo(Db *db, const CLogRecordHeader &header, const CLogRecordData &data_record)
 {
-  Table *table = db->find_table(data_record.table_id_);
-  if (nullptr == table) {
-    LOG_WARN("no such table to redo. table id=%d, log record header=%s", data_record.table_id_, header.to_string().c_str());
-    return RC::SCHEMA_TABLE_NOT_EXIST;
+  Table *table = nullptr;
+  if (data_record.table_id_ >= 0) {
+    table = db->find_table(data_record.table_id_);
+    if (nullptr == table) {
+      LOG_WARN("no such table to redo. table id=%d, log record header=%s",
+               data_record.table_id_, header.to_string().c_str());
+      return RC::SCHEMA_TABLE_NOT_EXIST;
+    }
   }
 
   switch (clog_type_from_integer(header.type_)) {

@@ -101,7 +101,7 @@ bool DefaultStorageStage::set_properties()
 
   ret = handler_->open_db(sys_db);
   if (ret != RC::SUCCESS) {
-    LOG_ERROR("Failed to open system db");
+    LOG_ERROR("Failed to open system db. rc=%s", strrc(ret));
     return false;
   }
 

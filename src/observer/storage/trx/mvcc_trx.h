@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <unordered_map>
+#include <vector>
 
 #include "storage/trx/trx.h"
 
@@ -24,15 +24,23 @@ class MvccTrxKit : public TrxKit
 {
 public:
   MvccTrxKit() = default;
-  virtual ~MvccTrxKit() = default;
+  virtual ~MvccTrxKit();
 
   RC init() override;
   const std::vector<FieldMeta> *trx_fields() const override;
   Trx *create_trx(CLogManager *log_manager) override;
   Trx *create_trx(int32_t trx_id) override;
+
+  /**
+   * @brief 找到对应事务号的事务
+   * @details 当前仅在recover场景下使用
+   */
   Trx *find_trx(int32_t trx_id) override;
   void all_trxes(std::vector<Trx *> &trxes) override;
 
+public:
+  // void    register(Trx *trx);
+  void    unregister(Trx *trx);
   int32_t next_trx_id();
 
 public:
@@ -43,7 +51,8 @@ private:
 
   std::atomic<int32_t> current_trx_id_{0};
 
-  std::unordered_map<int32_t, Trx *> trxes_;
+  common::Mutex      lock_;
+  std::vector<Trx *> trxes_;
 };
 
 /**
@@ -55,7 +64,7 @@ class MvccTrx : public Trx
 public:
   MvccTrx(MvccTrxKit &trx_kit, CLogManager *log_manager);
   MvccTrx(MvccTrxKit &trx_kit, int32_t trx_id); // used for recover
-  virtual ~MvccTrx() = default;
+  virtual ~MvccTrx();
 
   RC insert_record(Table *table, Record &record) override;
   RC delete_record(Table *table, Record &record) override;

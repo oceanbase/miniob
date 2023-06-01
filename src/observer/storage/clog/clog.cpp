@@ -61,6 +61,14 @@ string CLogRecordHeader::to_string() const
 
 const int32_t CLogRecordData::HEADER_SIZE = sizeof(CLogRecordData) - sizeof(CLogRecordData::data_);
 
+string CLogRecordData::to_string() const
+{
+  stringstream ss;
+  ss << "table_id:" << table_id_ << ", rid:{" << rid_.to_string() << "}"
+     << ", len:" << data_len_ << ", offset:" << data_offset_;
+  return ss.str();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 int _align8(int size)
@@ -89,6 +97,7 @@ CLogRecord *CLogRecord::build_data_record(CLogType type,
   CLogRecordHeader &header = log_record->header_;
   header.trx_id_ = trx_id;
   header.type_   = clog_type_to_integer(type);
+  header.logrec_len_ = CLogRecordData::HEADER_SIZE + data_len;
 
   CLogRecordData &data_record = log_record->data_record_;
   data_record.table_id_    = table_id;
@@ -132,7 +141,11 @@ CLogRecord::~CLogRecord()
 
 string CLogRecord::to_string() const
 {
-  return header_.to_string();
+  if (header_.logrec_len_ <= 0) {
+    return header_.to_string();
+  } else {
+    return header_.to_string() + ", " + data_record_.to_string();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -269,8 +282,10 @@ RC CLogFile::read(char *data, int len)
   if (ret != 0) {
     if (ret == -1) {
       eof_ = true;
+      LOG_TRACE("file read touch eof. filename=%s", filename_.c_str());
+    } else {
+      LOG_WARN("failed to read data from file. file=%s, data len=%d, error=%s", filename_.c_str(), len, strerror(ret));
     }
-    LOG_WARN("failed to read data from file. file=%s, data len=%d, error=%s", filename_.c_str(), len, strerror(ret));
     return RC::IOERR_READ;
   }
   return RC::SUCCESS;
@@ -428,11 +443,12 @@ RC CLogManager::recover(Db *db)
 
   for (rc = log_record_iterator.next(); OB_SUCC(rc) && log_record_iterator.valid(); rc = log_record_iterator.next()) {
     const CLogRecord &log_record = log_record_iterator.log_record();
+    LOG_TRACE("begin to redo log={%s}", log_record.to_string().c_str());
     switch (log_record.log_type()) {
       case CLogType::MTR_BEGIN: {
         Trx *trx = trx_manager->create_trx(log_record.trx_id());
         if (trx == nullptr) {
-          LOG_WARN("failed to create trx. log_record=%s", log_record.to_string().c_str());
+          LOG_WARN("failed to create trx. log_record={%s}", log_record.to_string().c_str());
           return RC::INTERNAL;
         }
       } break;
@@ -441,21 +457,31 @@ RC CLogManager::recover(Db *db)
       case CLogType::MTR_ROLLBACK: {
         Trx *trx = trx_manager->find_trx(log_record.trx_id());
         if (nullptr == trx) {
-          LOG_WARN("no such trx. trx id=%d, log_record=%s", log_record.trx_id(), log_record.to_string().c_str());
+          LOG_WARN("no such trx. trx id=%d, log_record={%s}", log_record.trx_id(), log_record.to_string().c_str());
           return RC::INTERNAL;
+        }
+        rc = trx->redo(db, log_record.header(), log_record.data_record());
+        if (OB_FAIL(rc)) {
+          LOG_WARN("failed to redo log. trx id=%d, log_record={%s}, rc=%s", log_record.trx_id(), log_record.to_string().c_str(), strrc(rc));
+          return rc;
         }
         delete trx;
       } break;
 
       default: {
         Trx *trx = GCTX.trx_kit_->find_trx(log_record.trx_id());
-        ASSERT(trx != nullptr, "cannot find such trx. trx id=%d, log_record=%s", log_record.trx_id(), log_record.to_string().c_str());
+        ASSERT(trx != nullptr,
+            "cannot find such trx. trx id=%d, log_record={%s}",
+            log_record.trx_id(),
+            log_record.to_string().c_str());
         const CLogRecordData &data_record = log_record.data_record();
         rc = trx->redo(db, log_record.header(), data_record);
         if (rc != RC::SUCCESS) {
-          LOG_WARN("failed to redo log record. log_record=%s, rc=%s", log_record.to_string().c_str(), strrc(rc));
+          LOG_WARN("failed to redo log record. log_record={%s}, rc=%s", log_record.to_string().c_str(), strrc(rc));
           return rc;
         }
+
+        LOG_TRACE("redo one data record done");
       } break;
     }
   }

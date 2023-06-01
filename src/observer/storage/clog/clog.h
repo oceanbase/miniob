@@ -73,10 +73,10 @@ CLogType clog_type_from_integer(int32_t value);
 
 struct CLogRecordHeader 
 {
-  int32_t lsn_;     /// log sequence number
-  int32_t trx_id_;
-  int32_t type_;
-  int32_t logrec_len_;  /// record的长度，不包含header长度
+  int32_t lsn_ = -1;     /// log sequence number
+  int32_t trx_id_ = -1;
+  int32_t type_ = clog_type_to_integer(CLogType::ERROR);
+  int32_t logrec_len_ = 0;  /// record的长度，不包含header长度
 
   bool operator==(const CLogRecordHeader &other) const
   {
@@ -88,10 +88,10 @@ struct CLogRecordHeader
 
 struct CLogRecordData
 {
-  int32_t          table_id_;
+  int32_t          table_id_ = -1;
   RID              rid_;
-  int32_t          data_len_;
-  int32_t          data_offset_;
+  int32_t          data_len_ = 0;
+  int32_t          data_offset_ = 0;
   char *           data_ = nullptr;
 
   bool operator==(const CLogRecordData &other) const
@@ -102,6 +102,8 @@ struct CLogRecordData
       data_offset_ == other.data_offset_ &&
       0 == memcmp(data_, other.data_, data_len_);
   }
+
+  std::string to_string() const;
 
   const static int32_t HEADER_SIZE;
 };
