@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/trx.h"
 #include "storage/common/db.h"
 #include "storage/default/default_handler.h"
+#include "global_context.h"
 
 Session &Session::default_session()
 {
@@ -71,7 +72,7 @@ bool Session::is_trx_multi_operation_mode() const
 Trx *Session::current_trx()
 {
   if (trx_ == nullptr) {
-    trx_ = TrxKit::instance()->create_trx();
+    trx_ = GCTX.trx_kit_->create_trx(db_->clog_manager());
   }
   return trx_;
 }

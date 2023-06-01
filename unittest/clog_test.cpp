@@ -20,93 +20,17 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-Record *gen_ins_record(int32_t page_num, int32_t slot_num, int data_len)
-{
-  Record *rec = new Record();
-  char *data = new char[data_len];
-  rec->set_rid(page_num, slot_num);
-  memset(data, data_len, data_len);
-  rec->set_data(data);
-  return rec;
-}
-
-Record *gen_del_record(int32_t page_num, int32_t slot_num)
-{
-  Record *rec = new Record();
-  rec->set_rid(page_num, slot_num);
-  return rec;
-}
-
 TEST(test_clog, test_clog)
 {
+  const char *path = ".";
   const char *clog_file = "./clog";
   remove(clog_file);
   
-  CLogManager *log_mgr = new CLogManager("./");
 
-  CLogRecord *log_rec[6];
-  CLogRecord *log_mtr_rec = nullptr;
-  Record *rec = nullptr;
-  //
-  log_mgr->clog_gen_record(REDO_MTR_BEGIN, 1, log_mtr_rec);
-  log_mgr->clog_append_record(log_mtr_rec);  // NOTE: 需要保留log_rec
-  // delete log_mtr_rec;
-
-  rec = gen_ins_record(1, 1, 100);
-  log_mgr->clog_gen_record(REDO_INSERT, 1, log_rec[0], "table1", 100, rec);
-  log_mgr->clog_append_record(log_rec[0]);
-  delete[] rec->data();
-  delete rec;
-
-  rec = gen_ins_record(1, 1, 120);
-  log_mgr->clog_gen_record(REDO_INSERT, 1, log_rec[1], "table2", 120, rec);
-  log_mgr->clog_append_record(log_rec[1]);
-  delete[] rec->data();
-  delete rec;
-
-  log_mgr->clog_gen_record(REDO_MTR_BEGIN, 2, log_mtr_rec);
-  log_mgr->clog_append_record(log_mtr_rec);
-  // delete log_mtr_rec;
-
-  rec = gen_ins_record(1, 1, 200);
-  log_mgr->clog_gen_record(REDO_INSERT, 1, log_rec[2], "table3", 200, rec);
-  log_mgr->clog_append_record(log_rec[2]);
-  delete[] rec->data();
-  delete rec;
-
-  rec = gen_ins_record(1, 2, 120);
-  log_mgr->clog_gen_record(REDO_INSERT, 2, log_rec[3], "table2", 120, rec);
-  log_mgr->clog_append_record(log_rec[3]);
-  delete[] rec->data();
-  delete rec;
-
-  rec = gen_ins_record(1, 2, 100);
-  log_mgr->clog_gen_record(REDO_INSERT, 2, log_rec[4], "table1", 100, rec);
-  log_mgr->clog_append_record(log_rec[4]);
-  delete[] rec->data();
-  delete rec;
-
-  log_mgr->clog_gen_record(REDO_MTR_COMMIT, 2, log_mtr_rec);
-  log_mgr->clog_append_record(log_mtr_rec);
-  // delete log_mtr_rec;
-
-  rec = gen_del_record(1, 1);
-  log_mgr->clog_gen_record(REDO_DELETE, 1, log_rec[5], "table1", 0, rec);
-  log_mgr->clog_append_record(log_rec[5]);
-  delete rec;
-
-  log_mgr->clog_gen_record(REDO_MTR_COMMIT, 1, log_mtr_rec);
-  log_mgr->clog_append_record(log_mtr_rec);
-  // delete log_mtr_rec;
-
-  log_mgr->recover();
-
-  CLogMTRManager *log_mtr_mgr = log_mgr->get_mtr_manager();
-
-  ASSERT_EQ(true, log_mtr_mgr->trx_commited[1]);
-  ASSERT_EQ(true, log_mtr_mgr->trx_commited[2]);
-
-  ASSERT_EQ(6, log_mtr_mgr->log_redo_list.size());
+  CLogManager log_mgr;
+  RC rc = log_mgr.init(path);
+  ASSERT_EQ(rc, RC::SUCCESS);
+  // TODO test
 
   /*
   // record 已经被删掉了，不能再访问
@@ -119,7 +43,6 @@ TEST(test_clog, test_clog)
     i++;
   }
   */
-  delete log_mgr;
 }
 
 int main(int argc, char **argv)

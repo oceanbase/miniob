@@ -23,6 +23,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/bplus_tree.h"
 #include "storage/common/table.h"
 #include "storage/common/condition_filter.h"
+#include "storage/clog/clog.h"
 
 static DefaultHandler *default_handler = nullptr;
 
@@ -121,11 +122,12 @@ RC DefaultHandler::open_db(const char *dbname)
   Db *db = new Db();
   RC ret = RC::SUCCESS;
   if ((ret = db->init(dbname, dbpath.c_str())) != RC::SUCCESS) {
-    LOG_ERROR("Failed to open db: %s. error=%d", dbname, ret);
+    LOG_ERROR("Failed to open db: %s. error=%s", dbname, strrc(ret));
+    delete db;
+  } else {
+    opened_dbs_[dbname] = db;
   }
-
-  opened_dbs_[dbname] = db;
-  return RC::SUCCESS;
+  return ret;
 }
 
 RC DefaultHandler::close_db(const char *dbname)

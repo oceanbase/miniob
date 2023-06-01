@@ -12,162 +12,143 @@ See the Mulan PSL v2 for more details. */
 // Created by huhaosheng.hhs on 2022
 //
 
-#ifndef __OBSERVER_STORAGE_REDO_REDOLOG_H_
-#define __OBSERVER_STORAGE_REDO_REDOLOG_H_
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
 #include <list>
 #include <atomic>
 #include <unordered_map>
+#include <deque>
+#include <memory>
+#include <string>
 
 #include "storage/record/record.h"
 #include "storage/persist/persist.h"
+#include "common/lang/mutex.h"
 #include "rc.h"
-
-// 固定文件大小 TODO: 循环文件组
-#define CLOG_FILE_SIZE 48 * 1024 * 1024
-#define CLOG_BUFFER_SIZE 4 * 1024 * 1024
-#define TABLE_NAME_MAX_LEN 20  // TODO: 表名不要超过20字节
 
 class CLogManager;
 class CLogBuffer;
 class CLogFile;
-class PersistHandler;
+class Db;
 
 struct CLogRecordHeader;
-struct CLogFileHeader;
-struct CLogBlockHeader;
-struct CLogBlock;
-struct CLogMTRManager;
 
-enum CLogType { REDO_ERROR = 0, REDO_MTR_BEGIN, REDO_MTR_COMMIT, REDO_INSERT, REDO_DELETE };
+/**
+ * @defgroup CLog
+ * @file clog.h
+ * @brief CLog 就是 commit log
+ * @details 这个模块想要实现数据库事务中的D(durability)，也就是持久化。
+ * 持久化是事务四大特性(ACID)中最复杂的模块，这里的实现简化了99.999%，仅在一些特定场景下才能
+ * 恢复数据库。
+ */
 
-struct CLogRecordHeader {
-  int32_t lsn_;
+/**
+ * @enum CLogType
+ * @ingroup CLog
+ * @brief 定义clog的几种类型
+ * @details 除了事务操作相关的类型，比如MTR_BEGIN/MTR_COMMIT等，都是需要事务自己去处理的。
+ * 也就是说，像INSERT、DELETE等是事务自己处理的，其实这种类型的日志不需要在这里定义，而是在各个
+ * 事务模型中定义，由各个事务模型自行处理。
+ */
+#define DEFINE_CLOG_TYPE_ENUM         \
+  DEFINE_CLOG_TYPE(ERROR)             \
+  DEFINE_CLOG_TYPE(MTR_BEGIN)         \
+  DEFINE_CLOG_TYPE(MTR_COMMIT)        \
+  DEFINE_CLOG_TYPE(MTR_ROLLBACK)      \
+  DEFINE_CLOG_TYPE(INSERT)            \
+  DEFINE_CLOG_TYPE(DELETE)
+
+enum class CLogType 
+{ 
+#define DEFINE_CLOG_TYPE(name) name,
+  DEFINE_CLOG_TYPE_ENUM
+#undef DEFINE_CLOG_TYPE
+};
+
+const char *clog_type_name(CLogType type);
+int32_t clog_type_to_integer(CLogType type);
+CLogType clog_type_from_integer(int32_t value);
+
+struct CLogRecordHeader 
+{
+  int32_t lsn_;     /// log sequence number
   int32_t trx_id_;
-  int type_;
-  int logrec_len_;
+  int32_t type_;
+  int32_t logrec_len_;  /// record的长度，不包含header长度
 
   bool operator==(const CLogRecordHeader &other) const
   {
     return lsn_ == other.lsn_ && trx_id_ == other.trx_id_ && type_ == other.type_ && logrec_len_ == other.logrec_len_;
   }
+
+  std::string to_string() const;
 };
 
-struct CLogInsertRecord {
-  CLogRecordHeader hdr_;
-  char table_name_[TABLE_NAME_MAX_LEN];
-  RID rid_;
-  int data_len_;
-  char *data_;
+struct CLogRecordData
+{
+  int32_t          table_id_;
+  RID              rid_;
+  int32_t          data_len_;
+  int32_t          data_offset_;
+  char *           data_ = nullptr;
 
-  bool operator==(const CLogInsertRecord &other) const
+  bool operator==(const CLogRecordData &other) const
   {
-    return hdr_ == other.hdr_ && (strcmp(table_name_, other.table_name_) == 0) && (rid_ == other.rid_) &&
-           (data_len_ == other.data_len_) && (memcmp(data_, other.data_, data_len_) == 0);
+    return table_id_ == other.table_id_ &&
+      rid_ == other.rid_ &&
+      data_len_ == other.data_len_ &&
+      data_offset_ == other.data_offset_ &&
+      0 == memcmp(data_, other.data_, data_len_);
   }
+
+  const static int32_t HEADER_SIZE;
 };
 
-struct CLogDeleteRecord {
-  CLogRecordHeader hdr_;
-  char table_name_[TABLE_NAME_MAX_LEN];
-  RID rid_;
-
-  bool operator==(const CLogDeleteRecord &other) const
-  {
-    return hdr_ == other.hdr_ && strcmp(table_name_, other.table_name_) == 0 && rid_ == other.rid_;
-  }
-};
-
-struct CLogMTRRecord {
-  CLogRecordHeader hdr_;
-
-  bool operator==(const CLogMTRRecord &other) const
-  {
-    return hdr_ == other.hdr_;
-  }
-};
-
-union CLogRecords {
-  CLogInsertRecord ins;
-  CLogDeleteRecord del;
-  CLogMTRRecord mtr;
-  char *errors;
-};
-
-class CLogRecord {
-  friend class Db;
-
+class CLogRecord 
+{
 public:
-  // TODO: lsn当前在内部分配
-  // 对齐在内部处理
-  CLogRecord(CLogType flag, int32_t trx_id, const char *table_name = nullptr, int data_len = 0, Record *rec = nullptr);
-  // 从外存恢复log record
-  CLogRecord(char *data);
+  CLogRecord() = default;
   ~CLogRecord();
 
-  CLogType get_log_type()
-  {
-    return flag_;
-  }
-  int32_t get_trx_id()
-  {
-    return log_record_.mtr.hdr_.trx_id_;
-  }
-  int32_t get_logrec_len()
-  {
-    return log_record_.mtr.hdr_.logrec_len_;
-  }
-  int32_t get_lsn()
-  {
-    return log_record_.mtr.hdr_.lsn_;
-  }
-  RC copy_record(void *dest, int start_off, int copy_len);
+  static CLogRecord *build_mtr_record(CLogType type, int32_t trx_id);
+  static CLogRecord *build_data_record(CLogType type, int32_t trx_id, int32_t table_id, const RID &rid, int32_t data_len, int32_t data_offset, const char *data);
+  static CLogRecord *build(const CLogRecordHeader &header, char *data);
 
-  /// for unitest
-  int cmp_eq(CLogRecord *other);
-  CLogRecords *get_record()
-  {
-    return &log_record_;
-  }
-  ///
+  CLogType log_type() const  { return clog_type_from_integer(header_.type_); }
+  int32_t  trx_id() const { return header_.trx_id_; }
+  int32_t  logrec_len() const { return header_.logrec_len_; }
+
+  CLogRecordHeader &header() { return header_; }
+  CLogRecordData   &data_record() { return data_record_; }
+
+  const CLogRecordHeader &header() const { return header_; }
+  const CLogRecordData   &data_record() const { return data_record_; }
+
+  std::string to_string() const;
 
 protected:
-  CLogType flag_;
-  CLogRecords log_record_;
+  CLogRecordHeader header_;
+  CLogRecordData   data_record_;
 };
 
-// TODO: 当前为简单实现，无循环
-class CLogBuffer {
+class CLogBuffer 
+{
 public:
   CLogBuffer();
   ~CLogBuffer();
 
-  RC append_log_record(CLogRecord *log_rec, int &start_off);
-  // 将buffer中的数据下刷到log_file
-  RC flush_buffer(CLogFile *log_file);
-  void set_current_block_no(const int32_t block_no)
-  {
-    current_block_no_ = block_no;
-  }
-  void set_write_block_offset(const int32_t write_block_offset)
-  {
-    write_block_offset_ = write_block_offset;
-  };
-  void set_write_offset(const int32_t write_offset)
-  {
-    write_offset_ = write_offset;
-  };
+  RC append_log_record(CLogRecord *log_record);
+  RC flush_buffer(CLogFile &log_file);
 
-  RC block_copy(int32_t offset, CLogBlock *log_block);
+private:
+  RC write_log_record(CLogFile &log_file, CLogRecord *log_record);
 
-protected:
-  int32_t current_block_no_;
-  int32_t write_block_offset_;
-  int32_t write_offset_;
-
-  char buffer_[CLOG_BUFFER_SIZE];
+private:
+  common::Mutex lock_;
+  std::deque<std::unique_ptr<CLogRecord>> log_records_;
+  int32_t total_size_;
 };
 
 //
@@ -177,87 +158,70 @@ protected:
 #define CLOG_BLOCK_HDR_SIZE (sizeof(CLogBlockHeader))
 #define CLOG_REDO_BUFFER_SIZE 8 * CLOG_BLOCK_SIZE
 
-struct CLogRecordBuf {
-  int32_t write_offset_;
-  // TODO: 当前假定log record大小不会超过CLOG_REDO_BUFFER_SIZE
-  char buffer_[CLOG_REDO_BUFFER_SIZE];
-};
-
-struct CLogFileHeader {
-  int32_t current_file_real_offset_;
-  // TODO: 用于文件组，当前没用
-  int32_t current_file_lsn_;
-};
-
-struct CLogFHDBlock {
-  CLogFileHeader hdr_;
-  char pad[CLOG_BLOCK_SIZE - CLOG_FILE_HDR_SIZE];
-};
-
-struct CLogBlockHeader {
-  int32_t log_block_no;  // 在文件中的offset no=n*CLOG_BLOCK_SIZE
-  int16_t log_data_len_;
-  int16_t first_rec_offset_;
-};
-
-struct CLogBlock {
-  CLogBlockHeader log_block_hdr_;
-  char data[CLOG_BLOCK_DATA_SIZE];
-};
-
-class CLogFile {
+class CLogFile 
+{
 public:
-  CLogFile(const char *path);
+  CLogFile() = default;
   ~CLogFile();
 
-  RC update_log_fhd(int32_t current_file_lsn);
-  RC append(int data_len, char *data);
-  RC write(uint64_t offset, int data_len, char *data);
-  RC recover(CLogMTRManager *mtr_mgr, CLogBuffer *log_buffer);
-  RC block_recover(CLogBlock *block, int16_t &offset, CLogRecordBuf *logrec_buf, CLogRecord *&log_rec);
+  RC init(const char *path);
+  RC write(const char *data, int len);
+  RC read(char *data, int len);
+  RC sync();
+
+  bool eof() const { return eof_; }
 
 protected:
-  CLogFHDBlock log_fhd_;
-  PersistHandler *log_file_;
+  std::string filename_;
+  int fd_ = -1;
+  bool eof_ = false;
 };
 
-// TODO: 当前简单管理mtr
-struct CLogMTRManager {
-  std::list<CLogRecord *> log_redo_list;
-  std::unordered_map<int32_t, bool> trx_commited;  // <trx_id, commited>
+class CLogRecordIterator
+{
+public:
+  CLogRecordIterator() = default;
+  ~CLogRecordIterator() = default;
 
-  void log_record_manage(CLogRecord *log_rec);
+  RC init(CLogFile &log_file);
 
-  ~CLogMTRManager();
+  bool valid() const;
+  RC next();
+  const CLogRecord &log_record();
+
+private:
+  CLogFile *log_file_ = nullptr;
+  CLogRecord *log_record_ = nullptr;
 };
 
 //
-class CLogManager {
+class CLogManager 
+{
 public:
-  CLogManager(const char *path);
+  CLogManager() = default;
   ~CLogManager();
 
-  RC init();
+  RC init(const char *path);
 
-  RC clog_gen_record(CLogType flag, int32_t trx_id, CLogRecord *&log_rec, const char *table_name = nullptr,
-      int data_len = 0, Record *rec = nullptr);
-  // 追加写到log_buffer
-  RC clog_append_record(CLogRecord *log_rec);
-  // 通常不需要在外部调用
-  RC clog_sync();
-  // TODO: 优化回放过程，对同一位置的修改可以用哈希聚合
-  RC recover();
+  RC append_log(CLogType type,
+                int32_t trx_id,
+                int32_t table_id,
+                const RID &rid,
+                int32_t data_len,
+                int32_t data_offset,
+                const char *data);
 
-  CLogMTRManager *get_mtr_manager();
+  RC begin_trx(int32_t trx_id);
+  RC commit_trx(int32_t trx_id);
+  RC rollback_trx(int32_t trx_id);
 
-  static int32_t get_next_lsn(int32_t rec_len);
+  RC append_log(CLogRecord *log_record);
 
-  static std::atomic<int32_t> gloabl_lsn_;
+  RC sync();
 
-protected:
-  CLogBuffer *log_buffer_;
-  CLogFile *log_file_;
-  CLogMTRManager *log_mtr_mgr_;
+  RC recover(Db *db);
+
+private:
+  CLogBuffer *log_buffer_ = nullptr;
+  CLogFile *  log_file_   = nullptr;
 };
-
-#endif  // __OBSERVER_STORAGE_REDO_REDOLOG_H_

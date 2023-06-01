@@ -50,7 +50,8 @@ Table::~Table()
   LOG_INFO("Table has been closed: %s", name());
 }
 
-RC Table::create(const char *path, 
+RC Table::create(int32_t table_id, 
+                 const char *path, 
                  const char *name, 
                  const char *base_dir, 
                  int attribute_count, 
@@ -85,7 +86,7 @@ RC Table::create(const char *path,
   close(fd);
 
   // 创建文件
-  if ((rc = table_meta_.init(name, attribute_count, attributes)) != RC::SUCCESS) {
+  if ((rc = table_meta_.init(table_id, name, attribute_count, attributes)) != RC::SUCCESS) {
     LOG_ERROR("Failed to init table meta. name:%s, ret:%d", name, rc);
     return rc;  // delete table file
   }
@@ -225,6 +226,31 @@ RC Table::get_record(const RID &rid, Record &record)
   }
 
   record.set_data_owner(record_data, record_size);
+  return rc;
+}
+
+RC Table::recover_insert_record(Record &record)
+{
+  RC rc = RC::SUCCESS;
+  rc = record_handler_->recover_insert_record(record.data(), table_meta_.record_size(), record.rid());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Insert record failed. table name=%s, rc=%s", table_meta_.name(), strrc(rc));
+    return rc;
+  }
+
+  rc = insert_entry_of_indexes(record.data(), record.rid());
+  if (rc != RC::SUCCESS) { // 可能出现了键值重复
+    RC rc2 = delete_entry_of_indexes(record.data(), record.rid(), false/*error_on_not_exists*/);
+    if (rc2 != RC::SUCCESS) {
+      LOG_ERROR("Failed to rollback index data when insert index entries failed. table name=%s, rc=%d:%s",
+                name(), rc2, strrc(rc2));
+    }
+    rc2 = record_handler_->delete_record(&record.rid());
+    if (rc2 != RC::SUCCESS) {
+      LOG_PANIC("Failed to rollback record data when insert index entries failed. table name=%s, rc=%d:%s",
+                name(), rc2, strrc(rc2));
+    }
+  }
   return rc;
 }
 

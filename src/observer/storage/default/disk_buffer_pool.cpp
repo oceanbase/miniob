@@ -605,11 +605,6 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
   return RC::SUCCESS;
 }
 
-RC DiskBufferPool::get_page_count(int *page_count)
-{
-  *page_count = file_header_->allocated_pages;
-  return RC::SUCCESS;
-}
 int DiskBufferPool::file_desc() const
 {
   return file_desc_;

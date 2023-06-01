@@ -60,6 +60,8 @@ public:
   void set_int(Record &record, int value);
   int  get_int(const Record &record);
 
+  const char *get_data(const Record &record);
+
 private:
   const Table *table_ = nullptr;
   const FieldMeta *field_ = nullptr;

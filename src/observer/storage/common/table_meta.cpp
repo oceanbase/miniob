@@ -22,6 +22,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
+static const Json::StaticString FIELD_TABLE_ID("table_id");
 static const Json::StaticString FIELD_TABLE_NAME("table_name");
 static const Json::StaticString FIELD_FIELDS("fields");
 static const Json::StaticString FIELD_INDEXES("indexes");
@@ -38,7 +39,7 @@ void TableMeta::swap(TableMeta &other) noexcept
   std::swap(record_size_, other.record_size_);
 }
 
-RC TableMeta::init(const char *name, int field_num, const AttrInfo attributes[])
+RC TableMeta::init(int32_t table_id, const char *name, int field_num, const AttrInfo attributes[])
 {
   if (common::is_blank(name)) {
     LOG_ERROR("Name cannot be empty");
@@ -83,8 +84,9 @@ RC TableMeta::init(const char *name, int field_num, const AttrInfo attributes[])
 
   record_size_ = field_offset;
 
-  name_ = name;
-  LOG_INFO("Sussessfully initialized table meta. table name=%s", name);
+  table_id_ = table_id;
+  name_     = name;
+  LOG_INFO("Sussessfully initialized table meta. table id=%d, name=%s", table_id, name);
   return RC::SUCCESS;
 }
 
@@ -188,6 +190,7 @@ int TableMeta::serialize(std::ostream &ss) const
 {
 
   Json::Value table_value;
+  table_value[FIELD_TABLE_ID]   = table_id_;
   table_value[FIELD_TABLE_NAME] = name_;
 
   Json::Value fields_value;
@@ -230,6 +233,14 @@ int TableMeta::deserialize(std::istream &is)
     return -1;
   }
 
+  const Json::Value &table_id_value = table_value[FIELD_TABLE_ID];
+  if (!table_id_value.isInt()) {
+    LOG_ERROR("Invalid table id. json value=%s", table_id_value.toStyledString().c_str());
+    return -1;
+  }
+
+  int32_t table_id = table_id_value.asInt();
+
   const Json::Value &table_name_value = table_value[FIELD_TABLE_NAME];
   if (!table_name_value.isString()) {
     LOG_ERROR("Invalid table name. json value=%s", table_name_value.toStyledString().c_str());
@@ -261,6 +272,7 @@ int TableMeta::deserialize(std::istream &is)
   auto comparator = [](const FieldMeta &f1, const FieldMeta &f2) { return f1.offset() < f2.offset(); };
   std::sort(fields.begin(), fields.end(), comparator);
 
+  table_id_ = table_id;
   name_.swap(table_name);
   fields_.swap(fields);
   record_size_ = fields_.back().offset() + fields_.back().len() - fields_.begin()->offset();

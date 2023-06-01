@@ -39,6 +39,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/disk_buffer_pool.h"
 #include "storage/default/default_handler.h"
 #include "storage/trx/trx.h"
+#include "global_context.h"
 
 using namespace common;
 
@@ -161,11 +162,11 @@ int prepare_init_seda()
 
 int init_global_objects(ProcessParam *process_param)
 {
-  BufferPoolManager *bpm = new BufferPoolManager();
-  BufferPoolManager::set_instance(bpm);
+  GCTX.buffer_pool_manager_ = new BufferPoolManager();
+  BufferPoolManager::set_instance(GCTX.buffer_pool_manager_);
 
-  DefaultHandler *handler = new DefaultHandler();
-  DefaultHandler::set_default(handler);
+  GCTX.handler_ = new DefaultHandler();
+  DefaultHandler::set_default(GCTX.handler_);
 
   int ret = 0;
   RC rc = TrxKit::init_global(process_param->trx_kit_name().c_str());
@@ -173,11 +174,13 @@ int init_global_objects(ProcessParam *process_param)
     LOG_ERROR("failed to init trx kit. rc=%s", strrc(rc));
     ret = -1;
   }
+  GCTX.trx_kit_ = TrxKit::instance();
   return ret;
 }
 
 int uninit_global_objects()
 {
+  // TODO use global context
   DefaultHandler *default_handler = &DefaultHandler::get_default();
   if (default_handler != nullptr) {
     DefaultHandler::set_default(nullptr);
@@ -194,7 +197,6 @@ int uninit_global_objects()
 
 int init(ProcessParam *process_param)
 {
-
   if (get_init()) {
 
     return 0;

@@ -14,7 +14,11 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include <unordered_map>
+
 #include "storage/trx/trx.h"
+
+class CLogManager;
 
 class MvccTrxKit : public TrxKit
 {
@@ -24,7 +28,10 @@ public:
 
   RC init() override;
   const std::vector<FieldMeta> *trx_fields() const override;
-  Trx *create_trx() override;
+  Trx *create_trx(CLogManager *log_manager) override;
+  Trx *create_trx(int32_t trx_id) override;
+  Trx *find_trx(int32_t trx_id) override;
+  void all_trxes(std::vector<Trx *> &trxes) override;
 
   int32_t next_trx_id();
 
@@ -35,6 +42,8 @@ private:
   std::vector<FieldMeta> fields_; // 存储事务数据需要用到的字段元数据，所有表结构都需要带的
 
   std::atomic<int32_t> current_trx_id_{0};
+
+  std::unordered_map<int32_t, Trx *> trxes_;
 };
 
 /**
@@ -44,7 +53,8 @@ private:
 class MvccTrx : public Trx
 {
 public:
-  MvccTrx(MvccTrxKit &trx_kit);
+  MvccTrx(MvccTrxKit &trx_kit, CLogManager *log_manager);
+  MvccTrx(MvccTrxKit &trx_kit, int32_t trx_id); // used for recover
   virtual ~MvccTrx() = default;
 
   RC insert_record(Table *table, Record &record) override;
@@ -66,6 +76,10 @@ public:
   RC commit() override;
   RC rollback() override;
 
+  RC redo(Db *db, const CLogRecordHeader &header, const CLogRecordData &data_record) override;
+
+  int32_t id() const override { return trx_id_; }
+
 private:
   void trx_fields(Table *table, Field &begin_xid_field, Field &end_xid_field) const;
 
@@ -74,8 +88,10 @@ private:
 
 private:
   using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
-  MvccTrxKit &trx_kit_;
-  int32_t trx_id_;
-  bool started_ = false;
+  MvccTrxKit & trx_kit_;
+  CLogManager *log_manager_ = nullptr;
+  int32_t      trx_id_ = -1;
+  bool         started_ = false;
+  bool         recovering_ = false;
   OperationSet operations_;
 };

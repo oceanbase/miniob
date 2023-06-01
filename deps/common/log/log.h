@@ -182,12 +182,12 @@ extern Log *g_log;
     }                                                                      \
     snprintf(prefix,                                                       \
         sizeof(prefix),                                                    \
-        "[%s %s %s:%u %s] >> ",                                            \
+        "[%s %s %s@%s:%u] >> ",                                            \
         sz_head,                                                           \
         (common::g_log)->prefix_msg(level),                                \
+        __FUNCTION__,                                                      \
         __FILE_NAME__,                                                     \
-        (u32_t)__LINE__,                                                   \
-        __FUNCTION__                                                       \
+        (u32_t)__LINE__                                                    \
         );                                                                 \
   }
 
@@ -302,9 +302,7 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
 #else // DEBUG
 #define ASSERT(expression, description, ...)   \
   do {                                         \
-    if (!(expression)) {                       \
-      LOG_ERROR(description, ##__VA_ARGS__);   \
-    }                                          \
+     (void)(expression);                       \
   } while (0)
 #endif // DEBUG
 

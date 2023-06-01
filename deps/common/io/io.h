@@ -66,6 +66,15 @@ int getFileSize(const char *filePath, u64_t &fileLen);
  * @return int 0 表示成功，否则返回errno
  */
 int writen(int fd, const void *buf, int size);
+
+/**
+ * @brief 一次性读取指定长度的数据
+ * 
+ * @param fd  读取的描述符
+ * @param buf 读取到这里
+ * @param size 读取的数据长度
+ * @return int 返回0表示成功。-1 表示读取到文件尾，并且没有读到size大小数据，其它表示errno
+ */
 int readn(int fd, void *buf, int size);
 
 }  // namespace common

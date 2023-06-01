@@ -26,9 +26,24 @@ const vector<FieldMeta> *VacuousTrxKit::trx_fields() const
   return nullptr;
 }
 
-Trx *VacuousTrxKit::create_trx()
+Trx *VacuousTrxKit::create_trx(CLogManager *)
 {
   return new VacuousTrx;
+}
+
+Trx *VacuousTrxKit::create_trx(int32_t /*trx_id*/)
+{
+  return nullptr;
+}
+
+Trx *VacuousTrxKit::find_trx(int32_t /* trx_id */)
+{
+  return nullptr;
+}
+
+void VacuousTrxKit::all_trxes(std::vector<Trx *> &trxes)
+{
+  return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
