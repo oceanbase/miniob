@@ -160,7 +160,7 @@ int prepare_init_seda()
   return 0;
 }
 
-int init_global_objects(ProcessParam *process_param)
+int init_global_objects(ProcessParam *process_param, Ini &properties)
 {
   GCTX.buffer_pool_manager_ = new BufferPoolManager();
   BufferPoolManager::set_instance(GCTX.buffer_pool_manager_);
@@ -238,7 +238,7 @@ int init(ProcessParam *process_param)
   get_properties()->to_string(conf_data);
   LOG_INFO("Output configuration \n%s", conf_data.c_str());
 
-  rc = init_global_objects(process_param);
+  rc = init_global_objects(process_param, *get_properties());
   if (rc != 0) {
     LOG_ERROR("failed to init global objects");
     return rc;

@@ -568,6 +568,7 @@ RC DiskBufferPool::allocate_frame(PageNum page_num, Frame **buffer)
       return RC::SUCCESS;
     }
 
+    LOG_TRACE("frames are all allocated, so we should purge some frames to get one free frame");
     (void)frame_manager_.purge_frames(1/*count*/, purger);
   }
   return RC::BUFFERPOOL_NOBUF;
@@ -610,13 +611,15 @@ int DiskBufferPool::file_desc() const
   return file_desc_;
 }
 ////////////////////////////////////////////////////////////////////////////////
-BufferPoolManager::BufferPoolManager(int page_num /* = 0 */)
+BufferPoolManager::BufferPoolManager(int memory_size /* = 0 */)
 {
-  if (page_num <= 0) {
-    page_num = MEM_POOL_ITEM_NUM * DEFAULT_ITEM_NUM_PER_POOL;
+  if (memory_size <= 0) {
+    memory_size = MEM_POOL_ITEM_NUM * DEFAULT_ITEM_NUM_PER_POOL * BP_PAGE_SIZE;
   }
-  const int pool_num = std::max(page_num / DEFAULT_ITEM_NUM_PER_POOL, 1);
+  const int pool_num = std::max(memory_size / BP_PAGE_SIZE / DEFAULT_ITEM_NUM_PER_POOL, 1);
   frame_manager_.init(pool_num);
+  LOG_INFO("buffer pool manager init with memory size %d, page num: %d, pool num: %d",
+           memory_size, pool_num * DEFAULT_ITEM_NUM_PER_POOL, pool_num);
 }
 
 BufferPoolManager::~BufferPoolManager()

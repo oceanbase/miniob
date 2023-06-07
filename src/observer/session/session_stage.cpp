@@ -111,8 +111,6 @@ void SessionStage::handle_event(StageEvent *event)
 
 void SessionStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
-
   SessionEvent *sev = dynamic_cast<SessionEvent *>(event);
   if (nullptr == sev) {
     LOG_ERROR("Cannot cat event to sessionEvent");
@@ -127,7 +125,6 @@ void SessionStage::callback_event(StageEvent *event, CallbackContext *context)
     Server::close_connection(communicator);
   }
 
-  LOG_TRACE("Exit\n");
   return;
 }
 
