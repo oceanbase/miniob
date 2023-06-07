@@ -82,26 +82,19 @@ bool OptimizeStage::set_properties()
 //! Initialize stage params and validate outputs
 bool OptimizeStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
   execute_stage_ = *(stgp++);
 
-  LOG_TRACE("Exit");
   return true;
 }
 
 //! Cleanup after disconnection
 void OptimizeStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
-  LOG_TRACE("Exit");
 }
 
 void OptimizeStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter");
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   SqlResult *sql_result = sql_event->session_event()->sql_result();
 
@@ -111,7 +104,6 @@ void OptimizeStage::handle_event(StageEvent *event)
   } else {
     execute_stage_->handle_event(event);
   }
-  LOG_TRACE("Exit");
 }
 RC OptimizeStage::handle_request(SQLStageEvent *sql_event)
 {
@@ -167,8 +159,6 @@ RC OptimizeStage::generate_physical_plan(
 
 void OptimizeStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter");
-  LOG_TRACE("Exit");
   return;
 }
 

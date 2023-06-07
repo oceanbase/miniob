@@ -66,27 +66,19 @@ bool ResolveStage::set_properties()
 //! Initialize stage params and validate outputs
 bool ResolveStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
   plan_cache_stage_ = *(stgp++);
 
-  LOG_TRACE("Exit");
   return true;
 }
 
 //! Cleanup after disconnection
 void ResolveStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
-  LOG_TRACE("Exit");
 }
 
 void ResolveStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
-
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   if (nullptr == sql_event) {
     LOG_WARN("failed to get sql stage event");
@@ -115,14 +107,10 @@ void ResolveStage::handle_event(StageEvent *event)
 
   plan_cache_stage_->handle_event(sql_event);
 
-  LOG_TRACE("Exit\n");
   return;
 }
 
 void ResolveStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
-
-  LOG_TRACE("Exit\n");
   return;
 }

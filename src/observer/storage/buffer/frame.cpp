@@ -101,6 +101,7 @@ void Frame::write_unlatch()
 void Frame::write_unlatch(intptr_t xid)
 {
   // 因为当前已经加着写锁，而且写锁只有一个，所以不再加debug_lock来做校验
+  debug_lock_.lock();
 
   ASSERT(pin_count_.load() > 0, 
         "frame lock. write unlock failed while pin count is invalid."
@@ -118,6 +119,8 @@ void Frame::write_unlatch(intptr_t xid)
   if (--write_recursive_count_ == 0) {
     write_locker_ = 0;
   }
+  debug_lock_.unlock();
+  
   lock_.unlock();
 }
 

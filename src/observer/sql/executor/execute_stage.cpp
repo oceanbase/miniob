@@ -88,41 +88,29 @@ bool ExecuteStage::set_properties()
 //! Initialize stage params and validate outputs
 bool ExecuteStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
   default_storage_stage_ = *(stgp++);
   mem_storage_stage_ = *(stgp++);
 
-  LOG_TRACE("Exit");
   return true;
 }
 
 //! Cleanup after disconnection
 void ExecuteStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
-  LOG_TRACE("Exit");
 }
 
 void ExecuteStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter");
-
   handle_request(event);
 
-  LOG_TRACE("Exit");
   return;
 }
 
 void ExecuteStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter");
-
   // here finish read all data from disk or network, but do nothing here.
 
-  LOG_TRACE("Exit");
   return;
 }
 

@@ -62,28 +62,20 @@ bool PlanCacheStage::set_properties()
 //! Initialize stage params and validate outputs
 bool PlanCacheStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
   //  execute_stage = *(stgp++);
   optimizer_stage_ = *(stgp++);
 
-  LOG_TRACE("Exit");
   return true;
 }
 
 //! Cleanup after disconnection
 void PlanCacheStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
-  LOG_TRACE("Exit");
 }
 
 void PlanCacheStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
-
   // Add callback to update plan cache
   /*
   CompletionCallback *cb = new (std::nothrow) CompletionCallback(this, nullptr);
@@ -98,17 +90,13 @@ void PlanCacheStage::handle_event(StageEvent *event)
   // do nothing here, pass the event to the next stage
   optimizer_stage_->handle_event(event);
 
-  LOG_TRACE("Exit\n");
   return;
 }
 
 void PlanCacheStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
-
   // update execute plan here
   // event->done_immediate();
 
-  LOG_TRACE("Exit\n");
   return;
 }

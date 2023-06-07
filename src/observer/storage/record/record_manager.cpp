@@ -569,8 +569,6 @@ RC RecordFileScanner::fetch_next_record()
 
 /**
  * @brief 遍历当前页面，尝试找到一条有效的记录
- *
- * @return RC
  */
 RC RecordFileScanner::fetch_next_record_in_page()
 {

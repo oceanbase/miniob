@@ -47,7 +47,7 @@ class Frame
 public:
   ~Frame()
   {
-    LOG_DEBUG("deallocate frame. this=%p, lbt=%s", this, common::lbt());
+    // LOG_DEBUG("deallocate frame. this=%p, lbt=%s", this, common::lbt());
   }
 
   /**

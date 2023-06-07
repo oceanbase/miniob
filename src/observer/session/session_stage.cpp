@@ -71,41 +71,31 @@ bool SessionStage::set_properties()
 // Initialize stage params and validate outputs
 bool SessionStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
   query_cache_stage_ = *(stgp++);
 
   MetricsRegistry &metricsRegistry = get_metrics_registry();
   sql_metric_ = new SimpleTimer();
   metricsRegistry.register_metric(SQL_METRIC_TAG, sql_metric_);
-  LOG_TRACE("Exit");
   return true;
 }
 
 // Cleanup after disconnection
 void SessionStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
   MetricsRegistry &metricsRegistry = get_metrics_registry();
   if (sql_metric_ != nullptr) {
     metricsRegistry.unregister(SQL_METRIC_TAG);
     delete sql_metric_;
     sql_metric_ = nullptr;
   }
-
-  LOG_TRACE("Exit");
 }
 
 void SessionStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
-
   // right now, we just support only one event.
   handle_request(event);
 
-  LOG_TRACE("Exit\n");
   return;
 }
 

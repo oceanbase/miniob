@@ -132,6 +132,7 @@ Frame *BPFrameManager::alloc(int file_desc, PageNum page_num)
   if (frame != nullptr) {
     ASSERT(frame->pin_count() == 0, "got an invalid frame that pin count is not 0. frame=%s", 
            to_string(*frame).c_str());
+    frame->set_page_num(page_num);
     frame->pin();
     frames_.put(frame_id, frame);
   }
