@@ -564,6 +564,7 @@ RC RecordFileScanner::fetch_next_record()
 
   // 所有的页面都遍历完了，没有数据了
   next_record_.rid().slot_num = -1;
+  record_page_handler_.cleanup();
   return RC::RECORD_EOF;
 }
 

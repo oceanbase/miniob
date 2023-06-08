@@ -4,7 +4,7 @@ MESSAGE("Begin to build " obclient)
 INCLUDE(CheckIncludeFiles)
 
 #INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)
-TARGET_INCLUDE_DIRECTORIES(obclient PRIVATE . ${PROJECT_SOURCE_DIR}/../deps /usr/local/include /usr/include)
+TARGET_INCLUDE_DIRECTORIES(obclient PRIVATE . ${PROJECT_SOURCE_DIR}/deps /usr/local/include /usr/include)
 # 父cmake 设置的include_directories 和link_directories并不传导到子cmake里面
 #INCLUDE_DIRECTORIES(BEFORE ${CMAKE_INSTALL_PREFIX}/include)
 
@@ -28,7 +28,7 @@ FOREACH (F ${ALL_SRC})
 ENDFOREACH (F)
 
 # 指定目标文件位置
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../bin)
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 MESSAGE("Binary directory:" ${EXECUTABLE_OUTPUT_PATH})
 TARGET_SOURCES(obclient PRIVATE ${PRJ_SRC})
 TARGET_LINK_LIBRARIES(obclient common pthread dl)

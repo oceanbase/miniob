@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/buffer/frame.h"
 #include "session/thread_data.h"
+#include "session/session.h"
 
 using namespace std;
 
@@ -54,6 +55,7 @@ string to_string(const FrameId &frame_id)
 ////////////////////////////////////////////////////////////////////////////////
 intptr_t get_default_debug_xid()
 {
+  #if 0
   ThreadData *thd = ThreadData::current();
   intptr_t xid = (thd == nullptr) ? 
                  // pthread_self的返回值类型是pthread_t，pthread_t在linux和mac上不同
@@ -61,7 +63,8 @@ intptr_t get_default_debug_xid()
                  // 就将pthread_self返回值转换两次
                  reinterpret_cast<intptr_t>(reinterpret_cast<void*>(pthread_self())) : 
                  reinterpret_cast<intptr_t>(thd);
-  return xid;
+  #endif
+  return reinterpret_cast<intptr_t>(Session::current_session());
 }
 
 void Frame::write_latch()

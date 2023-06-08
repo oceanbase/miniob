@@ -301,6 +301,18 @@ RC CLogFile::sync()
   return RC::SUCCESS;
 }
 
+RC CLogFile::offset(int64_t &off) const
+{
+  off_t pos = lseek(fd_, 0, SEEK_CUR);
+  if (pos == -1) {
+    LOG_WARN("failed to seek. error=%s", strerror(errno));
+    return RC::IOERR_SEEK;
+  }
+
+  off = static_cast<int64_t>(pos);
+  return RC::SUCCESS;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 RC CLogRecordIterator::init(CLogFile &log_file)
 {

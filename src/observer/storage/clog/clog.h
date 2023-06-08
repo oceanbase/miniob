@@ -153,13 +153,6 @@ private:
   int32_t total_size_;
 };
 
-//
-#define CLOG_FILE_HDR_SIZE (sizeof(CLogFileHeader))
-#define CLOG_BLOCK_SIZE (1 << 9)
-#define CLOG_BLOCK_DATA_SIZE (CLOG_BLOCK_SIZE - sizeof(CLogBlockHeader))
-#define CLOG_BLOCK_HDR_SIZE (sizeof(CLogBlockHeader))
-#define CLOG_REDO_BUFFER_SIZE 8 * CLOG_BLOCK_SIZE
-
 class CLogFile 
 {
 public:
@@ -170,6 +163,7 @@ public:
   RC write(const char *data, int len);
   RC read(char *data, int len);
   RC sync();
+  RC offset(int64_t &off) const;
 
   bool eof() const { return eof_; }
 

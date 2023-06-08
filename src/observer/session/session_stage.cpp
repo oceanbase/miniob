@@ -114,6 +114,7 @@ void SessionStage::callback_event(StageEvent *event, CallbackContext *context)
   if (need_disconnect) {
     Server::close_connection(communicator);
   }
+  Session::set_current_session(nullptr);
 
   return;
 }
@@ -137,13 +138,13 @@ void SessionStage::handle_request(StageEvent *event)
   CompletionCallback *cb = new (std::nothrow) CompletionCallback(this, nullptr);
   if (cb == nullptr) {
     LOG_ERROR("Failed to new callback for SessionEvent");
-
     sev->done_immediate();
     return;
   }
 
   sev->push_callback(cb);
 
+  Session::set_current_session(sev->session());
   SQLStageEvent *sql_event = new SQLStageEvent(sev, sql);
   query_cache_stage_->handle_event(sql_event);
 }

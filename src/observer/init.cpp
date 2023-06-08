@@ -27,6 +27,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/metrics/log_reporter.h"
 #include "common/metrics/metrics_registry.h"
+#include "session/session.h"
 #include "session/session_stage.h"
 #include "sql/executor/execute_stage.h"
 #include "sql/optimizer/optimize_stage.h"
@@ -80,6 +81,8 @@ int init_log(ProcessParam *process_cfg, Ini &properties)
       return 0;
     }
 
+    auto log_context_getter = []() { return reinterpret_cast<intptr_t>(Session::current_session()); };
+
     const std::string log_section_name = "LOG";
     std::map<std::string, std::string> log_section = properties.get(log_section_name);
 
@@ -116,6 +119,7 @@ int init_log(ProcessParam *process_cfg, Ini &properties)
     }
 
     LoggerFactory::init_default(log_file_name, log_level, console_level);
+    g_log->set_context_getter(log_context_getter);
 
     key = ("DefaultLogModules");
     it = log_section.find(key);

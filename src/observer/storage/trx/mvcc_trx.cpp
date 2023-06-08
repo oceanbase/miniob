@@ -84,6 +84,7 @@ Trx *MvccTrxKit::find_trx(int32_t trx_id)
   lock_.lock();
   for (Trx *trx : trxes_) {
     if (trx->id() == trx_id) {
+      lock_.unlock();
       return trx;
     }
   }
@@ -171,9 +172,10 @@ RC MvccTrx::delete_record(Table * table, Record &record)
 
   [[maybe_unused]] int32_t end_xid = end_field.get_int(record);
   /// 在删除之前，第一次获取record时，就已经对record做了对应的检查，并且保证不会有其它的事务来访问这条数据
-  ASSERT(end_xid == trx_kit_.max_trx_id(), "cannot delete an old version record. end_xid=%d", end_xid);
+  ASSERT(end_xid == trx_kit_.max_trx_id(), "cannot delete an old version record. end_xid=%d, current trx id=%d, rid=%s",
+         end_xid, trx_id_, record.rid().to_string().c_str());
   end_field.set_int(record, -trx_id_);
-  RC rc = log_manager_->append_log(CLogType::DELETE, trx_id_, table->table_id(), record.rid(), end_field.meta()->len(), end_field.meta()->offset(), end_field.get_data(record));
+  RC rc = log_manager_->append_log(CLogType::DELETE, trx_id_, table->table_id(), record.rid(), 0, 0, nullptr);
   ASSERT(rc == RC::SUCCESS, "failed to append delete record log. trx id=%d, table id=%d, rid=%s, record len=%d, rc=%s",
       trx_id_, table->table_id(), record.rid().to_string().c_str(), record.len(), strrc(rc));
 
@@ -240,6 +242,7 @@ RC MvccTrx::start_if_need()
   if (!started_) {
     ASSERT(operations_.empty(), "try to start a new trx while operations is not empty");
     trx_id_ = trx_kit_.next_trx_id();
+    LOG_DEBUG("current thread change to new trx with %d", trx_id_);
     RC rc = log_manager_->begin_trx(trx_id_);
     ASSERT(rc == RC::SUCCESS, "failed to append log to clog. rc=%s", strrc(rc));
     started_ = true;
@@ -398,6 +401,16 @@ RC MvccTrx::redo(Db *db, const CLogRecordHeader &header, const CLogRecordData &d
     } break;
 
     case CLogType::DELETE: {
+      Field begin_field;
+      Field end_field;
+      trx_fields(table, begin_field, end_field);
+      
+      [[maybe_unused]] int32_t end_xid = end_field.get_int(record);
+      /// 在删除之前，第一次获取record时，就已经对record做了对应的检查，并且保证不会有其它的事务来访问这条数据
+      ASSERT(end_xid == trx_kit_.max_trx_id(), "cannot delete an old version record. end_xid=%d, current trx id=%d, rid=%s",
+             end_xid, trx_id_, record.rid().to_string().c_str());
+      end_field.set_int(record, -trx_id_);
+      
       operations_.insert(Operation(Operation::Type::DELETE, table, data_record.rid_));
     } break;
 

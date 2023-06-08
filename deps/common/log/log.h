@@ -25,6 +25,7 @@ See the Mulan PSL v2 for more details. */
 #include <map>
 #include <set>
 #include <string>
+#include  <functional>
 
 #include "common/defs.h"
 
@@ -105,6 +106,9 @@ public:
 
   int rotate(const int year = 0, const int month = 0, const int day = 0);
 
+  void set_context_getter(std::function<intptr_t()> context_getter);
+  intptr_t context_id();
+  
 private:
   void check_param_valid();
 
@@ -137,6 +141,8 @@ private:
 
   typedef std::set<std::string> DefaultSet;
   DefaultSet default_set_;
+
+  std::function<intptr_t()> context_getter_;
 };
 
 class LoggerFactory {
@@ -168,7 +174,7 @@ extern Log *g_log;
     if (p) {                                                               \
       int usec = (int)tv.tv_usec;                                          \
       snprintf(sz_head, LOG_HEAD_SIZE,                                     \
-          "%04d-%02d-%02d %02d:%02d:%02u.%06d pid:%u tid:%llx ",           \
+          "%04d-%02d-%02d %02d:%02d:%02u.%06d pid:%u tid:%llx ctx:%lx",    \
           p->tm_year + 1900,                                               \
           p->tm_mon + 1,                                                   \
           p->tm_mday,                                                      \
@@ -177,7 +183,8 @@ extern Log *g_log;
           p->tm_sec,                                                       \
           usec,                                                            \
           (u32_t)getpid(),                                                 \
-          gettid());                                                       \
+          gettid(),                                                        \
+          common::g_log->context_id());                                    \
       common::g_log->rotate(p->tm_year + 1900, p->tm_mon + 1, p->tm_mday); \
     }                                                                      \
     snprintf(prefix,                                                       \
@@ -316,5 +323,13 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
  */
 const char *lbt();
 
-}  // namespace common
+/**
+ * @brief 设置一个在日志中打印当前上下文信息的回调函数
+ * @details 比如设置一个获取当前session标识的函数，那么每次在打印日志时都会输出session信息。
+ *          这个回调函数返回了一个intptr_t类型的数据，可能返回字符串更好，但是现在够用了。
+ */
+void set_log_context_getter(std::function<intptr_t()> context_getter);
 
+extern std::function<intptr_t()> g_context_getter;
+
+}  // namespace common

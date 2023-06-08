@@ -76,3 +76,15 @@ Trx *Session::current_trx()
   }
   return trx_;
 }
+
+thread_local Session *thread_session = nullptr;
+
+void Session::set_current_session(Session *session)
+{
+  thread_session = session;
+}
+
+Session *Session::current_session()
+{
+  return thread_session;
+}
