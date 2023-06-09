@@ -32,8 +32,7 @@ See the Mulan PSL v2 for more details. */
 
 class Db;
 class CLogManager;
-struct CLogRecordHeader;
-struct CLogRecordData;
+struct CLogRecord;
 
 /**
  * @brief 描述一个操作，比如插入、删除行等
@@ -131,7 +130,7 @@ public:
   virtual RC commit() = 0;
   virtual RC rollback() = 0;
 
-  virtual RC redo(Db *db, const CLogRecordHeader &header, const CLogRecordData &data_record);
+  virtual RC redo(Db *db, const CLogRecord &log_record);
 
   virtual int32_t id() const = 0;
 };

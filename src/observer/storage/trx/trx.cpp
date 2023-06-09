@@ -55,7 +55,7 @@ TrxKit *TrxKit::instance()
   return global_trxkit;
 }
 
-RC Trx::redo(Db *db, const CLogRecordHeader &header, const CLogRecordData &data_record)
+RC Trx::redo(Db *db, const CLogRecord &)
 {
   return RC::UNIMPLENMENT;
 }

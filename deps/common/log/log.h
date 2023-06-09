@@ -163,7 +163,7 @@ extern Log *g_log;
 #define __FILE_NAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
 
-#define LOG_HEAD_SIZE 64
+#define LOG_HEAD_SIZE 128
 
 #define LOG_HEAD(prefix, level)                                            \
   if (common::g_log) {                                                     \

@@ -63,35 +63,24 @@ bool MemStorageStage::set_properties()
 //! Initialize stage params and validate outputs
 bool MemStorageStage::initialize()
 {
-  LOG_TRACE("Enter");
-
-  LOG_TRACE("Exit");
   return true;
 }
 
 //! Cleanup after disconnection
 void MemStorageStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
-  LOG_TRACE("Exit");
 }
 
 void MemStorageStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
   TimerStat timerStat(*queryMetric);
 
   event->done_immediate();
 
-  LOG_TRACE("Exit\n");
   return;
 }
 
 void MemStorageStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
-
-  LOG_TRACE("Exit\n");
   return;
 }

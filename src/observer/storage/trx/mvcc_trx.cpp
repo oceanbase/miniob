@@ -74,6 +74,9 @@ Trx *MvccTrxKit::create_trx(int32_t trx_id)
   if (trx != nullptr) {
     lock_.lock();
     trxes_.push_back(trx);
+    if (current_trx_id_ < trx_id) {
+      current_trx_id_ = trx_id;
+    }
     lock_.unlock();
   }
   return trx;
@@ -172,8 +175,13 @@ RC MvccTrx::delete_record(Table * table, Record &record)
 
   [[maybe_unused]] int32_t end_xid = end_field.get_int(record);
   /// 在删除之前，第一次获取record时，就已经对record做了对应的检查，并且保证不会有其它的事务来访问这条数据
-  ASSERT(end_xid == trx_kit_.max_trx_id(), "cannot delete an old version record. end_xid=%d, current trx id=%d, rid=%s",
+  ASSERT(end_xid > 0, "concurrency conflit: other transaction is updating this record. end_xid=%d, current trx id=%d, rid=%s",
          end_xid, trx_id_, record.rid().to_string().c_str());
+  if (end_xid != trx_kit_.max_trx_id()) {
+    // 当前不是多版本数据中的最新记录，不需要删除
+    return RC::SUCCESS;
+  }
+  
   end_field.set_int(record, -trx_id_);
   RC rc = log_manager_->append_log(CLogType::DELETE, trx_id_, table->table_id(), record.rid(), 0, 0, nullptr);
   ASSERT(rc == RC::SUCCESS, "failed to append delete record log. trx id=%d, table id=%d, rid=%s, record len=%d, rc=%s",
@@ -252,11 +260,16 @@ RC MvccTrx::start_if_need()
 
 RC MvccTrx::commit()
 {
+  int32_t commit_id = trx_kit_.next_trx_id();
+  return commit_with_trx_id(commit_id);
+}
+
+RC MvccTrx::commit_with_trx_id(int32_t commit_xid)
+{
   // TODO 这里存在一个很大的问题，不能让其他事务一次性看到当前事务更新到的数据或同时看不到
   RC rc = RC::SUCCESS;
   started_ = false;
   
-  int32_t commit_xid = trx_kit_.next_trx_id();
   for (const Operation &operation : operations_) {
     switch (operation.type()) {
       case Operation::Type::INSERT: {
@@ -309,9 +322,9 @@ RC MvccTrx::commit()
   operations_.clear();
 
   if (!recovering_) {
-    rc = log_manager_->commit_trx(trx_id_);
+    rc = log_manager_->commit_trx(trx_id_, commit_xid);
   }
-  LOG_TRACE("append trx commit log. trx id=%d, rc=%s", trx_id_, strrc(rc));
+  LOG_TRACE("append trx commit log. trx id=%d, commit_xid=%d, rc=%s", trx_id_, commit_xid, strrc(rc));
   return rc;
 }
 
@@ -349,8 +362,8 @@ RC MvccTrx::rollback()
 
         auto record_updater = [this, &end_xid_field](Record &record) {
           ASSERT(end_xid_field.get_int(record) == -trx_id_, 
-               "got an invalid record while rollback. end xid=%d, this trx id=%d", 
-               end_xid_field.get_int(record), trx_id_);
+                "got an invalid record while rollback. end xid=%d, this trx id=%d", 
+                end_xid_field.get_int(record), trx_id_);
 
           end_xid_field.set_int(record, trx_kit_.max_trx_id());
         };
@@ -375,47 +388,76 @@ RC MvccTrx::rollback()
   return rc;
 }
 
-RC MvccTrx::redo(Db *db, const CLogRecordHeader &header, const CLogRecordData &data_record)
+RC find_table(Db *db, const CLogRecord &log_record, Table *&table)
+{
+  switch (clog_type_from_integer(log_record.header().type_)) {
+    case CLogType::INSERT:
+    case CLogType::DELETE: {
+      const CLogRecordData &data_record = log_record.data_record();
+      if (data_record.table_id_ >= 0) {
+        table = db->find_table(data_record.table_id_);
+        if (nullptr == table) {
+          LOG_WARN("no such table to redo. table id=%d, log record=%s",
+                   data_record.table_id_, log_record.to_string().c_str());
+          return RC::SCHEMA_TABLE_NOT_EXIST;
+        }
+      }
+    } break;
+    default:{
+      // do nothing
+    } break;
+  }
+  return RC::SUCCESS;
+}
+
+RC MvccTrx::redo(Db *db, const CLogRecord &log_record)
 {
   Table *table = nullptr;
-  if (data_record.table_id_ >= 0) {
-    table = db->find_table(data_record.table_id_);
-    if (nullptr == table) {
-      LOG_WARN("no such table to redo. table id=%d, log record header=%s",
-               data_record.table_id_, header.to_string().c_str());
-      return RC::SCHEMA_TABLE_NOT_EXIST;
-    }
+  RC rc = find_table(db, log_record, table);
+  if (OB_FAIL(rc)) {
+    return rc;
   }
 
-  switch (clog_type_from_integer(header.type_)) {
+  switch (log_record.log_type()) {
     case CLogType::INSERT: {
+      const CLogRecordData &data_record = log_record.data_record();
       Record record;
       record.set_data(const_cast<char *>(data_record.data_), data_record.data_len_);
       record.set_rid(data_record.rid_);
       RC rc = table->recover_insert_record(record);
       if (OB_FAIL(rc)) {
-        LOG_WARN("failed to recover insert. table=%s, log header=%s, rc=%s", table->name(), header.to_string().c_str(), strrc(rc));
+        LOG_WARN("failed to recover insert. table=%s, log record=%s, rc=%s",
+                 table->name(), log_record.to_string().c_str(), strrc(rc));
         return rc;
       }
       operations_.insert(Operation(Operation::Type::INSERT, table, record.rid()));
     } break;
 
     case CLogType::DELETE: {
+      const CLogRecordData &data_record = log_record.data_record();
       Field begin_field;
       Field end_field;
       trx_fields(table, begin_field, end_field);
-      
-      [[maybe_unused]] int32_t end_xid = end_field.get_int(record);
-      /// 在删除之前，第一次获取record时，就已经对record做了对应的检查，并且保证不会有其它的事务来访问这条数据
-      ASSERT(end_xid == trx_kit_.max_trx_id(), "cannot delete an old version record. end_xid=%d, current trx id=%d, rid=%s",
-             end_xid, trx_id_, record.rid().to_string().c_str());
-      end_field.set_int(record, -trx_id_);
+
+      auto record_updater = [this, &end_field](Record &record) {
+        (void)this;
+        ASSERT(end_field.get_int(record) == trx_kit_.max_trx_id(), 
+               "got an invalid record while committing. end xid=%d, this trx id=%d", 
+               end_field.get_int(record), trx_id_);
+                
+        end_field.set_int(record, -trx_id_);
+      };
+
+      RC rc = table->visit_record(data_record.rid_, false/*readonly*/, record_updater);
+      ASSERT(rc == RC::SUCCESS, "failed to get record while committing. rid=%s, rc=%s",
+             data_record.rid_.to_string().c_str(), strrc(rc));
       
       operations_.insert(Operation(Operation::Type::DELETE, table, data_record.rid_));
     } break;
 
     case CLogType::MTR_COMMIT: {
-      commit();
+      const CLogRecordCommitData &commit_record = log_record.commit_record();
+      commit_with_trx_id(commit_record.commit_xid_);
     } break;
 
     case CLogType::MTR_ROLLBACK: {
@@ -423,7 +465,7 @@ RC MvccTrx::redo(Db *db, const CLogRecordHeader &header, const CLogRecordData &d
     } break;
     
     default: {
-      ASSERT(false, "unsupported redo log. header=%s", header.to_string().c_str());
+      ASSERT(false, "unsupported redo log. log_record=%s", log_record.to_string().c_str());
       return RC::INTERNAL;
     } break;
   }

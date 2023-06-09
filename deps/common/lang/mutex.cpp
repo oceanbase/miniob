@@ -262,12 +262,14 @@ void DebugMutex::lock()
 {
 #ifdef DEBUG
   lock_.lock();
+  LOG_DEBUG("debug lock %p, lbt=%s", &lock_, lbt());
 #endif
 }
 
 void DebugMutex::unlock()
 {
 #ifdef DEBUG
+  LOG_DEBUG("debug unlock %p, lbt=%s", &lock_, lbt());
   lock_.unlock();
 #endif 
 }
@@ -277,13 +279,18 @@ void Mutex::lock()
 {
 #ifdef CONCURRENCY
   lock_.lock();
+  LOG_DEBUG("lock %p, lbt=%s", &lock_, lbt());
 #endif
 }
 
 bool Mutex::try_lock()
 {
 #ifdef CONCURRENCY
-  return lock_.try_lock();
+  bool result = lock_.try_lock();
+  if (result) {
+    LOG_DEBUG("try lock success %p, lbt=%s", &lock_, lbt());
+  }
+  return result;
 #else
   return true;
 #endif
@@ -292,6 +299,7 @@ bool Mutex::try_lock()
 void Mutex::unlock()
 {
 #ifdef CONCURRENCY
+  LOG_DEBUG("unlock %p, lbt=%s", &lock_, lbt());
   lock_.unlock();
 #endif
 }
@@ -302,26 +310,38 @@ void Mutex::unlock()
 void SharedMutex::lock()
 {
   lock_.lock();
+  LOG_DEBUG("shared lock %p, lbt=%s", &lock_, lbt());
 }
 bool SharedMutex::try_lock()
 {
-  return lock_.try_lock();
+  bool result = lock_.try_lock();
+  if (result) {
+    LOG_DEBUG("try shared lock : %p, lbt=%s", &lock_, lbt());
+  }
+  return result;
 }
 void SharedMutex::unlock() // unlock exclusive
 {
+  LOG_DEBUG("shared lock unlock %p, lbt=%s", &lock_, lbt());
   lock_.unlock();
 }
 
 void SharedMutex::lock_shared()
 {
   lock_.lock_shared();
+  LOG_DEBUG("shared lock shared: %p lbt=%s", &lock_, lbt());
 }
 bool SharedMutex::try_lock_shared()
 {
-  return lock_.try_lock_shared();
+  bool result = lock_.try_lock_shared();
+  if (result) {
+    LOG_DEBUG("shared lock try lock shared: %p, lbt=%s", &lock_, lbt());
+  }
+  return result;
 }
 void SharedMutex::unlock_shared()
 {
+  LOG_DEBUG("shared lock unlock shared %p lbt=%s", &lock_, lbt());
   lock_.unlock_shared();
 }
 

@@ -59,6 +59,15 @@ string CLogRecordHeader::to_string() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+string CLogRecordCommitData::to_string() const
+{
+  stringstream ss;
+  ss << "commit_xid:" << commit_xid_;
+  return ss.str();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 const int32_t CLogRecordData::HEADER_SIZE = sizeof(CLogRecordData) - sizeof(CLogRecordData::data_);
 
 string CLogRecordData::to_string() const
@@ -85,6 +94,19 @@ CLogRecord *CLogRecord::build_mtr_record(CLogType type, int32_t trx_id)
   return log_record;
 }
 
+CLogRecord *CLogRecord::build_commit_record(int32_t trx_id, int32_t commit_xid)
+{
+  CLogRecord *log_record = new CLogRecord();
+  CLogRecordHeader &header = log_record->header_;
+  header.type_ = clog_type_to_integer(CLogType::MTR_COMMIT);
+  header.trx_id_ = trx_id;
+  header.logrec_len_ = sizeof(CLogRecordCommitData);
+  
+  CLogRecordCommitData &commit_record = log_record->commit_record();
+  commit_record.commit_xid_ = commit_xid;
+  return log_record;
+}
+
 CLogRecord *CLogRecord::build_data_record(CLogType type, 
                                           int32_t trx_id, 
                                           int32_t table_id, 
@@ -99,7 +121,7 @@ CLogRecord *CLogRecord::build_data_record(CLogType type,
   header.type_   = clog_type_to_integer(type);
   header.logrec_len_ = CLogRecordData::HEADER_SIZE + data_len;
 
-  CLogRecordData &data_record = log_record->data_record_;
+  CLogRecordData &data_record = log_record->data_record();
   data_record.table_id_    = table_id;
   data_record.rid_         = rid;
   data_record.data_len_    = data_len;
@@ -122,12 +144,24 @@ CLogRecord *CLogRecord::build(const CLogRecordHeader &header, char *data)
 {
   CLogRecord *log_record = new CLogRecord();
   log_record->header_    = header;
-  
-  if (header.logrec_len_ > 0) {
-    CLogRecordData &data_record = log_record->data_record_;
+
+  if (header.logrec_len_ <= 0) {
+    return log_record;
+  }
+
+  if (header.type_ == clog_type_to_integer(CLogType::MTR_COMMIT)) {
+    ASSERT(header.logrec_len_ == sizeof(CLogRecordCommitData), "invalid length of mtr commit. expect %d, got %d",
+           sizeof(CLogRecordCommitData), header.logrec_len_);
+    
+    CLogRecordCommitData &commit_record = log_record->commit_record();
+    memcpy(reinterpret_cast<void *>(&commit_record), data, sizeof(CLogRecordCommitData));
+
+    LOG_DEBUG("got an commit record %s", log_record->to_string().c_str());
+  } else {
+    CLogRecordData &data_record = log_record->data_record();
     memcpy(reinterpret_cast<void *>(&data_record), data, CLogRecordData::HEADER_SIZE);
     if (header.logrec_len_ > CLogRecordData::HEADER_SIZE) {
-      int data_len = header.logrec_len_ - CLogRecordData::HEADER_SIZE;
+      int data_len      = header.logrec_len_ - CLogRecordData::HEADER_SIZE;
       data_record.data_ = new char[data_len];
       memcpy(data_record.data_, data + CLogRecordData::HEADER_SIZE, data_len);
     }
@@ -143,8 +177,10 @@ string CLogRecord::to_string() const
 {
   if (header_.logrec_len_ <= 0) {
     return header_.to_string();
+  } else if (header_.type_ == clog_type_to_integer(CLogType::MTR_COMMIT)) {
+    return header_.to_string() + ", " + commit_record().to_string();
   } else {
-    return header_.to_string() + ", " + data_record_.to_string();
+    return header_.to_string() + ", " + data_record().to_string();
   }
 }
 
@@ -171,6 +207,7 @@ RC CLogBuffer::append_log_record(CLogRecord *log_record)
   lock_guard<Mutex> lock_guard(lock_);
   log_records_.emplace_back(log_record);
   total_size_ += log_record->logrec_len();
+  LOG_DEBUG("append log. log_record={%s}", log_record->to_string().c_str());
   return RC::SUCCESS;
 }
 
@@ -181,6 +218,7 @@ RC CLogBuffer::flush_buffer(CLogFile &log_file)
   while (!log_records_.empty()) {
     lock_.lock();
     if (log_records_.empty()) {
+      lock_.unlock();
       return RC::SUCCESS;
     }
 
@@ -205,6 +243,7 @@ RC CLogBuffer::flush_buffer(CLogFile &log_file)
 
 RC CLogBuffer::write_log_record(CLogFile &log_file, CLogRecord *log_record)
 {
+  // TODO 看起来使用serialize 接口更好一点
   const CLogRecordHeader &header = log_record->header();
   RC rc = log_file.write(reinterpret_cast<const char *>(&header), sizeof(header));
   if (rc != RC::SUCCESS) {
@@ -214,9 +253,12 @@ RC CLogBuffer::write_log_record(CLogFile &log_file, CLogRecord *log_record)
 
   switch (log_record->log_type()) {
     case CLogType::MTR_BEGIN:
-    case CLogType::MTR_COMMIT:
     case CLogType::MTR_ROLLBACK: {
       // do nothing
+    } break;
+
+    case CLogType::MTR_COMMIT: {
+      rc = log_file.write(reinterpret_cast<const char *>(&log_record->commit_record()), log_record->header().logrec_len_);
     } break;
 
     default: {
@@ -411,9 +453,9 @@ RC CLogManager::begin_trx(int32_t trx_id)
   return append_log(CLogRecord::build_mtr_record(CLogType::MTR_BEGIN, trx_id));
 }
 
-RC CLogManager::commit_trx(int32_t trx_id)
+RC CLogManager::commit_trx(int32_t trx_id, int32_t commit_xid)
 {
-  RC rc = append_log(CLogRecord::build_mtr_record(CLogType::MTR_COMMIT, trx_id));
+  RC rc = append_log(CLogRecord::build_commit_record(trx_id, commit_xid));
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to append trx commit log. trx id=%d, rc=%s", trx_id, strrc(rc));
     return rc;
@@ -472,7 +514,7 @@ RC CLogManager::recover(Db *db)
           LOG_WARN("no such trx. trx id=%d, log_record={%s}", log_record.trx_id(), log_record.to_string().c_str());
           return RC::INTERNAL;
         }
-        rc = trx->redo(db, log_record.header(), log_record.data_record());
+        rc = trx->redo(db, log_record);
         if (OB_FAIL(rc)) {
           LOG_WARN("failed to redo log. trx id=%d, log_record={%s}, rc=%s", log_record.trx_id(), log_record.to_string().c_str(), strrc(rc));
           return rc;
@@ -486,8 +528,8 @@ RC CLogManager::recover(Db *db)
             "cannot find such trx. trx id=%d, log_record={%s}",
             log_record.trx_id(),
             log_record.to_string().c_str());
-        const CLogRecordData &data_record = log_record.data_record();
-        rc = trx->redo(db, log_record.header(), data_record);
+        
+        rc = trx->redo(db, log_record);
         if (rc != RC::SUCCESS) {
           LOG_WARN("failed to redo log record. log_record={%s}, rc=%s", log_record.to_string().c_str(), strrc(rc));
           return rc;

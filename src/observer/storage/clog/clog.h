@@ -86,6 +86,18 @@ struct CLogRecordHeader
   std::string to_string() const;
 };
 
+struct CLogRecordCommitData
+{
+  int32_t commit_xid_ = -1; /// 事务提交的事务号
+
+  bool operator == (const CLogRecordCommitData &other) const
+  {
+    return this->commit_xid_ == other.commit_xid_;
+  }
+
+  std::string to_string() const;
+};
+
 struct CLogRecordData
 {
   int32_t          table_id_ = -1;
@@ -115,7 +127,15 @@ public:
   ~CLogRecord();
 
   static CLogRecord *build_mtr_record(CLogType type, int32_t trx_id);
-  static CLogRecord *build_data_record(CLogType type, int32_t trx_id, int32_t table_id, const RID &rid, int32_t data_len, int32_t data_offset, const char *data);
+  static CLogRecord *build_commit_record(int32_t trx_id, int32_t commit_xid);
+  static CLogRecord *build_data_record(CLogType type,
+                                       int32_t trx_id,
+                                       int32_t table_id,
+                                       const RID &rid,
+                                       int32_t data_len,
+                                       int32_t data_offset,
+                                       const char *data);
+  
   static CLogRecord *build(const CLogRecordHeader &header, char *data);
 
   CLogType log_type() const  { return clog_type_from_integer(header_.type_); }
@@ -123,16 +143,20 @@ public:
   int32_t  logrec_len() const { return header_.logrec_len_; }
 
   CLogRecordHeader &header() { return header_; }
+  CLogRecordCommitData &commit_record() { return commit_record_; }
   CLogRecordData   &data_record() { return data_record_; }
 
   const CLogRecordHeader &header() const { return header_; }
+  const CLogRecordCommitData &commit_record() const { return commit_record_; }
   const CLogRecordData   &data_record() const { return data_record_; }
 
   std::string to_string() const;
 
 protected:
   CLogRecordHeader header_;
-  CLogRecordData   data_record_;
+
+  CLogRecordData       data_record_;
+  CLogRecordCommitData commit_record_;
 };
 
 class CLogBuffer 
@@ -208,7 +232,7 @@ public:
                 const char *data);
 
   RC begin_trx(int32_t trx_id);
-  RC commit_trx(int32_t trx_id);
+  RC commit_trx(int32_t trx_id, int32_t commit_xid);
   RC rollback_trx(int32_t trx_id);
 
   RC append_log(CLogRecord *log_record);

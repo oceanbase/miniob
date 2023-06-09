@@ -85,11 +85,12 @@ public:
   RC commit() override;
   RC rollback() override;
 
-  RC redo(Db *db, const CLogRecordHeader &header, const CLogRecordData &data_record) override;
+  RC redo(Db *db, const CLogRecord &log_record) override;
 
   int32_t id() const override { return trx_id_; }
 
 private:
+  RC commit_with_trx_id(int32_t commit_id);
   void trx_fields(Table *table, Field &begin_xid_field, Field &end_xid_field) const;
 
 private:
