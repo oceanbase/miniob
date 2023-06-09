@@ -382,13 +382,11 @@ RC find_table(Db *db, const CLogRecord &log_record, Table *&table)
     case CLogType::INSERT:
     case CLogType::DELETE: {
       const CLogRecordData &data_record = log_record.data_record();
-      if (data_record.table_id_ >= 0) {
-        table = db->find_table(data_record.table_id_);
-        if (nullptr == table) {
-          LOG_WARN("no such table to redo. table id=%d, log record=%s",
-                   data_record.table_id_, log_record.to_string().c_str());
-          return RC::SCHEMA_TABLE_NOT_EXIST;
-        }
+      table = db->find_table(data_record.table_id_);
+      if (nullptr == table) {
+        LOG_WARN("no such table to redo. table id=%d, log record=%s",
+                 data_record.table_id_, log_record.to_string().c_str());
+        return RC::SCHEMA_TABLE_NOT_EXIST;
       }
     } break;
     default:{

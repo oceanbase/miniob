@@ -15,7 +15,7 @@ MESSAGE(STATUS "This is PROJECT_BINARY_DIR dir " ${PROJECT_BINARY_DIR})
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 #SET(LIBRARY_OUTPUT_PATH <路径>)
 
-OPTION(ENABLE_ASAN "Enable build with address sanitizer" ON)
+OPTION(ENABLE_ASAN "Enable build with address sanitizer" OFF)
 OPTION(WITH_UNIT_TESTS "Compile miniob with unit tests" ON)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)
 

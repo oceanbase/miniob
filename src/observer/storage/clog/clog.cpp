@@ -237,18 +237,13 @@ RC CLogBuffer::flush_buffer(CLogFile &log_file)
     // 从队列中取出日志记录然后写入到文件中
     unique_ptr<CLogRecord> log_record = move(log_records_.front());
     log_records_.pop_front();
-    lock_.unlock();
 
     rc = write_log_record(log_file, log_record.get());
-    if (rc != RC::SUCCESS) {
-      LOG_WARN("failed to write log record. log_record=%s, rc=%s", log_record->to_string().c_str(), strrc(rc));
-      lock_.lock();
-      // 写失败了再还回去。这里必须保证还是在原来的位置，所以flush_buffer不能多个线程调用
-      log_records_.emplace_front(move(log_record));
-      lock_.unlock();
-      return rc;
-    }
+    // 当前无法处理日志写不完整的情况，所以直接粗暴退出
+    ASSERT(rc == RC::SUCCESS, "failed to write log record. log_record=%s, rc=%s",
+           log_record->to_string().c_str(), strrc(rc));
 
+    lock_.unlock();
     total_size_ -= log_record->logrec_len();
     count++;
   }
