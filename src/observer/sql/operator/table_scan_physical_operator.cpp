@@ -75,7 +75,7 @@ string TableScanPhysicalOperator::param() const
 
 void TableScanPhysicalOperator::set_predicates(vector<unique_ptr<Expression>> &&exprs)
 {
-  predicates_ = move(exprs);
+  predicates_ = std::move(exprs);
 }
 
 RC TableScanPhysicalOperator::filter(RowTuple &tuple, bool &result)

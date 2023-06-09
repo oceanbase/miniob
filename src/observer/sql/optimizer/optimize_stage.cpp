@@ -252,10 +252,10 @@ RC OptimizeStage::create_select_logical_plan(
 
   unique_ptr<LogicalOperator> project_oper(new ProjectLogicalOperator(all_fields));
   if (predicate_oper) {
-    predicate_oper->add_child(move(table_oper));
-    project_oper->add_child(move(predicate_oper));
+    predicate_oper->add_child(std::move(table_oper));
+    project_oper->add_child(std::move(predicate_oper));
   } else {
-    project_oper->add_child(move(table_oper));
+    project_oper->add_child(std::move(table_oper));
   }
 
   logical_operator.swap(project_oper);
@@ -286,10 +286,10 @@ RC OptimizeStage::create_predicate_logical_plan(
   unique_ptr<PredicateLogicalOperator> predicate_oper;
   if (!cmp_exprs.empty()) {
     unique_ptr<ConjunctionExpr> conjunction_expr(new ConjunctionExpr(ConjunctionExpr::Type::AND, cmp_exprs));
-    predicate_oper = unique_ptr<PredicateLogicalOperator>(new PredicateLogicalOperator(move(conjunction_expr)));
+    predicate_oper = unique_ptr<PredicateLogicalOperator>(new PredicateLogicalOperator(std::move(conjunction_expr)));
   }
 
-  logical_operator = move(predicate_oper);
+  logical_operator = std::move(predicate_oper);
   return RC::SUCCESS;
 }
 
@@ -325,13 +325,13 @@ RC OptimizeStage::create_delete_logical_plan(
   unique_ptr<LogicalOperator> delete_oper(new DeleteLogicalOperator(table));
 
   if (predicate_oper) {
-    predicate_oper->add_child(move(table_get_oper));
-    delete_oper->add_child(move(predicate_oper));
+    predicate_oper->add_child(std::move(table_get_oper));
+    delete_oper->add_child(std::move(predicate_oper));
   } else {
-    delete_oper->add_child(move(table_get_oper));
+    delete_oper->add_child(std::move(table_get_oper));
   }
 
-  logical_operator = move(delete_oper);
+  logical_operator = std::move(delete_oper);
   return rc;
 }
 

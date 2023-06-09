@@ -6,6 +6,7 @@
 .vscode
 !.vscode/tasks.json
 !.vscode/launch.json
+./docs/doxy/
 build/*
 build_*
 cmake-build-*/*
