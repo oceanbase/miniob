@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai.wyl on 2023/06/07
 //
 
+#include <inttypes.h>
+
 #include "storage/clog/clog.h"
 
 using namespace std;
@@ -37,7 +39,7 @@ void dump(const char *filename)
   for (index++, rc = iterator.next(); OB_SUCC(rc) && iterator.valid(); rc = iterator.next(), ++index) {
     const CLogRecord &log_record = iterator.log_record();
     
-    printf("index:%d, file_offset:%ld, %s\n", index, offset, log_record.to_string().c_str());
+    printf("index:%d, file_offset:%" PRId64 ", %s\n", index, offset, log_record.to_string().c_str());
     (void)file.offset(offset);
   }
 
