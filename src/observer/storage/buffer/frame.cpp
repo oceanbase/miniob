@@ -64,7 +64,12 @@ intptr_t get_default_debug_xid()
                  reinterpret_cast<intptr_t>(reinterpret_cast<void*>(pthread_self())) : 
                  reinterpret_cast<intptr_t>(thd);
   #endif
-  return reinterpret_cast<intptr_t>(Session::current_session());
+  Session *session = Session::current_session();
+  if (session == nullptr) {
+    return reinterpret_cast<intptr_t>(reinterpret_cast<void*>(pthread_self()));
+  } else {
+    return reinterpret_cast<intptr_t>(session);
+  }
 }
 
 void Frame::write_latch()

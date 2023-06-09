@@ -32,7 +32,7 @@ See the Mulan PSL v2 for more details. */
 
 class Db;
 class CLogManager;
-struct CLogRecord;
+class CLogRecord;
 
 /**
  * @brief 描述一个操作，比如插入、删除行等
