@@ -31,6 +31,8 @@ public:
   Trx *create_trx(int32_t trx_id) override;
   Trx *find_trx(int32_t trx_id) override;
   void all_trxes(std::vector<Trx *> &trxes) override;
+
+  void destroy_trx(Trx *trx) override;
 };
 
 class VacuousTrx : public Trx

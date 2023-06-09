@@ -33,6 +33,7 @@ See the Mulan PSL v2 for more details. */
 class Db;
 class CLogManager;
 class CLogRecord;
+class Trx;
 
 /**
  * @brief 描述一个操作，比如插入、删除行等
@@ -109,6 +110,8 @@ public:
   virtual Trx *create_trx(int32_t trx_id) = 0;
   virtual Trx *find_trx(int32_t trx_id) = 0;
   virtual void all_trxes(std::vector<Trx *> &trxes) = 0;
+
+  virtual void destroy_trx(Trx *trx) = 0;
 
 public:
   static TrxKit *create(const char *name);

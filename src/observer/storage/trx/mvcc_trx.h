@@ -30,6 +30,7 @@ public:
   const std::vector<FieldMeta> *trx_fields() const override;
   Trx *create_trx(CLogManager *log_manager) override;
   Trx *create_trx(int32_t trx_id) override;
+  void destroy_trx(Trx *trx) override;
 
   /**
    * @brief 找到对应事务号的事务
@@ -39,8 +40,6 @@ public:
   void all_trxes(std::vector<Trx *> &trxes) override;
 
 public:
-  // void    register(Trx *trx);
-  void    unregister(Trx *trx);
   int32_t next_trx_id();
 
 public:

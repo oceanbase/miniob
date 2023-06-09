@@ -82,6 +82,15 @@ Trx *MvccTrxKit::create_trx(int32_t trx_id)
   return trx;
 }
 
+void MvccTrxKit::destroy_trx(Trx *trx)
+{
+  lock_.lock();
+  erase(trxes_, trx);
+  lock_.unlock();
+
+  delete trx;
+}
+
 Trx *MvccTrxKit::find_trx(int32_t trx_id)
 {
   lock_.lock();
@@ -103,26 +112,6 @@ void MvccTrxKit::all_trxes(std::vector<Trx *> &trxes)
   lock_.unlock();
 }
 
-#if 0
-void MvccTrxKit::register(Trx *_trx)
-{
-  lock_guard<Mutex> lock_guard(lock_);
-  for (Trx *trx : trxes_) {
-    if (trx == _trx) {
-      return;
-    }
-  }
-  trxes_.push_back(_trx);
-}
-#endif
-
-void MvccTrxKit::unregister(Trx *_trx)
-{
-  lock_.lock();
-  erase(trxes_, _trx);
-  lock_.unlock();
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 MvccTrx::MvccTrx(MvccTrxKit &kit, CLogManager *log_manager) : trx_kit_(kit), log_manager_(log_manager)
@@ -136,7 +125,6 @@ MvccTrx::MvccTrx(MvccTrxKit &kit, int32_t trx_id) : trx_kit_(kit), trx_id_(trx_i
 
 MvccTrx::~MvccTrx()
 {
-  trx_kit_.unregister(this);
 }
 
 RC MvccTrx::insert_record(Table *table, Record &record)

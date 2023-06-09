@@ -36,6 +36,9 @@ Trx *VacuousTrxKit::create_trx(int32_t /*trx_id*/)
   return nullptr;
 }
 
+void VacuousTrxKit::destroy_trx(Trx *)
+{}
+
 Trx *VacuousTrxKit::find_trx(int32_t /* trx_id */)
 {
   return nullptr;

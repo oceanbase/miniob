@@ -29,8 +29,10 @@ Session::Session(const Session &other) : db_(other.db_)
 
 Session::~Session()
 {
-  delete trx_;
-  trx_ = nullptr;
+  if (nullptr != trx_) {
+    GCTX.trx_kit_->destroy_trx(trx_);
+    trx_ = nullptr;
+  }
 }
 
 const char *Session::get_current_db_name() const

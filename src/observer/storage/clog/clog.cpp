@@ -24,6 +24,9 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
+/**
+ * @brief 当前的日志使用固定的文件名，而且就这一个文件
+ */
 const char *CLOG_FILE_NAME = "clog";
 
 const char *clog_type_name(CLogType type)
@@ -70,6 +73,12 @@ string CLogRecordCommitData::to_string() const
 
 const int32_t CLogRecordData::HEADER_SIZE = sizeof(CLogRecordData) - sizeof(CLogRecordData::data_);
 
+CLogRecordData::~CLogRecordData()
+{
+  if (data_ == nullptr) {
+    delete[] data_;
+  }
+}
 string CLogRecordData::to_string() const
 {
   stringstream ss;
@@ -158,6 +167,7 @@ CLogRecord *CLogRecord::build(const CLogRecordHeader &header, char *data)
 
     LOG_DEBUG("got an commit record %s", log_record->to_string().c_str());
   } else {
+    /// 当前日志拥有数据，但是不是COMMIT，就认为是普通的修改数据的日志，简单粗暴
     CLogRecordData &data_record = log_record->data_record();
     memcpy(reinterpret_cast<void *>(&data_record), data, CLogRecordData::HEADER_SIZE);
     if (header.logrec_len_ > CLogRecordData::HEADER_SIZE) {
@@ -200,6 +210,7 @@ RC CLogBuffer::append_log_record(CLogRecord *log_record)
     return RC::INVALID_ARGUMENT;
   }
 
+  /// total_size_ 的计算没有考虑日志头
   if (total_size_ + log_record->logrec_len() >= CLOG_BUFFER_SIZE) {
     return RC::LOGBUF_FULL;
   }
@@ -222,6 +233,8 @@ RC CLogBuffer::flush_buffer(CLogFile &log_file)
       return RC::SUCCESS;
     }
 
+    // log buffer 需要支持并发，所以要考虑加锁
+    // 从队列中取出日志记录然后写入到文件中
     unique_ptr<CLogRecord> log_record = move(log_records_.front());
     log_records_.pop_front();
     lock_.unlock();
@@ -230,10 +243,13 @@ RC CLogBuffer::flush_buffer(CLogFile &log_file)
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to write log record. log_record=%s, rc=%s", log_record->to_string().c_str(), strrc(rc));
       lock_.lock();
+      // 写失败了再还回去。这里必须保证还是在原来的位置，所以flush_buffer不能多个线程调用
       log_records_.emplace_front(move(log_record));
       lock_.unlock();
       return rc;
     }
+
+    total_size_ -= log_record->logrec_len();
     count++;
   }
 
@@ -243,7 +259,7 @@ RC CLogBuffer::flush_buffer(CLogFile &log_file)
 
 RC CLogBuffer::write_log_record(CLogFile &log_file, CLogRecord *log_record)
 {
-  // TODO 看起来使用serialize 接口更好一点
+  // TODO 看起来每种类型的日志自己实现 serialize 接口更好一点
   const CLogRecordHeader &header = log_record->header();
   RC rc = log_file.write(reinterpret_cast<const char *>(&header), sizeof(header));
   if (rc != RC::SUCCESS) {
@@ -258,7 +274,8 @@ RC CLogBuffer::write_log_record(CLogFile &log_file, CLogRecord *log_record)
     } break;
 
     case CLogType::MTR_COMMIT: {
-      rc = log_file.write(reinterpret_cast<const char *>(&log_record->commit_record()), log_record->header().logrec_len_);
+      rc = log_file.write(reinterpret_cast<const char *>(&log_record->commit_record()), 
+                          log_record->header().logrec_len_);
     } break;
 
     default: {
@@ -461,7 +478,7 @@ RC CLogManager::commit_trx(int32_t trx_id, int32_t commit_xid)
     return rc;
   }
 
-  rc = sync(); // TODO add lsn
+  rc = sync(); // 事务提交时需要把当前事务关联的日志，都写入到磁盘中，这样做是保证不丢数据
   return rc;
 }
 
@@ -495,6 +512,8 @@ RC CLogManager::recover(Db *db)
   TrxKit *trx_manager = GCTX.trx_kit_;
   ASSERT(trx_manager != nullptr, "cannot do recover that trx_manager is null");
 
+  /// 遍历所有的日志，然后做redo
+  // 在做redo时，需要记录处理的事务。在所有的日志都重做完成时，如果有事务没有结束，那这些事务就需要回滚
   for (rc = log_record_iterator.next(); OB_SUCC(rc) && log_record_iterator.valid(); rc = log_record_iterator.next()) {
     const CLogRecord &log_record = log_record_iterator.log_record();
     LOG_TRACE("begin to redo log={%s}", log_record.to_string().c_str());
@@ -516,18 +535,19 @@ RC CLogManager::recover(Db *db)
         }
         rc = trx->redo(db, log_record);
         if (OB_FAIL(rc)) {
-          LOG_WARN("failed to redo log. trx id=%d, log_record={%s}, rc=%s", log_record.trx_id(), log_record.to_string().c_str(), strrc(rc));
+          LOG_WARN("failed to redo log. trx id=%d, log_record={%s}, rc=%s", 
+                   log_record.trx_id(), log_record.to_string().c_str(), strrc(rc));
           return rc;
         }
-        delete trx;
+
       } break;
 
       default: {
         Trx *trx = GCTX.trx_kit_->find_trx(log_record.trx_id());
         ASSERT(trx != nullptr,
-            "cannot find such trx. trx id=%d, log_record={%s}",
-            log_record.trx_id(),
-            log_record.to_string().c_str());
+              "cannot find such trx. trx id=%d, log_record={%s}",
+              log_record.trx_id(),
+              log_record.to_string().c_str());
         
         rc = trx->redo(db, log_record);
         if (rc != RC::SUCCESS) {
@@ -542,14 +562,19 @@ RC CLogManager::recover(Db *db)
 
   if (rc == RC::RECORD_EOF) {
     rc = RC::SUCCESS;
+  } else {
+    LOG_ERROR("failed to redo log iterator. rc=%s", strrc(rc));
+    return rc;
   }
 
   LOG_TRACE("recover redo log done");
 
   vector<Trx *> uncommitted_trxes;
   trx_manager->all_trxes(uncommitted_trxes);
+  LOG_INFO("find %d uncommitted trx", uncommitted_trxes.size());
   for (Trx *trx : uncommitted_trxes) {
     trx->rollback();
+    trx_manager->destroy_trx(trx);
   }
 
   return RC::SUCCESS;
