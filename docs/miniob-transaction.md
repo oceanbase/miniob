@@ -183,11 +183,7 @@ MVCC很好的处理了只读事务与写事务的并发，只读事务可以在�
 
 - [A Critique of ANSI SQL Isolation Levels](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-95-51.pdf) 该论文针对ANSI SQL标准中隔离级别的定义进行了深入的分析，提出了一些改进的建议。天天看到RC/RR名词的，可以看看这篇论文，了解更详细一点。
 
-- [ARIES: A Transaction Recovery Method Supporting Fine-Granularity Locking and Partial Rollbacks Using Write-Ahead Logging](https://github.com/tpn/pdfs/blob/master/ARIES%20-%20A%20Transaction%20Recovery%20Method%20Supporting%20Fine-Granularity%20Locking%20and%20Partial%20Rollbacks%20Using%20Write-Ahead%20Logging%20(1992).pdf) 该论文提出了ARIES算法，这是一种基于日志记录的恢复算法，支持细粒度锁和部分回滚，可以在数据库崩溃时恢复事务。如果想要对steal/no-force的概念有比较详细的了解，可以直接阅读该论文相关部分。
-
 - [Granularity of Locks and Degrees of Consistency in a Shared Data Base](https://web.stanford.edu/class/cs245/readings/granularity-of-locks.pdf) 这也是一个又老又香的论文，提出了基于锁的并发控制。
-
-- [Aether: A Scalable Approach to Logging](http://www.pandis.net/resources/vldb10aether.pdf) 介绍可扩展日志系统的。
 
 - [An Empirical Evaluation of InMemory Multi-Version Concurrency Control](https://www.vldb.org/pvldb/vol10/p781-Wu.pdf) 介绍MVCC可扩展性的。通过这篇论文可以对MVCC有非常清晰的认识。
 
