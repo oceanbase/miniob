@@ -12,11 +12,10 @@ MESSAGE(STATUS "This is BINARY dir " ${test_BINARY_DIR})
 MESSAGE(STATUS "This is Project source dir " ${PROJECT_SOURCE_DIR})
 MESSAGE(STATUS "This is PROJECT_BINARY_DIR dir " ${PROJECT_BINARY_DIR})
 
-
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 #SET(LIBRARY_OUTPUT_PATH <路径>)
 
-OPTION(ENABLE_ASAN "Enable build with address sanitizer" ON)
+OPTION(ENABLE_ASAN "Enable build with address sanitizer" OFF)
 OPTION(WITH_UNIT_TESTS "Compile miniob with unit tests" ON)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)
 
@@ -81,9 +80,11 @@ MESSAGE("Install target dir is " ${CMAKE_INSTALL_PREFIX})
 
 # ADD_SUBDIRECTORY(src bin)  bin 为目标目录， 可以省略
 ADD_SUBDIRECTORY(deps)
-ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(src/obclient)
+ADD_SUBDIRECTORY(src/observer)
 ADD_SUBDIRECTORY(test/perf)
 ADD_SUBDIRECTORY(benchmark)
+ADD_SUBDIRECTORY(tools)
 
 IF(WITH_UNIT_TESTS)
     enable_testing()

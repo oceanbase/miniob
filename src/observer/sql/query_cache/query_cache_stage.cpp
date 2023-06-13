@@ -62,36 +62,25 @@ bool QueryCacheStage::set_properties()
 //! Initialize stage params and validate outputs
 bool QueryCacheStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
   parser_stage_ = *(stgp++);
 
-  LOG_TRACE("Exit");
   return true;
 }
 
 //! Cleanup after disconnection
 void QueryCacheStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
-  LOG_TRACE("Exit");
 }
 
 void QueryCacheStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
-
   parser_stage_->handle_event(event);
 
-  LOG_TRACE("Exit\n");
   return;
 }
 
 void QueryCacheStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
-  LOG_TRACE("Exit\n");
   return;
 }

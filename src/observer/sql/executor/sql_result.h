@@ -39,10 +39,8 @@ public:
     state_string_ = state_string;
   }
 
-  void set_operator(std::unique_ptr<PhysicalOperator> oper)
-  {
-    operator_ = std::move(oper);
-  }
+  void set_operator(std::unique_ptr<PhysicalOperator> oper);
+  
   bool has_operator() const
   {
     return operator_ != nullptr;

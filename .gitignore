@@ -3,6 +3,9 @@
 ./deps/googletest
 ./deps/jsoncpp
 ./deps/benchmark
+.vscode
+!.vscode/tasks.json
+!.vscode/launch.json
 ./docs/doxy/
 build/*
 build_*

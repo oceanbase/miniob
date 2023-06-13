@@ -23,7 +23,8 @@ class SessionEvent;
 class Stmt;
 class Command;
 
-class SQLStageEvent : public common::StageEvent {
+class SQLStageEvent : public common::StageEvent
+{
 public:
   SQLStageEvent(SessionEvent *event, const std::string &sql);
   virtual ~SQLStageEvent() noexcept;

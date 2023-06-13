@@ -31,3 +31,8 @@ int Field::get_int(const Record &record)
   TupleCell cell(field_, const_cast<char *>(record.data() + field_->offset()), field_->len());
   return cell.get_int();
 }
+
+const char *Field::get_data(const Record &record)
+{
+  return record.data() + field_->offset();
+}

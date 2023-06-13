@@ -76,30 +76,22 @@ bool MetricsStage::set_properties()
 // Initialize stage params and validate outputs
 bool MetricsStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
   timer_stage_ = *(stgp++);
 
   MetricsReportEvent *report_event = new MetricsReportEvent();
 
   add_event(report_event);
-  LOG_TRACE("Exit");
   return true;
 }
 
 // Cleanup after disconnection
 void MetricsStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
-  LOG_TRACE("Exit");
 }
 
 void MetricsStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
-
   CompletionCallback *cb = new CompletionCallback(this, NULL);
   if (cb == NULL) {
     LOG_ERROR("Failed to new callback");
@@ -123,14 +115,11 @@ void MetricsStage::handle_event(StageEvent *event)
   event->push_callback(cb);
   timer_stage_->add_event(tm_event);
 
-  LOG_TRACE("Exit\n");
   return;
 }
 
 void MetricsStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
-
   MetricsRegistry &metrics_registry = get_metrics_registry();
 
   metrics_registry.snapshot();
@@ -139,6 +128,5 @@ void MetricsStage::callback_event(StageEvent *event, CallbackContext *context)
   // do it again.
   add_event(event);
 
-  LOG_TRACE("Exit\n");
   return;
 }

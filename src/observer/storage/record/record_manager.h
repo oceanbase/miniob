@@ -26,7 +26,10 @@ class Trx;
 class Table;
 
 /**
- * 这里负责管理在一个文件上表记录(行)的组织/管理
+ * @defgroup RecordManager
+ * @file record_manager.h
+ * 
+ * @brief 这里负责管理在一个文件上表记录(行)的组织/管理
  *
  * 表记录管理的内容包括如何在文件上存放、读取、检索。也就是记录的增删改查。
  * 这里的文件都会被拆分成页面，每个页面都有一样的大小。更详细的信息可以参考BufferPool。
@@ -59,15 +62,17 @@ class Table;
  */
 struct PageHeader
 {
-  int32_t record_num;           // 当前页面记录的个数
-  int32_t record_capacity;      // 最大记录个数
+  int32_t record_num;           /// 当前页面记录的个数
+  int32_t record_capacity;      /// 最大记录个数
   int32_t record_real_size;     // 每条记录的实际大小
   int32_t record_size;          // 每条记录占用实际空间大小(可能对齐)
   int32_t first_record_offset;  // 第一条记录的偏移量
 };
 
 /**
- * 遍历一个页面中每条记录的iterator
+ * @ingroup RecordManager
+ * 
+ * @brief 遍历一个页面中每条记录的iterator
  */
 class RecordPageIterator
 {
@@ -96,14 +101,12 @@ private:
 };
 
 /**
- * 负责处理一个页面中各种操作，比如插入记录、删除记录或者查找记录
+ * @brief 负责处理一个页面中各种操作，比如插入记录、删除记录或者查找记录
  *
  * 当前定长记录模式下每个页面的组织大概是这样的：
- * |-------------------------------------|
  * | PageHeader | record allocate bitmap |
- * |-------------------------------------|
+ * |------------|------------------------|
  * | record1 | record2 | ..... | recordN |
- * |-------------------------------------|
  */
 class RecordPageHandler
 {
@@ -120,7 +123,12 @@ public:
    */
   RC init(DiskBufferPool &buffer_pool, PageNum page_num, bool readonly);
 
-  /// 当前所有的recover函数都没有使用,可以忽略
+  /**
+   * @brief 数据库恢复时，与普通的运行场景有所不同，不做任何并发操作，也不需要加锁
+   * 
+   * @param buffer_pool 关联某个文件时，都通过buffer pool来做读写文件
+   * @param page_num    操作的页面编号
+   */
   RC recover_init(DiskBufferPool &buffer_pool, PageNum page_num);
 
   /**
@@ -144,7 +152,14 @@ public:
    * @param rid  如果插入成功，通过这个参数返回插入的位置
    */
   RC insert_record(const char *data, RID *rid);
-  RC recover_insert_record(const char *data, RID *rid);
+
+  /**
+   * @brief 数据库恢复时，在指定位置插入数据
+   * 
+   * @param data 要插入的数据行
+   * @param rid  插入的位置
+   */
+  RC recover_insert_record(const char *data, const RID &rid);
 
   /**
    * @brief 删除指定的记录
@@ -175,11 +190,11 @@ protected:
   }
 
 protected:
-  DiskBufferPool *disk_buffer_pool_ = nullptr;  // 当前操作的buffer pool(文件)
-  bool            readonly_         = false;    // 当前的操作是否都是只读的
-  Frame *frame_ = nullptr;  // 当前操作页面关联的frame(frame的更多概念可以参考buffer pool和frame)
-  PageHeader *page_header_ = nullptr;  // 当前页面上页面头
-  char       *bitmap_      = nullptr;  // 当前页面上record分配状态信息bitmap内存起始位置
+  DiskBufferPool *disk_buffer_pool_ = nullptr;  /// 当前操作的buffer pool(文件)
+  bool            readonly_         = false;    /// 当前的操作是否都是只读的
+  Frame *frame_ = nullptr;  /// 当前操作页面关联的frame(frame的更多概念可以参考buffer pool和frame)
+  PageHeader *page_header_ = nullptr;  /// 当前页面上页面头
+  char       *bitmap_      = nullptr;  /// 当前页面上record分配状态信息bitmap内存起始位置
 
 private:
   friend class RecordPageIterator;
@@ -216,7 +231,7 @@ public:
    * 插入一个新的记录到指定文件中，data为指向新纪录内容的指针，返回该记录的标识符rid
    */
   RC insert_record(const char *data, int record_size, RID *rid);
-  RC recover_insert_record(const char *data, int record_size, RID *rid);
+  RC recover_insert_record(const char *data, int record_size, const RID &rid);
 
   /**
    * 获取指定文件中标识符为rid的记录内容到rec指向的记录结构中
@@ -247,8 +262,8 @@ private:
 
 private:
   DiskBufferPool             *disk_buffer_pool_ = nullptr;
-  std::unordered_set<PageNum> free_pages_;  // 没有填充满的页面集合
-  common::Mutex               lock_;  // 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
+  std::unordered_set<PageNum> free_pages_;  /// 没有填充满的页面集合
+  common::Mutex               lock_;  /// 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
 };
 
 /**
@@ -285,14 +300,15 @@ private:
   RC fetch_next_record_in_page();
 
 private:
-  Table *table_ = nullptr;  // 当前遍历的是哪张表。这个字段仅供事务函数使用，如果设计合适，可以去掉
-  DiskBufferPool *disk_buffer_pool_ = nullptr;  // 当前访问的文件
-  Trx            *trx_              = nullptr;  // 当前是哪个事务在遍历
-  bool            readonly_         = false;    // 遍历出来的数据，是否可能对它做修改
+  // TODO 对于一个纯粹的record遍历器来说，不应该关心表和事务
+  Table *table_ = nullptr;  /// 当前遍历的是哪张表。这个字段仅供事务函数使用，如果设计合适，可以去掉
+  DiskBufferPool *disk_buffer_pool_ = nullptr;  /// 当前访问的文件
+  Trx            *trx_              = nullptr;  /// 当前是哪个事务在遍历
+  bool            readonly_         = false;    /// 遍历出来的数据，是否可能对它做修改
 
-  BufferPoolIterator bp_iterator_;                 // 遍历buffer pool的所有页面
-  ConditionFilter   *condition_filter_ = nullptr;  // 过滤record
+  BufferPoolIterator bp_iterator_;                 /// 遍历buffer pool的所有页面
+  ConditionFilter   *condition_filter_ = nullptr;  /// 过滤record
   RecordPageHandler  record_page_handler_;
-  RecordPageIterator record_page_iterator_;  // 遍历某个页面上的所有record
+  RecordPageIterator record_page_iterator_;  /// 遍历某个页面上的所有record
   Record             next_record_;
 };

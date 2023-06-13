@@ -37,7 +37,6 @@ Db::~Db()
 
 RC Db::init(const char *name, const char *dbpath)
 {
-
   if (common::is_blank(name)) {
     LOG_ERROR("Failed to init DB, name cannot be empty");
     return RC::INVALID_ARGUMENT;
@@ -48,16 +47,33 @@ RC Db::init(const char *name, const char *dbpath)
     return RC::INTERNAL;
   }
 
-  clog_manager_ = new CLogManager(dbpath);
+  clog_manager_.reset(new CLogManager());
   if (clog_manager_ == nullptr) {
     LOG_ERROR("Failed to init CLogManager.");
-    return RC::INTERNAL;
+    return RC::NOMEM;
+  }
+
+  RC rc = clog_manager_->init(dbpath);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to init clog manager. dbpath=%s, rc=%s", dbpath, strrc(rc));
+    return rc;
   }
 
   name_ = name;
   path_ = dbpath;
 
-  return open_all_tables();
+  rc = open_all_tables();
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to open all tables. dbpath=%s, rc=%s", dbpath, strrc(rc));
+    return rc;
+  }
+
+  rc = recover();
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to recover db. dbpath=%s, rc=%s", dbpath, strrc(rc));
+    return rc;
+  }
+  return rc;
 }
 
 RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo *attributes)
@@ -72,8 +88,7 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo 
   // 文件路径可以移到Table模块
   std::string table_file_path = table_meta_file(path_.c_str(), table_name);
   Table *table = new Table();
-  rc = table->create(
-      table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes);
+  rc = table->create(next_table_id_++, table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;
@@ -90,6 +105,16 @@ Table *Db::find_table(const char *table_name) const
   std::unordered_map<std::string, Table *>::const_iterator iter = opened_tables_.find(table_name);
   if (iter != opened_tables_.end()) {
     return iter->second;
+  }
+  return nullptr;
+}
+
+Table *Db::find_table(int32_t table_id) const
+{
+  for (auto pair : opened_tables_) {
+    if (pair.second->table_id() == table_id) {
+      return pair.second;
+    }
   }
   return nullptr;
 }
@@ -121,6 +146,9 @@ RC Db::open_all_tables()
       return RC::INTERNAL;
     }
 
+    if (table->table_id() >= next_table_id_) {
+      next_table_id_ = table->table_id();
+    }
     opened_tables_[table->name()] = table;
     LOG_INFO("Open table: %s, file: %s", table->name(), filename.c_str());
   }
@@ -157,78 +185,12 @@ RC Db::sync()
   return rc;
 }
 
-#if 0
 RC Db::recover()
 {
-  RC rc = RC::SUCCESS;
-  if ((rc = clog_manager_->recover()) == RC::SUCCESS) {
-    int32_t max_trx_id = 0;
-    CLogMTRManager *mtr_manager = clog_manager_->get_mtr_manager();
-    for (auto it = mtr_manager->log_redo_list.begin(); it != mtr_manager->log_redo_list.end(); it++) {
-      CLogRecord *clog_record = *it;
-      if (clog_record->get_log_type() != CLogType::REDO_INSERT &&
-          clog_record->get_log_type() != CLogType::REDO_DELETE) {
-        delete clog_record;
-        continue;
-      }
-      auto find_iter = mtr_manager->trx_commited.find(clog_record->get_trx_id());
-      if (find_iter == mtr_manager->trx_commited.end()) {
-        LOG_ERROR("CLog record without commit message! ");  // unexpected error
-        delete clog_record;
-        return RC::INTERNAL;
-      } else if (find_iter->second == false) {
-        delete clog_record;
-        continue;
-      }
-
-      Table *table = find_table(clog_record->log_record_.ins.table_name_);
-      if (table == nullptr) {
-        delete clog_record;
-        continue;
-      }
-
-      switch (clog_record->get_log_type()) {
-        case CLogType::REDO_INSERT: {
-          char *record_data = new char[clog_record->log_record_.ins.data_len_];
-          memcpy(record_data, clog_record->log_record_.ins.data_, clog_record->log_record_.ins.data_len_);
-          Record record;
-          record.set_data(record_data);
-          record.set_rid(clog_record->log_record_.ins.rid_);
-
-          rc = table->recover_insert_record(&record);
-          delete[] record_data;
-        } break;
-        case CLogType::REDO_DELETE: {
-          Record record;
-          record.set_rid(clog_record->log_record_.del.rid_);
-          rc = table->recover_delete_record(&record);
-        } break;
-        default: {
-          rc = RC::SUCCESS;
-        }
-      }
-
-      if (rc != RC::SUCCESS) {
-        LOG_ERROR("Failed to recover. rc=%d:%s", rc, strrc(rc));
-        break;
-      }
-
-      if (max_trx_id < clog_record->get_trx_id()) {
-        max_trx_id = clog_record->get_trx_id();
-      }
-      delete clog_record;
-    }
-
-    if (rc == RC::SUCCESS && max_trx_id > 0) {
-      Trx::set_trx_id(max_trx_id);
-    }
-  }
-
-  return rc;
+  return clog_manager_->recover(this);
 }
-#endif
 
-CLogManager *Db::get_clog_manager()
+CLogManager *Db::clog_manager()
 {
-  return clog_manager_;
+  return clog_manager_.get();
 }

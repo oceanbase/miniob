@@ -36,14 +36,12 @@ namespace common {
  */
 Stage::Stage(const char *tag) : next_stage_list_(), event_list_(), connected_(false), event_ref_(0)
 {
-  LOG_TRACE("%s", "enter");
   assert(tag != NULL);
 
   MUTEX_INIT(&list_mutex_, NULL);
   COND_INIT(&disconnect_cond_, NULL);
   stage_name_ = new char[strlen(tag) + 1];
   snprintf(stage_name_, strlen(tag) + 1, "%s", tag);
-  LOG_TRACE("%s", "exit");
 }
 
 /**
@@ -53,7 +51,6 @@ Stage::Stage(const char *tag) : next_stage_list_(), event_list_(), connected_(fa
  */
 Stage::~Stage()
 {
-  LOG_TRACE("%s", "enter");
   assert(!connected_);
   MUTEX_LOCK(&list_mutex_);
   while (event_list_.size() > 0) {
@@ -66,7 +63,6 @@ Stage::~Stage()
   MUTEX_DESTROY(&list_mutex_);
   COND_DESTROY(&disconnect_cond_);
   delete[] stage_name_;
-  LOG_TRACE("%s", "exit");
 }
 
 /**

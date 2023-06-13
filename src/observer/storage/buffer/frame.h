@@ -24,6 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/page.h"
 #include "common/log/log.h"
 #include "common/lang/mutex.h"
+#include "defs.h"
 
 class FrameId 
 {
@@ -46,7 +47,7 @@ class Frame
 public:
   ~Frame()
   {
-    LOG_INFO("deallocate frame. this=%p, lbt=%s", this, common::lbt());
+    // LOG_DEBUG("deallocate frame. this=%p, lbt=%s", this, common::lbt());
   }
 
   /**

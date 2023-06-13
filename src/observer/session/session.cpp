@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/trx.h"
 #include "storage/common/db.h"
 #include "storage/default/default_handler.h"
+#include "global_context.h"
 
 Session &Session::default_session()
 {
@@ -28,8 +29,10 @@ Session::Session(const Session &other) : db_(other.db_)
 
 Session::~Session()
 {
-  delete trx_;
-  trx_ = nullptr;
+  if (nullptr != trx_) {
+    GCTX.trx_kit_->destroy_trx(trx_);
+    trx_ = nullptr;
+  }
 }
 
 const char *Session::get_current_db_name() const
@@ -71,7 +74,19 @@ bool Session::is_trx_multi_operation_mode() const
 Trx *Session::current_trx()
 {
   if (trx_ == nullptr) {
-    trx_ = TrxKit::instance()->create_trx();
+    trx_ = GCTX.trx_kit_->create_trx(db_->clog_manager());
   }
   return trx_;
+}
+
+thread_local Session *thread_session = nullptr;
+
+void Session::set_current_session(Session *session)
+{
+  thread_session = session;
+}
+
+Session *Session::current_session()
+{
+  return thread_session;
 }

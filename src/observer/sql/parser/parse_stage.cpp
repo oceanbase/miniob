@@ -65,13 +65,10 @@ bool ParseStage::set_properties()
 //! Initialize stage params and validate outputs
 bool ParseStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
   // optimize_stage_ = *(stgp++);
   resolve_stage_ = *(stgp++);
 
-  LOG_TRACE("Exit");
   return true;
 }
 
@@ -85,8 +82,6 @@ void ParseStage::cleanup()
 
 void ParseStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
-
   RC rc = handle_request(event);
   if (RC::SUCCESS != rc) {
     callback_event(event, nullptr);
@@ -104,17 +99,14 @@ void ParseStage::handle_event(StageEvent *event)
   resolve_stage_->handle_event(event);
   event->done_immediate();
 
-  LOG_TRACE("Exit\n");
   return;
 }
 
 void ParseStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   sql_event->session_event()->done_immediate();
   sql_event->done_immediate();
-  LOG_TRACE("Exit\n");
   return;
 }
 

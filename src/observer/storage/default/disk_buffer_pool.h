@@ -123,7 +123,7 @@ private:
   FrameAllocator allocator_;
 };
 
-class BufferPoolIterator 
+class BufferPoolIterator
 {
 public:
   BufferPoolIterator();
@@ -172,26 +172,28 @@ public:
    */
   RC allocate_page(Frame **frame);
 
+  /**
+   * @brief 释放某个页面，将此页面设置为未分配状态
+   * 
+   * @param page_num 待释放的页面
+   */
   RC dispose_page(PageNum page_num);
 
   /**
-   * 释放指定文件关联的页的内存， 如果已经脏， 则刷到磁盘，除了pinned page
+   * @brief 释放指定文件关联的页的内存
+   * 如果已经脏， 则刷到磁盘，除了pinned page
    */
   RC purge_page(PageNum page_num);
   RC purge_all_pages();
 
   /**
-   * 此函数用于解除pageHandle对应页面的驻留缓冲区限制。
+   * @brief 用于解除pageHandle对应页面的驻留缓冲区限制
+   * 
    * 在调用GetThisPage或AllocatePage函数将一个页面读入缓冲区后，
    * 该页面被设置为驻留缓冲区状态，以防止其在处理过程中被置换出去，
    * 因此在该页面使用完之后应调用此函数解除该限制，使得该页面此后可以正常地被淘汰出缓冲区
    */
   RC unpin_page(Frame *frame);
-
-  /**
-   * 获取文件的总页数
-   */
-  RC get_page_count(int *page_count);
 
   /**
    * 检查是否所有页面都是pin count == 0状态(除了第1个页面)
@@ -253,7 +255,7 @@ private:
 class BufferPoolManager 
 {
 public:
-  BufferPoolManager(int page_num = 0);
+  BufferPoolManager(int memory_size = 0);
   ~BufferPoolManager();
 
   RC create_file(const char *file_name);

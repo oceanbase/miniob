@@ -164,7 +164,8 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   }
 
   RC rc = sql_result->open();
-  if (rc != RC::SUCCESS) {
+  if (OB_FAIL(rc)) {
+    sql_result->close();
     sql_result->set_return_code(rc);
     return write_state(event, need_disconnect);
   }
@@ -276,7 +277,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   }
 
   RC rc_close = sql_result->close();
-  if (rc == RC::SUCCESS) {
+  if (OB_SUCC(rc)) {
     rc = rc_close;
   }
   return rc;

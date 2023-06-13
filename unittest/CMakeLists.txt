@@ -1,18 +1,12 @@
-PROJECT(unittest)
-MESSAGE("Begin to build " ${PROJECT_NAME})
-MESSAGE(STATUS "This is PROJECT_BINARY_DIR dir " ${PROJECT_BINARY_DIR})
-MESSAGE(STATUS "This is PROJECT_SOURCE_DIR dir " ${PROJECT_SOURCE_DIR})
-
-
 # 可以获取父cmake的变量
 MESSAGE("${CMAKE_COMMON_FLAGS}")
 
 
 #INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)
-INCLUDE_DIRECTORIES(. ${PROJECT_SOURCE_DIR}/../deps ${PROJECT_SOURCE_DIR}/../src/observer /usr/local/include SYSTEM)
+INCLUDE_DIRECTORIES(. ${PROJECT_SOURCE_DIR}/deps ${PROJECT_SOURCE_DIR}/src/observer /usr/local/include)
 # 父cmake 设置的include_directories 和link_directories并不传导到子cmake里面
 #INCLUDE_DIRECTORIES(BEFORE ${CMAKE_INSTALL_PREFIX}/include)
-LINK_DIRECTORIES(/usr/local/lib /usr/local/lib64 ${PROJECT_BINARY_DIR}/../lib)
+LINK_DIRECTORIES(/usr/local/lib /usr/local/lib64 ${PROJECT_BINARY_DIR}/lib)
 
 
 IF (DEFINED ENV{LD_LIBRARY_PATH})

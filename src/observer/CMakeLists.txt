@@ -24,7 +24,7 @@ FOREACH (F ${ALL_SRC})
 
 ENDFOREACH (F)
 
-SET(LIBRARIES common pthread dl event_pthreads event libjsoncpp.a)
+SET(LIBRARIES common pthread dl libevent_pthreads.a libevent.a libjsoncpp.a)
 
 # 指定目标文件位置
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../../bin)
@@ -37,7 +37,6 @@ MESSAGE("Archive directory:" ${LIBRARY_OUTPUT_PATH})
 ADD_LIBRARY(${PROJECT_NAME}_static STATIC ${LIB_SRC})
 SET_TARGET_PROPERTIES(${PROJECT_NAME}_static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}_static ${LIBRARIES})
-
 
 # Target 必须在定义 ADD_EXECUTABLE 之后， programs 不受这个限制
 # TARGETS和PROGRAMS 的默认权限是OWNER_EXECUTE, GROUP_EXECUTE, 和WORLD_EXECUTE，即755权限， programs 都是处理脚本类

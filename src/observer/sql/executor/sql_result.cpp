@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/sql_result.h"
 #include "session/session.h"
 #include "storage/trx/trx.h"
+#include "common/log/log.h"
 
 SqlResult::SqlResult(Session *session) : session_(session)
 {}
@@ -70,4 +71,10 @@ RC SqlResult::next_tuple(Tuple *&tuple)
 
   tuple = operator_->current_tuple();
   return rc;
+}
+
+void SqlResult::set_operator(std::unique_ptr<PhysicalOperator> oper)
+{
+  ASSERT(operator_ == nullptr, "current operator is not null. Result is not closed?");
+  operator_ = std::move(oper);
 }

@@ -44,6 +44,8 @@ Log::Log(const std::string &log_file_name, const LOG_LEVEL log_level, const LOG_
   rotate_type_ = LOG_ROTATE_BYDAY;
 
   check_param_valid();
+
+  context_getter_ = []() { return 0; };
 }
 
 Log::~Log(void)
@@ -309,6 +311,20 @@ int Log::rotate(const int year, const int month, const int day)
   pthread_mutex_unlock(&lock_);
 
   return result;
+}
+
+void Log::set_context_getter(std::function<intptr_t()> context_getter)
+{
+  if (context_getter) {
+    context_getter_ = context_getter;
+  } else if (!context_getter_) {
+    context_getter_ = []() { return 0; };
+  }
+}
+
+intptr_t Log::context_id()
+{
+  return context_getter_();
 }
 
 LoggerFactory::LoggerFactory()

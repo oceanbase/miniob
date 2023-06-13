@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_OS_PROCESS_PARAM_H__
-#define __COMMON_OS_PROCESS_PARAM_H__
+#pragma once
 
 #include <string>
 #include <vector>
@@ -131,6 +130,16 @@ public:
     return trx_kit_name_;
   }
 
+  void set_buffer_pool_memory_size(int bytes)
+  {
+    buffer_pool_memory_size_ = bytes;
+  }
+
+  int buffer_pool_memory_size() const
+  {
+    return buffer_pool_memory_size_;
+  }
+
 private:
   std::string std_out_;           // The output file
   std::string std_err_;           // The err output file
@@ -142,9 +151,9 @@ private:
   std::string unix_socket_path_;
   std::string protocol_;
   std::string trx_kit_name_;
+  int buffer_pool_memory_size_ = -1;
 };
 
 ProcessParam *&the_process_param();
 
 }  // namespace common
-#endif  //__COMMON_OS_PROCESS_PARAM_H__

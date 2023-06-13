@@ -101,7 +101,7 @@ bool DefaultStorageStage::set_properties()
 
   ret = handler_->open_db(sys_db);
   if (ret != RC::SUCCESS) {
-    LOG_ERROR("Failed to open system db");
+    LOG_ERROR("Failed to open system db. rc=%s", strrc(ret));
     return false;
   }
 
@@ -115,31 +115,24 @@ bool DefaultStorageStage::set_properties()
 //! Initialize stage params and validate outputs
 bool DefaultStorageStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   MetricsRegistry &metricsRegistry = get_metrics_registry();
   query_metric_ = new SimpleTimer();
   metricsRegistry.register_metric(QUERY_METRIC_TAG, query_metric_);
 
-  LOG_TRACE("Exit");
   return true;
 }
 
 //! Cleanup after disconnection
 void DefaultStorageStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
   if (handler_) {
     handler_->destroy();
     handler_ = nullptr;
   }
-  LOG_TRACE("Exit");
 }
 
 void DefaultStorageStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
   TimerStat timerStat(*query_metric_);
 
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
@@ -177,16 +170,12 @@ void DefaultStorageStage::handle_event(StageEvent *event)
       LOG_ERROR("Failed to commit trx. rc=%d:%s", rc, strrc(rc));
     }
   }
-
-  LOG_TRACE("Exit\n");
 }
 
 void DefaultStorageStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
   StorageEvent *storage_event = static_cast<StorageEvent *>(event);
   storage_event->sql_event()->done_immediate();
-  LOG_TRACE("Exit\n");
   return;
 }
 

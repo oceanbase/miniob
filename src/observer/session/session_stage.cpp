@@ -71,48 +71,36 @@ bool SessionStage::set_properties()
 // Initialize stage params and validate outputs
 bool SessionStage::initialize()
 {
-  LOG_TRACE("Enter");
-
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
   query_cache_stage_ = *(stgp++);
 
   MetricsRegistry &metricsRegistry = get_metrics_registry();
   sql_metric_ = new SimpleTimer();
   metricsRegistry.register_metric(SQL_METRIC_TAG, sql_metric_);
-  LOG_TRACE("Exit");
   return true;
 }
 
 // Cleanup after disconnection
 void SessionStage::cleanup()
 {
-  LOG_TRACE("Enter");
-
   MetricsRegistry &metricsRegistry = get_metrics_registry();
   if (sql_metric_ != nullptr) {
     metricsRegistry.unregister(SQL_METRIC_TAG);
     delete sql_metric_;
     sql_metric_ = nullptr;
   }
-
-  LOG_TRACE("Exit");
 }
 
 void SessionStage::handle_event(StageEvent *event)
 {
-  LOG_TRACE("Enter\n");
-
   // right now, we just support only one event.
   handle_request(event);
 
-  LOG_TRACE("Exit\n");
   return;
 }
 
 void SessionStage::callback_event(StageEvent *event, CallbackContext *context)
 {
-  LOG_TRACE("Enter\n");
-
   SessionEvent *sev = dynamic_cast<SessionEvent *>(event);
   if (nullptr == sev) {
     LOG_ERROR("Cannot cat event to sessionEvent");
@@ -126,8 +114,8 @@ void SessionStage::callback_event(StageEvent *event, CallbackContext *context)
   if (need_disconnect) {
     Server::close_connection(communicator);
   }
+  Session::set_current_session(nullptr);
 
-  LOG_TRACE("Exit\n");
   return;
 }
 
@@ -150,13 +138,13 @@ void SessionStage::handle_request(StageEvent *event)
   CompletionCallback *cb = new (std::nothrow) CompletionCallback(this, nullptr);
   if (cb == nullptr) {
     LOG_ERROR("Failed to new callback for SessionEvent");
-
     sev->done_immediate();
     return;
   }
 
   sev->push_callback(cb);
 
+  Session::set_current_session(sev->session());
   SQLStageEvent *sql_event = new SQLStageEvent(sev, sql);
   query_cache_stage_->handle_event(sql_event);
 }

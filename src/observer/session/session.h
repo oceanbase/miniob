@@ -42,6 +42,9 @@ public:
 
   Trx *current_trx();
 
+  static void set_current_session(Session *session);
+  static Session *current_session();
+  
 private:
   Db *db_ = nullptr;
   Trx *trx_ = nullptr;

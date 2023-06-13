@@ -25,6 +25,20 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/table.h"
 #include "rc.h"
 
+/**
+ * @defgroup Transaction 事务模块
+ * @brief 描述事务相关的代码
+ */
+
+class Db;
+class CLogManager;
+class CLogRecord;
+class Trx;
+
+/**
+ * @brief 描述一个操作，比如插入、删除行等
+ * @details 通常包含一个操作的类型，以及操作的对象和具体的数据
+ */
 class Operation 
 {
 public:
@@ -52,6 +66,7 @@ public:
 
 private:
   Type type_;
+  /// 操作的哪张表。这里直接使用表其实并不准确，因为表中的索引也可能有日志
   Table * table_ = nullptr;
   PageNum page_num_; // TODO use RID instead of page num and slot num
   SlotNum slot_num_;
@@ -91,7 +106,12 @@ public:
 
   virtual RC init() = 0;
   virtual const std::vector<FieldMeta> *trx_fields() const = 0;
-  virtual Trx *create_trx() = 0;
+  virtual Trx *create_trx(CLogManager *log_manager) = 0;
+  virtual Trx *create_trx(int32_t trx_id) = 0;
+  virtual Trx *find_trx(int32_t trx_id) = 0;
+  virtual void all_trxes(std::vector<Trx *> &trxes) = 0;
+
+  virtual void destroy_trx(Trx *trx) = 0;
 
 public:
   static TrxKit *create(const char *name);
@@ -112,4 +132,8 @@ public:
   virtual RC start_if_need() = 0;
   virtual RC commit() = 0;
   virtual RC rollback() = 0;
+
+  virtual RC redo(Db *db, const CLogRecord &log_record);
+
+  virtual int32_t id() const = 0;
 };

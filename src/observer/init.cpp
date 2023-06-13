@@ -27,6 +27,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/metrics/log_reporter.h"
 #include "common/metrics/metrics_registry.h"
+#include "session/session.h"
 #include "session/session_stage.h"
 #include "sql/executor/execute_stage.h"
 #include "sql/optimizer/optimize_stage.h"
@@ -39,6 +40,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/disk_buffer_pool.h"
 #include "storage/default/default_handler.h"
 #include "storage/trx/trx.h"
+#include "global_context.h"
 
 using namespace common;
 
@@ -79,6 +81,8 @@ int init_log(ProcessParam *process_cfg, Ini &properties)
       return 0;
     }
 
+    auto log_context_getter = []() { return reinterpret_cast<intptr_t>(Session::current_session()); };
+
     const std::string log_section_name = "LOG";
     std::map<std::string, std::string> log_section = properties.get(log_section_name);
 
@@ -115,6 +119,7 @@ int init_log(ProcessParam *process_cfg, Ini &properties)
     }
 
     LoggerFactory::init_default(log_file_name, log_level, console_level);
+    g_log->set_context_getter(log_context_getter);
 
     key = ("DefaultLogModules");
     it = log_section.find(key);
@@ -159,13 +164,13 @@ int prepare_init_seda()
   return 0;
 }
 
-int init_global_objects(ProcessParam *process_param)
+int init_global_objects(ProcessParam *process_param, Ini &properties)
 {
-  BufferPoolManager *bpm = new BufferPoolManager();
-  BufferPoolManager::set_instance(bpm);
+  GCTX.buffer_pool_manager_ = new BufferPoolManager();
+  BufferPoolManager::set_instance(GCTX.buffer_pool_manager_);
 
-  DefaultHandler *handler = new DefaultHandler();
-  DefaultHandler::set_default(handler);
+  GCTX.handler_ = new DefaultHandler();
+  DefaultHandler::set_default(GCTX.handler_);
 
   int ret = 0;
   RC rc = TrxKit::init_global(process_param->trx_kit_name().c_str());
@@ -173,11 +178,13 @@ int init_global_objects(ProcessParam *process_param)
     LOG_ERROR("failed to init trx kit. rc=%s", strrc(rc));
     ret = -1;
   }
+  GCTX.trx_kit_ = TrxKit::instance();
   return ret;
 }
 
 int uninit_global_objects()
 {
+  // TODO use global context
   DefaultHandler *default_handler = &DefaultHandler::get_default();
   if (default_handler != nullptr) {
     DefaultHandler::set_default(nullptr);
@@ -194,7 +201,6 @@ int uninit_global_objects()
 
 int init(ProcessParam *process_param)
 {
-
   if (get_init()) {
 
     return 0;
@@ -236,7 +242,7 @@ int init(ProcessParam *process_param)
   get_properties()->to_string(conf_data);
   LOG_INFO("Output configuration \n%s", conf_data.c_str());
 
-  rc = init_global_objects(process_param);
+  rc = init_global_objects(process_param, *get_properties());
   if (rc != 0) {
     LOG_ERROR("failed to init global objects");
     return rc;

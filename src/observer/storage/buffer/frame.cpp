@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/buffer/frame.h"
 #include "session/thread_data.h"
+#include "session/session.h"
 
 using namespace std;
 
@@ -54,6 +55,7 @@ string to_string(const FrameId &frame_id)
 ////////////////////////////////////////////////////////////////////////////////
 intptr_t get_default_debug_xid()
 {
+  #if 0
   ThreadData *thd = ThreadData::current();
   intptr_t xid = (thd == nullptr) ? 
                  // pthread_self的返回值类型是pthread_t，pthread_t在linux和mac上不同
@@ -61,7 +63,13 @@ intptr_t get_default_debug_xid()
                  // 就将pthread_self返回值转换两次
                  reinterpret_cast<intptr_t>(reinterpret_cast<void*>(pthread_self())) : 
                  reinterpret_cast<intptr_t>(thd);
-  return xid;
+  #endif
+  Session *session = Session::current_session();
+  if (session == nullptr) {
+    return reinterpret_cast<intptr_t>(reinterpret_cast<void*>(pthread_self()));
+  } else {
+    return reinterpret_cast<intptr_t>(session);
+  }
 }
 
 void Frame::write_latch()
@@ -101,6 +109,7 @@ void Frame::write_unlatch()
 void Frame::write_unlatch(intptr_t xid)
 {
   // 因为当前已经加着写锁，而且写锁只有一个，所以不再加debug_lock来做校验
+  debug_lock_.lock();
 
   ASSERT(pin_count_.load() > 0, 
         "frame lock. write unlock failed while pin count is invalid."
@@ -118,6 +127,8 @@ void Frame::write_unlatch(intptr_t xid)
   if (--write_recursive_count_ == 0) {
     write_locker_ = 0;
   }
+  debug_lock_.unlock();
+  
   lock_.unlock();
 }
 
