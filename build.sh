@@ -78,7 +78,7 @@ function do_init
     git checkout release-2.1.12-stable && \
     mkdir -p build && \
     cd build && \
-    cmake .. -DEVENT__DISABLE_OPENSSL=ON && \
+    cmake .. -DEVENT__DISABLE_OPENSSL=ON -DEVENT__LIBRARY_TYPE=BOTH && \
     make -j4 && \
     make install
 
