@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/log/log.h"
 #include "storage/clog/clog.h"
-#include "global_context.h"
+#include "common/global_context.h"
 #include "storage/trx/trx.h"
 #include "common/io/io.h"
 

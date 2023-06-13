@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <string>
-#include "rc.h"
+#include "common/rc.h"
 
 class TableMeta;
 class FieldMeta;

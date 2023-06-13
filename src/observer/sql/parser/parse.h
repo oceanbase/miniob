@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "rc.h"
+#include "common/rc.h"
 #include "sql/parser/parse_defs.h"
 
 RC parse(const char *st, ParsedSqlResult *sql_result);

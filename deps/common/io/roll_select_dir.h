@@ -46,7 +46,7 @@ public:
   std::string mBaseDir;
   std::vector<std::string> mSubdirs;
   pthread_mutex_t mMutex;
-  u32_t mPos;
+  uint32_t mPos;
 };
 
 }  // namespace common

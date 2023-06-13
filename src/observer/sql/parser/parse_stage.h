@@ -12,13 +12,13 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/13.
 //
 
-#ifndef __OBSERVER_SQL_PARSE_STAGE_H__
-#define __OBSERVER_SQL_PARSE_STAGE_H__
+#pragma once
 
 #include "common/seda/stage.h"
-#include "rc.h"
+#include "common/rc.h"
 
-class ParseStage : public common::Stage {
+class ParseStage : public common::Stage 
+{
 public:
   ~ParseStage();
   static Stage *make_stage(const std::string &tag);
@@ -40,5 +40,3 @@ private:
   // Stage *optimize_stage_ = nullptr;
   Stage *resolve_stage_ = nullptr;
 };
-
-#endif  //__OBSERVER_SQL_PARSE_STAGE_H__

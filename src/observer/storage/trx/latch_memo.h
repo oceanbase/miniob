@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <deque>
 #include <vector>
 
-#include "rc.h"
+#include "common/rc.h"
 #include "storage/buffer/page.h"
 
 class Frame;

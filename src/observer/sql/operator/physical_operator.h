@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 #include <string>
 
-#include "rc.h"
+#include "common/rc.h"
 #include "sql/expr/tuple.h"
 
 class Record;

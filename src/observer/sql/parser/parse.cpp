@@ -14,7 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #include <mutex>
 #include "sql/parser/parse.h"
-#include "rc.h"
 #include "common/log/log.h"
 
 RC parse(char *st, Command *sqln);

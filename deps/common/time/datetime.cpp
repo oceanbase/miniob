@@ -345,15 +345,15 @@ void DateTime::parse_duration(std::string dur_str, struct tm &tm_t)
 std::string Now::unique()
 {
   struct timeval tv;
-  u64_t temp;
-  static u64_t last_unique = 0;
+  uint64_t temp;
+  static uint64_t last_unique = 0;
 #if defined(LINUX)
   static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
 #elif defined(__MACH__)
   static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
 #endif
   gettimeofday(&tv, NULL);
-  temp = (((u64_t)tv.tv_sec) << 20) + tv.tv_usec;
+  temp = (((uint64_t)tv.tv_sec) << 20) + tv.tv_usec;
   pthread_mutex_lock(&mutex);
   if (temp > last_unique) {
     // record last timeStamp

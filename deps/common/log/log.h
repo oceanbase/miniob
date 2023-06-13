@@ -31,6 +31,11 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
+const unsigned int ONE_KILO = 1024;
+const unsigned int ONE_MILLION = ONE_KILO * ONE_KILO;
+const unsigned int ONE_GIGA = ONE_MILLION * ONE_KILO;
+const unsigned int FILENAME_LENGTH_MAX = 256;  // the max filename length
+
 const int LOG_STATUS_OK = 0;
 const int LOG_STATUS_ERR = 1;
 const int LOG_MAX_LINE = 100000;
@@ -182,7 +187,7 @@ extern Log *g_log;
           p->tm_min,                                                       \
           p->tm_sec,                                                       \
           usec,                                                            \
-          (u32_t)getpid(),                                                 \
+          (int32_t)getpid(),                                               \
           gettid(),                                                        \
           common::g_log->context_id());                                    \
       common::g_log->rotate(p->tm_year + 1900, p->tm_mon + 1, p->tm_mday); \
@@ -194,7 +199,7 @@ extern Log *g_log;
         (common::g_log)->prefix_msg(level),                                \
         __FUNCTION__,                                                      \
         __FILE_NAME__,                                                     \
-        (u32_t)__LINE__                                                    \
+        (int32_t)__LINE__                                                  \
         );                                                                 \
   }
 

@@ -227,7 +227,7 @@ inline Stage *SedaConfig::get_stage(const char *stagename)
 SedaConfig *&get_seda_config();
 
 bool &get_event_history_flag();
-u32_t &get_max_event_hops();
+uint32_t &get_max_event_hops();
 
 }  // namespace common
 #endif  //__COMMON_SEDA_SEDA_CONFIG_H__

@@ -21,7 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/disk_buffer_pool.h"
 #include "storage/common/condition_filter.h"
 #include "storage/trx/vacuous_trx.h"
-#include "rc.h"
 #include "common/log/log.h"
 #include "integer_generator.h"
 

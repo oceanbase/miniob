@@ -23,7 +23,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/field/field_meta.h"
 #include "storage/table/table.h"
-#include "rc.h"
+#include "common/rc.h"
 
 /**
  * @defgroup Transaction 事务模块

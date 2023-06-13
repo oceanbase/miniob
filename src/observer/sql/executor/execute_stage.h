@@ -16,13 +16,14 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/seda/stage.h"
 #include "sql/parser/parse.h"
-#include "rc.h"
+#include "common/rc.h"
 
 class SQLStageEvent;
 class SessionEvent;
 class SelectStmt;
 
-class ExecuteStage : public common::Stage {
+class ExecuteStage : public common::Stage 
+{
 public:
   virtual ~ExecuteStage();
   static Stage *make_stage(const std::string &tag);

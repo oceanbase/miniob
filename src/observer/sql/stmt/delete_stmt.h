@@ -14,14 +14,14 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "rc.h"
 #include "sql/stmt/stmt.h"
 #include "sql/parser/parse_defs.h"
 
 class Table;
 class FilterStmt;
 
-class DeleteStmt : public Stmt {
+class DeleteStmt : public Stmt 
+{
 public:
   DeleteStmt(Table *table, FilterStmt *filter_stmt);
   ~DeleteStmt() override;

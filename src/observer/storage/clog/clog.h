@@ -26,7 +26,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record.h"
 #include "storage/persist/persist.h"
 #include "common/lang/mutex.h"
-#include "rc.h"
 
 class CLogManager;
 class CLogBuffer;

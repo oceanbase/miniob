@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/5/29.
 //
 
-#include "global_context.h"
+#include "common/global_context.h"
 
 static GlobalContext global_context;
 

@@ -457,7 +457,7 @@ public:
 
 class Now {
 public:
-  static inline s64_t sec()
+  static inline int64_t sec()
   {
     struct timeval tv;
     gettimeofday(&tv, 0);
@@ -468,18 +468,18 @@ public:
     return sec;
   }
 
-  static inline s64_t usec()
+  static inline int64_t usec()
   {
     struct timeval tv;
     gettimeofday(&tv, 0);
-    return (s64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+    return (int64_t)tv.tv_sec * 1000000 + tv.tv_usec;
   }
 
-  static inline s64_t msec()
+  static inline int64_t msec()
   {
     struct timeval tv;
     gettimeofday(&tv, 0);
-    s64_t msec = (s64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    int64_t msec = (int64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
     if (tv.tv_usec % 1000 >= 500)
       msec++;
     return msec;

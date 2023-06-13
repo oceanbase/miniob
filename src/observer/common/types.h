@@ -9,33 +9,19 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2010
+// Created by Wangyunlai on 2022/6/23.
 //
 
 #pragma once
 
-namespace common {
 
-#ifndef MAIJOR_VER
-#define MAIJOR_VER 1
-#endif
+/// 磁盘文件，包括存放数据的文件和索引(B+-Tree)文件，都按照页来组织
+/// 每一页都有一个编号，称为PageNum
+using PageNum = int32_t;
 
-#ifndef MINOR_VER
-#define MINOR_VER 0
-#endif
+/// 数据文件中按照页来组织，每一页会存放一些行数据(row)，或称为记录(record)
+/// 每一行(row/record)，都占用一个槽位(slot)，这些槽有一个编号，称为SlotNum
+using SlotNum = int32_t;
 
-#ifndef PATCH_VER
-#define PATCH_VER 0
-#endif
-
-#ifndef OTHER_VER
-#define OTHER_VER 1
-#endif
-
-#define STR1(R) #R
-#define STR2(R) STR1(R)
-
-#define VERSION_STR (STR2(MAIJOR_VER) "." STR2(MINOR_VER) "." STR2(PATCH_VER) "." STR2(OTHER_VER))
-#define VERSION_NUM (MAIJOR_VER << 24 | MINOR_VER << 16 | PATCH_VER << 8 | OTHER_VER)
-
-}  // namespace common
+/// LSN for log sequence number
+using LSN = int32_t;

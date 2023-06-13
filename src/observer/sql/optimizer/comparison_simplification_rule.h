@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "rc.h"
+#include "common/rc.h"
 #include "sql/optimizer/rewrite_rule.h"
 
 class LogicalOperator;

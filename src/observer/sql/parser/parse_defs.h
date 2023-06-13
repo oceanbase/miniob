@@ -213,7 +213,7 @@ public:
 
 public:
   Command();
-  Command(enum SqlCommandFlag flag);
+  explicit Command(enum SqlCommandFlag flag);
 };
 
 /**

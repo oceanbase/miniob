@@ -9,16 +9,19 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/5/3.
+// Created by Longda on 2021/4/14.
 //
 
-#ifndef __OBSERVER_INIT_H__
-#define __OBSERVER_INIT_H__
+#pragma once
 
-#include "common/os/process_param.h"
-#include "common/conf/ini.h"
+//! this document is used for ini setting
 
-int init(common::ProcessParam *processParam);
-void cleanup();
+#define CLIENT_ADDRESS "CLIENT_ADDRESS"
+#define MAX_CONNECTION_NUM "MAX_CONNECTION_NUM"
+#define MAX_CONNECTION_NUM_DEFAULT 8192
+#define PORT "PORT"
+#define PORT_DEFAULT 16880
 
-#endif  //__OBSERVER_INIT_H__
+#define SOCKET_BUFFER_SIZE 8192
+
+#define SESSION_STAGE_NAME "SessionStage"

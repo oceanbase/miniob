@@ -35,8 +35,8 @@ public:
   const static int MEM_FILENAME_LEN = 32;
   struct MemID_t *mNext;
   char mFile[MEM_FILENAME_LEN];
-  u64_t mSize;
-  u32_t mLine;
+  uint64_t mSize;
+  uint32_t mLine;
 } MemID;
 
 class CLMemTrace {
@@ -69,7 +69,7 @@ protected:
   const static int MEM_HASHTABLE_SIZE = 16384;
 
   static MemID *mMemIDs[MEM_HASHTABLE_SIZE];
-  static u64_t mUsedSize;
+  static uint64_t mUsedSize;
   static pthread_mutex_t mMutex;
   static bool mVerbose;
 };

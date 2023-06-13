@@ -23,7 +23,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/seda/timer_stage.h"
 #include "common/metrics/metrics_registry.h"
-#include "rc.h"
+#include "common/rc.h"
 #include "storage/default/default_handler.h"
 #include "storage/common/condition_filter.h"
 #include "storage/table/table.h"

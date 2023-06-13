@@ -19,8 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include <unistd.h>
 #include <iostream>
 
-#include "init.h"
-#include "ini_setting.h"
+#include "common/init.h"
+#include "common/ini_setting.h"
 #include "common/os/process.h"
 #include "common/os/signal.h"
 #include "net/server.h"

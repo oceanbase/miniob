@@ -24,7 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/page.h"
 #include "common/log/log.h"
 #include "common/lang/mutex.h"
-#include "defs.h"
+#include "common/types.h"
 
 class FrameId 
 {

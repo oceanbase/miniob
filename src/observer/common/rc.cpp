@@ -9,12 +9,27 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/5/3.
+// Created by Wangyunlai on 2021/5/14.
 //
-#include "rc.h"
-#include <iostream>
 
-int main(int argc, char **argv)
+#include "common/rc.h"
+
+const char *strrc(RC rc)
 {
+#define DEFINE_RC(name) \
+  case RC::name: {      \
+    return #name;       \
+  } break;
 
+  switch (rc) {
+    DEFINE_RCS;
+    default: {
+      return "unkown";
+    }
+  }
+#undef DEFINE_RC
 }
+
+bool OB_SUCC(RC rc) { return rc == RC::SUCCESS; }
+
+bool OB_FAIL(RC rc) { return rc != RC::SUCCESS; }
