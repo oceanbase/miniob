@@ -15,11 +15,11 @@ See the Mulan PSL v2 for more details. */
 #include <atomic>
 
 #include "storage/trx/trx.h"
-#include "storage/common/table.h"
+#include "storage/table/table.h"
 #include "storage/record/record_manager.h"
-#include "storage/common/field_meta.h"
+#include "storage/field/field_meta.h"
 #include "common/log/log.h"
-#include "storage/common/field.h"
+#include "storage/field/field.h"
 #include "storage/trx/mvcc_trx.h"
 #include "storage/trx/vacuous_trx.h"
 

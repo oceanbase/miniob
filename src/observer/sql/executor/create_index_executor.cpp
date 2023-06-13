@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/create_index_stmt.h"
 #include "session/session.h"
 #include "common/log/log.h"
-#include "storage/common/table.h"
+#include "storage/table/table.h"
 
 RC CreateIndexExecutor::execute(Session *session, Stmt *stmt)
 {

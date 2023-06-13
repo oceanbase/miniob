@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "rc.h"
 #include "sql/stmt/stmt.h"
-#include "storage/common/field.h"
+#include "storage/field/field.h"
 
 class FieldMeta;
 class FilterStmt;

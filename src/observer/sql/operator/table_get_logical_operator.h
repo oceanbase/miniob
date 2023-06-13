@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/logical_operator.h"
-#include "storage/common/field.h"
+#include "storage/field/field.h"
 
 /**
  * 表示从表中获取数据的算子

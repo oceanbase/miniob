@@ -16,8 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/lang/string.h"
 #include "sql/stmt/filter_stmt.h"
-#include "storage/common/db.h"
-#include "storage/common/table.h"
+#include "storage/db/db.h"
+#include "storage/table/table.h"
 
 FilterStmt::~FilterStmt()
 {

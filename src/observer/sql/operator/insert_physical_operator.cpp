@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/insert_physical_operator.h"
 #include "sql/stmt/insert_stmt.h"
-#include "storage/common/table.h"
+#include "storage/table/table.h"
 #include "storage/trx/trx.h"
 #include "rc.h"
 

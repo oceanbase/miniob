@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Longda & Wangyunlai on 2021/5/12.
 //
 
-#include "storage/common/db.h"
+#include "storage/db/db.h"
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -21,8 +21,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/os/path.h"
 #include "common/lang/string.h"
-#include "storage/common/table_meta.h"
-#include "storage/common/table.h"
+#include "storage/table/table_meta.h"
+#include "storage/table/table.h"
 #include "storage/common/meta_util.h"
 #include "storage/trx/trx.h"
 #include "storage/clog/clog.h"

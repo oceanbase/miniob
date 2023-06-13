@@ -22,8 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "rc.h"
 #include "defs.h"
 #include "common/log/log.h"
-#include "storage/common/index_meta.h"
-#include "storage/common/field_meta.h"
+#include "storage/index/index_meta.h"
+#include "storage/field/field_meta.h"
 
 class Field;
 

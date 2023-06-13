@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "session/session.h"
 #include "storage/trx/trx.h"
-#include "storage/common/db.h"
+#include "storage/db/db.h"
 #include "storage/default/default_handler.h"
 #include "global_context.h"
 

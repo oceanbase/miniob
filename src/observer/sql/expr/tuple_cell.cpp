@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <sstream>
 #include "sql/expr/tuple_cell.h"
-#include "storage/common/field.h"
+#include "storage/field/field.h"
 #include "common/log/log.h"
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"

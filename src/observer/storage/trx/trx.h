@@ -21,8 +21,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/parser/parse.h"
 #include "storage/record/record_manager.h"
-#include "storage/common/field_meta.h"
-#include "storage/common/table.h"
+#include "storage/field/field_meta.h"
+#include "storage/table/table.h"
 #include "rc.h"
 
 /**

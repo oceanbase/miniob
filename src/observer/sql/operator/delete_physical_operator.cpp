@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "sql/operator/delete_physical_operator.h"
 #include "storage/record/record.h"
-#include "storage/common/table.h"
+#include "storage/table/table.h"
 #include "storage/trx/trx.h"
 #include "sql/stmt/delete_stmt.h"
 

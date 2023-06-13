@@ -18,8 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 
 #include "rc.h"
-#include "storage/common/field_meta.h"
-#include "storage/common/index_meta.h"
+#include "storage/field/field_meta.h"
+#include "storage/index/index_meta.h"
 #include "common/lang/serializable.h"
 
 class TableMeta : public common::Serializable

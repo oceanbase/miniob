@@ -15,8 +15,8 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <iostream>
-#include "storage/common/table.h"
-#include "storage/common/field_meta.h"
+#include "storage/table/table.h"
+#include "storage/field/field_meta.h"
 
 class TupleCellSpec {
 public:
