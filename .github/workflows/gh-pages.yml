@@ -1,8 +1,13 @@
+<<<<<<< HEAD:.github/workflows/gh-pages.yml
 # Sample workflow for building and deploying a mdBook site to GitHub Pages
 #
 # To get started with mdBook see: https://rust-lang.github.io/mdBook/index.html
 #
 name: Deploy mdBook site to Pages
+=======
+# Sample workflow for building and deploying a Jekyll site to GitHub Pages
+name: Deploy GitHub Pages
+>>>>>>> main:.github/workflows/jekyll-gh-pages.yml
 
 on:
   # Runs on pushes targeting the default branch
@@ -52,6 +57,19 @@ jobs:
           working-directory: .
           doxyfile-path: ./Doxyfile
 
+<<<<<<< HEAD:.github/workflows/gh-pages.yml
+=======
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v1
+        with:
+          mdbook-version: 'latest'
+
+      - run: mdbook build
+
+>>>>>>> main:.github/workflows/jekyll-gh-pages.yml
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
