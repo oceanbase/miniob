@@ -256,7 +256,7 @@ enum SqlCommandFlag
   SCF_SYNC,
   SCF_SHOW_TABLES,
   SCF_DESC_TABLE,
-  SCF_BEGIN,
+  SCF_BEGIN,        /// 事务开始语句，可以在这里扩展只读事务
   SCF_COMMIT,
   SCF_CLOG_SYNC,
   SCF_ROLLBACK,

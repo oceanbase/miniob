@@ -28,9 +28,8 @@ class Db;
 class CreateTableStmt : public Stmt
 {
 public:
-  CreateTableStmt(Db *db, const std::string &table_name, const std::vector<AttrInfo> &attr_infos)
-        : db_(db),
-          table_name_(table_name),
+  CreateTableStmt(const std::string &table_name, const std::vector<AttrInfo> &attr_infos)
+        : table_name_(table_name),
           attr_infos_(attr_infos)
   {}
   virtual ~CreateTableStmt() = default;
@@ -43,7 +42,6 @@ public:
   static RC create(Db *db, const CreateTable &create_table, Stmt *&stmt);
 
 private:
-  Db *db_ = nullptr;
   std::string table_name_;
   std::vector<AttrInfo> attr_infos_;
 };

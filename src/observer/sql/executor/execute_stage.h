@@ -41,10 +41,6 @@ protected:
   RC handle_request(common::StageEvent *event);
   RC handle_request_with_physical_operator(SQLStageEvent *sql_event);
 
-  RC do_help(SQLStageEvent *session_event);
-  RC do_create_table(SQLStageEvent *sql_event);
-  RC do_show_tables(SQLStageEvent *sql_event);
-  RC do_desc_table(SQLStageEvent *sql_event);
   RC do_begin(SQLStageEvent *sql_event);
   RC do_commit(SQLStageEvent *sql_event);
 

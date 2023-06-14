@@ -16,6 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 RC CreateTableStmt::create(Db *db, const CreateTable &create_table, Stmt *&stmt)
 {
-  stmt = new CreateTableStmt(db, create_table.relation_name, create_table.attr_infos);
+  stmt = new CreateTableStmt(create_table.relation_name, create_table.attr_infos);
   return RC::SUCCESS;
 }

@@ -46,7 +46,7 @@ enum class StmtType {
   #undef DEFINE_ENUM_ITEM
 };
 
-const char *stmt_type_name(StmtType type)
+inline const char *stmt_type_name(StmtType type)
 {
   switch (type) {
     #define DEFINE_ENUM_ITEM(name)  case StmtType::name: return #name;

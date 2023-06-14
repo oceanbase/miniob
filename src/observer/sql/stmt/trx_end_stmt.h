@@ -12,14 +12,33 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/6/14.
 //
 
-#include "sql/stmt/desc_table_stmt.h"
-#include "storage/db/db.h"
+#pragma once
 
-RC DescTableStmt::create(Db *db, const DescTable &desc_table, Stmt *&stmt)
+#include <string>
+#include <vector>
+
+#include "sql/stmt/stmt.h"
+
+/**
+ * @brief 事务的 Commit/Rollback 语句，现在什么成员都没有
+ */
+class TrxEndStmt : public Stmt
 {
-  if (db->find_table(desc_table.relation_name.c_str()) == nullptr) {
-    return RC::SCHEMA_TABLE_NOT_EXIST;
+public:
+  TrxEndStmt(StmtType type)
+          : type_(type)
+  {}
+  virtual ~TrxEndStmt() = default;
+
+  StmtType type() const override { return type_; }
+
+  static RC create(SqlCommandFlag flag, Stmt *&stmt)
+  {
+    StmtType type = flag == SqlCommandFlag::SCF_COMMIT ? StmtType::COMMIT : StmtType::ROLLBACK;
+    stmt = new TrxEndStmt(type);
+    return RC::SUCCESS;
   }
-  stmt = new DescTableStmt(desc_table.relation_name);
-  return RC::SUCCESS;
-}
+
+private:
+  StmtType type_;
+};

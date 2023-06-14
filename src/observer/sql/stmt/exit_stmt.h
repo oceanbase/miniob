@@ -12,14 +12,28 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/6/14.
 //
 
-#include "sql/stmt/desc_table_stmt.h"
-#include "storage/db/db.h"
+#pragma once
 
-RC DescTableStmt::create(Db *db, const DescTable &desc_table, Stmt *&stmt)
+#include <string>
+#include <vector>
+
+#include "sql/stmt/stmt.h"
+
+/**
+ * @brief Exit 语句，表示断开连接，现在什么成员都没有
+ */
+class ExitStmt : public Stmt
 {
-  if (db->find_table(desc_table.relation_name.c_str()) == nullptr) {
-    return RC::SCHEMA_TABLE_NOT_EXIST;
+public:
+  ExitStmt()
+  {}
+  virtual ~ExitStmt() = default;
+
+  StmtType type() const override { return StmtType::EXIT; }
+
+  static RC create(Stmt *&stmt)
+  {
+    stmt = new ExitStmt();
+    return RC::SUCCESS;
   }
-  stmt = new DescTableStmt(desc_table.relation_name);
-  return RC::SUCCESS;
-}
+};

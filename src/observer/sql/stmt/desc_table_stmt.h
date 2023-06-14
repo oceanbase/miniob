@@ -28,9 +28,8 @@ class Db;
 class DescTableStmt : public Stmt
 {
 public:
-  DescTableStmt(Db *db, const std::string &table_name)
-        : db_(db),
-          table_name_(table_name)
+  DescTableStmt(const std::string &table_name)
+        : table_name_(table_name)
   {}
   virtual ~DescTableStmt() = default;
 
@@ -41,6 +40,5 @@ public:
   static RC create(Db *db, const DescTable &desc_table, Stmt *&stmt);
 
 private:
-  Db *db_ = nullptr;
   std::string table_name_;
 };

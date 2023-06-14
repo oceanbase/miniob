@@ -39,8 +39,7 @@ RC DescTableExecutor::execute(SQLStageEvent *sql_event)
 
   SqlResult *sql_result = session_event->sql_result();
 
-  Command *cmd = sql_event->command().get();
-  const char *table_name = cmd->desc_table.relation_name.c_str();
+  const char *table_name = desc_table_stmt->table_name().c_str();
 
   Db *db = session->get_current_db();
   Table *table = db->find_table(table_name);

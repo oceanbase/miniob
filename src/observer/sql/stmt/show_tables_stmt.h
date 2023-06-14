@@ -12,14 +12,30 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/6/14.
 //
 
-#include "sql/stmt/desc_table_stmt.h"
-#include "storage/db/db.h"
+#pragma once
 
-RC DescTableStmt::create(Db *db, const DescTable &desc_table, Stmt *&stmt)
+#include <string>
+#include <vector>
+
+#include "sql/stmt/stmt.h"
+
+class Db;
+
+/**
+ * @brief 描述表的语句
+ * @details 虽然解析成了stmt，但是与原始的SQL解析后的数据也差不多
+ */
+class ShowTablesStmt : public Stmt
 {
-  if (db->find_table(desc_table.relation_name.c_str()) == nullptr) {
-    return RC::SCHEMA_TABLE_NOT_EXIST;
+public:
+  ShowTablesStmt() = default;
+  virtual ~ShowTablesStmt() = default;
+
+  StmtType type() const override { return StmtType::SHOW_TABLES; }
+
+  static RC create(Db *db, Stmt *&stmt)
+  {
+    stmt = new ShowTablesStmt();
+    return RC::SUCCESS;
   }
-  stmt = new DescTableStmt(desc_table.relation_name);
-  return RC::SUCCESS;
-}
+};
