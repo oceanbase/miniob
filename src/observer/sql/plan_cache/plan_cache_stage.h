@@ -16,7 +16,13 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/seda/stage.h"
 
-class PlanCacheStage : public common::Stage {
+/**
+ * @brief 尝试从Plan的缓存中获取Plan，如果没有命中，则执行Optimizer
+ * @details 实际上现在什么都没做。不过PlanCache对数据库的优化提升明显，是一个非常有趣的功能，
+ * 感兴趣的同学可以参考OceanBase的实现
+ */
+class PlanCacheStage : public common::Stage 
+{
 public:
   ~PlanCacheStage();
   static Stage *make_stage(const std::string &tag);

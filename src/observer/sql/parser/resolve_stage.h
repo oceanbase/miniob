@@ -16,7 +16,12 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/seda/stage.h"
 
-class ResolveStage : public common::Stage {
+/**
+ * @brief 执行Resolve，将解析后的SQL语句，转换成各种Stmt(Statement)
+ * 
+ */
+class ResolveStage : public common::Stage 
+{
 public:
   ~ResolveStage();
   static Stage *make_stage(const std::string &tag);
