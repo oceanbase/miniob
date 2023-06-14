@@ -1,0 +1,8 @@
+[book]
+language = "cn"
+multilingual = false
+src = "src"
+title = "MiniOB"
+
+[output.html]
+git-repository-url = "https://github.com/oceanbase/miniob"
