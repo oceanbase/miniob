@@ -9,22 +9,13 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2023/5/29.
+// Created by Longda on 2021/5/3.
 //
 
 #pragma once
 
-class BufferPoolManager;
-class DefaultHandler;
-class TrxKit;
+#include "common/os/process_param.h"
+#include "common/conf/ini.h"
 
-struct GlobalContext
-{
-  BufferPoolManager *buffer_pool_manager_ = nullptr;
-  DefaultHandler *handler_ = nullptr;
-  TrxKit *trx_kit_ = nullptr;
-
-  static GlobalContext &instance();
-};
-
-#define GCTX GlobalContext::instance()
+int init(common::ProcessParam *processParam);
+void cleanup();

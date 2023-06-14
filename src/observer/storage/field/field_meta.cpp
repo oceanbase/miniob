@@ -12,8 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Wangyunlai on 2021/5/12.
 //
 
-#include <common/lang/string.h>
-#include "storage/common/field_meta.h"
+#include "common/lang/string.h"
+#include "storage/field/field_meta.h"
 #include "common/log/log.h"
 #include "sql/parser/parse_defs.h"
 

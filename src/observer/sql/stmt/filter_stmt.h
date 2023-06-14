@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 #include <vector>
 #include <unordered_map>
-#include "rc.h"
 #include "sql/parser/parse_defs.h"
 #include "sql/stmt/stmt.h"
 #include "sql/expr/expression.h"
@@ -25,7 +24,8 @@ class Db;
 class Table;
 class FieldMeta;
 
-struct FilterObj {
+struct FilterObj 
+{
   bool is_attr;
   Field field;
   Value value;
@@ -43,7 +43,8 @@ struct FilterObj {
   }
 };
 
-class FilterUnit {
+class FilterUnit 
+{
 public:
   FilterUnit() = default;
   ~FilterUnit()
@@ -83,7 +84,8 @@ private:
   FilterObj right_;
 };
 
-class FilterStmt {
+class FilterStmt 
+{
 public:
   FilterStmt() = default;
   virtual ~FilterStmt();

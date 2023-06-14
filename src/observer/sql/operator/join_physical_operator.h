@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/parser/parse.h"
 #include "sql/operator/physical_operator.h"
-#include "rc.h"
 
 /**
  * 最简单的两表（称为左表、右表）join算子

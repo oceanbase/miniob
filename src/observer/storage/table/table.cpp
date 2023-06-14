@@ -17,8 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include <algorithm>
 
 #include "common/defs.h"
-#include "storage/common/table.h"
-#include "storage/common/table_meta.h"
+#include "storage/table/table.h"
+#include "storage/table/table_meta.h"
 #include "common/log/log.h"
 #include "common/lang/string.h"
 #include "storage/default/disk_buffer_pool.h"

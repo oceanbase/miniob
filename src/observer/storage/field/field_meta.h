@@ -9,39 +9,48 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2021/5/12.
+// Created by Meiyi & Wangyunlai on 2021/5/12.
 //
 
 #pragma once
 
 #include <string>
-#include "rc.h"
 
-class TableMeta;
-class FieldMeta;
+#include "common/rc.h"
+#include "sql/parser/parse_defs.h"
 
 namespace Json {
 class Value;
 }  // namespace Json
 
-class IndexMeta 
+// Take care of shallow copy
+class FieldMeta 
 {
 public:
-  IndexMeta() = default;
+  FieldMeta();
+  FieldMeta(const char *name, AttrType attr_type, int attr_offset, int attr_len, bool visible);
+  ~FieldMeta() = default;
 
-  RC init(const char *name, const FieldMeta &field);
+  RC init(const char *name, AttrType attr_type, int attr_offset, int attr_len, bool visible);
 
 public:
   const char *name() const;
-  const char *field() const;
+  AttrType type() const;
+  int offset() const;
+  int len() const;
+  bool visible() const;
 
+public:
   void desc(std::ostream &os) const;
 
 public:
   void to_json(Json::Value &json_value) const;
-  static RC from_json(const TableMeta &table, const Json::Value &json_value, IndexMeta &index);
+  static RC from_json(const Json::Value &json_value, FieldMeta &field);
 
 protected:
-  std::string name_;   // index's name
-  std::string field_;  // field's name
+  std::string name_;
+  AttrType attr_type_;
+  int attr_offset_;
+  int attr_len_;
+  bool visible_;
 };

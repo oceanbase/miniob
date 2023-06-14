@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-u32_t getCpuNum();
+uint32_t getCpuNum();
 
 void print_stacktrace();
 

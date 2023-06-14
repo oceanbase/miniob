@@ -25,8 +25,8 @@ See the Mulan PSL v2 for more details. */
 #include <unordered_map>
 #include <functional>
 
-#include "rc.h"
-#include "defs.h"
+#include "common/rc.h"
+#include "common/types.h"
 #include "common/lang/mutex.h"
 #include "common/mm/mem_pool.h"
 #include "common/lang/lru_cache.h"

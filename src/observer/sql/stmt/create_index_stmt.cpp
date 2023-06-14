@@ -13,8 +13,8 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/stmt/create_index_stmt.h"
-#include "storage/common/table.h"
-#include "storage/common/db.h"
+#include "storage/table/table.h"
+#include "storage/db/db.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
 

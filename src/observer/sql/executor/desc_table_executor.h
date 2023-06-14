@@ -9,21 +9,20 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/14.
+// Created by Wangyunlai on 2023/6/14.
 //
 
-#ifndef __SRC_OBSERVER_INI_SETTING_H__
-#define __SRC_OBSERVER_INI_SETTING_H__
+#pragma once
 
-//! this document is used for ini setting
+#include "common/rc.h"
 
-#define CLIENT_ADDRESS "CLIENT_ADDRESS"
-#define MAX_CONNECTION_NUM "MAX_CONNECTION_NUM"
-#define MAX_CONNECTION_NUM_DEFAULT 8192
-#define PORT "PORT"
-#define PORT_DEFAULT 16880
+class SQLStageEvent;
 
-#define SOCKET_BUFFER_SIZE 8192
+class DescTableExecutor
+{
+public:
+  DescTableExecutor() = default;
+  virtual ~DescTableExecutor() = default;
 
-#define SESSION_STAGE_NAME "SessionStage"
-#endif  //__SRC_OBSERVER_INI_SETTING_H__
+  RC execute(SQLStageEvent *sql_event);
+};

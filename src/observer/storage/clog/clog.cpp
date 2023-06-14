@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/log/log.h"
 #include "storage/clog/clog.h"
-#include "global_context.h"
+#include "common/global_context.h"
 #include "storage/trx/trx.h"
 #include "common/io/io.h"
 
@@ -235,7 +235,7 @@ RC CLogBuffer::flush_buffer(CLogFile &log_file)
 
     // log buffer 需要支持并发，所以要考虑加锁
     // 从队列中取出日志记录然后写入到文件中
-    unique_ptr<CLogRecord> log_record = move(log_records_.front());
+    unique_ptr<CLogRecord> log_record = std::move(log_records_.front());
     log_records_.pop_front();
 
     rc = write_log_record(log_file, log_record.get());

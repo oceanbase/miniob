@@ -14,38 +14,52 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "rc.h"
+#include "common/rc.h"
 #include "sql/parser/parse_defs.h"
 
 class Db;
 
-enum class StmtType
-{
-  SELECT,
-  INSERT,
-  UPDATE,
-  DELETE,
-  CREATE_TABLE,
-  DROP_TABLE,
-  CREATE_INDEX,
-  DROP_INDEX,
-  SYNC,
-  SHOW_TABLES,
-  DESC_TABLE,
-  BEGIN,
-  COMMIT,
-  ROLLBACK,
-  LOAD_DATA,
-  HELP,
-  EXIT,
-  EXPLAIN,
+#define DEFINE_ENUM()               \
+  DEFINE_ENUM_ITEM(SELECT)          \
+  DEFINE_ENUM_ITEM(INSERT)          \
+  DEFINE_ENUM_ITEM(UPDATE)          \
+  DEFINE_ENUM_ITEM(DELETE)          \
+  DEFINE_ENUM_ITEM(CREATE_TABLE)    \
+  DEFINE_ENUM_ITEM(DROP_TABLE)      \
+  DEFINE_ENUM_ITEM(CREATE_INDEX)    \
+  DEFINE_ENUM_ITEM(DROP_INDEX)      \
+  DEFINE_ENUM_ITEM(SYNC)            \
+  DEFINE_ENUM_ITEM(SHOW_TABLES)     \
+  DEFINE_ENUM_ITEM(DESC_TABLE)      \
+  DEFINE_ENUM_ITEM(BEGIN)           \
+  DEFINE_ENUM_ITEM(COMMIT)          \
+  DEFINE_ENUM_ITEM(ROLLBACK)        \
+  DEFINE_ENUM_ITEM(LOAD_DATA)       \
+  DEFINE_ENUM_ITEM(HELP)            \
+  DEFINE_ENUM_ITEM(EXIT)            \
+  DEFINE_ENUM_ITEM(EXPLAIN)         \
+  DEFINE_ENUM_ITEM(PREDICATE)
 
-  PREDICATE,
+enum class StmtType {
+  #define DEFINE_ENUM_ITEM(name)  name,
+  DEFINE_ENUM()
+  #undef DEFINE_ENUM_ITEM
 };
 
+inline const char *stmt_type_name(StmtType type)
+{
+  switch (type) {
+    #define DEFINE_ENUM_ITEM(name)  case StmtType::name: return #name;
+    DEFINE_ENUM()
+    #undef DEFINE_ENUM_ITEM
+    default: return "unkown";
+  }
+}
+
 /**
- * Stmt for Statement
- * 
+ * @brief Stmt for Statement
+ * @details SQL解析后的语句，再进一步解析成Stmt，使用内部的数据结构来表示。
+ * 比如table_name，解析成具体的 Table对象，attr/field name解析成Field对象。
  */
 class Stmt
 {

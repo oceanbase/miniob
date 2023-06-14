@@ -497,7 +497,7 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
   // so it is easier to flush data to file.
 
   Page &page = frame.page();
-  s64_t offset = ((s64_t)page.page_num) * sizeof(Page);
+  int64_t offset = ((int64_t)page.page_num) * sizeof(Page);
   if (lseek(file_desc_, offset, SEEK_SET) == offset - 1) {
     LOG_ERROR("Failed to flush page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_SEEK;
@@ -590,7 +590,7 @@ RC DiskBufferPool::check_page_num(PageNum page_num)
 
 RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
 {
-  s64_t offset = ((s64_t)page_num) * BP_PAGE_SIZE;
+  int64_t offset = ((int64_t)page_num) * BP_PAGE_SIZE;
   if (lseek(file_desc_, offset, SEEK_SET) == -1) {
     LOG_ERROR("Failed to load page %s:%d, due to failed to lseek:%s.", file_name_.c_str(), page_num, strerror(errno));
 

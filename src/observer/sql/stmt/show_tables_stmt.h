@@ -9,33 +9,33 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2010
+// Created by Wangyunlai on 2023/6/14.
 //
 
 #pragma once
 
-namespace common {
+#include <string>
+#include <vector>
 
-#ifndef MAIJOR_VER
-#define MAIJOR_VER 1
-#endif
+#include "sql/stmt/stmt.h"
 
-#ifndef MINOR_VER
-#define MINOR_VER 0
-#endif
+class Db;
 
-#ifndef PATCH_VER
-#define PATCH_VER 0
-#endif
+/**
+ * @brief 描述表的语句
+ * @details 虽然解析成了stmt，但是与原始的SQL解析后的数据也差不多
+ */
+class ShowTablesStmt : public Stmt
+{
+public:
+  ShowTablesStmt() = default;
+  virtual ~ShowTablesStmt() = default;
 
-#ifndef OTHER_VER
-#define OTHER_VER 1
-#endif
+  StmtType type() const override { return StmtType::SHOW_TABLES; }
 
-#define STR1(R) #R
-#define STR2(R) STR1(R)
-
-#define VERSION_STR (STR2(MAIJOR_VER) "." STR2(MINOR_VER) "." STR2(PATCH_VER) "." STR2(OTHER_VER))
-#define VERSION_NUM (MAIJOR_VER << 24 | MINOR_VER << 16 | PATCH_VER << 8 | OTHER_VER)
-
-}  // namespace common
+  static RC create(Db *db, Stmt *&stmt)
+  {
+    stmt = new ShowTablesStmt();
+    return RC::SUCCESS;
+  }
+};

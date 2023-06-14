@@ -33,7 +33,8 @@ See the Mulan PSL v2 for more details. */
 #define PORT_DEFAULT 6789
 
 using namespace common;
-char *server_host = (char *)LOCAL_HOST;
+
+char *server_host = (char *)"localhost";
 int server_port = PORT_DEFAULT;
 
 void *test_server(void *param)

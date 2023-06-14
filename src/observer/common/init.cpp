@@ -12,9 +12,9 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/5/3.
 //
 
-#include "init.h"
+#include "common/init.h"
 
-#include "ini_setting.h"
+#include "common/ini_setting.h"
 #include "common/conf/ini.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
@@ -222,7 +222,6 @@ int init(ProcessParam *process_param)
 
   // Initialize global variables before enter multi-thread mode
   // to avoid race condition
-  theSwVersion();
 
   // Read Configuration files
   rc = get_properties()->load(process_param->get_conf());

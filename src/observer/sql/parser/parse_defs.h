@@ -19,19 +19,21 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 #include <string>
 
-#define MAX_NUM 20
-#define MAX_REL_NAME 20
-#define MAX_ATTR_NAME 20
-#define MAX_ERROR_MESSAGE 20
-#define MAX_DATA 50
-
-// 属性结构体
+/**
+ * @brief 描述一个属性
+ * @details 属性，或者说字段(column, field)
+ * Rel -> Relation
+ * Attr -> Attribute
+ */
 struct RelAttr 
 {
-  std::string relation_name;   // relation name (may be NULL) 表名
-  std::string attribute_name;  // attribute name              属性名
+  std::string relation_name;   /// relation name (may be NULL) 表名
+  std::string attribute_name;  /// attribute name              属性名
 };
 
+/**
+ * @brief 描述比较运算符
+ */
 enum CompOp 
 {
   EQUAL_TO,     //"="     0
@@ -43,113 +45,169 @@ enum CompOp
   NO_OP
 };
 
-// 属性值类型
+/**
+ * @brief 属性的类型
+ * 
+ */
 enum AttrType
 {
   UNDEFINED,
-  CHARS,
-  INTS,
-  FLOATS,
-  BOOLEANS,
+  CHARS,          /// 字符串类型
+  INTS,           /// 整数类型(4字节)
+  FLOATS,         /// 浮点数类型(4字节)
+  BOOLEANS,       /// boolean类型，当前不是由parser解析出来的，是程序内部使用的
 };
 
-// 属性值
+/**
+ * @brief 属性的值
+ * 
+ */
 struct Value
 {
-  AttrType type;  // type of value
-  int int_value;
-  float float_value;
-  bool bool_value;
-  std::string string_value;
+  AttrType    type;           /// 属性的类型
+  int         int_value;      /// 如果是整数，这个值就有意义
+  float       float_value;    /// 如果是浮点数，这个值就有意义
+  bool        bool_value;     /// 如果是boolean值，这个值就有意义
+  std::string string_value;   /// 如果是字符串，这个值就有意义
 
-  const char *data() const;
-  int length();
+  const char *data() const;   /// 获取值的内存地址
+  int length();               /// 获取占用的内存长度
 };
 
+/**
+ * @brief 表示一个条件比较
+ * @details 条件比较就是SQL查询中的 where a>b 这种。
+ * 一个条件比较是有两部分组成的，称为左边和右边。
+ * 左边和右边理论上都可以是任意的数据，比如是字段（属性，列），也可以是数值常量。
+ * 这个结构中记录的仅仅支持字段和值。
+ */
 struct Condition
 {
-  int left_is_attr;    // TRUE if left-hand side is an attribute
-                       // 1时，操作符左边是属性名，0时，是属性值
-  Value left_value;    // left-hand side value if left_is_attr = FALSE
-  RelAttr left_attr;   // left-hand side attribute
-  CompOp comp;         // comparison operator
-  int right_is_attr;   // TRUE if right-hand side is an attribute
-                       // 1时，操作符右边是属性名，0时，是属性值
-  RelAttr right_attr;  // right-hand side attribute if right_is_attr = TRUE 右边的属性
-  Value right_value;   // right-hand side value if right_is_attr = FALSE
+  int left_is_attr;    /// TRUE if left-hand side is an attribute
+                       /// 1时，操作符左边是属性名，0时，是属性值
+  Value left_value;    /// left-hand side value if left_is_attr = FALSE
+  RelAttr left_attr;   /// left-hand side attribute
+  CompOp comp;         /// comparison operator
+  int right_is_attr;   /// TRUE if right-hand side is an attribute
+                       /// 1时，操作符右边是属性名，0时，是属性值
+  RelAttr right_attr;  /// right-hand side attribute if right_is_attr = TRUE 右边的属性
+  Value right_value;   /// right-hand side value if right_is_attr = FALSE
 };
 
-// struct of select
+/**
+ * @brief 描述一个select语句
+ * @details 一个正常的select语句描述起来比这个要复杂很多，这里做了简化。
+ * 一个select语句由三部分组成，分别是select, from, where。
+ * select部分表示要查询的字段，from部分表示要查询的表，where部分表示查询的条件。
+ * 比如 from 中可以是多个表，也可以是另一个查询语句，这里仅仅支持表，也就是 relations。
+ * where 条件 conditions，这里表示使用AND串联起来多个条件。正常的SQL语句会有OR，NOT等，
+ * 甚至可以包含复杂的表达式。
+ */
 struct Selects
 {
-  std::vector<RelAttr> attributes;  // attributes in select clause
-  std::vector<std::string> relations;
-  std::vector<Condition> conditions;
+  std::vector<RelAttr> attributes;    /// attributes in select clause
+  std::vector<std::string> relations; /// 查询的表
+  std::vector<Condition> conditions;  /// 查询条件，使用AND串联起来多个条件
 };
 
-// struct of insert
+/**
+ * @brief 描述一个insert语句
+ * @details 于Selects类似，也做了很多简化
+ */
 struct Inserts
 {
-  std::string relation_name;  // Relation to insert into
-  std::vector<Value> values;
+  std::string relation_name;  /// Relation to insert into
+  std::vector<Value> values;  /// 要插入的值
 };
 
-// struct of delete
+/**
+ * @brief 描述一个delete语句
+ */
 struct Deletes
 {
   std::string relation_name;  // Relation to delete from
   std::vector<Condition> conditions;
 };
 
-// struct of update
+/**
+ * @brief 描述一个update语句
+ * 
+ */
 struct Updates
 {
   std::string relation_name;   // Relation to update
-  std::string attribute_name;  // Attribute to update
-  Value value;                 // update value
+  std::string attribute_name;  /// 更新的字段，仅支持一个字段
+  Value value;                 /// 更新的值，仅支持一个字段
   std::vector<Condition> conditions;
 };
 
+/**
+ * @brief 描述一个属性
+ * @details 属性，或者说字段(column, field)
+ * Rel -> Relation
+ * Attr -> Attribute
+ */
 struct AttrInfo
 {
-  AttrType type;     // Type of attribute
-  std::string name;  // Attribute name
-  size_t length;     // Length of attribute
+  AttrType type;     /// Type of attribute
+  std::string name;  /// Attribute name
+  size_t length;     /// Length of attribute
 };
 
-// struct of craete_table
+/**
+ * @brief 描述一个create table语句
+ * @details 这里也做了很多简化。
+ */
 struct CreateTable
 {
   std::string relation_name;         // Relation name
   std::vector<AttrInfo> attr_infos;  // attributes
 };
 
-// struct of drop_table
+/**
+ * @brief 描述一个drop table语句
+ * 
+ */
 struct DropTable
 {
-  std::string relation_name;  // Relation name
+  std::string relation_name;  /// 要删除的表名
 };
 
-// struct of create_index
+/**
+ * @brief 描述一个create index语句
+ * @details 创建索引时，需要指定索引名，表名，字段名。
+ * 正常的SQL语句中，一个索引可能包含了多个字段，这里仅支持一个字段。
+ */
 struct CreateIndex
 {
-  std::string index_name;      // Index name
-  std::string relation_name;   // Relation name
-  std::string attribute_name;  // Attribute name
+  std::string index_name;      /// Index name
+  std::string relation_name;   /// Relation name
+  std::string attribute_name;  /// Attribute name
 };
 
-// struct of  drop_index
+/**
+ * @brief 描述一个drop index语句
+ * 
+ */
 struct DropIndex
 {
   std::string index_name;     // Index name
   std::string relation_name;  // Relation name
 };
 
+/**
+ * @brief 描述一个desc table语句
+ * @details desc table 是查询表结构信息的语句
+ */
 struct DescTable
 {
   std::string relation_name;
 };
 
+/**
+ * @brief 描述一个load data语句
+ * @details 从文件导入数据到表中。文件中的每一行就是一条数据，每行的数据类型、字段个数都与表保持一致
+ */
 struct LoadData
 {
   std::string relation_name;
@@ -157,11 +215,22 @@ struct LoadData
 };
 
 class Command;
+
+/**
+ * @brief 描述一个explain语句
+ * @details 会创建operator的语句，才能用explain输出执行计划。
+ * 一个command就是一个语句，比如select语句，insert语句等。
+ * 可能改成SqlCommand更合适。
+ */
 struct Explain
 {
   std::unique_ptr<Command> cmd;
 };
 
+/**
+ * @brief 解析SQL语句出现了错误
+ * @details 当前解析时并没有处理错误的行号和列号
+ */
 struct Error
 {
   std::string error_msg;
@@ -169,7 +238,10 @@ struct Error
   int column;
 };
 
-// 修改yacc中相关数字编码为宏定义
+/**
+ * @brief 表示一个SQL语句的类型
+ * 
+ */
 enum SqlCommandFlag
 {
   SCF_ERROR = 0,
@@ -184,7 +256,7 @@ enum SqlCommandFlag
   SCF_SYNC,
   SCF_SHOW_TABLES,
   SCF_DESC_TABLE,
-  SCF_BEGIN,
+  SCF_BEGIN,        /// 事务开始语句，可以在这里扩展只读事务
   SCF_COMMIT,
   SCF_CLOG_SYNC,
   SCF_ROLLBACK,
@@ -193,7 +265,10 @@ enum SqlCommandFlag
   SCF_EXIT,
   SCF_EXPLAIN,
 };
-// struct of flag and sql_struct
+/**
+ * @brief 表示一个SQL语句
+ * 
+ */
 class Command
 {
 public:
@@ -213,11 +288,11 @@ public:
 
 public:
   Command();
-  Command(enum SqlCommandFlag flag);
+  explicit Command(SqlCommandFlag flag);
 };
 
 /**
- * 表示语法解析后的数据
+ * @brief 表示语法解析后的数据
  * 叫ParsedSqlNode 可能会更清晰一点
  */
 class ParsedSqlResult
@@ -230,7 +305,7 @@ public:
   }
 
 private:
-  std::vector<std::unique_ptr<Command>> sql_commands_;
+  std::vector<std::unique_ptr<Command>> sql_commands_;  /// 这里记录SQL命令。虽然看起来支持多个，但是当前仅处理一个
 };
 
 const char *attr_type_to_string(AttrType type);

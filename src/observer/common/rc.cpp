@@ -9,16 +9,27 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/5/3.
+// Created by Wangyunlai on 2021/5/14.
 //
 
-#ifndef __OBSERVER_INIT_H__
-#define __OBSERVER_INIT_H__
+#include "common/rc.h"
 
-#include "common/os/process_param.h"
-#include "common/conf/ini.h"
+const char *strrc(RC rc)
+{
+#define DEFINE_RC(name) \
+  case RC::name: {      \
+    return #name;       \
+  } break;
 
-int init(common::ProcessParam *processParam);
-void cleanup();
+  switch (rc) {
+    DEFINE_RCS;
+    default: {
+      return "unkown";
+    }
+  }
+#undef DEFINE_RC
+}
 
-#endif  //__OBSERVER_INIT_H__
+bool OB_SUCC(RC rc) { return rc == RC::SUCCESS; }
+
+bool OB_FAIL(RC rc) { return rc != RC::SUCCESS; }

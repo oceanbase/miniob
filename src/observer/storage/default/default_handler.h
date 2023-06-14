@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 #include <map>
 
-#include "storage/common/db.h"
+#include "storage/db/db.h"
 
 class Trx;
 

@@ -16,13 +16,19 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/seda/stage.h"
 #include "sql/parser/parse.h"
-#include "rc.h"
+#include "common/rc.h"
 
 class SQLStageEvent;
 class SessionEvent;
 class SelectStmt;
 
-class ExecuteStage : public common::Stage {
+/**
+ * @brief 执行SQL语句的Stage，包括DML和DDL
+ * @details 根据前面阶段生成的结果，有些语句会生成执行计划，有些不会。
+ * 整体上分为两类，带执行计划的，或者 @class CommandExecutor 可以直接执行的。
+ */
+class ExecuteStage : public common::Stage 
+{
 public:
   virtual ~ExecuteStage();
   static Stage *make_stage(const std::string &tag);
@@ -40,14 +46,6 @@ protected:
   RC handle_request(common::StageEvent *event);
   RC handle_request_with_physical_operator(SQLStageEvent *sql_event);
 
-  RC do_help(SQLStageEvent *session_event);
-  RC do_create_table(SQLStageEvent *sql_event);
-  RC do_show_tables(SQLStageEvent *sql_event);
-  RC do_desc_table(SQLStageEvent *sql_event);
-  RC do_begin(SQLStageEvent *sql_event);
-  RC do_commit(SQLStageEvent *sql_event);
-
-protected:
 private:
   Stage *default_storage_stage_ = nullptr;
   Stage *mem_storage_stage_ = nullptr;

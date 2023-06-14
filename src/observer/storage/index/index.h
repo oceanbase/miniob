@@ -17,12 +17,13 @@ See the Mulan PSL v2 for more details. */
 #include <stddef.h>
 #include <vector>
 
-#include "rc.h"
-#include "storage/common/index_meta.h"
-#include "storage/common/field_meta.h"
+#include "common/rc.h"
+#include "storage/index/index_meta.h"
+#include "storage/field/field_meta.h"
 #include "storage/record/record_manager.h"
 
-class IndexDataOperator {
+class IndexDataOperator 
+{
 public:
   virtual ~IndexDataOperator() = default;
   virtual int compare(const void *data1, const void *data2) const = 0;

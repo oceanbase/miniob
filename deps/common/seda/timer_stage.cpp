@@ -73,13 +73,13 @@ void realtime_to_monotonic(const struct timeval *time_RT, struct timeval *time_M
   time_Mono->tv_usec = time_temp.tv_usec;
 }
 
-u64_t TimerToken::next_nonce()
+uint64_t TimerToken::next_nonce()
 {
-  static u64_t nonce_cntr = 0;
+  static uint64_t nonce_cntr = 0;
   static pthread_mutex_t tt_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   pthread_mutex_lock(&tt_mutex);
-  u64_t n = nonce_cntr++;
+  uint64_t n = nonce_cntr++;
   pthread_mutex_unlock(&tt_mutex);
 
   return n;
@@ -89,14 +89,14 @@ TimerToken::TimerToken()
 {
   struct timeval t;
   memset(&t, 0, sizeof(struct timeval));
-  u64_t n = next_nonce();
+  uint64_t n = next_nonce();
   set(t, n);
   return;
 }
 
 TimerToken::TimerToken(const struct timeval &t)
 {
-  u64_t n = next_nonce();
+  uint64_t n = next_nonce();
   set(t, n);
   return;
 }
@@ -107,7 +107,7 @@ TimerToken::TimerToken(const TimerToken &tt)
   return;
 }
 
-void TimerToken::set(const struct timeval &t, u64_t n)
+void TimerToken::set(const struct timeval &t, uint64_t n)
 {
   memcpy(&time, &t, sizeof(struct timeval));
   nonce = n;
@@ -119,7 +119,7 @@ const struct timeval &TimerToken::get_time() const
   return time;
 }
 
-u64_t TimerToken::get_nonce() const
+uint64_t TimerToken::get_nonce() const
 {
   return nonce;
 }
@@ -147,7 +147,7 @@ std::string TimerToken::to_string() const
   return ss.str();
 }
 
-TimerRegisterEvent::TimerRegisterEvent(StageEvent *cb, u64_t time_relative_usec) : TimerEvent(), timer_cb_(cb), token_()
+TimerRegisterEvent::TimerRegisterEvent(StageEvent *cb, uint64_t time_relative_usec) : TimerEvent(), timer_cb_(cb), token_()
 {
   struct timespec timer_spec;
   clock_gettime(CLOCK_MONOTONIC, &timer_spec);
@@ -305,7 +305,7 @@ bool TimerStage::initialize()
   return (status == 0);
 }
 
-u32_t TimerStage::get_num_events()
+uint32_t TimerStage::get_num_events()
 {
   return num_events_;
 }

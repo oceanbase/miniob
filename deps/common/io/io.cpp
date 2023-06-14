@@ -79,7 +79,7 @@ int readFromFile(const std::string &fileName, char *&outputData, size_t &fileSiz
   return 0;
 }
 
-int writeToFile(const std::string &fileName, const char *data, u32_t dataSize, const char *openMode)
+int writeToFile(const std::string &fileName, const char *data, uint32_t dataSize, const char *openMode)
 {
   FILE *file = fopen(fileName.c_str(), openMode);
   if (file == NULL) {
@@ -87,7 +87,7 @@ int writeToFile(const std::string &fileName, const char *data, u32_t dataSize, c
     return -1;
   }
 
-  u32_t leftSize = dataSize;
+  uint32_t leftSize = dataSize;
   const char *buffer = data;
   while (leftSize > 0) {
     int writeCount = fwrite(buffer, 1, leftSize, file);
@@ -106,7 +106,7 @@ int writeToFile(const std::string &fileName, const char *data, u32_t dataSize, c
   return 0;
 }
 
-int getFileLines(const std::string &fileName, u64_t &lineNum)
+int getFileLines(const std::string &fileName, uint64_t &lineNum)
 {
   lineNum = 0;
 
@@ -130,7 +130,7 @@ int getFileLines(const std::string &fileName, u64_t &lineNum)
   return 0;
 }
 
-int getFileNum(u64_t &fileNum, const std::string &path, const std::string &pattern, bool recursive)
+int getFileNum(int64_t &fileNum, const std::string &path, const std::string &pattern, bool recursive)
 {
   try {
     DIR *dirp = NULL;
@@ -327,7 +327,7 @@ int touch(const std::string &path)
   return 0;
 }
 
-int getFileSize(const char *filePath, u64_t &fileLen)
+int getFileSize(const char *filePath, int64_t &fileLen)
 {
   if (filePath == NULL || *filePath == '\0') {
     std::cerr << "invalid filepath" << std::endl;

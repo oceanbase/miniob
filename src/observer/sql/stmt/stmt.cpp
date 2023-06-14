@@ -12,13 +12,20 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2022/5/22.
 //
 
-#include "rc.h"
 #include "common/log/log.h"
+#include "sql/stmt/stmt.h"
 #include "sql/stmt/insert_stmt.h"
 #include "sql/stmt/delete_stmt.h"
 #include "sql/stmt/select_stmt.h"
 #include "sql/stmt/explain_stmt.h"
 #include "sql/stmt/create_index_stmt.h"
+#include "sql/stmt/create_table_stmt.h"
+#include "sql/stmt/desc_table_stmt.h"
+#include "sql/stmt/help_stmt.h"
+#include "sql/stmt/show_tables_stmt.h"
+#include "sql/stmt/trx_begin_stmt.h"
+#include "sql/stmt/trx_end_stmt.h"
+#include "sql/stmt/exit_stmt.h"
 
 RC Stmt::create_stmt(Db *db, const Command &cmd, Stmt *&stmt)
 {
@@ -42,6 +49,36 @@ RC Stmt::create_stmt(Db *db, const Command &cmd, Stmt *&stmt)
     case SCF_CREATE_INDEX: {
       return CreateIndexStmt::create(db, cmd.create_index, stmt);
     }
+
+    case SCF_CREATE_TABLE: {
+      return CreateTableStmt::create(db, cmd.create_table, stmt);
+    }
+
+    case SCF_DESC_TABLE: {
+      return DescTableStmt::create(db, cmd.desc_table, stmt);
+    }
+
+    case SCF_HELP: {
+      return HelpStmt::create(stmt);
+    }
+
+    case SCF_SHOW_TABLES: {
+      return ShowTablesStmt::create(db, stmt);
+    }
+
+    case SCF_BEGIN: {
+      return TrxBeginStmt::create(stmt);
+    }
+
+    case SCF_COMMIT:
+    case SCF_ROLLBACK: {
+      return TrxEndStmt::create(cmd.flag, stmt);
+    }
+
+    case SCF_EXIT: {
+      return ExitStmt::create(stmt);
+    }
+
     default: {
       LOG_INFO("Command::type %d doesn't need to create statement.", cmd.flag);
     } break;

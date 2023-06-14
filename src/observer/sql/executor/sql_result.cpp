@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2022/11/18.
 //
 
-#include "rc.h"
+#include "common/rc.h"
 #include "sql/executor/sql_result.h"
 #include "session/session.h"
 #include "storage/trx/trx.h"

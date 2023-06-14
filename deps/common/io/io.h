@@ -28,12 +28,12 @@ namespace common {
  */
 int readFromFile(const std::string &fileName, char *&data, size_t &fileSize);
 
-int writeToFile(const std::string &fileName, const char *data, u32_t dataSize, const char *openMode);
+int writeToFile(const std::string &fileName, const char *data, uint32_t dataSize, const char *openMode);
 
 /**
  * return the line number which line.strip() isn't empty
  */
-int getFileLines(const std::string &fileName, u64_t &lineNum);
+int getFileLines(const std::string &fileName, uint64_t &lineNum);
 
 /** Get file list from the dir
  * don't care ".", "..", ".****" hidden files
@@ -47,7 +47,7 @@ int getFileLines(const std::string &fileName, u64_t &lineNum);
  */
 int getFileList(
     std::vector<std::string> &fileList, const std::string &path, const std::string &pattern, bool recursive);
-int getFileNum(u64_t &fileNum, const std::string &path, const std::string &pattern, bool recursive);
+int getFileNum(uint64_t &fileNum, const std::string &path, const std::string &pattern, bool recursive);
 int getDirList(std::vector<std::string> &dirList, const std::string &path, const std::string &pattern);
 
 int touch(const std::string &fileName);
@@ -55,7 +55,7 @@ int touch(const std::string &fileName);
 /**
  * get file size
  */
-int getFileSize(const char *filePath, u64_t &fileLen);
+int getFileSize(const char *filePath, uint64_t &fileLen);
 
 /**
  * @brief 一次性写入所有指定数据

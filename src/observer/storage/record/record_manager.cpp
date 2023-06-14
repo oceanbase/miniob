@@ -12,7 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Longda on 2021/4/13.
 //
 #include "storage/record/record_manager.h"
-#include "rc.h"
 #include "common/log/log.h"
 #include "common/lang/bitmap.h"
 #include "storage/common/condition_filter.h"

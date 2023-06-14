@@ -15,7 +15,6 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include "gtest/gtest.h"
 #include "storage/persist/persist.h"
-#include "rc.h"
 
 const int MAX_LEN = 50;
 

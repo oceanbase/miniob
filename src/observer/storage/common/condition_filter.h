@@ -14,7 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "rc.h"
 #include "sql/parser/parse.h"
 
 class Record;

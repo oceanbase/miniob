@@ -14,7 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #include <mutex>
 #include "sql/parser/parse.h"
-#include "rc.h"
 #include "common/log/log.h"
 
 RC parse(char *st, Command *sqln);
@@ -75,7 +74,7 @@ int Value::length()
 Command::Command() : flag(SCF_ERROR)
 {}
 
-Command::Command(enum SqlCommandFlag _flag) : flag(_flag)
+Command::Command(SqlCommandFlag _flag) : flag(_flag)
 {}
 
 void ParsedSqlResult::add_command(std::unique_ptr<Command> command)

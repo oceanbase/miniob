@@ -9,27 +9,14 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2021/5/14.
+// Created by Wangyunlai on 2023/5/29.
 //
 
-#include "rc.h"
+#include "common/global_context.h"
 
-const char *strrc(RC rc)
+static GlobalContext global_context;
+
+GlobalContext &GlobalContext::instance()
 {
-#define DEFINE_RC(name) \
-  case RC::name: {      \
-    return #name;       \
-  } break;
-
-  switch (rc) {
-    DEFINE_RCS;
-    default: {
-      return "unkown";
-    }
-  }
-#undef DEFINE_RC
+  return global_context;
 }
-
-bool OB_SUCC(RC rc) { return rc == RC::SUCCESS; }
-
-bool OB_FAIL(RC rc) { return rc != RC::SUCCESS; }

@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "condition_filter.h"
 #include "storage/record/record_manager.h"
 #include "common/log/log.h"
-#include "storage/common/table.h"
+#include "storage/table/table.h"
 #include "sql/expr/tuple_cell.h"
 
 using namespace common;

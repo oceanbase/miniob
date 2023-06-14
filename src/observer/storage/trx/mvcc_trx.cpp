@@ -14,9 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #include <limits>
 #include "storage/trx/mvcc_trx.h"
-#include "storage/common/field.h"
+#include "storage/field/field.h"
 #include "storage/clog/clog.h"
-#include "storage/common/db.h"
+#include "storage/db/db.h"
 #include "storage/clog/clog.h"
 
 using namespace std;

@@ -12,12 +12,11 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai.wyl on 2021/5/18.
 //
 
-#include "storage/common/index_meta.h"
-#include "storage/common/field_meta.h"
-#include "storage/common/table_meta.h"
+#include "storage/index/index_meta.h"
+#include "storage/field/field_meta.h"
+#include "storage/table/table_meta.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
-#include "rc.h"
 #include "json/json.h"
 
 const static Json::StaticString FIELD_NAME("name");
