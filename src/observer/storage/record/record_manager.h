@@ -27,11 +27,10 @@ class Table;
 
 /**
  * @defgroup RecordManager
- * @file record_manager.h
- * 
  * @brief 这里负责管理在一个文件上表记录(行)的组织/管理
+ * @file record_manager.h
  *
- * 表记录管理的内容包括如何在文件上存放、读取、检索。也就是记录的增删改查。
+ * @details 表记录管理的内容包括如何在文件上存放、读取、检索。也就是记录的增删改查。
  * 这里的文件都会被拆分成页面，每个页面都有一样的大小。更详细的信息可以参考BufferPool。
  * 按照BufferPool的设计，第一个页面用来存放BufferPool本身的元数据，比如当前文件有多少页面、已经分配了多少页面、
  * 每个页面的分配状态等。所以第一个页面对RecordManager来说没有作用。RecordManager 本身没有再单独拿一个页面
@@ -55,8 +54,9 @@ class Table;
  */
 
 /**
- * 数据文件，按照页面来组织，每一页都存放一些记录/数据行
- * 每一页都有一个这样的页头，虽然看起来浪费，但是现在就简单的这么做
+ * @brief 数据文件，按照页面来组织，每一页都存放一些记录/数据行
+ * @ingroup RecordManager
+ * @details 每一页都有一个这样的页头，虽然看起来浪费，但是现在就简单的这么做
  * 从这个页头描述的信息来看，当前仅支持定长行/记录。如果要支持变长记录，
  * 或者超长（超出一页）的记录，这么做是不合适的。
  */
@@ -70,9 +70,8 @@ struct PageHeader
 };
 
 /**
- * @ingroup RecordManager
- * 
  * @brief 遍历一个页面中每条记录的iterator
+ * @ingroup RecordManager
  */
 class RecordPageIterator
 {
@@ -102,8 +101,8 @@ private:
 
 /**
  * @brief 负责处理一个页面中各种操作，比如插入记录、删除记录或者查找记录
- *
- * 当前定长记录模式下每个页面的组织大概是这样的：
+ * @ingroup RecordManager
+ * @details 当前定长记录模式下每个页面的组织大概是这样的：
  * | PageHeader | record allocate bitmap |
  * |------------|------------------------|
  * | record1 | record2 | ..... | recordN |
@@ -202,7 +201,8 @@ private:
 
 /**
  * @brief 管理整个文件中记录的增删改查
- * 整个文件的组织格式请参考该文件中最前面的注释
+ * @ingroup RecordManager
+ * @details 整个文件的组织格式请参考该文件中最前面的注释
  */
 class RecordFileHandler
 {
@@ -268,7 +268,8 @@ private:
 
 /**
  * @brief 遍历某个文件中所有记录
- * 遍历所有的页面，同时访问这些页面中所有的记录
+ * @ingroup RecordManager
+ * @details 遍历所有的页面，同时访问这些页面中所有的记录
  */
 class RecordFileScanner
 {

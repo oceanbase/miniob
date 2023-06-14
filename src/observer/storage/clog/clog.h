@@ -34,8 +34,8 @@ class Db;
 
 /**
  * @defgroup CLog
+ * @brief CLog 就是 commit log。或者等价于redo log。
  * @file clog.h
- * @brief CLog 就是 commit log
  * @details 这个模块想要实现数据库事务中的D(durability)，也就是持久化。
  * 持久化是事务四大特性(ACID)中最复杂的模块，这里的实现简化了99.999%，仅在一些特定场景下才能
  * 恢复数据库。
