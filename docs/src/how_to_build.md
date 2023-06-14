@@ -1,4 +1,4 @@
-# How to build
+# 如何编译
 
 0. base
 
