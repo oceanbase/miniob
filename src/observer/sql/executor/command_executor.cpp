@@ -13,18 +13,32 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/executor/command_executor.h"
-#include "session/session.h"
+#include "event/sql_event.h"
 #include "sql/stmt/stmt.h"
 #include "sql/executor/create_index_executor.h"
+#include "sql/executor/create_table_executor.h"
+#include "sql/executor/desc_table_executor.h"
 #include "common/log/log.h"
 
-RC CommandExecutor::execute(Session *session, Stmt *stmt)
+RC CommandExecutor::execute(SQLStageEvent *sql_event)
 {
+  Stmt *stmt = sql_event->stmt();
+
   switch (stmt->type()) {
     case StmtType::CREATE_INDEX: {
       CreateIndexExecutor executor;
-      return executor.execute(session, stmt);
+      return executor.execute(sql_event);
     } break;
+
+    case StmtType::CREATE_TABLE: {
+      CreateTableExecutor executor;
+      return executor.execute(sql_event);
+    } break;
+
+    case StmtType::DESC_TABLE: {
+      DescTableExecutor executor;
+      return executor.execute(sql_event);
+    }
 
     default: {
       LOG_ERROR("unknown command: %d", static_cast<int>(stmt->type()));

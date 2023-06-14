@@ -14,12 +14,16 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/executor/create_index_executor.h"
 #include "sql/stmt/create_index_stmt.h"
+#include "event/sql_event.h"
+#include "event/session_event.h"
 #include "session/session.h"
 #include "common/log/log.h"
 #include "storage/table/table.h"
 
-RC CreateIndexExecutor::execute(Session *session, Stmt *stmt)
+RC CreateIndexExecutor::execute(SQLStageEvent *sql_event)
 {
+  Stmt *stmt = sql_event->stmt();
+  Session *session = sql_event->session_event()->session();
   ASSERT(stmt->type() == StmtType::CREATE_INDEX, 
          "create index executor can not run this command: %d", static_cast<int>(stmt->type()));
 

@@ -9,21 +9,17 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2023/4/25.
+// Created by Wangyunlai on 2023/6/14.
 //
 
-#pragma once
+#include "sql/stmt/desc_table_stmt.h"
+#include "storage/db/db.h"
 
-#include "common/rc.h"
-
-class SQLStageEvent;
-
-
-class CommandExecutor
+RC DescTableStmt::create(Db *db, const DescTable &desc_table, Stmt *&stmt)
 {
-public:
-  CommandExecutor() = default;
-  virtual ~CommandExecutor() = default;
-
-  RC execute(SQLStageEvent *sql_event);
-};
+  if (db->find_table(desc_table.relation_name.c_str()) == nullptr) {
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+  stmt = new DescTableStmt(db, desc_table.relation_name);
+  return RC::SUCCESS;
+}

@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2023/4/25.
+// Created by Wangyunlai on 2023/6/13.
 //
 
 #pragma once
@@ -18,12 +18,11 @@ See the Mulan PSL v2 for more details. */
 
 class SQLStageEvent;
 
-
-class CommandExecutor
+class CreateTableExecutor
 {
 public:
-  CommandExecutor() = default;
-  virtual ~CommandExecutor() = default;
+  CreateTableExecutor() = default;
+  virtual ~CreateTableExecutor() = default;
 
   RC execute(SQLStageEvent *sql_event);
 };

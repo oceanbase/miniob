@@ -12,8 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2022/5/22.
 //
 
-#include "common/rc.h"
 #include "common/log/log.h"
+#include "sql/stmt/stmt.h"
 #include "sql/stmt/insert_stmt.h"
 #include "sql/stmt/delete_stmt.h"
 #include "sql/stmt/select_stmt.h"

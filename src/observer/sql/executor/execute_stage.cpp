@@ -133,12 +133,12 @@ RC ExecuteStage::handle_request(common::StageEvent *event)
     CommandExecutor command_executor;
     RC rc = RC::UNIMPLENMENT;
     switch (stmt->type()) {
-      case StmtType::UPDATE: {
-        // do_update((UpdateStmt *)stmt, session_event);
+      case StmtType::CREATE_TABLE:
+      case StmtType::CREATE_INDEX: 
+      case StmtType::DESC_TABLE: {
+        rc = command_executor.execute(sql_event);
       } break;
-      case StmtType::CREATE_INDEX: {
-        rc = command_executor.execute(session, stmt);
-      } break;
+
       default: {
         LOG_WARN("should not happen. please implement this type:%d", stmt->type());
       } break;
@@ -150,15 +150,9 @@ RC ExecuteStage::handle_request(common::StageEvent *event)
       case SCF_HELP: {
         do_help(sql_event);
       } break;
-      case SCF_CREATE_TABLE: {
-        do_create_table(sql_event);
-      } break;
 
       case SCF_SHOW_TABLES: {
         do_show_tables(sql_event);
-      } break;
-      case SCF_DESC_TABLE: {
-        do_desc_table(sql_event);
       } break;
 
       case SCF_DROP_TABLE:
@@ -274,21 +268,6 @@ RC ExecuteStage::do_help(SQLStageEvent *sql_event)
   return RC::SUCCESS;
 }
 
-RC ExecuteStage::do_create_table(SQLStageEvent *sql_event)
-{
-  SessionEvent *session_event = sql_event->session_event();
-  Db *db = session_event->session()->get_current_db();
-
-  const CreateTable &create_table = sql_event->command()->create_table;
-  const int attribute_count = static_cast<int>(create_table.attr_infos.size());
-
-  RC rc = db->create_table(create_table.relation_name.c_str(), attribute_count, create_table.attr_infos.data());
-
-  SqlResult *sql_result = session_event->sql_result();
-  sql_result->set_return_code(rc);
-  return rc;
-}
-
 RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
 {
   SqlResult *sql_result = sql_event->session_event()->sql_result();
@@ -309,41 +288,6 @@ RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
   }
 
   sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
-  return RC::SUCCESS;
-}
-
-RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
-{
-  SqlResult *sql_result = sql_event->session_event()->sql_result();
-
-  Command *cmd = sql_event->command().get();
-  const char *table_name = cmd->desc_table.relation_name.c_str();
-
-  Db *db = sql_event->session_event()->session()->get_current_db();
-  Table *table = db->find_table(table_name);
-  if (table != nullptr) {
-
-    TupleSchema tuple_schema;
-    tuple_schema.append_cell(TupleCellSpec("", "Field", "Field"));
-    tuple_schema.append_cell(TupleCellSpec("", "Type", "Type"));
-    tuple_schema.append_cell(TupleCellSpec("", "Length", "Length"));
-
-    // TODO add Key
-    sql_result->set_tuple_schema(tuple_schema);
-
-    auto oper = new StringListPhysicalOperator;
-    const TableMeta &table_meta = table->table_meta();
-    for (int i = table_meta.sys_field_num(); i < table_meta.field_num(); i++) {
-      const FieldMeta *field_meta = table_meta.field(i);
-      oper->append({field_meta->name(), attr_type_to_string(field_meta->type()), std::to_string(field_meta->len())});
-    }
-
-    sql_result->set_operator(unique_ptr<PhysicalOperator>(oper));
-  } else {
-
-    sql_result->set_return_code(RC::SCHEMA_TABLE_NOT_EXIST);
-    sql_result->set_state_string("Table not exists");
-  }
   return RC::SUCCESS;
 }
 
