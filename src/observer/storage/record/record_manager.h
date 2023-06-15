@@ -62,11 +62,11 @@ class Table;
  */
 struct PageHeader
 {
-  int32_t record_num;           /// 当前页面记录的个数
-  int32_t record_capacity;      /// 最大记录个数
-  int32_t record_real_size;     // 每条记录的实际大小
-  int32_t record_size;          // 每条记录占用实际空间大小(可能对齐)
-  int32_t first_record_offset;  // 第一条记录的偏移量
+  int32_t record_num;           ///< 当前页面记录的个数
+  int32_t record_capacity;      ///< 最大记录个数
+  int32_t record_real_size;     ///< 每条记录的实际大小
+  int32_t record_size;          ///< 每条记录占用实际空间大小(可能对齐)
+  int32_t first_record_offset;  ///< 第一条记录的偏移量
 };
 
 /**
@@ -95,8 +95,8 @@ public:
 private:
   RecordPageHandler *record_page_handler_ = nullptr;
   PageNum            page_num_            = BP_INVALID_PAGE_NUM;
-  common::Bitmap     bitmap_;             // bitmap 的相关信息可以参考 RecordPageHandler 的说明
-  SlotNum            next_slot_num_ = 0;  // 当前遍历到了哪一个slot
+  common::Bitmap     bitmap_;             ///< bitmap 的相关信息可以参考 RecordPageHandler 的说明
+  SlotNum            next_slot_num_ = 0;  ///< 当前遍历到了哪一个slot
 };
 
 /**
@@ -189,11 +189,11 @@ protected:
   }
 
 protected:
-  DiskBufferPool *disk_buffer_pool_ = nullptr;  /// 当前操作的buffer pool(文件)
-  bool            readonly_         = false;    /// 当前的操作是否都是只读的
-  Frame *frame_ = nullptr;  /// 当前操作页面关联的frame(frame的更多概念可以参考buffer pool和frame)
-  PageHeader *page_header_ = nullptr;  /// 当前页面上页面头
-  char       *bitmap_      = nullptr;  /// 当前页面上record分配状态信息bitmap内存起始位置
+  DiskBufferPool *disk_buffer_pool_ = nullptr;  ///< 当前操作的buffer pool(文件)
+  bool            readonly_         = false;    ///< 当前的操作是否都是只读的
+  Frame *frame_ = nullptr;  ///< 当前操作页面关联的frame(frame的更多概念可以参考buffer pool和frame)
+  PageHeader *page_header_ = nullptr;  ///< 当前页面上页面头
+  char       *bitmap_      = nullptr;  ///< 当前页面上record分配状态信息bitmap内存起始位置
 
 private:
   friend class RecordPageIterator;
@@ -223,18 +223,18 @@ public:
   void close();
 
   /**
-   * 从指定文件中删除标识符为rid的记录
+   * @brief 从指定文件中删除标识符为rid的记录
    */
   RC delete_record(const RID *rid);
 
   /**
-   * 插入一个新的记录到指定文件中，data为指向新纪录内容的指针，返回该记录的标识符rid
+   * @brief 插入一个新的记录到指定文件中，data为指向新纪录内容的指针，返回该记录的标识符rid
    */
   RC insert_record(const char *data, int record_size, RID *rid);
   RC recover_insert_record(const char *data, int record_size, const RID &rid);
 
   /**
-   * 获取指定文件中标识符为rid的记录内容到rec指向的记录结构中
+   * @brief 获取指定文件中标识符为rid的记录内容到rec指向的记录结构中
    * @param page_handler[in]
    * 访问记录时，会拿住一些资源不释放，比如页面锁，使用这个对象保存相关的资源，并在析构时会自动释放
    * @param rid 想要获取的记录ID
@@ -262,8 +262,8 @@ private:
 
 private:
   DiskBufferPool             *disk_buffer_pool_ = nullptr;
-  std::unordered_set<PageNum> free_pages_;  /// 没有填充满的页面集合
-  common::Mutex               lock_;  /// 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
+  std::unordered_set<PageNum> free_pages_;  ///< 没有填充满的页面集合
+  common::Mutex               lock_;  ///< 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
 };
 
 /**
@@ -278,8 +278,8 @@ public:
   ~RecordFileScanner();
 
   /**
-   * 打开一个文件扫描。
-   * 如果条件不为空，则要对每条记录进行条件比较，只有满足所有条件的记录才被返回
+   * @brief 打开一个文件扫描。
+   * @details 如果条件不为空，则要对每条记录进行条件比较，只有满足所有条件的记录才被返回
    * @param table        遍历的哪张表
    * @param buffer_pool  访问的文件
    * @param readonly     当前是否只读操作。访问数据时，需要对页面加锁。比如
@@ -289,27 +289,43 @@ public:
   RC open_scan(Table *table, DiskBufferPool &buffer_pool, Trx *trx, bool readonly, ConditionFilter *condition_filter);
 
   /**
-   * 关闭一个文件扫描，释放相应的资源
+   * @brief 关闭一个文件扫描，释放相应的资源
    */
   RC close_scan();
 
+  /**
+   * @brief 判断是否还有数据
+   * @details 判断完成后调用next获取下一条数据
+   */
   bool has_next();
+
+  /**
+   * @brief 获取下一条记录
+   * @details 获取下一条记录之前先调用has_next()判断是否还有数据
+   */
   RC   next(Record &record);
 
 private:
+  /**
+   * @brief 获取下一条记录
+   */
   RC fetch_next_record();
+
+  /**
+   * @brief 获取一个页面内的下一条记录
+   */
   RC fetch_next_record_in_page();
 
 private:
   // TODO 对于一个纯粹的record遍历器来说，不应该关心表和事务
-  Table *table_ = nullptr;  /// 当前遍历的是哪张表。这个字段仅供事务函数使用，如果设计合适，可以去掉
-  DiskBufferPool *disk_buffer_pool_ = nullptr;  /// 当前访问的文件
-  Trx            *trx_              = nullptr;  /// 当前是哪个事务在遍历
-  bool            readonly_         = false;    /// 遍历出来的数据，是否可能对它做修改
+  Table *table_ = nullptr;  ///< 当前遍历的是哪张表。这个字段仅供事务函数使用，如果设计合适，可以去掉
+  DiskBufferPool *disk_buffer_pool_ = nullptr;  ///< 当前访问的文件
+  Trx            *trx_              = nullptr;  ///< 当前是哪个事务在遍历
+  bool            readonly_         = false;    ///< 遍历出来的数据，是否可能对它做修改
 
-  BufferPoolIterator bp_iterator_;                 /// 遍历buffer pool的所有页面
-  ConditionFilter   *condition_filter_ = nullptr;  /// 过滤record
+  BufferPoolIterator bp_iterator_;                 ///< 遍历buffer pool的所有页面
+  ConditionFilter   *condition_filter_ = nullptr;  ///< 过滤record
   RecordPageHandler  record_page_handler_;
-  RecordPageIterator record_page_iterator_;  /// 遍历某个页面上的所有record
-  Record             next_record_;
+  RecordPageIterator record_page_iterator_;        ///< 遍历某个页面上的所有record
+  Record             next_record_;                 ///< 获取的记录放在这里缓存起来
 };

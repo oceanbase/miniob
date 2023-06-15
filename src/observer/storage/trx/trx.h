@@ -26,8 +26,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/rc.h"
 
 /**
- * @defgroup Transaction 事务模块
- * @brief 描述事务相关的代码
+ * @defgroup Transaction
+ * @brief 事务相关的内容
  */
 
 class Db;
@@ -37,11 +37,16 @@ class Trx;
 
 /**
  * @brief 描述一个操作，比如插入、删除行等
+ * @ingroup Transaction
  * @details 通常包含一个操作的类型，以及操作的对象和具体的数据
  */
 class Operation 
 {
 public:
+  /**
+   * @brief 操作的类型
+   * @ingroup Transaction
+   */
   enum class Type : int 
   {
     INSERT,
@@ -65,8 +70,9 @@ public:
   SlotNum slot_num() const { return slot_num_; }
 
 private:
+  ///< 操作的哪张表。这里直接使用表其实并不准确，因为表中的索引也可能有日志
   Type type_;
-  /// 操作的哪张表。这里直接使用表其实并不准确，因为表中的索引也可能有日志
+  
   Table * table_ = nullptr;
   PageNum page_num_; // TODO use RID instead of page num and slot num
   SlotNum slot_num_;
@@ -91,13 +97,22 @@ public:
   }
 };
 
+/**
+ * @brief 事务管理器
+ * @ingroup Transaction
+ */
 class TrxKit
 {
 public:
+  /**
+   * @brief 事务管理器的类型
+   * @ingroup Transaction
+   * @details 进程启动时根据事务管理器的类型来创建具体的对象
+   */
   enum Type
   {
-    VACUOUS,
-    MVCC,
+    VACUOUS,    ///< 空的事务管理器，不做任何事情
+    MVCC,       ///< 支持MVCC的事务管理器
   };
 
 public:
@@ -119,6 +134,10 @@ public:
   static TrxKit *instance();
 };
 
+/**
+ * @brief 事务接口
+ * @ingroup Transaction
+ */
 class Trx
 {
 public:
