@@ -6,17 +6,17 @@ OceanBase 社区热情欢迎每一位对数据库技术热爱的开发者，期�
 
 为了帮助开发者更好的上手并学习 miniob, 建议阅读：
 
-1. [miniob 框架介绍](https://github.com/oceanbase/miniob/blob/main/docs/miniob-introduction.md)
-2. [如何编译 miniob 源码](https://github.com/oceanbase/miniob/blob/main/docs/how_to_build.md)
-3. [开发环境搭建(本地调试, 适用 Linux 和 Mac)](https://github.com/oceanbase/miniob/blob/main/docs/how_to_dev_miniob_by_vscode.md)
-4. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](https://github.com/oceanbase/miniob/blob/main/docs/how_to_dev_in_docker_container_by_vscode.md)
-5. [miniob 词法语法解析开发与测试](docs/miniob-sql-parser.md)
+1. [miniob 框架介绍](docs/src/miniob-introduction.md)
+2. [如何编译 miniob 源码](docs/src/how_to_build.md)
+3. [开发环境搭建(本地调试, 适用 Linux 和 Mac)](docs/src/dev-env/how_to_dev_miniob_by_vscode.md)
+4. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](docs/src/dev-env/how_to_dev_in_docker_container_by_vscode.md)
+5. [miniob 文档汇总](docs/src/SUMMARY.md)
 
 更多的文档, 可以参考 [docs](https://github.com/oceanbase/miniob/tree/main/docs), 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
 
 1. [《从0到1数据库内核实战教程》  视频教程](https://open.oceanbase.com/activities/4921877?id=4921946)
 2. [《从0到1数据库内核实战教程》  基础讲义](https://github.com/oceanbase/kernel-quickstart)
-3. [《数据库管理系统实现》  华中科技大学实现教材](https://github.com/oceanbase/miniob/blob/main/docs/lectures/index.md)
+3. [《数据库管理系统实现》  华中科技大学实现教材](docs/src/lectures/index.md)
 
 ## 如何找到一个合适issue
 

@@ -30,6 +30,8 @@ cmake -DCONCURRENCY=ON ..
 ```
 然后在build目录执行 make。编译完成后启动 observer 服务端进程。
 
+> 也可以使用 bash build.sh -DCONCURRENCY=ON 来编译
+
 可以在启动observer时，增加 `-t mvcc` 选项来开启MVCC，假设当前目录是build(或build_debug之类)：
 
 ```bash

@@ -1,33 +1,33 @@
-# miniob 概述
+# MiniOB 概述
 
-miniob 是 [OceanBase](https://github.com/oceanbase/oceanbase) 与华中科技大学联合开发的、面向"零"基础同学的数据库入门学习项目。
+MiniOB 是 [OceanBase](https://github.com/oceanbase/oceanbase) 与华中科技大学联合开发的、面向"零"基础同学的数据库入门学习项目。
 
-miniob 设计的目标是面向在校学生、数据库从业者、爱好者，或者对基础技术有兴趣的爱好者, 整体代码量少，易于上手并学习, 是一个系统性的数据库学习项目。miniob 设置了一系列由浅入深的题目，以帮助同学们"零"基础入门, 让同学们快速了解数据库并深入学习数据库内核，期望通过相关训练之后，能够熟练掌握数据库内核模块的功能与协同关系, 并能够在使用数据库时，设计出高效的 SQL 。miniob 为了更好的学习数据库实现原理, 对诸多模块都做了简化，比如不考虑并发操作, 安全特性, 复杂的事物管理等功能。
-
-(注意：此代码仅供学习使用，请勿用于生产项目。)
+MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，或者对基础技术有兴趣的爱好者, 整体代码量少，易于上手并学习, 是一个系统性的数据库学习项目。miniob 设置了一系列由浅入深的题目，以帮助同学们"零"基础入门, 让同学们快速了解数据库并深入学习数据库内核，期望通过相关训练之后，能够熟练掌握数据库内核模块的功能与协同关系, 并能够在使用数据库时，设计出高效的 SQL 。miniob 为了更好的学习数据库实现原理, 对诸多模块都做了简化，比如不考虑并发操作, 安全特性, 复杂的事物管理等功能。
 
 ## 快速上手
 
 为了帮助开发者更好的上手并学习 miniob, 建议阅读：
 
 1. [miniob 框架介绍](docs/miniob-introduction.md)
-2. [如何编译 miniob 源码](docs/how_to_build.md)
+2. [如何编译 MiniOB 源码](docs/how_to_build.md)
 3. [使用 GitPod 开发 MiniOB](docs/dev_by_gitpod.md)
 4. [开发环境搭建(本地调试, 适用 Linux 和 Mac)](docs/how_to_dev_miniob_by_vscode.md)
 5. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](docs/how_to_dev_in_docker_container_by_vscode.md)
-6. [miniob 词法语法解析开发与测试](docs/miniob-sql-parser.md)
+6. [MiniOB 词法语法解析开发与测试](docs/miniob-sql-parser.md)
 7. [doxygen 代码文档](docs/doxy/html/index.html)
+
+或者直接看 [MiniOB GitHub Pages](https://oceanbase.github.io/miniob/).
 
 更多的文档, 可以参考 docs 目录下的文档, 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
 
 1. [《从0到1数据库内核实战教程》  视频教程](https://open.oceanbase.com/activities/4921877?id=4921946)
 2. [《从0到1数据库内核实战教程》  基础讲义](https://github.com/oceanbase/kernel-quickstart)
-3. [《数据库管理系统实现》  华中科技大学实现教材](docs/lectures/index.md)
+3. [《数据库管理系统实现》  华中科技大学实现教材](docs/src/lectures/index.md)
 
 ## 系统架构
 
-miniob 整体架构如下图所示:
-![架构](docs/images/miniob-introduction-sql-flow.png)
+MiniOB 整体架构如下图所示:
+![架构](docs/src/images/miniob-introduction-sql-flow.png)
 
 其中:
 
@@ -62,11 +62,11 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 ### 1. 大赛手把手入门教程
 
-[大赛入门教程](https://github.com/oceanbase/kernel-quickstart/blob/V1.0.0/zh-CN/1.database-system-overview/5.miniob-github-gitee-instructions.md)
+[大赛入门教程](docs/src/game/gitee-instructions.md)
 
 ### 2. 大赛赛题
 
-[赛题介绍](docs/miniob_topics.md) 
+[赛题介绍](docs/src/game/miniob_topics.md) 
 
 ### 3. 提交测试
 
@@ -74,7 +74,7 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 在提交前, 请参考并学习 [训练营使用说明](https://ask.oceanbase.com/t/topic/35600372)
 
-客户端输出需要满足一定要求，如果你的测试结果不符合预期，请参考 [miniob 输出约定](docs/miniob-output-convention.md)。
+客户端输出需要满足一定要求，如果你的测试结果不符合预期，请参考 [miniob 输出约定](docs/src/game/miniob-output-convention.md)。
 
 ### 4. 大赛FAQ
 
@@ -94,7 +94,7 @@ OceanBase 社区热情欢迎每一位对数据库技术热爱的开发者，期�
 
 ## License
 
-miniob 采用 [木兰宽松许可证，第2版](https://license.coscl.org.cn/MulanPSL2), 可以自由拷贝和使用源码, 当做修改或分发时, 请遵守 [木兰宽松许可证，第2版](https://license.coscl.org.cn/MulanPSL2). 
+MiniOB 采用 [木兰宽松许可证，第2版](https://license.coscl.org.cn/MulanPSL2), 可以自由拷贝和使用源码, 当做修改或分发时, 请遵守 [木兰宽松许可证，第2版](https://license.coscl.org.cn/MulanPSL2). 
 
 ## 社区组织
 
