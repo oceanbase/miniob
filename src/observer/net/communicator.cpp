@@ -234,7 +234,7 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       cell.to_string(ss);
       std::string cell_str = ss.str();
       int ret = common::writen(fd_, cell_str.data(), cell_str.size());
-      if (ret != RC::SUCCESS) {
+      if (ret != 0) {
         LOG_WARN("failed to send data to client. err=%s", strerror(errno));
         sql_result->close();
         return RC::IOERR_WRITE;

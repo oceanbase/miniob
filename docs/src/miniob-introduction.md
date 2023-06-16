@@ -1,4 +1,4 @@
-# OceanBase大赛miniob代码架构框架设计和说明
+# miniob代码架构框架设计和说明
 
 # miniob代码结构说明
 
@@ -123,9 +123,6 @@ miniob采用TCP通信，纯文本模式，使用'\0'作为每个消息的终结�
 注意：测试程序也使用这种方法，***请不要修改协议，后台测试程序依赖这个协议***。
 注意：返回的普通数据结果中不要包含'\0'，也不支持转义处理。
 
-### 参赛/训练营建议
-在做miniob的题目时，不要做一个题目再看下一个题目，团队中多个同学分别做自己的题目时，也不要一直单独作战，因为完成课题时，需要修改的模块会有非常多的重叠，因此建议团队尽量统筹规划，避免代码冲突以及“越走越难”。
-
 # 参考
 - 《数据库系统实现》
 - 《数据库系统概念》
@@ -139,16 +136,6 @@ miniob采用TCP通信，纯文本模式，使用'\0'作为每个消息的终结�
 - [OceanBase开源网站](https://github.com/oceanbase/oceanbase)
 
 # 附录-编译安装测试
-## 编译环境
-miniob使用cmake管理，要求cmake版本至少3.10，编译的C++标准是C++20，所以使用的编译器需要支持C++20。
-
-编译器推荐使用gcc或clang，使用Windows操作系统的同学，建议使用Linux虚拟机或docker编译，程序会最终在Linux操作系统上测试。
-
-使用MacOS的同学，注意默认编译器是clang，即使使用命令gcc，实际编译器可能也是clang。
-
-miniob 的开发环境依赖的组件比较多，搭建开发环境可能需要比较多的时间，同学们可以直接使用Docker来开发，具体参考 [MiniOB Docker 开发](https://hub.docker.com/r/oceanbase/miniob)
-
-NOTE：clang编译器有些表现与gcc不一致，官方测试后台使用gcc，如果后续测试出现编译错误，可以更换为gcc测试。
 
 ## 编译
 参考源码中 [如何构建MiniOB](./how_to_build.md) 文件。
@@ -189,16 +176,3 @@ obclient -s miniob.sock
 其中 -s 使用指定unix socket 文件连接observer，如果启动observer时也指定了unix socket。
 
 ![running-the-client](images/miniob-introduction-running-the-client.png)
-
-# FAQ
-
-- 命令没有加分号解析失败，比如 `help`命令
-
-miniob 是功能非常简单的数据库，语法解析也做得非常简单。所有的命令都需要加上分号`;`。
-
-- YYYY-m-d是否是正确的日期
-比如 2021-1-2 是否正确日期？是正确的。
-> 输出的时候要求一定要是 YYYY-mm-dd输出(2021-01-02)，但是输入的时候，没有那么严格要求。
-
-- 增加CPP/H 文件是否需要更新CMakeLists.txt
-不需要。Cmake文件中使用自动探测的方式。加了新的源代码，再执行一遍  cmake .. 就可以自动探测到新加的源文件。

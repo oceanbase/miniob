@@ -23,30 +23,38 @@ class SessionEvent;
 class Session;
 
 /**
- * 负责与客户端通讯
+ * @defgroup Communicator
+ * @brief 负责处理与客户端的通讯
+ * @details 当前有两种通讯协议，一种是普通的文本协议，以'\0'作为结尾，一种是mysql协议。
+ */
+
+/**
+ * @brief 负责与客户端通讯
+ * @ingroup Communicator
  *
- * 在listener接收到一个新的连接(参考 server.cpp::accept), 就创建一个Communicator对象。
+ * @details 在listener接收到一个新的连接(参考 server.cpp::accept), 就创建一个Communicator对象。
  * 并调用init进行初始化。
  * 在server中监听到某个连接有新的消息，就通过Communicator::read_event接收消息。
 
  */
-class Communicator {
+class Communicator 
+{
 public:
   virtual ~Communicator();
 
   /**
-   * 接收到一个新的连接时，进行初始化
+   * @brief 接收到一个新的连接时，进行初始化
    */
   virtual RC init(int fd, Session *session, const std::string &addr);
 
   /**
-   * 监听到有新的数据到达，调用此函数进行接收消息
+   * @brief 监听到有新的数据到达，调用此函数进行接收消息
    * 如果需要创建新的任务来处理，那么就创建一个SessionEvent 对象并通过event参数返回。
    */
   virtual RC read_event(SessionEvent *&event) = 0;
 
   /**
-   * 在任务处理完成后，通过此接口将结果返回给客户端
+   * @brief 在任务处理完成后，通过此接口将结果返回给客户端
    * @param event 任务数据，包括处理的结果
    * @param need_disconnect 是否需要断开连接
    * @return 处理结果。即使返回不是SUCCESS，也不能直接断开连接，需要通过need_disconnect来判断
@@ -55,7 +63,7 @@ public:
   virtual RC write_result(SessionEvent *event, bool &need_disconnect) = 0;
 
   /**
-   * 关联的会话信息
+   * @brief 关联的会话信息
    */
   Session *session() const
   {
@@ -63,7 +71,7 @@ public:
   }
 
   /**
-   * libevent使用的数据，参考server.cpp
+   * @brief libevent使用的数据，参考server.cpp
    */
   struct event &read_event()
   {
@@ -71,7 +79,7 @@ public:
   }
 
   /**
-   * 对端地址
+   * @brief 对端地址
    * 如果是unix socket，可能没有意义
    */
   const char *addr() const
@@ -87,10 +95,12 @@ protected:
 };
 
 /**
- * 与客户端进行通讯
- * 使用简单的文本通讯协议，每个消息使用'\0'结尾
+ * @brief 与客户端进行通讯
+ * @ingroup Communicator
+ * @details 使用简单的文本通讯协议，每个消息使用'\0'结尾
  */
-class PlainCommunicator : public Communicator {
+class PlainCommunicator : public Communicator 
+{
 public:
   RC read_event(SessionEvent *&event) override;
   RC write_result(SessionEvent *event, bool &need_disconnect) override;
@@ -100,14 +110,21 @@ private:
 };
 
 /**
- * 当前支持的通讯协议
+ * @brief 当前支持的通讯协议
+ * @ingroup Communicator
  */
-enum class CommunicateProtocol {
+enum class CommunicateProtocol 
+{
   PLAIN,  //! 以'\0'结尾的协议
   MYSQL,  //! mysql通讯协议。具体实现参考 MysqlCommunicator
 };
 
-class CommunicatorFactory {
+/**
+ * @brief 通讯协议工厂
+ * @ingroup Communicator
+ */
+class CommunicatorFactory 
+{
 public:
   Communicator *create(CommunicateProtocol protocol);
 };
