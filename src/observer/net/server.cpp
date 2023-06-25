@@ -39,10 +39,8 @@ See the Mulan PSL v2 for more details. */
 #include <common/metrics/metrics_registry.h>
 
 using namespace common;
-static const std::string WRITE_SOCKET_METRIC_TAG = "SessionStage.writesocket";
 
 Stage *Server::session_stage_ = nullptr;
-common::SimpleTimer *Server::write_socket_metric_ = nullptr;
 
 ServerParam::ServerParam()
 {
@@ -53,10 +51,6 @@ ServerParam::ServerParam()
 
 Server::Server(ServerParam input_server_param) : server_param_(input_server_param)
 {
-  started_ = false;
-  server_socket_ = 0;
-  event_base_ = nullptr;
-  listen_ev_ = nullptr;
 }
 
 Server::~Server()
@@ -69,8 +63,6 @@ Server::~Server()
 void Server::init()
 {
   session_stage_ = get_seda_config()->get_stage(SESSION_STAGE_NAME);
-
-  MetricsRegistry &metricsRegistry = get_metrics_registry();
 }
 
 int Server::set_non_block(int fd)
@@ -168,8 +160,8 @@ void Server::accept(int fd, short ev, void *arg)
 
   ret = event_base_set(instance->event_base_, &communicator->read_event());
   if (ret < 0) {
-    LOG_ERROR(
-        "Failed to do event_base_set for read event of %s into libevent, %s", communicator->addr(), strerror(errno));
+    LOG_ERROR("Failed to do event_base_set for read event of %s into libevent, %s", 
+              communicator->addr(), strerror(errno));
     delete communicator;
     return;
   }
@@ -186,12 +178,15 @@ void Server::accept(int fd, short ev, void *arg)
 
 int Server::start()
 {
-  if (server_param_.use_unix_socket) {
+  if (server_param_.use_std_io) {
+    return start_stdin_server();
+  } else if (server_param_.use_unix_socket) {
     return start_unix_socket_server();
   } else {
     return start_tcp_server();
   }
 }
+
 int Server::start_tcp_server()
 {
   int ret = 0;
@@ -259,7 +254,6 @@ int Server::start_tcp_server()
 
 int Server::start_unix_socket_server()
 {
-
   int ret = 0;
   server_socket_ = socket(PF_UNIX, SOCK_STREAM, 0);
   if (server_socket_ < 0) {
@@ -274,7 +268,7 @@ int Server::start_unix_socket_server()
     return -1;
   }
 
-  unlink(server_param_.unix_socket_path.c_str());
+  unlink(server_param_.unix_socket_path.c_str());  /// 如果不删除源文件，可能会导致bind失败
 
   struct sockaddr_un sockaddr;
   memset(&sockaddr, 0, sizeof(sockaddr));
@@ -312,6 +306,35 @@ int Server::start_unix_socket_server()
 
   started_ = true;
   LOG_INFO("Observer start success");
+  return 0;
+}
+
+int Server::start_stdin_server()
+{
+  int ret = 0;
+  int fd = STDIN_FILENO;
+
+  ret = set_non_block(fd);
+  if (ret < 0) {
+    LOG_ERROR("Failed to set stdin option non-blocking:%s. ", strerror(errno));
+    return -1;
+  }
+
+  Communicator *communicator = communicator_factory_.create(server_param_.protocol);
+  listen_ev_ = event_new(event_base_, fd, EV_READ | EV_PERSIST, recv, communicator);
+  if (listen_ev_ == nullptr) {
+    LOG_ERROR("Failed to create listen event, %s.", strerror(errno));
+    return -1;
+  }
+
+  ret = event_add(listen_ev_, nullptr);
+  if (ret < 0) {
+    LOG_ERROR("event_add(): can not add accept event into libevent, %s", strerror(errno));
+    return -1;
+  }
+
+  started_ = true;
+  LOG_INFO("Observer start stdin success");
   return 0;
 }
 

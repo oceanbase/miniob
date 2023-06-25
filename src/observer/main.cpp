@@ -38,7 +38,7 @@ void usage()
   std::cout << "-p: server port. if not specified, the item in the config file will be used" << std::endl;
   std::cout << "-f: path of config file." << std::endl;
   std::cout << "-s: use unix socket and the argument is socket address" << std::endl;
-  std::cout << "-P: protocol. {plain(default), mysql}." << std::endl;
+  std::cout << "-P: protocol. {plain(default), mysql, cli}." << std::endl;
   std::cout << "-t: transaction model. {vacuous(default), mvcc}." << std::endl;
   std::cout << "-n: buffer pool memory size in byte" << std::endl;
   exit(0);
@@ -131,11 +131,14 @@ Server *init_server()
   server_param.port = port;
   if (0 == strcasecmp(process_param->get_protocol().c_str(), "mysql")) {
     server_param.protocol = CommunicateProtocol::MYSQL;
+  } else if (0 == strcasecmp(process_param->get_protocol().c_str(), "cli")) {
+    server_param.use_std_io = true;
+    server_param.protocol = CommunicateProtocol::CLI;
   } else {
     server_param.protocol = CommunicateProtocol::PLAIN;
   }
 
-  if (process_param->get_unix_socket_path().size() > 0) {
+  if (process_param->get_unix_socket_path().size() > 0 && !server_param.use_std_io) {
     server_param.use_unix_socket = true;
     server_param.unix_socket_path = process_param->get_unix_socket_path();
   }
