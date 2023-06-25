@@ -93,8 +93,6 @@ protected:
   struct event read_event_;
   std::string addr_;
   BufferedWriter *writer_ = nullptr;
-
-private:
   int fd_ = -1;
 };
 

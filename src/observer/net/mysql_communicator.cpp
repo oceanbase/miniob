@@ -598,6 +598,8 @@ RC MysqlCommunicator::init(int fd, Session *session, const std::string &addr)
     return rc;
   }
 
+  writer_->flush();
+
   return rc;
 }
 
@@ -663,6 +665,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to send ok packet while auth");
     }
+    writer_->flush();
     authed_ = true;
     LOG_INFO("client authed. addr=%s. rc=%s", addr_.c_str(), strrc(rc));
     return rc;
@@ -696,6 +699,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
       LOG_WARN("failed to send ok packet. command=%d, addr=%s, error=%s", command_type, addr(), strrc(rc));
       return rc;
     }
+    writer_->flush();
   }
   return rc;
 }
@@ -736,6 +740,7 @@ RC MysqlCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
   }
 
   delete[] buf;
+  writer_->flush();
   return rc;
 }
 
@@ -792,6 +797,7 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   if (rc == RC::SUCCESS) {
     rc = close_rc;
   }
+  writer_->flush();
   return rc;
 }
 
@@ -804,7 +810,7 @@ RC MysqlCommunicator::send_packet(const BasePacket &packet)
     return rc;
   }
 
-  rc = writer_->write(net_packet.data(), net_packet.size());
+  rc = writer_->writen(net_packet.data(), net_packet.size());
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to send packet to client. addr=%s, error=%s", addr(), strerror(errno));
     return rc;

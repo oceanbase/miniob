@@ -135,6 +135,8 @@ RC PlainCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
 
   need_disconnect = false;
   delete[] buf;
+
+  writer_->flush();
   return RC::SUCCESS;
 }
 
