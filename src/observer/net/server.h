@@ -82,7 +82,7 @@ private:
   int start_stdin_server();
 
 private:
-  bool started_ = false;
+  volatile bool started_ = false;
 
   int server_socket_ = -1;  ///< 监听套接字，是一个描述符
   struct event_base *event_base_ = nullptr; ///< libevent对象

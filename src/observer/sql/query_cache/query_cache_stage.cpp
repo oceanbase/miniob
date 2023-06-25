@@ -79,8 +79,3 @@ void QueryCacheStage::handle_event(StageEvent *event)
 
   return;
 }
-
-void QueryCacheStage::callback_event(StageEvent *event, CallbackContext *context)
-{
-  return;
-}

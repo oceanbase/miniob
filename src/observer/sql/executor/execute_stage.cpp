@@ -86,13 +86,6 @@ void ExecuteStage::handle_event(StageEvent *event)
   return;
 }
 
-void ExecuteStage::callback_event(StageEvent *event, CallbackContext *context)
-{
-  // here finish read all data from disk or network, but do nothing here.
-
-  return;
-}
-
 RC ExecuteStage::handle_request(common::StageEvent *event)
 {
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);

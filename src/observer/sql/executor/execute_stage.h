@@ -41,7 +41,6 @@ protected:
   bool initialize() override;
   void cleanup() override;
   void handle_event(common::StageEvent *event) override;
-  void callback_event(common::StageEvent *event, common::CallbackContext *context) override;
 
   RC handle_request(common::StageEvent *event);
   RC handle_request_with_physical_operator(SQLStageEvent *sql_event);

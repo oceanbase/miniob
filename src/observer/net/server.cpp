@@ -311,30 +311,30 @@ int Server::start_unix_socket_server()
 
 int Server::start_stdin_server()
 {
-  int ret = 0;
-  int fd = STDIN_FILENO;
-
-  ret = set_non_block(fd);
-  if (ret < 0) {
-    LOG_ERROR("Failed to set stdin option non-blocking:%s. ", strerror(errno));
-    return -1;
-  }
-
   Communicator *communicator = communicator_factory_.create(server_param_.protocol);
-  listen_ev_ = event_new(event_base_, fd, EV_READ | EV_PERSIST, recv, communicator);
-  if (listen_ev_ == nullptr) {
-    LOG_ERROR("Failed to create listen event, %s.", strerror(errno));
-    return -1;
-  }
-
-  ret = event_add(listen_ev_, nullptr);
-  if (ret < 0) {
-    LOG_ERROR("event_add(): can not add accept event into libevent, %s", strerror(errno));
+  RC rc = communicator->init(STDIN_FILENO, new Session(Session::default_session()), "stdin");
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to init cli communicator. rc=%s", strrc(rc));
     return -1;
   }
 
   started_ = true;
-  LOG_INFO("Observer start stdin success");
+
+  while (started_) {
+    SessionEvent *event = nullptr;
+    rc = communicator->read_event(event);
+    if (OB_FAIL(rc)) {
+      LOG_WARN("failed to read event. rc=%s", strrc(rc));
+      return -1;
+    }
+
+    if (event == nullptr) {
+      break;
+    }
+
+    /// 在当前线程立即处理对应的事件
+    session_stage_->handle_event(event);
+  }
   return 0;
 }
 
@@ -353,7 +353,9 @@ int Server::serve()
     exit(-1);
   }
 
-  event_base_dispatch(event_base_);
+  if (!server_param_.use_std_io) {
+    event_base_dispatch(event_base_);
+  }
 
   if (listen_ev_ != nullptr) {
     event_del(listen_ev_);

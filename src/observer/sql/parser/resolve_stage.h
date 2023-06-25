@@ -34,7 +34,6 @@ protected:
   bool initialize();
   void cleanup();
   void handle_event(common::StageEvent *event);
-  void callback_event(common::StageEvent *event, common::CallbackContext *context);
 
 protected:
 private:

@@ -205,7 +205,7 @@ public:
 
   /**
    * Perform Stage-specific processing for an event
-   * Processing one event without swtich thread.
+   * Processing one event without switch thread.
    * Handle the event according to requirements of specific stage.  Pure
    * virtual member function.
    *
@@ -222,7 +222,8 @@ public:
    *
    * @param[in] event Pointer to event that initiated the callback.
    */
-  virtual void callback_event(StageEvent *event, CallbackContext *context) = 0;
+  virtual void callback_event(StageEvent *event, CallbackContext *context)
+  {}
 
   /**
    * Perform Stage-specific callback processing for a timed out event

@@ -75,9 +75,6 @@ void parse_parameter(int argc, char **argv)
       case 'e':
         process_param->set_std_err(optarg);
         break;
-      case 'd':
-        process_param->set_demon(true);
-        break;
       case 't':
         process_param->set_trx_kit_name(optarg);
         break;
@@ -169,13 +166,14 @@ void quit_signal_handle(int signum)
 
 int main(int argc, char **argv)
 {
+  int rc = STATUS_SUCCESS;
+
   setSignalHandler(quit_signal_handle);
 
   parse_parameter(argc, argv);
 
-  int rc = STATUS_SUCCESS;
   rc = init(the_process_param());
-  if (rc) {
+  if (rc != STATUS_SUCCESS) {
     std::cerr << "Shutdown due to failed to init!" << std::endl;
     cleanup();
     return rc;

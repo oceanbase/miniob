@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief 这个文件定义函数返回码/错误码(Return Code)
+ * @enum RC
  */
 
 #define DEFINE_RCS                          \

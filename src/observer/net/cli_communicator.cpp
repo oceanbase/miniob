@@ -67,6 +67,9 @@ char *my_readline(const char *prompt)
   char *s = fgets(buffer, MAX_MEM_BUFFER_SIZE, stdin);
   if (nullptr == s) {
     free(buffer);
+    if (ferror(stdin) || feof(stdin)) {
+      LOG_WARN("failed to read line: %s", strerror(errno));
+    }
     return nullptr;
   }
   return buffer;
@@ -87,17 +90,11 @@ char *read_command()
 {
   const char *prompt_str = "miniob > ";
   char *input_command = nullptr;
-  while ((input_command = my_readline(prompt_str)) != nullptr) {
-    if (common::is_blank(input_command)) {
-      free(input_command);
-      continue;
-    }
-
-    if (is_exit_command(input_command)) {
-      free(input_command);
-      kill(getpid(), SIGINT);
-      break;
-    }
+  for (input_command = my_readline(prompt_str); 
+        common::is_blank(input_command); 
+        input_command = my_readline(prompt_str)) {
+    free(input_command);
+    input_command = nullptr;
   }
   return input_command;
 }
@@ -117,6 +114,8 @@ RC CliCommunicator::init(int fd, Session *session, const std::string &addr)
 
     const char delimiter = '\n';
     send_message_delimiter_.assign(1, delimiter);
+
+    fd_ = -1; // 防止被父类析构函数关闭
   } else {
     rc = RC::INVALID_ARGUMENT;
     LOG_WARN("only stdin supported");
@@ -128,7 +127,10 @@ RC CliCommunicator::read_event(SessionEvent *&event)
 {
   event = nullptr;
   char *command = read_command();
-  if (nullptr == command) {
+
+  if (is_exit_command(command)) {
+    free(command);
+    event = nullptr;
     return RC::SUCCESS;
   }
 

@@ -84,26 +84,9 @@ void ParseStage::handle_event(StageEvent *event)
 {
   RC rc = handle_request(event);
   if (RC::SUCCESS != rc) {
-    callback_event(event, nullptr);
-    return;
+    LOG_ERROR("Failed to handle request");
   }
 
-  CompletionCallback *cb = new (std::nothrow) CompletionCallback(this, nullptr);
-  if (cb == nullptr) {
-    LOG_ERROR("Failed to new callback for SQLStageEvent");
-    callback_event(event, nullptr);
-    return;
-  }
-
-  event->push_callback(cb);
-  resolve_stage_->handle_event(event);
-  event->done_immediate();
-
-  return;
-}
-
-void ParseStage::callback_event(StageEvent *event, CallbackContext *context)
-{
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   sql_event->session_event()->done_immediate();
   sql_event->done_immediate();
@@ -138,5 +121,7 @@ RC ParseStage::handle_request(StageEvent *event)
   }
 
   sql_event->set_command(std::move(cmd));
+
+  resolve_stage_->handle_event(event);
   return RC::SUCCESS;
 }

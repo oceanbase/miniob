@@ -157,11 +157,6 @@ RC OptimizeStage::generate_physical_plan(
   return rc;
 }
 
-void OptimizeStage::callback_event(StageEvent *event, CallbackContext *context)
-{
-  return;
-}
-
 RC OptimizeStage::rewrite(unique_ptr<LogicalOperator> &logical_operator)
 {
   RC rc = RC::SUCCESS;

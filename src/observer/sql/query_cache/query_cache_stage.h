@@ -16,20 +16,20 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/seda/stage.h"
 
-class QueryCacheStage : public common::Stage {
+class QueryCacheStage : public common::Stage
+{
 public:
-  ~QueryCacheStage();
+  virtual ~QueryCacheStage();
   static Stage *make_stage(const std::string &tag);
 
 protected:
   // common function
   QueryCacheStage(const char *tag);
-  bool set_properties();
+  bool set_properties() override;
 
-  bool initialize();
-  void cleanup();
-  void handle_event(common::StageEvent *event);
-  void callback_event(common::StageEvent *event, common::CallbackContext *context);
+  bool initialize() override;
+  void cleanup() override;
+  void handle_event(common::StageEvent *event) override;
 
 protected:
 private:
