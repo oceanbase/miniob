@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "net/communicator.h"
 #include "net/mysql_communicator.h"
+#include "net/buffered_writer.h"
 #include "sql/expr/tuple.h"
 #include "event/session_event.h"
 #include "common/lang/mutex.h"
@@ -25,6 +26,7 @@ RC Communicator::init(int fd, Session *session, const std::string &addr)
   fd_ = fd;
   session_ = session;
   addr_ = addr;
+  writer_ = new BufferedWriter(fd_);
   return RC::SUCCESS;
 }
 
@@ -37,6 +39,11 @@ Communicator::~Communicator()
   if (session_ != nullptr) {
     delete session_;
     session_ = nullptr;
+  }
+
+  if (writer_ != nullptr) {
+    delete writer_;
+    writer_ = nullptr;
   }
 }
 
@@ -118,8 +125,8 @@ RC PlainCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
     snprintf(buf, buf_size, "%s > %s\n", strrc(sql_result->return_code()), state_string.c_str());
   }
 
-  int ret = common::writen(fd_, buf, strlen(buf) + 1);
-  if (ret != 0) {
+  RC rc = writer_->writen(buf, strlen(buf) + 1);
+  if (OB_FAIL(rc)) {
     LOG_WARN("failed to send data to client. err=%s", strerror(errno));
     need_disconnect = true;
     delete[] buf;
@@ -143,16 +150,17 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     const char *response = "Unexpected error: no result";
     int len = strlen(response);
 
-    int ret = common::writen(fd_, response, len);
-    if (ret < 0) {
-      LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
+    RC rc = writer_->writen(response, len);
+    if (OB_FAIL(rc)) {
+      LOG_ERROR("Failed to send data back to client. ret=%s, error=%s", strrc(rc), strerror(errno));
 
-      return RC::IOERR_WRITE;
+      return rc;
     }
-    ret = common::writen(fd_, &message_terminate, sizeof(message_terminate));
-    if (ret < 0) {
-      LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
-      return RC::IOERR_WRITE;
+
+    rc = writer_->writen(&message_terminate, sizeof(message_terminate));
+    if (OB_FAIL(rc)) {
+      LOG_ERROR("Failed to send data back to client. ret=%s, error=%s", strrc(rc), strerror(errno));
+      return rc;
     }
 
     need_disconnect = false;
@@ -179,30 +187,30 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     if (nullptr != alias || alias[0] != 0) {
       if (0 != i) {
         const char *delim = " | ";
-        int ret = common::writen(fd_, delim, strlen(delim));
-        if (ret != 0) {
+        rc = writer_->writen(delim, strlen(delim));
+        if (OB_FAIL(rc)) {
           LOG_WARN("failed to send data to client. err=%s", strerror(errno));
-          return RC::IOERR_WRITE;
+          return rc;
         }
       }
 
       int len = strlen(alias);
-      int ret = common::writen(fd_, alias, len);
-      if (ret != 0) {
+      rc = writer_->writen(alias, len);
+      if (OB_FAIL(rc)) {
         LOG_WARN("failed to send data to client. err=%s", strerror(errno));
         sql_result->close();
-        return RC::IOERR_WRITE;
+        return rc;
       }
     }
   }
 
   if (cell_num > 0) {
     char newline = '\n';
-    int ret = common::writen(fd_, &newline, 1);
-    if (ret != 0) {
+    rc = writer_->writen(&newline, 1);
+    if (OB_FAIL(rc)) {
       LOG_WARN("failed to send data to client. err=%s", strerror(errno));
       sql_result->close();
-      return RC::IOERR_WRITE;
+      return rc;
     }
   }
 
@@ -215,11 +223,11 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     for (int i = 0; i < cell_num; i++) {
       if (i != 0) {
         const char *delim = " | ";
-        int ret = common::writen(fd_, delim, strlen(delim));
-        if (ret != 0) {
+        rc = writer_->writen(delim, strlen(delim));
+        if (OB_FAIL(rc)) {
           LOG_WARN("failed to send data to client. err=%s", strerror(errno));
           sql_result->close();
-          return RC::IOERR_WRITE;
+          return rc;
         }
       }
 
@@ -233,20 +241,20 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       std::stringstream ss;
       cell.to_string(ss);
       std::string cell_str = ss.str();
-      int ret = common::writen(fd_, cell_str.data(), cell_str.size());
-      if (ret != 0) {
+      rc = writer_->writen(cell_str.data(), cell_str.size());
+      if (OB_FAIL(rc)) {
         LOG_WARN("failed to send data to client. err=%s", strerror(errno));
         sql_result->close();
-        return RC::IOERR_WRITE;
+        return rc;
       }
     }
 
     char newline = '\n';
-    int ret = common::writen(fd_, &newline, 1);
-    if (ret != 0) {
+    rc = writer_->writen(&newline, 1);
+    if (OB_FAIL(rc)) {
       LOG_WARN("failed to send data to client. err=%s", strerror(errno));
       sql_result->close();
-      return RC::IOERR_WRITE;
+      return rc;
     }
   }
 
@@ -266,11 +274,11 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
     return write_state(event, need_disconnect);
   } else {
 
-    int ret = common::writen(fd_, &message_terminate, sizeof(message_terminate));
-    if (ret < 0) {
-      LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
+    rc = writer_->writen(&message_terminate, sizeof(message_terminate));
+    if (OB_FAIL(rc)) {
+      LOG_ERROR("Failed to send data back to client. ret=%s, error=%s", strrc(rc), strerror(errno));
       sql_result->close();
-      return RC::IOERR_WRITE;
+      return rc;
     }
 
     need_disconnect = false;
@@ -280,6 +288,8 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   if (OB_SUCC(rc)) {
     rc = rc_close;
   }
+
+  writer_->flush(); // TODO handle error
   return rc;
 }
 

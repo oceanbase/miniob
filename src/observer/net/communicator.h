@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 struct ConnectionContext;
 class SessionEvent;
 class Session;
+class BufferedWriter;
 
 /**
  * @defgroup Communicator
@@ -89,9 +90,12 @@ public:
 
 protected:
   Session *session_ = nullptr;
-  int fd_ = -1;
   struct event read_event_;
   std::string addr_;
+  BufferedWriter *writer_ = nullptr;
+
+private:
+  int fd_ = -1;
 };
 
 /**
