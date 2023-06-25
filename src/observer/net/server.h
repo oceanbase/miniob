@@ -21,7 +21,8 @@ See the Mulan PSL v2 for more details. */
 
 class Communicator;
 
-class Server {
+class Server 
+{
 public:
   Server(ServerParam input_server_param);
   ~Server();
@@ -57,7 +58,5 @@ private:
 
   CommunicatorFactory communicator_factory_;
 
-  static common::Stage *session_stage_;
-  static common::SimpleTimer *read_socket_metric_;
-  static common::SimpleTimer *write_socket_metric_;
+  static common::Stage *session_stage_ = nullptr;
 };

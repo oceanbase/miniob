@@ -39,11 +39,9 @@ See the Mulan PSL v2 for more details. */
 #include <common/metrics/metrics_registry.h>
 
 using namespace common;
-static const std::string READ_SOCKET_METRIC_TAG = "SessionStage.readsocket";
 static const std::string WRITE_SOCKET_METRIC_TAG = "SessionStage.writesocket";
 
 Stage *Server::session_stage_ = nullptr;
-common::SimpleTimer *Server::read_socket_metric_ = nullptr;
 common::SimpleTimer *Server::write_socket_metric_ = nullptr;
 
 ServerParam::ServerParam()
@@ -73,15 +71,6 @@ void Server::init()
   session_stage_ = get_seda_config()->get_stage(SESSION_STAGE_NAME);
 
   MetricsRegistry &metricsRegistry = get_metrics_registry();
-  if (Server::read_socket_metric_ == nullptr) {
-    Server::read_socket_metric_ = new SimpleTimer();
-    metricsRegistry.register_metric(READ_SOCKET_METRIC_TAG, Server::read_socket_metric_);
-  }
-
-  if (Server::write_socket_metric_ == nullptr) {
-    Server::write_socket_metric_ = new SimpleTimer();
-    metricsRegistry.register_metric(WRITE_SOCKET_METRIC_TAG, Server::write_socket_metric_);
-  }
 }
 
 int Server::set_non_block(int fd)
@@ -124,29 +113,6 @@ void Server::recv(int fd, short ev, void *arg)
   }
   session_stage_->add_event(event);
 }
-
-#if 0
-// 这个函数仅负责发送数据，至于是否是一个完整的消息，由调用者控制
-int Server::send( *client, const char *buf, int data_len)
-{
-  if (buf == nullptr || data_len == 0) {
-    return 0;
-  }
-
-  TimerStat writeStat(*write_socket_metric_);
-
-  int ret = common::writen(client->fd, buf, data_len);
-  if (ret < 0) {
-    LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
-    MUTEX_UNLOCK(&client->mutex);
-
-    close_connection(client);
-    return -STATUS_FAILED_NETWORK;
-  }
-
-  return 0;
-}
-#endif
 
 void Server::accept(int fd, short ev, void *arg)
 {
