@@ -88,7 +88,6 @@ void ParseStage::handle_event(StageEvent *event)
   }
 
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
-  sql_event->session_event()->done_immediate();
   sql_event->done_immediate();
   return;
 }

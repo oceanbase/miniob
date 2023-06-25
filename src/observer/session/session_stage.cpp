@@ -96,6 +96,7 @@ void SessionStage::handle_event(StageEvent *event)
   // right now, we just support only one event.
   handle_request(event);
 
+  event->done_immediate();
   return;
 }
 
@@ -111,7 +112,6 @@ void SessionStage::handle_request(StageEvent *event)
 
   std::string sql = sev->query();
   if (common::is_blank(sql.c_str())) {
-    sev->done_immediate();
     return;
   }
 
