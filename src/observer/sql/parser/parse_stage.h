@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief 解析SQL语句，解析后的结果可以参考parse_defs.h
- * 
+ * @ingroup SQLStage
  */
 class ParseStage : public common::Stage 
 {

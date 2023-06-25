@@ -17,8 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/seda/stage.h"
 
 /**
- * @brief 执行Resolve，将解析后的SQL语句，转换成各种Stmt(Statement)
- * 
+ * @brief 执行Resolve，将解析后的SQL语句，转换成各种Stmt(Statement), 同时会做错误检查
+ * @ingroup SQLStage
  */
 class ResolveStage : public common::Stage 
 {

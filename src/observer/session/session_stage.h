@@ -18,16 +18,25 @@ See the Mulan PSL v2 for more details. */
 #include "common/metrics/metrics.h"
 
 /**
+ * @brief SEDA处理的stage
+ * @defgroup SQLStage
+ * @details 收到的客户端请求会放在SEDA框架中处理，每个stage都是一个处理阶段。
+ * 当前的处理流程可以通过observer.ini配置文件查看。
  * seda::stage使用说明：
  * 这里利用seda的线程池与调度。stage是一个事件处理的几个阶段。
  * 目前包括session,parse,execution和storage
  * 每个stage使用handleEvent函数处理任务，并且使用StageEvent::pushCallback注册回调函数。
- * 这时当调用StageEvent::done(Immediate)时，就会调用该事件注册的回调函数。
+ * 这时当调用StageEvent::done(Immediate)时，就会调用该事件注册的回调函数，如果没有回调函数，就会释放自己。
+ */
+
+/**
+ * @brief SQL处理的session阶段，也是第一个阶段
+ * @ingroup SQLStage
  */
 class SessionStage : public common::Stage 
 {
 public:
-  ~SessionStage();
+  virtual ~SessionStage();
   static Stage *make_stage(const std::string &tag);
 
 protected:

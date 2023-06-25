@@ -11,6 +11,7 @@ TARGET_INCLUDE_DIRECTORIES(obclient PRIVATE . ${PROJECT_SOURCE_DIR}/deps /usr/lo
 # stdio.h 必须放在readline/readline.h 前面，因为readline头文件不能直接单独编译
 CHECK_INCLUDE_FILES("stdio.h;readline/readline.h" HAVE_READLINE_HEADER)
 
+# 这个功能同时在client和observer中使用，可以放到公共的目录中
 FIND_LIBRARY(READLINE_LIBRARY readline)
 IF (HAVE_READLINE_HEADER AND READLINE_LIBRARY)
     TARGET_LINK_LIBRARIES(obclient ${READLINE_LIBRARY})

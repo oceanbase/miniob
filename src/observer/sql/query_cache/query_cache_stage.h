@@ -16,6 +16,11 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/seda/stage.h"
 
+/**
+ * @brief 查询缓存处理
+ * @ingroup SQLStage
+ * @details 当前什么都没做
+ */
 class QueryCacheStage : public common::Stage
 {
 public:

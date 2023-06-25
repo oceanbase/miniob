@@ -24,6 +24,7 @@ class SelectStmt;
 
 /**
  * @brief 执行SQL语句的Stage，包括DML和DDL
+ * @ingroup SQLStage
  * @details 根据前面阶段生成的结果，有些语句会生成执行计划，有些不会。
  * 整体上分为两类，带执行计划的，或者 @class CommandExecutor 可以直接执行的。
  */
