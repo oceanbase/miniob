@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/field/field_meta.h"
 #include "common/log/log.h"
+#include "common/lang/string.h"
 #include "storage/field/field.h"
 #include "storage/trx/mvcc_trx.h"
 #include "storage/trx/vacuous_trx.h"
@@ -27,11 +28,16 @@ static TrxKit *global_trxkit = nullptr;
 
 TrxKit *TrxKit::create(const char *name)
 {
+  if (common::is_blank(name) || 0 == strcasecmp(name, "vacuous")) {
+    return new VacuousTrxKit();
+  }
+
   if (0 == strcasecmp(name, "mvcc")) {
     return new MvccTrxKit();
   }
   
-  return new VacuousTrxKit();
+  LOG_ERROR("unknown trx kit name. name=%s", name);
+  return nullptr;
 }
 
 RC TrxKit::init_global(const char *name)
