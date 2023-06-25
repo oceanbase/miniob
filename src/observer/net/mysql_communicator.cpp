@@ -18,8 +18,14 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/io/io.h"
 #include "net/mysql_communicator.h"
+#include "net/buffered_writer.h"
 #include "event/session_event.h"
 #include "sql/operator/string_list_physical_operator.h"
+
+/**
+ * @brief MySQL协议相关实现
+ * @defgroup MySQLProtocol
+ */
 
 // https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__capabilities__flags.html
 // the flags below are negotiate by handshake packet
@@ -42,15 +48,24 @@ const uint32_t CLIENT_OPTIONAL_RESULTSET_METADATA =
 // const uint32_t NUM_FLAG          = 32768; // Field is num (for clients)
 // const uint32_t PART_KEY_FLAG     = 16384; // Intern; Part of some key.
 
-enum ResultSetMetaData {
+/**
+ * @brief Resultset metadata
+ * @details 这些枚举值都是从MySQL的协议中抄过来的
+ * @ingroup MySQLProtocol
+ */
+enum ResultSetMetaData 
+{
   RESULTSET_METADATA_NONE = 0,
   RESULTSET_METADATA_FULL = 1,
 };
 
 /**
-     Column types for MySQL
-*/
-enum enum_field_types {
+ * @brief Column types for MySQL
+ * @details 枚举值类型是从MySQL的协议中抄过来的
+ * @ingroup MySQLProtocol
+ */
+enum enum_field_types 
+{
   MYSQL_TYPE_DECIMAL,
   MYSQL_TYPE_TINY,
   MYSQL_TYPE_SHORT,
@@ -87,44 +102,111 @@ enum enum_field_types {
   MYSQL_TYPE_GEOMETRY = 255
 };
 
-// little endian
-// We suppose our platform is little endian too
+/**
+ * @brief 根据MySQL协议的描述实现的数据写入函数
+ * @defgroup MySQLProtocolStore
+ * @note 当前仅考虑小端模式，所以当前的代码仅能运行在小端模式的机器上，比如Intel。
+ */
+
+/**
+ * @brief 将数据写入到缓存中
+ * 
+ * @param buf  数据缓存
+ * @param value 要写入的值
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_int1(char *buf, int8_t value)
 {
   *buf = value;
   return 1;
 }
 
+/**
+ * @brief 将数据写入到缓存中
+ * 
+ * @param buf  数据缓存
+ * @param value 要写入的值
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_int2(char *buf, int16_t value)
 {
   memcpy(buf, &value, sizeof(value));
   return 2;
 }
 
+/**
+ * @brief 将数据写入到缓存中
+ * 
+ * @param buf  数据缓存
+ * @param value 要写入的值
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_int3(char *buf, int32_t value)
 {
   memcpy(buf, &value, 3);
   return 3;
 }
 
+/**
+ * @brief 将数据写入到缓存中
+ * 
+ * @param buf  数据缓存
+ * @param value 要写入的值
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_int4(char *buf, int32_t value)
 {
   memcpy(buf, &value, 4);
   return 4;
 }
 
+/**
+ * @brief 将数据写入到缓存中
+ * 
+ * @param buf  数据缓存
+ * @param value 要写入的值
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_int6(char *buf, int64_t value)
 {
   memcpy(buf, &value, 6);
   return 6;
 }
 
+/**
+ * @brief 将数据写入到缓存中
+ * 
+ * @param buf  数据缓存
+ * @param value 要写入的值
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_int8(char *buf, int64_t value)
 {
   memcpy(buf, &value, 8);
   return 8;
 }
 
+/**
+ * @brief 将数据写入到缓存中
+ * @details 按照MySQL协议的描述，这是一个变长编码的整数，最大可以编码8个字节的整数。不同大小的数字，第一个字节的值不同。
+ * @param buf  数据缓存
+ * @param value 要写入的值
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_lenenc_int(char *buf, uint64_t value)
 {
   if (value < 251) {
@@ -149,6 +231,15 @@ int store_lenenc_int(char *buf, uint64_t value)
   return 9;
 }
 
+/**
+ * @brief 将以'\0'结尾的字符串写入到缓存中
+ * 
+ * @param buf  数据缓存
+ * @param s 要写入的字符串
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_null_terminated_string(char *buf, const char *s)
 {
   if (nullptr == s || s[0] == 0) {
@@ -160,6 +251,16 @@ int store_null_terminated_string(char *buf, const char *s)
   return len;
 }
 
+/**
+ * @brief 将指定长度的字符串写入到缓存中
+ * 
+ * @param buf  数据缓存
+ * @param s 要写入的字符串
+ * @param len 字符串的长度
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_fix_length_string(char *buf, const char *s, int len)
 {
   if (len == 0) {
@@ -170,6 +271,15 @@ int store_fix_length_string(char *buf, const char *s, int len)
   return len;
 }
 
+/**
+ * @brief 按照带有长度标识的字符串写入到缓存，长度标识以变长整数编码
+ * 
+ * @param buf  数据缓存
+ * @param s 要写入的字符串
+ * @return int 写入的字节数
+ * @ingroup MySQLProtocolStore
+ * @ingroup MySQLProtocol
+ */
 int store_lenenc_string(char *buf, const char *s)
 {
   int len = strlen(s);
@@ -179,16 +289,24 @@ int store_lenenc_string(char *buf, const char *s)
 }
 
 /**
- * 每个包都有一个包头
+ * @brief 每个包都有一个包头
  * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_packets.html
  * https://mariadb.com/kb/en/0-packet/
+ * @ingroup MySQLProtocol
  */
-struct PacketHeader {
+struct PacketHeader 
+{
   int32_t payload_length : 24;  //! 当前packet的除掉头的长度
   int8_t sequence_id = 0;       //! 当前packet在当前处理过程中是第几个包
 };
 
-class BasePacket {
+/**
+ * @brief 所有的包都继承自BasePacket
+ * @details 所有的包都有一个包头，所以BasePacket中包含了一个PacketHeader
+ * @ingroup MySQLProtocol
+ */
+class BasePacket 
+{
 public:
   PacketHeader packet_header;
 
@@ -198,16 +316,25 @@ public:
   }
 
   virtual ~BasePacket() = default;
+
+  /**
+   * @brief 将当前包编码成网络包
+   * 
+   * @param capabilities MySQL协议中的capability标志
+   * @param net_packet 编码后的网络包
+   */
   virtual RC encode(uint32_t capabilities, std::vector<char> &net_packet) const = 0;
 };
 
 /**
- * 握手包
- * 先由服务端发送到客户端
- * 这个包会交互capability与用户名密码
+ * @brief 握手包
+ * @ingroup MySQLProtocol
+ * @details 先由服务端发送到客户端。
+ * 这个包会交互capability与用户名密码。
  * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase_packets_protocol_handshake_v10.html
  */
-struct HandshakeV10 : public BasePacket {
+struct HandshakeV10 : public BasePacket 
+{
   int8_t protocol = 10;
   char server_version[7] = "5.7.25";
   int32_t thread_id = 21501807;  // conn id
@@ -259,7 +386,12 @@ struct HandshakeV10 : public BasePacket {
   }
 };
 
-struct OkPacket : public BasePacket {
+/**
+ * @brief 响应包，在很多场景中都会使用
+ * @ingroup MySQLProtocol
+ */
+struct OkPacket : public BasePacket 
+{
   int8_t header = 0;  // 0x00 for ok and 0xFE for EOF
   int32_t affected_rows = 0;
   int32_t last_insert_id = 0;
@@ -307,7 +439,13 @@ struct OkPacket : public BasePacket {
   }
 };
 
-struct EofPacket : public BasePacket {
+/**
+ * @brief EOF包
+ * @ingroup MySQLProtocol
+ * @details [basic_err_packet](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_err_packet.html)
+ */
+struct EofPacket : public BasePacket 
+{
   int8_t header = 0xFE;
   int16_t warnings = 0;
   int16_t status_flags = 0x22;
@@ -316,9 +454,6 @@ struct EofPacket : public BasePacket {
   {}
   virtual ~EofPacket() = default;
 
-  /**
-   * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_err_packet.html
-   */
   virtual RC encode(uint32_t capabilities, std::vector<char> &net_packet) const override
   {
     net_packet.resize(10);
@@ -346,7 +481,13 @@ struct EofPacket : public BasePacket {
   }
 };
 
-struct ErrPacket : public BasePacket {
+/**
+ * @brief ERR包，出现错误时返回
+ * @details [eof_packet](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_eof_packet.html)
+ * @ingroup MySQLProtocol
+ */
+struct ErrPacket : public BasePacket 
+{
   int8_t header = 0xFF;
   int16_t error_code = 0;
   char sql_state_marker[1] = {'#'};
@@ -357,9 +498,6 @@ struct ErrPacket : public BasePacket {
   {}
   virtual ~ErrPacket() = default;
 
-  /**
-   * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_eof_packet.html
-   */
   virtual RC encode(uint32_t capabilities, std::vector<char> &net_packet) const override
   {
     net_packet.resize(1000);
@@ -388,18 +526,23 @@ struct ErrPacket : public BasePacket {
   }
 };
 
-// https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_command_phase.html
-// https://mariadb.com/kb/en/2-text-protocol/
-struct QueryPacket {
+/**
+ * @brief MySQL客户端发过来的请求包
+ * @ingroup MySQLProtocol
+ * @details [MySQL Protocol Command Phase](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_command_phase.html)
+ * [MariaDB Text Protocol](https://mariadb.com/kb/en/2-text-protocol/)
+ */
+struct QueryPacket 
+{
   PacketHeader packet_header;
   int8_t command;     // 0x03: COM_QUERY
   std::string query;  // the text of the SQL query to execute
 };
 
 /**
- * decode query packet
- * packet_header is not included in net_packet
- * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query.html
+ * @brief decode query packet
+ * @details packet_header is not included in net_packet
+ * [MySQL Protocol COM_QUERY](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query.html)
  */
 RC decode_query_packet(std::vector<char> &net_packet, QueryPacket &query_packet)
 {
@@ -409,6 +552,11 @@ RC decode_query_packet(std::vector<char> &net_packet, QueryPacket &query_packet)
   return RC::SUCCESS;
 }
 
+/**
+ * @brief MySQL客户端连接时会发起一个"select @@version_comment"的查询，这里对这个查询进行特殊处理
+ * @param[out] sql_result 生成的结果
+ * @ingroup MySQLProtocol
+ */
 RC create_version_comment_sql_result(SqlResult *sql_result)
 {
   TupleSchema tuple_schema;
@@ -426,6 +574,13 @@ RC create_version_comment_sql_result(SqlResult *sql_result)
   return RC::SUCCESS;
 }
 
+/**
+ * @brief MySQL链接做初始化，需要进行握手和一些预处理
+ * @ingroup MySQLProtocol
+ * @param fd 连接描述符
+ * @param session 当前的会话
+ * @param addr 对端地址
+ */
 RC MysqlCommunicator::init(int fd, Session *session, const std::string &addr)
 {
   // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase.html
@@ -443,9 +598,16 @@ RC MysqlCommunicator::init(int fd, Session *session, const std::string &addr)
     return rc;
   }
 
+  writer_->flush();
+
   return rc;
 }
 
+/**
+ * @brief MySQL客户端连接时会发起一个"select @@version_comment"的查询，这里对这个查询进行特殊处理
+ * 
+ * @param[out] need_disconnect 连接上如果出现异常，通过这个标识来判断是否需要断开连接
+ */
 RC MysqlCommunicator::handle_version_comment(bool &need_disconnect)
 {
   SessionEvent session_event(this);
@@ -459,9 +621,16 @@ RC MysqlCommunicator::handle_version_comment(bool &need_disconnect)
   return rc;
 }
 
+/**
+ * @brief 读取客户端发过来的请求
+ * 
+ * @param[out] event 如果有新的请求，就会生成一个SessionEvent
+ */
 RC MysqlCommunicator::read_event(SessionEvent *&event)
 {
   RC rc = RC::SUCCESS;
+
+  /// 读取一个完整的数据包
   PacketHeader packet_header;
   int ret = common::readn(fd_, &packet_header, sizeof(packet_header));
   if (ret != 0) {
@@ -485,6 +654,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
 
   event = nullptr;
   if (!authed_) {
+    /// 还没有做过认证，就先需要完成握手阶段
     uint32_t client_flag = *(uint32_t *)buf.data();  // TODO should use decode (little endian as default)
     LOG_INFO("client handshake response with capabilities flag=%d", client_flag);
     client_capabilities_flag_ = client_flag;
@@ -495,6 +665,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to send ok packet while auth");
     }
+    writer_->flush();
     authed_ = true;
     LOG_INFO("client authed. addr=%s. rc=%s", addr_.c_str(), strrc(rc));
     return rc;
@@ -503,7 +674,8 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
   int8_t command_type = buf[0];
   LOG_TRACE("recv command from client =%d", command_type);
 
-  if (command_type == 0x03) {  // COM_QUERY
+  /// 已经做过握手，接收普通的消息包
+  if (command_type == 0x03) {  // COM_QUERY，这是一个普通的文本请求
     QueryPacket query_packet;
     rc = decode_query_packet(buf, query_packet);
     if (rc != RC::SUCCESS) {
@@ -520,12 +692,14 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
     event = new SessionEvent(this);
     event->set_query(query_packet.query);
   } else {
+    /// 其它的非文本请求，暂时不支持
     OkPacket ok_packet(sequence_id_);
     rc = send_packet(ok_packet);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to send ok packet. command=%d, addr=%s, error=%s", command_type, addr(), strrc(rc));
       return rc;
     }
+    writer_->flush();
   }
   return rc;
 }
@@ -566,6 +740,7 @@ RC MysqlCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
   }
 
   delete[] buf;
+  writer_->flush();
   return rc;
 }
 
@@ -622,6 +797,7 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   if (rc == RC::SUCCESS) {
     rc = close_rc;
   }
+  writer_->flush();
   return rc;
 }
 
@@ -634,10 +810,10 @@ RC MysqlCommunicator::send_packet(const BasePacket &packet)
     return rc;
   }
 
-  int ret = common::writen(fd_, net_packet.data(), net_packet.size());
-  if (ret != 0) {
+  rc = writer_->writen(net_packet.data(), net_packet.size());
+  if (OB_FAIL(rc)) {
     LOG_WARN("failed to send packet to client. addr=%s, error=%s", addr(), strerror(errno));
-    return RC::IOERR_WRITE;
+    return rc;
   }
 
   LOG_TRACE("send ok packet success. packet length=%d", net_packet.size());
@@ -685,11 +861,11 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
   store_int3(buf, payload_length);
   net_packet.resize(pos);
 
-  int ret = common::writen(fd_, net_packet.data(), net_packet.size());
-  if (ret != 0) {
+  rc = writer_->writen(net_packet.data(), net_packet.size());
+  if (OB_FAIL(rc)) {
     LOG_WARN("failed to send column count to client. addr=%s, error=%s", addr(), strerror(errno));
     need_disconnect = true;
-    return RC::IOERR_WRITE;
+    return rc;
   }
 
   for (int i = 0; i < cell_num; i++) {
@@ -740,11 +916,11 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
     store_int3(buf, payload_length);
     net_packet.resize(pos);
 
-    ret = common::writen(fd_, net_packet.data(), net_packet.size());
-    if (ret != 0) {
+    rc = writer_->writen(net_packet.data(), net_packet.size());
+    if (OB_FAIL(rc)) {
       LOG_WARN("failed to write column definition to client. addr=%s, error=%s", addr(), strerror(errno));
       need_disconnect = true;
-      return RC::IOERR_WRITE;
+      return rc;
     }
   }
 
@@ -814,11 +990,11 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool no_column_def
 
     int payload_length = pos - 4;
     store_int3(buf, payload_length);
-    int ret = common::writen(fd_, buf, pos);
-    if (ret != 0) {
+    rc = writer_->writen(buf, pos);
+    if (OB_FAIL(rc)) {
       LOG_WARN("failed to send row packet to client. addr=%s, error=%s", addr(), strerror(errno));
       need_disconnect = true;
-      return RC::IOERR_WRITE;
+      return rc;
     }
   }
 

@@ -72,7 +72,7 @@ See the Mulan PSL v2 for more details. */
   DEFINE_RC(FILE_WRITE)                     \
   DEFINE_RC(LOGBUF_FULL)
 
-enum RC
+enum class RC
 {
 #define DEFINE_RC(name) name,
   DEFINE_RCS

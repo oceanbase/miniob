@@ -1042,7 +1042,7 @@ bool BplusTreeHandler::validate_tree()
   RC rc = latch_memo.get_page(file_header_.root_page, frame); // 这里仅仅调试使用，不加root锁
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to fetch root page. page id=%d, rc=%d:%s", file_header_.root_page, rc, strrc(rc));
-    return rc;
+    return false;
   }
 
   if (!validate_node_recursive(latch_memo, frame) || !validate_leaf_link(latch_memo)) {
