@@ -109,8 +109,3 @@ void ResolveStage::handle_event(StageEvent *event)
 
   return;
 }
-
-void ResolveStage::callback_event(StageEvent *event, CallbackContext *context)
-{
-  return;
-}

@@ -39,12 +39,8 @@ See the Mulan PSL v2 for more details. */
 #include <common/metrics/metrics_registry.h>
 
 using namespace common;
-static const std::string READ_SOCKET_METRIC_TAG = "SessionStage.readsocket";
-static const std::string WRITE_SOCKET_METRIC_TAG = "SessionStage.writesocket";
 
 Stage *Server::session_stage_ = nullptr;
-common::SimpleTimer *Server::read_socket_metric_ = nullptr;
-common::SimpleTimer *Server::write_socket_metric_ = nullptr;
 
 ServerParam::ServerParam()
 {
@@ -55,10 +51,6 @@ ServerParam::ServerParam()
 
 Server::Server(ServerParam input_server_param) : server_param_(input_server_param)
 {
-  started_ = false;
-  server_socket_ = 0;
-  event_base_ = nullptr;
-  listen_ev_ = nullptr;
 }
 
 Server::~Server()
@@ -71,17 +63,6 @@ Server::~Server()
 void Server::init()
 {
   session_stage_ = get_seda_config()->get_stage(SESSION_STAGE_NAME);
-
-  MetricsRegistry &metricsRegistry = get_metrics_registry();
-  if (Server::read_socket_metric_ == nullptr) {
-    Server::read_socket_metric_ = new SimpleTimer();
-    metricsRegistry.register_metric(READ_SOCKET_METRIC_TAG, Server::read_socket_metric_);
-  }
-
-  if (Server::write_socket_metric_ == nullptr) {
-    Server::write_socket_metric_ = new SimpleTimer();
-    metricsRegistry.register_metric(WRITE_SOCKET_METRIC_TAG, Server::write_socket_metric_);
-  }
 }
 
 int Server::set_non_block(int fd)
@@ -124,29 +105,6 @@ void Server::recv(int fd, short ev, void *arg)
   }
   session_stage_->add_event(event);
 }
-
-#if 0
-// 这个函数仅负责发送数据，至于是否是一个完整的消息，由调用者控制
-int Server::send( *client, const char *buf, int data_len)
-{
-  if (buf == nullptr || data_len == 0) {
-    return 0;
-  }
-
-  TimerStat writeStat(*write_socket_metric_);
-
-  int ret = common::writen(client->fd, buf, data_len);
-  if (ret < 0) {
-    LOG_ERROR("Failed to send data back to client. ret=%d, error=%s", ret, strerror(errno));
-    MUTEX_UNLOCK(&client->mutex);
-
-    close_connection(client);
-    return -STATUS_FAILED_NETWORK;
-  }
-
-  return 0;
-}
-#endif
 
 void Server::accept(int fd, short ev, void *arg)
 {
@@ -202,8 +160,8 @@ void Server::accept(int fd, short ev, void *arg)
 
   ret = event_base_set(instance->event_base_, &communicator->read_event());
   if (ret < 0) {
-    LOG_ERROR(
-        "Failed to do event_base_set for read event of %s into libevent, %s", communicator->addr(), strerror(errno));
+    LOG_ERROR("Failed to do event_base_set for read event of %s into libevent, %s", 
+              communicator->addr(), strerror(errno));
     delete communicator;
     return;
   }
@@ -220,12 +178,15 @@ void Server::accept(int fd, short ev, void *arg)
 
 int Server::start()
 {
-  if (server_param_.use_unix_socket) {
+  if (server_param_.use_std_io) {
+    return start_stdin_server();
+  } else if (server_param_.use_unix_socket) {
     return start_unix_socket_server();
   } else {
     return start_tcp_server();
   }
 }
+
 int Server::start_tcp_server()
 {
   int ret = 0;
@@ -293,7 +254,6 @@ int Server::start_tcp_server()
 
 int Server::start_unix_socket_server()
 {
-
   int ret = 0;
   server_socket_ = socket(PF_UNIX, SOCK_STREAM, 0);
   if (server_socket_ < 0) {
@@ -308,7 +268,7 @@ int Server::start_unix_socket_server()
     return -1;
   }
 
-  unlink(server_param_.unix_socket_path.c_str());
+  unlink(server_param_.unix_socket_path.c_str());  /// 如果不删除源文件，可能会导致bind失败
 
   struct sockaddr_un sockaddr;
   memset(&sockaddr, 0, sizeof(sockaddr));
@@ -349,6 +309,38 @@ int Server::start_unix_socket_server()
   return 0;
 }
 
+int Server::start_stdin_server()
+{
+  Communicator *communicator = communicator_factory_.create(server_param_.protocol);
+  RC rc = communicator->init(STDIN_FILENO, new Session(Session::default_session()), "stdin");
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to init cli communicator. rc=%s", strrc(rc));
+    return -1;
+  }
+
+  started_ = true;
+
+  while (started_) {
+    SessionEvent *event = nullptr;
+    rc = communicator->read_event(event);
+    if (OB_FAIL(rc)) {
+      LOG_WARN("failed to read event. rc=%s", strrc(rc));
+      return -1;
+    }
+
+    if (event == nullptr) {
+      break;
+    }
+
+    /// 在当前线程立即处理对应的事件
+    session_stage_->handle_event(event);
+  }
+
+  delete communicator;
+  communicator = nullptr;
+  return 0;
+}
+
 int Server::serve()
 {
   evthread_use_pthreads();
@@ -364,7 +356,9 @@ int Server::serve()
     exit(-1);
   }
 
-  event_base_dispatch(event_base_);
+  if (!server_param_.use_std_io) {
+    event_base_dispatch(event_base_);
+  }
 
   if (listen_ev_ != nullptr) {
     event_del(listen_ev_);

@@ -96,26 +96,7 @@ void SessionStage::handle_event(StageEvent *event)
   // right now, we just support only one event.
   handle_request(event);
 
-  return;
-}
-
-void SessionStage::callback_event(StageEvent *event, CallbackContext *context)
-{
-  SessionEvent *sev = dynamic_cast<SessionEvent *>(event);
-  if (nullptr == sev) {
-    LOG_ERROR("Cannot cat event to sessionEvent");
-    return;
-  }
-
-  Communicator *communicator = sev->get_communicator();
-  bool need_disconnect = false;
-  RC rc = communicator->write_result(sev, need_disconnect);
-  LOG_INFO("write result return %s", strrc(rc));
-  if (need_disconnect) {
-    Server::close_connection(communicator);
-  }
-  Session::set_current_session(nullptr);
-
+  event->done_immediate();
   return;
 }
 
@@ -131,20 +112,19 @@ void SessionStage::handle_request(StageEvent *event)
 
   std::string sql = sev->query();
   if (common::is_blank(sql.c_str())) {
-    sev->done_immediate();
     return;
   }
-
-  CompletionCallback *cb = new (std::nothrow) CompletionCallback(this, nullptr);
-  if (cb == nullptr) {
-    LOG_ERROR("Failed to new callback for SessionEvent");
-    sev->done_immediate();
-    return;
-  }
-
-  sev->push_callback(cb);
 
   Session::set_current_session(sev->session());
   SQLStageEvent *sql_event = new SQLStageEvent(sev, sql);
   query_cache_stage_->handle_event(sql_event);
+
+  Communicator *communicator = sev->get_communicator();
+  bool need_disconnect = false;
+  RC rc = communicator->write_result(sev, need_disconnect);
+  LOG_INFO("write result return %s", strrc(rc));
+  if (need_disconnect) {
+    Server::close_connection(communicator);
+  }
+  Session::set_current_session(nullptr);
 }

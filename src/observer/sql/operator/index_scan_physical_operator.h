@@ -18,6 +18,10 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/tuple.h"
 #include "storage/record/record_manager.h"
 
+/**
+ * @brief 索引扫描物理算子
+ * @ingroup PhysicalOperator
+ */
 class IndexScanPhysicalOperator : public PhysicalOperator
 {
 public:

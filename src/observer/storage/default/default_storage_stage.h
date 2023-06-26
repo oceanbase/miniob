@@ -20,7 +20,12 @@ See the Mulan PSL v2 for more details. */
 class DefaultHandler;
 class SqlResult;
 
-class DefaultStorageStage : public common::Stage {
+/**
+ * @brief 当前仅实现了load data，是准备删除的一个SQL stage
+ * @ingroup SQLStage
+ */
+class DefaultStorageStage : public common::Stage 
+{
 public:
   ~DefaultStorageStage();
   static Stage *make_stage(const std::string &tag);

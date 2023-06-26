@@ -17,6 +17,10 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/logical_operator.h"
 #include "sql/expr/expression.h"
 
+/**
+ * @brief 谓词/过滤逻辑算子
+ * @ingroup LogicalOperator
+ */
 class PredicateLogicalOperator : public LogicalOperator 
 {
 public:

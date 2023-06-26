@@ -97,28 +97,14 @@ protected:
 };
 
 /**
- * @brief 与客户端进行通讯
- * @ingroup Communicator
- * @details 使用简单的文本通讯协议，每个消息使用'\0'结尾
- */
-class PlainCommunicator : public Communicator 
-{
-public:
-  RC read_event(SessionEvent *&event) override;
-  RC write_result(SessionEvent *event, bool &need_disconnect) override;
-
-private:
-  RC write_state(SessionEvent *event, bool &need_disconnect);
-};
-
-/**
  * @brief 当前支持的通讯协议
  * @ingroup Communicator
  */
 enum class CommunicateProtocol 
 {
-  PLAIN,  //! 以'\0'结尾的协议
-  MYSQL,  //! mysql通讯协议。具体实现参考 MysqlCommunicator
+  PLAIN,  ///< 以'\0'结尾的协议
+  CLI,    ///< 与客户端进行交互的协议
+  MYSQL,  ///< mysql通讯协议。具体实现参考 MysqlCommunicator
 };
 
 /**

@@ -20,6 +20,10 @@ See the Mulan PSL v2 for more details. */
 
 class FilterStmt;
 
+/**
+ * @brief 过滤/谓词物理算子
+ * @ingroup PhysicalOperator
+ */
 class PredicatePhysicalOperator : public PhysicalOperator
 {
 public:

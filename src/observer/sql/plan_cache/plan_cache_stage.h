@@ -18,24 +18,24 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief 尝试从Plan的缓存中获取Plan，如果没有命中，则执行Optimizer
+ * @ingroup SQLStage
  * @details 实际上现在什么都没做。不过PlanCache对数据库的优化提升明显，是一个非常有趣的功能，
  * 感兴趣的同学可以参考OceanBase的实现
  */
 class PlanCacheStage : public common::Stage 
 {
 public:
-  ~PlanCacheStage();
+  virtual ~PlanCacheStage();
   static Stage *make_stage(const std::string &tag);
 
 protected:
   // common function
   PlanCacheStage(const char *tag);
-  bool set_properties();
+  bool set_properties() override;
 
-  bool initialize();
-  void cleanup();
-  void handle_event(common::StageEvent *event);
-  void callback_event(common::StageEvent *event, common::CallbackContext *context);
+  bool initialize() override;
+  void cleanup() override;
+  void handle_event(common::StageEvent *event) override;
 
 protected:
 private:

@@ -17,8 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/field/field.h"
 
 /**
- * 表示从表中获取数据的算子
- * 比如使用全表扫描、通过索引获取数据等
+ * @brief 表示从表中获取数据的算子
+ * @details 比如使用全表扫描、通过索引获取数据等
+ * @ingroup LogicalOperator
  */
 class TableGetLogicalOperator : public LogicalOperator
 {

@@ -20,6 +20,10 @@ See the Mulan PSL v2 for more details. */
 
 class Table;
 
+/**
+ * @brief 表扫描物理算子
+ * @ingroup PhysicalOperator
+ */
 class TableScanPhysicalOperator : public PhysicalOperator
 {
 public:

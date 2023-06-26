@@ -92,11 +92,3 @@ void PlanCacheStage::handle_event(StageEvent *event)
 
   return;
 }
-
-void PlanCacheStage::callback_event(StageEvent *event, CallbackContext *context)
-{
-  // update execute plan here
-  // event->done_immediate();
-
-  return;
-}

@@ -18,8 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/physical_operator.h"
 
 /**
- * 最简单的两表（称为左表、右表）join算子
- * 依次遍历左表的每一行，然后关联右表的每一行
+ * @brief 最简单的两表（称为左表、右表）join算子
+ * @details 依次遍历左表的每一行，然后关联右表的每一行
+ * @ingroup PhysicalOperator
  */
 class NestedLoopJoinPhysicalOperator : public PhysicalOperator
 {

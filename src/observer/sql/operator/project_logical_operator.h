@@ -22,7 +22,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/field/field.h"
 
 /**
- * project 表示投影运算
+ * @brief project 表示投影运算
+ * @ingroup LogicalOperator
+ * @details 从表中获取数据后，可能需要过滤，投影，连接等等。
  */
 class ProjectLogicalOperator : public LogicalOperator 
 {

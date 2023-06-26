@@ -34,6 +34,7 @@ class ExplainStmt;
 
 /**
  * @brief 将解析后的Statement转换成执行计划，并进行优化
+ * @ingroup SQLStage
  * @details 优化分为两种，一个是根据规则重写，一个是根据代价模型优化。
  * 在这里，先将Statement转换成逻辑计划，然后进行重写(rewrite)，最后生成物理计划。
  * 不过并不是所有的语句都需要生成计划，有些可以直接执行，比如create table、create index等。
@@ -53,7 +54,6 @@ protected:
   bool initialize();
   void cleanup();
   void handle_event(common::StageEvent *event);
-  void callback_event(common::StageEvent *event, common::CallbackContext *context);
 
 private:
   RC handle_request(SQLStageEvent *event);
