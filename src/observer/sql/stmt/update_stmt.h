@@ -19,6 +19,10 @@ See the Mulan PSL v2 for more details. */
 
 class Table;
 
+/**
+ * @brief 更新语句
+ * @ingroup Statement
+ */
 class UpdateStmt : public Stmt 
 {
 public:

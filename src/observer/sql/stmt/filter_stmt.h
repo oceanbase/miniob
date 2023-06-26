@@ -84,6 +84,10 @@ private:
   FilterObj right_;
 };
 
+/**
+ * @brief Filter/谓词/过滤语句
+ * @ingroup Statement
+ */
 class FilterStmt 
 {
 public:

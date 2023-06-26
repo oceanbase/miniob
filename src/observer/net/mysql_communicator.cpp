@@ -115,7 +115,6 @@ enum enum_field_types
  * @param value 要写入的值
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_int1(char *buf, int8_t value)
 {
@@ -130,7 +129,6 @@ int store_int1(char *buf, int8_t value)
  * @param value 要写入的值
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_int2(char *buf, int16_t value)
 {
@@ -145,7 +143,6 @@ int store_int2(char *buf, int16_t value)
  * @param value 要写入的值
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_int3(char *buf, int32_t value)
 {
@@ -160,7 +157,6 @@ int store_int3(char *buf, int32_t value)
  * @param value 要写入的值
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_int4(char *buf, int32_t value)
 {
@@ -175,7 +171,6 @@ int store_int4(char *buf, int32_t value)
  * @param value 要写入的值
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_int6(char *buf, int64_t value)
 {
@@ -190,7 +185,6 @@ int store_int6(char *buf, int64_t value)
  * @param value 要写入的值
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_int8(char *buf, int64_t value)
 {
@@ -205,7 +199,6 @@ int store_int8(char *buf, int64_t value)
  * @param value 要写入的值
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_lenenc_int(char *buf, uint64_t value)
 {
@@ -238,7 +231,6 @@ int store_lenenc_int(char *buf, uint64_t value)
  * @param s 要写入的字符串
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_null_terminated_string(char *buf, const char *s)
 {
@@ -259,7 +251,6 @@ int store_null_terminated_string(char *buf, const char *s)
  * @param len 字符串的长度
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_fix_length_string(char *buf, const char *s, int len)
 {
@@ -278,7 +269,6 @@ int store_fix_length_string(char *buf, const char *s, int len)
  * @param s 要写入的字符串
  * @return int 写入的字节数
  * @ingroup MySQLProtocolStore
- * @ingroup MySQLProtocol
  */
 int store_lenenc_string(char *buf, const char *s)
 {
@@ -290,8 +280,8 @@ int store_lenenc_string(char *buf, const char *s)
 
 /**
  * @brief 每个包都有一个包头
- * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_packets.html
- * https://mariadb.com/kb/en/0-packet/
+ * @details [MySQL Basic Packet](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_packets.html)
+ * [MariaDB Packet](https://mariadb.com/kb/en/0-packet/)
  * @ingroup MySQLProtocol
  */
 struct PacketHeader 
@@ -302,7 +292,7 @@ struct PacketHeader
 
 /**
  * @brief 所有的包都继承自BasePacket
- * @details 所有的包都有一个包头，所以BasePacket中包含了一个PacketHeader
+ * @details 所有的包都有一个包头，所以BasePacket中包含了一个 @ref PacketHeader
  * @ingroup MySQLProtocol
  */
 class BasePacket 
@@ -320,8 +310,8 @@ public:
   /**
    * @brief 将当前包编码成网络包
    * 
-   * @param capabilities MySQL协议中的capability标志
-   * @param net_packet 编码后的网络包
+   * @param[in] capabilities MySQL协议中的capability标志
+   * @param[out] net_packet 编码后的网络包
    */
   virtual RC encode(uint32_t capabilities, std::vector<char> &net_packet) const = 0;
 };
@@ -331,7 +321,7 @@ public:
  * @ingroup MySQLProtocol
  * @details 先由服务端发送到客户端。
  * 这个包会交互capability与用户名密码。
- * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase_packets_protocol_handshake_v10.html
+ * [MySQL Handshake]https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase_packets_protocol_handshake_v10.html
  */
 struct HandshakeV10 : public BasePacket 
 {

@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief Exit 语句，表示断开连接，现在什么成员都没有
+ * @ingroup Statement
  */
 class ExitStmt : public Stmt
 {

@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief 事务的 Commit/Rollback 语句，现在什么成员都没有
+ * @ingroup Statement
  */
 class TrxEndStmt : public Stmt
 {

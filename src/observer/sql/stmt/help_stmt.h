@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief Help 语句，现在什么成员都没有
+ * @ingroup Statement
  */
 class HelpStmt : public Stmt
 {

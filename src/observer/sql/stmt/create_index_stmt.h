@@ -22,6 +22,10 @@ struct CreateIndex;
 class Table;
 class FieldMeta;
 
+/**
+ * @brief 创建索引的语句
+ * @ingroup Statement
+ */
 class CreateIndexStmt : public Stmt
 {
 public:

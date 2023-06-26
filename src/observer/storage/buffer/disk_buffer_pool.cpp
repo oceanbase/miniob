@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include <errno.h>
 #include <string.h>
 
-#include "storage/default/disk_buffer_pool.h"
+#include "storage/buffer/disk_buffer_pool.h"
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
 #include "common/os/os.h"

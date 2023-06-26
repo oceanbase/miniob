@@ -9,6 +9,7 @@
   - [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](./dev-env/how_to_dev_in_docker_container_by_vscode.md)
   - [Windows 使用Docker开发MiniOB](./dev-env/how_to_dev_miniob_by_docker_on_windows.md)
   - [使用Docker开发MiniOB](./dev-env/how-to-dev-using-docker.md)
+  - [MiniOB 调试](./dev-env/miniob-how-to-debug.md)
 
 - [功能模块设计说明文档](./design/introduction.md)
   - [事务](./design/miniob-transaction.md)
@@ -20,8 +21,12 @@
   - [提交测试需要满足的输出要求](./game/miniob-output-convention.md)
   - [2021届大赛题目介绍](./game/miniob_topics.md)
   - [大赛手把手入门教程](./game/gitee-instructions.md)
+  - [date 测试说明](./game/miniob-test-comment-date.md)
+  - [date 实现解析](./game/miniob-date-implementation.md)
+  - [drop table 实现解析](./game/miniob-drop-table-implementation.md)
 
 - [数据库基础理论课程](./lectures/index.md)
+  - [版权声明](./lectures/copyright.md)
   - [第1章 数据库管理系统概述](./lectures/lecture-1.md)
   - [第2章 数据库的存储结构](./lectures/lecture-2.md)
   - [第3章 索引结构](./lectures/lecture-3.md)
@@ -29,4 +34,3 @@
   - [第5章 查询优化](./lectures/lecture-5.md)
   - [第6章 事务处理](./lectures/lecture-6.md)
   - [参考资料](./lectures/references.md)
-  - [版权声明](./lectures/copyright.md)

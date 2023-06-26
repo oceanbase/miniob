@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <benchmark/benchmark.h>
 
 #include "storage/record/record_manager.h"
-#include "storage/default/disk_buffer_pool.h"
+#include "storage/buffer/disk_buffer_pool.h"
 #include "storage/common/condition_filter.h"
 #include "storage/trx/vacuous_trx.h"
 #include "common/log/log.h"

@@ -20,6 +20,10 @@ See the Mulan PSL v2 for more details. */
 class Table;
 class FilterStmt;
 
+/**
+ * @brief Delete 语句
+ * @ingroup Statement
+ */
 class DeleteStmt : public Stmt 
 {
 public:

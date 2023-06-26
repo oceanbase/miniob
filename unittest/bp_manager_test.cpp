@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai.wyl on 2021
 //
 
-#include "storage/default/disk_buffer_pool.h"
+#include "storage/buffer/disk_buffer_pool.h"
 #include "gtest/gtest.h"
 
 void test_get(BPFrameManager &frame_manager)

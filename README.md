@@ -4,7 +4,11 @@ MiniOB 是 [OceanBase](https://github.com/oceanbase/oceanbase) 与华中科技�
 
 MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，或者对基础技术有兴趣的爱好者, 整体代码量少，易于上手并学习, 是一个系统性的数据库学习项目。miniob 设置了一系列由浅入深的题目，以帮助同学们"零"基础入门, 让同学们快速了解数据库并深入学习数据库内核，期望通过相关训练之后，能够熟练掌握数据库内核模块的功能与协同关系, 并能够在使用数据库时，设计出高效的 SQL 。miniob 为了更好的学习数据库实现原理, 对诸多模块都做了简化，比如不考虑并发操作, 安全特性, 复杂的事物管理等功能。
 
-## 快速上手
+# GitHub Pages
+代码配套文档和相关代码注释已经生成文档并通过 GitHub Pages 发布, 可以直接访问:
+[MiniOB GitHub Pages](https://oceanbase.github.io/miniob/).
+
+# 快速上手
 
 为了帮助开发者更好的上手并学习 miniob, 建议阅读：
 
@@ -16,8 +20,6 @@ MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，�
 5. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](docs/src/dev-env/how_to_dev_in_docker_container_by_vscode.md)
 6. [MiniOB 各模块文档](docs/src/design/introduction.md)
 7. [doxygen 代码文档](docs/doxy/html/index.html)
-
-或者直接看 [MiniOB GitHub Pages](https://oceanbase.github.io/miniob/).
 
 更多的文档, 可以参考 docs 目录下的文档, 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
 
@@ -53,7 +55,7 @@ MiniOB 整体架构如下图所示:
 - 客户端：作为测试工具，接收用户请求，向服务端发起请求。
 
 
-## [OceanBase 大赛](https://open.oceanbase.com/competition)
+# [OceanBase 大赛](https://open.oceanbase.com/competition)
 
 2022 OceanBase 数据库大赛是由中国计算机学会（CCF）数据库专业委员会指导，OceanBase 与蚂蚁技术研究院学术合作团队联合举办的数据库内核实战赛事。本次大赛主要面向全国爱好数据库的高校学生，以“竞技、交流、成长”为宗旨，搭建基于赛事的技术交流平台，促进高校创新人才培养机制，不仅帮助学生从0开始系统化学习数据库理论知识，提升学生数据库实践能力，更能帮助学生走向企业积累经验，促进国内数据库人才的发展，碰撞出创新的火花。
 
@@ -81,7 +83,7 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 [大赛 FAQ ](https://ask.oceanbase.com/t/topic/35601465)
 
-## 在线开发平台
+# 在线开发平台
 
 本仓库基于 Gitpod 建立了快速在线开发平台, 点击下面按钮一键体验（建议使用 Chrome 浏览器）
 
@@ -89,15 +91,15 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 首次进入 Gitpod 时需要安装一些依赖，依赖安装完成后，终端界面会显示 "Dependency installed successfully"。运行 `bash build.sh --make -j4` 命令即可编译miniob。
 
-## Contributing
+# Contributing
 
 OceanBase 社区热情欢迎每一位对数据库技术热爱的开发者，期待携手开启思维碰撞之旅。无论是文档格式调整或文字修正、问题修复还是增加新功能，都是对 OceanBase 社区参与和贡献方式之一，立刻开启您的 First Contribution 吧！更多详情, 请参考 [社区贡献](CONTRIBUTING.md).
 
-## License
+# License
 
 MiniOB 采用 [木兰宽松许可证，第2版](https://license.coscl.org.cn/MulanPSL2), 可以自由拷贝和使用源码, 当做修改或分发时, 请遵守 [木兰宽松许可证，第2版](https://license.coscl.org.cn/MulanPSL2). 
 
-## 社区组织
+# 社区组织
 
 - [OceanBase 社区交流群 33254054](https://h5.dingtalk.com/circle/healthCheckin.html?corpId=dingd88359ef5e4c49ef87cda005313eea7a&1fe0ca69-72d=16c86a07-83c&cbdbhh=qwertyuiop&origin=1)
 - [OceanBase 大赛官方交流群 35326455](https://qr.dingtalk.com/action/joingroup?code=v1,k1,g61jI0RwHQA8UMocuTbys2cyM7vck2c6jNE87vdxz9o=&_dt_no_comment=1&origin=11)

@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include <iostream>
 
 #include "storage/index/bplus_tree.h"
-#include "storage/default/disk_buffer_pool.h"
+#include "storage/buffer/disk_buffer_pool.h"
 #include "common/log/log.h"
 #include "sql/parser/parse_defs.h"
 #include "gtest/gtest.h"

@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <sstream>
 #include <limits>
-#include "storage/default/disk_buffer_pool.h"
+#include "storage/buffer/disk_buffer_pool.h"
 #include "storage/trx/latch_memo.h"
 #include "storage/record/record.h"
 #include "common/lang/bitmap.h"
@@ -26,8 +26,9 @@ class Trx;
 class Table;
 
 /**
- * @defgroup RecordManager
  * @brief 这里负责管理在一个文件上表记录(行)的组织/管理
+ * @defgroup RecordManager
+ * 
  * @file record_manager.h
  *
  * @details 表记录管理的内容包括如何在文件上存放、读取、检索。也就是记录的增删改查。

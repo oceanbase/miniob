@@ -23,6 +23,7 @@ class Db;
 
 /**
  * @brief 描述表的语句
+ * @ingroup Statement
  * @details 虽然解析成了stmt，但是与原始的SQL解析后的数据也差不多
  */
 class DescTableStmt : public Stmt
