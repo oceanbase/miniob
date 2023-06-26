@@ -1,21 +1,16 @@
-# include 另外一个cmake 配置
-#INCLUDE(file1 [OPTIONAL])
-
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 20)
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 project(minidb)
 
-MESSAGE(STATUS "This is SOURCE dir " ${test_SOURCE_DIR})
-MESSAGE(STATUS "This is BINARY dir " ${test_BINARY_DIR})
 MESSAGE(STATUS "This is Project source dir " ${PROJECT_SOURCE_DIR})
 MESSAGE(STATUS "This is PROJECT_BINARY_DIR dir " ${PROJECT_BINARY_DIR})
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-#SET(LIBRARY_OUTPUT_PATH <路径>)
 
-OPTION(ENABLE_ASAN "Enable build with address sanitizer" OFF)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+
+OPTION(ENABLE_ASAN "Enable build with address sanitizer" ON)
 OPTION(WITH_UNIT_TESTS "Compile miniob with unit tests" ON)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)
 
@@ -77,6 +72,21 @@ ELSE()
 ENDIF()
 MESSAGE("Install target dir is " ${CMAKE_INSTALL_PREFIX})
 
+IF (DEFINED ENV{LD_LIBRARY_PATH})
+    SET(LD_LIBRARY_PATH_STR $ENV{LD_LIBRARY_PATH})
+    string(REPLACE ":" ";" LD_LIBRARY_PATH_LIST ${LD_LIBRARY_PATH_STR})
+    MESSAGE(" Add LD_LIBRARY_PATH to -L flags " ${LD_LIBRARY_PATH_LIST})
+    LINK_DIRECTORIES(${LD_LIBRARY_PATH_LIST})
+ENDIF ()
+
+IF (EXISTS /usr/local/lib)
+    LINK_DIRECTORIES (/usr/local/lib)
+ENDIF ()
+IF (EXISTS /usr/local/lib64)
+    LINK_DIRECTORIES (/usr/local/lib64)
+ENDIF ()
+
+INCLUDE_DIRECTORIES(. ${PROJECT_SOURCE_DIR}/deps /usr/local/include)
 
 # ADD_SUBDIRECTORY(src bin)  bin 为目标目录， 可以省略
 ADD_SUBDIRECTORY(deps)
@@ -91,16 +101,6 @@ IF(WITH_UNIT_TESTS)
     ADD_SUBDIRECTORY(unittest)
 ENDIF()
 
-# install 准备安装的目录是cmakefile 的当前目录， 不是build 后生成的目录
-# Files 默认权限OWNER_WRITE, OWNER_READ, GROUP_READ,和WORLD_READ，即644权限
-# INSTALL(FILES docs/README DESTINATION ./  )
-# INSTALL(DIRECTORY docs DESTINATION ./
-#        PATTERN "README" EXCLUDE)
-#  PERMISSIONS 可以直接替换
-#INSTALL(DIRECTORY bin DESTINATION ./
-#        FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_READ
-#        DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_READ WORLD_EXECUTE)
-
 INSTALL(DIRECTORY etc DESTINATION .
 		FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 
@@ -112,11 +112,6 @@ INSTALL(CODE "MESSAGE(\"Sample install message.\")")
 #EXEC_PROGRAM(Executable [directory in which to run]
 #        [ARGS <arguments to executable>]
 #        [OUTPUT_VARIABLE <var>]
-
-
-
-
-# ADD_TEST与ENABLE_TESTING 参考书籍
 
 #EXEC_PROGRAM(Executable [directory in which to run]
 #        [ARGS <arguments to executable>]

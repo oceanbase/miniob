@@ -1,23 +1,7 @@
 # 可以获取父cmake的变量
 MESSAGE("${CMAKE_COMMON_FLAGS}")
 
-
-#INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)
-INCLUDE_DIRECTORIES(. ${PROJECT_SOURCE_DIR}/deps ${PROJECT_SOURCE_DIR}/src/observer /usr/local/include)
-# 父cmake 设置的include_directories 和link_directories并不传导到子cmake里面
-#INCLUDE_DIRECTORIES(BEFORE ${CMAKE_INSTALL_PREFIX}/include)
-LINK_DIRECTORIES(/usr/local/lib /usr/local/lib64 ${PROJECT_BINARY_DIR}/lib)
-
-
-IF (DEFINED ENV{LD_LIBRARY_PATH})
-    SET(LD_LIBRARY_PATH_STR $ENV{LD_LIBRARY_PATH})
-    #separate_arguments(LD_LIBRARY_PATH_STR)  #只能处理空行
-    string(REPLACE ":" ";" LD_LIBRARY_PATH_LIST ${LD_LIBRARY_PATH_STR})
-    MESSAGE(" Add LD_LIBRARY_PATH to -L flags " ${LD_LIBRARY_PATH_LIST})
-    LINK_DIRECTORIES(${LD_LIBRARY_PATH_LIST})
-ELSE ()
-    LINK_DIRECTORIES(/usr/local/lib)
-ENDIF ()
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src/observer)
 
 find_package(GTest CONFIG REQUIRED)
 
@@ -35,4 +19,3 @@ FOREACH (F ${ALL_SRC})
     TARGET_LINK_LIBRARIES(${prjName} common pthread dl gtest gtest_main observer_static)
     gtest_discover_tests(${prjName})
 ENDFOREACH (F)
-

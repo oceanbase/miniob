@@ -1,21 +1,14 @@
 ADD_EXECUTABLE(obclient)
 MESSAGE("Begin to build " obclient)
 
-INCLUDE(CheckIncludeFiles)
+INCLUDE(readline)
+MINIOB_FIND_READLINE()
 
-#INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)
-TARGET_INCLUDE_DIRECTORIES(obclient PRIVATE . ${PROJECT_SOURCE_DIR}/deps /usr/local/include /usr/include)
-# 父cmake 设置的include_directories 和link_directories并不传导到子cmake里面
-#INCLUDE_DIRECTORIES(BEFORE ${CMAKE_INSTALL_PREFIX}/include)
-
-# stdio.h 必须放在readline/readline.h 前面，因为readline头文件不能直接单独编译
-CHECK_INCLUDE_FILES("stdio.h;readline/readline.h" HAVE_READLINE_HEADER)
-
-# 这个功能同时在client和observer中使用，可以放到公共的目录中
-FIND_LIBRARY(READLINE_LIBRARY readline)
-IF (HAVE_READLINE_HEADER AND READLINE_LIBRARY)
+IF (HAVE_READLINE)
     TARGET_LINK_LIBRARIES(obclient ${READLINE_LIBRARY})
+    TARGET_INCLUDE_DIRECTORIES(obclient PRIVATE ${READLINE_INCLUDE_DIR})
     ADD_DEFINITIONS(-DUSE_READLINE)
+    MESSAGE ("obclient use readline")
 ELSE ()
     MESSAGE ("readline is not found")
 ENDIF()
@@ -28,12 +21,8 @@ FOREACH (F ${ALL_SRC})
 
 ENDFOREACH (F)
 
-# 指定目标文件位置
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-MESSAGE("Binary directory:" ${EXECUTABLE_OUTPUT_PATH})
 TARGET_SOURCES(obclient PRIVATE ${PRJ_SRC})
 TARGET_LINK_LIBRARIES(obclient common pthread dl)
-
 
 # Target 必须在定义 ADD_EXECUTABLE 之后， programs 不受这个限制
 # TARGETS和PROGRAMS 的默认权限是OWNER_EXECUTE, GROUP_EXECUTE, 和WORLD_EXECUTE，即755权限， programs 都是处理脚步类
