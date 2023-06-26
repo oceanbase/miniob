@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <sstream>
 #include <limits>
-#include "storage/default/disk_buffer_pool.h"
+#include "storage/buffer/disk_buffer_pool.h"
 #include "storage/trx/latch_memo.h"
 #include "storage/record/record.h"
 #include "common/lang/bitmap.h"

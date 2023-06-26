@@ -26,6 +26,10 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/mutex.h"
 #include "common/types.h"
 
+/**
+ * @brief 页帧标识符
+ * @ingroup BufferPool
+ */
 class FrameId 
 {
 public:
@@ -42,6 +46,10 @@ private:
   PageNum page_num_;
 };
 
+/**
+ * @brief 页帧
+ * @ingroup BufferPool
+ */
 class Frame
 {
 public:

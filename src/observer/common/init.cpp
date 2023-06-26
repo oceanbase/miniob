@@ -37,7 +37,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/query_cache/query_cache_stage.h"
 #include "storage/default/default_storage_stage.h"
 #include "storage/mem/mem_storage_stage.h"
-#include "storage/default/disk_buffer_pool.h"
+#include "storage/buffer/disk_buffer_pool.h"
 #include "storage/default/default_handler.h"
 #include "storage/trx/trx.h"
 #include "global_context.h"

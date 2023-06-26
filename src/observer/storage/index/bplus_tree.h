@@ -23,7 +23,7 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 
 #include "storage/record/record_manager.h"
-#include "storage/default/disk_buffer_pool.h"
+#include "storage/buffer/disk_buffer_pool.h"
 #include "storage/trx/latch_memo.h"
 #include "sql/parser/parse_defs.h"
 #include "common/lang/comparator.h"

@@ -37,10 +37,16 @@ See the Mulan PSL v2 for more details. */
 class BufferPoolManager;
 class DiskBufferPool;
 
+/**
+ * @brief BufferPool 的实现
+ * @defgroup BufferPool
+ */
+
 #define BP_FILE_SUB_HDR_SIZE (sizeof(BPFileSubHeader))
 
 /**
- * BufferPool的文件第一个页面，存放一些元数据信息，包括了后面每页的分配信息。
+ * @brief BufferPool的文件第一个页面，存放一些元数据信息，包括了后面每页的分配信息。
+ * @ingroup BufferPool
  * TODO 1. 当前的做法，只能分配比较少的页面，你可以扩展一下，支持更多的页面或无限多的页面吗？
  *         可以参考Linux ext(n)和Windows NTFS等文件系统
  *      2. 当前使用bitmap存放页面分配情况，但是这种方法在页面非常多的时候，查找空闲页面的
@@ -60,6 +66,10 @@ struct BPFileHeader
   std::string to_string() const;
 };
 
+/**
+ * @brief 管理页面Frame
+ * @ingroup BufferPool
+ */
 class BPFrameManager 
 {
 public:
@@ -123,6 +133,10 @@ private:
   FrameAllocator allocator_;
 };
 
+/**
+ * @brief 用于遍历BufferPool中的所有页面
+ * @ingroup BufferPool
+ */
 class BufferPoolIterator
 {
 public:
@@ -139,6 +153,10 @@ private:
   PageNum current_page_num_ = -1;
 };
 
+/**
+ * @brief BufferPool的实现
+ * @ingroup BufferPool
+ */
 class DiskBufferPool 
 {
 public:
@@ -252,6 +270,10 @@ private:
   friend class BufferPoolIterator;
 };
 
+/**
+ * @brief BufferPool的管理类
+ * @ingroup BufferPool
+ */
 class BufferPoolManager 
 {
 public:
