@@ -26,6 +26,9 @@ See the Mulan PSL v2 for more details. */
 class PlainCommunicator : public Communicator 
 {
 public:
+  PlainCommunicator();
+  virtual ~PlainCommunicator() = default;
+
   RC read_event(SessionEvent *&event) override;
   RC write_result(SessionEvent *event, bool &need_disconnect) override;
 

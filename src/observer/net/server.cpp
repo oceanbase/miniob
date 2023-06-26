@@ -335,6 +335,9 @@ int Server::start_stdin_server()
     /// 在当前线程立即处理对应的事件
     session_stage_->handle_event(event);
   }
+
+  delete communicator;
+  communicator = nullptr;
   return 0;
 }
 

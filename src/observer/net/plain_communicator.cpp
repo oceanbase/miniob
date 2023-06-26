@@ -20,6 +20,11 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "common/log/log.h"
 
+PlainCommunicator::PlainCommunicator()
+{
+  send_message_delimiter_.assign(1, '\0');
+}
+
 RC PlainCommunicator::read_event(SessionEvent *&event)
 {
   RC rc = RC::SUCCESS;
