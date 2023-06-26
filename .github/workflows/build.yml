@@ -64,4 +64,5 @@ jobs:
         shell: bash
         run: |
           sudo bash build.sh init
+          echo "begin test..."
           python3 test/case/miniob_test.py --test-cases=basic | tail -1 | grep "basic is success"
