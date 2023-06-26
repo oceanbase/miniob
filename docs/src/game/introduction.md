@@ -10,6 +10,11 @@
 作为参考，这里有第一届数据库大赛的题目介绍：
 [第一届数据库大赛题目介绍](./miniob_topics.md)
 
+还有往届选手给出了一些题解：
+- [date 测试说明](./miniob-test-comment-date.md)
+- [date 实现解析](./miniob-date-implementation.md)
+- [drop table 实现解析](./miniob-drop-table-implementation.md)
+
 在参赛前，除了学习基础的理论知识，还可以使用OceanBase提供的训练营，来快速上手：
 [训练营](https://open.oceanbase.com/train?questionId=200001)
 

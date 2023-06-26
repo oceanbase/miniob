@@ -17,7 +17,12 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/index.h"
 #include "storage/index/bplus_tree.h"
 
-class BplusTreeIndex : public Index {
+/**
+ * @brief B+树索引
+ * @ingroup Index
+ */
+class BplusTreeIndex : public Index 
+{
 public:
   BplusTreeIndex() = default;
   virtual ~BplusTreeIndex() noexcept;
@@ -42,7 +47,12 @@ private:
   BplusTreeHandler index_handler_;
 };
 
-class BplusTreeIndexScanner : public IndexScanner {
+/**
+ * @brief B+树索引扫描器
+ * @ingroup Index
+ */
+class BplusTreeIndexScanner : public IndexScanner 
+{
 public:
   BplusTreeIndexScanner(BplusTreeHandler &tree_handle);
   ~BplusTreeIndexScanner() noexcept override;

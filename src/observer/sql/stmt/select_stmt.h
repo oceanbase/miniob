@@ -25,6 +25,10 @@ class FilterStmt;
 class Db;
 class Table;
 
+/**
+ * @brief 表示select语句
+ * @ingroup Statement
+ */
 class SelectStmt : public Stmt 
 {
 public:

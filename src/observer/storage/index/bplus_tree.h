@@ -29,9 +29,18 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/comparator.h"
 #include "common/log/log.h"
 
+/**
+ * @brief B+树的实现
+ * @defgroup B+Tree
+ */
+
 #define EMPTY_RID_PAGE_NUM -1 // TODO remove me
 #define EMPTY_RID_SLOT_NUM -1
 
+/**
+ * @brief B+树的操作类型
+ * @ingroup B+Tree
+ */
 enum class BplusTreeOperationType
 {
   READ,
@@ -39,6 +48,10 @@ enum class BplusTreeOperationType
   DELETE,
 };
 
+/**
+ * @brief 属性比较
+ * @ingroup B+Tree
+ */
 class AttrComparator 
 {
 public:
@@ -77,6 +90,10 @@ private:
   int attr_length_;
 };
 
+/**
+ * @brief 键值比较
+ * @ingroup B+Tree
+ */
 class KeyComparator 
 {
 public:
@@ -106,6 +123,10 @@ private:
   AttrComparator attr_comparator_;
 };
 
+/**
+ * @brief 属性打印,调试使用
+ * @ingroup B+Tree
+ */
 class AttrPrinter 
 {
 public:
@@ -151,6 +172,10 @@ private:
   int attr_length_;
 };
 
+/**
+ * @brief 键值打印,调试使用
+ * @ingroup B+Tree
+ */
 class KeyPrinter 
 {
 public:
@@ -179,8 +204,9 @@ private:
 };
 
 /**
- * the meta information of bplus tree
- * this is the first page of bplus tree.
+ * @brief the meta information of bplus tree
+ * @ingroup B+Tree
+ * @details this is the first page of bplus tree.
  * only one field can be supported, can you extend it to multi-fields?
  */
 struct IndexFileHeader 
@@ -213,7 +239,8 @@ struct IndexFileHeader
 };
 
 /**
- * the common part of page describtion of bplus tree
+ * @brief the common part of page describtion of bplus tree
+ * @ingroup B+Tree
  * storage format:
  * | page type | item number | parent page id |
  */
@@ -227,7 +254,8 @@ struct IndexNode
 };
 
 /**
- * leaf page of bplus tree
+ * @brief leaf page of bplus tree
+ * @ingroup B+Tree
  * storage format:
  * | common header | prev page id | next page id |
  * | key0, rid0 | key1, rid1 | ... | keyn, ridn |
@@ -249,7 +277,8 @@ struct LeafIndexNode : public IndexNode
 };
 
 /**
- * internal page of bplus tree
+ * @brief internal page of bplus tree
+ * @ingroup B+Tree
  * storage format:
  * | common header |
  * | key(0),page_id(0) | key(1), page_id(1) | ... | key(n), page_id(n) |
@@ -268,7 +297,8 @@ struct InternalIndexNode : public IndexNode
 };
 
 /**
- * IndexNode 仅作为数据在内存或磁盘中的表示
+ * @brief IndexNode 仅作为数据在内存或磁盘中的表示
+ * @ingroup B+Tree
  * IndexNodeHandler 负责对IndexNode做各种操作。
  * 作为一个类来说，虚函数会影响“结构体”真实的内存布局，所以将数据存储与操作分开
  */
@@ -305,6 +335,10 @@ protected:
   IndexNode *node_;
 };
 
+/**
+ * @brief 叶子节点的操作
+ * @ingroup B+Tree
+ */
 class LeafIndexNodeHandler : public IndexNodeHandler 
 {
 public:
@@ -352,6 +386,10 @@ private:
   LeafIndexNode *leaf_node_;
 };
 
+/**
+ * @brief 内部节点的操作
+ * @ingroup B+Tree
+ */
 class InternalIndexNodeHandler : public IndexNodeHandler 
 {
 public:
@@ -413,6 +451,10 @@ private:
   InternalIndexNode *internal_node_ = nullptr;
 };
 
+/**
+ * @brief B+树的实现
+ * @ingroup B+Tree
+ */
 class BplusTreeHandler 
 {
 public:
@@ -543,6 +585,10 @@ private:
   friend class BplusTreeTester;
 };
 
+/**
+ * @brief B+树的扫描器
+ * @ingroup B+Tree
+ */
 class BplusTreeScanner 
 {
 public:
@@ -550,7 +596,7 @@ public:
   ~BplusTreeScanner();
 
   /**
-   * 扫描指定范围的数据
+   * @brief 扫描指定范围的数据
    * @param left_user_key 扫描范围的左边界，如果是null，则没有左边界
    * @param left_len left_user_key 的内存大小(只有在变长字段中才会关注)
    * @param left_inclusive 左边界的值是否包含在内

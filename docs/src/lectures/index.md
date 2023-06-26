@@ -2,6 +2,7 @@
 
 作者 华中科技大学谢美意 左琼
 
+[版权声明](copyright.md)
 
 [第1章 数据库管理系统概述](lecture-1.md)
 
@@ -16,5 +17,3 @@
 [第6章 事务处理](lecture-6.md)
 
 [参考资料](references.md)
-
-[版权声明](copyright.md)
