@@ -16,7 +16,12 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/logical_operator.h"
 
-class ExplainLogicalOperator : public LogicalOperator {
+/**
+ * @brief Explain逻辑算子
+ * @ingroup LogicalOperator
+ */
+class ExplainLogicalOperator : public LogicalOperator 
+{
 public:
   ExplainLogicalOperator() = default;
   virtual ~ExplainLogicalOperator() = default;

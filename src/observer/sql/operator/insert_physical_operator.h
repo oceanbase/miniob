@@ -20,6 +20,10 @@ See the Mulan PSL v2 for more details. */
 
 class InsertStmt;
 
+/**
+ * @brief 插入物理算子
+ * @ingroup PhysicalOperator
+ */
 class InsertPhysicalOperator : public PhysicalOperator
 {
 public:

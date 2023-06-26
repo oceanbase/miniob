@@ -16,7 +16,13 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/logical_operator.h"
 
-class JoinLogicalOperator : public LogicalOperator {
+/**
+ * @brief 连接算子
+ * @ingroup LogicalOperator
+ * @details 连接算子，用于连接两个表。对应的物理算子或者实现，可能有NestedLoopJoin，HashJoin等等。
+ */
+class JoinLogicalOperator : public LogicalOperator 
+{
 public:
   JoinLogicalOperator() = default;
   virtual ~JoinLogicalOperator() = default;

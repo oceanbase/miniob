@@ -19,6 +19,10 @@ See the Mulan PSL v2 for more details. */
 class Trx;
 class DeleteStmt;
 
+/**
+ * @brief 物理算子，删除
+ * @ingroup PhysicalOperator
+ */
 class DeletePhysicalOperator : public PhysicalOperator
 {
 public:
