@@ -2,6 +2,7 @@
 
 - [MiniOB 简介](./miniob-introduction.md)
 - [如何编译](./how_to_build.md)
+- [如何运行](./how_to_run.md)
 - [开发环境搭建](./dev-env/introduction.md)
   - [使用 GitPod 开发 MiniOB](./dev-env/dev_by_gitpod.md)
   - [开发环境搭建(本地调试, 适用 Linux 和 Mac)](./dev-env/how_to_dev_miniob_by_vscode.md)

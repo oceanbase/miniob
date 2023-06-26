@@ -10,6 +10,7 @@ MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，�
 
 1. [miniob 框架介绍](docs/src/miniob-introduction.md)
 2. [如何编译 MiniOB 源码](docs/src/how_to_build.md)
+3. [如何运行 MiniOB](docs/src/how_to_run.md)
 3. [使用 GitPod 开发 MiniOB](docs/src/dev-env/dev_by_gitpod.md)
 4. [开发环境搭建(本地调试, 适用 Linux 和 Mac)](docs/src/dev-env/how_to_dev_miniob_by_vscode.md)
 5. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](docs/src/dev-env/how_to_dev_in_docker_container_by_vscode.md)
