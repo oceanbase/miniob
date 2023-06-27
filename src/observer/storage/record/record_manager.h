@@ -29,8 +29,6 @@ class Table;
  * @brief 这里负责管理在一个文件上表记录(行)的组织/管理
  * @defgroup RecordManager
  * 
- * @file record_manager.h
- *
  * @details 表记录管理的内容包括如何在文件上存放、读取、检索。也就是记录的增删改查。
  * 这里的文件都会被拆分成页面，每个页面都有一样的大小。更详细的信息可以参考BufferPool。
  * 按照BufferPool的设计，第一个页面用来存放BufferPool本身的元数据，比如当前文件有多少页面、已经分配了多少页面、
@@ -104,9 +102,11 @@ private:
  * @brief 负责处理一个页面中各种操作，比如插入记录、删除记录或者查找记录
  * @ingroup RecordManager
  * @details 当前定长记录模式下每个页面的组织大概是这样的：
+ * @code
  * | PageHeader | record allocate bitmap |
  * |------------|------------------------|
  * | record1 | record2 | ..... | recordN |
+ * @endcode
  */
 class RecordPageHandler
 {

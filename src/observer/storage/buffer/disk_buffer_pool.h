@@ -47,10 +47,13 @@ class DiskBufferPool;
 /**
  * @brief BufferPool的文件第一个页面，存放一些元数据信息，包括了后面每页的分配信息。
  * @ingroup BufferPool
+ * @details
+ * @code
  * TODO 1. 当前的做法，只能分配比较少的页面，你可以扩展一下，支持更多的页面或无限多的页面吗？
  *         可以参考Linux ext(n)和Windows NTFS等文件系统
  *      2. 当前使用bitmap存放页面分配情况，但是这种方法在页面非常多的时候，查找空闲页面的
  *         效率非常低，你有办法优化吗？
+ * @endcode
  */
 struct BPFileHeader 
 {
