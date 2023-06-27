@@ -20,12 +20,8 @@ See the Mulan PSL v2 for more details. */
 using TrxID = int32_t;
 
 static constexpr int BP_INVALID_PAGE_NUM = -1;
-static constexpr int INVALID_TRX_ID   = -1;
-static constexpr int INVALID_LSN      = -1;
 
 static constexpr PageNum BP_HEADER_PAGE   = 0;
-
-static constexpr int LOG_BUFFER_SIZE = 1<<10; // TODO move to log record
 
 static constexpr const int BP_PAGE_SIZE = (1 << 13);
 static constexpr const int BP_PAGE_DATA_SIZE = (BP_PAGE_SIZE - sizeof(PageNum) - sizeof(LSN));

@@ -135,9 +135,9 @@ struct Deletes
  */
 struct Updates
 {
-  std::string relation_name;   // Relation to update
-  std::string attribute_name;  /// 更新的字段，仅支持一个字段
-  Value value;                 /// 更新的值，仅支持一个字段
+  std::string relation_name;   ///< Relation to update
+  std::string attribute_name;  ///< 更新的字段，仅支持一个字段
+  Value value;                 ///< 更新的值，仅支持一个字段
   std::vector<Condition> conditions;
 };
 
@@ -149,9 +149,9 @@ struct Updates
  */
 struct AttrInfo
 {
-  AttrType type;     /// Type of attribute
-  std::string name;  /// Attribute name
-  size_t length;     /// Length of attribute
+  AttrType type;     ///< Type of attribute
+  std::string name;  ///< Attribute name
+  size_t length;     ///< Length of attribute
 };
 
 /**
@@ -191,8 +191,8 @@ struct CreateIndex
  */
 struct DropIndex
 {
-  std::string index_name;     // Index name
-  std::string relation_name;  // Relation name
+  std::string index_name;     ///< Index name
+  std::string relation_name;  ///< Relation name
 };
 
 /**
