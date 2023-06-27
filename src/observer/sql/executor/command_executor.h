@@ -18,7 +18,15 @@ See the Mulan PSL v2 for more details. */
 
 class SQLStageEvent;
 
+/**
+ * @defgroup Executor
+ * @brief 一些SQL语句不会生成对应的执行计划，直接使用Executor来执行，比如DDL语句
+ */
 
+/**
+ * @brief 执行器
+ * @ingroup Executor
+ */
 class CommandExecutor
 {
 public:

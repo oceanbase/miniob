@@ -21,6 +21,10 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/sql_result.h"
 #include "session/session.h"
 
+/**
+ * @brief Help语句执行器
+ * @ingroup Executor
+ */
 class HelpExecutor
 {
 public:

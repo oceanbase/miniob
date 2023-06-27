@@ -22,6 +22,10 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/trx.h"
 #include "sql/stmt/stmt.h"
 
+/**
+ * @brief 事务结束的执行器，可以是提交或回滚
+ * @ingroup Executor
+ */
 class TrxEndExecutor
 {
 public:

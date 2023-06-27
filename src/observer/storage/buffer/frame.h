@@ -49,6 +49,14 @@ private:
 /**
  * @brief 页帧
  * @ingroup BufferPool
+ * @details 页帧是磁盘文件在内存中的表示。磁盘文件按照页面来操作，操作之前先映射到内存中，
+ * 将磁盘数据读取到内存中，也就是页帧。
+ * 
+ * 当某个页面被淘汰时，如果有些内容曾经变更过，那么就需要将这些内容刷新到磁盘上。这里有
+ * 一个dirty标识，用来标识页面是否被修改过。
+ * 
+ * 为了防止在使用过程中页面被淘汰，这里使用了pin count，当页面被使用时，pin count会增加，
+ * 当页面不再使用时，pin count会减少。当pin count为0时，页面可以被淘汰。
  */
 class Frame
 {
@@ -59,8 +67,8 @@ public:
   }
 
   /**
-   * reinit 和 reset 在 MemPoolSimple 中使用
-   * 在 MemPoolSimple 分配和释放一个Frame对象时，不会调用构造函数和析构函数，
+   * @brief reinit 和 reset 在 MemPoolSimple 中使用
+   * @details 在 MemPoolSimple 分配和释放一个Frame对象时，不会调用构造函数和析构函数，
    * 而是调用reinit和reset。
    */
   void reinit()
@@ -86,7 +94,7 @@ public:
   void access();
 
   /**
-   * 标记指定页面为“脏”页。如果修改了页面的内容，则应调用此函数，
+   * @brief 标记指定页面为“脏”页。如果修改了页面的内容，则应调用此函数，
    * 以便该页面被淘汰出缓冲区时系统将新的页面数据写入磁盘文件
    */
   void mark_dirty() { dirty_ = true; }
@@ -98,13 +106,13 @@ public:
   bool can_purge() { return pin_count_.load() == 0; }
 
   /**
-   * 给当前页帧增加引用计数
+   * @brief 给当前页帧增加引用计数
    * pin通常都会加着frame manager锁来访问
    */
   void pin();
 
   /**
-   * 释放一个当前页帧的引用计数
+   * @brief 释放一个当前页帧的引用计数
    * 与pin对应，但是通常不会加着frame manager的锁来访问
    */
   int  unpin();

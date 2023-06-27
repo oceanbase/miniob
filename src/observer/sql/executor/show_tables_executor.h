@@ -22,6 +22,11 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "storage/db/db.h"
 
+/**
+ * @brief 显示所有表的执行器
+ * @ingroup Executor
+ * @note 与CreateIndex类似，不处理并发
+ */
 class ShowTablesExecutor
 {
 public:
