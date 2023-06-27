@@ -31,7 +31,7 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief B+树的实现
- * @defgroup B+Tree
+ * @defgroup BPlusTree
  */
 
 #define EMPTY_RID_PAGE_NUM -1 // TODO remove me
@@ -39,7 +39,7 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief B+树的操作类型
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  */
 enum class BplusTreeOperationType
 {
@@ -50,7 +50,7 @@ enum class BplusTreeOperationType
 
 /**
  * @brief 属性比较
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  */
 class AttrComparator 
 {
@@ -92,7 +92,7 @@ private:
 
 /**
  * @brief 键值比较
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  */
 class KeyComparator 
 {
@@ -125,7 +125,7 @@ private:
 
 /**
  * @brief 属性打印,调试使用
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  */
 class AttrPrinter 
 {
@@ -174,7 +174,7 @@ private:
 
 /**
  * @brief 键值打印,调试使用
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  */
 class KeyPrinter 
 {
@@ -205,7 +205,7 @@ private:
 
 /**
  * @brief the meta information of bplus tree
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  * @details this is the first page of bplus tree.
  * only one field can be supported, can you extend it to multi-fields?
  */
@@ -216,12 +216,12 @@ struct IndexFileHeader
     memset(this, 0, sizeof(IndexFileHeader));
     root_page = BP_INVALID_PAGE_NUM;
   }
-  PageNum root_page;
-  int32_t internal_max_size;
-  int32_t leaf_max_size;
-  int32_t attr_length;
-  int32_t key_length;  // attr length + sizeof(RID)
-  AttrType attr_type;
+  PageNum root_page;          ///< 根节点在磁盘中的页号
+  int32_t internal_max_size;  ///< 内部节点最大的键值对数
+  int32_t leaf_max_size;      ///< 叶子节点最大的键值对数
+  int32_t attr_length;        ///< 键值的长度
+  int32_t key_length;         ///< attr length + sizeof(RID)
+  AttrType attr_type;         ///< 键值的类型
 
   const std::string to_string()
   {
@@ -240,9 +240,11 @@ struct IndexFileHeader
 
 /**
  * @brief the common part of page describtion of bplus tree
- * @ingroup B+Tree
+ * @ingroup BPlusTree
+ * @code
  * storage format:
  * | page type | item number | parent page id |
+ * @endcode 
  */
 struct IndexNode 
 {
@@ -255,11 +257,12 @@ struct IndexNode
 
 /**
  * @brief leaf page of bplus tree
- * @ingroup B+Tree
+ * @ingroup BPlusTree
+ * @code
  * storage format:
  * | common header | prev page id | next page id |
  * | key0, rid0 | key1, rid1 | ... | keyn, ridn |
- *
+ * @endcode 
  * the key is in format: the key value of record and rid.
  * so the key in leaf page must be unique.
  * the value is rid.
@@ -278,11 +281,12 @@ struct LeafIndexNode : public IndexNode
 
 /**
  * @brief internal page of bplus tree
- * @ingroup B+Tree
+ * @ingroup BPlusTree
+ * @code
  * storage format:
  * | common header |
  * | key(0),page_id(0) | key(1), page_id(1) | ... | key(n), page_id(n) |
- *
+ * @endcode
  * the first key is ignored(key0).
  * so it will waste space, can you fix this?
  */
@@ -298,7 +302,7 @@ struct InternalIndexNode : public IndexNode
 
 /**
  * @brief IndexNode 仅作为数据在内存或磁盘中的表示
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  * IndexNodeHandler 负责对IndexNode做各种操作。
  * 作为一个类来说，虚函数会影响“结构体”真实的内存布局，所以将数据存储与操作分开
  */
@@ -337,7 +341,7 @@ protected:
 
 /**
  * @brief 叶子节点的操作
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  */
 class LeafIndexNodeHandler : public IndexNodeHandler 
 {
@@ -388,7 +392,7 @@ private:
 
 /**
  * @brief 内部节点的操作
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  */
 class InternalIndexNodeHandler : public IndexNodeHandler 
 {
@@ -453,7 +457,7 @@ private:
 
 /**
  * @brief B+树的实现
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  */
 class BplusTreeHandler 
 {
@@ -587,7 +591,7 @@ private:
 
 /**
  * @brief B+树的扫描器
- * @ingroup B+Tree
+ * @ingroup BPlusTree
  */
 class BplusTreeScanner 
 {

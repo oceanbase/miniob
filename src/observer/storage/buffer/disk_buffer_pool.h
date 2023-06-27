@@ -47,10 +47,13 @@ class DiskBufferPool;
 /**
  * @brief BufferPool的文件第一个页面，存放一些元数据信息，包括了后面每页的分配信息。
  * @ingroup BufferPool
+ * @details
+ * @code
  * TODO 1. 当前的做法，只能分配比较少的页面，你可以扩展一下，支持更多的页面或无限多的页面吗？
  *         可以参考Linux ext(n)和Windows NTFS等文件系统
  *      2. 当前使用bitmap存放页面分配情况，但是这种方法在页面非常多的时候，查找空闲页面的
  *         效率非常低，你有办法优化吗？
+ * @endcode
  */
 struct BPFileHeader 
 {
@@ -69,6 +72,10 @@ struct BPFileHeader
 /**
  * @brief 管理页面Frame
  * @ingroup BufferPool
+ * @details 管理内存中的页帧。内存是有限的，内存中能够存放的页帧个数也是有限的。
+ * 当内存中的页帧不够用时，需要从内存中淘汰一些页帧，以便为新的页帧腾出空间。
+ * 这个管理器负责为所有的BufferPool提供页帧管理服务，也就是所有的BufferPool磁盘文件
+ * 在访问时都使用这个管理器映射到内存。
  */
 class BPFrameManager 
 {
@@ -78,10 +85,30 @@ public:
   RC init(int pool_num);
   RC cleanup();
 
+  /**
+   * @brief 获取指定的页面
+   * 
+   * @param file_desc 文件描述符，也可以当做buffer pool文件的标识
+   * @param page_num  页面号
+   * @return Frame* 页帧指针
+   */
   Frame *get(int file_desc, PageNum page_num);
 
+  /**
+   * @brief 列出所有指定文件的页面
+   * 
+   * @param file_desc 文件描述符
+   * @return std::list<Frame *> 页帧列表
+   */
   std::list<Frame *> find_list(int file_desc);
 
+  /**
+   * @brief 分配一个新的页面
+   * 
+   * @param file_desc 文件描述符
+   * @param page_num 页面编号
+   * @return Frame* 页帧指针
+   */
   Frame *alloc(int file_desc, PageNum page_num);
 
   /**

@@ -22,6 +22,10 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "storage/trx/trx.h"
 
+/**
+ * @brief 事务开始语句的执行器
+ * @ingroup Executor
+ */
 class TrxBeginExecutor
 {
 public:

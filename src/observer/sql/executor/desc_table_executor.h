@@ -18,6 +18,10 @@ See the Mulan PSL v2 for more details. */
 
 class SQLStageEvent;
 
+/**
+ * @brief 描述表的执行器
+ * @ingroup Executor
+ */
 class DescTableExecutor
 {
 public:

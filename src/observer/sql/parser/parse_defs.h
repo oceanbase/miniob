@@ -52,10 +52,10 @@ enum CompOp
 enum AttrType
 {
   UNDEFINED,
-  CHARS,          /// 字符串类型
-  INTS,           /// 整数类型(4字节)
-  FLOATS,         /// 浮点数类型(4字节)
-  BOOLEANS,       /// boolean类型，当前不是由parser解析出来的，是程序内部使用的
+  CHARS,          ///< 字符串类型
+  INTS,           ///< 整数类型(4字节)
+  FLOATS,         ///< 浮点数类型(4字节)
+  BOOLEANS,       ///< boolean类型，当前不是由parser解析出来的，是程序内部使用的
 };
 
 /**
@@ -64,14 +64,14 @@ enum AttrType
  */
 struct Value
 {
-  AttrType    type;           /// 属性的类型
-  int         int_value;      /// 如果是整数，这个值就有意义
-  float       float_value;    /// 如果是浮点数，这个值就有意义
-  bool        bool_value;     /// 如果是boolean值，这个值就有意义
-  std::string string_value;   /// 如果是字符串，这个值就有意义
+  AttrType    type;           ///< 属性的类型
+  int         int_value;      ///< 如果是整数，这个值就有意义
+  float       float_value;    ///< 如果是浮点数，这个值就有意义
+  bool        bool_value;     ///< 如果是boolean值，这个值就有意义
+  std::string string_value;   ///< 如果是字符串，这个值就有意义
 
-  const char *data() const;   /// 获取值的内存地址
-  int length();               /// 获取占用的内存长度
+  const char *data() const;   ///< 获取值的内存地址
+  int length();               ///< 获取占用的内存长度
 };
 
 /**
@@ -105,9 +105,9 @@ struct Condition
  */
 struct Selects
 {
-  std::vector<RelAttr> attributes;    /// attributes in select clause
-  std::vector<std::string> relations; /// 查询的表
-  std::vector<Condition> conditions;  /// 查询条件，使用AND串联起来多个条件
+  std::vector<RelAttr> attributes;    ///< attributes in select clause
+  std::vector<std::string> relations; ///< 查询的表
+  std::vector<Condition> conditions;  ///< 查询条件，使用AND串联起来多个条件
 };
 
 /**
@@ -116,8 +116,8 @@ struct Selects
  */
 struct Inserts
 {
-  std::string relation_name;  /// Relation to insert into
-  std::vector<Value> values;  /// 要插入的值
+  std::string relation_name;  ///< Relation to insert into
+  std::vector<Value> values;  ///< 要插入的值
 };
 
 /**
@@ -135,9 +135,9 @@ struct Deletes
  */
 struct Updates
 {
-  std::string relation_name;   // Relation to update
-  std::string attribute_name;  /// 更新的字段，仅支持一个字段
-  Value value;                 /// 更新的值，仅支持一个字段
+  std::string relation_name;   ///< Relation to update
+  std::string attribute_name;  ///< 更新的字段，仅支持一个字段
+  Value value;                 ///< 更新的值，仅支持一个字段
   std::vector<Condition> conditions;
 };
 
@@ -149,9 +149,9 @@ struct Updates
  */
 struct AttrInfo
 {
-  AttrType type;     /// Type of attribute
-  std::string name;  /// Attribute name
-  size_t length;     /// Length of attribute
+  AttrType type;     ///< Type of attribute
+  std::string name;  ///< Attribute name
+  size_t length;     ///< Length of attribute
 };
 
 /**
@@ -191,8 +191,8 @@ struct CreateIndex
  */
 struct DropIndex
 {
-  std::string index_name;     // Index name
-  std::string relation_name;  // Relation name
+  std::string index_name;     ///< Index name
+  std::string relation_name;  ///< Relation name
 };
 
 /**

@@ -22,19 +22,29 @@ See the Mulan PSL v2 for more details. */
 
 class Tuple;
 
+/**
+ * @defgroup Expression
+ * @brief 表达式
+ */
+
+/**
+ * @brief 表达式类型
+ * @ingroup Expression
+ */
 enum class ExprType 
 {
   NONE,
-  FIELD,
-  VALUE,
-  CAST,
-  COMPARISON,
-  CONJUNCTION,
+  FIELD,        ///< 字段。在实际执行时，根据行数据内容提取对应字段的值
+  VALUE,        ///< 常量值
+  CAST,         ///< 需要做类型转换的表达式
+  COMPARISON,   ///< 需要做比较的表达式
+  CONJUNCTION,  ///< 多个表达式使用同一种关系(AND或OR)来联结
 };
 
 /**
- * 表达式的抽象描述
- * 在SQL的元素中，任何需要得出值的元素都可以使用表达式来描述
+ * @brief 表达式的抽象描述
+ * @ingroup Expression
+ * @details 在SQL的元素中，任何需要得出值的元素都可以使用表达式来描述
  * 比如获取某个字段的值、比较运算、类型转换
  * 当然还有一些当前没有实现的表达式，比如算术运算。
  *
@@ -49,22 +59,27 @@ public:
   virtual ~Expression() = default;
 
   /**
-   * 根据具体的tuple，来计算当前表达式的值
+   * @brief 根据具体的tuple，来计算当前表达式的值。tuple有可能是一个具体某个表的行数据
    */
   virtual RC get_value(const Tuple &tuple, TupleCell &cell) const = 0;
 
   /**
-   * 表达式的类型
+   * @brief 表达式的类型
    * 可以根据表达式类型来转换为具体的子类
    */
   virtual ExprType type() const = 0;
 
   /**
-   * 表达式值的类型
+   * @brief 表达式值的类型
+   * @details 一个表达式运算出结果后，只有一个值
    */
   virtual AttrType value_type() const = 0;
 };
 
+/**
+ * @brief 字段表达式
+ * @ingroup Expression
+ */
 class FieldExpr : public Expression 
 {
 public:
@@ -111,6 +126,10 @@ private:
   Field field_;
 };
 
+/**
+ * @brief 常量值表达式
+ * @ingroup Expression
+ */
 class ValueExpr : public Expression 
 {
 public:
@@ -166,6 +185,10 @@ private:
   TupleCell tuple_cell_;
 };
 
+/**
+ * @brief 类型转换表达式
+ * @ingroup Expression
+ */
 class CastExpr : public Expression 
 {
 public:
@@ -192,6 +215,10 @@ private:
   AttrType cast_type_;
 };
 
+/**
+ * @brief 比较表达式
+ * @ingroup Expression
+ */
 class ComparisonExpr : public Expression 
 {
 public:
@@ -240,6 +267,8 @@ private:
 };
 
 /**
+ * @brief 联结表达式
+ * @ingroup Expression
  * 多个表达式使用同一种关系(AND或OR)来联结
  * 当前miniob仅有AND操作
  */
