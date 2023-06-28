@@ -23,6 +23,10 @@ See the Mulan PSL v2 for more details. */
 class Session;
 class Communicator;
 
+/**
+ * @brief 表示一个SQL请求
+ * 
+ */
 class SessionEvent : public common::StageEvent 
 {
 public:
@@ -47,8 +51,8 @@ public:
   }
 
 private:
-  Communicator *communicator_ = nullptr;
-  SqlResult     sql_result_;
+  Communicator *communicator_ = nullptr;  ///< 与客户端通讯的对象
+  SqlResult     sql_result_;  ///< SQL执行结果
 
-  std::string   query_;
+  std::string   query_; ///< SQL语句
 };

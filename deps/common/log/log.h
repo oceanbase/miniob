@@ -32,8 +32,6 @@ See the Mulan PSL v2 for more details. */
 namespace common {
 
 const unsigned int ONE_KILO = 1024;
-const unsigned int ONE_MILLION = ONE_KILO * ONE_KILO;
-const unsigned int ONE_GIGA = ONE_MILLION * ONE_KILO;
 const unsigned int FILENAME_LENGTH_MAX = 256;  // the max filename length
 
 const int LOG_STATUS_OK = 0;
@@ -111,6 +109,11 @@ public:
 
   int rotate(const int year = 0, const int month = 0, const int day = 0);
 
+  /**
+   * @brief 设置一个在日志中打印当前上下文信息的回调函数
+   * @details 比如设置一个获取当前session标识的函数，那么每次在打印日志时都会输出session信息。
+   *          这个回调函数返回了一个intptr_t类型的数据，可能返回字符串更好，但是现在够用了。
+   */
   void set_context_getter(std::function<intptr_t()> context_getter);
   intptr_t context_id();
   
@@ -327,14 +330,5 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
  * 获取当前函数调用栈
  */
 const char *lbt();
-
-/**
- * @brief 设置一个在日志中打印当前上下文信息的回调函数
- * @details 比如设置一个获取当前session标识的函数，那么每次在打印日志时都会输出session信息。
- *          这个回调函数返回了一个intptr_t类型的数据，可能返回字符串更好，但是现在够用了。
- */
-void set_log_context_getter(std::function<intptr_t()> context_getter);
-
-extern std::function<intptr_t()> g_context_getter;
 
 }  // namespace common
