@@ -340,20 +340,14 @@ value_list:
     ;
 value:
     NUMBER {
-      $$ = new Value;
-      $$->type = INTS;
-      $$->int_value = $1;
+      $$ = new Value((int)$1);
     }
     |FLOAT {
-      $$ = new Value;
-      $$->type = FLOATS;
-      $$->float_value = $1;
+      $$ = new Value((float)$1);
     }
     |SSS {
       char *tmp = common::substr($1,1,strlen($1)-2);
-      $$ = new Value;
-      $$->type = CHARS;
-      $$->string_value = tmp;
+      $$ = new Value(tmp);
       free(tmp);
     }
     ;

@@ -53,9 +53,7 @@ RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bo
     // 这个predicate operator其实就可以不要了。但是这里没办法删除，弄一个空的表达式吧
     LOG_TRACE("all expressions of predicate operator were pushdown to table get operator, then make a fake one");
 
-    Value value;
-    value.type = BOOLEANS;
-    value.bool_value = true;
+    Value value((bool)true);
     predicate_expr = std::unique_ptr<Expression>(new ValueExpr(value));
   }
 

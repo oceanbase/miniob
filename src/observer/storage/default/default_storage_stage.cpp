@@ -223,8 +223,7 @@ RC insert_record_from_file(Table *table,
 
           rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
         } else {
-          record_values[i].type = INTS;
-          record_values[i].int_value = int_value;
+          record_values[i].set_int(int_value);
         }
       }
 
@@ -239,13 +238,11 @@ RC insert_record_from_file(Table *table,
           errmsg << "need a float number but got '" << file_values[i] << "'(field index:" << i << ")";
           rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
         } else {
-          record_values[i].type = FLOATS;
-          record_values[i].float_value = float_value;
+          record_values[i].set_float(float_value);
         }
       } break;
       case CHARS: {
-        record_values[i].type = CHARS;
-        record_values[i].string_value = file_value.c_str();
+        record_values[i].set_string(file_value.c_str());
       } break;
       default: {
         errmsg << "Unsupported field type to loading: " << field->type();

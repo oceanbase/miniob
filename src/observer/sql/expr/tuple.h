@@ -18,8 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 
 #include "common/log/log.h"
-#include "sql/parser/parse.h"
 #include "sql/expr/tuple_cell.h"
+#include "sql/parser/parse.h"
+#include "sql/parser/value.h"
 #include "sql/expr/expression.h"
 #include "storage/record/record.h"
 
@@ -60,8 +61,8 @@ public:
   virtual ~Tuple() = default;
 
   virtual int cell_num() const = 0;
-  virtual RC cell_at(int index, TupleCell &cell) const = 0;
-  virtual RC find_cell(const TupleCellSpec &spec, TupleCell &cell) const = 0;
+  virtual RC cell_at(int index, Value &cell) const = 0;
+  virtual RC find_cell(const TupleCellSpec &spec, Value &cell) const = 0;
 };
 
 class RowTuple : public Tuple 
@@ -95,7 +96,7 @@ public:
     return speces_.size();
   }
 
-  RC cell_at(int index, TupleCell &cell) const override
+  RC cell_at(int index, Value &cell) const override
   {
     if (index < 0 || index >= static_cast<int>(speces_.size())) {
       LOG_WARN("invalid argument. index=%d", index);
@@ -109,7 +110,7 @@ public:
     return RC::SUCCESS;
   }
 
-  RC find_cell(const TupleCellSpec &spec, TupleCell &cell) const override
+  RC find_cell(const TupleCellSpec &spec, Value &cell) const override
   {
     const char *table_name = spec.table_name();
     const char *field_name = spec.field_name();
@@ -181,7 +182,7 @@ public:
     return speces_.size();
   }
 
-  RC cell_at(int index, TupleCell &cell) const override
+  RC cell_at(int index, Value &cell) const override
   {
     if (index < 0 || index >= static_cast<int>(speces_.size())) {
       return RC::INTERNAL;
@@ -194,7 +195,7 @@ public:
     return tuple_->find_cell(*spec, cell);
   }
 
-  RC find_cell(const TupleCellSpec &spec, TupleCell &cell) const override
+  RC find_cell(const TupleCellSpec &spec, Value &cell) const override
   {
     return tuple_->find_cell(spec, cell);
   }
@@ -220,7 +221,7 @@ public:
   ValueListTuple() = default;
   virtual ~ValueListTuple() = default;
 
-  void set_cells(const std::vector<TupleCell> &cells)
+  void set_cells(const std::vector<Value> &cells)
   {
     cells_ = cells;
   }
@@ -230,7 +231,7 @@ public:
     return static_cast<int>(cells_.size());
   }
 
-  virtual RC cell_at(int index, TupleCell &cell) const override
+  virtual RC cell_at(int index, Value &cell) const override
   {
     if (index < 0 || index >= cell_num()) {
       return RC::NOTFOUND;
@@ -240,13 +241,13 @@ public:
     return RC::SUCCESS;
   }
 
-  virtual RC find_cell(const TupleCellSpec &spec, TupleCell &cell) const override
+  virtual RC find_cell(const TupleCellSpec &spec, Value &cell) const override
   {
     return RC::INTERNAL;
   }
 
 private:
-  std::vector<TupleCell> cells_;
+  std::vector<Value> cells_;
 };
 
 /**
@@ -273,7 +274,7 @@ public:
     return left_->cell_num() + right_->cell_num();
   }
 
-  RC cell_at(int index, TupleCell &cell) const override
+  RC cell_at(int index, Value &cell) const override
   {
     const int left_cell_num = left_->cell_num();
     if (index > 0 && index < left_cell_num) {
@@ -287,7 +288,7 @@ public:
     return RC::NOTFOUND;
   }
 
-  RC find_cell(const TupleCellSpec &spec, TupleCell &cell) const override
+  RC find_cell(const TupleCellSpec &spec, Value &cell) const override
   {
     RC rc = left_->find_cell(spec, cell);
     if (rc == RC::SUCCESS || rc != RC::NOTFOUND) {

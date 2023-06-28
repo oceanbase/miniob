@@ -15,14 +15,14 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "sql/expr/tuple.h"
 
-RC FieldExpr::get_value(const Tuple &tuple, TupleCell &cell) const
+RC FieldExpr::get_value(const Tuple &tuple, Value &value) const
 {
-  return tuple.find_cell(TupleCellSpec(table_name(), field_name()), cell);
+  return tuple.find_cell(TupleCellSpec(table_name(), field_name()), value);
 }
 
-RC ValueExpr::get_value(const Tuple &tuple, TupleCell &cell) const
+RC ValueExpr::get_value(const Tuple &tuple, Value &value) const
 {
-  cell = tuple_cell_;
+  value = value_;
   return RC::SUCCESS;
 }
 
@@ -34,7 +34,7 @@ CastExpr::CastExpr(std::unique_ptr<Expression> child, AttrType cast_type)
 CastExpr::~CastExpr()
 {}
 
-RC CastExpr::get_value(const Tuple &tuple, TupleCell &cell) const
+RC CastExpr::get_value(const Tuple &tuple, Value &cell) const
 {
   RC rc = child_->get_value(tuple, cell);
   if (rc != RC::SUCCESS) {
@@ -67,29 +67,29 @@ ComparisonExpr::ComparisonExpr(CompOp comp, std::unique_ptr<Expression> left, st
 ComparisonExpr::~ComparisonExpr()
 {}
 
-RC ComparisonExpr::compare_tuple_cell(const TupleCell &left, const TupleCell &right, bool &value) const
+RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &result) const
 {
   RC rc = RC::SUCCESS;
   int cmp_result = left.compare(right);
-  value = false;
+  result = false;
   switch (comp_) {
     case EQUAL_TO: {
-      value = (0 == cmp_result);
+      result = (0 == cmp_result);
     } break;
     case LESS_EQUAL: {
-      value = (cmp_result <= 0);
+      result = (cmp_result <= 0);
     } break;
     case NOT_EQUAL: {
-      value = (cmp_result != 0);
+      result = (cmp_result != 0);
     } break;
     case LESS_THAN: {
-      value = (cmp_result < 0);
+      result = (cmp_result < 0);
     } break;
     case GREAT_EQUAL: {
-      value = (cmp_result >= 0);
+      result = (cmp_result >= 0);
     } break;
     case GREAT_THAN: {
-      value = (cmp_result > 0);
+      result = (cmp_result > 0);
     } break;
     default: {
       LOG_WARN("unsupported comparison. %d", comp_);
@@ -100,16 +100,16 @@ RC ComparisonExpr::compare_tuple_cell(const TupleCell &left, const TupleCell &ri
   return rc;
 }
 
-RC ComparisonExpr::try_get_value(TupleCell &cell) const
+RC ComparisonExpr::try_get_value(Value &cell) const
 {
   if (left_->type() == ExprType::VALUE && right_->type() == ExprType::VALUE) {
     ValueExpr *left_value_expr = static_cast<ValueExpr *>(left_.get());
     ValueExpr *right_value_expr = static_cast<ValueExpr *>(right_.get());
-    const TupleCell &left_cell = left_value_expr->get_tuple_cell();
-    const TupleCell &right_cell = right_value_expr->get_tuple_cell();
+    const Value &left_cell = left_value_expr->get_value();
+    const Value &right_cell = right_value_expr->get_value();
 
     bool value = false;
-    RC rc = compare_tuple_cell(left_cell, right_cell, value);
+    RC rc = compare_value(left_cell, right_cell, value);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to compare tuple cells. rc=%s", strrc(rc));
     } else {
@@ -121,26 +121,26 @@ RC ComparisonExpr::try_get_value(TupleCell &cell) const
   return RC::INVALID_ARGUMENT;
 }
 
-RC ComparisonExpr::get_value(const Tuple &tuple, TupleCell &cell) const
+RC ComparisonExpr::get_value(const Tuple &tuple, Value &value) const
 {
-  TupleCell left_cell;
-  TupleCell right_cell;
+  Value left_value;
+  Value right_value;
 
-  RC rc = left_->get_value(tuple, left_cell);
+  RC rc = left_->get_value(tuple, left_value);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to get value of left expression. rc=%s", strrc(rc));
     return rc;
   }
-  rc = right_->get_value(tuple, right_cell);
+  rc = right_->get_value(tuple, right_value);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to get value of right expression. rc=%s", strrc(rc));
     return rc;
   }
 
-  bool value = false;
-  rc = compare_tuple_cell(left_cell, right_cell, value);
+  bool bool_value = false;
+  rc = compare_value(left_value, right_value, bool_value);
   if (rc == RC::SUCCESS) {
-    cell.set_boolean(value);
+    value.set_boolean(bool_value);
   }
   return rc;
 }
@@ -150,29 +150,29 @@ ConjunctionExpr::ConjunctionExpr(Type type, std::vector<std::unique_ptr<Expressi
     : conjunction_type_(type), children_(std::move(children))
 {}
 
-RC ConjunctionExpr::get_value(const Tuple &tuple, TupleCell &cell) const
+RC ConjunctionExpr::get_value(const Tuple &tuple, Value &value) const
 {
   RC rc = RC::SUCCESS;
   if (children_.empty()) {
-    cell.set_boolean(true);
+    value.set_boolean(true);
     return rc;
   }
 
-  TupleCell tmp_cell;
+  Value tmp_value;
   for (const std::unique_ptr<Expression> &expr : children_) {
-    rc = expr->get_value(tuple, tmp_cell);
+    rc = expr->get_value(tuple, tmp_value);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to get value by child expression. rc=%s", strrc(rc));
       return rc;
     }
-    bool value = tmp_cell.get_boolean();
-    if ((conjunction_type_ == Type::AND && !value) || (conjunction_type_ == Type::OR && value)) {
-      cell.set_boolean(value);
+    bool bool_value = tmp_value.get_boolean();
+    if ((conjunction_type_ == Type::AND && !bool_value) || (conjunction_type_ == Type::OR && bool_value)) {
+      value.set_boolean(bool_value);
       return rc;
     }
   }
 
   bool default_value = (conjunction_type_ == Type::AND);
-  cell.set_boolean(default_value);
+  value.set_boolean(default_value);
   return rc;
 }

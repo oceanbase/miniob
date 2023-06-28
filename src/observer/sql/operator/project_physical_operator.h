@@ -39,7 +39,7 @@ public:
   RC next() override;
   RC close() override;
 
-  int tuple_cell_num() const
+  int cell_num() const
   {
     return tuple_.cell_num();
   }

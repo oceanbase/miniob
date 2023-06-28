@@ -81,12 +81,12 @@ public:
     }
 
     const StringList &string_list = *iterator_;
-    std::vector<TupleCell> cells;
+    std::vector<Value> cells;
     for (const std::string &s : string_list) {
 
-      TupleCell cell;
-      cell.set_string(s.c_str());
-      cells.push_back(cell);
+      Value value;
+      value.set_string(s.c_str());
+      cells.push_back(value);
     }
     tuple_.set_cells(cells);
     return &tuple_;
