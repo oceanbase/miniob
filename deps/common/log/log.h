@@ -25,7 +25,7 @@ See the Mulan PSL v2 for more details. */
 #include <map>
 #include <set>
 #include <string>
-#include  <functional>
+#include <functional>
 
 #include "common/defs.h"
 
