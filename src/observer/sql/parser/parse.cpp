@@ -18,59 +18,6 @@ See the Mulan PSL v2 for more details. */
 
 RC parse(char *st, Command *sqln);
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
-
-const char *attr_type_to_string(AttrType type)
-{
-  if (type >= UNDEFINED && type <= FLOATS) {
-    return ATTR_TYPE_NAME[type];
-  }
-  return "unknown";
-}
-AttrType attr_type_from_string(const char *s)
-{
-  for (unsigned int i = 0; i < sizeof(ATTR_TYPE_NAME) / sizeof(ATTR_TYPE_NAME[0]); i++) {
-    if (0 == strcmp(ATTR_TYPE_NAME[i], s)) {
-      return (AttrType)i;
-    }
-  }
-  return UNDEFINED;
-}
-
-const char *Value::data() const
-{
-  switch (type) {
-    case INTS:
-      return (const char *)&int_value;
-    case FLOATS:
-      return (const char *)&float_value;
-    case BOOLEANS:
-      return (const char *)&bool_value;
-    case CHARS:
-      return (const char *)string_value.data();
-    case UNDEFINED:
-      return nullptr;
-  }
-  return nullptr;
-}
-
-int Value::length()
-{
-  switch (type) {
-    case INTS:
-      return sizeof(int_value);
-    case FLOATS:
-      return sizeof(float_value);
-    case BOOLEANS:
-      return sizeof(bool_value);
-    case CHARS:
-      return string_value.size();
-    case UNDEFINED:
-      return 0;
-  }
-  return 0;
-}
-
 Command::Command() : flag(SCF_ERROR)
 {}
 

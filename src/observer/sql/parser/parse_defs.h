@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 #include <string>
 
+#include "sql/parser/value.h"
+
 /**
  * @brief 描述一个属性
  * @details 属性，或者说字段(column, field)
@@ -27,8 +29,8 @@ See the Mulan PSL v2 for more details. */
  */
 struct RelAttr 
 {
-  std::string relation_name;   /// relation name (may be NULL) 表名
-  std::string attribute_name;  /// attribute name              属性名
+  std::string relation_name;   ///< relation name (may be NULL) 表名
+  std::string attribute_name;  ///< attribute name              属性名
 };
 
 /**
@@ -43,35 +45,6 @@ enum CompOp
   GREAT_EQUAL,  //">="    4
   GREAT_THAN,   //">"     5
   NO_OP
-};
-
-/**
- * @brief 属性的类型
- * 
- */
-enum AttrType
-{
-  UNDEFINED,
-  CHARS,          ///< 字符串类型
-  INTS,           ///< 整数类型(4字节)
-  FLOATS,         ///< 浮点数类型(4字节)
-  BOOLEANS,       ///< boolean类型，当前不是由parser解析出来的，是程序内部使用的
-};
-
-/**
- * @brief 属性的值
- * 
- */
-struct Value
-{
-  AttrType    type;           ///< 属性的类型
-  int         int_value;      ///< 如果是整数，这个值就有意义
-  float       float_value;    ///< 如果是浮点数，这个值就有意义
-  bool        bool_value;     ///< 如果是boolean值，这个值就有意义
-  std::string string_value;   ///< 如果是字符串，这个值就有意义
-
-  const char *data() const;   ///< 获取值的内存地址
-  int length();               ///< 获取占用的内存长度
 };
 
 /**
@@ -307,6 +280,3 @@ public:
 private:
   std::vector<std::unique_ptr<Command>> sql_commands_;  /// 这里记录SQL命令。虽然看起来支持多个，但是当前仅处理一个
 };
-
-const char *attr_type_to_string(AttrType type);
-AttrType attr_type_from_string(const char *s);

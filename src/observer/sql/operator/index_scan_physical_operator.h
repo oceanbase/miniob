@@ -26,8 +26,8 @@ class IndexScanPhysicalOperator : public PhysicalOperator
 {
 public:
   IndexScanPhysicalOperator(Table *table, Index *index, bool readonly, 
-      const TupleCell *left_cell, bool left_inclusive,
-      const TupleCell *right_cell, bool right_inclusive);
+      const Value *left_value, bool left_inclusive,
+      const Value *right_value, bool right_inclusive);
 
   virtual ~IndexScanPhysicalOperator() = default;
 
@@ -62,8 +62,8 @@ private:
   Record current_record_;
   RowTuple tuple_;
 
-  TupleCell left_cell_;
-  TupleCell right_cell_;
+  Value left_value_;
+  Value right_value_;
   bool left_inclusive_ = false;
   bool right_inclusive_ = false;
 

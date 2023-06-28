@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "storage/field/field.h"
-#include "sql/expr/tuple_cell.h"
+#include "sql/parser/value.h"
 #include "storage/record/record.h"
 #include "common/log/log.h"
 
@@ -28,8 +28,8 @@ void Field::set_int(Record &record, int value)
 
 int Field::get_int(const Record &record)
 {
-  TupleCell cell(field_, const_cast<char *>(record.data() + field_->offset()), field_->len());
-  return cell.get_int();
+  Value value(field_->type(), const_cast<char *>(record.data() + field_->offset()), field_->len());
+  return value.get_int();
 }
 
 const char *Field::get_data(const Record &record)

@@ -965,16 +965,16 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool no_column_def
     pos += 3;
     pos += store_int1(buf + pos, sequence_id_++);
 
-    TupleCell tuple_cell;
+    Value value;
     for (int i = 0; i < cell_num; i++) {
-      rc = tuple->cell_at(i, tuple_cell);
+      rc = tuple->cell_at(i, value);
       if (rc != RC::SUCCESS) {
         sql_result->set_return_code(rc);
         break;  // TODO send error packet
       }
 
       std::stringstream ss;
-      tuple_cell.to_string(ss);
+      value.to_string(ss);
       pos += store_lenenc_string(buf + pos, ss.str().c_str());
     }
 

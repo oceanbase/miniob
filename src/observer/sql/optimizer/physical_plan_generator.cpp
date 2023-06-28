@@ -124,11 +124,11 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
   if (index != nullptr) {
     ASSERT(value_expr != nullptr, "got an index but value expr is null ?");
 
-    const TupleCell &tuple_cell = value_expr->get_tuple_cell();
+    const Value &value = value_expr->get_value();
     IndexScanPhysicalOperator *index_scan_oper = new IndexScanPhysicalOperator(
           table, index, table_get_oper.readonly(), 
-          &tuple_cell, true /*left_inclusive*/, 
-          &tuple_cell, true /*right_inclusive*/);
+          &value, true /*left_inclusive*/, 
+          &value, true /*right_inclusive*/);
           
     index_scan_oper->set_predicates(std::move(predicates));
     oper = unique_ptr<PhysicalOperator>(index_scan_oper);

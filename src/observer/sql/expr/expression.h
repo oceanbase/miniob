@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include <memory>
 #include "storage/field/field.h"
-#include "sql/expr/tuple_cell.h"
+#include "sql/parser/value.h"
 #include "common/log/log.h"
 
 class Tuple;
@@ -61,7 +61,7 @@ public:
   /**
    * @brief 根据具体的tuple，来计算当前表达式的值。tuple有可能是一个具体某个表的行数据
    */
-  virtual RC get_value(const Tuple &tuple, TupleCell &cell) const = 0;
+  virtual RC get_value(const Tuple &tuple, Value &value) const = 0;
 
   /**
    * @brief 表达式的类型
@@ -120,7 +120,7 @@ public:
     return field_.field_name();
   }
 
-  RC get_value(const Tuple &tuple, TupleCell &cell) const override;
+  RC get_value(const Tuple &tuple, Value &value) const override;
 
 private:
   Field field_;
@@ -134,32 +134,12 @@ class ValueExpr : public Expression
 {
 public:
   ValueExpr() = default;
-  ValueExpr(const Value &value)
-  {
-    switch (value.type) {
-      case UNDEFINED: {
-        ASSERT(false, "value's type is invalid");
-      } break;
-      case INTS: {
-        tuple_cell_.set_int(value.int_value);
-      } break;
-      case FLOATS: {
-        tuple_cell_.set_float(value.float_value);
-      } break;
-      case CHARS: {
-        tuple_cell_.set_string(value.string_value.c_str());
-      } break;
-      case BOOLEANS: {
-        tuple_cell_.set_boolean(value.bool_value);
-      } break;
-    }
-  }
-  ValueExpr(const TupleCell &cell) : tuple_cell_(cell)
+  explicit ValueExpr(const Value &value) : value_(value)
   {}
 
   virtual ~ValueExpr() = default;
 
-  RC get_value(const Tuple &tuple, TupleCell &cell) const override;
+  RC get_value(const Tuple &tuple, Value &value) const override;
 
   ExprType type() const override
   {
@@ -168,21 +148,21 @@ public:
 
   AttrType value_type() const override
   {
-    return tuple_cell_.attr_type();
+    return value_.attr_type();
   }
 
-  void get_tuple_cell(TupleCell &cell) const
+  void get_value(Value &value) const
   {
-    cell = tuple_cell_;
+    value = value_;
   }
 
-  const TupleCell &get_tuple_cell() const
+  const Value &get_value() const
   {
-    return tuple_cell_;
+    return value_;
   }
 
 private:
-  TupleCell tuple_cell_;
+  Value value_;
 };
 
 /**
@@ -199,7 +179,7 @@ public:
   {
     return ExprType::CAST;
   }
-  RC get_value(const Tuple &tuple, TupleCell &cell) const override;
+  RC get_value(const Tuple &tuple, Value &value) const override;
   AttrType value_type() const override
   {
     return cast_type_;
@@ -211,8 +191,8 @@ public:
   }
 
 private:
-  std::unique_ptr<Expression> child_;
-  AttrType cast_type_;
+  std::unique_ptr<Expression> child_;  ///< 从这个表达式转换
+  AttrType cast_type_;  ///< 想要转换成这个类型
 };
 
 /**
@@ -229,7 +209,7 @@ public:
   {
     return ExprType::COMPARISON;
   }
-  RC get_value(const Tuple &tuple, TupleCell &cell) const override;
+  RC get_value(const Tuple &tuple, Value &value) const override;
   AttrType value_type() const override
   {
     return BOOLEANS;
@@ -252,13 +232,13 @@ public:
    * 尝试在没有tuple的情况下获取当前表达式的值
    * 在优化的时候，可能会使用到
    */
-  RC try_get_value(TupleCell &cell) const;
+  RC try_get_value(Value &value) const;
 
   /**
    * compare the two tuple cells
    * @param value the result of comparison
    */
-  RC compare_tuple_cell(const TupleCell &left, const TupleCell &right, bool &value) const;
+  RC compare_value(const Value &left, const Value &right, bool &value) const;
 
 private:
   CompOp comp_;
@@ -292,7 +272,7 @@ public:
   {
     return BOOLEANS;
   }
-  RC get_value(const Tuple &tuple, TupleCell &cell) const override;
+  RC get_value(const Tuple &tuple, Value &value) const override;
 
   Type conjunction_type() const
   {

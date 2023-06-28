@@ -208,15 +208,15 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
         }
       }
 
-      TupleCell cell;
-      rc = tuple->cell_at(i, cell);
+      Value value;
+      rc = tuple->cell_at(i, value);
       if (rc != RC::SUCCESS) {
         sql_result->close();
         return rc;
       }
 
       std::stringstream ss;
-      cell.to_string(ss);
+      value.to_string(ss);
       std::string cell_str = ss.str();
       rc = writer_->writen(cell_str.data(), cell_str.size());
       if (OB_FAIL(rc)) {

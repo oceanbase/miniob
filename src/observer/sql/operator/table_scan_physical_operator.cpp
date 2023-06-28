@@ -80,7 +80,7 @@ void TableScanPhysicalOperator::set_predicates(vector<unique_ptr<Expression>> &&
 RC TableScanPhysicalOperator::filter(RowTuple &tuple, bool &result)
 {
   RC rc = RC::SUCCESS;
-  TupleCell value;
+  Value value;
   for (unique_ptr<Expression> &expr : predicates_) {
     rc = expr->get_value(tuple, value);
     if (rc != RC::SUCCESS) {

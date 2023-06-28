@@ -22,10 +22,10 @@ RC ComparisonSimplificationRule::rewrite(std::unique_ptr<Expression> &expr, bool
   change_made = false;
   if (expr->type() == ExprType::COMPARISON) {
     ComparisonExpr *cmp_expr = static_cast<ComparisonExpr *>(expr.get());
-    TupleCell cell;
-    RC sub_rc = cmp_expr->try_get_value(cell);
+    Value value;
+    RC sub_rc = cmp_expr->try_get_value(value);
     if (sub_rc == RC::SUCCESS) {
-      std::unique_ptr<Expression> new_expr(new ValueExpr(cell));
+      std::unique_ptr<Expression> new_expr(new ValueExpr(value));
       expr.swap(new_expr);
       change_made = true;
       LOG_TRACE("comparison expression is simplified");

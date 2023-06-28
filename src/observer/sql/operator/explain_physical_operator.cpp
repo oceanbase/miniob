@@ -54,8 +54,8 @@ RC ExplainPhysicalOperator::next()
 
   physical_plan_ = ss.str();
 
-  vector<TupleCell> cells;
-  TupleCell cell;
+  vector<Value> cells;
+  Value cell;
   cell.set_string(physical_plan_.c_str());
   cells.emplace_back(cell);
   tuple_.set_cells(cells);

@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "common/log/log.h"
 #include "storage/table/table.h"
-#include "sql/expr/tuple_cell.h"
+#include "sql/parser/value.h"
 
 using namespace common;
 
@@ -80,7 +80,7 @@ RC DefaultConditionFilter::init(Table &table, const Condition &condition)
   } else {
     left.is_attr = false;
     left.value = condition.left_value;  // 校验type 或者转换类型
-    type_left = condition.left_value.type;
+    type_left = condition.left_value.attr_type();
 
     left.attr_length = 0;
     left.attr_offset = 0;
@@ -99,7 +99,7 @@ RC DefaultConditionFilter::init(Table &table, const Condition &condition)
   } else {
     right.is_attr = false;
     right.value = condition.right_value;
-    type_right = condition.right_value.type;
+    type_right = condition.right_value.attr_type();
 
     right.attr_length = 0;
     right.attr_offset = 0;
@@ -121,8 +121,8 @@ RC DefaultConditionFilter::init(Table &table, const Condition &condition)
 
 bool DefaultConditionFilter::filter(const Record &rec) const
 {
-  TupleCell left_value;
-  TupleCell right_value;
+  Value left_value;
+  Value right_value;
 
   if (left_.is_attr) {  // value
     left_value.set_type(attr_type_);

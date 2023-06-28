@@ -276,9 +276,9 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
   for (int i = 0; i < value_num; i++) {
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
     const Value &value = values[i];
-    if (field->type() != value.type) {
+    if (field->type() != value.attr_type()) {
       LOG_ERROR("Invalid value type. table name =%s, field name=%s, type=%d, but given=%d",
-                table_meta_.name(), field->name(), field->type(), value.type);
+                table_meta_.name(), field->name(), field->type(), value.attr_type());
       return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
   }
@@ -292,7 +292,7 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
     const Value &value = values[i];
     size_t copy_len = field->len();
     if (field->type() == CHARS) {
-      const size_t data_len = value.string_value.size();
+      const size_t data_len = value.length();
       if (copy_len > data_len) {
         copy_len = data_len + 1;
       }

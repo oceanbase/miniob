@@ -20,7 +20,7 @@ RC try_to_get_bool_constant(std::unique_ptr<Expression> &expr, bool &constant_va
 {
   if (expr->type() == ExprType::VALUE && expr->value_type() == BOOLEANS) {
     auto value_expr = static_cast<ValueExpr *>(expr.get());
-    constant_value = value_expr->get_tuple_cell().get_boolean();
+    constant_value = value_expr->get_value().get_boolean();
     return RC::SUCCESS;
   }
   return RC::INTERNAL;
