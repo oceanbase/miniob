@@ -16,6 +16,11 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/rewrite_rule.h"
 
+/**
+ * @brief 谓词重写规则
+ * @ingroup Rewriter
+ * @details 有些谓词可以在真正运行之前就知道结果，那么就可以提前运算出来，比如1=1,1=0。
+ */
 class PredicateRewriteRule : public RewriteRule 
 {
 public:

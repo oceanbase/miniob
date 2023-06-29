@@ -31,7 +31,6 @@ public:
   virtual ~SqlDebug() = default;
 
   void add_debug_info(const std::string &debug_info);
-  // void add_debug_info(const char *fmt, va_list ap);
   void clear_debug_info();
 
   const std::list<std::string> &get_debug_infos() const;
