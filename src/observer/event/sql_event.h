@@ -23,6 +23,9 @@ class SessionEvent;
 class Stmt;
 class Command;
 
+/**
+ * @brief 与SessionEvent类似，也是处理SQL请求的事件，只是用在SQL的不同阶段
+ */
 class SQLStageEvent : public common::StageEvent
 {
 public:
@@ -74,8 +77,8 @@ public:
 
 private:
   SessionEvent *session_event_ = nullptr;
-  std::string sql_;
-  std::unique_ptr<Command> command_;
-  Stmt *stmt_ = nullptr;
-  std::unique_ptr<PhysicalOperator> operator_;
+  std::string sql_;  ///< 处理的SQL语句
+  std::unique_ptr<Command> command_;  ///< 语法解析后的SQL命令
+  Stmt *stmt_ = nullptr;  ///< Resolver之后生成的数据结构
+  std::unique_ptr<PhysicalOperator> operator_; ///< 生成的执行计划，也可能没有
 };

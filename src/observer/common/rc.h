@@ -71,6 +71,8 @@ See the Mulan PSL v2 for more details. */
   DEFINE_RC(FILE_SEEK)                      \
   DEFINE_RC(FILE_READ)                      \
   DEFINE_RC(FILE_WRITE)                     \
+  DEFINE_RC(VARIABLE_NOT_EXISTS)            \
+  DEFINE_RC(VARIABLE_NOT_VALID)             \
   DEFINE_RC(LOGBUF_FULL)
 
 enum class RC
