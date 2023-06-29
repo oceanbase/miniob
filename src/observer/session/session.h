@@ -76,6 +76,9 @@ public:
    */
   SessionEvent *current_request() const;
 
+  void set_sql_debug(bool sql_debug) { sql_debug_ = sql_debug; }
+  bool sql_debug_on() const { return sql_debug_; }
+
   /**
    * @brief 将指定会话设置到线程变量中
    * 
@@ -93,4 +96,5 @@ private:
   Trx *trx_ = nullptr;
   SessionEvent *current_request_ = nullptr; ///< 当前正在处理的请求
   bool trx_multi_operation_mode_ = false;   ///< 当前事务的模式，是否多语句模式. 单语句模式自动提交
+  bool sql_debug_ = true;                   ///< 是否输出SQL调试信息
 };

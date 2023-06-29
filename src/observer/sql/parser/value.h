@@ -14,6 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include <string>
+
 /**
  * @brief 属性的类型
  * 
@@ -67,7 +69,7 @@ public:
   void set_string(const char *s, int len = 0);
   void set_value(const Value &value);
 
-  void to_string(std::ostream &os) const;
+  std::string to_string() const;
 
   int compare(const Value &other) const;
 

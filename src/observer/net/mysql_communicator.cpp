@@ -973,9 +973,7 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool no_column_def
         break;  // TODO send error packet
       }
 
-      std::stringstream ss;
-      value.to_string(ss);
-      pos += store_lenenc_string(buf + pos, ss.str().c_str());
+      pos += store_lenenc_string(buf + pos, value.to_string().c_str());
     }
 
     int payload_length = pos - 4;
