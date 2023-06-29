@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/6/29.
 //
 
+#include <stdarg.h>
+
 #include "event/sql_debug.h"
 #include "session/session.h"
 #include "event/session_event.h"

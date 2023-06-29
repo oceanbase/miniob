@@ -5,7 +5,7 @@ TOPDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 BUILD_SH=$TOPDIR/build.sh
 
-CMAKE_COMMAND="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1"
+CMAKE_COMMAND="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --log-level=WARNING"
 
 ALL_ARGS=("$@")
 BUILD_ARGS=()
@@ -73,38 +73,40 @@ function do_init
   git submodule update --init || return
   current_dir=$PWD
 
+  MAKE_COMMAND="make --silent"
+
   # build libevent
   cd ${TOPDIR}/deps/3rd/libevent && \
     git checkout release-2.1.12-stable && \
     mkdir -p build && \
     cd build && \
-    cmake .. -DEVENT__DISABLE_OPENSSL=ON -DEVENT__LIBRARY_TYPE=BOTH && \
-    make -j4 && \
+    ${CMAKE_COMMAND} .. -DEVENT__DISABLE_OPENSSL=ON -DEVENT__LIBRARY_TYPE=BOTH && \
+    ${MAKE_COMMAND} -j4 && \
     make install
 
   # build googletest
   cd ${TOPDIR}/deps/3rd/googletest && \
     mkdir -p build && \
     cd build && \
-    cmake .. && \
-    make -j4 && \
-    make install
+    ${CMAKE_COMMAND} .. && \
+    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} install
 
   # build google benchmark
   cd ${TOPDIR}/deps/3rd/benchmark && \
     mkdir -p build && \
     cd build && \
-    cmake .. -DBENCHMARK_ENABLE_TESTING=OFF  -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF && \
-    make -j4 && \
-    make install
+    ${CMAKE_COMMAND} .. -DBENCHMARK_ENABLE_TESTING=OFF  -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF && \
+    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} install
 
   # build jsoncpp
   cd ${TOPDIR}/deps/3rd/jsoncpp && \
     mkdir -p build && \
     cd build && \
-    cmake -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF .. && \
-    make && \
-    make install
+    ${CMAKE_COMMAND} -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF .. && \
+    ${MAKE_COMMAND} && \
+    ${MAKE_COMMAND} install
 
   cd $current_dir
 }
