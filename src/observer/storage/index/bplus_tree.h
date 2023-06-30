@@ -34,9 +34,6 @@ See the Mulan PSL v2 for more details. */
  * @defgroup BPlusTree
  */
 
-#define EMPTY_RID_PAGE_NUM -1 // TODO remove me
-#define EMPTY_RID_SLOT_NUM -1
-
 /**
  * @brief B+树的操作类型
  * @ingroup BPlusTree
@@ -49,7 +46,7 @@ enum class BplusTreeOperationType
 };
 
 /**
- * @brief 属性比较
+ * @brief 属性比较(BplusTree)
  * @ingroup BPlusTree
  */
 class AttrComparator 
@@ -91,7 +88,8 @@ private:
 };
 
 /**
- * @brief 键值比较
+ * @brief 键值比较(BplusTree)
+ * @details BplusTree的键值除了字段属性，还有RID，是为了避免属性值重复而增加的。
  * @ingroup BPlusTree
  */
 class KeyComparator 
@@ -124,7 +122,7 @@ private:
 };
 
 /**
- * @brief 属性打印,调试使用
+ * @brief 属性打印,调试使用(BplusTree)
  * @ingroup BPlusTree
  */
 class AttrPrinter 
@@ -173,7 +171,7 @@ private:
 };
 
 /**
- * @brief 键值打印,调试使用
+ * @brief 键值打印,调试使用(BplusTree)
  * @ingroup BPlusTree
  */
 class KeyPrinter 
@@ -358,8 +356,7 @@ public:
 
   /**
    * 查找指定key的插入位置(注意不是key本身)
-   * 如果key已经存在，会设置found的值
-   * NOTE: 当前lookup的实现效率非常低，你是否可以优化它?
+   * 如果key已经存在，会设置found的值。
    */
   int lookup(const KeyComparator &comparator, const char *key, bool *found = nullptr) const;
 
@@ -418,11 +415,10 @@ public:
   /**
    * 与Leaf节点不同，lookup返回指定key应该属于哪个子节点，返回这个子节点在当前节点中的索引
    * 如果想要返回插入位置，就提供 `insert_position` 参数
-   * @param comparator 用于键值比较的函数
-   * @param key 查找的键值
-   * @param found 如果是有效指针，将会返回当前是否存在指定的键值
-   * @param insert_position 如果是有效指针，将会返回可以插入指定键值的位置
-   * NOTE: 查找效率不高，你可以优化它吗?
+   * @param[in] comparator 用于键值比较的函数
+   * @param[in] key 查找的键值
+   * @param[out] found 如果是有效指针，将会返回当前是否存在指定的键值
+   * @param[out] insert_position 如果是有效指针，将会返回可以插入指定键值的位置
    */
   int lookup(const KeyComparator &comparator, 
              const char *key, 

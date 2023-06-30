@@ -55,8 +55,9 @@ private:
 };
 
 /**
+ * @brief 多版本并发事务
+ * @ingroup Transaction
  * TODO 没有垃圾回收
- * 
  */
 class MvccTrx : public Trx
 {

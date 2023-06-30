@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <memory>
 #include <vector>
+#include <string>
 
 #include "common/log/log.h"
 #include "sql/expr/tuple_cell.h"
@@ -26,6 +27,27 @@ See the Mulan PSL v2 for more details. */
 
 class Table;
 
+/**
+ * @defgroup Tuple
+ * @brief Tuple 元组，表示一行数据，当前返回客户端时使用
+ * @details 
+ * tuple是一种可以嵌套的数据结构。
+ * 比如select t1.a+t2.b from t1, t2;
+ * 需要使用下面的结构表示：
+ * @code {.cpp}
+ *  Project(t1.a+t2.b)
+ *        |
+ *      Joined
+ *      /     \
+ *   Row(t1) Row(t2)
+ * @endcode
+ * 
+ */
+
+/**
+ * @brief 元组的结构，包含哪些字段(这里成为Cell)，每个字段的说明
+ * @ingroup Tuple
+ */
 class TupleSchema 
 {
 public:
@@ -54,17 +76,63 @@ private:
   std::vector<TupleCellSpec> cells_;
 };
 
+/**
+ * @brief 元组的抽象描述
+ * @ingroup Tuple
+ */
 class Tuple 
 {
 public:
   Tuple() = default;
   virtual ~Tuple() = default;
 
+  /**
+   * @brief 获取元组中的Cell的个数
+   * @details 个数应该与tuple_schema一致
+   */
   virtual int cell_num() const = 0;
+
+  /**
+   * @brief 获取指定位置的Cell
+   * 
+   * @param index 位置
+   * @param[out] cell  返回的Cell
+   */
   virtual RC cell_at(int index, Value &cell) const = 0;
+
+  /**
+   * @brief 根据cell的描述，获取cell的值
+   * 
+   * @param spec cell的描述
+   * @param[out] cell 返回的cell
+   */
   virtual RC find_cell(const TupleCellSpec &spec, Value &cell) const = 0;
+
+  virtual std::string to_string() const
+  {
+    std::string str;
+    const int cell_num = this->cell_num();
+    for (int i = 0; i < cell_num - 1; i++) {
+      Value cell;
+      cell_at(i, cell);
+      str += cell.to_string();
+      str += ", ";
+    }
+
+    if (cell_num > 0) {
+      Value cell;
+      cell_at(cell_num - 1, cell);
+      str += cell.to_string();
+    }
+    return str;
+  }
 };
 
+/**
+ * @brief 一行数据的元组
+ * @ingroup Tuple
+ * @details 直接就是获取表中的一条记录
+ */
 class RowTuple : public Tuple 
 {
 public:
@@ -156,6 +224,13 @@ private:
   std::vector<FieldExpr *> speces_;
 };
 
+/**
+ * @brief 从一行数据中，选择部分字段组成的元组，也就是投影操作
+ * @ingroup Tuple
+ * @details 一般在select语句中使用。
+ * 投影也可以是很复杂的操作，比如某些字段需要做类型转换、重命名、表达式运算、函数计算等。
+ * 当前的实现是比较简单的，只是选择部分字段，不做任何其他操作。
+ */
 class ProjectTuple : public Tuple 
 {
 public:
@@ -215,6 +290,10 @@ private:
   Tuple *tuple_ = nullptr;
 };
 
+/**
+ * @brief 一些常量值组成的Tuple
+ * @ingroup Tuple
+ */
 class ValueListTuple : public Tuple 
 {
 public:
@@ -251,8 +330,9 @@ private:
 };
 
 /**
- * 将两个tuple合并为一个tuple
- * 在join算子中使用
+ * @brief 将两个tuple合并为一个tuple
+ * @ingroup Tuple
+ * @details 在join算子中使用
  */
 class JoinedTuple : public Tuple 
 {
@@ -274,28 +354,28 @@ public:
     return left_->cell_num() + right_->cell_num();
   }
 
-  RC cell_at(int index, Value &cell) const override
+  RC cell_at(int index, Value &value) const override
   {
     const int left_cell_num = left_->cell_num();
     if (index > 0 && index < left_cell_num) {
-      return left_->cell_at(index, cell);
+      return left_->cell_at(index, value);
     }
 
     if (index >= left_cell_num && index < left_cell_num + right_->cell_num()) {
-      return right_->cell_at(index - left_cell_num, cell);
+      return right_->cell_at(index - left_cell_num, value);
     }
 
     return RC::NOTFOUND;
   }
 
-  RC find_cell(const TupleCellSpec &spec, Value &cell) const override
+  RC find_cell(const TupleCellSpec &spec, Value &value) const override
   {
-    RC rc = left_->find_cell(spec, cell);
+    RC rc = left_->find_cell(spec, value);
     if (rc == RC::SUCCESS || rc != RC::NOTFOUND) {
       return rc;
     }
 
-    return right_->find_cell(spec, cell);
+    return right_->find_cell(spec, value);
   }
 
 private:

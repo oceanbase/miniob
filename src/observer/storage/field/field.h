@@ -17,6 +17,10 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 #include "storage/field/field_meta.h"
 
+/**
+ * @brief 字段
+ * 
+ */
 class Field 
 {
 public:

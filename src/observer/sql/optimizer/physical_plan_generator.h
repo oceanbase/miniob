@@ -28,7 +28,14 @@ class DeleteLogicalOperator;
 class ExplainLogicalOperator;
 class JoinLogicalOperator;
 
-class PhysicalPlanGenerator {
+/**
+ * @brief 物理计划生成器
+ * @ingroup PhysicalOperator
+ * @details 根据逻辑计划生成物理计划。
+ * 不会做任何优化，完全根据本意生成物理计划。
+ */
+class PhysicalPlanGenerator 
+{
 public:
   PhysicalPlanGenerator() = default;
   virtual ~PhysicalPlanGenerator() = default;

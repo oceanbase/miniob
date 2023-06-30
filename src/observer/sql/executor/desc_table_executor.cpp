@@ -29,6 +29,7 @@ using namespace std;
 
 RC DescTableExecutor::execute(SQLStageEvent *sql_event)
 {
+  RC rc = RC::SUCCESS;
   Stmt *stmt = sql_event->stmt();
   SessionEvent *session_event = sql_event->session_event();
   Session *session = session_event->session();
@@ -65,5 +66,5 @@ RC DescTableExecutor::execute(SQLStageEvent *sql_event)
     sql_result->set_return_code(RC::SCHEMA_TABLE_NOT_EXIST);
     sql_result->set_state_string("Table not exists");
   }
-  return RC::SCHEMA_TABLE_NOT_EXIST;
+  return rc;
 }

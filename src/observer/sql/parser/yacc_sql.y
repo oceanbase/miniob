@@ -132,6 +132,7 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
 %type <command> rollback
 %type <command> load_data
 %type <command> explain
+%type <command> set_variable
 %type <command> help
 %type <command> exit
 %type <command> command_wrapper
@@ -163,6 +164,7 @@ command_wrapper:
   | rollback
   | load_data
   | explain
+  | set_variable
   | help
   | exit
     ;
@@ -569,6 +571,17 @@ explain:
     {
       $$ = new Command(SCF_EXPLAIN);
       $$->explain.cmd = std::unique_ptr<Command>($2);
+    }
+    ;
+
+set_variable:
+    SET ID EQ value
+    {
+      $$ = new Command(SCF_SET_VARIABLE);
+      $$->set_variable.name = $2;
+      $$->set_variable.value = *$4;
+      free($2);
+      delete $4;
     }
     ;
 

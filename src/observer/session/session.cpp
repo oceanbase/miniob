@@ -90,3 +90,13 @@ Session *Session::current_session()
 {
   return thread_session;
 }
+
+void Session::set_current_request(SessionEvent *request)
+{
+  current_request_ = request;
+}
+
+SessionEvent *Session::current_request() const
+{
+  return current_request_;
+}

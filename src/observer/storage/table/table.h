@@ -29,7 +29,10 @@ class IndexScanner;
 class RecordDeleter;
 class Trx;
 
-// TODO remove the routines with condition
+/**
+ * @brief 表
+ * 
+ */
 class Table 
 {
 public:

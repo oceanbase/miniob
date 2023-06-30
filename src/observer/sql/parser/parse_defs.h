@@ -187,6 +187,12 @@ struct LoadData
   std::string file_name;
 };
 
+struct SetVariable
+{
+  std::string name;
+  Value value;
+};
+
 class Command;
 
 /**
@@ -229,7 +235,7 @@ enum SqlCommandFlag
   SCF_SYNC,
   SCF_SHOW_TABLES,
   SCF_DESC_TABLE,
-  SCF_BEGIN,        /// 事务开始语句，可以在这里扩展只读事务
+  SCF_BEGIN,        ///< 事务开始语句，可以在这里扩展只读事务
   SCF_COMMIT,
   SCF_CLOG_SYNC,
   SCF_ROLLBACK,
@@ -237,6 +243,7 @@ enum SqlCommandFlag
   SCF_HELP,
   SCF_EXIT,
   SCF_EXPLAIN,
+  SCF_SET_VARIABLE, ///< 设置变量
 };
 /**
  * @brief 表示一个SQL语句
@@ -258,6 +265,7 @@ public:
   DescTable desc_table;
   LoadData load_data;
   Explain explain;
+  SetVariable set_variable;
 
 public:
   Command();
@@ -278,5 +286,5 @@ public:
   }
 
 private:
-  std::vector<std::unique_ptr<Command>> sql_commands_;  /// 这里记录SQL命令。虽然看起来支持多个，但是当前仅处理一个
+  std::vector<std::unique_ptr<Command>> sql_commands_;  ///< 这里记录SQL命令。虽然看起来支持多个，但是当前仅处理一个
 };

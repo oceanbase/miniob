@@ -21,6 +21,10 @@ See the Mulan PSL v2 for more details. */
 class LogicalOperator;
 class Expression;
 
+/**
+ * @brief 逻辑计划的重写规则
+ * @ingroup Rewriter
+ */
 class RewriteRule 
 {
 public:
@@ -29,6 +33,10 @@ public:
   virtual RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) = 0;
 };
 
+/**
+ * @brief 表达式的重写规则
+ * @ingroup Rewriter
+ */
 class ExpressionRewriteRule 
 {
 public:

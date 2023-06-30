@@ -23,7 +23,10 @@ namespace Json {
 class Value;
 }  // namespace Json
 
-// Take care of shallow copy
+/**
+ * @brief 字段元数据
+ * 
+ */
 class FieldMeta 
 {
 public:

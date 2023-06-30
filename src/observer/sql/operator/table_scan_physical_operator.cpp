@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/table_scan_physical_operator.h"
 #include "storage/table/table.h"
+#include "event/sql_debug.h"
 
 using namespace std;
 
@@ -48,8 +49,10 @@ RC TableScanPhysicalOperator::next()
     }
 
     if (filter_result) {
+      sql_debug("get a tuple: %s", tuple_.to_string().c_str());
       break;
     } else {
+      sql_debug("a tuple is filtered: %s", tuple_.to_string().c_str());
       rc = RC::RECORD_EOF;
     }
   }

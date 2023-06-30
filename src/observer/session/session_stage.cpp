@@ -116,6 +116,7 @@ void SessionStage::handle_request(StageEvent *event)
   }
 
   Session::set_current_session(sev->session());
+  sev->session()->set_current_request(sev);
   SQLStageEvent *sql_event = new SQLStageEvent(sev, sql);
   query_cache_stage_->handle_event(sql_event);
 
@@ -126,5 +127,6 @@ void SessionStage::handle_request(StageEvent *event)
   if (need_disconnect) {
     Server::close_connection(communicator);
   }
+  sev->session()->set_current_request(nullptr);
   Session::set_current_session(nullptr);
 }
