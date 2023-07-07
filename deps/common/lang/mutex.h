@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include <pthread.h>
 #include <string.h>
 #include <unordered_map>
+#include <condition_variable>
 #include <map>
 #include <sstream>
 #include <string>
