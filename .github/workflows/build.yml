@@ -76,21 +76,22 @@ jobs:
 
       - name: install sysbench
         shell: bash
-	run: |
-	curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh | sudo bash
-	sudo apt -y install sysbench
+        run: |
+          curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh -o script.deb.sh
+          sudo bash script.deb.sh
+          sudo apt -y install sysbench
 	
       - name: start server
         shell: bash
-	run: |
-	  sudo bash build.sh init
-	  bash build.sh -DCONCURRENCY
-	  ./build_debug/bin/observer -s miniob.sock -f etc/observer.ini -P mysql -t mvcc &
+        run: |
+          sudo bash build.sh init
+          bash build.sh -DCONCURRENCY
+          ./build_debug/bin/observer -s miniob.sock -f etc/observer.ini -P mysql -t mvcc &
 
       - name: sysbench test
         shell: bash
-	run: |
-	  cd test/sysbench
-	  sysbench --mysql-socket=../../build_debug/miniob.sock --threads=10 miniob_insert prepare
-	  sysbench --mysql-socket=../../build_debug/miniob.sock --threads=10 miniob_insert run
+        run: |
+          cd test/sysbench
+          sysbench --mysql-socket=../../build_debug/miniob.sock --threads=10 miniob_insert prepare
+          sysbench --mysql-socket=../../build_debug/miniob.sock --threads=10 miniob_insert run
 	  
