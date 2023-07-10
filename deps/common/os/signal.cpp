@@ -38,6 +38,7 @@ void setSignalHandler(sighandler_t func)
   setSignalHandler(SIGINT, func);
   setSignalHandler(SIGHUP, func);
   setSignalHandler(SIGTERM, func);
+  signal(SIGPIPE, SIG_IGN);
 }
 
 void blockDefaultSignals(sigset_t *signal_set, sigset_t *old_set)
