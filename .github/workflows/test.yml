@@ -45,7 +45,7 @@ jobs:
           sudo bash build.sh init
           bash build.sh -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF
           nohup ./build_debug/bin/observer -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc &
-          sleep 10s
+          sleep 10 && echo "wake up"
           mysql -S /tmp/miniob.sock -e "show tables"
 
       - name: sysbench test
