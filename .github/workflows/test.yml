@@ -44,11 +44,11 @@ jobs:
         run: |
           sudo bash build.sh init
           bash build.sh -DCONCURRENCY=ON
-          ./build_debug/bin/observer -s miniob.sock -f etc/observer.ini -P mysql -t mvcc &
+          ./build_debug/bin/observer -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc &
 
       - name: sysbench test
         shell: bash
         run: |
           cd test/sysbench
-          sysbench --mysql-socket=../../build_debug/miniob.sock --threads=10 miniob_insert prepare
-          sysbench --mysql-socket=../../build_debug/miniob.sock --threads=10 miniob_insert run
+          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 miniob_insert prepare
+          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 miniob_insert run
