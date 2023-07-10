@@ -32,12 +32,12 @@ jobs:
       - name: Checkout repository and submodules
         uses: actions/checkout@v2
 
-      - name: install sysbench and mysql-client
+      - name: install sysbench and mariadb-client
         shell: bash
         run: |
           curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh -o script.deb.sh
           sudo bash script.deb.sh
-          sudo apt -y install sysbench mysql-client
+          sudo apt -y install sysbench mariadb-client
 
       - name: start server
         shell: bash
