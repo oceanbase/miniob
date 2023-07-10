@@ -32,12 +32,12 @@ jobs:
       - name: Checkout repository and submodules
         uses: actions/checkout@v2
 
-      - name: install sysbench
+      - name: install sysbench and mysql-client
         shell: bash
         run: |
           curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh -o script.deb.sh
           sudo bash script.deb.sh
-          sudo apt -y install sysbench
+          sudo apt -y install sysbench mysql-client
 
       - name: start server
         shell: bash
@@ -45,6 +45,8 @@ jobs:
           sudo bash build.sh init
           bash build.sh -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF
           nohup ./build_debug/bin/observer -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc &
+          sleep 10s
+          mysql -S /tmp/miniob.sock -e "show tables"
 
       - name: sysbench test
         shell: bash
