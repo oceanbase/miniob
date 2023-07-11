@@ -4,7 +4,7 @@ MiniOB 是 [OceanBase](https://github.com/oceanbase/oceanbase) 与华中科技�
 
 MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，或者对基础技术有兴趣的爱好者, 整体代码量少，易于上手并学习, 是一个系统性的数据库学习项目。miniob 设置了一系列由浅入深的题目，以帮助同学们"零"基础入门, 让同学们快速了解数据库并深入学习数据库内核，期望通过相关训练之后，能够熟练掌握数据库内核模块的功能与协同关系, 并能够在使用数据库时，设计出高效的 SQL 。miniob 为了更好的学习数据库实现原理, 对诸多模块都做了简化，比如不考虑并发操作, 安全特性, 复杂的事物管理等功能。
 
-# GitHub Pages
+# 文档
 代码配套文档和相关代码注释已经生成文档并通过 GitHub Pages 发布, 可以直接访问:
 [MiniOB GitHub Pages](https://oceanbase.github.io/miniob/).
 
@@ -15,11 +15,8 @@ MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，�
 1. [miniob 框架介绍](docs/src/miniob-introduction.md)
 2. [如何编译 MiniOB 源码](docs/src/how_to_build.md)
 3. [如何运行 MiniOB](docs/src/how_to_run.md)
-3. [使用 GitPod 开发 MiniOB](docs/src/dev-env/dev_by_gitpod.md)
-4. [开发环境搭建(本地调试, 适用 Linux 和 Mac)](docs/src/dev-env/how_to_dev_miniob_by_vscode.md)
-5. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](docs/src/dev-env/how_to_dev_in_docker_container_by_vscode.md)
-6. [MiniOB 各模块文档](docs/src/design/introduction.md)
-7. [doxygen 代码文档](docs/doxy/html/index.html)
+4. [使用 GitPod 开发 MiniOB](docs/src/dev-env/dev_by_gitpod.md)
+5. [doxygen 代码文档](docs/doxy/html/index.html)
 
 更多的文档, 可以参考 docs 目录下的文档, 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
 
