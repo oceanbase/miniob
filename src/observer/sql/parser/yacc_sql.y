@@ -349,7 +349,6 @@ value:
     }
     |SSS {
       char *tmp = common::substr($1,1,strlen($1)-2);
-      printf("got a string. src=%s, dst=%s", $1, tmp);
       $$ = new Value(tmp);
       free(tmp);
     }
