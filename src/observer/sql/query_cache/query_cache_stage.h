@@ -14,29 +14,21 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/seda/stage.h"
+#include "common/rc.h"
+
+class SQLStageEvent;
 
 /**
  * @brief 查询缓存处理
  * @ingroup SQLStage
  * @details 当前什么都没做
  */
-class QueryCacheStage : public common::Stage
+class QueryCacheStage
 {
 public:
-  virtual ~QueryCacheStage();
-  static Stage *make_stage(const std::string &tag);
+  QueryCacheStage() = default;
+  virtual ~QueryCacheStage() = default;
 
-protected:
-  // common function
-  QueryCacheStage(const char *tag);
-  bool set_properties() override;
-
-  bool initialize() override;
-  void cleanup() override;
-  void handle_event(common::StageEvent *event) override;
-
-protected:
-private:
-  Stage *parser_stage_ = nullptr;
+public:
+  RC handle_request(SQLStageEvent *sql_event);
 };

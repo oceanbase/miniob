@@ -349,6 +349,7 @@ value:
     }
     |SSS {
       char *tmp = common::substr($1,1,strlen($1)-2);
+      printf("got a string. src=%s, dst=%s", $1, tmp);
       $$ = new Value(tmp);
       free(tmp);
     }
@@ -559,10 +560,13 @@ comp_op:
 load_data:
     LOAD DATA INFILE SSS INTO TABLE ID 
     {
+      char *tmp_file_name = common::substr($4, 1, strlen($4) - 2);
+      
       $$ = new Command(SCF_LOAD_DATA);
       $$->load_data.relation_name = $7;
-      $$->load_data.file_name = $4;
+      $$->load_data.file_name = tmp_file_name;
       free($7);
+      free(tmp_file_name);
     }
     ;
 

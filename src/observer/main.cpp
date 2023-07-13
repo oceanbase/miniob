@@ -23,6 +23,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/ini_setting.h"
 #include "common/os/process.h"
 #include "common/os/signal.h"
+#include "common/lang/string.h"
 #include "net/server.h"
 #include "net/server_param.h"
 

@@ -36,7 +36,6 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "common/ini_setting.h"
 #include "net/communicator.h"
-#include <common/metrics/metrics_registry.h>
 
 using namespace common;
 

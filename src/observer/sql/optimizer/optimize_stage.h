@@ -17,7 +17,6 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 
 #include "common/rc.h"
-#include "common/seda/stage.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/physical_operator.h"
 #include "sql/optimizer/physical_plan_generator.h"
@@ -40,24 +39,12 @@ class ExplainStmt;
  * 不过并不是所有的语句都需要生成计划，有些可以直接执行，比如create table、create index等。
  * 这些语句可以参考 @class CommandExecutor。
  */
-class OptimizeStage : public common::Stage
+class OptimizeStage
 {
 public:
-  ~OptimizeStage();
-  static Stage *make_stage(const std::string &tag);
-
-protected:
-  // common function
-  OptimizeStage(const char *tag);
-  bool set_properties();
-
-  bool initialize();
-  void cleanup();
-  void handle_event(common::StageEvent *event);
-
-private:
   RC handle_request(SQLStageEvent *event);
 
+private:
   /**
    * @brief 根据SQL生成逻辑计划
    * @details 由于SQL语句种类比较多，并且SQL语句可能会有嵌套的情况，比如带有SQL子查询的语句，那就需要递归的创建逻辑计划。
@@ -98,7 +85,6 @@ private:
       std::unique_ptr<LogicalOperator> &logical_operator, std::unique_ptr<PhysicalOperator> &physical_operator);
 
 private:
-  Stage *execute_stage_ = nullptr;    /// 生成计划
   PhysicalPlanGenerator physical_plan_generator_; /// 根据逻辑计划生成物理计划
   Rewriter rewriter_;  /// 逻辑计划改写
 };

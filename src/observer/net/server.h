@@ -15,7 +15,6 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/defs.h"
-#include "common/metrics/metrics.h"
 #include "common/seda/stage.h"
 #include "net/server_param.h"
 

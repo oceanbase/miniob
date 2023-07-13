@@ -30,66 +30,8 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-//! Constructor
-ExecuteStage::ExecuteStage(const char *tag) : Stage(tag)
-{}
-
-//! Destructor
-ExecuteStage::~ExecuteStage()
-{}
-
-//! Parse properties, instantiate a stage object
-Stage *ExecuteStage::make_stage(const std::string &tag)
+RC ExecuteStage::handle_request(SQLStageEvent *sql_event)
 {
-  ExecuteStage *stage = new (std::nothrow) ExecuteStage(tag.c_str());
-  if (stage == nullptr) {
-    LOG_ERROR("new ExecuteStage failed");
-    return nullptr;
-  }
-  stage->set_properties();
-  return stage;
-}
-
-//! Set properties for this object set in stage specific properties
-bool ExecuteStage::set_properties()
-{
-  //  std::string stageNameStr(stageName);
-  //  std::map<std::string, std::string> section = theGlobalProperties()->get(
-  //    stageNameStr);
-  //
-  //  std::map<std::string, std::string>::iterator it;
-  //
-  //  std::string key;
-
-  return true;
-}
-
-//! Initialize stage params and validate outputs
-bool ExecuteStage::initialize()
-{
-  std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  default_storage_stage_ = *(stgp++);
-  mem_storage_stage_ = *(stgp++);
-
-  return true;
-}
-
-//! Cleanup after disconnection
-void ExecuteStage::cleanup()
-{
-}
-
-void ExecuteStage::handle_event(StageEvent *event)
-{
-  handle_request(event);
-
-  return;
-}
-
-RC ExecuteStage::handle_request(common::StageEvent *event)
-{
-  SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
-
   const unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
   if (physical_operator != nullptr) {
     return handle_request_with_physical_operator(sql_event);
@@ -103,7 +45,7 @@ RC ExecuteStage::handle_request(common::StageEvent *event)
     RC rc = command_executor.execute(sql_event);
     session_event->sql_result()->set_return_code(rc);
   } else {
-    default_storage_stage_->handle_event(event);
+    return RC::INTERNAL;
   }
   return RC::SUCCESS;
 }
@@ -146,4 +88,3 @@ RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
   sql_result->set_operator(std::move(physical_operator));
   return rc;
 }
-

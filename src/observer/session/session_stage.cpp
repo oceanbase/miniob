@@ -19,10 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/conf/ini.h"
 #include "common/log/log.h"
-#include "common/seda/timer_stage.h"
 
 #include "common/lang/mutex.h"
-#include "common/metrics/metrics_registry.h"
 #include "common/seda/callback.h"
 #include "event/session_event.h"
 #include "event/sql_event.h"
@@ -32,10 +30,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-const std::string SessionStage::SQL_METRIC_TAG = "SessionStage.sql";
-
 // Constructor
-SessionStage::SessionStage(const char *tag) : Stage(tag), query_cache_stage_(nullptr), sql_metric_(nullptr)
+SessionStage::SessionStage(const char *tag) : Stage(tag)
 {}
 
 // Destructor
@@ -71,24 +67,13 @@ bool SessionStage::set_properties()
 // Initialize stage params and validate outputs
 bool SessionStage::initialize()
 {
-  std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  query_cache_stage_ = *(stgp++);
-
-  MetricsRegistry &metricsRegistry = get_metrics_registry();
-  sql_metric_ = new SimpleTimer();
-  metricsRegistry.register_metric(SQL_METRIC_TAG, sql_metric_);
   return true;
 }
 
 // Cleanup after disconnection
 void SessionStage::cleanup()
 {
-  MetricsRegistry &metricsRegistry = get_metrics_registry();
-  if (sql_metric_ != nullptr) {
-    metricsRegistry.unregister(SQL_METRIC_TAG);
-    delete sql_metric_;
-    sql_metric_ = nullptr;
-  }
+
 }
 
 void SessionStage::handle_event(StageEvent *event)
@@ -108,8 +93,6 @@ void SessionStage::handle_request(StageEvent *event)
     return;
   }
 
-  TimerStat sql_stat(*sql_metric_);
-
   std::string sql = sev->query();
   if (common::is_blank(sql.c_str())) {
     return;
@@ -118,7 +101,7 @@ void SessionStage::handle_request(StageEvent *event)
   Session::set_current_session(sev->session());
   sev->session()->set_current_request(sev);
   SQLStageEvent *sql_event = new SQLStageEvent(sev, sql);
-  query_cache_stage_->handle_event(sql_event);
+  handle_sql(sql_event);
 
   Communicator *communicator = sev->get_communicator();
   bool need_disconnect = false;
@@ -129,4 +112,39 @@ void SessionStage::handle_request(StageEvent *event)
   }
   sev->session()->set_current_request(nullptr);
   Session::set_current_session(nullptr);
+}
+
+RC SessionStage::handle_sql(SQLStageEvent *sql_event)
+{
+  RC rc = query_cache_stage_.handle_request(sql_event);
+  if (OB_FAIL(rc)) {
+    LOG_TRACE("failed to do query cache. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  rc = parse_stage_.handle_request(sql_event);
+  if (OB_FAIL(rc)) {
+    LOG_TRACE("failed to do parse. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  rc = resolve_stage_.handle_request(sql_event);
+  if (OB_FAIL(rc)) {
+    LOG_TRACE("failed to do resolve. rc=%s", strrc(rc));
+    return rc;
+  }
+  
+  rc = optimize_stage_.handle_request(sql_event);
+  if (rc != RC::UNIMPLENMENT && rc != RC::SUCCESS) {
+    LOG_TRACE("failed to do optimize. rc=%s", strrc(rc));
+    return rc;
+  }
+  
+  rc = execute_stage_.handle_request(sql_event);
+  if (OB_FAIL(rc)) {
+    LOG_TRACE("failed to do execute. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  return rc;
 }

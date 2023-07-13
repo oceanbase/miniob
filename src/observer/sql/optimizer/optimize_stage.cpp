@@ -21,7 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
-#include "common/seda/timer_stage.h"
 #include "sql/expr/expression.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/project_logical_operator.h"
@@ -45,54 +44,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-//! Constructor
-OptimizeStage::OptimizeStage(const char *tag) : Stage(tag)
-{}
-
-//! Destructor
-OptimizeStage::~OptimizeStage()
-{}
-
-//! Parse properties, instantiate a stage object
-Stage *OptimizeStage::make_stage(const std::string &tag)
-{
-  OptimizeStage *stage = new (std::nothrow) OptimizeStage(tag.c_str());
-  if (stage == nullptr) {
-    LOG_ERROR("new OptimizeStage failed");
-    return nullptr;
-  }
-  stage->set_properties();
-  return stage;
-}
-
-//! Set properties for this object set in stage specific properties
-bool OptimizeStage::set_properties()
-{
-  //  std::string stageNameStr(stage_name_);
-  //  std::map<std::string, std::string> section = g_properties()->get(
-  //    stageNameStr);
-  //
-  //  std::map<std::string, std::string>::iterator it;
-  //
-  //  std::string key;
-
-  return true;
-}
-
-//! Initialize stage params and validate outputs
-bool OptimizeStage::initialize()
-{
-  std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  execute_stage_ = *(stgp++);
-
-  return true;
-}
-
-//! Cleanup after disconnection
-void OptimizeStage::cleanup()
-{
-}
-
+#if 0
 void OptimizeStage::handle_event(StageEvent *event)
 {
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
@@ -105,6 +57,8 @@ void OptimizeStage::handle_event(StageEvent *event)
     execute_stage_->handle_event(event);
   }
 }
+#endif
+
 RC OptimizeStage::handle_request(SQLStageEvent *sql_event)
 {
   unique_ptr<LogicalOperator> logical_operator;

@@ -24,9 +24,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/os/signal.h"
 #include "common/seda/init.h"
 #include "common/seda/stage_factory.h"
-
-#include "common/metrics/log_reporter.h"
-#include "common/metrics/metrics_registry.h"
 #include "session/session.h"
 #include "session/session_stage.h"
 #include "sql/executor/execute_stage.h"
@@ -35,8 +32,6 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/resolve_stage.h"
 #include "sql/plan_cache/plan_cache_stage.h"
 #include "sql/query_cache/query_cache_stage.h"
-#include "storage/default/default_storage_stage.h"
-#include "storage/mem/mem_storage_stage.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/default/default_handler.h"
 #include "storage/trx/trx.h"
@@ -153,14 +148,6 @@ void cleanup_log()
 int prepare_init_seda()
 {
   static StageFactory session_stage_factory("SessionStage", &SessionStage::make_stage);
-  static StageFactory resolve_stage_factory("ResolveStage", &ResolveStage::make_stage);
-  static StageFactory query_cache_stage_factory("QueryCacheStage", &QueryCacheStage::make_stage);
-  static StageFactory parse_stage_factory("ParseStage", &ParseStage::make_stage);
-  static StageFactory plan_cache_factory("PlanCacheStage", &PlanCacheStage::make_stage);
-  static StageFactory optimize_factory("OptimizeStage", &OptimizeStage::make_stage);
-  static StageFactory execute_factory("ExecuteStage", &ExecuteStage::make_stage);
-  static StageFactory default_storage_factory("DefaultStorageStage", &DefaultStorageStage::make_stage);
-  static StageFactory mem_storage_factory("MemStorageStage", &MemStorageStage::make_stage);
   return 0;
 }
 
@@ -170,6 +157,7 @@ int init_global_objects(ProcessParam *process_param, Ini &properties)
   BufferPoolManager::set_instance(GCTX.buffer_pool_manager_);
 
   GCTX.handler_ = new DefaultHandler();
+  
   DefaultHandler::set_default(GCTX.handler_);
 
   int ret = 0;
@@ -179,6 +167,12 @@ int init_global_objects(ProcessParam *process_param, Ini &properties)
     ret = -1;
   }
   GCTX.trx_kit_ = TrxKit::instance();
+
+  rc = GCTX.handler_->init("miniob");
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("failed to init handler. rc=%s", strrc(rc));
+    return -1;
+  }
   return ret;
 }
 
@@ -256,11 +250,6 @@ int init(ProcessParam *process_param)
     LOG_ERROR("Failed to init seda configuration!");
     return rc;
   }
-
-  LogReporter *log_reporter = get_log_reporter();
-  MetricsRegistry &metrics_registry = get_metrics_registry();
-
-  metrics_registry.add_reporter(log_reporter);
 
   // Block interrupt signals before creating child threads.
   // setSignalHandler(sig_handler);
