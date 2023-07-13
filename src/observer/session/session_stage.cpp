@@ -114,6 +114,16 @@ void SessionStage::handle_request(StageEvent *event)
   Session::set_current_session(nullptr);
 }
 
+/**
+ * 处理一个SQL语句经历这几个阶段。
+ * 虽然看起来流程比较多，但是对于大多数SQL来说，更多的可以关注parse和executor阶段。
+ * 通常只有select、delete等带有查询条件的语句才需要进入optimize。
+ * 对于DDL语句，比如create table、create index等，没有对应的查询计划，可以直接搜索
+ * create_table_executor、create_index_executor来看具体的执行代码。
+ * select、delete等DML语句，会产生一些执行计划，如果感觉繁琐，可以跳过optimize直接看
+ * execute_stage中的执行，通过explain语句看需要哪些operator，然后找对应的operator来
+ * 调试或者看代码执行过程即可。
+ */
 RC SessionStage::handle_sql(SQLStageEvent *sql_event)
 {
   RC rc = query_cache_stage_.handle_request(sql_event);
