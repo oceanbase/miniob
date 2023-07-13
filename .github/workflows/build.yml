@@ -21,6 +21,9 @@ jobs:
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
 
+    - name: View storage
+      run: df -h
+
     - name: Init
       shell: bash
       run: sudo bash build.sh init
