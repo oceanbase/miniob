@@ -21,7 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
-#include "common/seda/timer_stage.h"
 #include "event/sql_event.h"
 #include "event/session_event.h"
 #include "session/session.h"
@@ -29,83 +28,31 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-//! Constructor
-ResolveStage::ResolveStage(const char *tag) : Stage(tag)
-{}
-
-//! Destructor
-ResolveStage::~ResolveStage()
-{}
-
-//! Parse properties, instantiate a stage object
-Stage *ResolveStage::make_stage(const std::string &tag)
+RC ResolveStage::handle_request(SQLStageEvent *sql_event)
 {
-  ResolveStage *stage = new (std::nothrow) ResolveStage(tag.c_str());
-  if (stage == nullptr) {
-    LOG_ERROR("new ResolveStage failed");
-    return nullptr;
-  }
-  stage->set_properties();
-  return stage;
-}
-
-//! Set properties for this object set in stage specific properties
-bool ResolveStage::set_properties()
-{
-  //  std::string stageNameStr(stage_name_);
-  //  std::map<std::string, std::string> section = g_properties()->get(
-  //    stageNameStr);
-  //
-  //  std::map<std::string, std::string>::iterator it;
-  //
-  //  std::string key;
-
-  return true;
-}
-
-//! Initialize stage params and validate outputs
-bool ResolveStage::initialize()
-{
-  std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  plan_cache_stage_ = *(stgp++);
-
-  return true;
-}
-
-//! Cleanup after disconnection
-void ResolveStage::cleanup()
-{
-}
-
-void ResolveStage::handle_event(StageEvent *event)
-{
-  SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
-  if (nullptr == sql_event) {
-    LOG_WARN("failed to get sql stage event");
-    return;
-  }
-
+  RC rc = RC::SUCCESS;
   SessionEvent *session_event = sql_event->session_event();
   SqlResult *sql_result = session_event->sql_result();
 
   Db *db = session_event->session()->get_current_db();
   if (nullptr == db) {
-    LOG_ERROR("cannot current db");
-    return;
+    LOG_ERROR("cannot find current db");
+    rc = RC::SCHEMA_DB_NOT_EXIST;
+    sql_result->set_return_code(rc);
+    sql_result->set_state_string("no db selected");
+    return rc;
   }
 
   Command *cmd = sql_event->command().get();
   Stmt *stmt = nullptr;
-  RC rc = Stmt::create_stmt(db, *cmd, stmt);
+  rc = Stmt::create_stmt(db, *cmd, stmt);
   if (rc != RC::SUCCESS && rc != RC::UNIMPLENMENT) {
     LOG_WARN("failed to create stmt. rc=%d:%s", rc, strrc(rc));
     sql_result->set_return_code(rc);
-    return;
+    return rc;
   }
 
   sql_event->set_stmt(stmt);
 
-  plan_cache_stage_->handle_event(sql_event);
-
-  return;
+  return rc;
 }

@@ -592,7 +592,7 @@ static const yytype_int16 yyrline[] =
      310,   311,   314,   330,   333,   344,   347,   350,   358,   370,
      385,   408,   415,   427,   432,   443,   446,   460,   463,   476,
      479,   485,   488,   493,   500,   512,   524,   536,   551,   552,
-     553,   554,   555,   556,   560,   570,   578,   588,   589
+     553,   554,   555,   556,   560,   573,   581,   591,   592
 };
 #endif
 
@@ -2205,25 +2205,28 @@ yyreduce:
   case 74: /* load_data: LOAD DATA INFILE SSS INTO TABLE ID  */
 #line 561 "yacc_sql.y"
     {
+      char *tmp_file_name = common::substr((yyvsp[-3].string), 1, strlen((yyvsp[-3].string)) - 2);
+      
       (yyval.command) = new Command(SCF_LOAD_DATA);
       (yyval.command)->load_data.relation_name = (yyvsp[0].string);
-      (yyval.command)->load_data.file_name = (yyvsp[-3].string);
+      (yyval.command)->load_data.file_name = tmp_file_name;
       free((yyvsp[0].string));
+      free(tmp_file_name);
     }
-#line 2214 "yacc_sql.cpp"
+#line 2217 "yacc_sql.cpp"
     break;
 
   case 75: /* explain: EXPLAIN command_wrapper  */
-#line 571 "yacc_sql.y"
+#line 574 "yacc_sql.y"
     {
       (yyval.command) = new Command(SCF_EXPLAIN);
       (yyval.command)->explain.cmd = std::unique_ptr<Command>((yyvsp[0].command));
     }
-#line 2223 "yacc_sql.cpp"
+#line 2226 "yacc_sql.cpp"
     break;
 
   case 76: /* set_variable: SET ID EQ value  */
-#line 579 "yacc_sql.y"
+#line 582 "yacc_sql.y"
     {
       (yyval.command) = new Command(SCF_SET_VARIABLE);
       (yyval.command)->set_variable.name = (yyvsp[-2].string);
@@ -2231,11 +2234,11 @@ yyreduce:
       free((yyvsp[-2].string));
       delete (yyvsp[0].value);
     }
-#line 2235 "yacc_sql.cpp"
+#line 2238 "yacc_sql.cpp"
     break;
 
 
-#line 2239 "yacc_sql.cpp"
+#line 2242 "yacc_sql.cpp"
 
       default: break;
     }
@@ -2465,7 +2468,7 @@ yyreturn:
   return yyresult;
 }
 
-#line 591 "yacc_sql.y"
+#line 594 "yacc_sql.y"
 
 //_____________________________________________________________________
 extern void scan_string(const char *str, yyscan_t scanner);

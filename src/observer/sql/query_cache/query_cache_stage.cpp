@@ -21,61 +21,10 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
-#include "common/seda/timer_stage.h"
 
 using namespace common;
 
-//! Constructor
-QueryCacheStage::QueryCacheStage(const char *tag) : Stage(tag)
-{}
-
-//! Destructor
-QueryCacheStage::~QueryCacheStage()
-{}
-
-//! Parse properties, instantiate a stage object
-Stage *QueryCacheStage::make_stage(const std::string &tag)
+RC QueryCacheStage::handle_request(SQLStageEvent *sql_event)
 {
-  QueryCacheStage *stage = new (std::nothrow) QueryCacheStage(tag.c_str());
-  if (stage == nullptr) {
-    LOG_ERROR("new QueryCacheStage failed");
-    return nullptr;
-  }
-  stage->set_properties();
-  return stage;
-}
-
-//! Set properties for this object set in stage specific properties
-bool QueryCacheStage::set_properties()
-{
-  //  std::string stageNameStr(stage_name_);
-  //  std::map<std::string, std::string> section = g_properties()->get(
-  //    stageNameStr);
-  //
-  //  std::map<std::string, std::string>::iterator it;
-  //
-  //  std::string key;
-
-  return true;
-}
-
-//! Initialize stage params and validate outputs
-bool QueryCacheStage::initialize()
-{
-  std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  parser_stage_ = *(stgp++);
-
-  return true;
-}
-
-//! Cleanup after disconnection
-void QueryCacheStage::cleanup()
-{
-}
-
-void QueryCacheStage::handle_event(StageEvent *event)
-{
-  parser_stage_->handle_event(event);
-
-  return;
+  return RC::SUCCESS;
 }

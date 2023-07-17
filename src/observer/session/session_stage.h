@@ -15,7 +15,11 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/seda/stage.h"
-#include "common/metrics/metrics.h"
+#include "sql/query_cache/query_cache_stage.h"
+#include "sql/parser/parse_stage.h"
+#include "sql/parser/resolve_stage.h"
+#include "sql/optimizer/optimize_stage.h"
+#include "sql/executor/execute_stage.h"
 
 /**
  * @brief SEDA处理的stage
@@ -50,9 +54,12 @@ protected:
 
 protected:
   void handle_request(common::StageEvent *event);
+  RC   handle_sql(SQLStageEvent *sql_event);
 
 private:
-  Stage *query_cache_stage_ = nullptr;
-  common::SimpleTimer *sql_metric_ = nullptr;
-  static const std::string SQL_METRIC_TAG;
+  QueryCacheStage query_cache_stage_;
+  ParseStage      parse_stage_;
+  ResolveStage    resolve_stage_;
+  OptimizeStage   optimize_stage_;
+  ExecuteStage    execute_stage_;
 };

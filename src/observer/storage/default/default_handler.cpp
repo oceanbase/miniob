@@ -24,6 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 #include "storage/common/condition_filter.h"
 #include "storage/clog/clog.h"
+#include "session/session.h"
 
 static DefaultHandler *default_handler = nullptr;
 
@@ -61,6 +62,23 @@ RC DefaultHandler::init(const char *base_dir)
 
   base_dir_ = base_dir;
   db_dir_ = tmp + "/";
+
+  const char *sys_db = "sys";
+
+  RC ret = create_db(sys_db);
+  if (ret != RC::SUCCESS && ret != RC::SCHEMA_DB_EXIST) {
+    LOG_ERROR("Failed to create system db");
+    return ret;
+  }
+
+  ret = open_db(sys_db);
+  if (ret != RC::SUCCESS) {
+    LOG_ERROR("Failed to open system db. rc=%s", strrc(ret));
+    return ret;
+  }
+
+  Session &default_session = Session::default_session();
+  default_session.set_current_db(sys_db);
 
   LOG_INFO("Default handler init with %s success", base_dir);
   return RC::SUCCESS;

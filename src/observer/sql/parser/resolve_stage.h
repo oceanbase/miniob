@@ -14,28 +14,16 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/seda/stage.h"
+#include "common/rc.h"
+
+class SQLStageEvent;
 
 /**
  * @brief 执行Resolve，将解析后的SQL语句，转换成各种Stmt(Statement), 同时会做错误检查
  * @ingroup SQLStage
  */
-class ResolveStage : public common::Stage 
+class ResolveStage
 {
 public:
-  ~ResolveStage();
-  static Stage *make_stage(const std::string &tag);
-
-protected:
-  // common function
-  ResolveStage(const char *tag);
-  bool set_properties();
-
-  bool initialize();
-  void cleanup();
-  void handle_event(common::StageEvent *event);
-
-protected:
-private:
-  Stage *plan_cache_stage_ = nullptr;
+  RC handle_request(SQLStageEvent *sql_event);
 };

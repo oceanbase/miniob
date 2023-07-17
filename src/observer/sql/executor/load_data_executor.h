@@ -9,19 +9,29 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/13.
+// Created by Wangyunlai on 2023/7/12.
 //
 
 #pragma once
 
 #include "common/rc.h"
 
+class SQLStageEvent;
+class Table;
+class SqlResult;
+
 /**
- * @brief 尝试从Plan的缓存中获取Plan，如果没有命中，则执行Optimizer
- * @ingroup SQLStage
- * @details 实际上现在什么都没做。不过PlanCache对数据库的优化提升明显，是一个非常有趣的功能，
- * 感兴趣的同学可以参考OceanBase的实现
+ * @brief 导入数据的执行器
+ * @ingroup Executor
  */
-class PlanCacheStage
+class LoadDataExecutor
 {
+public:
+  LoadDataExecutor() = default;
+  virtual ~LoadDataExecutor() = default;
+
+  RC execute(SQLStageEvent *sql_event);
+  
+private:
+  void load_data(Table *table, const char *file_name, SqlResult *sql_result);
 };

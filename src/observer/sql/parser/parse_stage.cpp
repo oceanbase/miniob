@@ -21,80 +21,16 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
-#include "common/seda/timer_stage.h"
 #include "event/session_event.h"
 #include "event/sql_event.h"
 #include "sql/parser/parse.h"
 
 using namespace common;
 
-//! Constructor
-ParseStage::ParseStage(const char *tag) : Stage(tag)
-{}
-
-//! Destructor
-ParseStage::~ParseStage()
-{}
-
-//! Parse properties, instantiate a stage object
-Stage *ParseStage::make_stage(const std::string &tag)
+RC ParseStage::handle_request(SQLStageEvent *sql_event)
 {
-  ParseStage *stage = new (std::nothrow) ParseStage(tag.c_str());
-  if (stage == nullptr) {
-    LOG_ERROR("new ParseStage failed");
-    return nullptr;
-  }
-  stage->set_properties();
-  return stage;
-}
-
-//! Set properties for this object set in stage specific properties
-bool ParseStage::set_properties()
-{
-  //  std::string stageNameStr(stageName);
-  //  std::map<std::string, std::string> section = theGlobalProperties()->get(
-  //    stageNameStr);
-  //
-  //  std::map<std::string, std::string>::iterator it;
-  //
-  //  std::string key;
-
-  return true;
-}
-
-//! Initialize stage params and validate outputs
-bool ParseStage::initialize()
-{
-  std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  // optimize_stage_ = *(stgp++);
-  resolve_stage_ = *(stgp++);
-
-  return true;
-}
-
-//! Cleanup after disconnection
-void ParseStage::cleanup()
-{
-  LOG_TRACE("Enter");
-
-  LOG_TRACE("Exit");
-}
-
-void ParseStage::handle_event(StageEvent *event)
-{
-  RC rc = handle_request(event);
-  if (RC::SUCCESS != rc) {
-    LOG_ERROR("Failed to handle request");
-  }
-
-  SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
-  sql_event->done_immediate();
-  return;
-}
-
-RC ParseStage::handle_request(StageEvent *event)
-{
-  SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
+  RC rc = RC::SUCCESS;
+  
   SqlResult *sql_result = sql_event->session_event()->sql_result();
   const std::string &sql = sql_event->sql();
 
@@ -114,13 +50,13 @@ RC ParseStage::handle_request(StageEvent *event)
   std::unique_ptr<Command> cmd = std::move(parsed_sql_result.commands().front());
   if (cmd->flag == SCF_ERROR) {
     // set error information to event
-    sql_result->set_return_code(RC::SQL_SYNTAX);
+    rc = RC::SQL_SYNTAX;
+    sql_result->set_return_code(rc);
     sql_result->set_state_string("Failed to parse sql");
-    return RC::INTERNAL;
+    return rc;
   }
 
   sql_event->set_command(std::move(cmd));
 
-  resolve_stage_->handle_event(event);
   return RC::SUCCESS;
 }
