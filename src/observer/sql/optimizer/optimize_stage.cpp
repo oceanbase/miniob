@@ -44,21 +44,6 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-#if 0
-void OptimizeStage::handle_event(StageEvent *event)
-{
-  SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
-  SqlResult *sql_result = sql_event->session_event()->sql_result();
-
-  RC rc = handle_request(sql_event);
-  if (rc != RC::UNIMPLENMENT && rc != RC::SUCCESS) {
-    sql_result->set_return_code(rc);
-  } else {
-    execute_stage_->handle_event(event);
-  }
-}
-#endif
-
 RC OptimizeStage::handle_request(SQLStageEvent *sql_event)
 {
   unique_ptr<LogicalOperator> logical_operator;

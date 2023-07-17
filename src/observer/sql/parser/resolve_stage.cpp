@@ -30,27 +30,29 @@ using namespace common;
 
 RC ResolveStage::handle_request(SQLStageEvent *sql_event)
 {
+  RC rc = RC::SUCCESS;
   SessionEvent *session_event = sql_event->session_event();
   SqlResult *sql_result = session_event->sql_result();
 
   Db *db = session_event->session()->get_current_db();
   if (nullptr == db) {
     LOG_ERROR("cannot find current db");
-    sql_result->set_return_code(RC::SCHEMA_DB_NOT_EXIST);
+    rc = RC::SCHEMA_DB_NOT_EXIST;
+    sql_result->set_return_code(rc);
     sql_result->set_state_string("no db selected");
-    return RC::SUCCESS; // TODO
+    return rc;
   }
 
   Command *cmd = sql_event->command().get();
   Stmt *stmt = nullptr;
-  RC rc = Stmt::create_stmt(db, *cmd, stmt);
+  rc = Stmt::create_stmt(db, *cmd, stmt);
   if (rc != RC::SUCCESS && rc != RC::UNIMPLENMENT) {
     LOG_WARN("failed to create stmt. rc=%d:%s", rc, strrc(rc));
     sql_result->set_return_code(rc);
-    return RC::SUCCESS; // TODO
+    return rc;
   }
 
   sql_event->set_stmt(stmt);
 
-  return RC::SUCCESS;
+  return rc;
 }

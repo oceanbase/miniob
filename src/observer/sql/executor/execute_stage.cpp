@@ -32,6 +32,7 @@ using namespace common;
 
 RC ExecuteStage::handle_request(SQLStageEvent *sql_event)
 {
+  RC rc = RC::SUCCESS;
   const unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
   if (physical_operator != nullptr) {
     return handle_request_with_physical_operator(sql_event);
@@ -42,12 +43,12 @@ RC ExecuteStage::handle_request(SQLStageEvent *sql_event)
   Stmt *stmt = sql_event->stmt();
   if (stmt != nullptr) {
     CommandExecutor command_executor;
-    RC rc = command_executor.execute(sql_event);
+    rc = command_executor.execute(sql_event);
     session_event->sql_result()->set_return_code(rc);
   } else {
     return RC::INTERNAL;
   }
-  return RC::SUCCESS;
+  return rc;
 }
 
 RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
