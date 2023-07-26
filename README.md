@@ -4,7 +4,7 @@ MiniOB 是 [OceanBase](https://github.com/oceanbase/oceanbase) 与华中科技�
 
 MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，或者对基础技术有兴趣的爱好者, 整体代码量少，易于上手并学习, 是一个系统性的数据库学习项目。miniob 设置了一系列由浅入深的题目，以帮助同学们"零"基础入门, 让同学们快速了解数据库并深入学习数据库内核，期望通过相关训练之后，能够熟练掌握数据库内核模块的功能与协同关系, 并能够在使用数据库时，设计出高效的 SQL 。miniob 为了更好的学习数据库实现原理, 对诸多模块都做了简化，比如不考虑并发操作, 安全特性, 复杂的事物管理等功能。
 
-# 文档
+# [文档](https://oceanbase.github.io/miniob/)
 代码配套文档和相关代码注释已经生成文档并通过 GitHub Pages 发布, 可以直接访问:
 [MiniOB GitHub Pages](https://oceanbase.github.io/miniob/).
 
@@ -12,17 +12,17 @@ MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，�
 
 为了帮助开发者更好的上手并学习 miniob, 建议阅读：
 
-1. [miniob 框架介绍](docs/src/miniob-introduction.md)
-2. [如何编译 MiniOB 源码](docs/src/how_to_build.md)
-3. [如何运行 MiniOB](docs/src/how_to_run.md)
-4. [使用 GitPod 开发 MiniOB](docs/src/dev-env/dev_by_gitpod.md)
-5. [doxygen 代码文档](docs/doxy/html/index.html)
+1. [miniob 框架介绍](https://oceanbase.github.io/miniob/miniob-introduction.html)
+2. [如何编译 MiniOB 源码](https://oceanbase.github.io/miniob/how_to_build.html)
+3. [如何运行 MiniOB](https://oceanbase.github.io/miniob/how_to_run.html)
+4. [使用 GitPod 开发 MiniOB](https://oceanbase.github.io/miniob/dev-env/dev_by_gitpod.html)
+5. [doxygen 代码文档](https://oceanbase.github.io/miniob/design/doxy/html/index.html)
 
 更多的文档, 可以参考 docs 目录下的文档, 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
 
 1. [《从0到1数据库内核实战教程》  视频教程](https://open.oceanbase.com/activities/4921877?id=4921946)
 2. [《从0到1数据库内核实战教程》  基础讲义](https://github.com/oceanbase/kernel-quickstart)
-3. [《数据库管理系统实现》  华中科技大学实现教材](docs/src/lectures/index.md)
+3. [《数据库管理系统实现》  华中科技大学实现教材](https://oceanbase.github.io/miniob/lectures/index.html)
 
 ## 系统架构
 
@@ -62,19 +62,17 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 ### 1. 大赛手把手入门教程
 
-[大赛入门教程](docs/src/game/gitee-instructions.md)
+[大赛入门教程](https://oceanbase.github.io/miniob/game/gitee-instructions.html)
 
 ### 2. 大赛赛题
 
-[赛题介绍](docs/src/game/miniob_topics.md) 
+[赛题介绍](https://oceanbase.github.io/miniob/game/miniob_topics.html) 
 
 ### 3. 提交测试
 
 题目完成并通过自测后，大家可以在 [miniob 训练营](https://open.oceanbase.com/train?questionId=500003) 上提交代码进行测试。
 
-在提交前, 请参考并学习 [训练营使用说明](https://ask.oceanbase.com/t/topic/35600372)
-
-客户端输出需要满足一定要求，如果你的测试结果不符合预期，请参考 [miniob 输出约定](docs/src/game/miniob-output-convention.md)。
+在提交前, 请参考并学习 [训练营使用说明](https://ask.oceanbase.com/t/topic/35600372)。
 
 ### 4. 大赛FAQ
 
