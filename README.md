@@ -1,24 +1,23 @@
 # MiniOB 概述
 
-MiniOB 是 [OceanBase](https://github.com/oceanbase/oceanbase) 与华中科技大学联合开发的、面向"零"基础同学的数据库入门学习项目。
+MiniOB 是 [OceanBase](https://github.com/oceanbase/oceanbase) 团队基于华中科技大学数据库课程原型，联合多所高校重新开发的、专为零基础的同学设计的数据库入门学习项目。我们的目标是为在校学生、数据库从业者、爱好者或对基础技术感兴趣的人提供一个友好的数据库学习项目。我们很高兴能为您提供这个学习机会，希望您能享受学习过程并从中受益。
 
-MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，或者对基础技术有兴趣的爱好者, 整体代码量少，易于上手并学习, 是一个系统性的数据库学习项目。miniob 设置了一系列由浅入深的题目，以帮助同学们"零"基础入门, 让同学们快速了解数据库并深入学习数据库内核，期望通过相关训练之后，能够熟练掌握数据库内核模块的功能与协同关系, 并能够在使用数据库时，设计出高效的 SQL 。miniob 为了更好的学习数据库实现原理, 对诸多模块都做了简化，比如不考虑并发操作, 安全特性, 复杂的事物管理等功能。
+MiniOB 整体代码简洁，容易上手，设计了一系列由浅入深的题目，帮助同学们从零基础入门，迅速了解数据库并深入学习数据库内核。MiniOB 简化了许多模块，例如不考虑并发操作、安全特性和复杂的事务管理等功能，以便更好地学习数据库实现原理。我们期望通过 MiniOB 的训练，同学们能够熟练掌握数据库内核模块的功能和协同关系，并具备一定的工程编码能力，例如内存管理、网络通信和磁盘 I/O 处理等, 这将有助于同学在未来的面试和工作中脱颖而出。
 
 # [文档](https://oceanbase.github.io/miniob/)
-代码配套文档和相关代码注释已经生成文档并通过 GitHub Pages 发布, 可以直接访问:
-[MiniOB GitHub Pages](https://oceanbase.github.io/miniob/).
+代码配套文档和相关代码注释已经生成文档，并通过 GitHub Pages 发布。您可以直接访问：[MiniOB GitHub Pages](https://oceanbase.github.io/miniob/).
 
-# 快速上手
+## 快速上手
 
-为了帮助开发者更好的上手并学习 miniob, 建议阅读：
+为了帮助开发者更好地上手并学习 MiniOB，建议阅读以下内容：
 
-1. [miniob 框架介绍](https://oceanbase.github.io/miniob/miniob-introduction.html)
+1. [MiniOB 框架介绍](https://oceanbase.github.io/miniob/miniob-introduction.html)
 2. [如何编译 MiniOB 源码](https://oceanbase.github.io/miniob/how_to_build.html)
 3. [如何运行 MiniOB](https://oceanbase.github.io/miniob/how_to_run.html)
 4. [使用 GitPod 开发 MiniOB](https://oceanbase.github.io/miniob/dev-env/dev_by_gitpod.html)
 5. [doxygen 代码文档](https://oceanbase.github.io/miniob/design/doxy/html/index.html)
 
-更多的文档, 可以参考 docs 目录下的文档, 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
+为了帮助大家更好地学习数据库基础知识，OceanBase社区提供了一系列教程。更多文档请参考 [MiniOB GitHub Pages](https://oceanbase.github.io/miniob/)。建议学习：
 
 1. [《从0到1数据库内核实战教程》  视频教程](https://open.oceanbase.com/activities/4921877?id=4921946)
 2. [《从0到1数据库内核实战教程》  基础讲义](https://github.com/oceanbase/kernel-quickstart)
@@ -56,9 +55,9 @@ MiniOB 整体架构如下图所示:
 
 2022 OceanBase 数据库大赛是由中国计算机学会（CCF）数据库专业委员会指导，OceanBase 与蚂蚁技术研究院学术合作团队联合举办的数据库内核实战赛事。本次大赛主要面向全国爱好数据库的高校学生，以“竞技、交流、成长”为宗旨，搭建基于赛事的技术交流平台，促进高校创新人才培养机制，不仅帮助学生从0开始系统化学习数据库理论知识，提升学生数据库实践能力，更能帮助学生走向企业积累经验，促进国内数据库人才的发展，碰撞出创新的火花。
 
-OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob，代码量少，易于上手学习，包含了数据库的各个关键模块，是一个系统性的数据库学习平台。基于该平台设置了一系列由浅入深的题目，以帮助同学们更好"零"基础入门。
+OceanBase 初赛基于一套适合初学者实践的数据库实训平台 MiniOB，代码量少，易于上手学习，包含了数据库的各个关键模块，是一个系统性的数据库学习平台。基于该平台设置了一系列由浅入深的题目，以帮助同学们更好"零"基础入门。
 
-更多详情, 请参考 [OceanBase 大赛](https://open.oceanbase.com/competition/index)
+2023 OceanBase 数据库大赛即将上线, 敬请期待, 更多详情, 请参考 [OceanBase 大赛](https://open.oceanbase.com/competition/index)
 
 ### 1. 大赛手把手入门教程
 
@@ -70,7 +69,7 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 ### 3. 提交测试
 
-题目完成并通过自测后，大家可以在 [miniob 训练营](https://open.oceanbase.com/train?questionId=500003) 上提交代码进行测试。
+题目完成并通过自测后，大家可以在 [MiniOB 训练营](https://open.oceanbase.com/train?questionId=500003) 上提交代码进行测试。
 
 在提交前, 请参考并学习 [训练营使用说明](https://ask.oceanbase.com/t/topic/35600372)。
 
@@ -80,15 +79,15 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 miniob
 
 # 在线开发平台
 
-本仓库基于 Gitpod 建立了快速在线开发平台, 点击下面按钮一键体验（建议使用 Chrome 浏览器）
+本仓库基于 Gitpod 建立了快速在线开发平台。点击下面的按钮即可一键体验（建议使用 Chrome 浏览器）。
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/oceanbase/miniob)
 
-首次进入 Gitpod 时需要安装一些依赖，依赖安装完成后，终端界面会显示 "Dependency installed successfully"。运行 `bash build.sh --make -j4` 命令即可编译miniob。
+首次进入 Gitpod 时需要安装一些依赖。安装完成后，终端界面会显示 "Dependency installed successfully"。运行 `bash build.sh --make -j4` 命令即可编译 MiniOB。
 
 # Contributing
 
-OceanBase 社区热情欢迎每一位对数据库技术热爱的开发者，期待携手开启思维碰撞之旅。无论是文档格式调整或文字修正、问题修复还是增加新功能，都是对 OceanBase 社区参与和贡献方式之一，立刻开启您的 First Contribution 吧！更多详情, 请参考 [社区贡献](CONTRIBUTING.md).
+OceanBase 社区热情欢迎每一位对数据库技术热爱的开发者，期待与您携手开启思维碰撞之旅。无论是文档格式调整或文字修正、问题修复还是增加新功能，都是参与和贡献 OceanBase 社区的方式之一。现在就开始您的首次贡献吧！更多详情，请参考 [社区贡献](CONTRIBUTING.md).
 
 # License
 
