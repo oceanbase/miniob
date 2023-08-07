@@ -157,8 +157,6 @@ void Frame::write_latch(intptr_t xid)
 }
 ```
 
-# 欢迎提交[issue](https://github.com/oceanbase/miniob/issues)和[pull request](https://github.com/oceanbase/miniob/pulls)
-MiniOB 当前还是一个非常不完善的项目，包括覆盖的知识面、代码质量、注释、测试、开发环境等，都需要完善，欢迎开源爱好者一起共同建设。
 # 参考
 [1] [15445 indexconcurrency](https://15445.courses.cs.cmu.edu/fall2021/notes/08-indexconcurrency.pdf)
 
