@@ -85,7 +85,12 @@ Trx *MvccTrxKit::create_trx(int32_t trx_id)
 void MvccTrxKit::destroy_trx(Trx *trx)
 {
   lock_.lock();
-  erase(trxes_, trx);
+  for (auto iter = trxes_.begin(), itend = trxes_.end(); iter != itend; ++iter) {
+    if (*iter == trx) {
+      trxes_.erase(iter);
+      break;
+    }
+  }
   lock_.unlock();
 
   delete trx;
