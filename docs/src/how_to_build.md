@@ -37,16 +37,5 @@ bash build.sh release
 
 此命令将编译release版本的miniob。
 
-**FAQ**
-1. 运行observer出现找不到链接库
-A: 由于安装依赖时，默认安装在 `/usr/local/` 目录下，而环境变量中没有将这个目录包含到动态链接库查找路径。可以将下面的命令添加到 HOME 目录的 `.bashrc` 中：
-```bash
-export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH
-```
-然后执行 `source ~/.bashrc` 加载环境变量后重新启动程序。
-
-LD_LIBRARY_PATH 是Linux环境中，运行时查找动态链接库的路径，路径之间以冒号':'分隔。
-
-将数据写入 bashrc 或其它文件，可以在下次启动程序时，会自动加载，而不需要再次执行 source 命令加载。
-
-> NOTE: 如果你的终端脚本使用的不是bash，而是zsh，那么就需要修改 .zshrc。
+3. 运行
+参考 [如何运行](how_to_run.md)
