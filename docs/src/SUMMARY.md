@@ -12,6 +12,7 @@
   - [MiniOB 调试](./dev-env/miniob-how-to-debug.md)
 
 - [功能模块设计说明文档](./design/introduction.md)
+  - [存储实现](./design/miniob-buffer-pool.md)
   - [事务](./design/miniob-transaction.md)
   - [CLog](./design/miniob-clog.md)
   - [SQL Parser](./design/miniob-sql-parser.md)
