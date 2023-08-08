@@ -82,7 +82,7 @@ public:
   virtual StmtType type() const = 0;
 
 public:
-  static RC create_stmt(Db *db, const Command &cmd, Stmt *&stmt);
+  static RC create_stmt(Db *db, const ParsedSqlNode &sql_node, Stmt *&stmt);
 
 private:
 };

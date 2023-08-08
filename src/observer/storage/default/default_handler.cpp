@@ -159,7 +159,7 @@ RC DefaultHandler::execute(const char *sql)
 }
 
 RC DefaultHandler::create_table(
-    const char *dbname, const char *relation_name, int attribute_count, const AttrInfo *attributes)
+    const char *dbname, const char *relation_name, int attribute_count, const AttrInfoSqlNode *attributes)
 {
   Db *db = find_db(dbname);
   if (db == nullptr) {

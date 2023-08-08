@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/stmt/stmt.h"
 
-struct CreateIndex;
+struct CreateIndexSqlNode;
 class Table;
 class FieldMeta;
 
@@ -44,7 +44,7 @@ public:
   const std::string &index_name() const { return index_name_; }
 
 public:
-  static RC create(Db *db, const CreateIndex &create_index, Stmt *&stmt);
+  static RC create(Db *db, const CreateIndexSqlNode &create_index, Stmt *&stmt);
 
 private:
   Table *table_ = nullptr;

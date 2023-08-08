@@ -1,3 +1,11 @@
+%top{
+// 这里的代码会被复制到lex_sql.cpp的最开始位置
+// 定义yy_size_t的原因是因为flex生成的代码，会使用yy_size_t与其他类型的数字
+// 做比较，导致编译报警
+#define YY_TYPEDEF_YY_SIZE_T
+typedef int yy_size_t;
+}
+
 %{
 #include<string.h>
 #include<stdio.h>
@@ -11,6 +19,7 @@
 struct ParserContext;
 
 #include "sql/parser/parse_defs.h"
+#include "common/log/log.h"
 #include "yacc_sql.hpp"
 
 #ifndef register
@@ -20,13 +29,7 @@ struct ParserContext;
 extern int atoi();
 extern double atof();
 
-#if YYDEBUG > 0
-#define debug_printf  printf
-#else
-#define debug_printf(...)
-#endif // YYDEBUG
-
-#define RETURN_TOKEN(token) debug_printf("%s\n",#token);return token
+#define RETURN_TOKEN(token) LOG_DEBUG("%s", #token);return token
 %}
 
 /* Prevent the need for linking with -lfl */

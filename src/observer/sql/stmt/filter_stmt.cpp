@@ -28,7 +28,7 @@ FilterStmt::~FilterStmt()
 }
 
 RC FilterStmt::create(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
-    const Condition *conditions, int condition_num, FilterStmt *&stmt)
+    const ConditionSqlNode *conditions, int condition_num, FilterStmt *&stmt)
 {
   RC rc = RC::SUCCESS;
   stmt = nullptr;
@@ -50,7 +50,7 @@ RC FilterStmt::create(Db *db, Table *default_table, std::unordered_map<std::stri
 }
 
 RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
-    const RelAttr &attr, Table *&table, const FieldMeta *&field)
+    const RelAttrSqlNode &attr, Table *&table, const FieldMeta *&field)
 {
   if (common::is_blank(attr.relation_name.c_str())) {
     table = default_table;
@@ -78,7 +78,7 @@ RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::str
 }
 
 RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
-    const Condition &condition, FilterUnit *&filter_unit)
+    const ConditionSqlNode &condition, FilterUnit *&filter_unit)
 {
   RC rc = RC::SUCCESS;
 

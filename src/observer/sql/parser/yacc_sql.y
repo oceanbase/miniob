@@ -15,11 +15,11 @@
 
 int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const char *msg)
 {
-  std::unique_ptr<Command> error_cmd = std::make_unique<Command>(SCF_ERROR);
-  error_cmd->error.error_msg = msg;
-  error_cmd->error.line = llocp->first_line;
-  error_cmd->error.column = llocp->first_column;
-  sql_result->add_command(std::move(error_cmd));
+  std::unique_ptr<ParsedSqlNode> error_sql_node = std::make_unique<ParsedSqlNode>(SCF_ERROR);
+  error_sql_node->error.error_msg = msg;
+  error_sql_node->error.line = llocp->first_line;
+  error_sql_node->error.column = llocp->first_column;
+  sql_result->add_sql_node(std::move(error_sql_node));
   return 0;
 }
 
@@ -77,20 +77,20 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
         NE
 
 %union {
-  Command *command;
-  Condition *condition;
-  Value *value;
-  enum CompOp comp;
-  RelAttr *rel_attr;
-  std::vector<AttrInfo> *attr_infos;
-  AttrInfo *attr_info;
-  std::vector<Value> *value_list;
-  std::vector<Condition> *condition_list;
-  std::vector<RelAttr> *rel_attr_list;
-  std::vector<std::string> *relation_list;
-  char *string;
-  int number;
-  float floats;
+  ParsedSqlNode *                   sql_node;
+  ConditionSqlNode *                condition;
+  Value *                           value;
+  enum CompOp                       comp;
+  RelAttrSqlNode *                  rel_attr;
+  std::vector<AttrInfoSqlNode> *    attr_infos;
+  AttrInfoSqlNode *                 attr_info;
+  std::vector<Value> *              value_list;
+  std::vector<ConditionSqlNode> *   condition_list;
+  std::vector<RelAttrSqlNode> *     rel_attr_list;
+  std::vector<std::string> *        relation_list;
+  char *                            string;
+  int                               number;
+  float                             floats;
 }
 
 %token <number> NUMBER
@@ -116,34 +116,34 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
 %type <rel_attr_list>       select_attr
 %type <relation_list>       rel_list
 %type <rel_attr_list>       attr_list
-%type <command> select
-%type <command> insert
-%type <command> update
-%type <command> delete
-%type <command> create_table
-%type <command> drop_table
-%type <command> show_tables
-%type <command> desc_table
-%type <command> create_index
-%type <command> drop_index
-%type <command> sync
-%type <command> begin
-%type <command> commit
-%type <command> rollback
-%type <command> load_data
-%type <command> explain
-%type <command> set_variable
-%type <command> help
-%type <command> exit
-%type <command> command_wrapper
+%type <sql_node> select
+%type <sql_node> insert
+%type <sql_node> update
+%type <sql_node> delete
+%type <sql_node> create_table
+%type <sql_node> drop_table
+%type <sql_node> show_tables
+%type <sql_node> desc_table
+%type <sql_node> create_index
+%type <sql_node> drop_index
+%type <sql_node> sync
+%type <sql_node> begin
+%type <sql_node> commit
+%type <sql_node> rollback
+%type <sql_node> load_data
+%type <sql_node> explain
+%type <sql_node> set_variable
+%type <sql_node> help
+%type <sql_node> exit
+%type <sql_node> command_wrapper
 // commands should be a list but I use a single command instead
-%type <command> commands
+%type <sql_node> commands
 %%
 
 commands: command_wrapper opt_semicolon  //commands or sqls. parser starts here.
   {
-    std::unique_ptr<Command> sql_command = std::unique_ptr<Command>($1);
-    sql_result->add_command(std::move(sql_command));
+    std::unique_ptr<ParsedSqlNode> sql_node = std::unique_ptr<ParsedSqlNode>($1);
+    sql_result->add_sql_node(std::move(sql_node));
   }
   ;
 
@@ -172,54 +172,54 @@ command_wrapper:
 exit:      
     EXIT {
       (void)yynerrs;  // 这么写为了消除yynerrs未使用的告警。如果你有更好的方法欢迎提PR
-      $$ = new Command(SCF_EXIT);
+      $$ = new ParsedSqlNode(SCF_EXIT);
     };
 
 help:
     HELP {
-      $$ = new Command(SCF_HELP);
+      $$ = new ParsedSqlNode(SCF_HELP);
     };
 
 sync:
     SYNC {
-      $$ = new Command(SCF_SYNC);
+      $$ = new ParsedSqlNode(SCF_SYNC);
     }
     ;
 
 begin:
     TRX_BEGIN  {
-      $$ = new Command(SCF_BEGIN);
+      $$ = new ParsedSqlNode(SCF_BEGIN);
     }
     ;
 
 commit:
     TRX_COMMIT {
-      $$ = new Command(SCF_COMMIT);
+      $$ = new ParsedSqlNode(SCF_COMMIT);
     }
     ;
 
 rollback:
     TRX_ROLLBACK  {
-      $$ = new Command(SCF_ROLLBACK);
+      $$ = new ParsedSqlNode(SCF_ROLLBACK);
     }
     ;
 
 drop_table:    /*drop table 语句的语法解析树*/
     DROP TABLE ID {
-      $$ = new Command(SCF_DROP_TABLE);
+      $$ = new ParsedSqlNode(SCF_DROP_TABLE);
       $$->drop_table.relation_name = $3;
       free($3);
     };
 
 show_tables:
     SHOW TABLES {
-      $$ = new Command(SCF_SHOW_TABLES);
+      $$ = new ParsedSqlNode(SCF_SHOW_TABLES);
     }
     ;
 
 desc_table:
     DESC ID  {
-      $$ = new Command(SCF_DESC_TABLE);
+      $$ = new ParsedSqlNode(SCF_DESC_TABLE);
       $$->desc_table.relation_name = $2;
       free($2);
     }
@@ -228,8 +228,8 @@ desc_table:
 create_index:    /*create index 语句的语法解析树*/
     CREATE INDEX ID ON ID LBRACE ID RBRACE
     {
-      $$ = new Command(SCF_CREATE_INDEX);
-      CreateIndex &create_index = $$->create_index;
+      $$ = new ParsedSqlNode(SCF_CREATE_INDEX);
+      CreateIndexSqlNode &create_index = $$->create_index;
       create_index.index_name = $3;
       create_index.relation_name = $5;
       create_index.attribute_name = $7;
@@ -242,7 +242,7 @@ create_index:    /*create index 语句的语法解析树*/
 drop_index:      /*drop index 语句的语法解析树*/
     DROP INDEX ID ON ID
     {
-      $$ = new Command(SCF_DROP_INDEX);
+      $$ = new ParsedSqlNode(SCF_DROP_INDEX);
       $$->drop_index.index_name = $3;
       $$->drop_index.relation_name = $5;
       free($3);
@@ -252,12 +252,12 @@ drop_index:      /*drop index 语句的语法解析树*/
 create_table:    /*create table 语句的语法解析树*/
     CREATE TABLE ID LBRACE attr_def attr_def_list RBRACE
     {
-      $$ = new Command(SCF_CREATE_TABLE);
-      CreateTable &create_table = $$->create_table;
+      $$ = new ParsedSqlNode(SCF_CREATE_TABLE);
+      CreateTableSqlNode &create_table = $$->create_table;
       create_table.relation_name = $3;
       free($3);
 
-      std::vector<AttrInfo> *src_attrs = $6;
+      std::vector<AttrInfoSqlNode> *src_attrs = $6;
 
       if (src_attrs != nullptr) {
         create_table.attr_infos.swap(*src_attrs);
@@ -277,7 +277,7 @@ attr_def_list:
       if ($3 != nullptr) {
         $$ = $3;
       } else {
-        $$ = new std::vector<AttrInfo>;
+        $$ = new std::vector<AttrInfoSqlNode>;
       }
       $$->emplace_back(*$2);
       delete $2;
@@ -287,7 +287,7 @@ attr_def_list:
 attr_def:
     ID type LBRACE number RBRACE 
     {
-      $$ = new AttrInfo;
+      $$ = new AttrInfoSqlNode;
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = $4;
@@ -295,7 +295,7 @@ attr_def:
     }
     | ID type
     {
-      $$ = new AttrInfo;
+      $$ = new AttrInfoSqlNode;
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = 4;
@@ -313,7 +313,7 @@ type:
 insert:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 
     {
-      $$ = new Command(SCF_INSERT);
+      $$ = new ParsedSqlNode(SCF_INSERT);
       $$->insertion.relation_name = $3;
       if ($7 != nullptr) {
         $$->insertion.values.swap(*$7);
@@ -357,7 +357,7 @@ value:
 delete:    /*  delete 语句的语法解析树*/
     DELETE FROM ID where 
     {
-      $$ = new Command(SCF_DELETE);
+      $$ = new ParsedSqlNode(SCF_DELETE);
       $$->deletion.relation_name = $3;
       if ($4 != nullptr) {
         $$->deletion.conditions.swap(*$4);
@@ -369,7 +369,7 @@ delete:    /*  delete 语句的语法解析树*/
 update:      /*  update 语句的语法解析树*/
     UPDATE ID SET ID EQ value where 
     {
-      $$ = new Command(SCF_UPDATE);
+      $$ = new ParsedSqlNode(SCF_UPDATE);
       $$->update.relation_name = $2;
       $$->update.attribute_name = $4;
       $$->update.value = *$6;
@@ -384,7 +384,7 @@ update:      /*  update 语句的语法解析树*/
 select:        /*  select 语句的语法解析树*/
     SELECT select_attr FROM ID rel_list where
     {
-      $$ = new Command(SCF_SELECT);
+      $$ = new ParsedSqlNode(SCF_SELECT);
       if ($2 != nullptr) {
         $$->selection.attributes.swap(*$2);
         delete $2;
@@ -406,9 +406,9 @@ select:        /*  select 语句的语法解析树*/
 
 select_attr:
     STAR {
-      $$ = new std::vector<RelAttr>;
-      RelAttr attr;
-      attr.relation_name = "";
+      $$ = new std::vector<RelAttrSqlNode>;
+      RelAttrSqlNode attr;
+      attr.relation_name  = "";
       attr.attribute_name = "*";
       $$->emplace_back(attr);
     }
@@ -416,7 +416,7 @@ select_attr:
       if ($2 != nullptr) {
         $$ = $2;
       } else {
-        $$ = new std::vector<RelAttr>;
+        $$ = new std::vector<RelAttrSqlNode>;
       }
       $$->emplace_back(*$1);
       delete $1;
@@ -425,13 +425,13 @@ select_attr:
 
 rel_attr:
     ID {
-      $$ = new RelAttr;
+      $$ = new RelAttrSqlNode;
       $$->attribute_name = $1;
       free($1);
     }
     | ID DOT ID {
-      $$ = new RelAttr;
-      $$->relation_name = $1;
+      $$ = new RelAttrSqlNode;
+      $$->relation_name  = $1;
       $$->attribute_name = $3;
       free($1);
       free($3);
@@ -447,7 +447,7 @@ attr_list:
       if ($3 != nullptr) {
         $$ = $3;
       } else {
-        $$ = new std::vector<RelAttr>;
+        $$ = new std::vector<RelAttrSqlNode>;
       }
 
       $$->emplace_back(*$2);
@@ -486,7 +486,7 @@ condition_list:
       $$ = nullptr;
     }
     | condition {
-      $$ = new std::vector<Condition>;
+      $$ = new std::vector<ConditionSqlNode>;
       $$->emplace_back(*$1);
       delete $1;
     }
@@ -499,7 +499,7 @@ condition_list:
 condition:
     rel_attr comp_op value
     {
-      $$ = new Condition;
+      $$ = new ConditionSqlNode;
       $$->left_is_attr = 1;
       $$->left_attr = *$1;
       $$->right_is_attr = 0;
@@ -511,7 +511,7 @@ condition:
     }
     | value comp_op value 
     {
-      $$ = new Condition;
+      $$ = new ConditionSqlNode;
       $$->left_is_attr = 0;
       $$->left_value = *$1;
       $$->right_is_attr = 0;
@@ -523,7 +523,7 @@ condition:
     }
     | rel_attr comp_op rel_attr
     {
-      $$ = new Condition;
+      $$ = new ConditionSqlNode;
       $$->left_is_attr = 1;
       $$->left_attr = *$1;
       $$->right_is_attr = 1;
@@ -535,7 +535,7 @@ condition:
     }
     | value comp_op rel_attr
     {
-      $$ = new Condition;
+      $$ = new ConditionSqlNode;
       $$->left_is_attr = 0;
       $$->left_value = *$1;
       $$->right_is_attr = 1;
@@ -561,7 +561,7 @@ load_data:
     {
       char *tmp_file_name = common::substr($4, 1, strlen($4) - 2);
       
-      $$ = new Command(SCF_LOAD_DATA);
+      $$ = new ParsedSqlNode(SCF_LOAD_DATA);
       $$->load_data.relation_name = $7;
       $$->load_data.file_name = tmp_file_name;
       free($7);
@@ -572,16 +572,16 @@ load_data:
 explain:
     EXPLAIN command_wrapper
     {
-      $$ = new Command(SCF_EXPLAIN);
-      $$->explain.cmd = std::unique_ptr<Command>($2);
+      $$ = new ParsedSqlNode(SCF_EXPLAIN);
+      $$->explain.sql_node = std::unique_ptr<ParsedSqlNode>($2);
     }
     ;
 
 set_variable:
     SET ID EQ value
     {
-      $$ = new Command(SCF_SET_VARIABLE);
-      $$->set_variable.name = $2;
+      $$ = new ParsedSqlNode(SCF_SET_VARIABLE);
+      $$->set_variable.name  = $2;
       $$->set_variable.value = *$4;
       free($2);
       delete $4;

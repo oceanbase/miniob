@@ -76,7 +76,7 @@ RC Db::init(const char *name, const char *dbpath)
   return rc;
 }
 
-RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo *attributes)
+RC Db::create_table(const char *table_name, int attribute_count, const AttrInfoSqlNode *attributes)
 {
   RC rc = RC::SUCCESS;
   // check table_name

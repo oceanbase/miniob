@@ -27,7 +27,7 @@ See the Mulan PSL v2 for more details. */
  * Rel -> Relation
  * Attr -> Attribute
  */
-struct RelAttr 
+struct RelAttrSqlNode
 {
   std::string relation_name;   ///< relation name (may be NULL) 表名
   std::string attribute_name;  ///< attribute name              属性名
@@ -38,12 +38,12 @@ struct RelAttr
  */
 enum CompOp 
 {
-  EQUAL_TO,     //"="     0
-  LESS_EQUAL,   //"<="    1
-  NOT_EQUAL,    //"<>"    2
-  LESS_THAN,    //"<"     3
-  GREAT_EQUAL,  //">="    4
-  GREAT_THAN,   //">"     5
+  EQUAL_TO,     ///< "="
+  LESS_EQUAL,   ///< "<="
+  NOT_EQUAL,    ///< "<>"
+  LESS_THAN,    ///< "<"
+  GREAT_EQUAL,  ///< ">="
+  GREAT_THAN,   ///< ">"
   NO_OP
 };
 
@@ -54,17 +54,17 @@ enum CompOp
  * 左边和右边理论上都可以是任意的数据，比如是字段（属性，列），也可以是数值常量。
  * 这个结构中记录的仅仅支持字段和值。
  */
-struct Condition
+struct ConditionSqlNode
 {
-  int left_is_attr;    /// TRUE if left-hand side is an attribute
-                       /// 1时，操作符左边是属性名，0时，是属性值
-  Value left_value;    /// left-hand side value if left_is_attr = FALSE
-  RelAttr left_attr;   /// left-hand side attribute
-  CompOp comp;         /// comparison operator
-  int right_is_attr;   /// TRUE if right-hand side is an attribute
-                       /// 1时，操作符右边是属性名，0时，是属性值
-  RelAttr right_attr;  /// right-hand side attribute if right_is_attr = TRUE 右边的属性
-  Value right_value;   /// right-hand side value if right_is_attr = FALSE
+  int             left_is_attr;    ///< TRUE if left-hand side is an attribute
+                                   ///< 1时，操作符左边是属性名，0时，是属性值
+  Value           left_value;      ///< left-hand side value if left_is_attr = FALSE
+  RelAttrSqlNode  left_attr;       ///< left-hand side attribute
+  CompOp          comp;            ///< comparison operator
+  int             right_is_attr;   ///< TRUE if right-hand side is an attribute
+                                   ///< 1时，操作符右边是属性名，0时，是属性值
+  RelAttrSqlNode  right_attr;      ///< right-hand side attribute if right_is_attr = TRUE 右边的属性
+  Value           right_value;     ///< right-hand side value if right_is_attr = FALSE
 };
 
 /**
@@ -76,42 +76,42 @@ struct Condition
  * where 条件 conditions，这里表示使用AND串联起来多个条件。正常的SQL语句会有OR，NOT等，
  * 甚至可以包含复杂的表达式。
  */
-struct Selects
+struct SelectSqlNode
 {
-  std::vector<RelAttr> attributes;    ///< attributes in select clause
-  std::vector<std::string> relations; ///< 查询的表
-  std::vector<Condition> conditions;  ///< 查询条件，使用AND串联起来多个条件
+  std::vector<RelAttrSqlNode>     attributes;    ///< attributes in select clause
+  std::vector<std::string>        relations;     ///< 查询的表
+  std::vector<ConditionSqlNode>   conditions;    ///< 查询条件，使用AND串联起来多个条件
 };
 
 /**
  * @brief 描述一个insert语句
  * @details 于Selects类似，也做了很多简化
  */
-struct Inserts
+struct InsertSqlNode
 {
-  std::string relation_name;  ///< Relation to insert into
-  std::vector<Value> values;  ///< 要插入的值
+  std::string        relation_name;  ///< Relation to insert into
+  std::vector<Value> values;         ///< 要插入的值
 };
 
 /**
  * @brief 描述一个delete语句
  */
-struct Deletes
+struct DeleteSqlNode
 {
-  std::string relation_name;  // Relation to delete from
-  std::vector<Condition> conditions;
+  std::string                   relation_name;  ///< Relation to delete from
+  std::vector<ConditionSqlNode> conditions;
 };
 
 /**
  * @brief 描述一个update语句
  * 
  */
-struct Updates
+struct UpdateSqlNode
 {
-  std::string relation_name;   ///< Relation to update
-  std::string attribute_name;  ///< 更新的字段，仅支持一个字段
-  Value value;                 ///< 更新的值，仅支持一个字段
-  std::vector<Condition> conditions;
+  std::string                   relation_name;         ///< Relation to update
+  std::string                   attribute_name;        ///< 更新的字段，仅支持一个字段
+  Value                         value;                 ///< 更新的值，仅支持一个字段
+  std::vector<ConditionSqlNode> conditions;
 };
 
 /**
@@ -120,30 +120,30 @@ struct Updates
  * Rel -> Relation
  * Attr -> Attribute
  */
-struct AttrInfo
+struct AttrInfoSqlNode
 {
-  AttrType type;     ///< Type of attribute
-  std::string name;  ///< Attribute name
-  size_t length;     ///< Length of attribute
+  AttrType    type;       ///< Type of attribute
+  std::string name;       ///< Attribute name
+  size_t      length;     ///< Length of attribute
 };
 
 /**
  * @brief 描述一个create table语句
  * @details 这里也做了很多简化。
  */
-struct CreateTable
+struct CreateTableSqlNode
 {
-  std::string relation_name;         // Relation name
-  std::vector<AttrInfo> attr_infos;  // attributes
+  std::string                  relation_name;         ///< Relation name
+  std::vector<AttrInfoSqlNode> attr_infos;            ///< attributes
 };
 
 /**
  * @brief 描述一个drop table语句
  * 
  */
-struct DropTable
+struct DropTableSqlNode
 {
-  std::string relation_name;  /// 要删除的表名
+  std::string relation_name;  ///< 要删除的表名
 };
 
 /**
@@ -151,18 +151,18 @@ struct DropTable
  * @details 创建索引时，需要指定索引名，表名，字段名。
  * 正常的SQL语句中，一个索引可能包含了多个字段，这里仅支持一个字段。
  */
-struct CreateIndex
+struct CreateIndexSqlNode
 {
-  std::string index_name;      /// Index name
-  std::string relation_name;   /// Relation name
-  std::string attribute_name;  /// Attribute name
+  std::string index_name;      ///< Index name
+  std::string relation_name;   ///< Relation name
+  std::string attribute_name;  ///< Attribute name
 };
 
 /**
  * @brief 描述一个drop index语句
  * 
  */
-struct DropIndex
+struct DropIndexSqlNode
 {
   std::string index_name;     ///< Index name
   std::string relation_name;  ///< Relation name
@@ -172,7 +172,7 @@ struct DropIndex
  * @brief 描述一个desc table语句
  * @details desc table 是查询表结构信息的语句
  */
-struct DescTable
+struct DescTableSqlNode
 {
   std::string relation_name;
 };
@@ -181,19 +181,23 @@ struct DescTable
  * @brief 描述一个load data语句
  * @details 从文件导入数据到表中。文件中的每一行就是一条数据，每行的数据类型、字段个数都与表保持一致
  */
-struct LoadData
+struct LoadDataSqlNode
 {
   std::string relation_name;
   std::string file_name;
 };
 
-struct SetVariable
+/**
+ * @brief 设置变量的值
+ * @note 当前还没有查询变量
+ */
+struct SetVariableSqlNode
 {
   std::string name;
-  Value value;
+  Value       value;
 };
 
-class Command;
+class ParsedSqlNode;
 
 /**
  * @brief 描述一个explain语句
@@ -201,20 +205,20 @@ class Command;
  * 一个command就是一个语句，比如select语句，insert语句等。
  * 可能改成SqlCommand更合适。
  */
-struct Explain
+struct ExplainSqlNode
 {
-  std::unique_ptr<Command> cmd;
+  std::unique_ptr<ParsedSqlNode> sql_node;
 };
 
 /**
  * @brief 解析SQL语句出现了错误
  * @details 当前解析时并没有处理错误的行号和列号
  */
-struct Error
+struct ErrorSqlNode
 {
   std::string error_msg;
-  int line;
-  int column;
+  int         line;
+  int         column;
 };
 
 /**
@@ -249,42 +253,41 @@ enum SqlCommandFlag
  * @brief 表示一个SQL语句
  * 
  */
-class Command
+class ParsedSqlNode
 {
 public:
-  enum SqlCommandFlag flag;
-  Error error;
-  Selects selection;
-  Inserts insertion;
-  Deletes deletion;
-  Updates update;
-  CreateTable create_table;
-  DropTable drop_table;
-  CreateIndex create_index;
-  DropIndex drop_index;
-  DescTable desc_table;
-  LoadData load_data;
-  Explain explain;
-  SetVariable set_variable;
+  enum SqlCommandFlag       flag;
+  ErrorSqlNode              error;
+  SelectSqlNode             selection;
+  InsertSqlNode             insertion;
+  DeleteSqlNode             deletion;
+  UpdateSqlNode             update;
+  CreateTableSqlNode        create_table;
+  DropTableSqlNode          drop_table;
+  CreateIndexSqlNode        create_index;
+  DropIndexSqlNode          drop_index;
+  DescTableSqlNode          desc_table;
+  LoadDataSqlNode           load_data;
+  ExplainSqlNode            explain;
+  SetVariableSqlNode        set_variable;
 
 public:
-  Command();
-  explicit Command(SqlCommandFlag flag);
+  ParsedSqlNode();
+  explicit ParsedSqlNode(SqlCommandFlag flag);
 };
 
 /**
  * @brief 表示语法解析后的数据
- * 叫ParsedSqlNode 可能会更清晰一点
  */
 class ParsedSqlResult
 {
 public:
-  void add_command(std::unique_ptr<Command> command);
-  std::vector<std::unique_ptr<Command>> &commands()
+  void add_sql_node(std::unique_ptr<ParsedSqlNode> sql_node);
+  std::vector<std::unique_ptr<ParsedSqlNode>> &sql_nodes()
   {
-    return sql_commands_;
+    return sql_nodes_;
   }
 
 private:
-  std::vector<std::unique_ptr<Command>> sql_commands_;  ///< 这里记录SQL命令。虽然看起来支持多个，但是当前仅处理一个
+  std::vector<std::unique_ptr<ParsedSqlNode>> sql_nodes_;  ///< 这里记录SQL命令。虽然看起来支持多个，但是当前仅处理一个
 };

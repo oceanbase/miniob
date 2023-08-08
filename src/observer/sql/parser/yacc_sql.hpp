@@ -113,20 +113,20 @@ union YYSTYPE
 {
 #line 79 "yacc_sql.y"
 
-  Command *command;
-  Condition *condition;
-  Value *value;
-  enum CompOp comp;
-  RelAttr *rel_attr;
-  std::vector<AttrInfo> *attr_infos;
-  AttrInfo *attr_info;
-  std::vector<Value> *value_list;
-  std::vector<Condition> *condition_list;
-  std::vector<RelAttr> *rel_attr_list;
-  std::vector<std::string> *relation_list;
-  char *string;
-  int number;
-  float floats;
+  ParsedSqlNode *                   sql_node;
+  ConditionSqlNode *                condition;
+  Value *                           value;
+  enum CompOp                       comp;
+  RelAttrSqlNode *                  rel_attr;
+  std::vector<AttrInfoSqlNode> *    attr_infos;
+  AttrInfoSqlNode *                 attr_info;
+  std::vector<Value> *              value_list;
+  std::vector<ConditionSqlNode> *   condition_list;
+  std::vector<RelAttrSqlNode> *     rel_attr_list;
+  std::vector<std::string> *        relation_list;
+  char *                            string;
+  int                               number;
+  float                             floats;
 
 #line 132 "yacc_sql.hpp"
 

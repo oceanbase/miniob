@@ -21,7 +21,7 @@ InsertStmt::InsertStmt(Table *table, const Value *values, int value_amount)
     : table_(table), values_(values), value_amount_(value_amount)
 {}
 
-RC InsertStmt::create(Db *db, const Inserts &inserts, Stmt *&stmt)
+RC InsertStmt::create(Db *db, const InsertSqlNode &inserts, Stmt *&stmt)
 {
   const char *table_name = inserts.relation_name.c_str();
   if (nullptr == db || nullptr == table_name || inserts.values.empty()) {

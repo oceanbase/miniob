@@ -29,35 +29,35 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/set_variable_stmt.h"
 #include "sql/stmt/load_data_stmt.h"
 
-RC Stmt::create_stmt(Db *db, const Command &cmd, Stmt *&stmt)
+RC Stmt::create_stmt(Db *db, const ParsedSqlNode &sql_node, Stmt *&stmt)
 {
   stmt = nullptr;
 
-  switch (cmd.flag) {
+  switch (sql_node.flag) {
     case SCF_INSERT: {
-      return InsertStmt::create(db, cmd.insertion, stmt);
+      return InsertStmt::create(db, sql_node.insertion, stmt);
     }
     case SCF_DELETE: {
-      return DeleteStmt::create(db, cmd.deletion, stmt);
+      return DeleteStmt::create(db, sql_node.deletion, stmt);
     }
     case SCF_SELECT: {
-      return SelectStmt::create(db, cmd.selection, stmt);
+      return SelectStmt::create(db, sql_node.selection, stmt);
     }
 
     case SCF_EXPLAIN: {
-      return ExplainStmt::create(db, cmd.explain, stmt);
+      return ExplainStmt::create(db, sql_node.explain, stmt);
     }
 
     case SCF_CREATE_INDEX: {
-      return CreateIndexStmt::create(db, cmd.create_index, stmt);
+      return CreateIndexStmt::create(db, sql_node.create_index, stmt);
     }
 
     case SCF_CREATE_TABLE: {
-      return CreateTableStmt::create(db, cmd.create_table, stmt);
+      return CreateTableStmt::create(db, sql_node.create_table, stmt);
     }
 
     case SCF_DESC_TABLE: {
-      return DescTableStmt::create(db, cmd.desc_table, stmt);
+      return DescTableStmt::create(db, sql_node.desc_table, stmt);
     }
 
     case SCF_HELP: {
@@ -74,7 +74,7 @@ RC Stmt::create_stmt(Db *db, const Command &cmd, Stmt *&stmt)
 
     case SCF_COMMIT:
     case SCF_ROLLBACK: {
-      return TrxEndStmt::create(cmd.flag, stmt);
+      return TrxEndStmt::create(sql_node.flag, stmt);
     }
 
     case SCF_EXIT: {
@@ -82,15 +82,15 @@ RC Stmt::create_stmt(Db *db, const Command &cmd, Stmt *&stmt)
     }
 
     case SCF_SET_VARIABLE: {
-      return SetVariableStmt::create(cmd.set_variable, stmt);
+      return SetVariableStmt::create(sql_node.set_variable, stmt);
     }
 
     case SCF_LOAD_DATA: {
-      return LoadDataStmt::create(db, cmd.load_data, stmt);
+      return LoadDataStmt::create(db, sql_node.load_data, stmt);
     }
 
     default: {
-      LOG_INFO("Command::type %d doesn't need to create statement.", cmd.flag);
+      LOG_INFO("Command::type %d doesn't need to create statement.", sql_node.flag);
     } break;
   }
   return RC::UNIMPLENMENT;

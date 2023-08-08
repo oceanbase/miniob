@@ -30,7 +30,7 @@ public:
   UpdateStmt(Table *table, Value *values, int value_amount);
 
 public:
-  static RC create(Db *db, const Updates &update_sql, Stmt *&stmt);
+  static RC create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt);
 
 public:
   Table *table() const
