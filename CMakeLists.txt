@@ -59,10 +59,14 @@ SET(CMAKE_CXX_FLAGS ${CMAKE_COMMON_FLAGS})
 SET(CMAKE_C_FLAGS ${CMAKE_COMMON_FLAGS})
 MESSAGE("CMAKE_CXX_FLAGS is " ${CMAKE_CXX_FLAGS})
 
+MESSAGE(WARNING "CMAKE_CXX_COMPILER_ID is " ${CMAKE_CXX_COMPILER_ID})
+ADD_LINK_OPTIONS(-static-libgcc -static-libstdc++)
+
 IF (ENABLE_ASAN)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
     SET(CMAKE_LINKER_FLAGS_DEBUG  "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+    ADD_LINK_OPTIONS(-static-libasan)
 ENDIF()
 
 IF (CMAKE_INSTALL_PREFIX)
