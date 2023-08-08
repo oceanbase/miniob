@@ -15,6 +15,8 @@
   - [事务](./design/miniob-transaction.md)
   - [CLog](./design/miniob-clog.md)
   - [SQL Parser](./design/miniob-sql-parser.md)
+  - [B+树实现](./design/miniob-bplus-tree.md)
+  - [并发B+树实现](./design/miniob-bplus-tree-concurrency.md)
   - [Doxy代码文档](./design/doxy/html/index.html)
 
 - [OceanBase 数据库大赛](./game/introduction.md)
