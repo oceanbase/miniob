@@ -52,7 +52,7 @@ public:
             const char *name, 
             const char *base_dir, 
             int attribute_count, 
-            const AttrInfo attributes[]);
+            const AttrInfoSqlNode attributes[]);
 
   /**
    * 打开一个表

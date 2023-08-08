@@ -29,7 +29,7 @@ class Db;
 class CreateTableStmt : public Stmt
 {
 public:
-  CreateTableStmt(const std::string &table_name, const std::vector<AttrInfo> &attr_infos)
+  CreateTableStmt(const std::string &table_name, const std::vector<AttrInfoSqlNode> &attr_infos)
         : table_name_(table_name),
           attr_infos_(attr_infos)
   {}
@@ -38,11 +38,11 @@ public:
   StmtType type() const override { return StmtType::CREATE_TABLE; }
 
   const std::string &table_name() const { return table_name_; }
-  const std::vector<AttrInfo> &attr_infos() const { return attr_infos_; }
+  const std::vector<AttrInfoSqlNode> &attr_infos() const { return attr_infos_; }
 
-  static RC create(Db *db, const CreateTable &create_table, Stmt *&stmt);
+  static RC create(Db *db, const CreateTableSqlNode &create_table, Stmt *&stmt);
 
 private:
   std::string table_name_;
-  std::vector<AttrInfo> attr_infos_;
+  std::vector<AttrInfoSqlNode> attr_infos_;
 };

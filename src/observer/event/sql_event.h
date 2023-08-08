@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 
 class SessionEvent;
 class Stmt;
-class Command;
+class ParsedSqlNode;
 
 /**
  * @brief 与SessionEvent类似，也是处理SQL请求的事件，只是用在SQL的不同阶段
@@ -41,9 +41,9 @@ public:
   {
     return sql_;
   }
-  const std::unique_ptr<Command> &command() const
+  const std::unique_ptr<ParsedSqlNode> &sql_node() const
   {
-    return command_;
+    return sql_node_;
   }
   Stmt *stmt() const
   {
@@ -62,9 +62,9 @@ public:
   {
     sql_ = sql;
   }
-  void set_command(std::unique_ptr<Command> cmd)
+  void set_sql_node(std::unique_ptr<ParsedSqlNode> sql_node)
   {
-    command_ = std::move(cmd);
+    sql_node_ = std::move(sql_node);
   }
   void set_stmt(Stmt *stmt)
   {
@@ -78,7 +78,7 @@ public:
 private:
   SessionEvent *session_event_ = nullptr;
   std::string sql_;  ///< 处理的SQL语句
-  std::unique_ptr<Command> command_;  ///< 语法解析后的SQL命令
+  std::unique_ptr<ParsedSqlNode> sql_node_;  ///< 语法解析后的SQL命令
   Stmt *stmt_ = nullptr;  ///< Resolver之后生成的数据结构
   std::unique_ptr<PhysicalOperator> operator_; ///< 生成的执行计划，也可能没有
 };

@@ -55,7 +55,7 @@ RC Table::create(int32_t table_id,
                  const char *name, 
                  const char *base_dir, 
                  int attribute_count, 
-                 const AttrInfo attributes[])
+                 const AttrInfoSqlNode attributes[])
 {
 
   if (common::is_blank(name)) {

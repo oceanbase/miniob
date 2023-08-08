@@ -37,7 +37,7 @@ public:
     return child_stmt_.get();
   }
 
-  static RC create(Db *db, const Explain &query, Stmt *&stmt);
+  static RC create(Db *db, const ExplainSqlNode &query, Stmt *&stmt);
 
 private:
   std::unique_ptr<Stmt> child_stmt_;

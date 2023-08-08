@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-RC CreateIndexStmt::create(Db *db, const CreateIndex &create_index, Stmt *&stmt)
+RC CreateIndexStmt::create(Db *db, const CreateIndexSqlNode &create_index, Stmt *&stmt)
 {
   stmt = nullptr;
 

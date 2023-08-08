@@ -26,7 +26,7 @@ See the Mulan PSL v2 for more details. */
 class SetVariableStmt : public Stmt
 {
 public:
-  SetVariableStmt(const SetVariable &set_variable) : set_variable_(set_variable)
+  SetVariableStmt(const SetVariableSqlNode &set_variable) : set_variable_(set_variable)
   {}
   virtual ~SetVariableStmt() = default;
 
@@ -35,7 +35,7 @@ public:
   const char *var_name() const { return set_variable_.name.c_str(); }
   const Value &var_value() const { return set_variable_.value; }
   
-  static RC create(const SetVariable &set_variable, Stmt *&stmt)
+  static RC create(const SetVariableSqlNode &set_variable, Stmt *&stmt)
   {
     /// 可以校验是否存在某个变量，但是这里忽略
     stmt = new SetVariableStmt(set_variable);
@@ -43,5 +43,5 @@ public:
   }
 
 private:
-  SetVariable set_variable_;
+  SetVariableSqlNode set_variable_;
 };

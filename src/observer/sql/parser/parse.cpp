@@ -16,17 +16,17 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse.h"
 #include "common/log/log.h"
 
-RC parse(char *st, Command *sqln);
+RC parse(char *st, ParsedSqlNode *sqln);
 
-Command::Command() : flag(SCF_ERROR)
+ParsedSqlNode::ParsedSqlNode() : flag(SCF_ERROR)
 {}
 
-Command::Command(SqlCommandFlag _flag) : flag(_flag)
+ParsedSqlNode::ParsedSqlNode(SqlCommandFlag _flag) : flag(_flag)
 {}
 
-void ParsedSqlResult::add_command(std::unique_ptr<Command> command)
+void ParsedSqlResult::add_sql_node(std::unique_ptr<ParsedSqlNode> sql_node)
 {
-  sql_commands_.emplace_back(std::move(command));
+  sql_nodes_.emplace_back(std::move(sql_node));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

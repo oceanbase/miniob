@@ -29,7 +29,7 @@ DeleteStmt::~DeleteStmt()
   }
 }
 
-RC DeleteStmt::create(Db *db, const Deletes &delete_sql, Stmt *&stmt)
+RC DeleteStmt::create(Db *db, const DeleteSqlNode &delete_sql, Stmt *&stmt)
 {
   const char *table_name = delete_sql.relation_name.c_str();
   if (nullptr == db || nullptr == table_name) {

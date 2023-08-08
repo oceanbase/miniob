@@ -33,7 +33,7 @@ public:
   Table *table() const { return table_; }
   const char *filename() const { return filename_.c_str(); }
 
-  static RC create(Db *db, const LoadData &load_data, Stmt *&stmt);
+  static RC create(Db *db, const LoadDataSqlNode &load_data, Stmt *&stmt);
 
 private:
   Table *table_ = nullptr;

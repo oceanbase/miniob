@@ -37,18 +37,18 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
   ParsedSqlResult parsed_sql_result;
 
   parse(sql.c_str(), &parsed_sql_result);
-  if (parsed_sql_result.commands().empty()) {
+  if (parsed_sql_result.sql_nodes().empty()) {
     sql_result->set_return_code(RC::SUCCESS);
     sql_result->set_state_string("");
     return RC::INTERNAL;
   }
 
-  if (parsed_sql_result.commands().size() > 1) {
+  if (parsed_sql_result.sql_nodes().size() > 1) {
     LOG_WARN("got multi sql commands but only 1 will be handled");
   }
 
-  std::unique_ptr<Command> cmd = std::move(parsed_sql_result.commands().front());
-  if (cmd->flag == SCF_ERROR) {
+  std::unique_ptr<ParsedSqlNode> sql_node = std::move(parsed_sql_result.sql_nodes().front());
+  if (sql_node->flag == SCF_ERROR) {
     // set error information to event
     rc = RC::SQL_SYNTAX;
     sql_result->set_return_code(rc);
@@ -56,7 +56,7 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
     return rc;
   }
 
-  sql_event->set_command(std::move(cmd));
+  sql_event->set_sql_node(std::move(sql_node));
 
   return RC::SUCCESS;
 }

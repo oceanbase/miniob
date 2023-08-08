@@ -36,7 +36,7 @@ static void wildcard_fields(Table *table, std::vector<Field> &field_metas)
   }
 }
 
-RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
+RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
 {
   if (nullptr == db) {
     LOG_WARN("invalid argument. db is null");
@@ -66,7 +66,7 @@ RC SelectStmt::create(Db *db, const Selects &select_sql, Stmt *&stmt)
   // collect query fields in `select` statement
   std::vector<Field> query_fields;
   for (int i = static_cast<int>(select_sql.attributes.size()) - 1; i >= 0; i--) {
-    const RelAttr &relation_attr = select_sql.attributes[i];
+    const RelAttrSqlNode &relation_attr = select_sql.attributes[i];
 
     if (common::is_blank(relation_attr.relation_name.c_str()) &&
         0 == strcmp(relation_attr.attribute_name.c_str(), "*")) {

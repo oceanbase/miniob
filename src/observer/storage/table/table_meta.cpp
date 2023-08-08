@@ -39,7 +39,7 @@ void TableMeta::swap(TableMeta &other) noexcept
   std::swap(record_size_, other.record_size_);
 }
 
-RC TableMeta::init(int32_t table_id, const char *name, int field_num, const AttrInfo attributes[])
+RC TableMeta::init(int32_t table_id, const char *name, int field_num, const AttrInfoSqlNode attributes[])
 {
   if (common::is_blank(name)) {
     LOG_ERROR("Name cannot be empty");
@@ -71,7 +71,7 @@ RC TableMeta::init(int32_t table_id, const char *name, int field_num, const Attr
   }
 
   for (int i = 0; i < field_num; i++) {
-    const AttrInfo &attr_info = attributes[i];
+    const AttrInfoSqlNode &attr_info = attributes[i];
     rc = fields_[i + trx_field_num].init(attr_info.name.c_str(), 
             attr_info.type, field_offset, attr_info.length, true/*visible*/);
     if (rc != RC::SUCCESS) {

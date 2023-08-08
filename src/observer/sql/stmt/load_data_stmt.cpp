@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-RC LoadDataStmt::create(Db *db, const LoadData &load_data, Stmt *&stmt)
+RC LoadDataStmt::create(Db *db, const LoadDataSqlNode &load_data, Stmt *&stmt)
 {
   RC rc = RC::SUCCESS;
   const char *table_name = load_data.relation_name.c_str();

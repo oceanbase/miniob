@@ -36,7 +36,7 @@ public:
 
   void swap(TableMeta &other) noexcept;
 
-  RC init(int32_t table_id, const char *name, int field_num, const AttrInfo attributes[]);
+  RC init(int32_t table_id, const char *name, int field_num, const AttrInfoSqlNode attributes[]);
 
   RC add_index(const IndexMeta &index);
 
