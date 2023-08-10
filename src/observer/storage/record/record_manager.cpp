@@ -19,12 +19,13 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-int align8(int size) { return size / 8 * 8 + ((size % 8 == 0) ? 0 : 8); }
-
 /**
- * @brief 一个页面有一个页头和bitmap加上N个记录组成。这个函数返回一个页面一定会占用的固定大小
+ * @brief 8字节对齐
+ * 注: ceiling(a / b) = floor((a + b - 1) / b)
+ * 
+ * @param size 待对齐的字节数
  */
-int page_fix_size() { return sizeof(PageHeader); }
+int align8(int size) { return (size + 7) / 8 * 8; }
 
 /**
  * @brief 计算指定大小的页面，可以容纳多少个记录
@@ -36,26 +37,17 @@ int page_record_capacity(int page_size, int record_size)
 {
   // (record_capacity * record_size) + record_capacity/8 + 1 <= (page_size - fix_size)
   // ==> record_capacity = ((page_size - fix_size) - 1) / (record_size + 0.125)
-  return (int)((page_size - page_fix_size() - 1) / (record_size + 0.125));
+  return (int)((page_size - PAGE_HEADER_SIZE - 1) / (record_size + 0.125));
 }
 
 /**
  * @brief bitmap 记录了某个位置是否有有效的记录数据，这里给定记录个数时需要多少字节来存放bitmap数据
+ * 注: ceiling(a / b) = floor((a + b - 1) / b)
  *
  * @param record_capacity 想要存放多少记录
  */
-int page_bitmap_size(int record_capacity) { return record_capacity / 8 + ((record_capacity % 8 == 0) ? 0 : 1); }
+int page_bitmap_size(int record_capacity) { return (record_capacity + 7) / 8; }
 
-/**
- * @brief 页面头固定信息加上bitmap需要的字节
- *
- * @param record_capacity 想要存放多少记录
- */
-int page_header_size(int record_capacity)
-{
-  const int bitmap_size = page_bitmap_size(record_capacity);
-  return align8(page_fix_size() + bitmap_size);
-}
 ////////////////////////////////////////////////////////////////////////////////
 RecordPageIterator::RecordPageIterator() {}
 RecordPageIterator::~RecordPageIterator() {}
@@ -98,18 +90,18 @@ RC RecordPageHandler::init(DiskBufferPool &buffer_pool, PageNum page_num, bool r
     return ret;
   }
 
+  char *data = frame_->data();
+
   if (readonly) {
     frame_->read_latch();
   } else {
     frame_->write_latch();
   }
-  readonly_  = readonly;
-  char *data = frame_->data();
-
   disk_buffer_pool_ = &buffer_pool;
-
-  page_header_ = (PageHeader *)(data);
-  bitmap_      = data + page_fix_size();
+  readonly_         = readonly;
+  page_header_      = (PageHeader *)(data);
+  bitmap_           = data + PAGE_HEADER_SIZE;
+  
   LOG_TRACE("Successfully init page_num %d.", page_num);
   return ret;
 }
@@ -127,15 +119,13 @@ RC RecordPageHandler::recover_init(DiskBufferPool &buffer_pool, PageNum page_num
     return ret;
   }
 
-  frame_->write_latch();
-  readonly_ = false;
-
   char *data = frame_->data();
 
+  frame_->write_latch();
   disk_buffer_pool_ = &buffer_pool;
-
-  page_header_ = (PageHeader *)(data);
-  bitmap_      = data + page_fix_size();
+  readonly_         = false;
+  page_header_      = (PageHeader *)(data);
+  bitmap_           = data + PAGE_HEADER_SIZE;
 
   buffer_pool.recover_page(page_num);
 
@@ -151,15 +141,16 @@ RC RecordPageHandler::init_empty_page(DiskBufferPool &buffer_pool, PageNum page_
     return ret;
   }
 
-  int page_size                     = BP_PAGE_DATA_SIZE;
-  int record_phy_size               = align8(record_size);
   page_header_->record_num          = 0;
-  page_header_->record_capacity     = page_record_capacity(page_size, record_phy_size);
   page_header_->record_real_size    = record_size;
-  page_header_->record_size         = record_phy_size;
-  page_header_->first_record_offset = page_header_size(page_header_->record_capacity);
-  bitmap_                           = frame_->data() + page_fix_size();
+  page_header_->record_size         = align8(record_size);
+  page_header_->record_capacity     = page_record_capacity(BP_PAGE_DATA_SIZE, page_header_->record_size);
+  page_header_->first_record_offset = align8(PAGE_HEADER_SIZE + page_bitmap_size(page_header_->record_capacity));
+  this->fix_record_capacity();
+  ASSERT(page_header_->first_record_offset + 
+         page_header_->record_capacity * page_header_->record_size, "Record overflow the page size");
 
+  bitmap_ = frame_->data() + PAGE_HEADER_SIZE;
   memset(bitmap_, 0, page_bitmap_size(page_header_->record_capacity));
 
   if ((ret = buffer_pool.flush_page(*frame_)) != RC::SUCCESS) {
