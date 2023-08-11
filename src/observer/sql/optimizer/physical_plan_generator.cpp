@@ -30,6 +30,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/explain_physical_operator.h"
 #include "sql/operator/join_logical_operator.h"
 #include "sql/operator/join_physical_operator.h"
+#include "sql/operator/calc_logical_operator.h"
+#include "sql/operator/calc_physical_operator.h"
 #include "sql/expr/expression.h"
 #include "common/log/log.h"
 
@@ -40,6 +42,10 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, unique_ptr<P
   RC rc = RC::SUCCESS;
 
   switch (logical_operator.type()) {
+    case LogicalOperatorType::CALC: {
+      return create_plan(static_cast<CalcLogicalOperator &>(logical_operator), oper);
+    } break;
+
     case LogicalOperatorType::TABLE_GET: {
       return create_plan(static_cast<TableGetLogicalOperator &>(logical_operator), oper);
     } break;
@@ -277,3 +283,12 @@ RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr
   oper = std::move(join_physical_oper);
   return rc;
 }
+
+RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper)
+{
+  RC rc = RC::SUCCESS;
+  CalcPhysicalOperator *calc_oper = new CalcPhysicalOperator(std::move(logical_oper.expressions()));
+  oper.reset(calc_oper);
+  return rc;
+}
+

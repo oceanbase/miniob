@@ -290,6 +290,48 @@ private:
   Tuple *tuple_ = nullptr;
 };
 
+class ExpressionTuple : public Tuple 
+{
+public:
+  ExpressionTuple(std::vector<std::unique_ptr<Expression>> &expressions)
+    : expressions_(expressions)
+  {
+  }
+  
+  virtual ~ExpressionTuple()
+  {
+  }
+
+  int cell_num() const override
+  {
+    return expressions_.size();
+  }
+
+  RC cell_at(int index, Value &cell) const override
+  {
+    if (index < 0 || index >= static_cast<int>(expressions_.size())) {
+      return RC::INTERNAL;
+    }
+
+    const Expression *expr = expressions_[index].get();
+    return expr->try_get_value(cell);
+  }
+
+  RC find_cell(const TupleCellSpec &spec, Value &cell) const override
+  {
+    for (const std::unique_ptr<Expression> &expr : expressions_) {
+      if (0 == strcmp(spec.alias(), expr->name().c_str())) {
+        return expr->try_get_value(cell);
+      }
+    }
+    return RC::NOTFOUND;
+  }
+
+
+private:
+  const std::vector<std::unique_ptr<Expression>> &expressions_;
+};
+
 /**
  * @brief 一些常量值组成的Tuple
  * @ingroup Tuple

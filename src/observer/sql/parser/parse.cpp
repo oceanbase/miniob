@@ -15,8 +15,17 @@ See the Mulan PSL v2 for more details. */
 #include <mutex>
 #include "sql/parser/parse.h"
 #include "common/log/log.h"
+#include "sql/expr/expression.h"
 
 RC parse(char *st, ParsedSqlNode *sqln);
+
+CalcSqlNode::~CalcSqlNode()
+{
+  for (Expression *expr : expressions) {
+    delete expr;
+  }
+  expressions.clear();
+}
 
 ParsedSqlNode::ParsedSqlNode() : flag(SCF_ERROR)
 {}

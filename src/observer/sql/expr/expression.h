@@ -34,6 +34,7 @@ class Tuple;
 enum class ExprType 
 {
   NONE,
+  STAR,         ///< 星号，表示所有字段
   FIELD,        ///< 字段。在实际执行时，根据行数据内容提取对应字段的值
   VALUE,        ///< 常量值
   CAST,         ///< 需要做类型转换的表达式
@@ -63,6 +64,11 @@ public:
    */
   virtual RC get_value(const Tuple &tuple, Value &value) const = 0;
 
+  virtual RC try_get_value(Value &value) const
+  {
+    return RC::UNIMPLENMENT;
+  }
+
   /**
    * @brief 表达式的类型
    * 可以根据表达式类型来转换为具体的子类
@@ -74,6 +80,8 @@ public:
    * @details 一个表达式运算出结果后，只有一个值
    */
   virtual AttrType value_type() const = 0;
+
+  virtual std::string name() const { return ""; }
 };
 
 /**
@@ -140,6 +148,11 @@ public:
   virtual ~ValueExpr() = default;
 
   RC get_value(const Tuple &tuple, Value &value) const override;
+  RC try_get_value(Value &value) const override
+  {
+    value = value_;
+    return RC::SUCCESS;
+  }
 
   ExprType type() const override
   {
@@ -180,6 +193,9 @@ public:
     return ExprType::CAST;
   }
   RC get_value(const Tuple &tuple, Value &value) const override;
+
+  RC try_get_value(Value &value) const override;
+
   AttrType value_type() const override
   {
     return cast_type_;
@@ -189,6 +205,9 @@ public:
   {
     return child_;
   }
+
+private:
+  RC cast(const Value &value, Value &cast_value) const;
 
 private:
   std::unique_ptr<Expression> child_;  ///< 从这个表达式转换
@@ -232,7 +251,7 @@ public:
    * 尝试在没有tuple的情况下获取当前表达式的值
    * 在优化的时候，可能会使用到
    */
-  RC try_get_value(Value &value) const;
+  RC try_get_value(Value &value) const override;
 
   /**
    * compare the two tuple cells

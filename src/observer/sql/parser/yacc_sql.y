@@ -11,6 +11,7 @@
 #include "sql/parser/parse_defs.h"
 #include "sql/parser/yacc_sql.hpp"
 #include "sql/parser/lex_sql.h"
+#include "sql/expr/expression.h"
 
 
 int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const char *msg)
@@ -39,6 +40,7 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
         TABLE
         TABLES
         INDEX
+        CALC
         SELECT
         DESC
         SHOW
@@ -84,6 +86,8 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
   RelAttrSqlNode *                  rel_attr;
   std::vector<AttrInfoSqlNode> *    attr_infos;
   AttrInfoSqlNode *                 attr_info;
+  Expression *                      expression;
+  std::vector<Expression *> * expression_list;
   std::vector<Value> *              value_list;
   std::vector<ConditionSqlNode> *   condition_list;
   std::vector<RelAttrSqlNode> *     rel_attr_list;
@@ -116,6 +120,9 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
 %type <rel_attr_list>       select_attr
 %type <relation_list>       rel_list
 %type <rel_attr_list>       attr_list
+%type <expression>          expression
+%type <expression_list>     expression_list
+%type <sql_node>            calc
 %type <sql_node> select
 %type <sql_node> insert
 %type <sql_node> update
@@ -148,7 +155,8 @@ commands: command_wrapper opt_semicolon  //commands or sqls. parser starts here.
   ;
 
 command_wrapper:
-    select  
+    calc
+  | select  
   | insert
   | update
   | delete
@@ -403,7 +411,37 @@ select:        /*  select 语句的语法解析树*/
       free($4);
     }
     ;
+calc:
+    CALC expression_list
+    {
+      $$ = new ParsedSqlNode(SCF_CALC);
+      std::reverse($2->begin(), $2->end());
+      $$->calc.expressions.swap(*$2);
+      delete $2;
+    }
+    ;
 
+expression_list:
+    expression
+    {
+      $$ = new std::vector<Expression*>;
+      $$->emplace_back($1);
+    }
+    | expression COMMA expression_list {
+      if ($3 != nullptr) {
+        $$ = $3;
+      } else {
+        $$ = new std::vector<Expression *>;
+      }
+      $$->emplace_back($1);
+    }
+    ;
+expression:
+    value {
+      $$ = new ValueExpr(*$1);
+      delete $1;
+    }
+    ;
 select_attr:
     STAR {
       $$ = new std::vector<RelAttrSqlNode>;
