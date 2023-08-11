@@ -14,7 +14,7 @@
 #include "sql/expr/expression.h"
 
 
-int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const char *msg)
+int yyerror(YYLTYPE *llocp, const char *sql_string, ParsedSqlResult *sql_result, yyscan_t scanner, const char *msg)
 {
   std::unique_ptr<ParsedSqlNode> error_sql_node = std::make_unique<ParsedSqlNode>(SCF_ERROR);
   error_sql_node->error.error_msg = msg;
@@ -30,6 +30,7 @@ int yyerror(YYLTYPE *llocp, ParsedSqlResult *sql_result, yyscan_t scanner, const
 %define parse.error verbose
 %locations
 %lex-param { yyscan_t scanner }
+%parse-param { const char * sql_string }
 %parse-param { ParsedSqlResult * sql_result }
 %parse-param { void * scanner }
 
@@ -351,6 +352,7 @@ value_list:
 value:
     NUMBER {
       $$ = new Value((int)$1);
+      @$ = @1;
     }
     |FLOAT {
       $$ = new Value((float)$1);
@@ -439,6 +441,7 @@ expression_list:
 expression:
     value {
       $$ = new ValueExpr(*$1);
+      $$->set_name(std::string(sql_string + @$.first_column, @$.last_column - @$.first_column + 1));
       delete $1;
     }
     ;
@@ -633,11 +636,11 @@ opt_semicolon: /*empty*/
 //_____________________________________________________________________
 extern void scan_string(const char *str, yyscan_t scanner);
 
-int sql_parse(const char *s, ParsedSqlResult *sql_result){
+int sql_parse(const char *s, ParsedSqlResult *sql_result) {
   yyscan_t scanner;
   yylex_init(&scanner);
   scan_string(s, scanner);
-  int result = yyparse(sql_result, scanner);
+  int result = yyparse(s, sql_result, scanner);
   yylex_destroy(scanner);
   return result;
 }
