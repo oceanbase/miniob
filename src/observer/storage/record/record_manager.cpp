@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+static constexpr int PAGE_HEADER_SIZE = (sizeof(PageHeader));
+
 /**
  * @brief 8字节对齐
  * 注: ceiling(a / b) = floor((a + b - 1) / b)
@@ -148,7 +150,7 @@ RC RecordPageHandler::init_empty_page(DiskBufferPool &buffer_pool, PageNum page_
   page_header_->first_record_offset = align8(PAGE_HEADER_SIZE + page_bitmap_size(page_header_->record_capacity));
   this->fix_record_capacity();
   ASSERT(page_header_->first_record_offset + 
-         page_header_->record_capacity * page_header_->record_size, "Record overflow the page size");
+         page_header_->record_capacity * page_header_->record_size <= BP_PAGE_DATA_SIZE, "Record overflow the page size");
 
   bitmap_ = frame_->data() + PAGE_HEADER_SIZE;
   memset(bitmap_, 0, page_bitmap_size(page_header_->record_capacity));
