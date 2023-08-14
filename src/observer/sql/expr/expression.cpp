@@ -204,16 +204,17 @@ ArithmeticExpr::ArithmeticExpr(ArithmeticExpr::Type type, unique_ptr<Expression>
 
 AttrType ArithmeticExpr::value_type() const
 {
-  if (left_->value_type() == AttrType::FLOATS ||
-      right_->value_type() == AttrType::FLOATS) {
-    return AttrType::FLOATS;
+  if (!right_) {
+    return left_->value_type();
   }
-
-  if (arithmetic_type_ == Type::DIV) {
-    return AttrType::FLOATS;
+  
+  if (left_->value_type() == AttrType::INTS &&
+      right_->value_type() == AttrType::INTS &&
+      arithmetic_type_ != Type::DIV) {
+    return AttrType::INTS;
   }
-
-  return AttrType::INTS;
+  
+  return AttrType::FLOATS;
 }
 
 RC ArithmeticExpr::calc_value(const Value &left_value, const Value &right_value, Value &value) const
@@ -313,10 +314,13 @@ RC ArithmeticExpr::try_get_value(Value &value) const
     LOG_WARN("failed to get value of left expression. rc=%s", strrc(rc));
     return rc;
   }
-  rc = right_->try_get_value(right_value);
-  if (rc != RC::SUCCESS) {
-    LOG_WARN("failed to get value of right expression. rc=%s", strrc(rc));
-    return rc;
+
+  if (right_) {
+    rc = right_->try_get_value(right_value);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to get value of right expression. rc=%s", strrc(rc));
+      return rc;
+    }
   }
 
   return calc_value(left_value, right_value, value);
