@@ -113,7 +113,7 @@ seda使用异步事件的方式，在线程池中调度。每个事件(event)，
 `DefaultStorageStage` 处理 `StorageEvent`
 
 ### 元数据管理模块
-元数据是指数据库一些核心概念，包括db、table、field、index等，记录它们的信息。比如db，记录db文件所属目录；field，记录字段的类型、长度、偏移量等。这里的代码现在没有单独拆分出来，目前位于`src/observer/storage/common`中，文件名中包含`meta`关键字。
+元数据是指数据库一些核心概念，包括db、table、field、index等，记录它们的信息。比如db，记录db文件所属目录；field，记录字段的类型、长度、偏移量等。代码文件分散于`src/observer/storage/table,field,index`中，文件名中包含`meta`关键字。
 
 ### 客户端
 这里的客户端提供了一种测试miniob的方法。从标准输入接收用户输入，将请求发给服务端，并展示返回结果。这里简化了输入的处理，用户输入一行，就认为是一个命令。
@@ -122,6 +122,8 @@ seda使用异步事件的方式，在线程池中调度。每个事件(event)，
 miniob采用TCP通信，纯文本模式，使用'\0'作为每个消息的终结符。
 注意：测试程序也使用这种方法，***请不要修改协议，后台测试程序依赖这个协议***。
 注意：返回的普通数据结果中不要包含'\0'，也不支持转义处理。
+
+当前MiniOB已经支持了MySQL协议，具体请参考[MiniOB 通讯协议简介](./design/miniob-mysql-protocol.md)。
 
 # 参考
 - 《数据库系统实现》
@@ -138,41 +140,7 @@ miniob采用TCP通信，纯文本模式，使用'\0'作为每个消息的终结�
 # 附录-编译安装测试
 
 ## 编译
-参考源码中 [如何构建MiniOB](./how_to_build.md) 文件。
+参考 [如何构建MiniOB](./how_to_build.md) 文件。
 
 ## 运行服务端
-编译完成后，执行 
-```bash
-observer -s miniob.sock -f observer.ini
-``` 
-可以运行服务端程序。
-
-其中
-- -f表示参数`observer.ini`是配置文件。目前提供了样本配置文件，在源码的etc目录下
-- -s 表示使用unix socket 来进行测试。可以指定自己的文件名。
-- -p参数，可以覆盖配置文件中指定的端口号，注意修改代码时不要调整这个参数。
-训练营和测试后端会使用unix socket 来进行测试。
-
-示例：
-
-![running-the-server](images/miniob-introduction-running-the-server.png)
-
-## 运行客户端
-
-默认直接执行obclient即可。obclient从标准输入中接受输入，每收到一行数据，就向服务端发送请求，并等待应答。
-
-可以通过命令行参数修改客户端连接的服务端信息：
-
-```bash
-obclient [ip] [port] 
-```
-
-或者
-
-```bash
-obclient -s miniob.sock
-```
-
-其中 -s 使用指定unix socket 文件连接observer，如果启动observer时也指定了unix socket。
-
-![running-the-client](images/miniob-introduction-running-the-client.png)
+参考 [如何运行MiniOB](./how_to_run.md)。

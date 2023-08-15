@@ -45,8 +45,10 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 
 %define api.pure full
 %define parse.error verbose
+/** 启用位置标识 **/
 %locations
 %lex-param { yyscan_t scanner }
+/** 这些定义了在yyparse函数中的参数 **/
 %parse-param { const char * sql_string }
 %parse-param { ParsedSqlResult * sql_result }
 %parse-param { void * scanner }
@@ -96,6 +98,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
         GE
         NE
 
+/** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
   ParsedSqlNode *                   sql_node;
   ConditionSqlNode *                condition;
@@ -123,6 +126,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %token <string> STRING_V
 //非终结符
 
+/** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义 **/
 %type <number>              type
 %type <condition>           condition
 %type <value>               value

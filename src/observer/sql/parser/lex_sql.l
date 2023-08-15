@@ -130,7 +130,7 @@ EXPLAIN                                 RETURN_TOKEN(EXPLAIN);
 "+" |
 "-" |
 "*" |
-"/"                                     {return yytext[0];}
+"/"                                     { return yytext[0]; }
 \"[^"]*\"                               yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
 '[^']*\'                                yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
 
