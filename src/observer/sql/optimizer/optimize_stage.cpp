@@ -101,7 +101,7 @@ RC OptimizeStage::generate_physical_plan(
 RC OptimizeStage::rewrite(unique_ptr<LogicalOperator> &logical_operator)
 {
   RC rc = RC::SUCCESS;
-  return rc;
+  
   bool change_made = false;
   do {
     change_made = false;

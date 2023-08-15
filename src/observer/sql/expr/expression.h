@@ -67,6 +67,10 @@ public:
    */
   virtual RC get_value(const Tuple &tuple, Value &value) const = 0;
 
+  /**
+   * @brief 在没有实际运行的情况下，也就是无法获取tuple的情况下，尝试获取表达式的值
+   * @details 有些表达式的值是固定的，比如ValueExpr，这种情况下可以直接获取值
+   */
   virtual RC try_get_value(Value &value) const
   {
     return RC::UNIMPLENMENT;
@@ -84,6 +88,9 @@ public:
    */
   virtual AttrType value_type() const = 0;
 
+  /**
+   * @brief 表达式的名字，比如是字段名称，或者用户在执行SQL语句时输入的内容
+   */
   virtual std::string name() const { return name_; }
   virtual void set_name(std::string name) { name_ = name; }
 
@@ -317,6 +324,7 @@ private:
 
 /**
  * @brief 算术表达式
+ * @ingroup Expression
  */
 class ArithmeticExpr : public Expression 
 {
