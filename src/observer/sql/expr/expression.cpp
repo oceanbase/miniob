@@ -198,6 +198,9 @@ RC ConjunctionExpr::get_value(const Tuple &tuple, Value &value) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+ArithmeticExpr::ArithmeticExpr(ArithmeticExpr::Type type, Expression *left, Expression *right)
+    : arithmetic_type_(type), left_(left), right_(right)
+{}
 ArithmeticExpr::ArithmeticExpr(ArithmeticExpr::Type type, unique_ptr<Expression> left, unique_ptr<Expression> right)
     : arithmetic_type_(type), left_(std::move(left)), right_(std::move(right))
 {}
@@ -207,7 +210,7 @@ AttrType ArithmeticExpr::value_type() const
   if (!right_) {
     return left_->value_type();
   }
-  
+
   if (left_->value_type() == AttrType::INTS &&
       right_->value_type() == AttrType::INTS &&
       arithmetic_type_ != Type::DIV) {
