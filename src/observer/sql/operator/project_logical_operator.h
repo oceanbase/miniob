@@ -37,6 +37,14 @@ public:
     return LogicalOperatorType::PROJECTION;
   }
 
+  std::vector<std::unique_ptr<Expression>> &expressions()
+  {
+    return expressions_;
+  }
+  const std::vector<std::unique_ptr<Expression>> &expressions() const
+  {
+    return expressions_;
+  }
   const std::vector<Field> &fields() const
   {
     return fields_;

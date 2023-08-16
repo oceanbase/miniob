@@ -28,8 +28,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/exit_stmt.h"
 #include "sql/stmt/set_variable_stmt.h"
 #include "sql/stmt/load_data_stmt.h"
+#include "sql/stmt/calc_stmt.h"
 
-RC Stmt::create_stmt(Db *db, const ParsedSqlNode &sql_node, Stmt *&stmt)
+RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
 {
   stmt = nullptr;
 
@@ -87,6 +88,10 @@ RC Stmt::create_stmt(Db *db, const ParsedSqlNode &sql_node, Stmt *&stmt)
 
     case SCF_LOAD_DATA: {
       return LoadDataStmt::create(db, sql_node.load_data, stmt);
+    }
+
+    case SCF_CALC: {
+      return CalcStmt::create(sql_node.calc, stmt);
     }
 
     default: {

@@ -35,3 +35,17 @@ select * from t_basic where id=1 and age=1;
 -- echo create index
 create index i_id on t_basic (id);
 -- sort select * from t_basic;
+
+-- echo test calc expression
+calc 1, 2, 3;
+calc 1 + 2 - 3+4;
+calc 2* 4;
+calc 3/2;
+calc 2* (1+3);
+calc (1+3) *2;
+calc 2 *-(10+2);
+calc (1+2) * (2 * (20+-(5*1)));
+calc 20/0;
+calc 13.2/0.0;
+calc "123" + 4;
+calc "abc" + 4;

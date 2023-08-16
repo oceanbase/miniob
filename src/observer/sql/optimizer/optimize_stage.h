@@ -25,6 +25,7 @@ See the Mulan PSL v2 for more details. */
 class SQLStageEvent;
 class LogicalOperator;
 class Stmt;
+class CalcStmt;
 class SelectStmt;
 class InsertStmt;
 class DeleteStmt;
@@ -53,6 +54,7 @@ private:
    */
   RC create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_logical_plan(Stmt *stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_calc_logical_plan(CalcStmt *calc_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_select_logical_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_predicate_logical_plan(FilterStmt *filter_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_insert_logical_plan(InsertStmt *insert_stmt, std::unique_ptr<LogicalOperator> &logical_operator);

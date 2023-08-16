@@ -16,6 +16,8 @@
   - [事务](./design/miniob-transaction.md)
   - [CLog](./design/miniob-clog.md)
   - [SQL Parser](./design/miniob-sql-parser.md)
+  - [如何新增支持一种新类型SQL](./design/miniob-how-to-add-new-sql.md)
+  - [表达式解析](./design/miniob-sql-expression.md)
   - [B+树实现](./design/miniob-bplus-tree.md)
   - [并发B+树实现](./design/miniob-bplus-tree-concurrency.md)
   - [Doxy代码文档](./design/doxy/html/index.html)

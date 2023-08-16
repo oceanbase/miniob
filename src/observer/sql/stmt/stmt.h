@@ -30,6 +30,7 @@ class Db;
  * 
  */
 #define DEFINE_ENUM()               \
+  DEFINE_ENUM_ITEM(CALC)            \
   DEFINE_ENUM_ITEM(SELECT)          \
   DEFINE_ENUM_ITEM(INSERT)          \
   DEFINE_ENUM_ITEM(UPDATE)          \
@@ -82,7 +83,7 @@ public:
   virtual StmtType type() const = 0;
 
 public:
-  static RC create_stmt(Db *db, const ParsedSqlNode &sql_node, Stmt *&stmt);
+  static RC create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt);
 
 private:
 };

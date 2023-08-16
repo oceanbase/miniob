@@ -47,7 +47,7 @@ public:
 
 private:
   Communicator *communicator_ = nullptr;  ///< 与客户端通讯的对象
-  SqlResult     sql_result_;  ///< SQL执行结果
-  SqlDebug      sql_debug_; ///< SQL调试信息
-  std::string   query_; ///< SQL语句
+  SqlResult     sql_result_;              ///< SQL执行结果
+  SqlDebug      sql_debug_;               ///< SQL调试信息
+  std::string   query_;                   ///< SQL语句
 };

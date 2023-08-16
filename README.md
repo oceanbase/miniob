@@ -57,7 +57,7 @@ MiniOB 整体架构如下图所示:
 
 OceanBase 初赛基于一套适合初学者实践的数据库实训平台 MiniOB，代码量少，易于上手学习，包含了数据库的各个关键模块，是一个系统性的数据库学习平台。基于该平台设置了一系列由浅入深的题目，以帮助同学们更好"零"基础入门。
 
-2023 OceanBase 数据库大赛即将上线, 敬请期待, 更多详情, 请参考 [OceanBase 大赛](https://open.oceanbase.com/competition/index)
+2023 OceanBase 数据库大赛正在火热进行, 更多详情, 请参考 [OceanBase 大赛](https://open.oceanbase.com/competition/index)。
 
 ### 1. 大赛手把手入门教程
 
