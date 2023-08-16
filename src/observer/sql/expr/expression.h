@@ -113,34 +113,16 @@ public:
 
   virtual ~FieldExpr() = default;
 
-  ExprType type() const override
-  {
-    return ExprType::FIELD;
-  }
-  AttrType value_type() const override
-  {
-    return field_.attr_type();
-  }
+  ExprType type() const override { return ExprType::FIELD; }
+  AttrType value_type() const override { return field_.attr_type(); }
 
-  Field &field()
-  {
-    return field_;
-  }
+  Field &field() { return field_; }
 
-  const Field &field() const
-  {
-    return field_;
-  }
+  const Field &field() const { return field_; }
 
-  const char *table_name() const
-  {
-    return field_.table_name();
-  }
+  const char *table_name() const { return field_.table_name(); }
 
-  const char *field_name() const
-  {
-    return field_.field_name();
-  }
+  const char *field_name() const { return field_.field_name(); }
 
   RC get_value(const Tuple &tuple, Value &value) const override;
 
@@ -162,31 +144,15 @@ public:
   virtual ~ValueExpr() = default;
 
   RC get_value(const Tuple &tuple, Value &value) const override;
-  RC try_get_value(Value &value) const override
-  {
-    value = value_;
-    return RC::SUCCESS;
-  }
+  RC try_get_value(Value &value) const override { value = value_; return RC::SUCCESS; }
 
-  ExprType type() const override
-  {
-    return ExprType::VALUE;
-  }
+  ExprType type() const override { return ExprType::VALUE; }
 
-  AttrType value_type() const override
-  {
-    return value_.attr_type();
-  }
+  AttrType value_type() const override { return value_.attr_type(); }
 
-  void get_value(Value &value) const
-  {
-    value = value_;
-  }
+  void get_value(Value &value) const { value = value_; }
 
-  const Value &get_value() const
-  {
-    return value_;
-  }
+  const Value &get_value() const { return value_; }
 
 private:
   Value value_;
@@ -210,15 +176,9 @@ public:
 
   RC try_get_value(Value &value) const override;
 
-  AttrType value_type() const override
-  {
-    return cast_type_;
-  }
+  AttrType value_type() const override { return cast_type_; }
 
-  std::unique_ptr<Expression> &child()
-  {
-    return child_;
-  }
+  std::unique_ptr<Expression> &child() { return child_; }
 
 private:
   RC cast(const Value &value, Value &cast_value) const;
@@ -238,28 +198,16 @@ public:
   ComparisonExpr(CompOp comp, std::unique_ptr<Expression> left, std::unique_ptr<Expression> right);
   virtual ~ComparisonExpr();
 
-  ExprType type() const override
-  {
-    return ExprType::COMPARISON;
-  }
-  RC get_value(const Tuple &tuple, Value &value) const override;
-  AttrType value_type() const override
-  {
-    return BOOLEANS;
-  }
+  ExprType type() const override { return ExprType::COMPARISON; }
 
-  CompOp comp() const
-  {
-    return comp_;
-  }
-  std::unique_ptr<Expression> &left()
-  {
-    return left_;
-  }
-  std::unique_ptr<Expression> &right()
-  {
-    return right_;
-  }
+  RC get_value(const Tuple &tuple, Value &value) const override;
+
+  AttrType value_type() const override { return BOOLEANS; }
+
+  CompOp comp() const { return comp_; }
+
+  std::unique_ptr<Expression> &left()  { return left_;  }
+  std::unique_ptr<Expression> &right() { return right_; }
 
   /**
    * 尝试在没有tuple的情况下获取当前表达式的值
@@ -297,25 +245,15 @@ public:
   ConjunctionExpr(Type type, std::vector<std::unique_ptr<Expression>> &children);
   virtual ~ConjunctionExpr() = default;
 
-  ExprType type() const override
-  {
-    return ExprType::CONJUNCTION;
-  }
-  AttrType value_type() const override
-  {
-    return BOOLEANS;
-  }
+  ExprType type() const override { return ExprType::CONJUNCTION; }
+
+  AttrType value_type() const override { return BOOLEANS; }
+
   RC get_value(const Tuple &tuple, Value &value) const override;
 
-  Type conjunction_type() const
-  {
-    return conjunction_type_;
-  }
+  Type conjunction_type() const { return conjunction_type_; }
 
-  std::vector<std::unique_ptr<Expression>> &children()
-  {
-    return children_;
-  }
+  std::vector<std::unique_ptr<Expression>> &children() { return children_; }
 
 private:
   Type conjunction_type_;
