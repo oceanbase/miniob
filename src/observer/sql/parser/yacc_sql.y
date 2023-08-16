@@ -119,14 +119,12 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 }
 
 %token <number> NUMBER
-%token <floats> FLOAT 
+%token <floats> FLOAT
 %token <string> ID
-%token <string> PATH
 %token <string> SSS
-%token <string> STRING_V
 //非终结符
 
-/** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义 **/
+/** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义的成员变量名称 **/
 %type <number>              type
 %type <condition>           condition
 %type <value>               value
@@ -380,6 +378,7 @@ value:
     }
     |FLOAT {
       $$ = new Value((float)$1);
+      @$ = @1;
     }
     |SSS {
       char *tmp = common::substr($1,1,strlen($1)-2);
