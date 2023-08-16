@@ -452,7 +452,8 @@ expression_list:
       $$ = new std::vector<Expression*>;
       $$->emplace_back($1);
     }
-    | expression COMMA expression_list {
+    | expression COMMA expression_list
+    {
       if ($3 != nullptr) {
         $$ = $3;
       } else {

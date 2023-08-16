@@ -126,3 +126,8 @@ create_table_stmt:    /*create table 语句的语法解析树*/
 # 如何调试词法分析和语法分析模块
 
 代码中可以直接使用日志模块打印日志，对于yacc_sql.y也可以直接使用gdb调试工具调试。
+
+# 参考
+- 《flex_bison》  flex/bison手册
+- [flex开源源码](https://github.com/westes/flex)
+- [bison首页](https://www.gnu.org/software/bison/)
