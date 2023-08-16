@@ -3,7 +3,6 @@ language = "cn"
 multilingual = false
 src = "src"
 title = "MiniOB"
-authors = "OceanBase"
 
 [output.html]
 git-repository-url = "https://github.com/oceanbase/miniob"
