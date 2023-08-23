@@ -21,13 +21,11 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/stmt.h"
 #include "sql/expr/expression.h"
 
-class FieldMeta;
-class FilterStmt;
 class Db;
 class Table;
 
 /**
- * @brief 表示select语句
+ * @brief 描述算术运算语句
  * @ingroup Statement
  */
 class CalcStmt : public Stmt 

@@ -61,19 +61,3 @@ else
     git clone $REPO_ADDR ${REPO_DIR}
 fi
 
-if [ ! -d "${REPO_DIR}/bin" ]; then
-    mkdir -p ${REPO_DIR}/build
-fi
-
-# vscode config
-if [ ! -d "${REPO_DIR}/.vscode" ]; then
-    mkdir -p ${REPO_DIR}/.vscode
-fi
-
-if [ ! -f "${REPO_DIR}/.vscode/launch.json" ]; then
-    cp /root/docker/config/launch.json ${REPO_DIR}/.vscode/launch.json
-fi
-
-if [ ! -f "${REPO_DIR}/.vscode/tasks.json" ]; then
-    cp /root/docker/config/tasks.json ${REPO_DIR}/.vscode/tasks.json
-fi
