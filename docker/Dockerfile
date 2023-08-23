@@ -19,6 +19,12 @@ RUN apt-get update && apt-get install -y build-essential gdb cmake git wget flex
 # install openssh
 RUN apt-get install -y openssh-server
 
+# init miniob dependencies
+RUN git clone https://github.com/oceanbase/miniob /tmp/miniob \
+    && cd /tmp/miniob \
+    && bash build.sh init \
+    && rm -rf /tmp/miniob
+
 # change root password
 RUN echo "root:root" | chpasswd
 RUN mkdir /var/run/sshd
@@ -32,12 +38,8 @@ RUN apt-get install -y zsh \
     && echo "export LD_LIBRARY_PATH=/usr/local/lib64:\$LD_LIBRARY_PATH" >> ~/.zshrc
 
 RUN mkdir -p ${DOCKER_CONFIG_DIR}/bin
-RUN mkdir -p ${DOCKER_CONFIG_DIR}/config
 
 WORKDIR ${DOCKER_CONFIG_DIR}/bin
-
-# copy vscode config files
-COPY config/* ${DOCKER_CONFIG_DIR}/config/
 
 # copy starter scripts
 COPY bin/* ${DOCKER_CONFIG_DIR}/bin/
