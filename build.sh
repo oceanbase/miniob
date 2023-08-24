@@ -114,7 +114,12 @@ function do_init
 function prepare_build_dir
 {
   TYPE=$1
-  mkdir -p ${TOPDIR}/build_${TYPE} && cd ${TOPDIR}/build_${TYPE}
+  mkdir -p ${TOPDIR}/build_${TYPE}
+  if [ ! -e build ]; then
+      echo "create soft link for build_${TYPE}, linked by directory named build"
+      ln -s build_${TYPE} build
+  fi
+  cd ${TOPDIR}/build_${TYPE}
 }
 
 function do_build
