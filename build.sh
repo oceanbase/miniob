@@ -115,10 +115,11 @@ function prepare_build_dir
 {
   TYPE=$1
   mkdir -p ${TOPDIR}/build_${TYPE}
-  if [ ! -e build ]; then
-      echo "create soft link for build_${TYPE}, linked by directory named build"
-      ln -s build_${TYPE} build
+  if [ -e build ]; then
+      rm build
   fi
+  echo "create soft link for build_${TYPE}, linked by directory named build"
+  ln -s build_${TYPE} build
   cd ${TOPDIR}/build_${TYPE}
 }
 
@@ -126,8 +127,8 @@ function do_build
 {
   TYPE=$1; shift
   prepare_build_dir $TYPE || return
-  echo "${CMAKE_COMMAND} ${TOPDIR} $@"
-  ${CMAKE_COMMAND} -S ${TOPDIR} $@
+  # echo "${CMAKE_COMMAND} ${TOPDIR} $@"
+  # ${CMAKE_COMMAND} -S ${TOPDIR} $@
 }
 
 function do_clean
@@ -168,7 +169,7 @@ function main
     *)
       parse_args
       build
-      try_make
+      # try_make
       ;;
   esac
 }
