@@ -115,9 +115,7 @@ function prepare_build_dir
 {
   TYPE=$1
   mkdir -p ${TOPDIR}/build_${TYPE}
-  if [ -e build ]; then
-      rm build
-  fi
+  rm -f build
   echo "create soft link for build_${TYPE}, linked by directory named build"
   ln -s build_${TYPE} build
   cd ${TOPDIR}/build_${TYPE}
