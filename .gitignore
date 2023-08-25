@@ -10,6 +10,8 @@
 build/*
 build_*
 cmake-build-*/*
+build
+.cache/*
 .DS_Store
 .idea
 .ccls-cache
