@@ -4,9 +4,6 @@
 # make sure docker has been installed
 FROM ubuntu:latest
 
-ARG HOME_DIR=/root
-ARG DOCKER_CONFIG_DIR=${HOME_DIR}/docker
-
 # ENV LANG=en_US.UTF-8
 # locale
 RUN apt-get update && apt-get install -y locales apt-utils && rm -rf /var/lib/apt/lists/* \
@@ -25,8 +22,6 @@ RUN git clone https://github.com/oceanbase/miniob /tmp/miniob \
     && bash build.sh init \
     && rm -rf /tmp/miniob
 
-# change root password
-RUN echo "root:root" | chpasswd
 RUN mkdir /var/run/sshd
 
 # install zsh and on-my-zsh
@@ -37,13 +32,13 @@ RUN apt-get install -y zsh \
     && usermod --shell /bin/zsh root \
     && echo "export LD_LIBRARY_PATH=/usr/local/lib64:\$LD_LIBRARY_PATH" >> ~/.zshrc
 
-RUN mkdir -p ${DOCKER_CONFIG_DIR}/bin
-
-WORKDIR ${DOCKER_CONFIG_DIR}/bin
+RUN mkdir -p /root/docker/bin && touch /etc/.firstrun
 
 # copy starter scripts
-COPY bin/* ${DOCKER_CONFIG_DIR}/bin/
+COPY bin/* /root/docker/bin/
 
-RUN chmod +x ${DOCKER_CONFIG_DIR}/bin/*
+RUN chmod +x /root/docker/bin/*
 
-ENTRYPOINT ./starter.sh
+WORKDIR /root
+
+ENTRYPOINT /root/docker/bin/starter.sh
