@@ -102,6 +102,7 @@ void SessionStage::handle_request(StageEvent *event)
   sev->session()->set_current_request(sev);
   SQLStageEvent *sql_event = new SQLStageEvent(sev, sql);
   (void)handle_sql(sql_event);
+  delete sql_event;
 
   Communicator *communicator = sev->get_communicator();
   bool need_disconnect = false;
