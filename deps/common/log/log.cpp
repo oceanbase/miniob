@@ -373,7 +373,7 @@ const char *lbt()
 
   int size = backtrace(buffer, buffer_size);
   int offset = 0;
-  for (int i = 0; i < size; i++) {
+  for (int i = 0; i < size && offset < bt_buffer_size - 1; i++) {
     const char *format = (0 == i) ? "0x%lx" : " 0x%lx";
     offset += snprintf(backtrace_buffer + offset, sizeof(backtrace_buffer) - offset, format,
                        reinterpret_cast<intptr_t>(buffer[i]));
