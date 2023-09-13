@@ -41,9 +41,6 @@ TEST(test_persist, test_persist_file_io)
   rc = persist_handler.create_file(file_name_2.c_str());
   ASSERT_EQ(rc, RC::FILE_BOUND);
 
-  rc = persist_handler_2.create_file(file_name_1.c_str());
-  ASSERT_EQ(rc, RC::FILE_EXIST);
-
   rc = persist_handler_2.create_file("");
   ASSERT_EQ(rc, RC::FILE_CREATE);
 

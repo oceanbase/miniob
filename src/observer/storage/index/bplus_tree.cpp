@@ -211,7 +211,7 @@ int LeafIndexNodeHandler::lookup(const KeyComparator &comparator, const char *ke
 void LeafIndexNodeHandler::insert(int index, const char *key, const char *value)
 {
   if (index < size()) {
-    memmove(__item_at(index + 1), __item_at(index), (size() - index) * item_size());
+    memmove(__item_at(index + 1), __item_at(index), (static_cast<size_t>(size()) - index) * item_size());
   }
   memcpy(__item_at(index), key, key_size());
   memcpy(__item_at(index) + key_size(), value, value_size());
@@ -221,7 +221,7 @@ void LeafIndexNodeHandler::remove(int index)
 {
   assert(index >= 0 && index < size());
   if (index < size() - 1) {
-    memmove(__item_at(index), __item_at(index + 1), (size() - index - 1) * item_size());
+    memmove(__item_at(index), __item_at(index + 1), (static_cast<size_t>(size()) - index - 1) * item_size());
   }
   increase_size(-1);
 }
@@ -242,7 +242,7 @@ RC LeafIndexNodeHandler::move_half_to(LeafIndexNodeHandler &other, DiskBufferPoo
   const int size = this->size();
   const int move_index = size / 2;
 
-  memcpy(other.__item_at(0), this->__item_at(move_index), item_size() * (size - move_index));
+  memcpy(other.__item_at(0), this->__item_at(move_index), static_cast<size_t>(item_size()) * (size - move_index));
   other.increase_size(size - move_index);
   this->increase_size(-(size - move_index));
   return RC::SUCCESS;
@@ -252,7 +252,7 @@ RC LeafIndexNodeHandler::move_first_to_end(LeafIndexNodeHandler &other, DiskBuff
   other.append(__item_at(0));
 
   if (size() >= 1) {
-    memmove(__item_at(0), __item_at(1), (size() - 1) * item_size());
+    memmove(__item_at(0), __item_at(1), (static_cast<size_t>(size()) - 1) * item_size());
   }
   increase_size(-1);
   return RC::SUCCESS;
@@ -270,7 +270,7 @@ RC LeafIndexNodeHandler::move_last_to_front(LeafIndexNodeHandler &other, DiskBuf
  */
 RC LeafIndexNodeHandler::move_to(LeafIndexNodeHandler &other, DiskBufferPool *bp)
 {
-  memcpy(other.__item_at(other.size()), this->__item_at(0), this->size() * item_size());
+  memcpy(other.__item_at(other.size()), this->__item_at(0), static_cast<size_t>(this->size()) * item_size());
   other.increase_size(this->size());
   this->increase_size(-this->size());
 
@@ -287,7 +287,7 @@ void LeafIndexNodeHandler::append(const char *item)
 void LeafIndexNodeHandler::preappend(const char *item)
 {
   if (size() > 0) {
-    memmove(__item_at(1), __item_at(0), size() * item_size());
+    memmove(__item_at(1), __item_at(0), static_cast<size_t>(size()) * item_size());
   }
   memcpy(__item_at(0), item, item_size());
   increase_size(1);
@@ -424,7 +424,7 @@ void InternalIndexNodeHandler::insert(const char *key, PageNum page_num, const K
   int insert_position = -1;
   lookup(comparator, key, nullptr, &insert_position);
   if (insert_position < size()) {
-    memmove(__item_at(insert_position + 1), __item_at(insert_position), (size() - insert_position) * item_size());
+    memmove(__item_at(insert_position + 1), __item_at(insert_position), (static_cast<size_t>(size()) - insert_position) * item_size());
   }
   memcpy(__item_at(insert_position), key, key_size());
   memcpy(__value_at(insert_position), &page_num, value_size());
@@ -510,7 +510,7 @@ void InternalIndexNodeHandler::remove(int index)
 {
   assert(index >= 0 && index < size());
   if (index < size() - 1) {
-    memmove(__item_at(index), __item_at(index + 1), (size() - index - 1) * item_size());
+    memmove(__item_at(index), __item_at(index + 1), (static_cast<size_t>(size()) - index - 1) * item_size());
   }
   increase_size(-1);
 }
@@ -536,7 +536,7 @@ RC InternalIndexNodeHandler::move_first_to_end(InternalIndexNodeHandler &other, 
   }
 
   if (size() >= 1) {
-    memmove(__item_at(0), __item_at(1), (size() - 1) * item_size());
+    memmove(__item_at(0), __item_at(1), (static_cast<size_t>(size()) - 1) * item_size());
   }
   increase_size(-1);
   return rc;
@@ -558,7 +558,7 @@ RC InternalIndexNodeHandler::move_last_to_front(InternalIndexNodeHandler &other,
  */
 RC InternalIndexNodeHandler::copy_from(const char *items, int num, DiskBufferPool *disk_buffer_pool)
 {
-  memcpy(__item_at(this->size()), items, num * item_size());
+  memcpy(__item_at(this->size()), items, static_cast<size_t>(num) * item_size());
 
   RC rc = RC::SUCCESS;
   PageNum this_page_num = this->page_num();
@@ -602,7 +602,7 @@ RC InternalIndexNodeHandler::preappend(const char *item, DiskBufferPool *bp)
   bp->unpin_page(frame);
 
   if (this->size() > 0) {
-    memmove(__item_at(1), __item_at(0), this->size() * item_size());
+    memmove(__item_at(1), __item_at(0), static_cast<size_t>(this->size()) * item_size());
   }
 
   memcpy(__item_at(0), item, item_size());
