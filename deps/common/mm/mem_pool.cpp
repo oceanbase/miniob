@@ -81,7 +81,7 @@ int MemPoolItem::extend()
   }
 
   MUTEX_LOCK(&this->mutex);
-  void *pool = malloc(item_num_per_pool * item_size);
+  void *pool = malloc(static_cast<size_t>(item_num_per_pool) * item_size);
   if (pool == nullptr) {
     MUTEX_UNLOCK(&this->mutex);
     LOG_ERROR("Failed to extend memory pool, this->size:%d, item_num_per_pool:%d, this->name:%s.",
