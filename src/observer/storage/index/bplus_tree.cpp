@@ -798,6 +798,9 @@ RC BplusTreeHandler::create(const char *file_name, AttrType attr_type, int attr_
 
   key_comparator_.init(file_header->attr_type, file_header->attr_length);
   key_printer_.init(file_header->attr_type, file_header->attr_length);
+
+  this->sync();
+  
   LOG_INFO("Successfully create index %s", file_name);
   return RC::SUCCESS;
 }
