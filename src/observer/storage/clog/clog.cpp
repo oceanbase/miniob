@@ -165,7 +165,7 @@ CLogRecord *CLogRecord::build(const CLogRecordHeader &header, char *data)
     CLogRecordCommitData &commit_record = log_record->commit_record();
     memcpy(reinterpret_cast<void *>(&commit_record), data, sizeof(CLogRecordCommitData));
 
-    LOG_DEBUG("got an commit record %s", log_record->to_string().c_str());
+    LOG_DEBUG("got a commit record %s", log_record->to_string().c_str());
   } else {
     /// 当前日志拥有数据，但是不是COMMIT，就认为是普通的修改数据的日志，简单粗暴
     CLogRecordData &data_record = log_record->data_record();
