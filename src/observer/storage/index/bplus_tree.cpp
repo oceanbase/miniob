@@ -731,14 +731,14 @@ RC BplusTreeHandler::sync()
   if (header_dirty_) {
     Frame *frame = nullptr;
     RC rc = disk_buffer_pool_->get_this_page(FIRST_INDEX_PAGE, &frame);
-    if (frame!=nullptr) {
+    if (OB_SUCC(rc) && frame != nullptr) {
       char *pdata = frame->data();
       memcpy(pdata, &file_header_, sizeof(file_header_));
       frame->mark_dirty();
       disk_buffer_pool_->unpin_page(frame);
       header_dirty_ = false;
     } else {
-      LOG_WARN("failed to sync index header file. file_desc=%d, rc=%s",disk_buffer_pool_->file_desc(),strrc(rc));
+      LOG_WARN("failed to sync index header file. file_desc=%d, rc=%s", disk_buffer_pool_->file_desc(), strrc(rc));
       // TODO: ingore?
     }
   }
