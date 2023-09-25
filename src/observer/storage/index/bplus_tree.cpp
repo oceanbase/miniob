@@ -812,6 +812,9 @@ RC BplusTreeHandler::create(const char *file_name, AttrType attr_type, int attr_
 
   key_comparator_.init(file_header->attr_type, file_header->attr_length);
   key_printer_.init(file_header->attr_type, file_header->attr_length);
+
+  this->sync();
+
   LOG_INFO("Successfully create index %s", file_name);
   return RC::SUCCESS;
 }
@@ -1393,7 +1396,7 @@ RC BplusTreeHandler::insert_entry(const char *user_key, const RID *rid)
 
   rc = insert_entry_into_leaf_node(latch_memo, frame, key, rid);
   if (rc != RC::SUCCESS) {
-    LOG_TRACE("Failed to insert into leaf of index, rid:%s", rid->to_string().c_str());
+    LOG_TRACE("Failed to insert into leaf of index, rid:%s. rc=%s", rid->to_string().c_str(), strrc(rc));
     return rc;
   }
 

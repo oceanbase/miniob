@@ -58,7 +58,7 @@ void sql_debug(const char *fmt, ...)
   va_end(ap);
 
   sql_debug.add_debug_info(str);
-  LOG_DEBUG("sql debug info: %s", str);
+  LOG_DEBUG("sql debug info: [%s]", str);
 
   delete[] str;
 }
