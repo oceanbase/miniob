@@ -1,0 +1,11 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/wxw-matt/devcontainer-features/apt:latest": {
+      "packages": "cmake flex bison texinfo libreadline-dev"
+    },
+    "ghcr.io/wxw-matt/devcontainer-features/command_runner:latest": {
+			"command1": "sudo bash build.sh init"
+    }
+  }
+}
