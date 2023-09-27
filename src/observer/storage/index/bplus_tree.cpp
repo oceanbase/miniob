@@ -728,6 +728,20 @@ bool InternalIndexNodeHandler::validate(const KeyComparator &comparator, DiskBuf
 
 RC BplusTreeHandler::sync()
 {
+  if (header_dirty_) {
+    Frame *frame = nullptr;
+    RC rc = disk_buffer_pool_->get_this_page(FIRST_INDEX_PAGE, &frame);
+    if (OB_SUCC(rc) && frame != nullptr) {
+      char *pdata = frame->data();
+      memcpy(pdata, &file_header_, sizeof(file_header_));
+      frame->mark_dirty();
+      disk_buffer_pool_->unpin_page(frame);
+      header_dirty_ = false;
+    } else {
+      LOG_WARN("failed to sync index header file. file_desc=%d, rc=%s", disk_buffer_pool_->file_desc(), strrc(rc));
+      // TODO: ingore?
+    }
+  }
   return disk_buffer_pool_->flush_all_pages();
 }
 
@@ -798,6 +812,9 @@ RC BplusTreeHandler::create(const char *file_name, AttrType attr_type, int attr_
 
   key_comparator_.init(file_header->attr_type, file_header->attr_length);
   key_printer_.init(file_header->attr_type, file_header->attr_length);
+
+  this->sync();
+
   LOG_INFO("Successfully create index %s", file_name);
   return RC::SUCCESS;
 }
@@ -1379,7 +1396,7 @@ RC BplusTreeHandler::insert_entry(const char *user_key, const RID *rid)
 
   rc = insert_entry_into_leaf_node(latch_memo, frame, key, rid);
   if (rc != RC::SUCCESS) {
-    LOG_TRACE("Failed to insert into leaf of index, rid:%s", rid->to_string().c_str());
+    LOG_TRACE("Failed to insert into leaf of index, rid:%s. rc=%s", rid->to_string().c_str(), strrc(rc));
     return rc;
   }
 
