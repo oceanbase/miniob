@@ -39,3 +39,6 @@
   - [第5章 查询优化](./lectures/lecture-5.md)
   - [第6章 事务处理](./lectures/lecture-6.md)
   - [参考资料](./lectures/references.md)
+
+- [Blog](./blog/introduction.md)
+  - [High-Performance Concurrency Control Mechanisms for Main-Memory Databases](./blog/1.md)
