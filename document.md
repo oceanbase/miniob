@@ -70,7 +70,7 @@
  - conjunction_simplification_rule：简化多个表达式联结的运算，比如只有一个表达式，或者表达式可以直接出来
  - expression_rewriter：重写子表达式
  - logical_plan_generator：略
- - optimize_stage：将解析后的Statement转换成执行计划，并进行优化，分为多阶段
+ - optimize_stage：将解析后的Statement转换成执行计划，并进行优化，分为多阶段，实际上没有optimize
  - physical_plan_generator：根据逻辑计划生成物理计划。不做任何优化
  - predicate_pushdown_rewriter：将一些谓词表达式下推到表数据扫描中，这样可以提前过滤一些数据
  - predicate_rewrite：谓词重写规则，有些谓词可以在真正运行之前就知道结果，那么就可以提前运算出来，比如1=1,1=0。
