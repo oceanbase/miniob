@@ -20,6 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include "event/session_event.h"
 #include "sql/executor/sql_result.h"
 #include "session/session.h"
+#include "deps/common/log/log.h"
 
 /**
  * @brief Help语句执行器
@@ -41,9 +42,11 @@ public:
         "insert into `table` values(`value1`,`value2`);",
         "update `table` set column=value [where `column`=`value`];",
         "delete from `table` [where `column`=`value`];",
-        "select [ * | `columns` ] from `table`;"
+        "select [ * | `columns` ] from `table`;",
+        "drop table `table name`;"
       };
-
+    //LOG_TRACE("start help operator");
+    //std::cout<<"start"<<std::endl;
     auto oper = new StringListPhysicalOperator();
     for (size_t i = 0; i < sizeof(strings) / sizeof(strings[0]); i++) {
       oper->append(strings[i]);
