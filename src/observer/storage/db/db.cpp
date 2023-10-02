@@ -101,6 +101,25 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfoS
   return RC::SUCCESS;
 }
 
+RC Db::drop_table(const char *table_name)
+{
+  // check table_name
+  if (opened_tables_.count(table_name) == 0) {
+    LOG_WARN("table %s doesnt exist.", table_name);
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+
+  //释放资源
+  auto it = opened_tables_.find(table_name);
+  Table* table = it->second; //std::unordered_map<std::string, Table *> opened_tables_;
+  RC rc = table->destroy(path_.c_str()); // 让表自己销毁资源，这个方法自己实现
+  if(rc != RC::SUCCESS) return rc;
+
+  opened_tables_.erase(it); // 删除成功的话，从表list中将它删除
+  delete table; //记得释放指针
+  return RC::SUCCESS;
+}
+
 Table *Db::find_table(const char *table_name) const
 {
   std::unordered_map<std::string, Table *>::const_iterator iter = opened_tables_.find(table_name);
