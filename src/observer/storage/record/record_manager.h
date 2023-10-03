@@ -85,7 +85,7 @@ public:
    * @param record_page_handler 负责某个页面上记录增删改查的对象
    * @param start_slot_num      从哪个记录开始扫描，默认是0
    */
-  void init(RecordPageHandler &record_page_handler, SlotNum start_slot_num = 0);
+  void init(RecordPageHandler & , SlotNum start_slot_num = 0);
 
   /**
    * @brief 判断是否有下一个记录
@@ -165,6 +165,13 @@ public:
    * @param rid  如果插入成功，通过这个参数返回插入的位置
    */
   RC insert_record(const char *data, RID *rid);
+
+  /**
+   * @brief 更新一条记录
+   *
+   * @param rec 的记录
+   */
+  RC update_record(const Record *rec);
 
   /**
    * @brief 数据库恢复时，在指定位置插入数据
@@ -274,6 +281,13 @@ public:
    * @param rid         返回该记录的标识符
    */
   RC insert_record(const char *data, int record_size, RID *rid);
+
+  /**
+   * @brief 更新一个新的记录到指定文件中，并返回该记录的标识符
+   *
+   * @param rec        修改的纪录
+   */
+  RC update_record(const Record *rec);
 
    /**
    * @brief 数据库恢复时，在指定文件指定位置插入数据

@@ -467,6 +467,13 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
   return rc;
 }
 
+RC Table::update_record(const Record &record)
+{
+  RC rc = RC::SUCCESS;
+  rc = record_handler_->update_record(&record);
+  return rc;
+}
+
 RC Table::delete_record(const Record &record)
 {
   RC rc = RC::SUCCESS;
