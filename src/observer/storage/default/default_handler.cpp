@@ -170,7 +170,11 @@ RC DefaultHandler::create_table(
 
 RC DefaultHandler::drop_table(const char *dbname, const char *relation_name)
 {
-  return RC::UNIMPLENMENT;
+  Db *db = find_db(dbname);
+  if(db == nullptr) {
+    return RC::SCHEMA_DB_NOT_OPENED;
+  }
+  return db->drop_table(relation_name); // 直接调用db的删掉接口
 }
 
 Db *DefaultHandler::find_db(const char *dbname) const
