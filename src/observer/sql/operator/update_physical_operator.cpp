@@ -19,32 +19,60 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
-UpdatePhysicalOperator::UpdatePhysicalOperator(Table *table, vector<Value> &&values)
-    : table_(table), values_(std::move(values))
+UpdatePhysicalOperator::UpdatePhysicalOperator(Table *table, Value value, std::string attr_name)
+    : table_(table), value_ (value), attr_name_(attr_name)
 {}
 
 RC UpdatePhysicalOperator::open(Trx *trx)
 {
-  Record record;
-  RC rc = table_->make_record(static_cast<int>(values_.size()), values_.data(), record);
+  if (children_.empty()) {
+    return RC::SUCCESS;
+  }
+
+  std::unique_ptr<PhysicalOperator> &child = children_[0];
+  RC rc = child->open(trx);
   if (rc != RC::SUCCESS) {
-    LOG_WARN("failed to make record. rc=%s", strrc(rc));
+    LOG_WARN("failed to open child operator: %s", strrc(rc));
     return rc;
   }
 
-  rc = trx->update_record(table_, record);
-  if (rc != RC::SUCCESS) {
-    LOG_WARN("failed to update record by transaction. rc=%s", strrc(rc));
-  }
-  return rc;
+  trx_ = trx;
+
+  return RC::SUCCESS;
 }
 
 RC UpdatePhysicalOperator::next()
 {
+  RC rc = RC::SUCCESS;
+  if (children_.empty()) {
+    return RC::RECORD_EOF;
+  }
+
+  PhysicalOperator *child = children_[0].get();
+  while (RC::SUCCESS == (rc = child->next())) {
+    Tuple *tuple = child->current_tuple();
+    if (nullptr == tuple) {
+      LOG_WARN("failed to get current record: %s", strrc(rc));
+      return rc;
+    }
+
+    RowTuple *row_tuple = static_cast<RowTuple *>(tuple);
+    Record &record = row_tuple->record();
+    const char* data = attr_name_.c_str();
+    rc = trx_->update_record(table_, record, data);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to update record: %s", strrc(rc));
+      return rc;
+    }
+  }
+
   return RC::RECORD_EOF;
 }
 
 RC UpdatePhysicalOperator::close()
 {
+  if (!children_.empty()) {
+    children_[0]->close();
+  }
   return RC::SUCCESS;
 }

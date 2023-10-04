@@ -13,8 +13,9 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/operator/update_logical_operator.h"
+#include <string>
 
-UpdateLogicalOperator::UpdateLogicalOperator(Table *table, std::vector<Value> values)
-    : table_(table), values_(values)
+UpdateLogicalOperator::UpdateLogicalOperator(Table *table, Value *value, std::string attr_name)
+    : table_(table), value_(value), attr_name_(attr_name)
 {
 }

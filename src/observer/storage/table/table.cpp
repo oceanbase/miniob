@@ -467,10 +467,10 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
   return rc;
 }
 
-RC Table::update_record(const Record &record)
+RC Table::update_record(const Record &record, const char *data)
 {
   RC rc = RC::SUCCESS;
-  rc = record_handler_->update_record(&record);
+  rc = record_handler_->update_record(&record, data);
   return rc;
 }
 

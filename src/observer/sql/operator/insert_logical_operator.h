@@ -34,7 +34,7 @@ public:
     return LogicalOperatorType::INSERT;
   }
 
-  Table *table() const { return table_; }
+  Table *table() { return table_; }
   const std::vector<Value> &values() const { return values_; }
   std::vector<Value> &values() { return values_; }
 

@@ -208,7 +208,7 @@ RC RecordPageHandler::insert_record(const char *data, RID *rid)
   return RC::SUCCESS;
 }
 
-RC RecordPageHandler::update_record(const Record *rec)
+RC RecordPageHandler::update_record(const Record *rec, const char *data)
 {
   // slotnum是否超过页面容量
   if (rec->rid().slot_num >= page_header_->record_capacity) {
@@ -222,7 +222,7 @@ RC RecordPageHandler::update_record(const Record *rec)
   if (bitmap.get_bit(rec->rid().slot_num)) {
     // assert index < page_header_->record_capacity
     char *record_data = get_record_data(rec->rid().slot_num);
-    memcpy(record_data, rec->data(), page_header_->record_real_size);
+    memcpy(record_data, data, page_header_->record_real_size);
 
     frame_->mark_dirty();
   }
@@ -432,7 +432,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
   return record_page_handler.insert_record(data, rid);
 }
 
-RC RecordFileHandler::update_record(const Record *rec)
+RC RecordFileHandler::update_record(const Record *rec, const char *data)
 {
   RecordPageHandler page_handler;
   RC rc = page_handler.init(*disk_buffer_pool_, rec->rid().page_num, false);
@@ -441,7 +441,7 @@ RC RecordFileHandler::update_record(const Record *rec)
     return rc;
   }
 
-  return page_handler.update_record(rec);
+  return page_handler.update_record(rec, data);
 }
 
 RC RecordFileHandler::recover_insert_record(const char *data, int record_size, const RID &rid)
