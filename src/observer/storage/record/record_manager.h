@@ -171,7 +171,7 @@ public:
    *
    * @param rec 的记录
    */
-  RC update_record(RID *rid, Record record);
+  RC update_record(const FieldMeta *fieldMeta, Record record, Value *value);
 
   /**
    * @brief 数据库恢复时，在指定位置插入数据
@@ -287,7 +287,7 @@ public:
    *
    * @param rec        修改的纪录
    */
-  RC update_record(RID *rid, Record record);
+  RC update_record(const FieldMeta *fieldMeta, Record record, Value *value);
 
    /**
    * @brief 数据库恢复时，在指定文件指定位置插入数据

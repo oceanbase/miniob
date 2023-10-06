@@ -28,6 +28,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/index.h"
 #include "storage/index/bplus_tree_index.h"
 #include "storage/trx/trx.h"
+#include "storage/field/field_meta.h"
 
 Table::~Table()
 {
@@ -467,11 +468,13 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
   return rc;
 }
 
-RC Table::update_record(Record &record, Value *value)
+RC Table::update_record(Record &record, Value *value, std::string attr_name)
 {
   RC rc = RC::SUCCESS;
-  rc = make_record(1, value, record);
-  rc = record_handler_->update_record(&record.rid(), record);
+  // TODO：需要改变record
+  const FieldMeta *field_meta = table_meta_.field(attr_name.c_str());
+
+  rc = record_handler_->update_record(field_meta, record, value);
   return rc;
 }
 

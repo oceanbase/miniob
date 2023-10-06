@@ -60,7 +60,7 @@ RC UpdatePhysicalOperator::next()
     Record &record = row_tuple->record();
     const char* attr_name = attr_name_.c_str();
 
-    rc = trx_->update_record(table_, record, value_);
+    rc = trx_->update_record(table_, record, value_, attr_name_);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to update record: %s", strrc(rc));
       return rc;
