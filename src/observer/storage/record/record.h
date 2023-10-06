@@ -131,6 +131,10 @@ public:
     this->data_ = data;
     this->len_  = len;
   }
+  void set_data(const char *data, int len = 0)
+  {
+    this->set_data(const_cast<char *>(data), len);
+  }
   void set_data_owner(char *data, int len)
   {
     ASSERT(len != 0, "the len of data should not be 0");

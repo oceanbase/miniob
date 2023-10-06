@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse.h"
 #include <string>
 
+class Trx;
 class UpdateStmt;
 
 /**
@@ -28,7 +29,7 @@ class UpdateStmt;
 class UpdatePhysicalOperator : public PhysicalOperator
 {
 public:
-  UpdatePhysicalOperator(Table *table, Value value, std::string attr_name);
+  UpdatePhysicalOperator(Table *table, Value *value, std::string attr_name);
 
   virtual ~UpdatePhysicalOperator() = default;
 
@@ -46,6 +47,6 @@ public:
 private:
   Table *table_ = nullptr;
   Trx *trx_ = nullptr;
-  Value value_;
+  Value *value_;
   std::string attr_name_;
 };

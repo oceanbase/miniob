@@ -57,7 +57,7 @@ RC UpdateStmt::create(Db *db, UpdateSqlNode &update_sql, Stmt *&stmt)
     return rc;
   }
 
-  Value *value = &update_sql.value;
+  Value *value = &(update_sql.value);
   std::string attr_name = update_sql.attribute_name;
 
   const TableMeta &table_meta = table->table_meta();
@@ -75,5 +75,6 @@ RC UpdateStmt::create(Db *db, UpdateSqlNode &update_sql, Stmt *&stmt)
 
   stmt = new UpdateStmt(table, value, filter_stmt, attr_name);
   return rc;
+
 }
 

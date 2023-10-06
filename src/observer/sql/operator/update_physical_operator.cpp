@@ -13,13 +13,13 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/operator/update_physical_operator.h"
-#include "sql/stmt/insert_stmt.h"
+#include "sql/stmt/update_stmt.h"
 #include "storage/table/table.h"
 #include "storage/trx/trx.h"
 
 using namespace std;
 
-UpdatePhysicalOperator::UpdatePhysicalOperator(Table *table, Value value, std::string attr_name)
+UpdatePhysicalOperator::UpdatePhysicalOperator(Table *table, Value *value, std::string attr_name)
     : table_(table), value_ (value), attr_name_(attr_name)
 {}
 
@@ -58,8 +58,9 @@ RC UpdatePhysicalOperator::next()
 
     RowTuple *row_tuple = static_cast<RowTuple *>(tuple);
     Record &record = row_tuple->record();
-    const char* data = attr_name_.c_str();
-    rc = trx_->update_record(table_, record, data);
+    const char* attr_name = attr_name_.c_str();
+
+    rc = trx_->update_record(table_, record, value_);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to update record: %s", strrc(rc));
       return rc;

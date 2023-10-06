@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 
 class Table;
+class FilterStmt;
 
 /**
  * @brief 更新语句
@@ -29,6 +30,7 @@ class UpdateStmt : public Stmt
 public:
   UpdateStmt() = default;
   UpdateStmt(Table *table, Value *value, FilterStmt *filter_stmt, std::string attr_name);
+  ~UpdateStmt() override;
 
   StmtType type() const override
   {

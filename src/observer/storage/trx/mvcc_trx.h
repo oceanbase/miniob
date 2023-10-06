@@ -67,7 +67,7 @@ public:
   virtual ~MvccTrx();
 
   RC insert_record(Table *table, Record &record) override;
-  RC update_record(Table *table, Record &record) override;
+  RC update_record(Table *table, Record &record, Value *value) override;
   RC delete_record(Table *table, Record &record) override;
 
   /**

@@ -208,26 +208,26 @@ RC RecordPageHandler::insert_record(const char *data, RID *rid)
   return RC::SUCCESS;
 }
 
-RC RecordPageHandler::update_record(const Record *rec, const char *data)
+RC RecordPageHandler::update_record(RID *rid, Record record)
 {
-  // slotnum是否超过页面容量
-  if (rec->rid().slot_num >= page_header_->record_capacity) {
-    LOG_ERROR("slot_num exceed page's capacity, page_num %d.",
-	     frame_->page_num());
-    return RC::INVALID_ARGUMENT;
+  if (rid->slot_num >= page_header_->record_capacity) {
+    LOG_WARN("slot_num illegal, slot_num(%d) > record_capacity(%d).", rid->slot_num, page_header_->record_capacity);
+    return RC::RECORD_INVALID_RID;
   }
 
   // 找到修改位置
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
-  if (bitmap.get_bit(rec->rid().slot_num)) {
+  if (bitmap.get_bit(rid->slot_num)) {
     // assert index < page_header_->record_capacity
-    char *record_data = get_record_data(rec->rid().slot_num);
-    memcpy(record_data, data, page_header_->record_real_size);
+    // int length = static_cast<int>(strlen(data));
+    // rec->set_data(data,length);
+    bitmap.set_bit(rid->slot_num);
 
-    frame_->mark_dirty();
+    char *record_data = get_record_data(rid->slot_num);
+    memcpy(record_data, record.data(), page_header_->record_real_size);
   }
-  bitmap.set_bit(rec->rid().slot_num);
 
+  frame_->mark_dirty();
   // LOG_TRACE("Insert record. rid page_num=%d, slot num=%d", get_page_num(), index);
   return RC::SUCCESS;
 }
@@ -432,16 +432,19 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
   return record_page_handler.insert_record(data, rid);
 }
 
-RC RecordFileHandler::update_record(const Record *rec, const char *data)
+RC RecordFileHandler::update_record(RID *rid, Record record)
 {
   RecordPageHandler page_handler;
-  RC rc = page_handler.init(*disk_buffer_pool_, rec->rid().page_num, false);
+  RC rc = page_handler.init(*disk_buffer_pool_, rid->page_num, true);
   if (rc != RC::SUCCESS) {
-    LOG_WARN("Failed to init record page handler.page number=%d", rec->rid().page_num);
+    LOG_WARN("Failed to init record page handler.page number=%d", rid->page_num);
     return rc;
   }
 
-  return page_handler.update_record(rec, data);
+  rc = page_handler.update_record(rid, record);
+  page_handler.cleanup();
+
+  return rc;
 }
 
 RC RecordFileHandler::recover_insert_record(const char *data, int record_size, const RID &rid)

@@ -185,7 +185,7 @@ RC MvccTrx::delete_record(Table * table, Record &record)
   return RC::SUCCESS;
 }
 
-RC MvccTrx::update_record(Table *table, Record &record)
+RC MvccTrx::update_record(Table *table, Record &record, Value *value)
 {
   RC rc = RC::SUCCESS;
   return rc;

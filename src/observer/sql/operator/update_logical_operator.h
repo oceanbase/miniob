@@ -36,11 +36,11 @@ public:
   }
 
   Table *table() { return table_; }
-  Value &value() { return value_; }
+  Value *value() { return value_; }
   std::string &attr_name() { return attr_name_; }
 
 private:
   Table *table_ = nullptr;
   std::string attr_name_;
-  Value value_;
+  Value *value_;
 };
