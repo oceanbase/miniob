@@ -39,7 +39,7 @@ RC UpdateStmt::create(Db *db, UpdateSqlNode &update_sql, Stmt *&stmt)
     return RC::INVALID_ARGUMENT;
   }
 
-  // check whether the table exists
+  // 检查表是否存在
   Table *table = db->find_table(table_name);
   if (nullptr == table) {
     LOG_WARN("no such table. db=%s, table_name=%s", db->name(), table_name);
@@ -49,6 +49,7 @@ RC UpdateStmt::create(Db *db, UpdateSqlNode &update_sql, Stmt *&stmt)
   std::unordered_map<std::string, Table *> table_map;
   table_map.insert(std::pair<std::string, Table *>(std::string(table_name), table));
 
+  // 检查filter
   FilterStmt *filter_stmt = nullptr;
   RC rc = FilterStmt::create(
       db, table, &table_map, update_sql.conditions.data(), static_cast<int>(update_sql.conditions.size()), filter_stmt);
@@ -61,10 +62,15 @@ RC UpdateStmt::create(Db *db, UpdateSqlNode &update_sql, Stmt *&stmt)
   std::string attr_name = update_sql.attribute_name;
 
   const TableMeta &table_meta = table->table_meta();
-  // check fields type
   const int sys_field_num = table_meta.sys_field_num();
 
+  // 检查字段是否存在
   const FieldMeta *field = table_meta.field(attr_name.c_str());
+  if (nullptr == field) {
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+
+  // 检查类型
   const AttrType field_type = field->type();
   const AttrType value_type = value->attr_type();
   if (field_type != value_type) {  // TODO try to convert the value type to field type
