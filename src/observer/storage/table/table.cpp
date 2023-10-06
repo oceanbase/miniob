@@ -471,7 +471,6 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
 RC Table::update_record(Record &record, Value *value, std::string attr_name)
 {
   RC rc = RC::SUCCESS;
-  // TODO：需要改变record
   const FieldMeta *field_meta = table_meta_.field(attr_name.c_str());
 
   rc = record_handler_->update_record(field_meta, record, value);

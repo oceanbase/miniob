@@ -64,12 +64,12 @@ RC UpdateStmt::create(Db *db, UpdateSqlNode &update_sql, Stmt *&stmt)
   // check fields type
   const int sys_field_num = table_meta.sys_field_num();
 
-  const FieldMeta *field_meta = table_meta.field(sys_field_num);
-  const AttrType field_type = field_meta->type();
+  const FieldMeta *field = table_meta.field(attr_name.c_str());
+  const AttrType field_type = field->type();
   const AttrType value_type = value->attr_type();
   if (field_type != value_type) {  // TODO try to convert the value type to field type
     LOG_WARN("field type mismatch. table=%s, field=%s, field type=%d, value_type=%d",
-        table_name, field_meta->name(), field_type, value_type);
+        table_name, field->name(), field_type, value_type);
     return RC::SCHEMA_FIELD_TYPE_MISMATCH;
   }
 
