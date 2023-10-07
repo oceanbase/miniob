@@ -225,3 +225,7 @@ LOG_CONSOLE_LEVEL=1
     Detaching from program: /home/caizj/local/bin/observer, process 54699
     [Inferior 1 (process 54699) detached]
     ```
+
+### Visual Studio Code 调试
+代码中已经为vscode配置了launch.json，可以直接启动调试。
+launch.json中有两个调试配置，一个是Debug，一个是LLDB。其中Debug使用cppdbg，会自动探测调试工具gdb或lldb，而LLDB会使用lldb调试工具。通常情况下，大家使用Debug就可以了，但是我在测试过程中发现cppdbg不能在macos上正常工作，因而增加了LLDB的配置，以便在macos上调试，如果使用macos的同学，可以使用LLDB配置启动调试程序。
