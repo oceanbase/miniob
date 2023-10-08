@@ -11,7 +11,8 @@
             "program": "${workspaceFolder}/${defaultBuildTask}/bin/observer",
             "args": ["-f", "${workspaceFolder}/etc/observer.ini", "-P", "cli"],
             "cwd": "${workspaceFolder}/${defaultBuildTask}/",
-            "stopAtEntry": true,
+            "externalConsole":true,
+            "internalConsoleOptions": "openOnSessionStart",
             "osx": {
                 "MIMode": "lldb"
             }
