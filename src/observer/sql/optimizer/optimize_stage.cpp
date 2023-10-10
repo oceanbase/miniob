@@ -28,6 +28,8 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_event.h"
 #include "event/session_event.h"
 
+#include "sql/stmt/insert_stmt.h"
+
 using namespace std;
 using namespace common;
 
@@ -106,6 +108,7 @@ RC OptimizeStage::create_logical_plan(SQLStageEvent *sql_event, unique_ptr<Logic
   if (nullptr == stmt) {
     return RC::UNIMPLENMENT;
   }
+  InsertStmt *insert_stmt = static_cast<InsertStmt *>(stmt);
 
   return logical_plan_generator_.create(stmt, logical_operator);
 }
