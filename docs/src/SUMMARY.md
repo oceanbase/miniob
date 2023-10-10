@@ -24,6 +24,7 @@
 
 - [OceanBase 数据库大赛](./game/introduction.md)
   - [提交测试需要满足的输出要求](./game/miniob-output-convention.md)
+  - [自助输出调试信息](./game/debug-output.md)
   - [2021届大赛题目介绍](./game/miniob_topics.md)
   - [使用GitHub参加训练营](./game/github-introduction.md)
   - [使用Gitee参加训练营](./game/gitee-instructions.md)
