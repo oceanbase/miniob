@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "dates", "booleans"};
 
 const char *attr_type_to_string(AttrType type)
 {
@@ -76,6 +76,22 @@ void Value::set_data(char *data, int length)
       num_value_.bool_value_ = *(int *)data != 0;
       length_ = length;
     } break;
+    case DATES: {
+      int y,m,d;
+      std::string data_str;
+      data_str.assign(data);
+      LOG_WARN("date length:%d",data_str.length());
+      LOG_WARN("date length:%c",data_str[0]);
+      y = (data_str[0]-'0')*1000 + (data_str[1]-'0')*100 +(data_str[2]-'0')*10 + (data_str[3]-'0');
+      m = (data_str[5]-'0')*10 + (data_str[6]-'0');
+      d = (data_str[8]-'0')*10 + (data_str[9]-'0');
+      bool b = check_date(y,m,d);
+      LOG_WARN("check_date:%d",b);
+      if(b) num_value_.date_value_ = y*10000 + m*100 + d;
+      else num_value_.date_value_ = y*10000 + m*100 + d+1;
+      LOG_WARN("num_value_.date_value_:%d",num_value_.date_value_);
+      length_ = length - 2;
+    } break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
     } break;
@@ -85,6 +101,12 @@ void Value::set_int(int val)
 {
   attr_type_ = INTS;
   num_value_.int_value_ = val;
+  length_ = sizeof(val);
+}
+void Value::set_date(int val)
+{
+  attr_type_ = DATES;
+  num_value_.date_value_ = val;
   length_ = sizeof(val);
 }
 
@@ -110,6 +132,7 @@ void Value::set_string(const char *s, int len /*= 0*/)
     str_value_.assign(s);
   }
   length_ = str_value_.length();
+  LOG_WARN("length:%d",length_);
 }
 
 void Value::set_value(const Value &value)
@@ -126,6 +149,9 @@ void Value::set_value(const Value &value)
     } break;
     case BOOLEANS: {
       set_boolean(value.get_boolean());
+    } break;
+    case DATES: {
+      set_date(value.get_int());
     } break;
     case UNDEFINED: {
       ASSERT(false, "got an invalid value type");
@@ -160,6 +186,9 @@ std::string Value::to_string() const
     } break;
     case CHARS: {
       os << str_value_;
+    } break;
+    case DATES: {
+      os << num_value_.date_value_;
     } break;
     default: {
       LOG_WARN("unsupported attr type: %d", attr_type_);
@@ -222,6 +251,9 @@ int Value::get_int() const
     case BOOLEANS: {
       return (int)(num_value_.bool_value_);
     }
+    case DATES:{
+      return num_value_.date_value_;
+    }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return 0;
@@ -250,6 +282,9 @@ float Value::get_float() const
     case BOOLEANS: {
       return float(num_value_.bool_value_);
     } break;
+    case DATES:{
+      return float(num_value_.date_value_);
+    }break;
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return 0;
@@ -294,6 +329,9 @@ bool Value::get_boolean() const
     case BOOLEANS: {
       return num_value_.bool_value_;
     } break;
+    case DATES: {
+      return num_value_.date_value_ != 0;
+    } break;
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return false;
@@ -301,3 +339,13 @@ bool Value::get_boolean() const
   }
   return false;
 }
+
+bool Value::check_date(int yy, int mm, int dd) const
+{
+    static int mon[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    bool leap = (yy%400==0 || (yy%100 && yy%4==0));
+    return yy > 0
+        && (mm > 0)&&(mm <= 12)
+        && (dd > 0)&&(dd <= ((mm==2 && leap)?1:0) + mon[mm]);
+}
+

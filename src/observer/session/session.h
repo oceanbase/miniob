@@ -96,5 +96,5 @@ private:
   Trx *trx_ = nullptr;
   SessionEvent *current_request_ = nullptr; ///< 当前正在处理的请求
   bool trx_multi_operation_mode_ = false;   ///< 当前事务的模式，是否多语句模式. 单语句模式自动提交
-  bool sql_debug_ = false;                  ///< 是否输出SQL调试信息
+  bool sql_debug_ = true;                  ///< 是否输出SQL调试信息
 };
