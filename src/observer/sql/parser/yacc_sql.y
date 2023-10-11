@@ -384,7 +384,7 @@ value_list_list:
 value_list:
     /* empty */
     {
-      $$ = nullptr;
+      $$ = new std::vector<Value>;
     }
     | COMMA value value_list  { 
       if ($3 != nullptr) {

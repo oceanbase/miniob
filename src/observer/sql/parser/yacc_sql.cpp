@@ -1959,7 +1959,7 @@ yyreduce:
   case 46: /* value_list: %empty  */
 #line 386 "yacc_sql.y"
     {
-      (yyval.value_list) = nullptr;
+      (yyval.value_list) = new std::vector<Value>;
     }
 #line 1965 "yacc_sql.cpp"
     break;
