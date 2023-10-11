@@ -28,6 +28,7 @@ See the Mulan PSL v2 for more details. */
   DEFINE_RC(NOMEM)                          \
   DEFINE_RC(NOTFOUND)                       \
   DEFINE_RC(EMPTY)                          \
+  DEFINE_RC(EMPTY_CMD)                      \
   DEFINE_RC(BUFFERPOOL_OPEN)                \
   DEFINE_RC(BUFFERPOOL_NOBUF)               \
   DEFINE_RC(BUFFERPOOL_INVALID_PAGE_NUM)    \

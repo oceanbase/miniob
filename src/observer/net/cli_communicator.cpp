@@ -86,19 +86,6 @@ bool is_exit_command(const char *cmd) {
          0 == strncasecmp("\\q", cmd, 2) ;
 }
 
-char *read_command()
-{
-  const char *prompt_str = "miniob > ";
-  char *input_command = nullptr;
-  for (input_command = my_readline(prompt_str); 
-        common::is_blank(input_command); 
-        input_command = my_readline(prompt_str)) {
-    free(input_command);
-    input_command = nullptr;
-  }
-  return input_command;
-}
-
 RC CliCommunicator::init(int fd, Session *session, const std::string &addr)
 {
   RC rc = PlainCommunicator::init(fd, session, addr);
@@ -126,7 +113,12 @@ RC CliCommunicator::init(int fd, Session *session, const std::string &addr)
 RC CliCommunicator::read_event(SessionEvent *&event)
 {
   event = nullptr;
-  char *command = read_command();
+  char *command = my_readline("miniob > ");
+  if (common::is_blank(command)) {
+    free(command);
+    event = nullptr;
+    return RC::EMPTY_CMD;
+  }
 
   if (is_exit_command(command)) {
     free(command);
