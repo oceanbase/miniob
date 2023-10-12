@@ -330,7 +330,7 @@ int Server::start_stdin_server()
       return -1;
     }
 
-    if (event == nullptr) {
+    if (event == nullptr || !started_) {
       break;
     }
 
