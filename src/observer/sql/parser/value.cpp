@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "dates", "booleans"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "dates", "floats", "booleans"};
 
 const char *attr_type_to_string(AttrType type)
 {
@@ -77,20 +77,8 @@ void Value::set_data(char *data, int length)
       length_ = length;
     } break;
     case DATES: {
-      int y,m,d;
-      std::string data_str;
-      data_str.assign(data);
-      LOG_WARN("date length:%d",data_str.length());
-      LOG_WARN("date length:%c",data_str[0]);
-      y = (data_str[0]-'0')*1000 + (data_str[1]-'0')*100 +(data_str[2]-'0')*10 + (data_str[3]-'0');
-      m = (data_str[5]-'0')*10 + (data_str[6]-'0');
-      d = (data_str[8]-'0')*10 + (data_str[9]-'0');
-      bool b = check_date(y,m,d);
-      LOG_WARN("check_date:%d",b);
-      if(b) num_value_.date_value_ = y*10000 + m*100 + d;
-      else num_value_.date_value_ = y*10000 + m*100 + d+1;
-      LOG_WARN("num_value_.date_value_:%d",num_value_.date_value_);
-      length_ = length - 2;
+      num_value_.int_value_ = *(int *)data;
+      length_ = length;
     } break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
@@ -106,7 +94,7 @@ void Value::set_int(int val)
 void Value::set_date(int val)
 {
   attr_type_ = DATES;
-  num_value_.date_value_ = val;
+  num_value_.int_value_ = val;
   length_ = sizeof(val);
 }
 
@@ -159,6 +147,30 @@ void Value::set_value(const Value &value)
   }
 }
 
+void Value::set_date_init(const char *s, int len /*= 0*/)
+{
+  attr_type_ = DATES;
+  int y,m,d,pos;
+  std::string data_str, data_year, data_month, data_day;
+  data_str.assign(s);
+  LOG_WARN("date length:%d",data_str.length());
+  LOG_WARN("date[0]:%c",data_str[0]);
+  pos = data_str.find('-');
+  y = stoi(data_str.substr(0,pos));
+  data_str = data_str.substr(pos+1);
+  pos = data_str.find('-');
+  m = stoi(data_str.substr(0,pos));
+  d = stoi(data_str.substr(pos+1));
+  
+  bool b = check_date(y,m,d);
+  LOG_WARN("check_date:%d",b);
+  if(b) num_value_.int_value_ = y*10000 + m*100 + d;
+  else num_value_.int_value_ = -1;
+  LOG_WARN("num_value_.int_value_:%d",num_value_.int_value_);
+  length_ = sizeof(num_value_.int_value_) ;
+  LOG_WARN("date length_:%d",length_);
+}
+
 const char *Value::data() const
 {
   switch (attr_type_) {
@@ -188,7 +200,33 @@ std::string Value::to_string() const
       os << str_value_;
     } break;
     case DATES: {
-      os << num_value_.date_value_;
+      int year;
+      int month;
+      int day;
+      int temp = num_value_.int_value_;
+      day = num_value_.int_value_ % 100;
+      temp = temp / 100;
+      month = temp % 100;
+      year = temp / 100;
+      LOG_WARN("year:%d,month:%d,day:%d",year,month,day);
+
+      std::string str = "";
+      if ( year < 10 )
+        str += "000";
+      else if ( year < 100 )
+        str += "00";
+      else if ( year < 1000 )
+        str += "0";
+      str += std::to_string( year );
+      str += "-";
+      if ( month < 10 )
+        str += "0";
+      str += std::to_string( month );
+      str += "-";
+      if ( day < 10 )
+        str += "0";
+      str += std::to_string( day );
+      os << str;
     } break;
     default: {
       LOG_WARN("unsupported attr type: %d", attr_type_);
@@ -252,7 +290,7 @@ int Value::get_int() const
       return (int)(num_value_.bool_value_);
     }
     case DATES:{
-      return num_value_.date_value_;
+      return num_value_.int_value_;
     }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
@@ -283,7 +321,7 @@ float Value::get_float() const
       return float(num_value_.bool_value_);
     } break;
     case DATES:{
-      return float(num_value_.date_value_);
+      return float(num_value_.int_value_);
     }break;
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
@@ -330,7 +368,7 @@ bool Value::get_boolean() const
       return num_value_.bool_value_;
     } break;
     case DATES: {
-      return num_value_.date_value_ != 0;
+      return num_value_.int_value_ != 0;
     } break;
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);

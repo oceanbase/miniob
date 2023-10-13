@@ -1979,7 +1979,7 @@ yyreduce:
       (yyval.value) = new Value(tmp);
       LOG_WARN("string tmp is: %s",tmp);
       (yyval.value)->set_type(AttrType::DATES);
-      (yyval.value)->set_data(tmp,10);
+      (yyval.value)->set_date_init(tmp);
       free(tmp);
     }
 #line 1984 "yacc_sql.cpp"

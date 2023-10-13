@@ -337,6 +337,7 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
         copy_len = data_len + 1;
       }
     }
+    LOG_WARN("data value:%s",value.data());
     memcpy(record_data + field->offset(), value.data(), copy_len);
   }
 

@@ -127,5 +127,11 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
   filter_unit->set_comp(comp);
 
   // 检查两个类型是否能够比较
+  AttrType left_type = ( filter_unit->left().is_attr )?( filter_unit->left().field.attr_type() ):( filter_unit->left().value.attr_type() );
+  AttrType right_type = ( filter_unit->right().is_attr )?( filter_unit->right().field.attr_type() ):( filter_unit->right().value.attr_type() );
+  if( left_type != right_type){
+    LOG_WARN("invalid types comparing. left type: %s,right type: %s",attr_type_to_string(left_type),attr_type_to_string(right_type));
+    rc = RC::INVALID_ARGUMENT;
+  }
   return rc;
 }
