@@ -82,8 +82,12 @@ RecordPageHandler::~RecordPageHandler() { cleanup(); }
 RC RecordPageHandler::init(DiskBufferPool &buffer_pool, PageNum page_num, bool readonly)
 {
   if (disk_buffer_pool_ != nullptr) {
-    LOG_WARN("Disk buffer pool has been opened for page_num %d.", page_num);
-    return RC::RECORD_OPENNED;
+    if (frame_->page_num() == page_num) {
+      LOG_WARN("Disk buffer pool has been opened for page_num %d.", page_num);
+      return RC::RECORD_OPENNED;
+    } else {
+      cleanup();
+    }
   }
 
   RC ret = RC::SUCCESS;
@@ -457,7 +461,7 @@ RC RecordFileHandler::get_record(RecordPageHandler &page_handler, const RID *rid
   }
 
   RC ret = page_handler.init(*disk_buffer_pool_, rid->page_num, readonly);
-  if (OB_FAIL(ret)) {
+  if (OB_FAIL(ret) && ret != RC::RECORD_OPENNED) {
     LOG_ERROR("Failed to init record page handler.page number=%d", rid->page_num);
     return ret;
   }
