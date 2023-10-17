@@ -10,7 +10,8 @@ OceanBase 社区热情欢迎每一位对数据库技术热爱的开发者，期�
 2. [如何编译 miniob 源码](docs/src/how_to_build.md)
 3. [开发环境搭建(本地调试, 适用 Linux 和 Mac)](docs/src/dev-env/how_to_dev_miniob_by_vscode.md)
 4. [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](docs/src/dev-env/how_to_dev_in_docker_container_by_vscode.md)
-5. [miniob 文档汇总](docs/src/SUMMARY.md)
+5. [手把手教你在windows上用docker和vscode配置环境](docs/src/dev-env/how_to_dev_miniob_by_docker_and_vscode.md)
+6. [miniob 文档汇总](docs/src/SUMMARY.md)
 
 更多的文档, 可以参考 [docs](https://github.com/oceanbase/miniob/tree/main/docs), 为了帮助大家更好的学习数据库基础知识, OceanBase 社区提供了一系列教程, 建议学习:
 
