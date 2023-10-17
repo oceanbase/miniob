@@ -1,0 +1,33 @@
+-- echo initialization
+create table exp_table(id int, col1 int, col2 int, col3 float, col4 float);
+insert into exp_table VALUES (1, 1, 1, 1.0, 1.5);
+insert into exp_table VALUES (2, 2, -2, 5.5, 1.0);
+insert into exp_table VALUES (3, 3, 4, 5.0, 4.0);
+
+-- echo 1. select
+-- sort select * from exp_table where 1 = 5/4;
+-- sort select * from exp_table where col1-2 > 0;
+-- sort select * from exp_table where 2+col2 < 1;
+-- sort select * from exp_table where col1*col2 < 0;
+
+-- sort select * from exp_table where 5/4 = 1;
+-- sort select * from exp_table where 0 < col1-2;
+-- sort select * from exp_table where 1.0 > 2+col2;
+-- sort select * from exp_table where -0 < col1-col2;
+-- sort select * from exp_table where 0 < -2+col1;
+
+-- sort select * from exp_table where 1+1 = 2*1.0;
+-- sort select * from exp_table where 5/4*8 < 4+col2*col3/2;
+-- sort select * from exp_table where 5/4*8 < (4+col2)*col3/2;
+
+-- sort select id,-(col2*(-1)+1)+(col4+2)*(col1+col3*2),(4+col2)*col3/2 from exp_table where -(col2*(-1)+1)+(col4+2)*(col1+col3*2) > (4+col2)*col3/2;
+-- sort select id,col1,col2,col3,col4,6-(col2*(1+col1))+(col4+2)/(1+col1*4+col3*2) from exp_table where 6-(col2*(1+col1))+(col4+2)/(1+col1*4+col3*2) > 5;
+-- sort select id,col1,col2,col3,col4,3*col1/(col2+2) from exp_table where 3*col1/(col2+2) > 1;
+-- sort select id,3*col1/(col2+2) from exp_table where 3*col1/(col2+2)+1/0 > 1;
+-- sort select * from exp_table where 1/0 = 1/0;
+
+-- echo 2. expression about many tables
+create table exp_table2(id int, col1 int);
+insert into exp_table2 VALUES (1, 1);
+insert into exp_table2 VALUES (2, 3);
+-- sort select exp_table.id,3*exp_table2.col1/(exp_table.col2+2) from exp_table,exp_table2 where 3*exp_table2.col1/(exp_table.col2+2)>1;

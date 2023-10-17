@@ -1,0 +1,51 @@
+-- echo basic insert
+
+create table t_basic(id int, age int, name char, score float);
+insert into t_basic values(1,1, 'a', 1.0);
+insert into t_basic values(2,2, 'b', 2.0);
+insert into t_basic values(4,4, 'c', 3.0);
+insert into t_basic values(3,3, 'd', 4.0);
+insert into t_basic values(5,5, 'e', 5.5);
+insert into t_basic values(6,6, 'f', 6.6);
+insert into t_basic values(7,7, 'g', 7.7);
+
+--sort select * from t_basic;
+
+-- echo basic delete
+delete from t_basic where id=3;
+-- sort select * from t_basic;
+
+-- echo basic select
+select * from t_basic where id=1;
+
+-- sort select * from t_basic where id>=5;
+
+select * from t_basic where age>1 and age<3;
+
+select * from t_basic where t_basic.id=1 and t_basic.age=1;
+
+select * from t_basic where id=1 and age=1;
+
+-- sort select id, age, name, score from t_basic;
+
+-- sort select t_basic.id, t_basic.age, t_basic.name, t_basic.score from t_basic;
+
+-- sort select t_basic.id, t_basic.age, name from t_basic;
+
+-- echo create index
+create index i_id on t_basic (id);
+-- sort select * from t_basic;
+
+-- echo test calc expression
+calc 1, 2, 3;
+calc 1 + 2 - 3+4;
+calc 2* 4;
+calc 3/2;
+calc 2* (1+3);
+calc (1+3) *2;
+calc 2 *-(10+2);
+calc (1+2) * (2 * (20+-(5*1)));
+calc 20/0;
+calc 13.2/0.0;
+calc "123" + 4;
+calc "abc" + 4;

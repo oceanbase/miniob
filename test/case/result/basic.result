@@ -1,0 +1,140 @@
+BASIC INSERT
+
+create table t_basic(id int, age int, name char, score float);
+SUCCESS
+insert into t_basic values(1,1, 'a', 1.0);
+SUCCESS
+insert into t_basic values(2,2, 'b', 2.0);
+SUCCESS
+insert into t_basic values(4,4, 'c', 3.0);
+SUCCESS
+insert into t_basic values(3,3, 'd', 4.0);
+SUCCESS
+insert into t_basic values(5,5, 'e', 5.5);
+SUCCESS
+insert into t_basic values(6,6, 'f', 6.6);
+SUCCESS
+insert into t_basic values(7,7, 'g', 7.7);
+SUCCESS
+
+select * from t_basic;
+1 | 1 | A | 1
+2 | 2 | B | 2
+3 | 3 | D | 4
+4 | 4 | C | 3
+5 | 5 | E | 5.5
+6 | 6 | F | 6.6
+7 | 7 | G | 7.7
+ID | AGE | NAME | SCORE
+
+BASIC DELETE
+delete from t_basic where id=3;
+SUCCESS
+select * from t_basic;
+1 | 1 | A | 1
+2 | 2 | B | 2
+4 | 4 | C | 3
+5 | 5 | E | 5.5
+6 | 6 | F | 6.6
+7 | 7 | G | 7.7
+ID | AGE | NAME | SCORE
+
+BASIC SELECT
+select * from t_basic where id=1;
+ID | AGE | NAME | SCORE
+1 | 1 | A | 1
+
+select * from t_basic where id>=5;
+5 | 5 | E | 5.5
+6 | 6 | F | 6.6
+7 | 7 | G | 7.7
+ID | AGE | NAME | SCORE
+
+select * from t_basic where age>1 and age<3;
+ID | AGE | NAME | SCORE
+2 | 2 | B | 2
+
+select * from t_basic where t_basic.id=1 and t_basic.age=1;
+ID | AGE | NAME | SCORE
+1 | 1 | A | 1
+
+select * from t_basic where id=1 and age=1;
+ID | AGE | NAME | SCORE
+1 | 1 | A | 1
+
+select id, age, name, score from t_basic;
+1 | 1 | A | 1
+2 | 2 | B | 2
+4 | 4 | C | 3
+5 | 5 | E | 5.5
+6 | 6 | F | 6.6
+7 | 7 | G | 7.7
+ID | AGE | NAME | SCORE
+
+select t_basic.id, t_basic.age, t_basic.name, t_basic.score from t_basic;
+1 | 1 | A | 1
+2 | 2 | B | 2
+4 | 4 | C | 3
+5 | 5 | E | 5.5
+6 | 6 | F | 6.6
+7 | 7 | G | 7.7
+ID | AGE | NAME | SCORE
+
+select t_basic.id, t_basic.age, name from t_basic;
+1 | 1 | A
+2 | 2 | B
+4 | 4 | C
+5 | 5 | E
+6 | 6 | F
+7 | 7 | G
+ID | AGE | NAME
+
+CREATE INDEX
+create index i_id on t_basic (id);
+SUCCESS
+select * from t_basic;
+1 | 1 | A | 1
+2 | 2 | B | 2
+4 | 4 | C | 3
+5 | 5 | E | 5.5
+6 | 6 | F | 6.6
+7 | 7 | G | 7.7
+ID | AGE | NAME | SCORE
+
+test calc expression
+calc 1, 2, 3;
+1 | 2 | 3
+1 | 2 | 3
+calc 1 + 2 - 3+4;
+1 + 2 - 3+4
+4
+calc 2* 4;
+2* 4
+8
+calc 3/2;
+3/2
+1.5
+calc 2* (1+3);
+2* (1+3)
+8
+calc (1+3) *2;
+(1+3) *2
+8
+calc 2 *-(10+2);
+2 *-(10+2)
+-24
+calc (1+2) * (2 * (20+-(5*1)));
+(1+2) * (2 * (20+-(5*1)))
+90
+calc 20/0;
+20/0
+340282346638528859811704183484516925440
+calc 13.2/0.0;
+13.2/0.0
+340282346638528859811704183484516925440
+calc "123" + 4;
+"123" + 4
+127
+calc "abc" + 4;
+"abc" + 4
+4

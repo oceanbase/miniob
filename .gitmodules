@@ -1,0 +1,12 @@
+[submodule "deps/3rd/libevent"]
+	path = deps/3rd/libevent
+	url = https://github.com/libevent/libevent
+[submodule "deps/3rd/jsoncpp"]
+	path = deps/3rd/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp
+[submodule "deps/3rd/googletest"]
+	path = deps/3rd/googletest
+	url = https://github.com/google/googletest
+[submodule "deps/3rd/benchmark"]
+	path = deps/3rd/benchmark
+	url = https://github.com/google/benchmark

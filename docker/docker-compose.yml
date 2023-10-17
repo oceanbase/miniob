@@ -1,0 +1,22 @@
+version: "3.3"
+services:
+  miniob-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: miniob:v1.1
+    container_name: miniob
+    privileged: true
+    ports:
+      - "10000:22"
+    restart: unless-stopped
+    environment:
+      #  set the env argument PRIVATE_KEY when using ssh clone
+      #  REPO_ADDR format in a private repo: https://<username>:<password>@github.com/oceanbase/miniob.git, '@' in username must be escape to '%40'
+      #  How to run:
+      #    Linux shell: 
+      #        export PRIVATE_KEY=$(cat ~/.ssh/id_rsa) && docker-compose up -d --build
+      #    Windows powershell: 
+      #        $env:PRIVATE_KEY=$(cat ~/.ssh/id_rsa) && docker-compose up -d --build
+      - REPO_ADDR=https://github.com/oceanbase/miniob.git
+      - PRIVATE_KEY=${PRIVATE_KEY} 

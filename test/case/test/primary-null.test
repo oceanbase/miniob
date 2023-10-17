@@ -1,0 +1,83 @@
+-- echo initialization
+CREATE TABLE null_table(id int, num int nullable, price float not null, birthday date nullable);
+CREATE TABLE null_table2(id int, num int nullable, price float not null, birthday date nullable);
+CREATE INDEX index_num on null_table(num);
+
+-- echo 1. insert
+INSERT INTO null_table VALUES (1, 18, 10.0, '2020-01-01');
+INSERT INTO null_table VALUES (2, null, 20.0, '2010-01-11');
+INSERT INTO null_table VALUES (3, 12, 30.0, null);
+INSERT INTO null_table VALUES (4, 15, 30.0, '2021-01-31');
+INSERT INTO null_table2 VALUES (1, 18, 30.0, '2021-01-31');
+INSERT INTO null_table2 VALUES (2, null, 40.0, null);
+
+INSERT INTO null_table VALUES (5, 15, null, '2021-01-31');
+INSERT INTO null_table VALUES (null, 15, 30.0, '2021-01-31');
+
+-- echo 2. SELECT
+-- sort SELECT * FROM null_table;
+
+-- echo 3. SELECT WITH CONSTANT
+-- sort SELECT * FROM null_table where 1 is null;
+-- sort SELECT * FROM null_table where 1 is not null;
+-- sort SELECT * FROM null_table where null=1;
+-- sort SELECT * FROM null_table where 1=null;
+-- sort SELECT * FROM null_table where 1<>null;
+-- sort SELECT * FROM null_table where 1<null;
+-- sort SELECT * FROM null_table where 1>null;
+
+-- sort SELECT * FROM null_table where null is null;
+-- sort SELECT * FROM null_table where null is not null;
+-- sort SELECT * FROM null_table WHERE null=null;
+-- sort SELECT * FROM null_table WHERE null<>null;
+-- sort SELECT * FROM null_table WHERE null>null;
+-- sort SELECT * FROM null_table WHERE null<null;
+
+-- sort SELECT * FROM null_table where 'a' is null;
+-- sort SELECT * FROM null_table where 'a' is not null;
+-- sort SELECT * FROM null_table WHERE null='a';
+-- sort SELECT * FROM null_table WHERE 'a'=null;
+-- sort SELECT * FROM null_table WHERE 'a'<>null;
+-- sort SELECT * FROM null_table WHERE 'a'>null;
+-- sort SELECT * FROM null_table WHERE 'a'<null;
+
+-- sort SELECT * FROM null_table where '2021-01-31' is null;
+-- sort SELECT * FROM null_table where '2021-01-31' is not null;
+-- sort SELECT * FROM null_table WHERE null='2021-01-31';
+-- sort SELECT * FROM null_table WHERE '2021-01-31'=null;
+-- sort SELECT * FROM null_table WHERE '2021-01-31'>null;
+-- sort SELECT * FROM null_table WHERE '2021-01-31'<null;
+
+-- echo 4. SELECT WITH COLUMN
+-- sort SELECT * FROM null_table where birthday is not null;
+-- sort SELECT * FROM null_table where birthday is null;
+-- sort SELECT * FROM null_table where birthday = null;
+-- sort SELECT * FROM null_table where null = birthday;
+-- sort SELECT * FROM null_table where birthday <> null;
+-- sort SELECT * FROM null_table where birthday > null;
+-- sort SELECT * FROM null_table where birthday < null;
+
+-- sort SELECT * FROM null_table where num is not null;
+-- sort SELECT * FROM null_table where num is null;
+-- sort SELECT * FROM null_table where num = null;
+-- sort SELECT * FROM null_table where null = num;
+-- sort SELECT * FROM null_table where num <> null;
+-- sort SELECT * FROM null_table where num > null;
+-- sort SELECT * FROM null_table where num < null;
+
+-- sort SELECT null_table.num,null_table2.num,null_table.birthday FROM null_table,null_table2 where null_table.num=null_table2.num;
+
+-- echo 5. aggregation
+SELECT count(*) FROM null_table;
+SELECT count(price) FROM null_table;
+SELECT count(birthday) FROM null_table;
+SELECT avg(num) FROM null_table;
+
+-- echo 6. aggregation with null columns
+CREATE TABLE null_table3(id int, num int nullable);
+INSERT INTO null_table3 VALUES (1, null);
+INSERT INTO null_table3 VALUES (2, null);
+SELECT count(num) FROM null_table3;
+SELECT min(num) FROM null_table3;
+SELECT max(num) FROM null_table3;
+SELECT avg(num) FROM null_table3;

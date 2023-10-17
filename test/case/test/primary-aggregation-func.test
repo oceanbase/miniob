@@ -1,0 +1,57 @@
+-- echo initialization
+CREATE TABLE aggregation_func(id int, num int, price float, addr char, birthday date);
+
+INSERT INTO aggregation_func VALUES (1, 18, 10.0, 'abc', '2020-01-01');
+INSERT INTO aggregation_func VALUES (2, 15, 20.0, 'abc', '2010-01-11');
+INSERT INTO aggregation_func VALUES (3, 12, 30.0, 'def', '2021-01-21');
+INSERT INTO aggregation_func VALUES (4, 15, 30.0, 'dei', '2021-01-31');
+
+-- echo 1. count
+SELECT count(*) FROM aggregation_func;
+
+SELECT count(num) FROM aggregation_func;
+
+-- echo 2. min
+SELECT min(num) FROM aggregation_func;
+
+SELECT min(price) FROM aggregation_func;
+
+SELECT min(addr) FROM aggregation_func;
+
+-- echo 3. max
+SELECT max(num) FROM aggregation_func;
+
+SELECT max(price) FROM aggregation_func;
+
+SELECT max(addr) FROM aggregation_func;
+
+-- echo 4. avg
+SELECT avg(num) FROM aggregation_func;
+
+SELECT avg(price) FROM aggregation_func;
+
+-- echo 5. error with *
+SELECT min(*) FROM aggregation_func;
+SELECT max(*) FROM aggregation_func;
+SELECT avg(*) FROM aggregation_func;
+
+-- echo 6. error with redundant columns
+SELECT count(*,num) FROM aggregation_func;
+SELECT min(num,price) FROM aggregation_func;
+SELECT max(num,price) FROM aggregation_func;
+SELECT avg(num,price) FROM aggregation_func;
+
+-- echo 7. error with empty columns
+SELECT count() FROM aggregation_func;
+SELECT min() FROM aggregation_func;
+SELECT max() FROM aggregation_func;
+SELECT avg() FROM aggregation_func;
+
+-- echo 8. error with non-existent columns
+SELECT count(id2) FROM aggregation_func;
+SELECT min(id2) FROM aggregation_func;
+SELECT max(id2) FROM aggregation_func;
+SELECT avg(id2) FROM aggregation_func;
+
+-- echo 9. select many aggregation
+SELECT min(num),max(num),avg(num) FROM aggregation_func;

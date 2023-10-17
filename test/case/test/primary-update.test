@@ -1,0 +1,42 @@
+-- echo initialization
+CREATE TABLE Update_table_1(id int, t_name char, col1 int, col2 int);
+CREATE INDEX index_id on Update_table_1(id);
+INSERT INTO Update_table_1 VALUES (1,'N1',1,1);
+INSERT INTO Update_table_1 VALUES (2,'N2',1,1);
+INSERT INTO Update_table_1 VALUES (3,'N3',2,1);
+
+-- echo 1. update a row
+UPDATE Update_table_1 SET t_name='N01' WHERE id=1;
+-- sort SELECT * FROM Update_table_1;
+
+-- echo 2. update rows
+UPDATE Update_table_1 SET col2=0 WHERE col1=1;
+-- sort SELECT * FROM Update_table_1;
+
+-- echo 3. update a index column
+UPDATE Update_table_1 SET id=4 WHERE t_name='N3';
+-- sort SELECT * FROM Update_table_1;
+
+-- echo 4. update without conditions
+UPDATE Update_table_1 SET col1=0;
+-- sort SELECT * FROM Update_table_1;
+
+-- echo 5. update with conditions
+UPDATE Update_table_1 SET t_name='N02' WHERE col1=0 AND col2=0;
+-- sort SELECT * FROM Update_table_1;
+
+-- echo 6. update non-existent table
+UPDATE Update_table_2 SET t_name='N01' WHERE id=1;
+
+-- echo 7. update non-existent column
+UPDATE Update_table_1 SET t_name_false='N01' WHERE id=1;
+
+-- echo 8. update with invalid condition
+UPDATE Update_table_1 SET t_name='N01' WHERE id_false=1;
+
+-- echo 9. update in vain
+UPDATE Update_table_1 SET t_name='N01' WHERE id=100;
+-- sort SELECT * FROM Update_table_1;
+
+-- echo 10. update with invalid value
+UPDATE Update_table_1 SET col1='N01' WHERE id=1;

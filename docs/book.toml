@@ -1,0 +1,14 @@
+[book]
+language = "cn"
+multilingual = false
+src = "src"
+title = "MiniOB"
+
+[output.html]
+git-repository-url = "https://github.com/oceanbase/miniob"
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.html.code]

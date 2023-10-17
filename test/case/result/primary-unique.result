@@ -1,0 +1,24 @@
+INITIALIZATION
+CREATE TABLE unique_table(id int, col1 int, col2 int);
+SUCCESS
+INSERT INTO unique_table VALUES (1,1,1);
+SUCCESS
+
+1. UNIQUE TEST
+CREATE UNIQUE INDEX index_id on unique_table(id);
+SUCCESS
+INSERT INTO unique_table VALUES (2,1,1);
+SUCCESS
+CREATE UNIQUE INDEX index_id on unique_table(id);
+FAILURE
+INSERT INTO unique_table VALUES (3,2,1);
+SUCCESS
+INSERT INTO unique_table VALUES (1,2,1);
+FAILURE
+
+2. SELECT
+SELECT * FROM unique_table;
+1 | 1 | 1
+2 | 1 | 1
+3 | 2 | 1
+ID | COL1 | COL2
