@@ -1,0 +1,32 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "init",
+            "type": "shell",
+            "command": "sudo -E env PATH=$PATH bash ${workspaceFolder}/build.sh init"
+        },
+        {
+            "label": "build_debug",
+            "type": "shell",
+            "command": "bash build.sh debug",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "build_release",
+            "type": "shell",
+            "command": "bash build.sh release"
+        },
+        {
+            "label": "gen_parser",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/src/observer/sql/parser && bash gen_parser.sh"
+        }
+    ]
+}
