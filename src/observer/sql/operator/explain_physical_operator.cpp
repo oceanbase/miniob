@@ -21,6 +21,7 @@ using namespace std;
 RC ExplainPhysicalOperator::open(Trx *)
 {
   ASSERT(children_.size() == 1, "explain must has 1 child");
+  children_[0]->open(nullptr);
   return RC::SUCCESS;
 }
 
