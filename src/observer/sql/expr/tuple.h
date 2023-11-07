@@ -153,6 +153,9 @@ public:
   void set_schema(const Table *table, const std::vector<FieldMeta> *fields)
   {
     table_ = table;
+    // fix:在join当中会调用多次open来获取数据，而每一次open都会调用set_schema，
+    // 从而导致speces被重复添加，因此需要先clear掉
+    this->speces_.clear();
     this->speces_.reserve(fields->size());
     for (const FieldMeta &field : *fields) {
       speces_.push_back(new FieldExpr(table, &field));
