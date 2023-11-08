@@ -14,15 +14,12 @@ See the Mulan PSL v2 for more details. */
 
 #include <cstddef>
 #include <limits>
-#include <sys/_types/_int32_t.h>
-#include <utility>
-#include "common/log/log.h"
 #include "storage/trx/mvcc_trx.h"
 #include "storage/field/field.h"
 #include "storage/clog/clog.h"
 #include "storage/db/db.h"
 #include "storage/clog/clog.h"
-#include "storage/trx/trx.h"
+
 
 using namespace std;
 
