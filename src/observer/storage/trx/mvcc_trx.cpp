@@ -12,14 +12,12 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/04/24.
 //
 
-#include <cstddef>
 #include <limits>
 #include "storage/trx/mvcc_trx.h"
 #include "storage/field/field.h"
 #include "storage/clog/clog.h"
 #include "storage/db/db.h"
 #include "storage/clog/clog.h"
-
 
 using namespace std;
 
