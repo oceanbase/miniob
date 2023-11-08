@@ -12,12 +12,17 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/04/24.
 //
 
+#include <cstddef>
 #include <limits>
+#include <sys/_types/_int32_t.h>
+#include <utility>
+#include "common/log/log.h"
 #include "storage/trx/mvcc_trx.h"
 #include "storage/field/field.h"
 #include "storage/clog/clog.h"
 #include "storage/db/db.h"
 #include "storage/clog/clog.h"
+#include "storage/trx/trx.h"
 
 using namespace std;
 
@@ -166,6 +171,7 @@ RC MvccTrx::delete_record(Table * table, Record &record)
   Field end_field;
   trx_fields(table, begin_field, end_field);
 
+  int32_t begin_xid = begin_field.get_int(record);
   [[maybe_unused]] int32_t end_xid = end_field.get_int(record);
   /// 在删除之前，第一次获取record时，就已经对record做了对应的检查，并且保证不会有其它的事务来访问这条数据
   ASSERT(end_xid > 0, "concurrency conflit: other transaction is updating this record. end_xid=%d, current trx id=%d, rid=%s",
@@ -179,8 +185,25 @@ RC MvccTrx::delete_record(Table * table, Record &record)
   RC rc = log_manager_->append_log(CLogType::DELETE, trx_id_, table->table_id(), record.rid(), 0, 0, nullptr);
   ASSERT(rc == RC::SUCCESS, "failed to append delete record log. trx id=%d, table id=%d, rid=%s, record len=%d, rc=%s",
       trx_id_, table->table_id(), record.rid().to_string().c_str(), record.len(), strrc(rc));
+  if (begin_xid == -trx_id_) {
+    // fix：此处是为了修复由当前事务插入而又被当前事务删除时无法正确删除的问题：
+    // 在当前事务中创建的记录从来未对外暴露过，未来方便今后添加垃圾回收功能，这里选择直接删除真实记录
+    // 就认为记录从来未存在过，此时无论是commit还是rollback都能得到正确的结果，并且需要清空之前的insert operation,避免事务结束时执行
+    auto delete_operation = Operation{Operation::Type::INSERT, table, record.rid()};
+    std::unordered_set<Operation>::size_type delete_result  = operations_.erase(delete_operation);
+    ASSERT(delete_result == 1, "failed to delete insert operation,begin_xid=%d, end_xid=%d, tid=%d, rid:%s",
+        begin_xid, end_xid, trx_id_, record.rid().to_string().c_str());
+    rc = table->delete_record(record);
+    ASSERT(rc == RC::SUCCESS, "failed to delete record in table.table id =%d, rid=%s, begin_xid=%d, end_xid=%d, current trx id = %d",
+        table.->table_id(), record.rid().to_string().c_str(), begin_xid, end_xid, trx_id_);
+    return rc;
+  }
 
-  operations_.insert(Operation(Operation::Type::DELETE, table, record.rid()));
+  pair<OperationSet::iterator, bool> ret = operations_.insert(Operation(Operation::Type::DELETE, table, record.rid()));
+  if (!ret.second) {
+    LOG_WARN("failed to insert operation(deletion) into operation set: duplicate");
+    return RC::INTERNAL;
+  }
 
   return RC::SUCCESS;
 }
