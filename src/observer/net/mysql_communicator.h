@@ -27,7 +27,7 @@ class BasePacket;
  * 可以参考 [MySQL Page Protocol](https://dev.mysql.com/doc/dev/mysql-server/latest/PAGE_PROTOCOL.html)
  * 或 [MariaDB Protocol](https://mariadb.com/kb/en/clientserver-protocol/)
  */
-class MysqlCommunicator : public Communicator 
+class MysqlCommunicator : public Communicator
 {
 public:
   /**
@@ -53,14 +53,14 @@ public:
 private:
   /**
    * @brief 发送数据包到客户端
-   * 
+   *
    * @param[in] packet 要发送的数据包
    */
   RC send_packet(const BasePacket &packet);
 
   /**
    * @brief 有些情况下不需要给客户端返回一行行的记录结果，而是返回执行是否成功即可，比如create table等
-   * 
+   *
    * @param[in] event 处理的结果
    * @param[out] need_disconnect 是否需要断开连接
    */
@@ -75,11 +75,11 @@ private:
 
   /**
    * @brief 返回客户端行数据
-   * 
+   *
    * @param[in] sql_result 返回的结果
    * @param no_column_def 是否没有列描述信息
    * @param[out] need_disconnect 是否需要断开连接
-   * @return RC 
+   * @return RC
    */
   RC send_result_rows(SqlResult *sql_result, bool no_column_def, bool &need_disconnect);
 

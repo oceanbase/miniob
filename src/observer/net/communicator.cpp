@@ -13,20 +13,20 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "net/communicator.h"
+#include "net/buffered_writer.h"
+#include "net/cli_communicator.h"
 #include "net/mysql_communicator.h"
 #include "net/plain_communicator.h"
-#include "net/cli_communicator.h"
-#include "net/buffered_writer.h"
 #include "session/session.h"
 
 #include "common/lang/mutex.h"
 
 RC Communicator::init(int fd, Session *session, const std::string &addr)
 {
-  fd_ = fd;
+  fd_      = fd;
   session_ = session;
-  addr_ = addr;
-  writer_ = new BufferedWriter(fd_);
+  addr_    = addr;
+  writer_  = new BufferedWriter(fd_);
   return RC::SUCCESS;
 }
 
