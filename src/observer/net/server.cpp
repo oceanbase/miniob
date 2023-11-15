@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <arpa/inet.h>
 #include <errno.h>
+#include <event2/thread.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -26,16 +27,15 @@ See the Mulan PSL v2 for more details. */
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <event2/thread.h>
 
+#include "common/ini_setting.h"
+#include "common/io/io.h"
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
-#include "common/io/io.h"
 #include "common/seda/seda_config.h"
 #include "event/session_event.h"
-#include "session/session.h"
-#include "common/ini_setting.h"
 #include "net/communicator.h"
+#include "session/session.h"
 
 using namespace common;
 
@@ -43,14 +43,12 @@ Stage *Server::session_stage_ = nullptr;
 
 ServerParam::ServerParam()
 {
-  listen_addr = INADDR_ANY;
+  listen_addr        = INADDR_ANY;
   max_connection_num = MAX_CONNECTION_NUM_DEFAULT;
-  port = PORT_DEFAULT;
+  port               = PORT_DEFAULT;
 }
 
-Server::Server(ServerParam input_server_param) : server_param_(input_server_param)
-{
-}
+Server::Server(ServerParam input_server_param) : server_param_(input_server_param) {}
 
 Server::~Server()
 {
@@ -59,10 +57,7 @@ Server::~Server()
   }
 }
 
-void Server::init()
-{
-  session_stage_ = get_seda_config()->get_stage(SESSION_STAGE_NAME);
-}
+void Server::init() { session_stage_ = get_seda_config()->get_stage(SESSION_STAGE_NAME); }
 
 int Server::set_non_block(int fd)
 {
@@ -92,6 +87,7 @@ void Server::recv(int fd, short ev, void *arg)
   Communicator *comm = (Communicator *)arg;
 
   SessionEvent *event = nullptr;
+
   RC rc = comm->read_event(event);
   if (rc != RC::SUCCESS) {
     close_connection(comm);
@@ -107,9 +103,9 @@ void Server::recv(int fd, short ev, void *arg)
 
 void Server::accept(int fd, short ev, void *arg)
 {
-  Server *instance = (Server *)arg;
+  Server            *instance = (Server *)arg;
   struct sockaddr_in addr;
-  socklen_t addrlen = sizeof(addr);
+  socklen_t          addrlen = sizeof(addr);
 
   int ret = 0;
 
@@ -139,7 +135,7 @@ void Server::accept(int fd, short ev, void *arg)
   if (!instance->server_param_.use_unix_socket) {
     // unix socket不支持设置NODELAY
     int yes = 1;
-    ret = setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
+    ret     = setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
     if (ret < 0) {
       LOG_ERROR("Failed to set socket of %s option as : TCP_NODELAY %s\n", addr_str.c_str(), strerror(errno));
       ::close(client_fd);
@@ -148,6 +144,7 @@ void Server::accept(int fd, short ev, void *arg)
   }
 
   Communicator *communicator = instance->communicator_factory_.create(instance->server_param_.protocol);
+
   RC rc = communicator->init(client_fd, new Session(Session::default_session()), addr_str);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to init communicator. rc=%s", strrc(rc));
@@ -188,7 +185,7 @@ int Server::start()
 
 int Server::start_tcp_server()
 {
-  int ret = 0;
+  int                ret = 0;
   struct sockaddr_in sa;
 
   server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -198,7 +195,7 @@ int Server::start_tcp_server()
   }
 
   int yes = 1;
-  ret = setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+  ret     = setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
   if (ret < 0) {
     LOG_ERROR("Failed to set socket option of reuse address: %s.", strerror(errno));
     ::close(server_socket_);
@@ -213,8 +210,8 @@ int Server::start_tcp_server()
   }
 
   memset(&sa, 0, sizeof(sa));
-  sa.sin_family = AF_INET;
-  sa.sin_port = htons(server_param_.port);
+  sa.sin_family      = AF_INET;
+  sa.sin_port        = htons(server_param_.port);
   sa.sin_addr.s_addr = htonl(server_param_.listen_addr);
 
   ret = ::bind(server_socket_, (struct sockaddr *)&sa, sizeof(sa));
@@ -253,7 +250,7 @@ int Server::start_tcp_server()
 
 int Server::start_unix_socket_server()
 {
-  int ret = 0;
+  int ret        = 0;
   server_socket_ = socket(PF_UNIX, SOCK_STREAM, 0);
   if (server_socket_ < 0) {
     LOG_ERROR("socket(): can not create unix socket: %s.", strerror(errno));
@@ -311,6 +308,7 @@ int Server::start_unix_socket_server()
 int Server::start_stdin_server()
 {
   Communicator *communicator = communicator_factory_.create(server_param_.protocol);
+
   RC rc = communicator->init(STDIN_FILENO, new Session(Session::default_session()), "stdin");
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to init cli communicator. rc=%s", strrc(rc));
@@ -321,6 +319,7 @@ int Server::start_stdin_server()
 
   while (started_) {
     SessionEvent *event = nullptr;
+
     rc = communicator->read_event(event);
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to read event. rc=%s", strrc(rc));

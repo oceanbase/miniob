@@ -32,7 +32,7 @@ public:
 
   /**
    * @brief 指定初始化大小的构造函数
-   * 
+   *
    */
   explicit RingBuffer(int32_t size);
 
@@ -86,9 +86,9 @@ public:
 
 private:
   int32_t read_pos() const { return (write_pos_ - this->size() + capacity()) % capacity(); }
-  
+
 private:
-  std::vector<char> buffer_;      ///< 缓存使用的内存，使用vector方便管理
-  int32_t data_size_ = 0;         ///< 已经写入的数据量
-  int32_t write_pos_ = 0;         ///< 当前写指针的位置，范围不会超出[0, capacity)
+  std::vector<char> buffer_;         ///< 缓存使用的内存，使用vector方便管理
+  int32_t           data_size_ = 0;  ///< 已经写入的数据量
+  int32_t           write_pos_ = 0;  ///< 当前写指针的位置，范围不会超出[0, capacity)
 };

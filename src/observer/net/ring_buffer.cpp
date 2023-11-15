@@ -14,23 +14,18 @@ See the Mulan PSL v2 for more details. */
 
 #include <algorithm>
 
-#include "net/ring_buffer.h"
 #include "common/log/log.h"
+#include "net/ring_buffer.h"
 
 using namespace std;
 
 const int32_t DEFAULT_BUFFER_SIZE = 16 * 1024;
 
-RingBuffer::RingBuffer()
-    : RingBuffer(DEFAULT_BUFFER_SIZE)
-{}
+RingBuffer::RingBuffer() : RingBuffer(DEFAULT_BUFFER_SIZE) {}
 
-RingBuffer::RingBuffer(int32_t size)
-    : buffer_(size)
-{}
+RingBuffer::RingBuffer(int32_t size) : buffer_(size) {}
 
-RingBuffer::~RingBuffer()
-{}
+RingBuffer::~RingBuffer() {}
 
 RC RingBuffer::read(char *buf, int32_t size, int32_t &read_size)
 {
@@ -38,12 +33,12 @@ RC RingBuffer::read(char *buf, int32_t size, int32_t &read_size)
     return RC::INVALID_ARGUMENT;
   }
 
-  RC rc = RC::SUCCESS;
+  RC rc     = RC::SUCCESS;
   read_size = 0;
-  while (OB_SUCC(rc) && read_size < size && this->size() > 0) {
-    const char *tmp_buf = nullptr;
-    int32_t tmp_size = 0;
-    rc = buffer(tmp_buf, tmp_size);
+  while (OB_SUCC(rc) && read_size<size &&this->size()> 0) {
+    const char *tmp_buf  = nullptr;
+    int32_t     tmp_size = 0;
+    rc                   = buffer(tmp_buf, tmp_size);
     if (OB_SUCC(rc)) {
       int32_t copy_size = min(size - read_size, tmp_size);
       memcpy(buf + read_size, tmp_buf, copy_size);
@@ -60,7 +55,7 @@ RC RingBuffer::buffer(const char *&buf, int32_t &read_size)
 {
   const int32_t size = this->size();
   if (size == 0) {
-    buf = buffer_.data();
+    buf       = buffer_.data();
     read_size = 0;
     return RC::SUCCESS;
   }
@@ -96,11 +91,11 @@ RC RingBuffer::write(const char *data, int32_t size, int32_t &write_size)
     return RC::INVALID_ARGUMENT;
   }
 
-  RC rc = RC::SUCCESS;
+  RC rc      = RC::SUCCESS;
   write_size = 0;
-  while (OB_SUCC(rc) && write_size < size && this->remain() > 0) {
+  while (OB_SUCC(rc) && write_size<size &&this->remain()> 0) {
 
-    const int32_t read_pos = this->read_pos();
+    const int32_t read_pos     = this->read_pos();
     const int32_t tmp_buf_size = (read_pos <= write_pos_) ? (capacity() - write_pos_) : (read_pos - write_pos_);
 
     const int32_t copy_size = min(size - write_size, tmp_buf_size);
