@@ -12,15 +12,15 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2022/12/26.
 //
 
-#include "common/log/log.h"
 #include "sql/optimizer/conjunction_simplification_rule.h"
+#include "common/log/log.h"
 #include "sql/expr/expression.h"
 
 RC try_to_get_bool_constant(std::unique_ptr<Expression> &expr, bool &constant_value)
 {
   if (expr->type() == ExprType::VALUE && expr->value_type() == BOOLEANS) {
     auto value_expr = static_cast<ValueExpr *>(expr.get());
-    constant_value = value_expr->get_value().get_boolean();
+    constant_value  = value_expr->get_value().get_boolean();
     return RC::SUCCESS;
   }
   return RC::INTERNAL;
@@ -32,14 +32,17 @@ RC ConjunctionSimplificationRule::rewrite(std::unique_ptr<Expression> &expr, boo
     return rc;
   }
 
-  change_made = false;
-  auto conjunction_expr = static_cast<ConjunctionExpr *>(expr.get());
-  std::vector<std::unique_ptr<Expression>> &child_exprs = conjunction_expr->children();
+  change_made                                                = false;
+  auto                                      conjunction_expr = static_cast<ConjunctionExpr *>(expr.get());
+
+  std::vector<std::unique_ptr<Expression>> &child_exprs      = conjunction_expr->children();
+
   // 先看看有没有能够直接去掉的表达式。比如AND时恒为true的表达式可以删除
   // 或者是否可以直接计算出当前表达式的值。比如AND时，如果有一个表达式为false，那么整个表达式就是false
   for (auto iter = child_exprs.begin(); iter != child_exprs.end();) {
     bool constant_value = false;
-    rc = try_to_get_bool_constant(*iter, constant_value);
+
+    rc                  = try_to_get_bool_constant(*iter, constant_value);
     if (rc != RC::SUCCESS) {
       rc = RC::SUCCESS;
       ++iter;

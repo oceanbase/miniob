@@ -17,11 +17,11 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 
 #include "common/rc.h"
-#include "sql/operator/logical_operator.h"
 #include "sql/expr/expression.h"
+#include "sql/operator/logical_operator.h"
 #include "sql/optimizer/rewrite_rule.h"
 
-class ExpressionRewriter : public RewriteRule 
+class ExpressionRewriter : public RewriteRule
 {
 public:
   ExpressionRewriter();
