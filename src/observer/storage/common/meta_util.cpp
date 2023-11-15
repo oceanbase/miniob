@@ -11,8 +11,8 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai.wyl on 2021/5/18.
 //
 
-#include "common/defs.h"
 #include "storage/common/meta_util.h"
+#include "common/defs.h"
 
 std::string table_meta_file(const char *base_dir, const char *table_name)
 {
