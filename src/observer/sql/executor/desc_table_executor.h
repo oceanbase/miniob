@@ -25,7 +25,7 @@ class SQLStageEvent;
 class DescTableExecutor
 {
 public:
-  DescTableExecutor() = default;
+  DescTableExecutor()          = default;
   virtual ~DescTableExecutor() = default;
 
   RC execute(SQLStageEvent *sql_event);

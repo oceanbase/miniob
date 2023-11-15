@@ -13,18 +13,18 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/executor/command_executor.h"
+#include "common/log/log.h"
 #include "event/sql_event.h"
-#include "sql/stmt/stmt.h"
 #include "sql/executor/create_index_executor.h"
 #include "sql/executor/create_table_executor.h"
 #include "sql/executor/desc_table_executor.h"
 #include "sql/executor/help_executor.h"
+#include "sql/executor/load_data_executor.h"
+#include "sql/executor/set_variable_executor.h"
 #include "sql/executor/show_tables_executor.h"
 #include "sql/executor/trx_begin_executor.h"
 #include "sql/executor/trx_end_executor.h"
-#include "sql/executor/set_variable_executor.h"
-#include "sql/executor/load_data_executor.h"
-#include "common/log/log.h"
+#include "sql/stmt/stmt.h"
 
 RC CommandExecutor::execute(SQLStageEvent *sql_event)
 {

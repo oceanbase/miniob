@@ -15,10 +15,8 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/rc.h"
-#include "sql/operator/string_list_physical_operator.h"
-#include "event/sql_event.h"
 #include "event/session_event.h"
-#include "sql/executor/sql_result.h"
+#include "event/sql_event.h"
 #include "session/session.h"
 #include "sql/stmt/set_variable_stmt.h"
 
@@ -29,20 +27,21 @@ See the Mulan PSL v2 for more details. */
 class SetVariableExecutor
 {
 public:
-  SetVariableExecutor() = default;
+  SetVariableExecutor()          = default;
   virtual ~SetVariableExecutor() = default;
 
   RC execute(SQLStageEvent *sql_event)
   {
     RC rc = RC::SUCCESS;
-    Session *session = sql_event->session_event()->session();
-    SetVariableStmt *stmt = (SetVariableStmt *)sql_event->stmt();
 
-    const char *var_name = stmt->var_name();
+    Session         *session = sql_event->session_event()->session();
+    SetVariableStmt *stmt    = (SetVariableStmt *)sql_event->stmt();
+
+    const char  *var_name  = stmt->var_name();
     const Value &var_value = stmt->var_value();
     if (strcasecmp(var_name, "sql_debug") == 0) {
       bool bool_value = false;
-      rc = var_value_to_boolean(var_value, bool_value);
+      rc              = var_value_to_boolean(var_value, bool_value);
       if (rc != RC::SUCCESS) {
         return rc;
       }
@@ -69,21 +68,9 @@ private:
       bool_value = var_value.get_float() != 0.0;
     } else if (var_value.attr_type() == AttrType::CHARS) {
 
-      std::string true_strings[] = {
-          "true",
-          "on",
-          "yes",
-          "t",
-          "1"
-      };
+      std::string true_strings[] = {"true", "on", "yes", "t", "1"};
 
-      std::string false_strings[] = {
-          "false",
-          "off",
-          "no",
-          "f",
-          "0"
-      };
+      std::string false_strings[] = {"false", "off", "no", "f", "0"};
 
       for (size_t i = 0; i < sizeof(true_strings) / sizeof(true_strings[0]); i++) {
         if (strcasecmp(var_value.get_string().c_str(), true_strings[i].c_str()) == 0) {
