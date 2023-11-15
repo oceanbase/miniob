@@ -12,10 +12,10 @@ See the Mulan PSL v2 for more details. */
 // Created by longda on 2022
 //
 
-#include <list>
-#include <iostream>
 #include "common/mm/mem_pool.h"
 #include "gtest/gtest.h"
+#include <iostream>
+#include <list>
 
 using namespace common;
 
