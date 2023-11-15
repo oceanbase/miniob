@@ -29,7 +29,7 @@ class Db;
 class ShowTablesStmt : public Stmt
 {
 public:
-  ShowTablesStmt() = default;
+  ShowTablesStmt()          = default;
   virtual ~ShowTablesStmt() = default;
 
   StmtType type() const override { return StmtType::SHOW_TABLES; }
