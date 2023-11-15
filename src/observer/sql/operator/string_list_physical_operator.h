@@ -14,8 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <vector>
 #include "sql/operator/physical_operator.h"
+#include <vector>
 
 /**
  * @brief 字符串列表物理算子
@@ -25,8 +25,7 @@ See the Mulan PSL v2 for more details. */
 class StringListPhysicalOperator : public PhysicalOperator
 {
 public:
-  StringListPhysicalOperator()
-  {}
+  StringListPhysicalOperator() {}
 
   virtual ~StringListPhysicalOperator() = default;
 
@@ -36,10 +35,7 @@ public:
     strings_.emplace_back(begin, end);
   }
 
-  void append(std::initializer_list<std::string> init)
-  {
-    strings_.emplace_back(init);
-  }
+  void append(std::initializer_list<std::string> init) { strings_.emplace_back(init); }
 
   template <typename T>
   void append(const T &v)
@@ -47,20 +43,14 @@ public:
     strings_.emplace_back(1, v);
   }
 
-  PhysicalOperatorType type() const override
-  {
-    return PhysicalOperatorType::STRING_LIST;
-  }
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::STRING_LIST; }
 
-  RC open(Trx *) override
-  {
-    return RC::SUCCESS;
-  }
+  RC open(Trx *) override { return RC::SUCCESS; }
 
   RC next() override
   {
     if (!started_) {
-      started_ = true;
+      started_  = true;
       iterator_ = strings_.begin();
     } else if (iterator_ != strings_.end()) {
       ++iterator_;
@@ -80,7 +70,7 @@ public:
       return nullptr;
     }
 
-    const StringList &string_list = *iterator_;
+    const StringList  &string_list = *iterator_;
     std::vector<Value> cells;
     for (const std::string &s : string_list) {
 
@@ -93,10 +83,10 @@ public:
   }
 
 private:
-  using StringList = std::vector<std::string>;
+  using StringList     = std::vector<std::string>;
   using StringListList = std::vector<StringList>;
-  StringListList strings_;
+  StringListList           strings_;
   StringListList::iterator iterator_;
-  bool started_ = false;
-  ValueListTuple tuple_;
+  bool                     started_ = false;
+  ValueListTuple           tuple_;
 };
