@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/expression_rewriter.h"
 #include "sql/optimizer/predicate_pushdown_rewriter.h"
 #include "sql/optimizer/predicate_rewrite.h"
+#include "common/log/log.h"
 
 Rewriter::Rewriter()
 {
