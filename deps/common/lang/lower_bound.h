@@ -118,7 +118,7 @@ public:
   BinaryIterator  operator--(int)
   {
     BinaryIterator tmp(*this);
-    this->operator+=(-1);
+    *this += -1;
     return tmp;
   }
 
