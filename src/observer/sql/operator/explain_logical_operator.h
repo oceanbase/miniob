@@ -27,5 +27,4 @@ public:
   virtual ~ExplainLogicalOperator() = default;
 
   LogicalOperatorType type() const override { return LogicalOperatorType::EXPLAIN; }
-
 };
