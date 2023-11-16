@@ -9,5 +9,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: RafikFarhad/clang-format-github-action@v3
         with:
-          excludes: "yacc_sql.cpp,yacc_sql.hpp,lex_sql.cpp,lex_sql.h"
+          # sources 和 excludes 最终生成的find查找文件的命令大概是这样的
+          # find . -type f ! -wholename "./src/observer/sql/parser/lex_sql.*" \(  -wholename "./**/*.h" -o -wholename "./**/*.cpp" \)
+          sources: "./**/*.h,**/*.cpp"
+          excludes: "src/observer/sql/parser/lex_sql.*,src/observer/sql/parser/yacc_sql.*"
           style: "file"
