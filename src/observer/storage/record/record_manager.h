@@ -374,6 +374,7 @@ private:
 private:
   // TODO 对于一个纯粹的record遍历器来说，不应该关心表和事务
   Table *table_ = nullptr;  ///< 当前遍历的是哪张表。这个字段仅供事务函数使用，如果设计合适，可以去掉
+
   DiskBufferPool *disk_buffer_pool_ = nullptr;  ///< 当前访问的文件
   Trx            *trx_              = nullptr;  ///< 当前是哪个事务在遍历
   bool            readonly_         = false;    ///< 遍历出来的数据，是否可能对它做修改
