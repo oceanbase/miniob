@@ -9,6 +9,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: RafikFarhad/clang-format-github-action@v3
         with:
-          sources: "**/*"
           excludes: "yacc_sql.cpp,yacc_sql.hpp,lex_sql.cpp,lex_sql.h"
           style: "file"
