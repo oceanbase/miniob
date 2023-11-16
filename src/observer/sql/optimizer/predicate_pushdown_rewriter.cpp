@@ -13,10 +13,10 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/optimizer/predicate_pushdown_rewriter.h"
+#include "common/log/log.h"
 #include "sql/expr/expression.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/table_get_logical_operator.h"
-#include "common/log/log.h"
 
 RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made)
 {

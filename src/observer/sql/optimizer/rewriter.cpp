@@ -13,11 +13,11 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/optimizer/rewriter.h"
+#include "common/log/log.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/optimizer/expression_rewriter.h"
 #include "sql/optimizer/predicate_pushdown_rewriter.h"
 #include "sql/optimizer/predicate_rewrite.h"
-#include "common/log/log.h"
 
 Rewriter::Rewriter()
 {
