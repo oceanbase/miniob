@@ -12,17 +12,17 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/05/04
 //
 
+#include <benchmark/benchmark.h>
 #include <inttypes.h>
 #include <random>
 #include <stdexcept>
-#include <benchmark/benchmark.h>
 
-#include "storage/record/record_manager.h"
-#include "storage/buffer/disk_buffer_pool.h"
-#include "storage/common/condition_filter.h"
-#include "storage/trx/vacuous_trx.h"
 #include "common/log/log.h"
 #include "integer_generator.h"
+#include "storage/buffer/disk_buffer_pool.h"
+#include "storage/common/condition_filter.h"
+#include "storage/record/record_manager.h"
+#include "storage/trx/vacuous_trx.h"
 
 using namespace std;
 using namespace common;
