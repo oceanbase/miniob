@@ -11,22 +11,22 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by Longda on 2010
 //
-#include <sys/stat.h>
-#include <regex.h>
 #include <dirent.h>
+#include <regex.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include <vector>
 
 #include "common/defs.h"
-#include "common/os/path.h"
 #include "common/log/log.h"
+#include "common/os/path.h"
 namespace common {
 
 std::string getFileName(const std::string &fullPath)
 {
   std::string szRt;
-  size_t pos;
+  size_t      pos;
   try {
     pos = fullPath.rfind(FILE_PATH_SPLIT);
     if (pos != std::string::npos && pos < fullPath.size() - 1) {
@@ -62,7 +62,7 @@ void getFileName(const char *path, std::string &fileName)
 std::string getDirName(const std::string &fullPath)
 {
   std::string szRt;
-  size_t pos;
+  size_t      pos;
   try {
     pos = fullPath.rfind(FILE_PATH_SPLIT);
     if (pos != std::string::npos && pos > 0) {
@@ -98,7 +98,7 @@ void getDirName(const char *path, std::string &parent)
 std::string getFilePath(const std::string &fullPath)
 {
   std::string szRt;
-  size_t pos;
+  size_t      pos;
   try {
     pos = fullPath.rfind("/");
     if (pos != std::string::npos) {
@@ -118,7 +118,7 @@ std::string getAboslutPath(const char *path)
   std::string aPath(path);
   if (path[0] != '/') {
     const int MAX_SIZE = 256;
-    char current_absolute_path[MAX_SIZE];
+    char      current_absolute_path[MAX_SIZE];
 
     if (NULL == getcwd(current_absolute_path, MAX_SIZE)) {}
   }
@@ -157,7 +157,7 @@ bool check_directory(std::string &path)
     if (0 != mkdir(path.c_str(), 0777) && !is_directory(path.c_str()))
       return false;
 
-    path[i] = '/';
+    path[i]   = '/';
     sep_state = true;
   }
 
@@ -193,7 +193,7 @@ int list_file(const char *path, const char *filter_pattern, std::vector<std::str
   // as readdir is not thread-safe, it is better to use C++ directory
   // TODO
   struct dirent *pentry;
-  char tmp_path[PATH_MAX];
+  char           tmp_path[PATH_MAX];
   while ((pentry = readdir(pdir)) != NULL) {
     if ('.' == pentry->d_name[0])  // 跳过./..文件和隐藏文件
       continue;

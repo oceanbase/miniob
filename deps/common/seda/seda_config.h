@@ -21,8 +21,8 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 #include <vector>
 
-#include "common/seda/thread_pool.h"
 #include "common/seda/seda_defs.h"
+#include "common/seda/thread_pool.h"
 
 namespace common {
 
@@ -42,10 +42,16 @@ namespace common {
  *  attributes in case of duplicate attributes
  */
 
-class SedaConfig {
+class SedaConfig
+{
 
 public:
-  typedef enum { SUCCESS = 0, INITFAIL, PARSEFAIL } status_t;
+  typedef enum
+  {
+    SUCCESS = 0,
+    INITFAIL,
+    PARSEFAIL
+  } status_t;
 
   static SedaConfig *&get_instance();
 
@@ -200,19 +206,13 @@ private:
   std::string cfg_str_;
 
   std::map<std::string, Threadpool *> thread_pools_;
-  std::map<std::string, Stage *> stages_;
-  std::vector<std::string> stage_names_;
+  std::map<std::string, Stage *>      stages_;
+  std::vector<std::string>            stage_names_;
 };
 
-inline std::map<std::string, Stage *>::iterator SedaConfig::begin()
-{
-  return stages_.begin();
-}
+inline std::map<std::string, Stage *>::iterator SedaConfig::begin() { return stages_.begin(); }
 
-inline std::map<std::string, Stage *>::iterator SedaConfig::end()
-{
-  return stages_.end();
-}
+inline std::map<std::string, Stage *>::iterator SedaConfig::end() { return stages_.end(); }
 
 inline Stage *SedaConfig::get_stage(const char *stagename)
 {
@@ -226,7 +226,7 @@ inline Stage *SedaConfig::get_stage(const char *stagename)
 // Global seda config object
 SedaConfig *&get_seda_config();
 
-bool &get_event_history_flag();
+bool     &get_event_history_flag();
 uint32_t &get_max_event_hops();
 
 }  // namespace common

@@ -19,7 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-class MetricsStage : public Stage {
+class MetricsStage : public Stage
+{
 public:
   ~MetricsStage();
   static Stage *make_stage(const std::string &tag);

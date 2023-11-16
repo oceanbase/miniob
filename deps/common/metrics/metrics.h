@@ -24,23 +24,20 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-class Gauge : public Metric {
+class Gauge : public Metric
+{
 public:
   // user implement snapshot function
-  void set_snapshot(Snapshot *value)
-  {
-    snapshot_value_ = value;
-  }
+  void set_snapshot(Snapshot *value) { snapshot_value_ = value; }
 };
 
-class Counter : public Metric {
-  void set_snapshot(SnapshotBasic<long> *value)
-  {
-    snapshot_value_ = value;
-  }
+class Counter : public Metric
+{
+  void set_snapshot(SnapshotBasic<long> *value) { snapshot_value_ = value; }
 };
 
-class Meter : public Metric {
+class Meter : public Metric
+{
 public:
   Meter();
   virtual ~Meter();
@@ -52,12 +49,13 @@ public:
 
 protected:
   std::atomic<long> value_;
-  long snapshot_tick_;
+  long              snapshot_tick_;
 };
 
 // SimpleTimer just get tps and meanvalue
 // time unit is ms
-class SimpleTimer : public Meter {
+class SimpleTimer : public Meter
+{
 public:
   virtual ~SimpleTimer();
 
@@ -75,7 +73,8 @@ protected:
 //  please skip us histogram or Timer as more as possible
 //  try use SimpleTimer to replace them.
 //  if use histogram , please use sampling method.
-class Histogram : public UniformReservoir {
+class Histogram : public UniformReservoir
+{
 public:
   Histogram(RandomGenerator &random);
   Histogram(RandomGenerator &random, size_t size);
@@ -86,7 +85,8 @@ public:
 
 // timeunit is ms
 // Timer = Histogram + Meter
-class Timer : public UniformReservoir {
+class Timer : public UniformReservoir
+{
 public:
   Timer(RandomGenerator &random);
   Timer(RandomGenerator &random, size_t size);
@@ -97,10 +97,11 @@ public:
 
 protected:
   std::atomic<long> value_;
-  long snapshot_tick_;
+  long              snapshot_tick_;
 };
 // update ms
-class TimerStat {
+class TimerStat
+{
 public:
   TimerStat(SimpleTimer &st_);
 
@@ -110,8 +111,8 @@ public:
 
 public:
   SimpleTimer &st_;
-  long start_tick_;
-  long end_tick_;
+  long         start_tick_;
+  long         end_tick_;
 };
 
 }  // namespace common

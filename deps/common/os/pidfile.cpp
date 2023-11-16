@@ -48,7 +48,7 @@ int writePidFile(const char *progName)
 {
   assert(progName);
   std::ofstream ostr;
-  int rv = 1;
+  int           rv = 1;
 
   setPidPath(progName);
   std::string path = getPidPath();

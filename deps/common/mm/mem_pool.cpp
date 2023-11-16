@@ -27,7 +27,7 @@ int MemPoolItem::init(int item_size, bool dynamic, int pool_num, int item_num_pe
     return -1;
   }
 
-  this->item_size = item_size;
+  this->item_size         = item_size;
   this->item_num_per_pool = item_num_per_pool;
   // in order to init memory pool, enable dynamic here
   this->dynamic = true;
@@ -128,8 +128,8 @@ void *MemPoolItem::alloc()
 
 MemPoolItem::unique_ptr MemPoolItem::alloc_unique_ptr()
 {
-  void *item = this->alloc();
-  auto deleter = [this](void *p) { this->free(p); };
+  void *item    = this->alloc();
+  auto  deleter = [this](void *p) { this->free(p); };
   return MemPoolItem::unique_ptr(item, deleter);
 }
 

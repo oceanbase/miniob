@@ -17,9 +17,9 @@ See the Mulan PSL v2 for more details. */
 
 // Basic includes
 #include <assert.h>
-#include <signal.h>
 #include <iostream>
 #include <set>
+#include <signal.h>
 #include <sstream>
 #include <string>
 #include <vector>

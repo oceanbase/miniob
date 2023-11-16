@@ -18,7 +18,8 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-class ExampleStage : public Stage {
+class ExampleStage : public Stage
+{
 public:
   ~ExampleStage();
   static Stage *make_stage(const std::string &tag);
@@ -34,4 +35,3 @@ protected:
   void callback_event(StageEvent *event, CallbackContext *context);
 };
 }  // namespace common
-

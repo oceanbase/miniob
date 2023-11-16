@@ -34,7 +34,7 @@ namespace common {
 
 #endif
 
-enum 
+enum
 {
   // General Error Codes
   STATUS_SUCCESS = 0,     //!< Success status should be zero,
@@ -50,7 +50,7 @@ enum
   STATUS_LAST_ERR  //!< last error code
 };
 
-static const char FILE_PATH_SPLIT = '/';
+static const char FILE_PATH_SPLIT       = '/';
 static const char FILE_PATH_SPLIT_STR[] = "/";
 
 #define EPSILON (1E-6)

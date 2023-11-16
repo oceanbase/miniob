@@ -26,12 +26,10 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 // Constructor
-ExampleStage::ExampleStage(const char *tag) : Stage(tag)
-{}
+ExampleStage::ExampleStage(const char *tag) : Stage(tag) {}
 
 // Destructor
-ExampleStage::~ExampleStage()
-{}
+ExampleStage::~ExampleStage() {}
 
 // Parse properties, instantiate a stage object
 Stage *ExampleStage::make_stage(const std::string &tag)

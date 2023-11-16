@@ -41,7 +41,8 @@ namespace common {
  */
 
 template <class T>
-class ClassFactory {
+class ClassFactory
+{
 
 public:
   typedef T *(*FactoryFunc)(const std::string &);
@@ -71,9 +72,9 @@ private:
   // Accessor function that gets the head of the factory list
   static ClassFactory<T> *&fact_list_head();
 
-  std::string identifier_;  // identifier for this factory
-  FactoryFunc fact_func_;   // factory function for this class
-  ClassFactory<T> *next_;   // next factory in global list
+  std::string      identifier_;  // identifier for this factory
+  FactoryFunc      fact_func_;   // factory function for this class
+  ClassFactory<T> *next_;        // next factory in global list
 };
 
 /**
@@ -101,7 +102,7 @@ ClassFactory<T> *&ClassFactory<T>::fact_list_head()
 template <class T>
 ClassFactory<T>::ClassFactory(const std::string &tag, FactoryFunc func) : identifier_(tag), fact_func_(func)
 {
-  next_ = fact_list_head();
+  next_            = fact_list_head();
   fact_list_head() = this;
 }
 
@@ -119,8 +120,8 @@ ClassFactory<T>::~ClassFactory()
 template <class T>
 T *ClassFactory<T>::make_instance(const std::string &tag)
 {
-  T *instance = NULL;
-  ClassFactory<T> *current = fact_list_head();
+  T               *instance = NULL;
+  ClassFactory<T> *current  = fact_list_head();
 
   // search the global factory list for a match
   while ((current != NULL) && (tag != current->identifier_)) {
@@ -130,7 +131,7 @@ T *ClassFactory<T>::make_instance(const std::string &tag)
   // if we have a match, create and return an instance
   if (current != NULL) {
     FactoryFunc fptr = current->fact_func_;
-    instance = (*fptr)(tag);
+    instance         = (*fptr)(tag);
   }
 
   ASSERT((instance != NULL), "%s%s", tag.c_str(), "instance not created");

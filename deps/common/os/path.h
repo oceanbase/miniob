@@ -27,7 +27,7 @@ namespace common {
  * input: ""            --> return : ""
  */
 std::string getFileName(const std::string &fullPath);
-void getFileName(const char *path, std::string &fileName);
+void        getFileName(const char *path, std::string &fileName);
 
 /**
  * get file path from full path
@@ -38,7 +38,7 @@ void getFileName(const char *path, std::string &fileName);
  * input: ""            --> return : ""
  */
 std::string getFilePath(const std::string &fullPath);
-void getDirName(const char *path, std::string &parent);
+void        getDirName(const char *path, std::string &parent);
 
 /**
  *  Get absolute path

@@ -87,13 +87,13 @@ bool Stage::connect()
   assert(!connected_);
   assert(th_pool_ != NULL);
 
-  bool success = false;
+  bool         success = false;
   unsigned int backlog = 0;
 
   success = initialize();
   if (success) {
     MUTEX_LOCK(&list_mutex_);
-    backlog = event_list_.size();
+    backlog    = event_list_.size();
     event_ref_ = backlog;
     connected_ = true;
     MUTEX_UNLOCK(&list_mutex_);

@@ -23,13 +23,14 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-class Reservoir : public Metric {
+class Reservoir : public Metric
+{
 public:
   Reservoir(RandomGenerator &random);
   virtual ~Reservoir();
 
 public:
-  virtual size_t size() = 0;
+  virtual size_t size()      = 0;
   virtual size_t get_count() = 0;
 
   virtual void update(double one) = 0;

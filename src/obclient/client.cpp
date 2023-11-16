@@ -23,16 +23,16 @@ See the Mulan PSL v2 for more details. */
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/un.h>
-#include <unistd.h>
 #include <termios.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "common/defs.h"
 #include "common/lang/string.h"
 
 #ifdef USE_READLINE
-#include "readline/readline.h"
 #include "readline/history.h"
+#include "readline/readline.h"
 #endif
 
 #define MAX_MEM_BUFFER_SIZE 8192
@@ -41,10 +41,10 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 #ifdef USE_READLINE
-const std::string HISTORY_FILE = std::string(getenv("HOME")) + "/.miniob.history";
-time_t last_history_write_time = 0;
+const std::string HISTORY_FILE            = std::string(getenv("HOME")) + "/.miniob.history";
+time_t            last_history_write_time = 0;
 
-char *my_readline(const char *prompt) 
+char *my_readline(const char *prompt)
 {
   int size = history_length;
   if (size == 0) {
@@ -67,7 +67,7 @@ char *my_readline(const char *prompt)
   }
   return line;
 }
-#else // USE_READLINE
+#else   // USE_READLINE
 char *my_readline(const char *prompt)
 {
   char *buffer = (char *)malloc(MAX_MEM_BUFFER_SIZE);
@@ -84,16 +84,15 @@ char *my_readline(const char *prompt)
   }
   return buffer;
 }
-#endif // USE_READLINE
+#endif  // USE_READLINE
 
 /* this function config a exit-cmd list, strncasecmp func truncate the command from terminal according to the number,
-   'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from 
+   'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from
    the beginning, then compare the result with 'exit', if they match, exit the obclient.
 */
-bool is_exit_command(const char *cmd) {
-  return 0 == strncasecmp("exit", cmd, 4) ||
-         0 == strncasecmp("bye", cmd, 3) ||
-         0 == strncasecmp("\\q", cmd, 2) ;
+bool is_exit_command(const char *cmd)
+{
+  return 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) || 0 == strncasecmp("\\q", cmd, 2);
 }
 
 int init_unix_sock(const char *unix_sock_path)
@@ -119,7 +118,7 @@ int init_unix_sock(const char *unix_sock_path)
 
 int init_tcp_sock(const char *server_host, int server_port)
 {
-  struct hostent *host;
+  struct hostent    *host;
   struct sockaddr_in serv_addr;
 
   if ((host = gethostbyname(server_host)) == NULL) {
@@ -134,8 +133,8 @@ int init_tcp_sock(const char *server_host, int server_port)
   }
 
   serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(server_port);
-  serv_addr.sin_addr = *((struct in_addr *)host->h_addr);
+  serv_addr.sin_port   = htons(server_port);
+  serv_addr.sin_addr   = *((struct in_addr *)host->h_addr);
   bzero(&(serv_addr.sin_zero), 8);
 
   if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr)) == -1) {
@@ -148,22 +147,16 @@ int init_tcp_sock(const char *server_host, int server_port)
 
 int main(int argc, char *argv[])
 {
-  const char *unix_socket_path = nullptr;
-  const char *server_host = "127.0.0.1";
-  int server_port = PORT_DEFAULT;
-  int opt;
+  const char  *unix_socket_path = nullptr;
+  const char  *server_host      = "127.0.0.1";
+  int          server_port      = PORT_DEFAULT;
+  int          opt;
   extern char *optarg;
   while ((opt = getopt(argc, argv, "s:h:p:")) > 0) {
     switch (opt) {
-      case 's':
-        unix_socket_path = optarg;
-        break;
-      case 'p':
-        server_port = atoi(optarg);
-        break;
-      case 'h':
-        server_host = optarg;
-        break;
+      case 's': unix_socket_path = optarg; break;
+      case 'p': server_port = atoi(optarg); break;
+      case 'h': server_host = optarg; break;
     }
   }
 
@@ -194,7 +187,7 @@ int main(int argc, char *argv[])
       break;
     }
 
-    if ((send_bytes = write(sockfd, input_command, strlen(input_command) + 1)) == -1) { // TODO writen
+    if ((send_bytes = write(sockfd, input_command, strlen(input_command) + 1)) == -1) {  // TODO writen
       fprintf(stderr, "send error: %d:%s \n", errno, strerror(errno));
       exit(1);
     }

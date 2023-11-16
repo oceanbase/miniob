@@ -16,13 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-Reservoir::Reservoir(RandomGenerator &random) : random(random)
-{}
+Reservoir::Reservoir(RandomGenerator &random) : random(random) {}
 
-Reservoir::~Reservoir()
-{}
+Reservoir::~Reservoir() {}
 
-size_t Reservoir::next(size_t range)
-{
-  return random.next(range);
-}
+size_t Reservoir::next(size_t range) { return random.next(range); }

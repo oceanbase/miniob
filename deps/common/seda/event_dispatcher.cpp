@@ -47,9 +47,9 @@ void EventDispatcher::handle_event(StageEvent *event)
 {
   LOG_TRACE("enter\n");
 
-  std::string hash;
+  std::string      hash;
   DispatchContext *ctx = NULL;
-  status_t stat;
+  status_t         stat;
 
   pthread_mutex_lock(&event_lock_);
   stat = dispatch_event(event, ctx, hash);
@@ -106,7 +106,7 @@ void EventDispatcher::cleanup()
 // Wake up a stored event
 bool EventDispatcher::wakeup_event(std::string hashkey)
 {
-  bool sent = false;
+  bool                sent = false;
   EventHash::iterator i;
 
   i = event_store_.find(hashkey);

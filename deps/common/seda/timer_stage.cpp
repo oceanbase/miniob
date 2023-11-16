@@ -32,7 +32,7 @@ namespace common {
 struct timeval sub_timeval(const struct timeval *t1, const struct timeval *t2)
 {
   struct timeval result;
-  result.tv_sec = t1->tv_sec - t2->tv_sec;
+  result.tv_sec  = t1->tv_sec - t2->tv_sec;
   result.tv_usec = t1->tv_usec - t2->tv_usec;
   while (result.tv_usec < 0) {
     --result.tv_sec;
@@ -44,7 +44,7 @@ struct timeval sub_timeval(const struct timeval *t1, const struct timeval *t2)
 struct timeval add_timeval(const struct timeval *t1, const struct timeval *t2)
 {
   struct timeval result;
-  result.tv_sec = t1->tv_sec + t2->tv_sec;
+  result.tv_sec  = t1->tv_sec + t2->tv_sec;
   result.tv_usec = t1->tv_usec + t2->tv_usec;
   while (result.tv_usec >= USEC_PER_SEC) {
     ++result.tv_sec;
@@ -65,18 +65,18 @@ void realtime_to_monotonic(const struct timeval *time_RT, struct timeval *time_M
   clock_gettime(CLOCK_MONOTONIC, &time_ts);
 
   struct timeval time_temp;
-  time_temp.tv_sec = time_ts.tv_sec;
+  time_temp.tv_sec  = time_ts.tv_sec;
   time_temp.tv_usec = time_ts.tv_nsec / NSEC_PER_USEC;
-  time_temp = add_timeval(&time_temp, &time_offset);
+  time_temp         = add_timeval(&time_temp, &time_offset);
 
-  time_Mono->tv_sec = time_temp.tv_sec;
+  time_Mono->tv_sec  = time_temp.tv_sec;
   time_Mono->tv_usec = time_temp.tv_usec;
 }
 
 uint64_t TimerToken::next_nonce()
 {
-  static uint64_t nonce_cntr = 0;
-  static pthread_mutex_t tt_mutex = PTHREAD_MUTEX_INITIALIZER;
+  static uint64_t        nonce_cntr = 0;
+  static pthread_mutex_t tt_mutex   = PTHREAD_MUTEX_INITIALIZER;
 
   pthread_mutex_lock(&tt_mutex);
   uint64_t n = nonce_cntr++;
@@ -114,15 +114,9 @@ void TimerToken::set(const struct timeval &t, uint64_t n)
   return;
 }
 
-const struct timeval &TimerToken::get_time() const
-{
-  return time;
-}
+const struct timeval &TimerToken::get_time() const { return time; }
 
-uint64_t TimerToken::get_nonce() const
-{
-  return nonce;
-}
+uint64_t TimerToken::get_nonce() const { return nonce; }
 
 bool TimerToken::operator<(const TimerToken &other) const
 {
@@ -141,18 +135,19 @@ TimerToken &TimerToken::operator=(const TimerToken &src)
 
 std::string TimerToken::to_string() const
 {
-  std::string s;
+  std::string        s;
   std::ostringstream ss(s);
   ss << time.tv_sec << ":" << time.tv_usec << "-" << nonce;
   return ss.str();
 }
 
-TimerRegisterEvent::TimerRegisterEvent(StageEvent *cb, uint64_t time_relative_usec) : TimerEvent(), timer_cb_(cb), token_()
+TimerRegisterEvent::TimerRegisterEvent(StageEvent *cb, uint64_t time_relative_usec)
+    : TimerEvent(), timer_cb_(cb), token_()
 {
   struct timespec timer_spec;
   clock_gettime(CLOCK_MONOTONIC, &timer_spec);
 
-  timer_when_.tv_sec = timer_spec.tv_sec;
+  timer_when_.tv_sec  = timer_spec.tv_sec;
   timer_when_.tv_usec = (timer_spec.tv_nsec / NSEC_PER_USEC);
 
   timer_when_.tv_usec += time_relative_usec;
@@ -171,25 +166,16 @@ TimerRegisterEvent::TimerRegisterEvent(StageEvent *cb, struct timeval &time_abso
   return;
 }
 
-TimerRegisterEvent::~TimerRegisterEvent()
-{
-  return;
-}
+TimerRegisterEvent::~TimerRegisterEvent() { return; }
 
-const struct timeval &TimerRegisterEvent::get_time()
-{
-  return timer_when_;
-}
+const struct timeval &TimerRegisterEvent::get_time() { return timer_when_; }
 
-StageEvent *TimerRegisterEvent::get_callback_event()
-{
-  return timer_cb_;
-}
+StageEvent *TimerRegisterEvent::get_callback_event() { return timer_cb_; }
 
 StageEvent *TimerRegisterEvent::adopt_callback_event()
 {
   StageEvent *e = timer_cb_;
-  timer_cb_ = NULL;
+  timer_cb_     = NULL;
   return e;
 }
 
@@ -201,7 +187,7 @@ void TimerRegisterEvent::set_cancel_token(const TimerToken &t)
 
 std::unique_ptr<const TimerToken> TimerRegisterEvent::get_cancel_token()
 {
-  const TimerToken *token_cp = new TimerToken(token_);
+  const TimerToken                 *token_cp = new TimerToken(token_);
   std::unique_ptr<const TimerToken> token_ptr(token_cp);
   return token_ptr;
 }
@@ -212,15 +198,9 @@ TimerCancelEvent::TimerCancelEvent(const TimerToken &cancel_token)
   return;
 }
 
-TimerCancelEvent::~TimerCancelEvent()
-{
-  return;
-}
+TimerCancelEvent::~TimerCancelEvent() { return; }
 
-const TimerToken &TimerCancelEvent::get_token()
-{
-  return token_;
-}
+const TimerToken &TimerCancelEvent::get_token() { return token_; }
 
 void TimerCancelEvent::set_success(bool s)
 {
@@ -228,10 +208,7 @@ void TimerCancelEvent::set_success(bool s)
   return;
 }
 
-bool TimerCancelEvent::get_success()
-{
-  return cancelled_;
-}
+bool TimerCancelEvent::get_success() { return cancelled_; }
 
 TimerStage::TimerStage(const char *tag)
     : Stage(tag),
@@ -291,7 +268,7 @@ bool TimerStage::initialize()
 
   // Start the thread to maintain the timer
   const pthread_attr_t *thread_attrs = NULL;
-  void *thread_args = (void *)this;
+  void                 *thread_args  = (void *)this;
   int status = pthread_create(&timer_thread_id_, thread_attrs, &TimerStage::start_timer_thread, thread_args);
   if (status != 0)
     LOG_ERROR("failed to create timer thread: status=%d\n", status);
@@ -305,10 +282,7 @@ bool TimerStage::initialize()
   return (status == 0);
 }
 
-uint32_t TimerStage::get_num_events()
-{
-  return num_events_;
-}
+uint32_t TimerStage::get_num_events() { return num_events_; }
 
 void TimerStage::disconnect_prepare()
 {
@@ -320,7 +294,7 @@ void TimerStage::disconnect_prepare()
 
   LOG_TRACE("waiting for timer maintenance thread to terminate.\n");
   void **return_val_ptr = NULL;
-  int status;
+  int    status;
   status = pthread_join(timer_thread_id_, return_val_ptr);
   LOG_TRACE("timer maintenance thread terminated: status=%d\n", status);
 
@@ -350,10 +324,7 @@ void TimerStage::handle_event(StageEvent *event)
   return;
 }
 
-void TimerStage::callback_event(StageEvent *e, CallbackContext *ctx)
-{
-  return;
-}
+void TimerStage::callback_event(StageEvent *e, CallbackContext *ctx) { return; }
 
 void TimerStage::register_timer(TimerRegisterEvent &reg_ev)
 {
@@ -365,8 +336,8 @@ void TimerStage::register_timer(TimerRegisterEvent &reg_ev)
   pthread_mutex_lock(&timer_mutex_);
 
   // add the event to the timer queue
-  StageEvent *timer_cb = reg_ev.adopt_callback_event();
-  std::pair<timer_queue_t::iterator, bool> result = timer_queue_.insert(std::make_pair(tt, timer_cb));
+  StageEvent                              *timer_cb = reg_ev.adopt_callback_event();
+  std::pair<timer_queue_t::iterator, bool> result   = timer_queue_.insert(std::make_pair(tt, timer_cb));
   ASSERT(result.second,
       "Internal error--"
       "failed to register timer because token is not unique.");
@@ -390,8 +361,8 @@ void TimerStage::register_timer(TimerRegisterEvent &reg_ev)
 void TimerStage::cancel_timer(TimerCancelEvent &cancel_ev)
 {
   pthread_mutex_lock(&timer_mutex_);
-  bool success = false;
-  timer_queue_t::iterator it = timer_queue_.find(cancel_ev.get_token());
+  bool                    success = false;
+  timer_queue_t::iterator it      = timer_queue_.find(cancel_ev.get_token());
   if (it != timer_queue_.end()) {
     success = true;
 
@@ -439,7 +410,7 @@ void TimerStage::check_timer()
     clock_gettime(CLOCK_MONOTONIC, &ts_now);
 
     struct timeval now;
-    now.tv_sec = ts_now.tv_sec;
+    now.tv_sec  = ts_now.tv_sec;
     now.tv_usec = ts_now.tv_nsec / NSEC_PER_USEC;
 
     // LOG_TRACE("checking timer: sec=%ld, usec=%ld", now.tv_sec, now.tv_usec);
@@ -494,7 +465,7 @@ void TimerStage::check_timer()
       // If timer events are registered, sleep until the first
       // event should be triggered.
       struct timespec ts;
-      ts.tv_sec = first->first.get_time().tv_sec;
+      ts.tv_sec  = first->first.get_time().tv_sec;
       ts.tv_nsec = first->first.get_time().tv_usec * NSEC_PER_USEC;
 
       // LOG_TRACE("sleeping until next deadline: sec=%ld, nsec=%ld\n", ts.tv_sec, ts.tv_nsec);
@@ -507,9 +478,6 @@ void TimerStage::check_timer()
   return;
 }
 
-bool TimerStage::timer_token_less_than(const TimerToken &tt1, const TimerToken &tt2)
-{
-  return (tt1 < tt2);
-}
+bool TimerStage::timer_token_less_than(const TimerToken &tt1, const TimerToken &tt2) { return (tt1 < tt2); }
 
 }  // namespace common
