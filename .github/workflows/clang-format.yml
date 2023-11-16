@@ -1,0 +1,14 @@
+name: Clang Format Checker
+on:
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  clang-format-checking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: RafikFarhad/clang-format-github-action@v3
+        with:
+          sources: "**/*.h,**/*.cpp"
+          excludes: "yacc_sql.cpp,yacc_sql.hpp,lex_sql.cpp,lex_sql.h"
+          style: "file"
