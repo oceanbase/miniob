@@ -12,8 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Longda on 2021/4/13.
 //
 #include "storage/record/record_manager.h"
-#include "common/log/log.h"
 #include "common/lang/bitmap.h"
+#include "common/log/log.h"
 #include "storage/common/condition_filter.h"
 #include "storage/trx/trx.h"
 
@@ -24,7 +24,7 @@ static constexpr int PAGE_HEADER_SIZE = (sizeof(PageHeader));
 /**
  * @brief 8字节对齐
  * 注: ceiling(a / b) = floor((a + b - 1) / b)
- * 
+ *
  * @param size 待对齐的字节数
  */
 int align8(int size) { return (size + 7) / 8 * 8; }
@@ -107,7 +107,7 @@ RC RecordPageHandler::init(DiskBufferPool &buffer_pool, PageNum page_num, bool r
   readonly_         = readonly;
   page_header_      = (PageHeader *)(data);
   bitmap_           = data + PAGE_HEADER_SIZE;
-  
+
   LOG_TRACE("Successfully init page_num %d.", page_num);
   return ret;
 }

@@ -21,6 +21,7 @@ using namespace std;
 void dump(const char *filename)
 {
   CLogFile file;
+
   RC rc = file.init(filename);
   if (OB_FAIL(rc)) {
     printf("failed to open file: '%s'. syserr=%s, rc=%s\n", filename, strerror(errno), strrc(rc));
@@ -33,12 +34,12 @@ void dump(const char *filename)
     printf("failed to init iterator. rc=%s\n", strrc(rc));
     return;
   }
-  
+
   int64_t offset = 0;
-  int index = 0;
+  int     index  = 0;
   for (index++, rc = iterator.next(); OB_SUCC(rc) && iterator.valid(); rc = iterator.next(), ++index) {
     const CLogRecord &log_record = iterator.log_record();
-    
+
     printf("index:%d, file_offset:%" PRId64 ", %s\n", index, offset, log_record.to_string().c_str());
     (void)file.offset(offset);
   }

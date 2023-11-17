@@ -85,7 +85,8 @@ class CallbackContext;
  * repeatedly disconnected then re-connected and continue to function
  * properly.
  */
-class Stage {
+class Stage
+{
 
   // public interface operations
 
@@ -109,10 +110,7 @@ public:
    * Return the Threadpool object
    * @return reference to the Threadpool for this Stage
    */
-  Threadpool *get_pool()
-  {
-    return th_pool_;
-  }
+  Threadpool *get_pool() { return th_pool_; }
 
   /**
    * Push stage to the list of the next stages
@@ -198,10 +196,7 @@ public:
    * Query whether stage is connected
    * @return true if stage is connected
    */
-  bool is_connected() const
-  {
-    return connected_;
-  }
+  bool is_connected() const { return connected_; }
 
   /**
    * Perform Stage-specific processing for an event
@@ -222,8 +217,7 @@ public:
    *
    * @param[in] event Pointer to event that initiated the callback.
    */
-  virtual void callback_event(StageEvent *event, CallbackContext *context)
-  {}
+  virtual void callback_event(StageEvent *event, CallbackContext *context) {}
 
   /**
    * Perform Stage-specific callback processing for a timed out event
@@ -272,10 +266,7 @@ protected:
    * @pre  Stage not connected
    * @return TRUE if and only if outputs are valid and init succeeded.
    */
-  virtual bool initialize()
-  {
-    return true;
-  }
+  virtual bool initialize() { return true; }
 
   /**
    * set properties for this object
@@ -283,10 +274,7 @@ protected:
    * @post initializing the class members
    * @return Stage instantiated object
    */
-  virtual bool set_properties()
-  {
-    return true;
-  }
+  virtual bool set_properties() { return true; }
 
   /**
    *  Prepare to disconnect the stage.
@@ -295,20 +283,14 @@ protected:
    *  from the pipeline.  Most stages will not need to implement
    *  this function.
    */
-  virtual void disconnect_prepare()
-  {
-    return;
-  }
+  virtual void disconnect_prepare() { return; }
 
   /**
    * Cleanup stage after disconnection
    * After disconnection is completed, cleanup any resources held by the
    * stage and prepare for destruction or re-initialization.
    */
-  virtual void cleanup()
-  {
-    return;
-  }
+  virtual void cleanup() { return; }
 
   // pipeline state
   std::list<Stage *> next_stage_list_;  // next stage(s) in the pipeline
@@ -319,12 +301,12 @@ protected:
   friend class Threadpool;
 
 private:
-  std::deque<StageEvent *> event_list_;  // event queue
-  mutable pthread_mutex_t list_mutex_;   // protects the event queue
-  pthread_cond_t disconnect_cond_;       // wait here for disconnect
-  bool connected_;                       // is stage connected to pool?
-  unsigned long event_ref_;              // # of outstanding events
-  Threadpool *th_pool_ = nullptr;        // Threadpool for this stage
+  std::deque<StageEvent *> event_list_;         // event queue
+  mutable pthread_mutex_t  list_mutex_;         // protects the event queue
+  pthread_cond_t           disconnect_cond_;    // wait here for disconnect
+  bool                     connected_;          // is stage connected to pool?
+  unsigned long            event_ref_;          // # of outstanding events
+  Threadpool              *th_pool_ = nullptr;  // Threadpool for this stage
 };
 
 inline void Stage::set_pool(Threadpool *th)
@@ -341,10 +323,7 @@ inline void Stage::push_stage(Stage *st)
   next_stage_list_.push_back(st);
 }
 
-inline const char *Stage::get_name()
-{
-  return stage_name_;
-}
+inline const char *Stage::get_name() { return stage_name_; }
 
 }  // namespace common
 #endif  // __COMMON_SEDA_STAGE_H__

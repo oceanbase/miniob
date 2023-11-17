@@ -1,0 +1,16 @@
+name: Clang Format Checker
+on:
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  clang-format-checking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: RafikFarhad/clang-format-github-action@v3
+        with:
+          # sources 和 excludes 最终生成的find查找文件的命令大概是这样的
+          # find . -type f ! -wholename "./src/observer/sql/parser/lex_sql.*" \(  -wholename "./**/*.h" -o -wholename "./**/*.cpp" \)
+          sources: "**/*.h,**/*.cpp,src/**/*.h,src/**/*.cpp,deps/common/**/*.h,deps/common/**/*.cpp"
+          excludes: "src/observer/sql/parser/lex_sql.*,src/observer/sql/parser/yacc_sql.*"
+          style: "file"

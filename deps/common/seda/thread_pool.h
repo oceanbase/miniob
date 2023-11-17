@@ -40,7 +40,8 @@ class Stage;
  * of worker threads, but this number can be adjusted at any time by using
  * the add_threads(), num_threads(), and kill_threads() interfaces.
  */
-class Threadpool {
+class Threadpool
+{
 
 public:
   // Initialize the static data structures of ThreadPool
@@ -144,19 +145,19 @@ private:
   static const Threadpool *get_thread_pool_ptr();
 
   // run queue state
-  pthread_mutex_t run_mutex_;      //< protects the run queue
-  pthread_cond_t run_cond_;        //< wait here for stage to be scheduled
+  pthread_mutex_t     run_mutex_;  //< protects the run queue
+  pthread_cond_t      run_cond_;   //< wait here for stage to be scheduled
   std::deque<Stage *> run_queue_;  //< list of stages with work to do
-  bool eventhist_;                 //< is event history enabled?
+  bool                eventhist_;  //< is event history enabled?
 
   // thread state
-  pthread_mutex_t thread_mutex_;  //< protects thread state
-  pthread_cond_t thread_cond_;    //< wait here when killing threads
-  unsigned int nthreads_;         //< number of service threads
-  unsigned int threads_to_kill_;  //< number of pending kill events
-  unsigned int n_idles_;          //< number of idle threads
-  KillThreadStage killer_;        //< used to kill threads
-  std::string name_;              //< name of threadpool
+  pthread_mutex_t thread_mutex_;     //< protects thread state
+  pthread_cond_t  thread_cond_;      //< wait here when killing threads
+  unsigned int    nthreads_;         //< number of service threads
+  unsigned int    threads_to_kill_;  //< number of pending kill events
+  unsigned int    n_idles_;          //< number of idle threads
+  KillThreadStage killer_;           //< used to kill threads
+  std::string     name_;             //< name of threadpool
 
   // key of thread specific to store thread pool pointer
   static pthread_key_t pool_ptr_key_;

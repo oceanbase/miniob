@@ -14,8 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #include <string.h>
 
-#include "gtest/gtest.h"
 #include "common/lang/bitmap.h"
+#include "gtest/gtest.h"
 #include <sstream>
 
 using namespace common;

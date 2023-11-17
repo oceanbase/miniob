@@ -12,11 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2022/07/05.
 //
 
-#include <sstream>
 #include "sql/expr/tuple_cell.h"
-#include "storage/field/field.h"
-#include "common/log/log.h"
-#include "common/lang/comparator.h"
 #include "common/lang/string.h"
 
 TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, const char *alias)

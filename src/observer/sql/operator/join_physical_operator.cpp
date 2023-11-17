@@ -14,8 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/join_physical_operator.h"
 
-NestedLoopJoinPhysicalOperator::NestedLoopJoinPhysicalOperator()
-{}
+NestedLoopJoinPhysicalOperator::NestedLoopJoinPhysicalOperator() {}
 
 RC NestedLoopJoinPhysicalOperator::open(Trx *trx)
 {
@@ -24,13 +23,13 @@ RC NestedLoopJoinPhysicalOperator::open(Trx *trx)
     return RC::INTERNAL;
   }
 
-  RC rc = RC::SUCCESS;
-  left_ = children_[0].get();
-  right_ = children_[1].get();
+  RC rc         = RC::SUCCESS;
+  left_         = children_[0].get();
+  right_        = children_[1].get();
   right_closed_ = true;
-  round_done_ = true;
+  round_done_   = true;
 
-  rc = left_->open(trx);
+  rc   = left_->open(trx);
   trx_ = trx;
   return rc;
 }
@@ -38,7 +37,7 @@ RC NestedLoopJoinPhysicalOperator::open(Trx *trx)
 RC NestedLoopJoinPhysicalOperator::next()
 {
   bool left_need_step = (left_tuple_ == nullptr);
-  RC rc = RC::SUCCESS;
+  RC   rc             = RC::SUCCESS;
   if (round_done_) {
     left_need_step = true;
   } else {
@@ -83,15 +82,12 @@ RC NestedLoopJoinPhysicalOperator::close()
   return rc;
 }
 
-Tuple *NestedLoopJoinPhysicalOperator::current_tuple()
-{
-  return &joined_tuple_;
-}
+Tuple *NestedLoopJoinPhysicalOperator::current_tuple() { return &joined_tuple_; }
 
 RC NestedLoopJoinPhysicalOperator::left_next()
 {
   RC rc = RC::SUCCESS;
-  rc = left_->next();
+  rc    = left_->next();
   if (rc != RC::SUCCESS) {
     return rc;
   }
@@ -107,6 +103,7 @@ RC NestedLoopJoinPhysicalOperator::right_next()
   if (round_done_) {
     if (!right_closed_) {
       rc = right_->close();
+
       right_closed_ = true;
       if (rc != RC::SUCCESS) {
         return rc;

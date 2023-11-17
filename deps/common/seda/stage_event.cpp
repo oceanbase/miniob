@@ -26,8 +26,7 @@ See the Mulan PSL v2 for more details. */
 namespace common {
 
 // Constructor
-StageEvent::StageEvent() : comp_cb_(NULL), ud_(NULL), cb_flag_(false), history_(NULL), stage_hops_(0), tm_info_(NULL)
-{}
+StageEvent::StageEvent() : comp_cb_(NULL), ud_(NULL), cb_flag_(false), history_(NULL), stage_hops_(0), tm_info_(NULL) {}
 
 // Destructor
 StageEvent::~StageEvent()
@@ -35,7 +34,7 @@ StageEvent::~StageEvent()
   // clear all pending callbacks
   while (comp_cb_) {
     CompletionCallback *top = comp_cb_;
-    comp_cb_ = comp_cb_->pop_callback();
+    comp_cb_                = comp_cb_->pop_callback();
     delete top;
   }
 
@@ -109,10 +108,7 @@ void StageEvent::set_user_data(UserData *u)
   return;
 }
 
-UserData *StageEvent::get_user_data()
-{
-  return ud_;
-}
+UserData *StageEvent::get_user_data() { return ud_; }
 
 // Add stage to list of stages which have handled this event
 void StageEvent::save_stage(Stage *stg, HistType type)
@@ -133,10 +129,7 @@ void StageEvent::set_timeout_info(time_t deadline)
   set_timeout_info(tmi);
 }
 
-void StageEvent::set_timeout_info(const StageEvent &ev)
-{
-  set_timeout_info(ev.tm_info_);
-}
+void StageEvent::set_timeout_info(const StageEvent &ev) { set_timeout_info(ev.tm_info_); }
 
 void StageEvent::set_timeout_info(TimeoutInfo *tmi)
 {

@@ -30,7 +30,7 @@ class SQLStageEvent;
 class CommandExecutor
 {
 public:
-  CommandExecutor() = default;
+  CommandExecutor()          = default;
   virtual ~CommandExecutor() = default;
 
   RC execute(SQLStageEvent *sql_event);

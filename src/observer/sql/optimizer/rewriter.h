@@ -14,14 +14,14 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include "sql/optimizer/rewrite_rule.h"
 #include <memory>
 #include <vector>
-#include "sql/optimizer/rewrite_rule.h"
 
 class LogicalOperator;
 
 /**
- * @defgroup Rewriter 
+ * @defgroup Rewriter
  * @brief 根据规则对逻辑计划进行重写
  */
 
@@ -31,7 +31,7 @@ class LogicalOperator;
  * @details 当前仅实现了一两个非常简单的规则。
  * 重写包括对逻辑计划和计划中包含的表达式。
  */
-class Rewriter 
+class Rewriter
 {
 public:
   Rewriter();

@@ -14,9 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <vector>
 #include "sql/operator/physical_operator.h"
 #include "sql/parser/parse.h"
+#include <vector>
 
 class InsertStmt;
 
@@ -31,10 +31,7 @@ public:
 
   virtual ~InsertPhysicalOperator() = default;
 
-  PhysicalOperatorType type() const override
-  {
-    return PhysicalOperatorType::INSERT;
-  }
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::INSERT; }
 
   RC open(Trx *trx) override;
   RC next() override;
@@ -43,6 +40,6 @@ public:
   Tuple *current_tuple() override { return nullptr; }
 
 private:
-  Table *table_ = nullptr;
+  Table             *table_ = nullptr;
   std::vector<Value> values_;
 };

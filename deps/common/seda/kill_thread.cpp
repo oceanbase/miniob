@@ -39,10 +39,7 @@ void KillThreadStage::handle_event(StageEvent *event)
  * @post initializing the class members
  * @return the class object
  */
-Stage *KillThreadStage::make_stage(const std::string &tag)
-{
-  return new KillThreadStage(tag.c_str());
-}
+Stage *KillThreadStage::make_stage(const std::string &tag) { return new KillThreadStage(tag.c_str()); }
 
 bool KillThreadStage::set_properties()
 {

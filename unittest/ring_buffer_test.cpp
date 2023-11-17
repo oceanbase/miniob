@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 
 TEST(ring_buffer, test_init)
 {
-  const int buf_size = 10;
+  const int  buf_size = 10;
   RingBuffer buffer(buf_size);
   EXPECT_EQ(buffer.capacity(), buf_size);
   EXPECT_EQ(buffer.remain(), buf_size);
@@ -28,12 +28,12 @@ TEST(ring_buffer, test_init)
 
 TEST(ring_buffer, test_write)
 {
-  const int buf_size = 25;
+  const int  buf_size = 25;
   RingBuffer buffer(buf_size);
 
-  const char *data = "0123456789";
-  int32_t size = strlen(data);
-  int32_t write_size = 0;
+  const char *data       = "0123456789";
+  int32_t     size       = strlen(data);
+  int32_t     write_size = 0;
   EXPECT_EQ(buffer.write(data, size, write_size), RC::SUCCESS);
   EXPECT_EQ(write_size, size);
   EXPECT_EQ(buffer.size(), size);
@@ -52,19 +52,19 @@ TEST(ring_buffer, test_write)
 
 TEST(ring_buffer, test_read)
 {
-  const int buf_size = 100;
+  const int  buf_size = 100;
   RingBuffer buffer(buf_size);
 
-  const char *data = "0123456789";
-  int32_t size = strlen(data);
-  int32_t write_size = 0;
+  const char *data       = "0123456789";
+  int32_t     size       = strlen(data);
+  int32_t     write_size = 0;
   EXPECT_EQ(buffer.write(data, size, write_size), RC::SUCCESS);
   EXPECT_EQ(write_size, size);
   EXPECT_EQ(buffer.size(), size);
   EXPECT_EQ(buffer.remain(), buf_size - size);
 
-  char read_buf[buf_size];
-  int32_t read_size = 0;
+  char          read_buf[buf_size];
+  int32_t       read_size      = 0;
   const int32_t test_read_size = 5;
   EXPECT_EQ(buffer.read(read_buf, test_read_size, read_size), RC::SUCCESS);
   EXPECT_EQ(read_size, test_read_size);
@@ -84,19 +84,19 @@ TEST(ring_buffer, test_read)
 
 TEST(ring_buffer, test_buffer)
 {
-  const int buf_size = 15;
+  const int  buf_size = 15;
   RingBuffer buffer(buf_size);
 
-  const char *data = "0123456789";
-  int32_t size = strlen(data);
-  int32_t write_size = 0;
+  const char *data       = "0123456789";
+  int32_t     size       = strlen(data);
+  int32_t     write_size = 0;
   EXPECT_EQ(buffer.write(data, size, write_size), RC::SUCCESS);
   EXPECT_EQ(write_size, size);
   EXPECT_EQ(buffer.size(), size);
   EXPECT_EQ(buffer.remain(), buf_size - size);
 
-  const char *tmp_buffer = nullptr;
-  int32_t buffer_size = 0;
+  const char *tmp_buffer  = nullptr;
+  int32_t     buffer_size = 0;
   EXPECT_EQ(buffer.buffer(tmp_buffer, buffer_size), RC::SUCCESS);
   EXPECT_EQ(buffer_size, size);
   EXPECT_EQ(buffer.forward(buffer_size), RC::SUCCESS);

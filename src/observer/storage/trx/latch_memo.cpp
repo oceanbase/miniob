@@ -13,13 +13,13 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "storage/trx/latch_memo.h"
-#include "storage/buffer/frame.h"
-#include "storage/buffer/disk_buffer_pool.h"
 #include "common/lang/mutex.h"
+#include "storage/buffer/disk_buffer_pool.h"
+#include "storage/buffer/frame.h"
 
 LatchMemoItem::LatchMemoItem(LatchMemoType type, Frame *frame)
 {
-  this->type = type;
+  this->type  = type;
   this->frame = frame;
 }
 
@@ -31,13 +31,9 @@ LatchMemoItem::LatchMemoItem(LatchMemoType type, common::SharedMutex *lock)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LatchMemo::LatchMemo(DiskBufferPool *buffer_pool) : buffer_pool_(buffer_pool)
-{}
+LatchMemo::LatchMemo(DiskBufferPool *buffer_pool) : buffer_pool_(buffer_pool) {}
 
-LatchMemo::~LatchMemo()
-{
-  this->release();
-}
+LatchMemo::~LatchMemo() { this->release(); }
 
 RC LatchMemo::get_page(PageNum page_num, Frame *&frame)
 {
@@ -55,20 +51,17 @@ RC LatchMemo::get_page(PageNum page_num, Frame *&frame)
 RC LatchMemo::allocate_page(Frame *&frame)
 {
   frame = nullptr;
-  
+
   RC rc = buffer_pool_->allocate_page(&frame);
   if (rc == RC::SUCCESS) {
     items_.emplace_back(LatchMemoType::PIN, frame);
     ASSERT(frame->pin_count() == 1, "allocate a new frame. frame=%s", to_string(*frame).c_str());
   }
-  
+
   return rc;
 }
 
-void LatchMemo::dispose_page(PageNum page_num)
-{
-  disposed_pages_.emplace_back(page_num);
-}
+void LatchMemo::dispose_page(PageNum page_num) { disposed_pages_.emplace_back(page_num); }
 
 void LatchMemo::latch(Frame *frame, LatchMemoType type)
 {
@@ -87,15 +80,9 @@ void LatchMemo::latch(Frame *frame, LatchMemoType type)
   items_.emplace_back(type, frame);
 }
 
-void LatchMemo::xlatch(Frame *frame)
-{
-  this->latch(frame, LatchMemoType::EXCLUSIVE);
-}
+void LatchMemo::xlatch(Frame *frame) { this->latch(frame, LatchMemoType::EXCLUSIVE); }
 
-void LatchMemo::slatch(Frame *frame)
-{
-  this->latch(frame, LatchMemoType::SHARED);
-}
+void LatchMemo::slatch(Frame *frame) { this->latch(frame, LatchMemoType::SHARED); }
 
 bool LatchMemo::try_slatch(Frame *frame)
 {

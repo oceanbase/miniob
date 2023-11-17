@@ -20,20 +20,14 @@ See the Mulan PSL v2 for more details. */
  * @brief 逻辑算子，用于执行delete语句
  * @ingroup LogicalOperator
  */
-class DeleteLogicalOperator : public LogicalOperator 
+class DeleteLogicalOperator : public LogicalOperator
 {
 public:
   DeleteLogicalOperator(Table *table);
   virtual ~DeleteLogicalOperator() = default;
 
-  LogicalOperatorType type() const override
-  {
-    return LogicalOperatorType::DELETE;
-  }
-  Table *table() const
-  {
-    return table_;
-  }
+  LogicalOperatorType type() const override { return LogicalOperatorType::DELETE; }
+  Table              *table() const { return table_; }
 
 private:
   Table *table_ = nullptr;

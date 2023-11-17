@@ -75,10 +75,7 @@ void CompletionCallback::event_done(StageEvent *ev)
 }
 
 // Reschedule callback on target stage thread
-void CompletionCallback::event_reschedule(StageEvent *ev)
-{
-  target_stage_->add_event(ev);
-}
+void CompletionCallback::event_reschedule(StageEvent *ev) { target_stage_->add_event(ev); }
 
 void CompletionCallback::event_timeout(StageEvent *ev)
 {

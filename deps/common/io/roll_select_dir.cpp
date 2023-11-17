@@ -22,7 +22,7 @@ void RollSelectDir::setBaseDir(std::string baseDir)
   mBaseDir = baseDir;
 
   std::vector<std::string> dirList;
-  int rc = getDirList(dirList, mBaseDir, "");
+  int                      rc = getDirList(dirList, mBaseDir, "");
   if (rc) {
     LOG_ERROR("Failed to all subdir entry");
   }
@@ -40,7 +40,7 @@ void RollSelectDir::setBaseDir(std::string baseDir)
 
   MUTEX_LOCK(&mMutex);
   mSubdirs = dirList;
-  mPos = 0;
+  mPos     = 0;
   MUTEX_UNLOCK(&mMutex);
   return;
 }

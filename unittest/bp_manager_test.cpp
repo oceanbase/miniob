@@ -18,8 +18,8 @@ See the Mulan PSL v2 for more details. */
 void test_get(BPFrameManager &frame_manager)
 {
   const int file_desc = 0;
-  PageNum page_num = 1;
-  Frame *frame1 = frame_manager.alloc(file_desc, page_num);
+  PageNum   page_num  = 1;
+  Frame    *frame1    = frame_manager.alloc(file_desc, page_num);
   ASSERT_NE(frame1, nullptr);
 
   frame1->set_file_desc(file_desc);
@@ -73,8 +73,8 @@ void test_alloc(BPFrameManager &frame_manager)
   std::list<Frame *> used_list;
 
   const int file_desc = 0;
-  size_t size = 0;
-  for ( ; true; size++) {
+  size_t    size      = 0;
+  for (; true; size++) {
     Frame *item = frame_manager.alloc(file_desc, size);
     if (item != nullptr) {
       item->set_file_desc(file_desc);
@@ -95,7 +95,7 @@ void test_alloc(BPFrameManager &frame_manager)
   }
 
   for (size_t i = size * 2; i < size * 10; i++) {
-    if (i % 2 == 0) { // from size * 2, that free one frame first
+    if (i % 2 == 0) {  // from size * 2, that free one frame first
       Frame *item = used_list.front();
       used_list.pop_front();
 

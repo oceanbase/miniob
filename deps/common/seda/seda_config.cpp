@@ -15,8 +15,8 @@ See the Mulan PSL v2 for more details. */
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <typeinfo>
+#include <unistd.h>
 #include <vector>
 
 #include "common/lang/string.h"
@@ -38,10 +38,7 @@ SedaConfig *&SedaConfig::get_instance()
 }
 
 // Constructor
-SedaConfig::SedaConfig() : cfg_file_(), cfg_str_(), thread_pools_(), stages_()
-{
-  return;
-}
+SedaConfig::SedaConfig() : cfg_file_(), cfg_str_(), thread_pools_(), stages_() { return; }
 
 // Destructor
 SedaConfig::~SedaConfig()
@@ -114,12 +111,12 @@ SedaConfig::status_t SedaConfig::start()
 
   // start the stages_ one by one.  connect() calls
   std::map<std::string, Stage *>::iterator iter = stages_.begin();
-  std::map<std::string, Stage *>::iterator end = stages_.end();
+  std::map<std::string, Stage *>::iterator end  = stages_.end();
 
   while (iter != end) {
     if (iter->second != NULL) {
       Stage *stg = iter->second;
-      bool ret = stg->connect();
+      bool   ret = stg->connect();
       if (!ret) {
         cleanup();
         stat = INITFAIL;
@@ -162,7 +159,7 @@ void SedaConfig::cleanup()
   // first disconnect all stages_
   if (stages_.empty() == false) {
     std::map<std::string, Stage *>::iterator iter = stages_.begin();
-    std::map<std::string, Stage *>::iterator end = stages_.end();
+    std::map<std::string, Stage *>::iterator end  = stages_.end();
     while (iter != end) {
       if (iter->second != NULL) {
         Stage *stg = iter->second;
@@ -181,14 +178,14 @@ void SedaConfig::cleanup()
 
 void SedaConfig::init_event_history()
 {
-  std::map<std::string, std::string> base_section = get_properties()->get(SEDA_BASE_NAME);
+  std::map<std::string, std::string>           base_section = get_properties()->get(SEDA_BASE_NAME);
   std::map<std::string, std::string>::iterator it;
-  std::string key;
+  std::string                                  key;
 
   // check whether event histories are enabled
   bool ev_hist = false;
-  key = EVENT_HISTORY;
-  it = base_section.find(key);
+  key          = EVENT_HISTORY;
+  it           = base_section.find(key);
   if (it != base_section.end()) {
     if (it->second.compare("true") == 0) {
       ev_hist = true;
@@ -199,8 +196,8 @@ void SedaConfig::init_event_history()
 
   // set max event hops
   uint32_t max_event_hops = 100;
-  key = MAX_EVENT_HISTORY_NUM;
-  it = base_section.find(key);
+  key                     = MAX_EVENT_HISTORY_NUM;
+  it                      = base_section.find(key);
   if (it != base_section.end()) {
     str_to_val(it->second, max_event_hops);
   }
@@ -214,25 +211,25 @@ SedaConfig::status_t SedaConfig::init_thread_pool()
 {
   try {
 
-    std::map<std::string, std::string> base_section = get_properties()->get(SEDA_BASE_NAME);
+    std::map<std::string, std::string>           base_section = get_properties()->get(SEDA_BASE_NAME);
     std::map<std::string, std::string>::iterator it;
-    std::string key;
+    std::string                                  key;
 
     // get thread pool names
     key = THREAD_POOLS_NAME;
-    it = base_section.find(key);
+    it  = base_section.find(key);
     if (it == base_section.end()) {
       LOG_ERROR("Configuration hasn't set %s", key.c_str());
       return INITFAIL;
     }
 
-    std::string pool_names = it->second;
+    std::string              pool_names = it->second;
     std::vector<std::string> name_list;
-    std::string split_tag;
+    std::string              split_tag;
     split_tag.assign(1, Ini::CFG_DELIMIT_TAG);
     split_string(pool_names, split_tag, name_list);
 
-    int cpu_num = getCpuNum();
+    int         cpu_num = getCpuNum();
     std::string default_cpu_num_str;
     val_to_str(cpu_num, default_cpu_num_str);
 
@@ -240,7 +237,7 @@ SedaConfig::status_t SedaConfig::init_thread_pool()
       std::string &thread_name = name_list[pos];
 
       // get count number
-      key = COUNT;
+      key                   = COUNT;
       std::string count_str = get_properties()->get(key, default_cpu_num_str, thread_name);
 
       int thread_count = 1;
@@ -288,10 +285,10 @@ std::string SedaConfig::get_thread_pool(std::string &stage_name)
 {
   std::string ret = DEFAULT_THREAD_POOL;
   // Get thread pool
-  std::map<std::string, std::string> stage_section = get_properties()->get(stage_name);
+  std::map<std::string, std::string>           stage_section = get_properties()->get(stage_name);
   std::map<std::string, std::string>::iterator itt;
-  std::string thread_pool_id = THREAD_POOL_ID;
-  itt = stage_section.find(thread_pool_id);
+  std::string                                  thread_pool_id = THREAD_POOL_ID;
+  itt                                                         = stage_section.find(thread_pool_id);
   if (itt == stage_section.end()) {
     LOG_INFO("Not set thread_pool_id for %s, use default threadpool %s", stage_name.c_str(), DEFAULT_THREAD_POOL);
     return ret;
@@ -320,13 +317,13 @@ std::string SedaConfig::get_thread_pool(std::string &stage_name)
 SedaConfig::status_t SedaConfig::init_stages()
 {
   try {
-    std::map<std::string, std::string> base_section = get_properties()->get(SEDA_BASE_NAME);
+    std::map<std::string, std::string>           base_section = get_properties()->get(SEDA_BASE_NAME);
     std::map<std::string, std::string>::iterator it;
-    std::string key;
+    std::string                                  key;
 
     // get stage names
     key = STAGES;
-    it = base_section.find(key);
+    it  = base_section.find(key);
     if (it == base_section.end()) {
       LOG_ERROR("Hasn't set stages name in %s", key.c_str());
       clear_config();
@@ -341,7 +338,7 @@ SedaConfig::status_t SedaConfig::init_stages()
       std::string stage_name(*it);
 
       std::string thread_name = get_thread_pool(stage_name);
-      Threadpool *t = thread_pools_[thread_name];
+      Threadpool *t           = thread_pools_[thread_name];
 
       Stage *stage = StageFactory::make_instance(stage_name);
       if (stage == NULL) {
@@ -376,12 +373,12 @@ SedaConfig::status_t SedaConfig::gen_next_stages()
     for (std::vector<std::string>::iterator it_name = stage_names_.begin(); it_name != stage_names_.end(); it_name++) {
 
       std::string stage_name(*it_name);
-      Stage *stage = stages_[stage_name];
+      Stage      *stage = stages_[stage_name];
 
-      std::map<std::string, std::string> stage_section = get_properties()->get(stage_name);
+      std::map<std::string, std::string>           stage_section = get_properties()->get(stage_name);
       std::map<std::string, std::string>::iterator it;
-      std::string next_stage_id = NEXT_STAGES;
-      it = stage_section.find(next_stage_id);
+      std::string                                  next_stage_id = NEXT_STAGES;
+      it                                                         = stage_section.find(next_stage_id);
       if (it == stage_section.end()) {
         continue;
       }
@@ -389,7 +386,7 @@ SedaConfig::status_t SedaConfig::gen_next_stages()
       std::string next_stage_names = it->second;
 
       std::vector<std::string> next_stage_name_list;
-      std::string split_tag;
+      std::string              split_tag;
       split_tag.assign(1, Ini::CFG_DELIMIT_TAG);
       split_string(next_stage_names, split_tag, next_stage_name_list);
 
@@ -397,7 +394,7 @@ SedaConfig::status_t SedaConfig::gen_next_stages()
            next_it != next_stage_name_list.end();
            next_it++) {
         std::string &next_stage_name = *next_it;
-        Stage *next_stage = stages_[next_stage_name];
+        Stage       *next_stage      = stages_[next_stage_name];
         stage->push_stage(next_stage);
       }
 
@@ -442,7 +439,7 @@ void SedaConfig::clear_config()
 {
   // delete stages_
   std::map<std::string, Stage *>::iterator s_iter = stages_.begin();
-  std::map<std::string, Stage *>::iterator s_end = stages_.end();
+  std::map<std::string, Stage *>::iterator s_end  = stages_.end();
   while (s_iter != s_end) {
     if (s_iter->second != NULL) {
 
@@ -459,7 +456,7 @@ void SedaConfig::clear_config()
 
   // delete thread_pools_
   std::map<std::string, Threadpool *>::iterator t_iter = thread_pools_.begin();
-  std::map<std::string, Threadpool *>::iterator t_end = thread_pools_.end();
+  std::map<std::string, Threadpool *>::iterator t_end  = thread_pools_.end();
   while (t_iter != t_end) {
     if (t_iter->second != NULL) {
       LOG_INFO("ThreadPool %s deleted.", t_iter->first.c_str());
@@ -472,10 +469,7 @@ void SedaConfig::clear_config()
   LOG_INFO("Seda thread pools released");
 }
 
-void SedaConfig::get_stage_names(std::vector<std::string> &names) const
-{
-  names = stage_names_;
-}
+void SedaConfig::get_stage_names(std::vector<std::string> &names) const { names = stage_names_; }
 
 void SedaConfig::get_stage_queue_status(std::vector<int> &stats) const
 {

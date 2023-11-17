@@ -27,11 +27,11 @@ class SqlResult;
 class LoadDataExecutor
 {
 public:
-  LoadDataExecutor() = default;
+  LoadDataExecutor()          = default;
   virtual ~LoadDataExecutor() = default;
 
   RC execute(SQLStageEvent *sql_event);
-  
+
 private:
   void load_data(Table *table, const char *file_name, SqlResult *sql_result);
 };

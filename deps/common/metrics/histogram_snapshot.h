@@ -25,7 +25,8 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-class HistogramSnapShot : public Snapshot {
+class HistogramSnapShot : public Snapshot
+{
 public:
   HistogramSnapShot();
   explicit HistogramSnapShot(const std::vector<double> &collection);

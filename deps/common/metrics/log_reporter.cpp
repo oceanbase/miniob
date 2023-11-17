@@ -16,8 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include <string>
 
-#include "common/metrics/metric.h"
 #include "common/log/log.h"
+#include "common/metrics/metric.h"
 
 namespace common {
 

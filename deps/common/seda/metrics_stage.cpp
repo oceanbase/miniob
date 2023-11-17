@@ -23,9 +23,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/metrics/metrics_registry.h"
 #include "common/seda/metrics_report_event.h"
+#include "common/seda/seda_defs.h"
 #include "common/seda/timer_stage.h"
 #include "common/time/datetime.h"
-#include "common/seda/seda_defs.h"
 
 using namespace common;
 
@@ -37,12 +37,10 @@ MetricsRegistry &get_metric_registry()
 }
 
 // Constructor
-MetricsStage::MetricsStage(const char *tag) : Stage(tag)
-{}
+MetricsStage::MetricsStage(const char *tag) : Stage(tag) {}
 
 // Destructor
-MetricsStage::~MetricsStage()
-{}
+MetricsStage::~MetricsStage() {}
 
 // Parse properties, instantiate a stage object
 Stage *MetricsStage::make_stage(const std::string &tag)
@@ -59,13 +57,13 @@ Stage *MetricsStage::make_stage(const std::string &tag)
 // Set properties for this object set in stage specific properties
 bool MetricsStage::set_properties()
 {
-  std::string stage_name_str(stage_name_);
+  std::string                        stage_name_str(stage_name_);
   std::map<std::string, std::string> section = get_properties()->get(stage_name_str);
 
   metric_report_interval_ = DateTime::SECONDS_PER_MIN;
 
-  std::string key = METRCS_REPORT_INTERVAL;
-  std::map<std::string, std::string>::iterator it = section.find(key);
+  std::string                                  key = METRCS_REPORT_INTERVAL;
+  std::map<std::string, std::string>::iterator it  = section.find(key);
   if (it != section.end()) {
     str_to_val(it->second, metric_report_interval_);
   }
@@ -77,7 +75,7 @@ bool MetricsStage::set_properties()
 bool MetricsStage::initialize()
 {
   std::list<Stage *>::iterator stgp = next_stage_list_.begin();
-  timer_stage_ = *(stgp++);
+  timer_stage_                      = *(stgp++);
 
   MetricsReportEvent *report_event = new MetricsReportEvent();
 
@@ -86,9 +84,7 @@ bool MetricsStage::initialize()
 }
 
 // Cleanup after disconnection
-void MetricsStage::cleanup()
-{
-}
+void MetricsStage::cleanup() {}
 
 void MetricsStage::handle_event(StageEvent *event)
 {

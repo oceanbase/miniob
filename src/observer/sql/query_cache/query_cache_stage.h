@@ -26,7 +26,7 @@ class SQLStageEvent;
 class QueryCacheStage
 {
 public:
-  QueryCacheStage() = default;
+  QueryCacheStage()          = default;
   virtual ~QueryCacheStage() = default;
 
 public:

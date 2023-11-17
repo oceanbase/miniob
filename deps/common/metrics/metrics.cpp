@@ -33,15 +33,9 @@ Meter::~Meter()
   }
 }
 
-void Meter::inc(long increase)
-{
-  value_.fetch_add(increase);
-}
+void Meter::inc(long increase) { value_.fetch_add(increase); }
 
-void Meter::inc()
-{
-  inc(1l);
-}
+void Meter::inc() { inc(1l); }
 
 void Meter::snapshot()
 {
@@ -53,7 +47,7 @@ void Meter::snapshot()
   long now_tick = now.tv_sec * 1000000 + now.tv_usec;
 
   double temp_value = ((double)value_.exchange(0l)) / ((now_tick - snapshot_tick_) / 1000000);
-  snapshot_tick_ = now_tick;
+  snapshot_tick_    = now_tick;
 
   if (snapshot_value_ == NULL) {
     snapshot_value_ = new SnapshotBasic<double>();
@@ -75,10 +69,7 @@ void SimpleTimer::inc(long increase)
   times_.fetch_add(1);
 }
 
-void SimpleTimer::update(long one)
-{
-  inc(one);
-}
+void SimpleTimer::update(long one) { inc(one); }
 
 void SimpleTimer::snapshot()
 {
@@ -92,11 +83,11 @@ void SimpleTimer::snapshot()
   long value_snapshot = value_.exchange(0l);
   long times_snapshot = times_.exchange(0l);
 
-  double tps = 0;
+  double tps  = 0;
   double mean = 0;
 
   if (times_snapshot > 0) {
-    tps = ((double)times_snapshot) / ((now_tick - snapshot_tick_) / 1000000);
+    tps  = ((double)times_snapshot) / ((now_tick - snapshot_tick_) / 1000000);
     mean = ((double)value_snapshot) / times_snapshot;
   }
 
@@ -108,19 +99,13 @@ void SimpleTimer::snapshot()
   ((SimplerTimerSnapshot *)snapshot_value_)->setValue(mean, tps);
 }
 
-Histogram::Histogram(RandomGenerator &random) : UniformReservoir(random)
-{}
+Histogram::Histogram(RandomGenerator &random) : UniformReservoir(random) {}
 
-Histogram::Histogram(RandomGenerator &random, size_t size) : UniformReservoir(random, size)
-{}
+Histogram::Histogram(RandomGenerator &random, size_t size) : UniformReservoir(random, size) {}
 
-Histogram::~Histogram()
-{}
+Histogram::~Histogram() {}
 
-void Histogram::snapshot()
-{
-  UniformReservoir::snapshot();
-}
+void Histogram::snapshot() { UniformReservoir::snapshot(); }
 
 Timer::Timer(RandomGenerator &random) : UniformReservoir(random)
 {
@@ -166,7 +151,7 @@ void Timer::snapshot()
 
   long now_tick = now.tv_sec * 1000000 + now.tv_usec;
 
-  double tps = ((double)value_.exchange(0l)) / ((now_tick - snapshot_tick_) / 1000000);
+  double tps     = ((double)value_.exchange(0l)) / ((now_tick - snapshot_tick_) / 1000000);
   snapshot_tick_ = now_tick;
 
   MUTEX_LOCK(&mutex);
@@ -177,11 +162,7 @@ void Timer::snapshot()
   timer_snapshot->set_tps(tps);
 }
 
-TimerStat::TimerStat(SimpleTimer &other_st) : st_(other_st), start_tick_(0), end_tick_(0)
-{
-
-  start();
-}
+TimerStat::TimerStat(SimpleTimer &other_st) : st_(other_st), start_tick_(0), end_tick_(0) { start(); }
 
 TimerStat::~TimerStat()
 {

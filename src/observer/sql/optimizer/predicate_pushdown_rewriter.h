@@ -14,18 +14,18 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <vector>
 #include "sql/optimizer/rewrite_rule.h"
+#include <vector>
 
 /**
  * @brief 将一些谓词表达式下推到表数据扫描中
  * @ingroup Rewriter
  * @details 这样可以提前过滤一些数据
  */
-class PredicatePushdownRewriter : public RewriteRule 
+class PredicatePushdownRewriter : public RewriteRule
 {
 public:
-  PredicatePushdownRewriter() = default;
+  PredicatePushdownRewriter()          = default;
   virtual ~PredicatePushdownRewriter() = default;
 
   RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) override;

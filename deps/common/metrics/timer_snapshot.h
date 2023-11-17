@@ -17,13 +17,14 @@ See the Mulan PSL v2 for more details. */
 #include "common/metrics/histogram_snapshot.h"
 
 namespace common {
-class TimerSnapshot : public HistogramSnapShot {
+class TimerSnapshot : public HistogramSnapShot
+{
 public:
   TimerSnapshot();
   virtual ~TimerSnapshot();
 
   double get_tps();
-  void set_tps(double tps);
+  void   set_tps(double tps);
 
   std::string to_string();
 

@@ -22,13 +22,12 @@ using namespace common;
 
 TEST(test_clog, test_clog)
 {
-  const char *path = ".";
+  const char *path      = ".";
   const char *clog_file = "./clog";
   remove(clog_file);
-  
 
   CLogManager log_mgr;
-  RC rc = log_mgr.init(path);
+  RC          rc = log_mgr.init(path);
   ASSERT_EQ(rc, RC::SUCCESS);
   // TODO test
 
@@ -51,7 +50,7 @@ int main(int argc, char **argv)
   testing::InitGoogleTest(&argc, argv);
 
   LoggerFactory::init_default("clog_test.log", LOG_LEVEL_TRACE);
-  
+
   // 调用RUN_ALL_TESTS()运行所有测试用例
   // main函数返回RUN_ALL_TESTS()的运行结果
   return RUN_ALL_TESTS();

@@ -54,7 +54,8 @@ class CallbackContext;
  * the current thread.
  */
 
-class CompletionCallback {
+class CompletionCallback
+{
 
   // public interface operations
 
@@ -86,10 +87,10 @@ public:
 protected:
   // implementation state
 
-  Stage *target_stage_;          // stage which is setting this callback
-  CallbackContext *context_;     // argument to pass when invoking cb
-  CompletionCallback *next_cb_;  // next event in the chain
-  bool ev_hist_flag_;            // true if event histories are enabled
+  Stage              *target_stage_;  // stage which is setting this callback
+  CallbackContext    *context_;       // argument to pass when invoking cb
+  CompletionCallback *next_cb_;       // next event in the chain
+  bool                ev_hist_flag_;  // true if event histories are enabled
 };
 
 /**
@@ -99,22 +100,18 @@ protected:
  *  invoked.  To make use of this feature, a stage should derive its own
  *  callback context class from this base.
  */
-class CallbackContext {
+class CallbackContext
+{
 public:
-  virtual ~CallbackContext()
-  {}
+  virtual ~CallbackContext() {}
 };
 
-class CallbackContextEvent : public CallbackContext {
+class CallbackContextEvent : public CallbackContext
+{
 public:
-  CallbackContextEvent(StageEvent *event = NULL) : ev_(event)
-  {}
-  ~CallbackContextEvent()
-  {}
-  StageEvent *get_event()
-  {
-    return ev_;
-  }
+  CallbackContextEvent(StageEvent *event = NULL) : ev_(event) {}
+  ~CallbackContextEvent() {}
+  StageEvent *get_event() { return ev_; }
 
 private:
   StageEvent *ev_;

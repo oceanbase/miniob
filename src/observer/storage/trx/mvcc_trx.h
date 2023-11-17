@@ -26,11 +26,11 @@ public:
   MvccTrxKit() = default;
   virtual ~MvccTrxKit();
 
-  RC init() override;
+  RC                            init() override;
   const std::vector<FieldMeta> *trx_fields() const override;
-  Trx *create_trx(CLogManager *log_manager) override;
-  Trx *create_trx(int32_t trx_id) override;
-  void destroy_trx(Trx *trx) override;
+  Trx                          *create_trx(CLogManager *log_manager) override;
+  Trx                          *create_trx(int32_t trx_id) override;
+  void                          destroy_trx(Trx *trx) override;
 
   /**
    * @brief 找到对应事务号的事务
@@ -46,7 +46,7 @@ public:
   int32_t max_trx_id() const;
 
 private:
-  std::vector<FieldMeta> fields_; // 存储事务数据需要用到的字段元数据，所有表结构都需要带的
+  std::vector<FieldMeta> fields_;  // 存储事务数据需要用到的字段元数据，所有表结构都需要带的
 
   std::atomic<int32_t> current_trx_id_{0};
 
@@ -63,7 +63,7 @@ class MvccTrx : public Trx
 {
 public:
   MvccTrx(MvccTrxKit &trx_kit, CLogManager *log_manager);
-  MvccTrx(MvccTrxKit &trx_kit, int32_t trx_id); // used for recover
+  MvccTrx(MvccTrxKit &trx_kit, int32_t trx_id);  // used for recover
   virtual ~MvccTrx();
 
   RC insert_record(Table *table, Record &record) override;
@@ -71,7 +71,7 @@ public:
 
   /**
    * @brief 当访问到某条数据时，使用此函数来判断是否可见，或者是否有访问冲突
-   * 
+   *
    * @param table    要访问的数据属于哪张表
    * @param record   要访问哪条数据
    * @param readonly 是否只读访问
@@ -90,7 +90,7 @@ public:
   int32_t id() const override { return trx_id_; }
 
 private:
-  RC commit_with_trx_id(int32_t commit_id);
+  RC   commit_with_trx_id(int32_t commit_id);
   void trx_fields(Table *table, Field &begin_xid_field, Field &end_xid_field) const;
 
 private:
@@ -98,10 +98,10 @@ private:
 
 private:
   using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
-  MvccTrxKit & trx_kit_;
+  MvccTrxKit  &trx_kit_;
   CLogManager *log_manager_ = nullptr;
-  int32_t      trx_id_ = -1;
-  bool         started_ = false;
-  bool         recovering_ = false;
+  int32_t      trx_id_      = -1;
+  bool         started_     = false;
+  bool         recovering_  = false;
   OperationSet operations_;
 };

@@ -50,12 +50,18 @@ class DispatchContext;
  * or process for waking up stored events at the appropriate time.
  */
 
-class EventDispatcher : public Stage {
+class EventDispatcher : public Stage
+{
 
   // public interface operations
 
 public:
-  typedef enum { SEND_EVENT = 0, STORE_EVENT, FAIL_EVENT } status_t;
+  typedef enum
+  {
+    SEND_EVENT = 0,
+    STORE_EVENT,
+    FAIL_EVENT
+  } status_t;
 
   /**
    * Destructor
@@ -95,10 +101,7 @@ protected:
   bool initialize();
 
   // set properties for this object
-  bool set_properties()
-  {
-    return true;
-  }
+  bool set_properties() { return true; }
 
   /**
    * Cleanup stage after disconnection
@@ -134,12 +137,12 @@ protected:
 
   // implementation state
 
-  typedef std::pair<StageEvent *, DispatchContext *> StoredEvent;
+  typedef std::pair<StageEvent *, DispatchContext *>    StoredEvent;
   typedef std::map<std::string, std::list<StoredEvent>> EventHash;
 
-  EventHash event_store_;       // events stored here while waiting
-  pthread_mutex_t event_lock_;  // protects access to event_store_
-  Stage *next_stage_;           // target for dispatched events
+  EventHash       event_store_;  // events stored here while waiting
+  pthread_mutex_t event_lock_;   // protects access to event_store_
+  Stage          *next_stage_;   // target for dispatched events
 
 protected:
 };
@@ -148,10 +151,10 @@ protected:
  * Class to store context info with the stored event.  Subclasses should
  * derive from this base class.
  */
-class DispatchContext {
+class DispatchContext
+{
 public:
-  virtual ~DispatchContext()
-  {}
+  virtual ~DispatchContext() {}
 };
 
 }  // namespace common

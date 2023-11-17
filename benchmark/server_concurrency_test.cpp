@@ -13,17 +13,17 @@ See the Mulan PSL v2 for more details. */
 //
 
 #if 0
+#include <inttypes.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <inttypes.h>
 
+#include <benchmark/benchmark.h>
 #include <random>
 #include <stdexcept>
-#include <benchmark/benchmark.h>
 
-#include "rc.h"
 #include "common/log/log.h"
+#include "rc.h"
 
 using namespace std;
 using namespace common;

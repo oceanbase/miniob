@@ -30,7 +30,7 @@ class LogicalOperator;
 class LogicalPlanGenerator
 {
 public:
-  LogicalPlanGenerator() = default;
+  LogicalPlanGenerator()          = default;
   virtual ~LogicalPlanGenerator() = default;
 
   RC create(Stmt *stmt, std::unique_ptr<LogicalOperator> &logical_operator);

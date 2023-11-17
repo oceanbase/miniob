@@ -26,9 +26,7 @@ See the Mulan PSL v2 for more details. */
 class TrxEndStmt : public Stmt
 {
 public:
-  TrxEndStmt(StmtType type)
-          : type_(type)
-  {}
+  TrxEndStmt(StmtType type) : type_(type) {}
   virtual ~TrxEndStmt() = default;
 
   StmtType type() const override { return type_; }
@@ -36,7 +34,7 @@ public:
   static RC create(SqlCommandFlag flag, Stmt *&stmt)
   {
     StmtType type = flag == SqlCommandFlag::SCF_COMMIT ? StmtType::COMMIT : StmtType::ROLLBACK;
-    stmt = new TrxEndStmt(type);
+    stmt          = new TrxEndStmt(type);
     return RC::SUCCESS;
   }
 

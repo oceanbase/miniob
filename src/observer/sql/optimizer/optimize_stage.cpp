@@ -21,12 +21,10 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
-#include "sql/expr/expression.h"
-#include "sql/operator/logical_operator.h"
-#include "sql/executor/sql_result.h"
-#include "sql/stmt/stmt.h"
-#include "event/sql_event.h"
 #include "event/session_event.h"
+#include "event/sql_event.h"
+#include "sql/operator/logical_operator.h"
+#include "sql/stmt/stmt.h"
 
 using namespace std;
 using namespace common;
@@ -34,7 +32,8 @@ using namespace common;
 RC OptimizeStage::handle_request(SQLStageEvent *sql_event)
 {
   unique_ptr<LogicalOperator> logical_operator;
-  RC rc = create_logical_plan(sql_event, logical_operator);
+
+  RC                          rc = create_logical_plan(sql_event, logical_operator);
   if (rc != RC::SUCCESS) {
     if (rc != RC::UNIMPLENMENT) {
       LOG_WARN("failed to create logical plan. rc=%s", strrc(rc));
@@ -76,7 +75,7 @@ RC OptimizeStage::generate_physical_plan(
     unique_ptr<LogicalOperator> &logical_operator, unique_ptr<PhysicalOperator> &physical_operator)
 {
   RC rc = RC::SUCCESS;
-  rc = physical_plan_generator_.create(*logical_operator, physical_operator);
+  rc    = physical_plan_generator_.create(*logical_operator, physical_operator);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to create physical operator. rc=%s", strrc(rc));
   }
@@ -86,11 +85,11 @@ RC OptimizeStage::generate_physical_plan(
 RC OptimizeStage::rewrite(unique_ptr<LogicalOperator> &logical_operator)
 {
   RC rc = RC::SUCCESS;
-  
+
   bool change_made = false;
   do {
     change_made = false;
-    rc = rewriter_.rewrite(logical_operator, change_made);
+    rc          = rewriter_.rewrite(logical_operator, change_made);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to do expression rewrite on logical plan. rc=%s", strrc(rc));
       return rc;

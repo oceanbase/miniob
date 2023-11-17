@@ -14,9 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include <memory>
 #include <pthread.h>
 #include <sys/time.h>
-#include <memory>
 
 #include "common/log/log.h"
 #include "common/seda/callback.h"
@@ -39,25 +39,26 @@ namespace common {
  *  It should be considered opaque to all components other than the \c
  *  TimerStage.
  */
-class TimerToken {
+class TimerToken
+{
 public:
   TimerToken();
   TimerToken(const struct timeval &t);
   TimerToken(const TimerToken &tt);
   const struct timeval &get_time() const;
-  uint64_t get_nonce() const;
-  bool operator<(const TimerToken &other) const;
-  TimerToken &operator=(const TimerToken &src);
-  std::string to_string() const;
+  uint64_t              get_nonce() const;
+  bool                  operator<(const TimerToken &other) const;
+  TimerToken           &operator=(const TimerToken &src);
+  std::string           to_string() const;
 
   friend bool timer_token_less_than(const TimerToken &tt1, const TimerToken &tt2);
 
 private:
-  void set(const struct timeval &t, uint64_t n);
+  void            set(const struct timeval &t, uint64_t n);
   static uint64_t next_nonce();
 
   struct timeval time;
-  uint64_t nonce;
+  uint64_t       nonce;
 };
 
 /**
@@ -66,16 +67,11 @@ private:
  *
  *  \brief An abstract base class for all timer-related events.
  */
-class TimerEvent : public StageEvent {
+class TimerEvent : public StageEvent
+{
 public:
-  TimerEvent() : StageEvent()
-  {
-    return;
-  }
-  virtual ~TimerEvent()
-  {
-    return;
-  }
+  TimerEvent() : StageEvent() { return; }
+  virtual ~TimerEvent() { return; }
 };
 
 /**
@@ -92,7 +88,8 @@ public:
  *  number of available threads, the event may be triggered later than
  *  the requested time.
  */
-class TimerRegisterEvent : public TimerEvent {
+class TimerRegisterEvent : public TimerEvent
+{
 public:
   /**
    *  \brief Create an event to request the registration of a timer
@@ -183,9 +180,9 @@ public:
   void set_cancel_token(const TimerToken &t);
 
 private:
-  StageEvent *timer_cb_;
+  StageEvent    *timer_cb_;
   struct timeval timer_when_;
-  TimerToken token_;
+  TimerToken     token_;
 };
 
 /**
@@ -200,7 +197,8 @@ private:
  *  reports that the event is cancelled, it will not invoke trigger
  *  the associated callback event.
  */
-class TimerCancelEvent : public TimerEvent {
+class TimerCancelEvent : public TimerEvent
+{
 public:
   /**
    *  \brief Create an event to request the cancellation of a timer
@@ -244,7 +242,7 @@ public:
 
 private:
   TimerToken token_;
-  bool cancelled_;
+  bool       cancelled_;
 };
 
 /**
@@ -277,7 +275,8 @@ private:
  *  Implementation note: The \c TimerStage creates an internal thread
  *  to maintain the timer.
  */
-class TimerStage : public Stage {
+class TimerStage : public Stage
+{
 public:
   ~TimerStage();
   static Stage *make_stage(const std::string &tag);
@@ -309,15 +308,14 @@ private:
   static void *start_timer_thread(void *arg);
 
   typedef std::map<TimerToken, StageEvent *, bool (*)(const TimerToken &, const TimerToken &)> timer_queue_t;
-  timer_queue_t timer_queue_;
+  timer_queue_t                                                                                timer_queue_;
 
   pthread_mutex_t timer_mutex_;
-  pthread_cond_t timer_condv_;
+  pthread_cond_t  timer_condv_;
 
-  bool shutdown_;              // true if stage has received the shutdown signal
-  uint32_t num_events_;           // the number of timer events currently outstanding
+  bool      shutdown_;         // true if stage has received the shutdown signal
+  uint32_t  num_events_;       // the number of timer events currently outstanding
   pthread_t timer_thread_id_;  // thread id of the timer maintenance thread
 };
 
 }  // namespace common
-

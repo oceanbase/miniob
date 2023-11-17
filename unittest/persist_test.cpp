@@ -12,19 +12,19 @@ See the Mulan PSL v2 for more details. */
 // Created by qiling on 2022
 //
 
-#include <string.h>
-#include "gtest/gtest.h"
 #include "storage/persist/persist.h"
+#include "gtest/gtest.h"
+#include <string.h>
 
 const int MAX_LEN = 50;
 
 TEST(test_persist, test_persist_file_io)
 {
-  std::string file_name_1 = "test_persist_file_io-file_name_1";
-  std::string file_name_2 = "test_persist_file_io-file_name_2";
+  std::string    file_name_1 = "test_persist_file_io-file_name_1";
+  std::string    file_name_2 = "test_persist_file_io-file_name_2";
   PersistHandler persist_handler;
   PersistHandler persist_handler_2;
-  RC rc;
+  RC             rc;
 
   // prepare
   remove(file_name_1.c_str());
@@ -58,10 +58,10 @@ TEST(test_persist, test_persist_file_io)
   ASSERT_EQ(rc, RC::SUCCESS);
 
   // write
-  std::string str_1 = "this is a string 001. ";
-  std::string str_2 = "this is a string 002002. ";
-  std::string str_3 = "THIS IS A STRING 003. ";
-  int64_t write_size = 0;
+  std::string str_1      = "this is a string 001. ";
+  std::string str_2      = "this is a string 002002. ";
+  std::string str_3      = "THIS IS A STRING 003. ";
+  int64_t     write_size = 0;
 
   rc = persist_handler.write_file(str_1.size(), str_1.c_str(), &write_size);
   ASSERT_EQ(rc, RC::SUCCESS);
@@ -88,8 +88,8 @@ TEST(test_persist, test_persist_file_io)
   ASSERT_EQ(rc, RC::FILE_NOT_EXIST);
 
   // read & seek
-  int64_t read_size = 0;
-  char buf[MAX_LEN] = {0};
+  int64_t read_size    = 0;
+  char    buf[MAX_LEN] = {0};
 
   rc = persist_handler.read_at(str_1.size(), str_2.size(), buf, &read_size);
   ASSERT_EQ(rc, RC::SUCCESS);

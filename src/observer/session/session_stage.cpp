@@ -18,25 +18,22 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 
 #include "common/conf/ini.h"
-#include "common/log/log.h"
 #include "common/lang/mutex.h"
 #include "common/lang/string.h"
-#include "common/seda/callback.h"
+#include "common/log/log.h"
 #include "event/session_event.h"
 #include "event/sql_event.h"
-#include "net/server.h"
 #include "net/communicator.h"
+#include "net/server.h"
 #include "session/session.h"
 
 using namespace common;
 
 // Constructor
-SessionStage::SessionStage(const char *tag) : Stage(tag)
-{}
+SessionStage::SessionStage(const char *tag) : Stage(tag) {}
 
 // Destructor
-SessionStage::~SessionStage()
-{}
+SessionStage::~SessionStage() {}
 
 // Parse properties, instantiate a stage object
 Stage *SessionStage::make_stage(const std::string &tag)
@@ -65,16 +62,10 @@ bool SessionStage::set_properties()
 }
 
 // Initialize stage params and validate outputs
-bool SessionStage::initialize()
-{
-  return true;
-}
+bool SessionStage::initialize() { return true; }
 
 // Cleanup after disconnection
-void SessionStage::cleanup()
-{
-
-}
+void SessionStage::cleanup() {}
 
 void SessionStage::handle_event(StageEvent *event)
 {
@@ -103,9 +94,9 @@ void SessionStage::handle_request(StageEvent *event)
   SQLStageEvent sql_event(sev, sql);
   (void)handle_sql(&sql_event);
 
-  Communicator *communicator = sev->get_communicator();
-  bool need_disconnect = false;
-  RC rc = communicator->write_result(sev, need_disconnect);
+  Communicator *communicator    = sev->get_communicator();
+  bool          need_disconnect = false;
+  RC            rc              = communicator->write_result(sev, need_disconnect);
   LOG_INFO("write result return %s", strrc(rc));
   if (need_disconnect) {
     Server::close_connection(communicator);
@@ -143,13 +134,13 @@ RC SessionStage::handle_sql(SQLStageEvent *sql_event)
     LOG_TRACE("failed to do resolve. rc=%s", strrc(rc));
     return rc;
   }
-  
+
   rc = optimize_stage_.handle_request(sql_event);
   if (rc != RC::UNIMPLENMENT && rc != RC::SUCCESS) {
     LOG_TRACE("failed to do optimize. rc=%s", strrc(rc));
     return rc;
   }
-  
+
   rc = execute_stage_.handle_request(sql_event);
   if (OB_FAIL(rc)) {
     LOG_TRACE("failed to do execute. rc=%s", strrc(rc));

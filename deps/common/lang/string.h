@@ -16,8 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 // Basic includes
 #include <cxxabi.h>
-#include <stdlib.h>
 #include <signal.h>
+#include <stdlib.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -33,7 +33,7 @@ namespace common {
 /**
  * remove all white space(like ' ', '\t', '\n') from string
  */
-void strip(std::string &str);
+void  strip(std::string &str);
 char *strip(char *str);
 
 /**
@@ -140,10 +140,10 @@ std::string get_type_name(const T &val);
 template <class T>
 bool str_to_val(const std::string &str, T &val, std::ios_base &(*radix)(std::ios_base &)/* = std::dec */)
 {
-  bool success = true;
+  bool               success = true;
   std::istringstream is(str);
   if (!(is >> radix >> val)) {
-    val = 0;
+    val     = 0;
     success = false;
   }
   return success;
@@ -160,8 +160,8 @@ void val_to_str(const T &val, std::string &str, std::ios_base &(*radix)(std::ios
 template <class T>
 std::string get_type_name(const T &val)
 {
-  int status = 0;
-  char *stmp = abi::__cxa_demangle(typeid(val).name(), 0, 0, &status);
+  int   status = 0;
+  char *stmp   = abi::__cxa_demangle(typeid(val).name(), 0, 0, &status);
   if (!stmp)
     return "";
 

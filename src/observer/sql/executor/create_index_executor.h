@@ -26,7 +26,7 @@ class SQLStageEvent;
 class CreateIndexExecutor
 {
 public:
-  CreateIndexExecutor() = default;
+  CreateIndexExecutor()          = default;
   virtual ~CreateIndexExecutor() = default;
 
   RC execute(SQLStageEvent *sql_event);

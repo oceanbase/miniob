@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 namespace common {
 
 /* Prototypes */
-bool check_leaks();
+bool  check_leaks();
 void *operator new(size_t size, const char *file, int line);
 void *operator new[](size_t size, const char *file, int line);
 #ifndef NO_PLACEMENT_DELETE
@@ -39,7 +39,9 @@ void operator delete[](void *);  // MSVC 6 requires this declaration
 #ifdef DEBUG_NEW_EMULATE_MALLOC
 
 #define malloc(s) ((void *)(debug_new char[s]))
+
 #define free(p) delete[](char *)(p)
+
 #endif  // DEBUG_NEW_EMULATE_MALLOC
 
 /* Control flags */

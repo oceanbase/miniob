@@ -84,7 +84,7 @@ std::string &str_to_lower(std::string &s)
 
 void split_string(const std::string &str, std::string delim, std::set<std::string> &results)
 {
-  int cut_at;
+  int         cut_at;
   std::string tmp_str(str);
   while ((cut_at = tmp_str.find_first_of(delim)) != (signed)tmp_str.npos) {
     if (cut_at > 0) {
@@ -100,7 +100,7 @@ void split_string(const std::string &str, std::string delim, std::set<std::strin
 
 void split_string(const std::string &str, std::string delim, std::vector<std::string> &results)
 {
-  int cut_at;
+  int         cut_at;
   std::string tmp_str(str);
   while ((cut_at = tmp_str.find_first_of(delim)) != (signed)tmp_str.npos) {
     if (cut_at > 0) {
@@ -191,8 +191,8 @@ void replace(std::string &str, const std::string &old, const std::string &new_st
 
 char *bin_to_hex(const char *s, const int len, char *hex_buff)
 {
-  int new_len = 0;
-  unsigned char *end = (unsigned char *)s + len;
+  int            new_len = 0;
+  unsigned char *end     = (unsigned char *)s + len;
   for (unsigned char *p = (unsigned char *)s; p < end; p++) {
     new_len += snprintf(hex_buff + new_len, 3, "%02x", *p);
   }
@@ -203,22 +203,22 @@ char *bin_to_hex(const char *s, const int len, char *hex_buff)
 
 char *hex_to_bin(const char *s, char *bin_buff, int *dest_len)
 {
-  char buff[3];
+  char  buff[3];
   char *src;
-  int src_len;
+  int   src_len;
   char *p_dest;
   char *p_dest_end;
 
   src_len = strlen(s);
   if (src_len == 0) {
-    *dest_len = 0;
+    *dest_len   = 0;
     bin_buff[0] = '\0';
     return bin_buff;
   }
 
   *dest_len = src_len / 2;
-  src = (char *)s;
-  buff[2] = '\0';
+  src       = (char *)s;
+  buff[2]   = '\0';
 
   p_dest_end = bin_buff + (*dest_len);
   for (p_dest = bin_buff; p_dest < p_dest_end; p_dest++) {
@@ -257,7 +257,7 @@ bool is_blank(const char *s)
 char *substr(const char *s, int n1, int n2)
 {
   char *sp = (char *)malloc(sizeof(char) * (n2 - n1 + 2));
-  int i, j = 0;
+  int   i, j = 0;
   for (i = n1; i <= n2; i++) {
     sp[j++] = s[i];
   }

@@ -14,16 +14,16 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <stddef.h>
-#include <vector>
 #include <limits>
 #include <sstream>
+#include <stddef.h>
+#include <vector>
 
+#include "common/log/log.h"
 #include "common/rc.h"
 #include "common/types.h"
-#include "common/log/log.h"
-#include "storage/index/index_meta.h"
 #include "storage/field/field_meta.h"
+#include "storage/index/index_meta.h"
 
 class Field;
 
@@ -158,6 +158,6 @@ private:
   RID rid_;
 
   char *data_  = nullptr;
-  int   len_   = 0;       /// 如果不是record自己来管理内存，这个字段可能是无效的
-  bool  owner_ = false;   /// 表示当前是否由record来管理内存
+  int   len_   = 0;      /// 如果不是record自己来管理内存，这个字段可能是无效的
+  bool  owner_ = false;  /// 表示当前是否由record来管理内存
 };

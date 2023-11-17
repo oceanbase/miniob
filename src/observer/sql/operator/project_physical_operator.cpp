@@ -12,8 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2022/07/01.
 //
 
-#include "common/log/log.h"
 #include "sql/operator/project_physical_operator.h"
+#include "common/log/log.h"
 #include "storage/record/record.h"
 #include "storage/table/table.h"
 
@@ -24,7 +24,7 @@ RC ProjectPhysicalOperator::open(Trx *trx)
   }
 
   PhysicalOperator *child = children_[0].get();
-  RC rc = child->open(trx);
+  RC                rc    = child->open(trx);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open child operator: %s", strrc(rc));
     return rc;

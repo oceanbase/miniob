@@ -12,12 +12,11 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2023/06/28.
 //
 
-#include <sstream>
 #include "sql/parser/value.h"
-#include "storage/field/field.h"
-#include "common/log/log.h"
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
+#include "common/log/log.h"
+#include <sstream>
 
 const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
 
@@ -38,25 +37,13 @@ AttrType attr_type_from_string(const char *s)
   return UNDEFINED;
 }
 
-Value::Value(int val)
-{
-  set_int(val);
-}
+Value::Value(int val) { set_int(val); }
 
-Value::Value(float val)
-{
-  set_float(val);
-}
+Value::Value(float val) { set_float(val); }
 
-Value::Value(bool val)
-{
-  set_boolean(val);
-}
+Value::Value(bool val) { set_boolean(val); }
 
-Value::Value(const char *s, int len /*= 0*/)
-{
-  set_string(s, len);
-}
+Value::Value(const char *s, int len /*= 0*/) { set_string(s, len); }
 
 void Value::set_data(char *data, int length)
 {
@@ -66,15 +53,15 @@ void Value::set_data(char *data, int length)
     } break;
     case INTS: {
       num_value_.int_value_ = *(int *)data;
-      length_ = length;
+      length_               = length;
     } break;
     case FLOATS: {
       num_value_.float_value_ = *(float *)data;
-      length_ = length;
+      length_                 = length;
     } break;
     case BOOLEANS: {
       num_value_.bool_value_ = *(int *)data != 0;
-      length_ = length;
+      length_                = length;
     } break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
@@ -83,22 +70,22 @@ void Value::set_data(char *data, int length)
 }
 void Value::set_int(int val)
 {
-  attr_type_ = INTS;
+  attr_type_            = INTS;
   num_value_.int_value_ = val;
-  length_ = sizeof(val);
+  length_               = sizeof(val);
 }
 
 void Value::set_float(float val)
 {
-  attr_type_ = FLOATS;
+  attr_type_              = FLOATS;
   num_value_.float_value_ = val;
-  length_ = sizeof(val);
+  length_                 = sizeof(val);
 }
 void Value::set_boolean(bool val)
 {
-  attr_type_ = BOOLEANS;
+  attr_type_             = BOOLEANS;
   num_value_.bool_value_ = val;
-  length_ = sizeof(val);
+  length_                = sizeof(val);
 }
 void Value::set_string(const char *s, int len /*= 0*/)
 {
@@ -258,10 +245,7 @@ float Value::get_float() const
   return 0;
 }
 
-std::string Value::get_string() const
-{
-  return this->to_string();
-}
+std::string Value::get_string() const { return this->to_string(); }
 
 bool Value::get_boolean() const
 {

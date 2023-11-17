@@ -90,8 +90,8 @@ unsigned int Threadpool::num_threads()
  */
 unsigned int Threadpool::add_threads(unsigned int threads)
 {
-  unsigned int i;
-  pthread_t pthread;
+  unsigned int   i;
+  pthread_t      pthread;
   pthread_attr_t pthread_attrs;
   LOG_TRACE("%s adding threads enter%d", name_.c_str(), threads);
   // create all threads as detached.  We will not try to join them.
@@ -236,10 +236,7 @@ void Threadpool::schedule(Stage *stage)
 }
 
 // Get name of thread pool
-const std::string &Threadpool::get_name()
-{
-  return name_;
-}
+const std::string &Threadpool::get_name() { return name_; }
 
 /**
  * Internal thread control function
@@ -256,7 +253,7 @@ void *Threadpool::run_thread(void *pool_ptr)
   // this is not portable, but is easier to map to LWP
   int64_t threadid = gettid();
   LOG_INFO("threadid = %llx, threadname = %s", threadid, pool->get_name().c_str());
-#ifdef __APPLE__ 
+#ifdef __APPLE__
   pthread_setname_np(pool->get_name().c_str());
 #else
   pthread_setname_np(pthread_self(), pool->get_name().c_str());
@@ -327,19 +324,10 @@ void Threadpool::create_pool_key()
   pthread_key_create(&pool_ptr_key_, NULL);
 }
 
-void Threadpool::del_pool_key()
-{
-  pthread_key_delete(pool_ptr_key_);
-}
+void Threadpool::del_pool_key() { pthread_key_delete(pool_ptr_key_); }
 
-void Threadpool::set_thread_pool_ptr(const Threadpool *thd_Pool)
-{
-  pthread_setspecific(pool_ptr_key_, thd_Pool);
-}
+void Threadpool::set_thread_pool_ptr(const Threadpool *thd_Pool) { pthread_setspecific(pool_ptr_key_, thd_Pool); }
 
-const Threadpool *Threadpool::get_thread_pool_ptr()
-{
-  return (const Threadpool *)pthread_getspecific(pool_ptr_key_);
-}
+const Threadpool *Threadpool::get_thread_pool_ptr() { return (const Threadpool *)pthread_getspecific(pool_ptr_key_); }
 
 }  // namespace common
