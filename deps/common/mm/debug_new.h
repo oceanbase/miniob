@@ -40,7 +40,8 @@ void operator delete[](void *);  // MSVC 6 requires this declaration
 
 #define malloc(s) ((void *)(debug_new char[s]))
 
-#define free(p) delete[] (char *)(p)
+#define free(p) delete[](char *)(p)
+
 #endif  // DEBUG_NEW_EMULATE_MALLOC
 
 /* Control flags */
