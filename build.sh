@@ -78,7 +78,6 @@ function do_init
 
   # build libevent
   cd ${TOPDIR}/deps/3rd/libevent && \
-    git checkout release-2.1.12-stable && \
     mkdir -p build && \
     cd build && \
     ${CMAKE_COMMAND} .. -DEVENT__DISABLE_OPENSSL=ON -DEVENT__LIBRARY_TYPE=BOTH && \
