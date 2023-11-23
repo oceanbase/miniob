@@ -70,17 +70,24 @@ IF (ENABLE_ASAN)
 ENDIF()
 
 IF (ENABLE_TSAN)
+    # supported flags
+    # https://github.com/google/sanitizers/wiki/ThreadSanitizerFlags
     MESSAGE(STATUS "Instrumenting with Thread Sanitizer")
     SET(TSAN_FLAGS "-fno-omit-frame-pointer -fsanitize=thread")
     SET(TSAN_CCFLAGS "${TSAN_CCFLAGS} -mllvm -tsan-instrument-memory-accesses=0")
     SET(TSAN_CCFLAGS "${TSAN_CCFLAGS} -mllvm -tsan-instrument-atomics=0")
     SET(TSAN_CCFLAGS "${TSAN_CCFLAGS} -mllvm -tsan-instrument-func-entry-exit=1")
-    SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} ${TSAN_FLAGS} ${TSAN_CCFLAGS} -fPIE")
-    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${TSAN_FLAGS} -pie -Qunused-arguments")
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${TSAN_FLAGS} -pie -Qunused-arguments")
+    SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} ${TSAN_FLAGS} ${TSAN_CCFLAGS}")
+    # -Qunused-arguments 有些编译器不支持，所以先删掉
+    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${STATIC_STDLIB})
+        ADD_LINK_OPTIONS(-static-libtsan)
+    ENDIF()
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${TSAN_FLAGS}")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${TSAN_FLAGS}")
 ENDIF (ENABLE_TSAN)
 
 IF (ENABLE_UBSAN)
+  # Only success on Mac Clang
   MESSAGE(STATUS "Instrumenting with Undefined Behavior Sanitizer")
   SET(UBSAN_FLAGS "${UBSAN_FLAGS} -fno-omit-frame-pointer")
   SET(UBSAN_FLAGS "${UBSAN_FLAGS} -fsanitize=undefined")
