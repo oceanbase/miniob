@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="(empty)"
+	BuildStamp="20230830-1326-Experimental"
+	Name="(empty)"
+	Generator="ctest-3.25.0"
+	CompilerName=""
+	CompilerVersion=""
+	OSName="Linux"
+	Hostname="obvos-dev-z3"
+	OSRelease="3.10.0-327.ali2019.alios7.x86_64"
+	OSVersion="#1 SMP Sun Jan 19 18:21:42 CST 2020"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="GenuineIntel"
+	VendorID="Intel Corporation"
+	FamilyID="6"
+	ModelID="85"
+	ProcessorCacheSize="33792"
+	NumberOfLogicalCPU="8"
+	NumberOfPhysicalCPU="8"
+	TotalVirtualMemory="2047"
+	TotalPhysicalMemory="73728"
+	LogicalProcessorsPerPhysical="1"
+	ProcessorClockFrequency="2500"
+	>
+	<Testing>
+		<StartDateTime>Aug 30 21:26 CST</StartDateTime>
+		<StartTestTime>1693401980</StartTestTime>
+		<TestList/>
+		<EndDateTime>Aug 30 21:26 CST</EndDateTime>
+		<EndTestTime>1693401980</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>
