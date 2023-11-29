@@ -45,6 +45,7 @@ jobs:
         export DEBIAN_FRONTEND=noninteractive
         sudo apt-get update && sudo apt-get install -y lcov
         cd build_debug
+        rm -rf unittest
         lcov -c -d ./ -o coverage.info
 
     - uses: codecov/codecov-action@v3
