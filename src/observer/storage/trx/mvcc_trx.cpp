@@ -177,7 +177,7 @@ RC MvccTrx::delete_record(Table *table, Record &record)
         begin_xid, end_xid, trx_id_, record.rid().to_string().c_str());
     rc = table->delete_record(record);
     ASSERT(rc == RC::SUCCESS, "failed to delete record in table.table id =%d, rid=%s, begin_xid=%d, end_xid=%d, current trx id = %d",
-        table.->table_id(), record.rid().to_string().c_str(), begin_xid, end_xid, trx_id_);
+        table->table_id(), record.rid().to_string().c_str(), begin_xid, end_xid, trx_id_);
     return rc;
   }
 
