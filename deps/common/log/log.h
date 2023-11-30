@@ -123,6 +123,9 @@ public:
   void     set_context_getter(std::function<intptr_t()> context_getter);
   intptr_t context_id();
 
+  void get_time_lock();
+  void get_time_unlock();
+
 private:
   void check_param_valid();
 
@@ -135,6 +138,7 @@ private:
 
 private:
   pthread_mutex_t lock_;
+  pthread_mutex_t get_time_lock_;
   std::ofstream   ofs_;
   std::string     log_name_;
   LOG_LEVEL       log_level_;
@@ -185,7 +189,9 @@ extern Log *g_log;
   if (common::g_log) {                                                     \
     struct timeval tv;                                                     \
     gettimeofday(&tv, NULL);                                               \
+    common::g_log->get_time_lock();                                        \
     struct tm *p                      = localtime(&tv.tv_sec);             \
+    common::g_log->get_time_unlock();                                      \
     char       sz_head[LOG_HEAD_SIZE] = {0};                               \
     if (p) {                                                               \
       int usec = (int)tv.tv_usec;                                          \
