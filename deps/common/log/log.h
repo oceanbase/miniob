@@ -185,8 +185,10 @@ extern Log *g_log;
   if (common::g_log) {                                                     \
     struct timeval tv;                                                     \
     gettimeofday(&tv, NULL);                                               \
-    struct tm *p                      = localtime(&tv.tv_sec);             \
-    char       sz_head[LOG_HEAD_SIZE] = {0};                               \
+    struct tm  curr_time;                                                  \
+    struct tm *p = localtime_r(&tv.tv_sec, &curr_time);                    \
+                                                                           \
+    char sz_head[LOG_HEAD_SIZE] = {0};                                     \
     if (p) {                                                               \
       int usec = (int)tv.tv_usec;                                          \
       snprintf(sz_head,                                                    \
