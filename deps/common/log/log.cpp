@@ -312,18 +312,6 @@ void Log::set_context_getter(std::function<intptr_t()> context_getter)
 
 intptr_t Log::context_id() { return context_getter_(); }
 
-void Log::get_time_lock()
-{
-  pthread_mutex_init(&get_time_lock_, NULL);
-  pthread_mutex_lock(&get_time_lock_);
-}
-
-void Log::get_time_unlock()
-{
-  pthread_mutex_unlock(&get_time_lock_);
-  pthread_mutex_destroy(&get_time_lock_);
-}
-
 LoggerFactory::LoggerFactory()
 {
   // Auto-generated constructor stub
