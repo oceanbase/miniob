@@ -89,7 +89,8 @@ char *my_readline(const char *prompt)
 */
 bool is_exit_command(const char *cmd)
 {
-  return 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) || 0 == strncasecmp("\\q", cmd, 2) || 0 == strncasecmp("interrupted", cmd, 11);
+  return 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) || 0 == strncasecmp("\\q", cmd, 2)
+           || 0 == strncasecmp("interrupted", cmd, 11);
 }
 
 char *read_command()
