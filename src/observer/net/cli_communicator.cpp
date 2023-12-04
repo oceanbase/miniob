@@ -67,10 +67,16 @@ char *my_readline(const char *prompt)
   fprintf(stdout, "%s", prompt);
   char *s = fgets(buffer, MAX_MEM_BUFFER_SIZE, stdin);
   if (nullptr == s) {
-    free(buffer);
     if (ferror(stdin) || feof(stdin)) {
       LOG_WARN("failed to read line: %s", strerror(errno));
     }
+    /* EINTR(4):Interrupted system call */
+    if (errno == EINTR) {
+      strncpy(buffer, "interrupted", MAX_MEM_BUFFER_SIZE);
+      fprintf(stdout, "\n");
+      return buffer;
+    }
+    free(buffer);
     return nullptr;
   }
   return buffer;
@@ -83,7 +89,8 @@ char *my_readline(const char *prompt)
 */
 bool is_exit_command(const char *cmd)
 {
-  return 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) || 0 == strncasecmp("\\q", cmd, 2);
+  return 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) || 0 == strncasecmp("\\q", cmd, 2)
+           || 0 == strncasecmp("interrupted", cmd, 11);
 }
 
 char *read_command()
