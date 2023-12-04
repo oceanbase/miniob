@@ -70,9 +70,9 @@ char *my_readline(const char *prompt)
     if (ferror(stdin) || feof(stdin)) {
       LOG_WARN("failed to read line: %s", strerror(errno));
     }
-    /* strerrno(4)=="Interrupted system call"*/
-    if (errno == 4) {
-      strncpy(buffer, "interrupted", 12);
+    /* EINTR(4):Interrupted system call */
+    if (errno == EINTR) {
+      strncpy(buffer, "interrupted", MAX_MEM_BUFFER_SIZE);
       fprintf(stdout, "\n");
       return buffer;
     }
