@@ -6,6 +6,6 @@ MiniOB 当前可以在Linux/MacOS上编译，所以开发环境最好是Linux或
 - [开发环境搭建(本地调试, 适用 Linux 和 Mac)](how_to_dev_miniob_by_vscode.md)
 - [开发环境搭建(远程调试, 适用于 Window, Linux 和 Mac)](how_to_dev_in_docker_container_by_vscode.md)
 - [Windows 使用Docker开发MiniOB](how_to_dev_miniob_by_docker_on_windows.md)
-- [手把手教你在windows上用docker和vscode配置环境](./dev-env/how_to_dev_in_docker_container_by_vscode_on_windows.md)
+- [手把手教你在windows上用docker和vscode配置环境](how_to_dev_in_docker_container_by_vscode_on_windows.md)
 - [使用Docker开发MiniOB](how-to-dev-using-docker.md)
-- [MiniOB 调试](./dev-env/miniob-how-to-debug.md)
+- [MiniOB 调试](miniob-how-to-debug.md)
