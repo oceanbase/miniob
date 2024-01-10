@@ -14,6 +14,7 @@ OPTION(ENABLE_ASAN "Enable build with address sanitizer" ON)
 OPTION(ENABLE_TSAN "Build with thread sanitizer" OFF)
 OPTION(ENABLE_UBSAN "Build with undefined behavior sanitizer" OFF)
 OPTION(WITH_UNIT_TESTS "Compile miniob with unit tests" ON)
+OPTION(ENABLE_COVERAGE "Enable unittest coverage" OFF)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)
 OPTION(STATIC_STDLIB "Link std library static or dynamic, such as libgcc, libstdc++, libasan" OFF)
 
@@ -127,7 +128,9 @@ ENDIF ()
 INCLUDE_DIRECTORIES(. ${PROJECT_SOURCE_DIR}/deps /usr/local/include)
 
 IF(WITH_UNIT_TESTS)
-    SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -fprofile-arcs -ftest-coverage")
+    IF (ENABLE_COVERAGE)
+        SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -fprofile-arcs -ftest-coverage")
+    ENDIF (ENABLE_COVERAGE)
     enable_testing()
 ENDIF(WITH_UNIT_TESTS)
 

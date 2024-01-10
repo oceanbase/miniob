@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 #include <arpa/inet.h>
 #include <errno.h>
-#include <event2/thread.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -27,19 +26,21 @@ See the Mulan PSL v2 for more details. */
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <poll.h>
+
+#include <memory>
 
 #include "common/ini_setting.h"
 #include "common/io/io.h"
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
-#include "common/seda/seda_config.h"
 #include "event/session_event.h"
+#include "session/session_stage.h"
 #include "net/communicator.h"
 #include "session/session.h"
+#include "net/thread_handler.h"
 
 using namespace common;
-
-Stage *Server::session_stage_ = nullptr;
 
 ServerParam::ServerParam()
 {
@@ -57,8 +58,6 @@ Server::~Server()
   }
 }
 
-void Server::init() { session_stage_ = get_seda_config()->get_stage(SESSION_STAGE_NAME); }
-
 int Server::set_non_block(int fd)
 {
   int flags = fcntl(fd, F_GETFL);
@@ -73,32 +72,6 @@ int Server::set_non_block(int fd)
     return -1;
   }
   return 0;
-}
-
-void Server::close_connection(Communicator *communicator)
-{
-  LOG_INFO("Close connection of %s.", communicator->addr());
-  event_del(&communicator->read_event());
-  delete communicator;
-}
-
-void Server::recv(int fd, short ev, void *arg)
-{
-  Communicator *comm = (Communicator *)arg;
-
-  SessionEvent *event = nullptr;
-
-  RC rc = comm->read_event(event);
-  if (rc != RC::SUCCESS) {
-    close_connection(comm);
-    return;
-  }
-
-  if (event == nullptr) {
-    LOG_WARN("event is null while read event return success");
-    return;
-  }
-  session_stage_->add_event(event);
 }
 
 void Server::accept(int fd, short ev, void *arg)
@@ -152,19 +125,9 @@ void Server::accept(int fd, short ev, void *arg)
     return;
   }
 
-  event_set(&communicator->read_event(), client_fd, EV_READ | EV_PERSIST, recv, communicator);
-
-  ret = event_base_set(instance->event_base_, &communicator->read_event());
-  if (ret < 0) {
-    LOG_ERROR("Failed to do event_base_set for read event of %s into libevent, %s", 
-              communicator->addr(), strerror(errno));
-    delete communicator;
-    return;
-  }
-
-  ret = event_add(&communicator->read_event(), nullptr);
-  if (ret < 0) {
-    LOG_ERROR("Failed to event_add for read event of %s into libevent, %s", communicator->addr(), strerror(errno));
+  rc = instance->thread_handler_->new_connection(communicator);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to handle new connection. rc=%s", strrc(rc));
     delete communicator;
     return;
   }
@@ -229,20 +192,6 @@ int Server::start_tcp_server()
   }
   LOG_INFO("Listen on port %d", server_param_.port);
 
-  listen_ev_ = event_new(event_base_, server_socket_, EV_READ | EV_PERSIST, accept, this);
-  if (listen_ev_ == nullptr) {
-    LOG_ERROR("Failed to create listen event, %s.", strerror(errno));
-    ::close(server_socket_);
-    return -1;
-  }
-
-  ret = event_add(listen_ev_, nullptr);
-  if (ret < 0) {
-    LOG_ERROR("event_add(): can not add accept event into libevent, %s", strerror(errno));
-    ::close(server_socket_);
-    return -1;
-  }
-
   started_ = true;
   LOG_INFO("Observer start success");
   return 0;
@@ -286,20 +235,6 @@ int Server::start_unix_socket_server()
   }
   LOG_INFO("Listen on unix socket: %s", sockaddr.sun_path);
 
-  listen_ev_ = event_new(event_base_, server_socket_, EV_READ | EV_PERSIST, accept, this);
-  if (listen_ev_ == nullptr) {
-    LOG_ERROR("Failed to create listen event, %s.", strerror(errno));
-    ::close(server_socket_);
-    return -1;
-  }
-
-  ret = event_add(listen_ev_, nullptr);
-  if (ret < 0) {
-    LOG_ERROR("event_add(): can not add accept event into libevent, %s", strerror(errno));
-    ::close(server_socket_);
-    return -1;
-  }
-
   started_ = true;
   LOG_INFO("Observer start success");
   return 0;
@@ -307,7 +242,7 @@ int Server::start_unix_socket_server()
 
 int Server::start_stdin_server()
 {
-  Communicator *communicator = communicator_factory_.create(server_param_.protocol);
+  unique_ptr<Communicator> communicator = communicator_factory_.create(server_param_.protocol);
 
   RC rc = communicator->init(STDIN_FILENO, new Session(Session::default_session()), "stdin");
   if (OB_FAIL(rc)) {
@@ -317,6 +252,7 @@ int Server::start_stdin_server()
 
   started_ = true;
 
+  SessionStage session_stage;
   while (started_) {
     SessionEvent *event = nullptr;
 
@@ -331,21 +267,18 @@ int Server::start_stdin_server()
     }
 
     /// 在当前线程立即处理对应的事件
-    session_stage_->handle_event(event);
+    session_stage.handle_request(event);
   }
 
-  delete communicator;
-  communicator = nullptr;
   return 0;
 }
 
 int Server::serve()
 {
-  evthread_use_pthreads();
-  event_base_ = event_base_new();
-  if (event_base_ == nullptr) {
-    LOG_ERROR("Failed to create event base, %s.", strerror(errno));
-    exit(-1);
+  thread_handler_ = ThreadHandler::create(server_param_.thread_handling.c_str());
+  if (thread_handler_ == nullptr) {
+    LOG_ERROR("Failed to create thread handler: %s", server_param_.thread_handling.c_str());
+    return -1;
   }
 
   int retval = start();
@@ -355,18 +288,28 @@ int Server::serve()
   }
 
   if (!server_param_.use_std_io) {
-    event_base_dispatch(event_base_);
-  }
+    struct pollfd poll_fd;
+    poll_fd.fd = server_socket_;
+    poll_fd.events = POLLIN;
+    poll_fd.revents = 0;
 
-  if (listen_ev_ != nullptr) {
-    event_del(listen_ev_);
-    event_free(listen_ev_);
-    listen_ev_ = nullptr;
-  }
+    while (started_) {
+      int ret = poll(&poll_fd, 1, 500);
+      if (ret < 0) {
+        LOG_ERROR("poll error. fd = %d, ret = %d, error=%s", poll_fd.fd, ret, strerror(errno));
+        break;
+      } else if (0 == ret) {
+        LOG_TRACE("poll timeout. fd = %d", poll_fd.fd);
+        continue;
+      }
 
-  if (event_base_ != nullptr) {
-    event_base_free(event_base_);
-    event_base_ = nullptr;
+      if (poll_fd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+        LOG_ERROR("poll error. fd = %d, revents = %d", poll_fd.fd, poll_fd.revents);
+        break;
+      }
+
+      accept(server_socket_, 0, this);
+    }
   }
 
   started_ = false;
@@ -379,8 +322,5 @@ void Server::shutdown()
   LOG_INFO("Server shutting down");
 
   // cleanup
-  if (event_base_ != nullptr && started_) {
-    started_ = false;
-    event_base_loopexit(event_base_, nullptr);
-  }
+  started_ = false;
 }

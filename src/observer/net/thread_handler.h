@@ -9,25 +9,25 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/20.
+// Created by Wangyunlai on 2024/01/10.
 //
 
-#ifndef __COMMON_SEDA_METRICS_REPORT_EVENT_H__
-#define __COMMON_SEDA_METRICS_REPORT_EVENT_H__
+#pragma once
 
-#include "common/seda/stage_event.h"
+#include <functional>
+#include "common/rc.h"
 
-namespace common {
-class MetricsReportEvent : public StageEvent
+class Communicator;
+
+class ThreadHandler
 {
 public:
-  MetricsReportEvent(){
+  ThreadHandler() = default;
+  virtual ~ThreadHandler() = default;
 
-  };
+  virtual RC new_connection(Communicator *communicator) = 0;
+  virtual RC close_connection(Communicator *communicator) = 0;
 
-  ~MetricsReportEvent(){
-
-  };
+public:
+  static ThreadHandler * create(const char *name);
 };
-}  // namespace common
-#endif  //__COMMON_SEDA_METRICS_REPORT_EVENT_H__

@@ -21,8 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/os/pidfile.h"
 #include "common/os/process.h"
 #include "common/os/signal.h"
-#include "common/seda/init.h"
-#include "common/seda/stage_factory.h"
 #include "global_context.h"
 #include "session/session.h"
 #include "session/session_stage.h"
@@ -133,7 +131,6 @@ void cleanup_log()
 
 int prepare_init_seda()
 {
-  static StageFactory session_stage_factory("SessionStage", &SessionStage::make_stage);
   return 0;
 }
 
@@ -223,16 +220,6 @@ int init(ProcessParam *process_param)
   rc = init_global_objects(process_param, *get_properties());
   if (rc != 0) {
     LOG_ERROR("failed to init global objects");
-    return rc;
-  }
-
-  // seda is used for backend async event handler
-  // the latency of seda is slow, it isn't used for critical latency
-  // environment.
-  prepare_init_seda();
-  rc = init_seda(process_param);
-  if (rc) {
-    LOG_ERROR("Failed to init seda configuration!");
     return rc;
   }
 
