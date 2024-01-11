@@ -163,7 +163,11 @@ void ThreadPoolExecutor::thread_func()
 int ThreadPoolExecutor::create_thread(bool core_thread)
 {
   lock_guard guard(lock_);
+  return create_thread_locked(core_thread);
+}
 
+int ThreadPoolExecutor::create_thread_locked(bool core_thread)
+{
   thread *thread_ptr = new (nothrow) thread(&ThreadPoolExecutor::thread_func, this);
   if (thread_ptr == nullptr) {
     LOG_ERROR("create thread failed");
@@ -177,7 +181,7 @@ int ThreadPoolExecutor::create_thread(bool core_thread)
   thread_state.thread_ptr = thread_ptr;
   threads_[thread_ptr->get_id()] = thread_state;
 
-  if (threads_.size() > largest_pool_size_) {
+  if (static_cast<int>(threads_.size()) > largest_pool_size_) {
     largest_pool_size_ = static_cast<int>(threads_.size());
   }
   return 0;
@@ -191,7 +195,7 @@ int ThreadPoolExecutor::extend_thread()
     return 0;
   }
 
-  return create_thread(false/*core_thread*/);
+  return create_thread_locked(false/*core_thread*/);
 }
 
 } // end namespace common

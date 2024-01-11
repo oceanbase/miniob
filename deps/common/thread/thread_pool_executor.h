@@ -56,6 +56,7 @@ public:
 
 private:
   int create_thread(bool core_thread);
+  int create_thread_locked(bool core_thread);
   int extend_thread();
 
 private:

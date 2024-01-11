@@ -76,24 +76,27 @@ void test(int core_size, int max_pool_size, int keep_alive_time_ms,
     ret = executor.execute(unique_ptr<Runnable>(task_factory()));
     EXPECT_EQ(0, ret);
   }
-  EXPECT_GT(executor.task_count(), 0);
 
   executor.shutdown();
   executor.await_termination();
+  EXPECT_EQ(executor.task_count(), test_num);
 }
 
-TEST(ThreadPoolExecutor, test)
+TEST(ThreadPoolExecutor, test1)
 {
   atomic<int> counter(0);
   test(1, 1, 60*1000, 1000000, [&counter](){ return new TestRunnable(counter); });
-  printf("test 1 passed\n");
+}
 
-  counter.store(0);
+TEST(ThreadPoolExecutor, test2)
+{
+  atomic<int> counter(0);
   test(2, 8, 60*1000, 1000000, [&counter](){ return new TestRunnable(counter); });
-  printf("test 2 passed\n");
+}
 
+TEST(ThreadPoolExecutor, test3)
+{
   test(2, 8, 60*1000, 1000, [](){ return new RandomSleepRunnable(10, 100); });
-  printf("test 3 passed\n");
 }
 
 int main(int argc, char **argv)
