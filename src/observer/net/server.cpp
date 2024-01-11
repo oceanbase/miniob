@@ -318,7 +318,7 @@ int CliServer::serve()
   started_ = true;
 
   SqlTaskHandler task_handler;
-  while (started_) {
+  while (started_ && !communicator.exit()) {
     rc = task_handler(&communicator);
     if (OB_FAIL(rc)) {
       started_ = false;

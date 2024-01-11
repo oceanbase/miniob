@@ -32,6 +32,8 @@ public:
   RC read_event(SessionEvent *&event) override;
   RC write_result(SessionEvent *event, bool &need_disconnect) override;
 
+  bool exit() const { return exit_; }
 private:
   int write_fd_ = -1;  ///< 与使用远程通讯模式不同，如果读数据使用标准输入，那么输出应该是标准输出
+  bool exit_     = false;
 };
