@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 {
   int rc = STATUS_SUCCESS;
 
-  setSignalHandler(quit_signal_handle);
+  set_signal_handler(quit_signal_handle);
 
   parse_parameter(argc, argv);
 
