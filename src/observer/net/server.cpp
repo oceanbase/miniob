@@ -37,8 +37,10 @@ See the Mulan PSL v2 for more details. */
 #include "event/session_event.h"
 #include "session/session_stage.h"
 #include "net/communicator.h"
+#include "net/cli_communicator.h"
 #include "session/session.h"
 #include "net/thread_handler.h"
+#include "net/sql_task_handler.h"
 
 using namespace common;
 
@@ -49,16 +51,16 @@ ServerParam::ServerParam()
   port               = PORT_DEFAULT;
 }
 
-Server::Server(ServerParam input_server_param) : server_param_(input_server_param) {}
+NetServer::NetServer(const ServerParam &input_server_param) : Server(input_server_param) {}
 
-Server::~Server()
+NetServer::~NetServer()
 {
   if (started_) {
     shutdown();
   }
 }
 
-int Server::set_non_block(int fd)
+int NetServer::set_non_block(int fd)
 {
   int flags = fcntl(fd, F_GETFL);
   if (flags == -1) {
@@ -74,9 +76,9 @@ int Server::set_non_block(int fd)
   return 0;
 }
 
-void Server::accept(int fd, short ev, void *arg)
+void NetServer::accept(int fd, short ev, void *arg)
 {
-  Server            *instance = (Server *)arg;
+  NetServer            *instance = (NetServer *)arg;
   struct sockaddr_in addr;
   socklen_t          addrlen = sizeof(addr);
 
@@ -135,10 +137,10 @@ void Server::accept(int fd, short ev, void *arg)
   LOG_INFO("Accepted connection from %s\n", communicator->addr());
 }
 
-int Server::start()
+int NetServer::start()
 {
   if (server_param_.use_std_io) {
-    return start_stdin_server();
+    return -1;
   } else if (server_param_.use_unix_socket) {
     return start_unix_socket_server();
   } else {
@@ -146,7 +148,7 @@ int Server::start()
   }
 }
 
-int Server::start_tcp_server()
+int NetServer::start_tcp_server()
 {
   int                ret = 0;
   struct sockaddr_in sa;
@@ -197,7 +199,7 @@ int Server::start_tcp_server()
   return 0;
 }
 
-int Server::start_unix_socket_server()
+int NetServer::start_unix_socket_server()
 {
   int ret        = 0;
   server_socket_ = socket(PF_UNIX, SOCK_STREAM, 0);
@@ -240,40 +242,7 @@ int Server::start_unix_socket_server()
   return 0;
 }
 
-int Server::start_stdin_server()
-{
-  unique_ptr<Communicator> communicator = communicator_factory_.create(server_param_.protocol);
-
-  RC rc = communicator->init(STDIN_FILENO, new Session(Session::default_session()), "stdin");
-  if (OB_FAIL(rc)) {
-    LOG_WARN("failed to init cli communicator. rc=%s", strrc(rc));
-    return -1;
-  }
-
-  started_ = true;
-
-  SessionStage session_stage;
-  while (started_) {
-    SessionEvent *event = nullptr;
-
-    rc = communicator->read_event(event);
-    if (OB_FAIL(rc)) {
-      LOG_WARN("failed to read event. rc=%s", strrc(rc));
-      return -1;
-    }
-
-    if (event == nullptr) {
-      break;
-    }
-
-    /// 在当前线程立即处理对应的事件
-    session_stage.handle_request(event);
-  }
-
-  return 0;
-}
-
-int Server::serve()
+int NetServer::serve()
 {
   thread_handler_ = ThreadHandler::create(server_param_.thread_handling.c_str());
   if (thread_handler_ == nullptr) {
@@ -289,8 +258,8 @@ int Server::serve()
 
   if (!server_param_.use_std_io) {
     struct pollfd poll_fd;
-    poll_fd.fd = server_socket_;
-    poll_fd.events = POLLIN;
+    poll_fd.fd      = server_socket_;
+    poll_fd.events  = POLLIN;
     poll_fd.revents = 0;
 
     while (started_) {
@@ -313,13 +282,56 @@ int Server::serve()
   }
 
   started_ = false;
-  LOG_INFO("Server quit");
+  LOG_INFO("NetServer quit");
   return 0;
 }
 
-void Server::shutdown()
+void NetServer::shutdown()
 {
-  LOG_INFO("Server shutting down");
+  LOG_INFO("NetServer shutting down");
+
+  // cleanup
+  started_ = false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CliServer::CliServer(const ServerParam &input_server_param) : Server(input_server_param) {}
+
+CliServer::~CliServer()
+{
+  if (started_) {
+    shutdown();
+  }
+}
+
+int CliServer::serve()
+{
+  CliCommunicator communicator;
+
+  RC rc = communicator.init(STDIN_FILENO, new Session(Session::default_session()), "stdin");
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to init cli communicator. rc=%s", strrc(rc));
+    return -1;
+  }
+
+  started_ = true;
+
+  SqlTaskHandler task_handler;
+  while (started_) {
+    rc = task_handler(&communicator);
+    if (OB_FAIL(rc)) {
+      started_ = false;
+    }
+  }
+
+  started_ = false;
+  return 0;
+}
+
+void CliServer::shutdown()
+{
+  LOG_INFO("CliServer shutting down");
 
   // cleanup
   started_ = false;

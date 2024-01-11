@@ -98,11 +98,7 @@ bool is_exit_command(const char *cmd)
 char *read_command()
 {
   const char *prompt_str    = "miniob > ";
-  char       *input_command = nullptr;
-  for (input_command = my_readline(prompt_str); is_blank(input_command); input_command = my_readline(prompt_str)) {
-    free(input_command);
-    input_command = nullptr;
-  }
+  char       *input_command = my_readline(prompt_str);
   return input_command;
 }
 
@@ -134,6 +130,9 @@ RC CliCommunicator::read_event(SessionEvent *&event)
 {
   event         = nullptr;
   char *command = read_command();
+  if (nullptr == command || is_blank(command)) {
+    return RC::SUCCESS;
+  }
 
   if (is_exit_command(command)) {
     free(command);

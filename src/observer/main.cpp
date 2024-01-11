@@ -142,7 +142,13 @@ Server *init_server()
   }
   server_param.thread_handling = process_param->thread_handling_name();
 
-  Server *server = new Server(server_param);
+  Server *server = nullptr;
+  if (server_param.use_std_io) {
+    server = new CliServer(server_param); 
+  } else {
+    server = new NetServer(server_param);
+  }
+
   return server;
 }
 

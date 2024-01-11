@@ -28,12 +28,24 @@ class ThreadHandler;
 class Server
 {
 public:
-  Server(ServerParam input_server_param);
-  ~Server();
+  Server(const ServerParam &input_server_param) : server_param_(input_server_param) {}
+  virtual ~Server() {}
+
+  virtual int serve() = 0;
+  virtual void shutdown() = 0;
+protected:
+  ServerParam server_param_;  ///< 服务启动参数
+};
+
+class NetServer : public Server
+{
+public:
+  NetServer(const ServerParam &input_server_param);
+  virtual ~NetServer();
 
 public:
-  int  serve();
-  void shutdown();
+  int  serve() override;
+  void shutdown() override;
 
 private:
   /**
@@ -65,16 +77,24 @@ private:
    */
   int start_unix_socket_server();
 
-  int start_stdin_server();
-
 private:
   volatile bool started_ = false;
 
   int                server_socket_ = -1;       ///< 监听套接字，是一个描述符
 
-  ServerParam server_param_;  ///< 服务启动参数
-
   CommunicatorFactory communicator_factory_;  ///< 通过这个对象创建新的Communicator对象
-
   ThreadHandler *       thread_handler_ = nullptr;
+};
+
+class CliServer : public Server
+{
+public:
+  CliServer(const ServerParam &input_server_param);
+  virtual ~CliServer();
+
+  int serve() override;
+  void shutdown() override;
+
+private:
+  volatile bool started_ = false;
 };

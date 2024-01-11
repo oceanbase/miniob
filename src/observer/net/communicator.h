@@ -69,11 +69,6 @@ public:
   Session *session() const { return session_; }
 
   /**
-   * @brief libevent使用的数据，参考server.cpp
-   */
-  struct event &read_event() { return read_event_; }
-
-  /**
    * @brief 对端地址
    * 如果是unix socket，可能没有意义
    */
@@ -86,7 +81,6 @@ public:
 
 protected:
   Session        *session_ = nullptr;
-  struct event    read_event_;
   std::string     addr_;
   BufferedWriter *writer_ = nullptr;
   int             fd_     = -1;
