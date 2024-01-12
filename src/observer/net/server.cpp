@@ -76,9 +76,8 @@ int NetServer::set_non_block(int fd)
   return 0;
 }
 
-void NetServer::accept(int fd, short ev, void *arg)
+void NetServer::accept(int fd)
 {
-  NetServer            *instance = (NetServer *)arg;
   struct sockaddr_in addr;
   socklen_t          addrlen = sizeof(addr);
 
@@ -100,14 +99,14 @@ void NetServer::accept(int fd, short ev, void *arg)
   address << ip_addr << ":" << addr.sin_port;
   std::string addr_str = address.str();
 
-  ret = instance->set_non_block(client_fd);
+  ret = set_non_block(client_fd);
   if (ret < 0) {
     LOG_ERROR("Failed to set socket of %s as non blocking, %s", addr_str.c_str(), strerror(errno));
     ::close(client_fd);
     return;
   }
 
-  if (!instance->server_param_.use_unix_socket) {
+  if (!server_param_.use_unix_socket) {
     // unix socket不支持设置NODELAY
     int yes = 1;
     ret     = setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
@@ -118,7 +117,7 @@ void NetServer::accept(int fd, short ev, void *arg)
     }
   }
 
-  Communicator *communicator = instance->communicator_factory_.create(instance->server_param_.protocol);
+  Communicator *communicator = communicator_factory_.create(server_param_.protocol);
 
   RC rc = communicator->init(client_fd, new Session(Session::default_session()), addr_str);
   if (rc != RC::SUCCESS) {
@@ -127,7 +126,7 @@ void NetServer::accept(int fd, short ev, void *arg)
     return;
   }
 
-  rc = instance->thread_handler_->new_connection(communicator);
+  rc = thread_handler_->new_connection(communicator);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to handle new connection. rc=%s", strrc(rc));
     delete communicator;
@@ -277,9 +276,14 @@ int NetServer::serve()
         break;
       }
 
-      accept(server_socket_, 0, this);
+      this->accept(server_socket_);
     }
   }
+
+  thread_handler_->stop();
+  thread_handler_->await_stop();
+  delete thread_handler_;
+  thread_handler_ = nullptr;
 
   started_ = false;
   LOG_INFO("NetServer quit");

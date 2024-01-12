@@ -28,6 +28,13 @@ public:
   Worker(ThreadHandler &host, Communicator *communicator) 
     : host_(host), communicator_(communicator)
   {}
+  ~Worker()
+  {
+    if (thread_ != nullptr) {
+      stop();
+      join();
+    }
+  }
 
   RC start()
   {
@@ -98,6 +105,12 @@ private:
   volatile bool running_ = true;
 };
 
+OneThreadPerConnectionThreadHandler::~OneThreadPerConnectionThreadHandler()
+{
+  stop();
+  await_stop();
+}
+
 RC OneThreadPerConnectionThreadHandler::new_connection(Communicator *communicator)
 {
   lock_guard guard(lock_);
@@ -132,5 +145,23 @@ RC OneThreadPerConnectionThreadHandler::close_connection(Communicator *communica
   delete worker;
   delete communicator;
   LOG_INFO("close connection. communicator = %p", communicator);
+  return RC::SUCCESS;
+}
+
+RC OneThreadPerConnectionThreadHandler::stop()
+{
+  lock_guard guard(lock_);
+  for (auto iter = thread_map_.begin(); iter != thread_map_.end(); ++iter) {
+    Worker *worker = iter->second;
+    worker->stop();
+  }
+  return RC::SUCCESS;
+}
+
+RC OneThreadPerConnectionThreadHandler::await_stop()
+{
+  while (!thread_map_.empty()) {
+    this_thread::sleep_for(chrono::milliseconds(100));
+  }
   return RC::SUCCESS;
 }

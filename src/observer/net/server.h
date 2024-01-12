@@ -53,9 +53,8 @@ private:
    * @details 此函数作为libevent中监听套接字对应的回调函数
    * @param fd libevent回调函数传入的参数，即监听套接字
    * @param ev 本次触发的事件，通常是EV_READ
-   * @param arg 在注册libevent回调函数时，传入的参数，即Server对象
    */
-  static void accept(int fd, short ev, void *arg);
+  void accept(int fd);
 
 private:
   /**

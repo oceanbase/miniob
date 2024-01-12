@@ -25,9 +25,13 @@ public:
   ThreadHandler() = default;
   virtual ~ThreadHandler() = default;
 
+  virtual RC start() = 0;
+  virtual RC stop() = 0;
+  virtual RC await_stop() = 0;
+
   virtual RC new_connection(Communicator *communicator) = 0;
   virtual RC close_connection(Communicator *communicator) = 0;
-
+  
 public:
   static ThreadHandler * create(const char *name);
 };

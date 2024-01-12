@@ -9,28 +9,37 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2024/01/10.
+// Created by Wangyunlai on 2024/01/11.
 //
 
-#include <unordered_map>
-#include <mutex>
+#pragma once
+
+#include <map>
 
 #include "net/thread_handler.h"
+#include "common/thread/thread_pool_executor.h"
 
-class Worker;
-class OneThreadPerConnectionThreadHandler : public ThreadHandler
+struct EventCallbackAg;
+
+class JavaThreadPoolThreadHandler : public ThreadHandler
 {
 public:
-  OneThreadPerConnectionThreadHandler()          = default;
-  virtual ~OneThreadPerConnectionThreadHandler();
+  JavaThreadPoolThreadHandler() = default;
+  virtual ~JavaThreadPoolThreadHandler();
 
-  virtual RC start() override { return RC::SUCCESS; }
+  virtual RC start() override;
   virtual RC stop() override;
   virtual RC await_stop() override;
 
   virtual RC new_connection(Communicator *communicator) override;
   virtual RC close_connection(Communicator *communicator) override;
+
+public:
+  void handle_event(EventCallbackAg *ag);
+  void event_loop_thread();
 private:
-  std::unordered_map<Communicator *, Worker *> thread_map_; // 当前编译器没有支持jthread
+  struct event_base *        event_base_ = nullptr;
+  common::ThreadPoolExecutor executor_;
+  std::map<Communicator *, EventCallbackAg *> event_map_;
   std::mutex lock_;
 };

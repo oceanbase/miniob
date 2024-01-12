@@ -55,7 +55,7 @@ void usage()
   cout << "-s: use unix socket and the argument is socket address" << endl;
   cout << "-P: protocol. {plain(default), mysql, cli}." << endl;
   cout << "-t: transaction model. {vacuous(default), mvcc}." << endl;
-  cout << "-T: thread handling model. {one-thread-per-connection(default)}." << endl;
+  cout << "-T: thread handling model. {one-thread-per-connection(default),java-thread-pool}." << endl;
   cout << "-n: buffer pool memory size in byte" << endl;
 }
 
