@@ -101,7 +101,7 @@ int ThreadPoolExecutor::execute(unique_ptr<Runnable> &&task)
 
   int ret = work_queue_->push(std::move(task));
   int task_size = work_queue_->size();
-  if (task_size > pool_size()) {
+  if (task_size > pool_size() - active_count()) {
     extend_thread();
   }
   return ret;
@@ -134,12 +134,12 @@ void ThreadPoolExecutor::thread_func()
     LOG_WARN("[%s] cannot find thread state of %lx", pool_name_.c_str(), this_thread::get_id());
     return;
   }
-  ThreadState &thread_state = iter->second;
+  ThreadData &thread_data = iter->second;
   lock_.unlock();
 
   using Clock = chrono::steady_clock;
   chrono::time_point<Clock> idle_deadline = Clock::now();
-  if (!thread_state.core_thread && keep_alive_time_ms_.count() > 0) {
+  if (!thread_data.core_thread && keep_alive_time_ms_.count() > 0) {
     idle_deadline += keep_alive_time_ms_;
   } else {
     idle_deadline += chrono::hours(1);
@@ -152,14 +152,14 @@ void ThreadPoolExecutor::thread_func()
     unique_ptr<Runnable> task;
     int ret = work_queue_->pop(task);
     if (0 == ret && task) {
-      thread_state.idle = false;
+      thread_data.idle = false;
       ++active_count_;
       task->run();
       --active_count_;
-      thread_state.idle = true;
+      thread_data.idle = true;
       ++task_count_;
 
-      if (!thread_state.core_thread && keep_alive_time_ms_.count() > 0) {
+      if (!thread_data.core_thread && keep_alive_time_ms_.count() > 0) {
         idle_deadline = Clock::now() + keep_alive_time_ms_;
       } else {
         idle_deadline = Clock::now() + chrono::hours(1);
@@ -170,10 +170,10 @@ void ThreadPoolExecutor::thread_func()
     }
   }
 
-  thread_state.terminated = true;
-  thread_state.thread_ptr->detach();
-  delete thread_state.thread_ptr;
-  thread_state.thread_ptr = nullptr;
+  thread_data.terminated = true;
+  thread_data.thread_ptr->detach();
+  delete thread_data.thread_ptr;
+  thread_data.thread_ptr = nullptr;
 
   lock_.lock();
   threads_.erase(this_thread::get_id());
@@ -196,12 +196,12 @@ int ThreadPoolExecutor::create_thread_locked(bool core_thread)
     return -1;
   }
 
-  ThreadState thread_state;
-  thread_state.core_thread = core_thread;
-  thread_state.idle = true;
-  thread_state.terminated = false;
-  thread_state.thread_ptr = thread_ptr;
-  threads_[thread_ptr->get_id()] = thread_state;
+  ThreadData thread_data;
+  thread_data.core_thread = core_thread;
+  thread_data.idle = true;
+  thread_data.terminated = false;
+  thread_data.thread_ptr = thread_ptr;
+  threads_[thread_ptr->get_id()] = thread_data;
 
   if (static_cast<int>(threads_.size()) > largest_pool_size_) {
     largest_pool_size_ = static_cast<int>(threads_.size());
@@ -213,7 +213,12 @@ int ThreadPoolExecutor::extend_thread()
 {
   lock_guard guard(lock_);
 
-  if (static_cast<int>(threads_.size()) >= max_pool_size_) {
+  // 超过最大线程数，不再创建
+  if (pool_size() >= max_pool_size_) {
+    return 0;
+  }
+  // 任务数比空闲线程数少，不创建新线程
+  if (work_queue_->size() <= pool_size() - active_count()) {
     return 0;
   }
 
