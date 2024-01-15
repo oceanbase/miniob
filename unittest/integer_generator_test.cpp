@@ -9,18 +9,29 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2023/05/04
+// Created by wangyunlai.wyl on 2023/08/14
 //
-#include <random>
 
-class IntegerGenerator
+#include "gtest/gtest.h"
+#include "common/math/integer_generator.h"
+
+using namespace std;
+using namespace common;
+
+TEST(IntegerGenerator, test)
 {
-public:
-  IntegerGenerator(int min, int max) : distrib_(min, max) {}
+  const int min = 1;
+  const int max = 120000;
+  IntegerGenerator generator(min, max);
+  for (int i = 0; i < 1000000; i++) {
+    int value = generator.next();
+    ASSERT_GE(value, min);
+    ASSERT_LE(value, max);
+  }
+}
 
-  int next() { return distrib_(rd_); }
-
-private:
-  std::random_device              rd_;
-  std::uniform_int_distribution<> distrib_;
-};
+int main(int argc, char **argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

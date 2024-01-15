@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <stdexcept>
 
 #include "common/log/log.h"
-#include "integer_generator.h"
+#include "common/math/integer_generator.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/common/condition_filter.h"
 #include "storage/record/record_manager.h"
@@ -87,7 +87,7 @@ public:
 
     string log_name        = this->Name() + ".log";
     string record_filename = this->record_filename();
-    LoggerFactory::init_default(log_name.c_str(), LOG_LEVEL_TRACE);
+    LoggerFactory::init_default(log_name.c_str(), LOG_LEVEL_INFO);
 
     std::call_once(init_bpm_flag, []() { BufferPoolManager::set_instance(&bpm); });
 
@@ -110,8 +110,8 @@ public:
       LOG_WARN("failed to init record file handler. rc=%s", strrc(rc));
       throw runtime_error("failed to init record file handler");
     }
-    LOG_INFO(
-        "test %s setup done. threads=%d, thread index=%d", this->Name().c_str(), state.threads(), state.thread_index());
+    LOG_INFO("test %s setup done. threads=%d, thread index=%d", 
+             this->Name().c_str(), state.threads(), state.thread_index());
   }
 
   virtual void TearDown(const State &state)
@@ -156,9 +156,9 @@ public:
 
   uint32_t GetRangeMax(const State &state) const
   {
-    uint32_t max = static_cast<uint32_t>(state.range(0) * 3);
+    int32_t max = static_cast<int32_t>(state.range(0) * 3);
     if (max <= 0) {
-      max = (1 << 31);
+      max = INT32_MAX - 1;
     }
     return max;
   }
@@ -270,6 +270,7 @@ public:
     uint32_t max = GetRangeMax(state);
     ASSERT(max > 0, "invalid argument count. %ld", state.range(0));
     FillUp(0, max, rids_);
+    ASSERT(rids_.size() > 0, "invalid argument count. %ld", rids_.size());
   }
 
 protected:
@@ -278,11 +279,14 @@ protected:
 
 BENCHMARK_DEFINE_F(DeletionBenchmark, Deletion)(State &state)
 {
-  IntegerGenerator generator(0, static_cast<int>(rids_.size()));
+  IntegerGenerator generator(0, static_cast<int>(rids_.size() - 1));
+  LOG_INFO("rids size =%d", static_cast<int>(rids_.size() - 1));
   Stat             stat;
 
   for (auto _ : state) {
     int32_t value = generator.next();
+    LOG_WARN("value=%" PRIu32 " rids size =%ld", value, rids_.size());
+    ASSERT(value >= 0 && value < static_cast<int>(rids_.size()), "invalid value. value=%" PRIu32, value);
     RID     rid   = rids_[value];
     Delete(rid, stat);
   }
