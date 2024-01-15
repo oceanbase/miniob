@@ -20,8 +20,8 @@ using namespace common;
 
 TEST(IntegerGenerator, test)
 {
-  const int min = 1;
-  const int max = 120000;
+  const int        min = 1;
+  const int        max = 120000;
   IntegerGenerator generator(min, max);
   for (int i = 0; i < 1000000; i++) {
     int value = generator.next();

@@ -15,17 +15,13 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <random>
-#include "common/log/log.h"
 
 namespace common {
 
 class IntegerGenerator
 {
 public:
-  IntegerGenerator() = delete;
-  IntegerGenerator(int min, int max) : distrib_(min, max) {
-    LOG_INFO("IntegerGenerator: min=%d, max=%d", distrib_.min(), distrib_.max());
-  }
+  IntegerGenerator(int min, int max) : distrib_(min, max) {}
 
   IntegerGenerator(const IntegerGenerator &other) = delete;
   IntegerGenerator &operator=(const IntegerGenerator &) = delete;
@@ -39,4 +35,4 @@ private:
   std::uniform_int_distribution<> distrib_;
 };
 
-} // namespace common
+}  // namespace common

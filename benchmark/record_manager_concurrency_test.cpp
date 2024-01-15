@@ -282,7 +282,6 @@ BENCHMARK_DEFINE_F(DeletionBenchmark, Deletion)(State &state)
   IntegerGenerator generator(0, static_cast<int>(rids_.size() - 1));
   Stat             stat;
 
-  
   for (auto _ : state) {
     int32_t value = generator.next();
     RID     rid   = rids_[value];

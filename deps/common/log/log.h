@@ -335,13 +335,12 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
 
 #ifndef TRACE
 #ifdef DEBUG
-#define TRACE(format, ...)                   \
-  LOG_TRACE(format, ##__VA_ARGS__)
-#else // DEBUG
+#define TRACE(format, ...) LOG_TRACE(format, ##__VA_ARGS__)
+#else  // DEBUG
 #define TRACE(...)
-#endif // DEBUG
+#endif  // DEBUG
 
-#endif // TRACE
+#endif  // TRACE
 
 #define SYS_OUTPUT_FILE_POS ", File:" << __FILE__ << ", line:" << __LINE__ << ",function:" << __FUNCTION__
 #define SYS_OUTPUT_ERROR ",error:" << errno << ":" << strerror(errno)
