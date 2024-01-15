@@ -15,15 +15,24 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <random>
+#include "common/log/log.h"
 
 namespace common {
 
 class IntegerGenerator
 {
 public:
-  IntegerGenerator(int min, int max) : distrib_(min, max) {}
+  IntegerGenerator() = delete;
+  IntegerGenerator(int min, int max) : distrib_(min, max) {
+    LOG_INFO("IntegerGenerator: min=%d, max=%d", distrib_.min(), distrib_.max());
+  }
+
+  IntegerGenerator(const IntegerGenerator &other) = delete;
+  IntegerGenerator &operator=(const IntegerGenerator &) = delete;
 
   int next() { return distrib_(rd_); }
+  int min() const { return distrib_.min(); }
+  int max() const { return distrib_.max(); }
 
 private:
   std::random_device              rd_;

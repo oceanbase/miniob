@@ -31,6 +31,7 @@ jobs:
     strategy:
       matrix:
         thread_model: ['one-thread-per-connection', 'java-thread-pool']
+	test_case: ['miniob_insert', 'miniob_delete']
 
     runs-on: ubuntu-latest
     steps:
@@ -58,8 +59,8 @@ jobs:
         shell: bash
         run: |
           cd test/sysbench
-          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 miniob_insert prepare
-          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 miniob_insert run
+          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 ${{ matrix.test_case }} prepare
+          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 ${{ matrix.test_case }} run
 
   benchmark-test:
     runs-on: ubuntu-latest
@@ -77,4 +78,4 @@ jobs:
         shell: bash
         run: |
           cd build_release/bin/
-          find ./ -name "*_concurrency_test" | xargs time
+          find ./ -name "*_concurrency_test" -executable -exec {}

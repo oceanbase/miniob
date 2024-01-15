@@ -280,13 +280,11 @@ protected:
 BENCHMARK_DEFINE_F(DeletionBenchmark, Deletion)(State &state)
 {
   IntegerGenerator generator(0, static_cast<int>(rids_.size() - 1));
-  LOG_INFO("rids size =%d", static_cast<int>(rids_.size() - 1));
   Stat             stat;
 
+  
   for (auto _ : state) {
     int32_t value = generator.next();
-    LOG_WARN("value=%" PRIu32 " rids size =%ld", value, rids_.size());
-    ASSERT(value >= 0 && value < static_cast<int>(rids_.size()), "invalid value. value=%" PRIu32, value);
     RID     rid   = rids_[value];
     Delete(rid, stat);
   }
