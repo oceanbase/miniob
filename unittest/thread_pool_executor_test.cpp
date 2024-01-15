@@ -27,16 +27,11 @@ using namespace common;
 class TestRunnable : public Runnable
 {
 public:
-  TestRunnable(atomic<int> &counter) : counter_(counter)
-  {
-  }
+  TestRunnable(atomic<int> &counter) : counter_(counter) {}
 
   virtual ~TestRunnable() = default;
 
-  virtual void run() override
-  {
-    ++counter_;
-  }
+  virtual void run() override { ++counter_; }
 
 private:
   atomic<int> &counter_;
@@ -45,8 +40,7 @@ private:
 class RandomSleepRunnable : public Runnable
 {
 public:
-  RandomSleepRunnable(int min_ms, int max_ms) : min_ms_(min_ms), max_ms_(max_ms)
-  {}
+  RandomSleepRunnable(int min_ms, int max_ms) : min_ms_(min_ms), max_ms_(max_ms) {}
 
   virtual ~RandomSleepRunnable() = default;
 
@@ -55,20 +49,21 @@ public:
     int sleep_ms = min_ms_ + rand() % (max_ms_ - min_ms_);
     this_thread::sleep_for(chrono::milliseconds(sleep_ms));
   }
+
 private:
   int min_ms_ = 0;
   int max_ms_ = 0;
 };
 
-void test(int core_size, int max_pool_size, int keep_alive_time_ms,
-          int test_num, function<Runnable*()> task_factory)
+void test(int core_size, int max_pool_size, int keep_alive_time_ms, int test_num, function<Runnable *()> task_factory)
 {
   ThreadPoolExecutor executor;
-  int ret = executor.init("test", 
-                          core_size, // core_size
-                          max_pool_size, // max_size
-                          keep_alive_time_ms, // keep_alive_time_ms
-                          make_unique<SimpleQueue<unique_ptr<Runnable>>>());
+
+  int ret = executor.init("test",
+      core_size,           // core_size
+      max_pool_size,       // max_size
+      keep_alive_time_ms,  // keep_alive_time_ms
+      make_unique<SimpleQueue<unique_ptr<Runnable>>>());
   EXPECT_EQ(0, ret);
   EXPECT_EQ(core_size, executor.pool_size());
 
@@ -85,18 +80,18 @@ void test(int core_size, int max_pool_size, int keep_alive_time_ms,
 TEST(ThreadPoolExecutor, test1)
 {
   atomic<int> counter(0);
-  test(1, 1, 60*1000, 1000000, [&counter](){ return new TestRunnable(counter); });
+  test(1, 1, 60 * 1000, 1000000, [&counter]() { return new TestRunnable(counter); });
 }
 
 TEST(ThreadPoolExecutor, test2)
 {
   atomic<int> counter(0);
-  test(2, 8, 60*1000, 1000000, [&counter](){ return new TestRunnable(counter); });
+  test(2, 8, 60 * 1000, 1000000, [&counter]() { return new TestRunnable(counter); });
 }
 
 TEST(ThreadPoolExecutor, test3)
 {
-  test(2, 8, 60*1000, 1000, [](){ return new RandomSleepRunnable(10, 100); });
+  test(2, 8, 60 * 1000, 1000, []() { return new RandomSleepRunnable(10, 100); });
 }
 
 int main(int argc, char **argv)
