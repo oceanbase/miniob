@@ -41,3 +41,9 @@ JavaThreadPoolThreadHandler 会创建一个线程池，线程池中一个线程�
 ThreadPoolExecutor 是一个简单的可伸缩线程池。当任务比当前空闲线程多的时候，就会扩容。当某些线程空闲时间比较久，就会自动退出。
 
 <img src="images/thread-model-thread-pool.png" width = "40%" alt="JavaThreadPoolThreadHandler" align=center />
+
+
+# 参考
+- [MySQL Percona Thread Pool](https://docs.percona.com/percona-server/5.7/performance/threadpool.html#handling-of-long-network-waits)
+- [MariaDB Thread Pool](https://mariadb.com/kb/en/thread-groups-in-the-unix-implementation-of-the-thread-pool/)
+- [Java ThreadPoolExecutor](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ThreadPoolExecutor.html)
