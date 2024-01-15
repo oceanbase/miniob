@@ -31,7 +31,7 @@ jobs:
     strategy:
       matrix:
         thread_model: ['one-thread-per-connection', 'java-thread-pool']
-	test_case: ['miniob_insert', 'miniob_delete']
+        test_case: ['miniob_insert', 'miniob_delete']
 
     runs-on: ubuntu-latest
     steps:
