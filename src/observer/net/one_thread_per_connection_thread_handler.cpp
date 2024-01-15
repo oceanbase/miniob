@@ -52,7 +52,7 @@ public:
   {
     if (thread_) {
       if (thread_->get_id() == std::this_thread::get_id()) {
-        thread_->detach();
+        thread_->detach(); // 如果当前线程join当前线程，就会卡死
       } else {
         thread_->join();
       }
@@ -86,7 +86,7 @@ public:
         break;
       }
 
-      RC rc = task_handler_(communicator_);
+      RC rc = task_handler_.handle_event(communicator_);
       if (OB_FAIL(rc)) {
         LOG_ERROR("handle error. rc = %s", strrc(rc));
         break;
@@ -94,13 +94,13 @@ public:
     }
 
     LOG_INFO("worker thread stop. communicator = %p", communicator_);
-    host_.close_connection(communicator_);
+    host_.close_connection(communicator_); /// 连接关闭后，当前对象会被删除
   }
 
 private:
   ThreadHandler &host_;
   SqlTaskHandler task_handler_;
-  Communicator *communicator_;
+  Communicator *communicator_ = nullptr;
   std::thread *thread_ = nullptr;
   volatile bool running_ = true;
 };
@@ -160,8 +160,10 @@ RC OneThreadPerConnectionThreadHandler::stop()
 
 RC OneThreadPerConnectionThreadHandler::await_stop()
 {
+  LOG_INFO("begin to await stop one thread per connection thread handler");
   while (!thread_map_.empty()) {
     this_thread::sleep_for(chrono::milliseconds(100));
   }
+  LOG_INFO("end to await stop one thread per connection thread handler");
   return RC::SUCCESS;
 }

@@ -21,42 +21,18 @@ See the Mulan PSL v2 for more details. */
 #include "common/thread/runnable.h"
 #include "common/queue/simple_queue.h"
 
-
 using namespace std;
 using namespace common;
 
+/**
+ * @brief libevent 消息回调函数的参数
+ * 
+ */
 struct EventCallbackAg
 {
   JavaThreadPoolThreadHandler *host = nullptr;
   Communicator *communicator = nullptr;
   struct event *ev = nullptr;
-};
-
-class SqlTaskRunner : public Runnable
-{
-public:
-  SqlTaskRunner(JavaThreadPoolThreadHandler &host, Communicator *communicator, struct event *ev) 
-    : host_(host), communicator_(communicator), ev_(ev)
-  {}
-
-  virtual ~SqlTaskRunner() = default;
-
-  void run() override
-  {
-    SqlTaskHandler handler;
-    RC rc = handler(communicator_);
-    if (RC::SUCCESS != rc) {
-      LOG_ERROR("failed to handle sql task. rc=%d", rc);
-      host_.close_connection(communicator_);
-    } else if (0 != event_add(ev_, nullptr)) {
-      LOG_ERROR("failed to add event");
-      host_.close_connection(communicator_);
-    }
-  }
-private:
-  JavaThreadPoolThreadHandler &host_;
-  Communicator *communicator_ = nullptr;
-  struct event *ev_ = nullptr;
 };
 
 JavaThreadPoolThreadHandler::~JavaThreadPoolThreadHandler()
@@ -72,13 +48,17 @@ RC JavaThreadPoolThreadHandler::start()
     return RC::INTERNAL;
   }
 
+  // 在多线程场景下使用libevent，先执行这个函数
   evthread_use_pthreads();
+  // 创建一个event_base对象，这个对象是libevent的主要对象，所有的事件都会注册到这个对象中
   event_base_ = event_base_new();
   if (nullptr == event_base_) {
     LOG_ERROR("failed to create event base");
     return RC::INTERNAL;
   }
 
+  // 创建线程池
+  // 这里写死了线程池的大小，实际上可以从配置文件中读取
   int ret = executor_.init("SQL",  // name
                   2,     // core size
                   8,     // max size
@@ -89,6 +69,8 @@ RC JavaThreadPoolThreadHandler::start()
     return RC::INTERNAL;
   }
 
+  // libevent 的监测消息循环主体，要放在一个线程中执行
+  // event_loop_thread 是运行libevent 消息监测循环的函数，会长期运行，并且会放到线程池中占据一个线程
   auto event_worker = std::bind(&JavaThreadPoolThreadHandler::event_loop_thread, this);
   ret = executor_.execute(event_worker);
   if (0 != ret) {
@@ -99,6 +81,16 @@ RC JavaThreadPoolThreadHandler::start()
   return RC::SUCCESS;
 }
 
+/**
+ * @brief libevent 的消息事件回调函数
+ * @details 当libevent检测到某个连接上有消息到达时，比如客户端发消息过来、客户端断开连接等，就会
+ * 调用这个回调函数。
+ * 按照libevent的描述，我们不应该在回调函数中执行比较耗时的操作，因为回调函数是运行在libevent的
+ * 事件检测主循环中。
+ * @param fd 有消息的连接的文件描述符
+ * @param event 事件类型，比如EV_READ表示有消息到达，EV_CLOSED表示连接断开
+ * @param arg 我们注册给libevent的回调函数的参数
+ */
 static void event_callback(evutil_socket_t fd, short event, void *arg)
 {
   if (event & (EV_READ | EV_CLOSED)) {
@@ -112,13 +104,22 @@ static void event_callback(evutil_socket_t fd, short event, void *arg)
 
 void JavaThreadPoolThreadHandler::handle_event(EventCallbackAg *ag)
 {
+  /*
+  当前函数是一个libevent的回调函数。按照libevent的要求，我们不能在这个函数中执行比较耗时的操作，
+  因为它是运行在libevent主消息循环处理函数中的。
+
+  我们这里在收到消息时就把它放到线程池中处理。
+  */
+
+  // sql_handler 是一个回调函数
   auto sql_handler = [this, ag]() {
-    SqlTaskHandler handler;
-    RC rc = handler(ag->communicator);
+    RC rc = sql_task_handler_.handle_event(ag->communicator); // 这里会有接收消息、处理请求然后返回结果一条龙服务
     if (RC::SUCCESS != rc) {
       LOG_ERROR("failed to handle sql task. rc=%d", rc);
       this->close_connection(ag->communicator);
     } else if (0 != event_add(ag->ev, nullptr)) {
+      // 由于我们在创建事件对象时没有增加 EV_PERSIST flag，所以我们每次都要处理完成后再把事件加回到event_base中。
+      // 当然我们也不能使用 EV_PERSIST flag，否则我们在处理请求过程中，可能还会收到客户端的消息，这样就会导致并发问题。
       LOG_ERROR("failed to add event");
       this->close_connection(ag->communicator);
     }
@@ -130,7 +131,7 @@ void JavaThreadPoolThreadHandler::handle_event(EventCallbackAg *ag)
 void JavaThreadPoolThreadHandler::event_loop_thread()
 {
   LOG_INFO("event base dispatch begin");
-  // event_base_dispatch 仅调用一次事件循环。
+  // event_base_dispatch 也可以完成这个事情。
   // event_base_loop 会等待所有事件都结束
   // 如果不增加 EVLOOP_NO_EXIT_ON_EMPTY 标识，当前事件都处理完成后，就会退出循环
   // 加上这个标识就是即使没有事件，也等在这里
@@ -146,6 +147,10 @@ RC JavaThreadPoolThreadHandler::new_connection(Communicator *communicator)
   ag->host = this;
   ag->communicator = communicator;
   ag->ev = nullptr;
+  /// 创建一个libevent事件对象。其中EV_READ表示可读事件，就是客户端发消息时会触发事件。
+  /// EV_ET 表示边缘触发，有消息时只会触发一次，不会重复触发。这个标识在Linux平台上是支持的，但是有些平台不支持。
+  /// 注意这里没有加 EV_PERSIST，表示事件触发后会自动从event_base中删除，需要自己再手动加上这个标识。这是有必
+  /// 要的，因为客户端发出一个请求后，我们再返回客户端消息之前，不再希望接收新的消息。
   struct event *ev = event_new(event_base_, fd, EV_READ | EV_ET, event_callback, ag);
   if (nullptr == ev) {
     LOG_ERROR("failed to create event");
@@ -185,8 +190,8 @@ RC JavaThreadPoolThreadHandler::close_connection(Communicator *communicator)
   }
 
   if (ag->ev) {
-    event_del(ag->ev);
-    event_free(ag->ev);
+    event_del(ag->ev);  // 把当前事件从event_base中删除
+    event_free(ag->ev); // 释放event对象
     ag->ev = nullptr;
   }
   delete ag;
@@ -201,7 +206,12 @@ RC JavaThreadPoolThreadHandler::stop()
   LOG_INFO("begin to stop java threadpool thread handler");
 
   if (nullptr != event_base_) {
+    // 退出libevent的消息循环
+    // 这里会一直等待libevent停止,nullptr是超时时间
     event_base_loopexit(event_base_, nullptr);
+
+    // 停止线程池
+    // libevent停止后，就不会再有新的消息到达，也不会再往线程池中添加新的任务了。
     executor_.shutdown();
   }
 
@@ -213,6 +223,7 @@ RC JavaThreadPoolThreadHandler::await_stop()
 {
   LOG_INFO("begin to await event base stopped");
   if (nullptr != event_base_) {
+    // 等待线程池中所有的任务处理完成
     executor_.await_termination();
     event_base_free(event_base_);
     event_base_ = nullptr;

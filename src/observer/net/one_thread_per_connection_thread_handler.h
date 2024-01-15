@@ -18,19 +18,32 @@ See the Mulan PSL v2 for more details. */
 #include "net/thread_handler.h"
 
 class Worker;
+
+/**
+ * @brief 一个连接一个线程的线程模型
+ * @ingroup ThreadHandler
+ */
 class OneThreadPerConnectionThreadHandler : public ThreadHandler
 {
 public:
   OneThreadPerConnectionThreadHandler()          = default;
   virtual ~OneThreadPerConnectionThreadHandler();
 
+  //! @copydoc ThreadHandler::start
   virtual RC start() override { return RC::SUCCESS; }
+
+  //! @copydoc ThreadHandler::stop
   virtual RC stop() override;
+  //! @copydoc ThreadHandler::await_stop
   virtual RC await_stop() override;
 
+  //! @copydoc ThreadHandler::new_connection
   virtual RC new_connection(Communicator *communicator) override;
+  //! @copydoc ThreadHandler::close_connection
   virtual RC close_connection(Communicator *communicator) override;
 private:
+  /// 记录一个连接Communicator关联的线程数据
   std::unordered_map<Communicator *, Worker *> thread_map_; // 当前编译器没有支持jthread
+  /// 保护线程安全的锁
   std::mutex lock_;
 };

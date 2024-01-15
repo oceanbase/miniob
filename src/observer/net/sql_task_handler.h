@@ -25,6 +25,9 @@ See the Mulan PSL v2 for more details. */
 class Communicator;
 class SQLStageEvent;
 
+/**
+ * @brief SQL请求的处理器
+ */
 class SqlTaskHandler
 {
 public:
@@ -33,11 +36,11 @@ public:
 
   /**
    * @brief 指定连接上有数据可读时就读取消息然后处理
-   * 
-   * @param communicator 
-   * @return RC 如果返回失败，就会断开连接
+   * @details 步骤包含接收请求、处理请求，然后返回应答
+   * @param communicator 连接对象
+   * @return RC 如果返回失败，就要断开连接
    */
-  RC operator()(Communicator *communicator);
+  RC handle_event(Communicator *communicator);
 
   RC handle_sql(SQLStageEvent *sql_event);
 

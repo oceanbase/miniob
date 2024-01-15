@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_event.h"
 #include "session/session.h"
 
-RC SqlTaskHandler::operator()(Communicator *communicator)
+RC SqlTaskHandler::handle_event(Communicator *communicator)
 {
   SessionEvent *event = nullptr;
   RC rc = communicator->read_event(event);
