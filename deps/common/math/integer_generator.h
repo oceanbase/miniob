@@ -23,7 +23,7 @@ class IntegerGenerator
 public:
   IntegerGenerator(int min, int max) : distrib_(min, max) {}
 
-  IntegerGenerator(const IntegerGenerator &other) = delete;
+  IntegerGenerator(const IntegerGenerator &other)       = delete;
   IntegerGenerator &operator=(const IntegerGenerator &) = delete;
 
   int next() { return distrib_(rd_); }
