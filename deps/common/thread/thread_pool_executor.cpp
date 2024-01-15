@@ -16,10 +16,21 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/thread/thread_pool_executor.h"
 #include "common/log/log.h"
+#include "common/queue/simple_queue.h"
+#include "common/thread/thread_util.h"
 
 using namespace std;
 
 namespace common {
+
+int ThreadPoolExecutor::init(const char *name,
+                        int core_pool_size,
+                        int max_pool_size,
+                        long keep_alive_time_ms)
+{
+  unique_ptr<Queue<unique_ptr<Runnable>>> queue_ptr(new (nothrow) SimpleQueue<unique_ptr<Runnable>>());
+  return init(name, core_pool_size, max_pool_size, keep_alive_time_ms, std::move(queue_ptr));
+}
 
 int ThreadPoolExecutor::init(const char *name,
                         int core_pool_size,
@@ -111,6 +122,11 @@ int ThreadPoolExecutor::await_termination()
 void ThreadPoolExecutor::thread_func()
 {
   LOG_INFO("[%s] thread started", pool_name_.c_str());
+
+  int ret = thread_set_name(pool_name_.c_str());
+  if (ret != 0) {
+    LOG_WARN("[%s] set thread name failed", pool_name_.c_str());
+  }
 
   lock_.lock();
   auto iter = threads_.find(this_thread::get_id());

@@ -29,13 +29,34 @@ namespace common {
 
 /**
  * @brief 模拟java ThreadPoolExecutor 做一个简化的线程池
+ * @defgroup ThreadPool
+ * @details 一个线程池包含一个任务队列和一组线程，当有任务提交时，线程池会从任务队列中取出任务分配给一个线程执行。
+ * 这里的接口设计参考了Java的线程池ThreadPoolExecutor，但是简化了很多。
  * 
+ * 这个线程池支持自动伸缩。
+ * 线程分为两类，一类是核心线程，一类是普通线程。核心线程不会退出，普通线程会在空闲一段时间后退出。
+ * 线程池有一个任务队列，收到的任务会放到任务队列中。当任务队列中任务的个数比当前线程个数多时，就会
+ * 创建新的线程。
  */
 class ThreadPoolExecutor
 {
 public:
   ThreadPoolExecutor() = default;
   virtual ~ThreadPoolExecutor();
+
+  /**
+   * @brief 初始化线程池
+   * 
+   * @param name 线程池名称
+   * @param core_size 
+   * @param max_size 
+   * @param keep_alive_time_ms 
+   * @return int 
+   */
+  int init(const char *name,
+          int core_size,
+          int max_size,
+          long keep_alive_time_ms);
 
   int init(const char *name,
            int core_pool_size,

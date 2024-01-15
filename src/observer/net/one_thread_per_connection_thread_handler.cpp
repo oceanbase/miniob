@@ -17,10 +17,12 @@ See the Mulan PSL v2 for more details. */
 
 #include "net/one_thread_per_connection_thread_handler.h"
 #include "common/log/log.h"
+#include "common/thread/thread_util.h"
 #include "net/communicator.h"
 #include "net/sql_task_handler.h"
 
 using namespace std;
+using namespace common;
 
 class Worker
 {
@@ -65,6 +67,10 @@ public:
   void operator()()
   {
     LOG_INFO("worker thread start. communicator = %p", communicator_);
+    int ret = thread_set_name("SQLWorker");
+    if (ret != 0) {
+      LOG_WARN("failed to set thread name. ret = %d", ret);
+    }
 
     struct pollfd poll_fd;
     poll_fd.fd = communicator_->fd();

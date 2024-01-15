@@ -26,6 +26,7 @@ namespace common {
  * 如果想了解更高效的队列实现，请参考 [Oceanbase](https://github.com/oceanbase/oceanbase) 中 
  * deps/oblib/src/lib/queue/ 的一些队列的实现
  * @tparam T 任务数据类型。
+ * @ingroup Queue
  */
 template <typename T>
 class SimpleQueue : public Queue<T>

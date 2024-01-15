@@ -60,10 +60,10 @@ RC JavaThreadPoolThreadHandler::start()
   // 创建线程池
   // 这里写死了线程池的大小，实际上可以从配置文件中读取
   int ret = executor_.init("SQL",  // name
-                  2,     // core size
-                  8,     // max size
-                  60*1000, // keep alive time
-                  unique_ptr<SimpleQueue<unique_ptr<Runnable>>>(new SimpleQueue<unique_ptr<Runnable>>));
+                            2,     // core size
+                            8,     // max size
+                            60*1000 // keep alive time
+                            );
   if (0 != ret) {
     LOG_ERROR("failed to init thread pool executor");
     return RC::INTERNAL;

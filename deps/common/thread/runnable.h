@@ -18,6 +18,10 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
+/**
+ * @brief 可执行对象接口
+ * @ingroup ThreadPool
+ */
 class Runnable
 {
 public:
@@ -27,6 +31,10 @@ public:
   virtual void run() = 0;
 };
 
+/**
+ * @brief 可执行对象适配器，方便使用lambda表达式
+ * @ingroup ThreadPool
+ */
 class RunnableAdaptor : public Runnable
 {
 public:

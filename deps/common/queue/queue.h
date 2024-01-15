@@ -17,8 +17,13 @@ See the Mulan PSL v2 for more details. */
 namespace common {
 
 /**
+ * @brief 任务队列
+ * @defgroup Queue
+ */
+
+/**
  * @brief 任务队列接口
- * 
+ * @ingroup Queue
  * @tparam T 任务数据类型。
  */
 template <typename T>
