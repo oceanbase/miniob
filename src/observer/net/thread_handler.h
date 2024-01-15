@@ -28,7 +28,7 @@ class Communicator;
 class ThreadHandler
 {
 public:
-  ThreadHandler() = default;
+  ThreadHandler()          = default;
   virtual ~ThreadHandler() = default;
 
   /**
@@ -57,10 +57,10 @@ public:
    * @param communicator 与客户端通讯的对象
    */
   virtual RC close_connection(Communicator *communicator) = 0;
-  
+
 public:
   /**
    * @brief 创建一个线程模型
    */
-  static ThreadHandler * create(const char *name);
+  static ThreadHandler *create(const char *name);
 };

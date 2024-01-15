@@ -50,7 +50,7 @@ public:
 public:
   /**
    * @brief 使用libevent处理消息时，需要有一个回调函数，这里就相当于libevent的回调函数
-   * 
+   *
    * @param ag 处理消息回调时的参数，比如libevent的event、连接等
    */
   void handle_event(EventCallbackAg *ag);
@@ -62,9 +62,10 @@ public:
   void event_loop_thread();
 
 private:
-  struct event_base *        event_base_ = nullptr; /// libevent 的event_base
-  common::ThreadPoolExecutor executor_; /// 线程池
-  std::map<Communicator *, EventCallbackAg *> event_map_;
-  std::mutex lock_;
-  SqlTaskHandler sql_task_handler_; /// SQL请求处理器
+  std::mutex                                  lock_;
+  struct event_base                          *event_base_ = nullptr;  /// libevent 的event_base
+  common::ThreadPoolExecutor                  executor_;              /// 线程池
+  std::map<Communicator *, EventCallbackAg *> event_map_;             /// 每个连接与它关联的数据
+
+  SqlTaskHandler sql_task_handler_;  /// SQL请求处理器
 };

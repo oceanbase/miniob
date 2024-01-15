@@ -20,4 +20,4 @@ class ThreadPool
 public:
 };
 
-} // namespace common
+}  // namespace common

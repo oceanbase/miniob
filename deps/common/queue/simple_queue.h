@@ -23,7 +23,7 @@ namespace common {
 /**
  * @brief 一个十分简单的线程安全的任务队列
  * @details 所有的接口都加了一个锁来保证线程安全。
- * 如果想了解更高效的队列实现，请参考 [Oceanbase](https://github.com/oceanbase/oceanbase) 中 
+ * 如果想了解更高效的队列实现，请参考 [Oceanbase](https://github.com/oceanbase/oceanbase) 中
  * deps/oblib/src/lib/queue/ 的一些队列的实现
  * @tparam T 任务数据类型。
  * @ingroup Queue
@@ -33,6 +33,7 @@ class SimpleQueue : public Queue<T>
 {
 public:
   using value_type = T;
+
 public:
   SimpleQueue() : Queue<T>() {}
   virtual ~SimpleQueue() {}
@@ -45,10 +46,10 @@ public:
   int size() const override;
 
 private:
-  std::mutex mutex_;
+  std::mutex             mutex_;
   std::queue<value_type> queue_;
 };
 
-} // namespace common
+}  // namespace common
 
 #include "common/queue/simple_queue.ipp"

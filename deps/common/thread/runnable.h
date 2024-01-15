@@ -25,7 +25,7 @@ namespace common {
 class Runnable
 {
 public:
-  Runnable() = default;
+  Runnable()          = default;
   virtual ~Runnable() = default;
 
   virtual void run() = 0;
@@ -38,17 +38,12 @@ public:
 class RunnableAdaptor : public Runnable
 {
 public:
-  RunnableAdaptor(const std::function<void()> &callable) : callable_(callable)
-  {
-  }
+  RunnableAdaptor(const std::function<void()> &callable) : callable_(callable) {}
 
-  void run() override
-  {
-    callable_();
-  }
+  void run() override { callable_(); }
 
 private:
   const std::function<void()> &callable_;
 };
 
-} // namespace common
+}  // namespace common

@@ -26,7 +26,7 @@ class Worker;
 class OneThreadPerConnectionThreadHandler : public ThreadHandler
 {
 public:
-  OneThreadPerConnectionThreadHandler()          = default;
+  OneThreadPerConnectionThreadHandler() = default;
   virtual ~OneThreadPerConnectionThreadHandler();
 
   //! @copydoc ThreadHandler::start
@@ -41,9 +41,10 @@ public:
   virtual RC new_connection(Communicator *communicator) override;
   //! @copydoc ThreadHandler::close_connection
   virtual RC close_connection(Communicator *communicator) override;
+
 private:
   /// 记录一个连接Communicator关联的线程数据
-  std::unordered_map<Communicator *, Worker *> thread_map_; // 当前编译器没有支持jthread
+  std::unordered_map<Communicator *, Worker *> thread_map_;  // 当前编译器没有支持jthread
   /// 保护线程安全的锁
   std::mutex lock_;
 };

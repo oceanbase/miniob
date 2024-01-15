@@ -32,7 +32,7 @@ namespace common {
  * @defgroup ThreadPool
  * @details 一个线程池包含一个任务队列和一组线程，当有任务提交时，线程池会从任务队列中取出任务分配给一个线程执行。
  * 这里的接口设计参考了Java的线程池ThreadPoolExecutor，但是简化了很多。
- * 
+ *
  * 这个线程池支持自动伸缩。
  * 线程分为两类，一类是核心线程，一类是普通线程。核心线程不会退出，普通线程会在空闲一段时间后退出。
  * 线程池有一个任务队列，收到的任务会放到任务队列中。当任务队列中任务的个数比当前线程个数多时，就会
@@ -46,35 +46,29 @@ public:
 
   /**
    * @brief 初始化线程池
-   * 
+   *
    * @param name 线程池名称
    * @param core_size 核心线程个数。核心线程不会退出
    * @param max_size  线程池最大线程个数
    * @param keep_alive_time_ms 非核心线程空闲多久后退出
    */
-  int init(const char *name,
-          int core_size,
-          int max_size,
-          long keep_alive_time_ms);
+  int init(const char *name, int core_size, int max_size, long keep_alive_time_ms);
 
   /**
    * @brief 初始化线程池
-   * 
+   *
    * @param name 线程池名称
    * @param core_size 核心线程个数。核心线程不会退出
    * @param max_size  线程池最大线程个数
    * @param keep_alive_time_ms 非核心线程空闲多久后退出
    * @param work_queue 任务队列
    */
-  int init(const char *name,
-           int core_pool_size,
-           int max_pool_size,
-           long keep_alive_time_ms,
-           std::unique_ptr<Queue<std::unique_ptr<Runnable>>> &&work_queue);
+  int init(const char *name, int core_pool_size, int max_pool_size, long keep_alive_time_ms,
+      std::unique_ptr<Queue<std::unique_ptr<Runnable>>> &&work_queue);
 
   /**
    * @brief 提交一个任务，不一定可以立即执行
-   * 
+   *
    * @param task 任务
    * @return int 成功放入队列返回0
    */
@@ -82,7 +76,7 @@ public:
 
   /**
    * @brief 提交一个任务，不一定可以立即执行
-   * 
+   *
    * @param callable 任务
    * @return int 成功放入队列返回0
    */
@@ -117,18 +111,18 @@ public:
   /**
    * @brief 处理过的任务个数
    */
-  int64_t task_count() const { return task_count_.load();}
+  int64_t task_count() const { return task_count_.load(); }
 
 private:
   /**
    * @brief 创建一个线程
-   * 
+   *
    * @param core_thread 是否是核心线程
    */
   int create_thread(bool core_thread);
   /**
    * @brief 创建一个线程。调用此函数前已经加锁
-   * 
+   *
    * @param core_thread 是否是核心线程
    */
   int create_thread_locked(bool core_thread);
@@ -142,7 +136,7 @@ private:
    * @brief 线程函数。从队列中拉任务并执行
    */
   void thread_func();
-  
+
 private:
   /**
    * @brief 线程池的状态
@@ -157,28 +151,28 @@ private:
 
   struct ThreadData
   {
-    bool core_thread = false;  /// 是否是核心线程
-    bool idle = false;       /// 是否空闲
-    bool terminated = false;  /// 是否已经退出
-    std::thread *thread_ptr = nullptr; /// 线程指针
+    bool         core_thread = false;    /// 是否是核心线程
+    bool         idle        = false;    /// 是否空闲
+    bool         terminated  = false;    /// 是否已经退出
+    std::thread *thread_ptr  = nullptr;  /// 线程指针
   };
 
 private:
   State state_ = State::NEW;  /// 线程池状态
 
-  int core_pool_size_ = 0;    /// 核心线程个数
-  int max_pool_size_  = 0;    /// 最大线程个数
-  std::chrono::milliseconds keep_alive_time_ms_; /// 非核心线程空闲多久后退出
-  std::unique_ptr<Queue<std::unique_ptr<Runnable>>> work_queue_; /// 任务队列
+  int                       core_pool_size_ = 0;  /// 核心线程个数
+  int                       max_pool_size_  = 0;  /// 最大线程个数
+  std::chrono::milliseconds keep_alive_time_ms_;  /// 非核心线程空闲多久后退出
 
-  mutable std::mutex lock_; /// 保护线程池内部数据的锁
-  std::map<std::thread::id, ThreadData> threads_; /// 线程列表
-  int largest_pool_size_ = 0; /// 历史上达到的最大的线程个数
+  std::unique_ptr<Queue<std::unique_ptr<Runnable>>> work_queue_;  /// 任务队列
 
-  std::atomic<int64_t> task_count_ = 0;   /// 处理过的任务个数
-  std::atomic<int>     active_count_ = 0; /// 活跃线程个数
+  mutable std::mutex                    lock_;     /// 保护线程池内部数据的锁
+  std::map<std::thread::id, ThreadData> threads_;  /// 线程列表
 
-  std::string pool_name_;  /// 线程池名称
+  int                  largest_pool_size_ = 0;  /// 历史上达到的最大的线程个数
+  std::atomic<int64_t> task_count_        = 0;  /// 处理过的任务个数
+  std::atomic<int>     active_count_      = 0;  /// 活跃线程个数
+  std::string          pool_name_;              /// 线程池名称
 };
 
-} // namespace common
+}  // namespace common

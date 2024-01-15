@@ -23,20 +23,14 @@ using namespace std;
 
 namespace common {
 
-int ThreadPoolExecutor::init(const char *name,
-                        int core_pool_size,
-                        int max_pool_size,
-                        long keep_alive_time_ms)
+int ThreadPoolExecutor::init(const char *name, int core_pool_size, int max_pool_size, long keep_alive_time_ms)
 {
   unique_ptr<Queue<unique_ptr<Runnable>>> queue_ptr(new (nothrow) SimpleQueue<unique_ptr<Runnable>>());
   return init(name, core_pool_size, max_pool_size, keep_alive_time_ms, std::move(queue_ptr));
 }
 
-int ThreadPoolExecutor::init(const char *name,
-                        int core_pool_size,
-                        int max_pool_size,
-                        long keep_alive_time_ms,
-                        unique_ptr<Queue<unique_ptr<Runnable>>> &&work_queue)
+int ThreadPoolExecutor::init(const char *name, int core_pool_size, int max_pool_size, long keep_alive_time_ms,
+    unique_ptr<Queue<unique_ptr<Runnable>>> &&work_queue)
 {
   if (state_ != State::NEW) {
     LOG_ERROR("invalid state. state=%d", state_);
@@ -52,13 +46,13 @@ int ThreadPoolExecutor::init(const char *name,
     pool_name_ = name;
   }
 
-  core_pool_size_ = core_pool_size;
-  max_pool_size_  = max_pool_size;
+  core_pool_size_     = core_pool_size;
+  max_pool_size_      = max_pool_size;
   keep_alive_time_ms_ = chrono::milliseconds(keep_alive_time_ms);
-  work_queue_ = std::move(work_queue);
+  work_queue_         = std::move(work_queue);
 
   while (static_cast<int>(threads_.size()) < core_pool_size_) {
-    if (create_thread(true/*core_thread*/) != 0) {
+    if (create_thread(true /*core_thread*/) != 0) {
       LOG_ERROR("create thread failed");
       return -1;
     }
@@ -99,7 +93,7 @@ int ThreadPoolExecutor::execute(unique_ptr<Runnable> &&task)
     return -1;
   }
 
-  int ret = work_queue_->push(std::move(task));
+  int ret       = work_queue_->push(std::move(task));
   int task_size = work_queue_->size();
   if (task_size > pool_size() - active_count()) {
     extend_thread();
@@ -138,6 +132,7 @@ void ThreadPoolExecutor::thread_func()
   lock_.unlock();
 
   using Clock = chrono::steady_clock;
+
   chrono::time_point<Clock> idle_deadline = Clock::now();
   if (!thread_data.core_thread && keep_alive_time_ms_.count() > 0) {
     idle_deadline += keep_alive_time_ms_;
@@ -150,6 +145,7 @@ void ThreadPoolExecutor::thread_func()
   /// 并不需要保留这么多线程
   while (Clock::now() < idle_deadline) {
     unique_ptr<Runnable> task;
+
     int ret = work_queue_->pop(task);
     if (0 == ret && task) {
       thread_data.idle = false;
@@ -197,10 +193,10 @@ int ThreadPoolExecutor::create_thread_locked(bool core_thread)
   }
 
   ThreadData thread_data;
-  thread_data.core_thread = core_thread;
-  thread_data.idle = true;
-  thread_data.terminated = false;
-  thread_data.thread_ptr = thread_ptr;
+  thread_data.core_thread        = core_thread;
+  thread_data.idle               = true;
+  thread_data.terminated         = false;
+  thread_data.thread_ptr         = thread_ptr;
   threads_[thread_ptr->get_id()] = thread_data;
 
   if (static_cast<int>(threads_.size()) > largest_pool_size_) {
@@ -222,7 +218,7 @@ int ThreadPoolExecutor::extend_thread()
     return 0;
   }
 
-  return create_thread_locked(false/*core_thread*/);
+  return create_thread_locked(false /*core_thread*/);
 }
 
-} // end namespace common
+}  // end namespace common

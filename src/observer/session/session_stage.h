@@ -42,7 +42,6 @@ public:
   SessionStage() = default;
   virtual ~SessionStage();
 
-
 public:
   void handle_request2(SessionEvent *event);
 

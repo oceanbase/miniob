@@ -31,8 +31,9 @@ public:
   Server(const ServerParam &input_server_param) : server_param_(input_server_param) {}
   virtual ~Server() {}
 
-  virtual int serve() = 0;
+  virtual int  serve()    = 0;
   virtual void shutdown() = 0;
+
 protected:
   ServerParam server_param_;  ///< 服务启动参数
 };
@@ -79,10 +80,10 @@ private:
 private:
   volatile bool started_ = false;
 
-  int                server_socket_ = -1;       ///< 监听套接字，是一个描述符
+  int server_socket_ = -1;  ///< 监听套接字，是一个描述符
 
   CommunicatorFactory communicator_factory_;  ///< 通过这个对象创建新的Communicator对象
-  ThreadHandler *       thread_handler_ = nullptr;
+  ThreadHandler      *thread_handler_ = nullptr;
 };
 
 class CliServer : public Server
@@ -91,7 +92,7 @@ public:
   CliServer(const ServerParam &input_server_param);
   virtual ~CliServer();
 
-  int serve() override;
+  int  serve() override;
   void shutdown() override;
 
 private:

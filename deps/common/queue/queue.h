@@ -33,12 +33,12 @@ public:
   using value_type = T;
 
 public:
-  Queue() = default;
+  Queue()          = default;
   virtual ~Queue() = default;
 
   /**
    * @brief 在队列中放一个任务
-   * 
+   *
    * @param value 任务数据
    * @return int 成功返回0
    */
@@ -46,7 +46,7 @@ public:
 
   /**
    * @brief 从队列中取出一个任务
-   * 
+   *
    * @param value 任务数据
    * @return int 成功返回0。如果队列为空，也不是成功的
    */
@@ -54,10 +54,10 @@ public:
 
   /**
    * @brief 当前队列中任务的数量
-   * 
+   *
    * @return int 对列中任务的数量
    */
   virtual int size() const = 0;
 };
 
-} // namespace common
+}  // namespace common

@@ -20,7 +20,7 @@ namespace common {
 int thread_set_name(const char *name)
 {
   const int namelen = 16;
-  char buf[namelen];
+  char      buf[namelen];
   snprintf(buf, namelen, "%s", name);
 
 #ifdef __APPLE__
@@ -30,4 +30,4 @@ int thread_set_name(const char *name)
 #endif
 }
 
-} // namespace common
+}  // namespace common

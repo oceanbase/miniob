@@ -25,4 +25,4 @@ namespace common {
  */
 int thread_set_name(const char *name);
 
-} // namespace common
+}  // namespace common
