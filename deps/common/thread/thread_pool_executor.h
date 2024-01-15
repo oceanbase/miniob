@@ -44,6 +44,7 @@ public:
            std::unique_ptr<Queue<std::unique_ptr<Runnable>>> &&work_queue);
 
   int execute(std::unique_ptr<Runnable> &&task);
+  int execute(const std::function<void()> &callable);
   int shutdown();
   int await_termination();
 

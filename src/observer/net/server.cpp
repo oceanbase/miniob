@@ -249,6 +249,12 @@ int NetServer::serve()
     return -1;
   }
 
+  RC rc = thread_handler_->start();
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("failed to start thread handler: %s", strrc(rc));
+    return -1;
+  }
+
   int retval = start();
   if (retval == -1) {
     LOG_PANIC("Failed to start network");
@@ -267,7 +273,7 @@ int NetServer::serve()
         LOG_ERROR("poll error. fd = %d, ret = %d, error=%s", poll_fd.fd, ret, strerror(errno));
         break;
       } else if (0 == ret) {
-        LOG_TRACE("poll timeout. fd = %d", poll_fd.fd);
+        // LOG_TRACE("poll timeout. fd = %d", poll_fd.fd);
         continue;
       }
 

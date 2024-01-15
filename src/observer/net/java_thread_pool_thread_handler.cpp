@@ -32,21 +32,6 @@ struct EventCallbackAg
   struct event *ev = nullptr;
 };
 
-class EventWorker : public Runnable
-{
-public:
-  EventWorker(JavaThreadPoolThreadHandler &host) : host_(host)
-  {}
-
-public:
-  void run()
-  {
-    host_.event_loop_thread();
-  }
-private:
-  JavaThreadPoolThreadHandler &host_;
-};
-
 class SqlTaskRunner : public Runnable
 {
 public:
@@ -104,7 +89,8 @@ RC JavaThreadPoolThreadHandler::start()
     return RC::INTERNAL;
   }
 
-  ret = executor_.execute(unique_ptr<Runnable>(new EventWorker(*this)));
+  auto event_worker = std::bind(&JavaThreadPoolThreadHandler::event_loop_thread, this);
+  ret = executor_.execute(event_worker);
   if (0 != ret) {
     LOG_ERROR("failed to execute event worker");
     return RC::INTERNAL;
@@ -115,7 +101,7 @@ RC JavaThreadPoolThreadHandler::start()
 
 static void event_callback(evutil_socket_t fd, short event, void *arg)
 {
-  if (event & EV_READ) {
+  if (event & (EV_READ | EV_CLOSED)) {
     EventCallbackAg *ag = (EventCallbackAg *)arg;
     JavaThreadPoolThreadHandler *handler = ag->host;
     handler->handle_event(ag);
@@ -126,12 +112,30 @@ static void event_callback(evutil_socket_t fd, short event, void *arg)
 
 void JavaThreadPoolThreadHandler::handle_event(EventCallbackAg *ag)
 {
-  executor_.execute(unique_ptr<Runnable>(new SqlTaskRunner(*this, ag->communicator, ag->ev)));
+  auto sql_handler = [this, ag]() {
+    SqlTaskHandler handler;
+    RC rc = handler(ag->communicator);
+    if (RC::SUCCESS != rc) {
+      LOG_ERROR("failed to handle sql task. rc=%d", rc);
+      this->close_connection(ag->communicator);
+    } else if (0 != event_add(ag->ev, nullptr)) {
+      LOG_ERROR("failed to add event");
+      this->close_connection(ag->communicator);
+    }
+  };
+  
+  executor_.execute(sql_handler);
 }
 
 void JavaThreadPoolThreadHandler::event_loop_thread()
 {
-  event_base_dispatch(event_base_);
+  LOG_INFO("event base dispatch begin");
+  // event_base_dispatch 仅调用一次事件循环。
+  // event_base_loop 会等待所有事件都结束
+  // 如果不增加 EVLOOP_NO_EXIT_ON_EMPTY 标识，当前事件都处理完成后，就会退出循环
+  // 加上这个标识就是即使没有事件，也等在这里
+  event_base_loop(event_base_, EVLOOP_NO_EXIT_ON_EMPTY);
+  LOG_INFO("event base dispatch end");
 }
 
 RC JavaThreadPoolThreadHandler::new_connection(Communicator *communicator)
@@ -159,6 +163,7 @@ RC JavaThreadPoolThreadHandler::new_connection(Communicator *communicator)
     event_free(ev);
     return RC::INTERNAL;
   }
+  LOG_TRACE("add event success. fd=%d, communicator=%p", fd, communicator);
 
   return RC::SUCCESS;
 }

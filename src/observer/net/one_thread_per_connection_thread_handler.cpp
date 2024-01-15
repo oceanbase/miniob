@@ -77,7 +77,7 @@ public:
         LOG_ERROR("poll error. fd = %d, ret = %d, error=%s", poll_fd.fd, ret, strerror(errno));
         break;
       } else if (0 == ret) {
-        LOG_TRACE("poll timeout. fd = %d", poll_fd.fd);
+        // LOG_TRACE("poll timeout. fd = %d", poll_fd.fd);
         continue;
       }
 

@@ -75,6 +75,12 @@ int ThreadPoolExecutor::shutdown()
   return 0;
 }
 
+int ThreadPoolExecutor::execute(const function<void()> &callable)
+{
+  unique_ptr<Runnable> task_ptr(new RunnableAdaptor(callable));
+  return this->execute(std::move(task_ptr));
+}
+
 int ThreadPoolExecutor::execute(unique_ptr<Runnable> &&task)
 {
   if (state_ != State::RUNNING) {
@@ -138,9 +144,9 @@ void ThreadPoolExecutor::thread_func()
       ++task_count_;
 
       if (!thread_state.core_thread && keep_alive_time_ms_.count() > 0) {
-        idle_deadline += keep_alive_time_ms_;
+        idle_deadline = Clock::now() + keep_alive_time_ms_;
       } else {
-        idle_deadline += chrono::hours(1);
+        idle_deadline = Clock::now() + chrono::hours(1);
       }
     }
     if (state_ != State::RUNNING && work_queue_->size() == 0) {
