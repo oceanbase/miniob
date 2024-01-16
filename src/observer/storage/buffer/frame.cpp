@@ -78,9 +78,13 @@ void Frame::write_latch(intptr_t xid)
 
   lock_.lock();
 
+#ifdef DEBUG
+  write_locker_ = xid;
+  ++write_recursive_count_;
   TRACE("frame write lock success."
         "this=%p, pin=%d, pageNum=%d, write locker=%lx(recursive=%d), fd=%d, xid=%lx, lbt=%s",
-        this, pin_count_.load(), page_.page_num, (write_locker_=xid), ++write_recursive_count_, file_desc_, xid, lbt());
+        this, pin_count_.load(), page_.page_num, write_locker_, write_recursive_count_, file_desc_, xid, lbt());
+#endif
 }
 
 void Frame::write_unlatch() { write_unlatch(get_default_debug_xid()); }
@@ -131,10 +135,13 @@ void Frame::read_latch(intptr_t xid)
   lock_.lock_shared();
 
   {
+#ifdef DEBUG
     scoped_lock debug_lock(debug_lock_);
+    ++read_lockers_[xid];
     TRACE("frame read lock success."
           "this=%p, pin=%d, pageNum=%d, fd=%d, xid=%lx, recursive=%d, lbt=%s",
-          this, pin_count_.load(), page_.page_num, file_desc_, xid, ++read_lockers_[xid], lbt());
+          this, pin_count_.load(), page_.page_num, file_desc_, xid, read_lockers_[xid], lbt());
+#endif
   }
 }
 
@@ -156,11 +163,14 @@ bool Frame::try_read_latch()
 
   bool ret = lock_.try_lock_shared();
   if (ret) {
+#ifdef DEBUG
     debug_lock_.lock();
+    ++read_lockers_[xid];
     TRACE("frame read lock success."
           "this=%p, pin=%d, pageNum=%d, fd=%d, xid=%lx, recursive=%d, lbt=%s",
-          this, pin_count_.load(), page_.page_num, file_desc_, xid, ++read_lockers_[xid], lbt());
+          this, pin_count_.load(), page_.page_num, file_desc_, xid, read_lockers_[xid], lbt());
     debug_lock_.unlock();
+#endif
   }
 
   return ret;
