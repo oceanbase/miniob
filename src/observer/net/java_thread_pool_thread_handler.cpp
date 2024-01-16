@@ -94,6 +94,7 @@ RC JavaThreadPoolThreadHandler::start()
 static void event_callback(evutil_socket_t fd, short event, void *arg)
 {
   if (event & (EV_READ | EV_CLOSED)) {
+    LOG_TRACE("got event. fd=%d, event=%d", fd, event);
     EventCallbackAg *ag = (EventCallbackAg *)arg;
     JavaThreadPoolThreadHandler *handler = ag->host;
     handler->handle_event(ag);
@@ -115,13 +116,17 @@ void JavaThreadPoolThreadHandler::handle_event(EventCallbackAg *ag)
   auto sql_handler = [this, ag]() {
     RC rc = sql_task_handler_.handle_event(ag->communicator); // 这里会有接收消息、处理请求然后返回结果一条龙服务
     if (RC::SUCCESS != rc) {
-      LOG_ERROR("failed to handle sql task. rc=%d", rc);
+      LOG_WARN("failed to handle sql task. rc=%s", strrc(rc));
       this->close_connection(ag->communicator);
     } else if (0 != event_add(ag->ev, nullptr)) {
       // 由于我们在创建事件对象时没有增加 EV_PERSIST flag，所以我们每次都要处理完成后再把事件加回到event_base中。
       // 当然我们也不能使用 EV_PERSIST flag，否则我们在处理请求过程中，可能还会收到客户端的消息，这样就会导致并发问题。
-      LOG_ERROR("failed to add event");
+      LOG_ERROR("failed to add event. fd=%d, communicator=%p", event_get_fd(ag->ev), this);
       this->close_connection(ag->communicator);
+    } else {
+      // 添加event后就不应该再访问communicator了，因为可能会有另一个线程处理当前communicator
+      // 或者就需要加锁处理并发问题
+      // LOG_TRACE("add event. fd=%d, communicator=%p", event_get_fd(ag->ev), this);
     }
   };
   
@@ -164,7 +169,7 @@ RC JavaThreadPoolThreadHandler::new_connection(Communicator *communicator)
 
   int ret = event_add(ev, nullptr);
   if (0 != ret) {
-    LOG_ERROR("failed to add event");
+    LOG_ERROR("failed to add event. fd=%d, communicator=%p, ret=%d", fd, communicator, ret);
     event_free(ev);
     return RC::INTERNAL;
   }

@@ -626,7 +626,8 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
     return RC::IOERR_READ;
   }
 
-  LOG_TRACE("read packet header. length=%d, sequence_id=%d", sizeof(packet_header), packet_header.sequence_id);
+  LOG_TRACE("read packet header. length=%d, sequence_id=%d, payload_length=%d, fd=%d",
+            sizeof(packet_header), packet_header.sequence_id, packet_header.payload_length, fd_);
   sequence_id_ = packet_header.sequence_id + 1;
 
   std::vector<char> buf(packet_header.payload_length);
@@ -636,8 +637,6 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
              packet_header.payload_length, addr_.c_str(), strerror(errno));
     return RC::IOERR_READ;
   }
-
-  LOG_TRACE("read packet payload length=%d", packet_header.payload_length);
 
   event = nullptr;
   if (!authed_) {

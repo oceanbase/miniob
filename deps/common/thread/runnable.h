@@ -38,12 +38,12 @@ public:
 class RunnableAdaptor : public Runnable
 {
 public:
-  RunnableAdaptor(const std::function<void()> &callable) : callable_(callable) {}
+  RunnableAdaptor(std::function<void()> callable) : callable_(callable) {}
 
   void run() override { callable_(); }
 
 private:
-  const std::function<void()> &callable_;
+  std::function<void()> callable_;
 };
 
 }  // namespace common
