@@ -261,19 +261,27 @@ public:
 
   void SetUp(const State &state) override
   {
+    BenchmarkBase::SetUp(state);
+
     if (0 != state.thread_index()) {
+      while (!setup_done_) {
+        this_thread::sleep_for(chrono::milliseconds(100));
+      }
       return;
     }
-
-    BenchmarkBase::SetUp(state);
 
     uint32_t max = GetRangeMax(state);
     ASSERT(max > 0, "invalid argument count. %ld", state.range(0));
     FillUp(0, max, rids_);
     ASSERT(rids_.size() > 0, "invalid argument count. %ld", rids_.size());
+    setup_done_ = true;
   }
 
 protected:
+  // 从实际测试情况看，每个线程都会执行setup，但是它们操作的对象都是同一个
+  // 但是每个线程set up结束后，就会执行测试了。如果不等待的话，就会导致有些
+  // 线程访问的数据不是想要的结果
+  volatile bool setup_done_ = false;
   vector<RID> rids_;
 };
 

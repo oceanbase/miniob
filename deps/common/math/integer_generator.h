@@ -24,6 +24,7 @@ public:
   IntegerGenerator(int min, int max) : distrib_(min, max) {}
 
   IntegerGenerator(const IntegerGenerator &other)       = delete;
+  IntegerGenerator(IntegerGenerator &&)                 = delete;
   IntegerGenerator &operator=(const IntegerGenerator &) = delete;
 
   int next() { return distrib_(rd_); }
