@@ -78,4 +78,4 @@ jobs:
         shell: bash
         run: |
           cd build_release/bin/
-          find ./ -name "*_concurrency_test" -executable -exec {}
+          for file in `find ./ -name "*_concurrency_test" -executable`; do $file; if [ $? -ne 0 ]; then exit 1; fi; done
