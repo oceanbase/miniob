@@ -282,7 +282,7 @@ protected:
   // 但是每个线程set up结束后，就会执行测试了。如果不等待的话，就会导致有些
   // 线程访问的数据不是想要的结果
   volatile bool setup_done_ = false;
-  vector<RID> rids_;
+  vector<RID>   rids_;
 };
 
 BENCHMARK_DEFINE_F(DeletionBenchmark, Deletion)(State &state)
