@@ -69,7 +69,7 @@ const int32_t CLogRecordData::HEADER_SIZE = sizeof(CLogRecordData) - sizeof(CLog
 
 CLogRecordData::~CLogRecordData()
 {
-  if (data_ == nullptr) {
+  if (data_ != nullptr) {
     delete[] data_;
   }
 }

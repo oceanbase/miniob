@@ -136,14 +136,12 @@ void ThreadPoolExecutor::thread_func()
   chrono::time_point<Clock> idle_deadline = Clock::now();
   if (!thread_data.core_thread && keep_alive_time_ms_.count() > 0) {
     idle_deadline += keep_alive_time_ms_;
-  } else {
-    idle_deadline += chrono::hours(1);
   }
 
   /// 这里使用最粗暴的方式检测线程是否可以退出了
   /// 但是实际上，如果当前的线程个数比任务数要多，或者差不多，而且任务执行都很快的时候，
   /// 并不需要保留这么多线程
-  while (Clock::now() < idle_deadline) {
+  while (thread_data.core_thread || Clock::now() < idle_deadline) {
     unique_ptr<Runnable> task;
 
     int ret = work_queue_->pop(task);
@@ -155,10 +153,8 @@ void ThreadPoolExecutor::thread_func()
       thread_data.idle = true;
       ++task_count_;
 
-      if (!thread_data.core_thread && keep_alive_time_ms_.count() > 0) {
+      if (keep_alive_time_ms_.count() > 0) {
         idle_deadline = Clock::now() + keep_alive_time_ms_;
-      } else {
-        idle_deadline = Clock::now() + chrono::hours(1);
       }
     }
     if (state_ != State::RUNNING && work_queue_->size() == 0) {

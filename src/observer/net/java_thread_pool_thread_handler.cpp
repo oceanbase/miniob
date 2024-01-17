@@ -154,9 +154,11 @@ RC JavaThreadPoolThreadHandler::new_connection(Communicator *communicator)
   ag->ev = nullptr;
   /// 创建一个libevent事件对象。其中EV_READ表示可读事件，就是客户端发消息时会触发事件。
   /// EV_ET 表示边缘触发，有消息时只会触发一次，不会重复触发。这个标识在Linux平台上是支持的，但是有些平台不支持。
+  /// 使用EV_ET边缘触发时需要注意一个问题，就是每次一定要把客户端发来的消息都读取完，直到read返回EAGAIN为止。
+  /// 我们这里不使用边缘触发。
   /// 注意这里没有加 EV_PERSIST，表示事件触发后会自动从event_base中删除，需要自己再手动加上这个标识。这是有必
   /// 要的，因为客户端发出一个请求后，我们再返回客户端消息之前，不再希望接收新的消息。
-  struct event *ev = event_new(event_base_, fd, EV_READ | EV_ET, event_callback, ag);
+  struct event *ev = event_new(event_base_, fd, EV_READ, event_callback, ag);
   if (nullptr == ev) {
     LOG_ERROR("failed to create event");
     return RC::INTERNAL;

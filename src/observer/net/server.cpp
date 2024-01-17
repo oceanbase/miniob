@@ -270,7 +270,7 @@ int NetServer::serve()
     while (started_) {
       int ret = poll(&poll_fd, 1, 500);
       if (ret < 0) {
-        LOG_ERROR("poll error. fd = %d, ret = %d, error=%s", poll_fd.fd, ret, strerror(errno));
+        LOG_WARN("[listen socket] poll error. fd = %d, ret = %d, error=%s", poll_fd.fd, ret, strerror(errno));
         break;
       } else if (0 == ret) {
         // LOG_TRACE("poll timeout. fd = %d", poll_fd.fd);
