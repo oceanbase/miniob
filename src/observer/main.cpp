@@ -168,6 +168,11 @@ void *quit_thread_func(void *_signum)
 }
 void quit_signal_handle(int signum)
 {
+  // 防止多次调用退出
+  // 其实正确的处理是，应该全局性的控制来防止出现“多次”退出的状态，包括发起信号
+  // 退出与进程主动退出
+  set_signal_handler(nullptr);
+
   pthread_t tid;
   pthread_create(&tid, nullptr, quit_thread_func, (void *)(intptr_t)signum);
 }
