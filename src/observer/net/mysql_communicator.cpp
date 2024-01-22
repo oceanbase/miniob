@@ -643,7 +643,9 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
     /// 还没有做过认证，就先需要完成握手阶段
     uint32_t client_flag = *(uint32_t *)buf.data();  // TODO should use decode (little endian as default)
     LOG_INFO("client handshake response with capabilities flag=%d", client_flag);
-    client_capabilities_flag_ = client_flag;
+    /// 经过测试sysbench 虽然发出的鉴权包中带了CLIENT_DEPRECATE_EOF标记，但是在接收row result set 时，
+    //  不能识别最后一个OK Packet。强制清除该标识，表现正常
+    client_capabilities_flag_ = (client_flag & (~CLIENT_DEPRECATE_EOF));
     // send ok packet and return
     OkPacket ok_packet;
     ok_packet.packet_header.sequence_id = sequence_id_;
