@@ -29,61 +29,12 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-// Constructor
-SessionStage::SessionStage(const char *tag) : Stage(tag) {}
-
 // Destructor
 SessionStage::~SessionStage() {}
 
-// Parse properties, instantiate a stage object
-Stage *SessionStage::make_stage(const std::string &tag)
+// TODO remove me
+void SessionStage::handle_request(SessionEvent *sev)
 {
-  SessionStage *stage = new (std::nothrow) SessionStage(tag.c_str());
-  if (stage == nullptr) {
-    LOG_ERROR("new ExecutorStage failed");
-    return nullptr;
-  }
-  stage->set_properties();
-  return stage;
-}
-
-// Set properties for this object set in stage specific properties
-bool SessionStage::set_properties()
-{
-  //  std::string stageNameStr(stage_name_);
-  //  std::map<std::string, std::string> section = g_properties()->get(
-  //    stageNameStr);
-  //
-  //  std::map<std::string, std::string>::iterator it;
-  //
-  //  std::string key;
-
-  return true;
-}
-
-// Initialize stage params and validate outputs
-bool SessionStage::initialize() { return true; }
-
-// Cleanup after disconnection
-void SessionStage::cleanup() {}
-
-void SessionStage::handle_event(StageEvent *event)
-{
-  // right now, we just support only one event.
-  handle_request(event);
-
-  event->done_immediate();
-  return;
-}
-
-void SessionStage::handle_request(StageEvent *event)
-{
-  SessionEvent *sev = dynamic_cast<SessionEvent *>(event);
-  if (nullptr == sev) {
-    LOG_ERROR("Cannot cat event to sessionEvent");
-    return;
-  }
-
   std::string sql = sev->query();
   if (common::is_blank(sql.c_str())) {
     return;
@@ -99,10 +50,22 @@ void SessionStage::handle_request(StageEvent *event)
   RC            rc              = communicator->write_result(sev, need_disconnect);
   LOG_INFO("write result return %s", strrc(rc));
   if (need_disconnect) {
-    Server::close_connection(communicator);
+    // do nothing
   }
   sev->session()->set_current_request(nullptr);
   Session::set_current_session(nullptr);
+}
+
+void SessionStage::handle_request2(SessionEvent *event)
+{
+  const std::string &sql = event->query();
+  if (common::is_blank(sql.c_str())) {
+    return;
+  }
+
+  Session::set_current_session(event->session());
+  event->session()->set_current_request(event);
+  SQLStageEvent sql_event(event, sql);
 }
 
 /**

@@ -72,6 +72,15 @@ public:
   }
   const std::string &trx_kit_name() const { return trx_kit_name_; }
 
+  void set_thread_handling_name(const char *thread_handling_name)
+  {
+    if (thread_handling_name) {
+      thread_handling_name_ = thread_handling_name;
+    }
+  }
+
+  const std::string &thread_handling_name() const { return thread_handling_name_; }
+
   void set_buffer_pool_memory_size(int bytes) { buffer_pool_memory_size_ = bytes; }
 
   int buffer_pool_memory_size() const { return buffer_pool_memory_size_; }
@@ -87,6 +96,7 @@ private:
   std::string              unix_socket_path_;
   std::string              protocol_;
   std::string              trx_kit_name_;
+  std::string              thread_handling_name_;
   int                      buffer_pool_memory_size_ = -1;
 };
 

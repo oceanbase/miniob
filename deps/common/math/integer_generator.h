@@ -9,25 +9,31 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/20.
+// Created by Wangyunlai on 2023/05/04
 //
 
-#ifndef __COMMON_SEDA_METRICS_REPORT_EVENT_H__
-#define __COMMON_SEDA_METRICS_REPORT_EVENT_H__
+#pragma once
 
-#include "common/seda/stage_event.h"
+#include <random>
 
 namespace common {
-class MetricsReportEvent : public StageEvent
+
+class IntegerGenerator
 {
 public:
-  MetricsReportEvent(){
+  IntegerGenerator(int min, int max) : distrib_(min, max) {}
 
-  };
+  IntegerGenerator(const IntegerGenerator &other)       = delete;
+  IntegerGenerator(IntegerGenerator &&)                 = delete;
+  IntegerGenerator &operator=(const IntegerGenerator &) = delete;
 
-  ~MetricsReportEvent(){
+  int next() { return distrib_(rd_); }
+  int min() const { return distrib_.min(); }
+  int max() const { return distrib_.max(); }
 
-  };
+private:
+  std::random_device              rd_;
+  std::uniform_int_distribution<> distrib_;
 };
+
 }  // namespace common
-#endif  //__COMMON_SEDA_METRICS_REPORT_EVENT_H__

@@ -27,34 +27,55 @@ jobs:
 
   # sysbench cannot work property on this platform.
   # I found that sysbench would send more request before receiving last response
-  # sysbench-test:
-  #   runs-on: ubuntu-latest
+  sysbench-test:
+    strategy:
+      matrix:
+        thread_model: ['one-thread-per-connection', 'java-thread-pool']
+        test_case: ['miniob_insert', 'miniob_delete', 'miniob_select']
 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
 
-  #   steps:
-  #     - name: Checkout repository and submodules
-  #       uses: actions/checkout@v2
+      - name: install sysbench and mariadb-client
+        shell: bash
+        run: |
+          curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh -o script.deb.sh
+          sudo bash script.deb.sh
+          sudo apt -y install sysbench mariadb-client
 
-  #     - name: install sysbench and mariadb-client
-  #       shell: bash
-  #       run: |
-  #         curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh -o script.deb.sh
-  #         sudo bash script.deb.sh
-  #         sudo apt -y install sysbench mariadb-client
+      - name: start server
+        shell: bash
+        run: |
+          sudo bash build.sh init
+          bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF
+          nohup ./build_release/bin/observer -T ${{ matrix.thread_model }} -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc &
+          sleep 10 && echo "wake up"
+          mysql --version
+          mysql -S /tmp/miniob.sock -e "show tables"
 
-  #     - name: start server
-  #       shell: bash
-  #       run: |
-  #         sudo bash build.sh init
-  #         bash build.sh -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF
-  #         nohup ./build_debug/bin/observer -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc &
-  #         sleep 10 && echo "wake up"
-  #         mysql --version
-  #         mysql -S /tmp/miniob.sock -e "show tables"
+      - name: sysbench test
+        shell: bash
+        run: |
+          cd test/sysbench
+          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 ${{ matrix.test_case }} prepare
+          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 ${{ matrix.test_case }} run
 
-  #     - name: sysbench test
-  #       shell: bash
-  #       run: |
-  #         cd test/sysbench
-  #         sysbench --mysql-socket=/tmp/miniob.sock --threads=10 miniob_insert prepare
-  #         sysbench --mysql-socket=/tmp/miniob.sock --threads=10 miniob_insert run
+  benchmark-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+      
+      - name: build observer and benchmark
+        shell: bash
+        run: |
+          sudo bash build.sh init
+          bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF -DWITH_BENCHMARK=ON
+
+      - name: testing
+        shell: bash
+        run: |
+          cd build_release/bin/
+          for file in `find ./ -name "*_concurrency_test" -executable`; do $file; if [ $? -ne 0 ]; then exit 1; fi; done

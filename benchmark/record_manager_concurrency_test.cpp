@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <stdexcept>
 
 #include "common/log/log.h"
-#include "integer_generator.h"
+#include "common/math/integer_generator.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/common/condition_filter.h"
 #include "storage/record/record_manager.h"
@@ -87,7 +87,7 @@ public:
 
     string log_name        = this->Name() + ".log";
     string record_filename = this->record_filename();
-    LoggerFactory::init_default(log_name.c_str(), LOG_LEVEL_TRACE);
+    LoggerFactory::init_default(log_name.c_str(), LOG_LEVEL_INFO);
 
     std::call_once(init_bpm_flag, []() { BufferPoolManager::set_instance(&bpm); });
 
@@ -110,8 +110,8 @@ public:
       LOG_WARN("failed to init record file handler. rc=%s", strrc(rc));
       throw runtime_error("failed to init record file handler");
     }
-    LOG_INFO(
-        "test %s setup done. threads=%d, thread index=%d", this->Name().c_str(), state.threads(), state.thread_index());
+    LOG_INFO("test %s setup done. threads=%d, thread index=%d", 
+             this->Name().c_str(), state.threads(), state.thread_index());
   }
 
   virtual void TearDown(const State &state)
@@ -156,9 +156,9 @@ public:
 
   uint32_t GetRangeMax(const State &state) const
   {
-    uint32_t max = static_cast<uint32_t>(state.range(0) * 3);
+    int32_t max = static_cast<int32_t>(state.range(0) * 3);
     if (max <= 0) {
-      max = (1 << 31);
+      max = INT32_MAX - 1;
     }
     return max;
   }
@@ -261,24 +261,33 @@ public:
 
   void SetUp(const State &state) override
   {
+    BenchmarkBase::SetUp(state);
+
     if (0 != state.thread_index()) {
+      while (!setup_done_) {
+        this_thread::sleep_for(chrono::milliseconds(100));
+      }
       return;
     }
-
-    BenchmarkBase::SetUp(state);
 
     uint32_t max = GetRangeMax(state);
     ASSERT(max > 0, "invalid argument count. %ld", state.range(0));
     FillUp(0, max, rids_);
+    ASSERT(rids_.size() > 0, "invalid argument count. %ld", rids_.size());
+    setup_done_ = true;
   }
 
 protected:
-  vector<RID> rids_;
+  // 从实际测试情况看，每个线程都会执行setup，但是它们操作的对象都是同一个
+  // 但是每个线程set up结束后，就会执行测试了。如果不等待的话，就会导致有些
+  // 线程访问的数据不是想要的结果
+  volatile bool setup_done_ = false;
+  vector<RID>   rids_;
 };
 
 BENCHMARK_DEFINE_F(DeletionBenchmark, Deletion)(State &state)
 {
-  IntegerGenerator generator(0, static_cast<int>(rids_.size()));
+  IntegerGenerator generator(0, static_cast<int>(rids_.size() - 1));
   Stat             stat;
 
   for (auto _ : state) {

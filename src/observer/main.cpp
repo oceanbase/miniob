@@ -15,6 +15,18 @@ See the Mulan PSL v2 for more details. */
  *      Author: Longda Feng
  */
 
+/**
+ * @mainpage MiniOB
+ *
+ * MiniOB 是 OceanBase 与华中科技大学联合开发的、面向"零"基础同学的数据库入门学习项目。
+ *
+ * MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，或者对基础技术有兴趣的爱好者, 整体代码量少，易于上手并学习,
+ * 是一个系统性的数据库学习项目。miniob 设置了一系列由浅入深的题目，以帮助同学们"零"基础入门,
+ * 让同学们快速了解数据库并深入学习数据库内核，期望通过相关训练之后，能够熟练掌握数据库内核模块的功能与协同关系,
+ * 并能够在使用数据库时，设计出高效的 SQL 。miniob 为了更好的学习数据库实现原理,
+ * 对诸多模块都做了简化，比如不考虑并发操作, 安全特性, 复杂的事物管理等功能。
+ */
+
 #include <iostream>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -24,6 +36,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/os/process.h"
 #include "common/os/signal.h"
+#include "common/log/log.h"
 #include "net/server.h"
 #include "net/server_param.h"
 
@@ -42,6 +55,7 @@ void usage()
   cout << "-s: use unix socket and the argument is socket address" << endl;
   cout << "-P: protocol. {plain(default), mysql, cli}." << endl;
   cout << "-t: transaction model. {vacuous(default), mvcc}." << endl;
+  cout << "-T: thread handling model. {one-thread-per-connection(default),java-thread-pool}." << endl;
   cout << "-n: buffer pool memory size in byte" << endl;
 }
 
@@ -56,7 +70,7 @@ void parse_parameter(int argc, char **argv)
   // Process args
   int          opt;
   extern char *optarg;
-  while ((opt = getopt(argc, argv, "dp:P:s:t:f:o:e:hn:")) > 0) {
+  while ((opt = getopt(argc, argv, "dp:P:s:t:T:f:o:e:hn:")) > 0) {
     switch (opt) {
       case 's': process_param->set_unix_socket_path(optarg); break;
       case 'p': process_param->set_server_port(atoi(optarg)); break;
@@ -65,6 +79,7 @@ void parse_parameter(int argc, char **argv)
       case 'o': process_param->set_std_out(optarg); break;
       case 'e': process_param->set_std_err(optarg); break;
       case 't': process_param->set_trx_kit_name(optarg); break;
+      case 'T': process_param->set_thread_handling_name(optarg); break;
       case 'n': process_param->set_buffer_pool_memory_size(atoi(optarg)); break;
       case 'h':
         usage();
@@ -125,8 +140,15 @@ Server *init_server()
     server_param.use_unix_socket  = true;
     server_param.unix_socket_path = process_param->get_unix_socket_path();
   }
+  server_param.thread_handling = process_param->thread_handling_name();
 
-  Server *server = new Server(server_param);
+  Server *server = nullptr;
+  if (server_param.use_std_io) {
+    server = new CliServer(server_param);
+  } else {
+    server = new NetServer(server_param);
+  }
+
   return server;
 }
 
@@ -146,6 +168,11 @@ void *quit_thread_func(void *_signum)
 }
 void quit_signal_handle(int signum)
 {
+  // 防止多次调用退出
+  // 其实正确的处理是，应该全局性的控制来防止出现“多次”退出的状态，包括发起信号
+  // 退出与进程主动退出
+  set_signal_handler(nullptr);
+
   pthread_t tid;
   pthread_create(&tid, nullptr, quit_thread_func, (void *)(intptr_t)signum);
 }
@@ -154,7 +181,7 @@ int main(int argc, char **argv)
 {
   int rc = STATUS_SUCCESS;
 
-  setSignalHandler(quit_signal_handle);
+  set_signal_handler(quit_signal_handle);
 
   parse_parameter(argc, argv);
 
@@ -166,7 +193,6 @@ int main(int argc, char **argv)
   }
 
   g_server = init_server();
-  Server::init();
   g_server->serve();
 
   LOG_INFO("Server stopped");
@@ -174,16 +200,5 @@ int main(int argc, char **argv)
   cleanup();
 
   delete g_server;
+  return 0;
 }
-
-/**
- * @mainpage MiniOB
- *
- * MiniOB 是 OceanBase 与华中科技大学联合开发的、面向"零"基础同学的数据库入门学习项目。
- *
- * MiniOB 设计的目标是面向在校学生、数据库从业者、爱好者，或者对基础技术有兴趣的爱好者, 整体代码量少，易于上手并学习,
- * 是一个系统性的数据库学习项目。miniob 设置了一系列由浅入深的题目，以帮助同学们"零"基础入门,
- * 让同学们快速了解数据库并深入学习数据库内核，期望通过相关训练之后，能够熟练掌握数据库内核模块的功能与协同关系,
- * 并能够在使用数据库时，设计出高效的 SQL 。miniob 为了更好的学习数据库实现原理,
- * 对诸多模块都做了简化，比如不考虑并发操作, 安全特性, 复杂的事物管理等功能。
- */

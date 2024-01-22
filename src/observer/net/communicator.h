@@ -69,19 +69,18 @@ public:
   Session *session() const { return session_; }
 
   /**
-   * @brief libevent使用的数据，参考server.cpp
-   */
-  struct event &read_event() { return read_event_; }
-
-  /**
    * @brief 对端地址
    * 如果是unix socket，可能没有意义
    */
   const char *addr() const { return addr_.c_str(); }
 
+  /**
+   * @brief 关联的文件描述符
+   */
+  int fd() const { return fd_; }
+
 protected:
   Session        *session_ = nullptr;
-  struct event    read_event_;
   std::string     addr_;
   BufferedWriter *writer_ = nullptr;
   int             fd_     = -1;
@@ -94,7 +93,7 @@ protected:
 enum class CommunicateProtocol
 {
   PLAIN,  ///< 以'\0'结尾的协议
-  CLI,    ///< 与客户端进行交互的协议
+  CLI,    ///< 与客户端进行交互的协议。CLI 不应该是一种协议，只是一种通讯的方式而已
   MYSQL,  ///< mysql通讯协议。具体实现参考 MysqlCommunicator
 };
 

@@ -9,18 +9,25 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2023/05/04
+// Created by Wangyunlai on 2023/01/15.
 //
-#include <random>
 
-class IntegerGenerator
+#include <pthread.h>
+#include <stdio.h>
+
+namespace common {
+
+int thread_set_name(const char *name)
 {
-public:
-  IntegerGenerator(int min, int max) : distrib_(min, max) {}
+  const int namelen = 16;
+  char      buf[namelen];
+  snprintf(buf, namelen, "%s", name);
 
-  int next() { return distrib_(rd_); }
+#ifdef __APPLE__
+  return pthread_setname_np(buf);
+#elif __linux__
+  return pthread_setname_np(pthread_self(), buf);
+#endif
+}
 
-private:
-  std::random_device              rd_;
-  std::uniform_int_distribution<> distrib_;
-};
+}  // namespace common

@@ -46,4 +46,6 @@ public:
   bool use_unix_socket = false;
 
   CommunicateProtocol protocol;  ///< 通讯协议，目前支持文本协议和mysql协议
+
+  std::string thread_handling;  ///< 线程池模型
 };

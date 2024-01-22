@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 #include <string>
 
-#include "common/seda/stage_event.h"
 #include "event/sql_debug.h"
 #include "sql/executor/sql_result.h"
 
@@ -27,7 +26,7 @@ class Communicator;
  * @brief 表示一个SQL请求
  *
  */
-class SessionEvent : public common::StageEvent
+class SessionEvent
 {
 public:
   SessionEvent(Communicator *client);

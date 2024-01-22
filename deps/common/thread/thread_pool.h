@@ -9,29 +9,15 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/13.
+// Created by Wangyunlai on 2023/01/11.
 //
 
 #pragma once
 
-#include "common/seda/stage.h"
-
 namespace common {
-
-class ExampleStage : public Stage
+class ThreadPool
 {
 public:
-  ~ExampleStage();
-  static Stage *make_stage(const std::string &tag);
-
-protected:
-  // common function
-  ExampleStage(const char *tag);
-  bool set_properties();
-
-  bool initialize();
-  void cleanup();
-  void handle_event(StageEvent *event);
-  void callback_event(StageEvent *event, CallbackContext *context);
 };
+
 }  // namespace common

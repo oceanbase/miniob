@@ -9,7 +9,29 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/20.
+// Created by wangyunlai.wyl on 2024/01/15
 //
 
-#include "metrics_report_event.h"
+#include "gtest/gtest.h"
+#include "common/math/integer_generator.h"
+
+using namespace std;
+using namespace common;
+
+TEST(IntegerGenerator, test)
+{
+  const int        min = 1;
+  const int        max = 120000;
+  IntegerGenerator generator(min, max);
+  for (int i = 0; i < 1000000; i++) {
+    int value = generator.next();
+    ASSERT_GE(value, min);
+    ASSERT_LE(value, max);
+  }
+}
+
+int main(int argc, char **argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

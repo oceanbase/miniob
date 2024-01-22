@@ -14,7 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/seda/stage_event.h"
 #include "sql/operator/physical_operator.h"
 #include <memory>
 #include <string>
@@ -26,7 +25,7 @@ class ParsedSqlNode;
 /**
  * @brief 与SessionEvent类似，也是处理SQL请求的事件，只是用在SQL的不同阶段
  */
-class SQLStageEvent : public common::StageEvent
+class SQLStageEvent
 {
 public:
   SQLStageEvent(SessionEvent *event, const std::string &sql);
