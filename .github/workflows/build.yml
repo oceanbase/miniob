@@ -31,7 +31,7 @@ jobs:
 
     - name: BuildDebug
       shell: bash
-      run: bash build.sh debug --make -j4
+      run: bash build.sh debug -DENABLE_COVERAGE=ON --make -j4
 
     - name: Test
       shell: bash
