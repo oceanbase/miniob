@@ -26,7 +26,12 @@ RC LogEntryBuffer::init(LSN lsn)
   return RC::SUCCESS;
 }
 
-RC LogEntryBuffer::append(LSN &lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size)
+RC LogEntryBuffer::append(LSN &lsn, LogModule::Id module_id, unique_ptr<char[]> data, int32_t size)
+{
+  return append(lsn, LogModule(module_id), std::move(data), size);
+}
+
+RC LogEntryBuffer::append(LSN &lsn, LogModule module, unique_ptr<char[]> data, int32_t size)
 {
   lock_guard guard(mutex_);
   lsn = ++current_lsn_;

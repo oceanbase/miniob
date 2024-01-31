@@ -14,6 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include <inttypes.h>
+#include <stdint.h>
+
 /// 磁盘文件，包括存放数据的文件和索引(B+-Tree)文件，都按照页来组织
 /// 每一页都有一个编号，称为PageNum
 using PageNum = int32_t;
@@ -24,3 +27,5 @@ using SlotNum = int32_t;
 
 /// LSN for log sequence number
 using LSN = int64_t;
+
+#define LSN_FORMAT PRId64

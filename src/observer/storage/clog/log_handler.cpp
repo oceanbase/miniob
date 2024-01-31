@@ -21,73 +21,6 @@ using namespace std;
 using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
-
-RC LogEntryBuffer::init(LSN lsn)
-{
-  current_lsn_.store(lsn);
-  flushed_lsn_.store(lsn);
-  return RC::SUCCESS;
-}
-
-RC LogEntryBuffer::append(LSN &lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size)
-{
-  lock_guard guard(mutex_);
-  lsn = ++current_lsn_;
-
-  LogEntry entry;
-  RC rc = entry.init(lsn, module, std::move(data), size);
-  if (OB_FAIL(rc)) {
-    LOG_WARN("failed to init log entry. rc=%s", strrc(rc));
-    return rc;
-  }
-
-  entries_.emplace_back(std::move(entry));
-  bytes_ += entry.size();
-  return RC::SUCCESS;
-}
-
-RC LogEntryBuffer::flush(LogFileWriter &writer, int &count)
-{
-  count = 0;
-
-  while (entry_number() > 0) {
-    LogEntry entry;
-    {
-      lock_guard guard(mutex_);
-      if (entries_.empty()) {
-        break;
-      }
-
-      entry = std::move(entries_.front());
-      entries_.pop_front();
-      bytes_ -= entry.size();
-    }
-    
-    RC rc = writer.write(entry);
-    if (OB_FAIL(rc)) {
-      lock_guard guard(mutex_);
-      entries_.emplace_front(std::move(entry));
-      return rc;
-    } else {
-      ++count;
-      flushed_lsn_ = entry.lsn();
-    }
-  }
-  
-  return RC::SUCCESS;
-}
-
-int64_t LogEntryBuffer::bytes() const
-{
-  return bytes_.load();
-}
-
-int32_t LogEntryBuffer::entry_number() const
-{
-  return entries_.size();
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // LogHandler
 
 RC LogHandler::init(const char *path)
@@ -198,6 +131,11 @@ RC LogHandler::iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn)
 
   LOG_INFO("iterate clog files done. rc=%s", strrc(rc));
   return RC::SUCCESS;
+}
+
+RC LogHandler::append(LSN &lsn, LogModule::Id module, unique_ptr<char[]> data, int32_t size)
+{
+  return append(lsn, LogModule(module), std::move(data), size);
 }
 
 RC LogHandler::append(LSN &lsn, LogModule module, unique_ptr<char[]> data, int32_t size)

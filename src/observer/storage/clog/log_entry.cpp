@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <sstream>
 #include "storage/clog/log_entry.h"
+#include "common/log/log.h"
 
 using namespace std;
 
@@ -51,8 +52,18 @@ LogEntry &LogEntry::operator=(LogEntry &&other)
   return *this;
 }
 
+RC LogEntry::init(LSN lsn, LogModule::Id module_id, unique_ptr<char[]> data, int32_t size)
+{
+  return init(lsn, LogModule(module_id), std::move(data), size);
+}
+
 RC LogEntry::init(LSN lsn, LogModule module, unique_ptr<char[]> data, int32_t size)
 {
+  if (size > max_payload_size()) {
+    LOG_DEBUG("log entry size is too large. size=%d, max_payload_size=%d", size, max_payload_size());
+    return RC::INVALID_ARGUMENT;
+  }
+
   header_.lsn = lsn;
   header_.module_id = module.id();
   header_.size = size;

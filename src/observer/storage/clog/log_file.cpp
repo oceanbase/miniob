@@ -130,6 +130,11 @@ RC LogFileReader::skip_to(LSN start_lsn)
 }
 ////////////////////////////////////////////////////////////////////////////////
 // LogFileWriter
+LogFileWriter::~LogFileWriter()
+{
+  (void)this->close();
+}
+
 RC LogFileWriter::open(const char *filename, int end_lsn)
 {
   if (fd_ >= 0) {
@@ -169,6 +174,12 @@ RC LogFileWriter::write(LogEntry &entry)
 
   if (fd_ < 0) {
     return RC::FILE_NOT_OPENED;
+  }
+
+  if (entry.lsn() <= last_lsn_) {
+    LOG_WARN("write log entry failed. filename=%s, last_lsn=%ld, entry=%s", 
+             filename_.c_str(), last_lsn_, entry.to_string().c_str());
+    return RC::IOERR_TOO_LONG;
   }
 
   /// WARNING 这里需要处理日志写一半的情况

@@ -57,7 +57,7 @@ class LogFileWriter
 {
 public:
   LogFileWriter() = default;
-  ~LogFileWriter() = default;
+  ~LogFileWriter();
 
   RC open(const char *filename, int end_lsn);
   RC close();
@@ -76,6 +76,8 @@ public:
 
   std::string to_string() const;
 
+  const char *filename() const { return filename_.c_str(); }
+  
 private:
   std::string filename_;
   int fd_ = -1;
@@ -130,14 +132,14 @@ private:
    * @brief 从文件名称中获取LSN
    * @details 如果日志文件名不符合要求，就返回失败
    */
-  RC get_lsn_from_filename(const std::string &filename, LSN &lsn);
+  static RC get_lsn_from_filename(const std::string &filename, LSN &lsn);
 
 private:
+  static constexpr const char * file_prefix_ = "clog_";
+  static constexpr const char * file_suffix_ = ".log";
+
   std::filesystem::path directory_;
   int max_entry_number_per_file_;
-
-  const char *file_prefix_ = "clog_";
-  const char *file_suffix_ = ".log";
 
   std::map<LSN, std::filesystem::path> log_files_;  /// 日志文件名和第一个LSN的映射
 };

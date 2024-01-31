@@ -52,6 +52,9 @@ public:
 
   LogEntry &operator= (LogEntry &&other);
 
+  LogEntry(const LogEntry &) = delete;
+  LogEntry &operator= (const LogEntry &) = delete;
+
 public:
   /**
    * @brief 一条日志的最大大小
@@ -63,6 +66,7 @@ public:
   static int32_t max_payload_size() { return max_size() - LogHeader::SIZE; }
 
 public:
+  RC init(LSN lsn, LogModule::Id module_id, std::unique_ptr<char[]> data, int32_t size);
   RC init(LSN lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size);
 
   const LogHeader &header() const { return header_; }

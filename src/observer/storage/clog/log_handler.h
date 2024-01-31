@@ -58,6 +58,7 @@ public:
   RC replay(LogReplayer &replayer, LSN start_lsn);
   RC iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn);
 
+  RC append(LSN &lsn, LogModule::Id module, std::unique_ptr<char[]> data, int32_t size);
   RC append(LSN &lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size);
 
   RC wait_lsn(LSN lsn);
