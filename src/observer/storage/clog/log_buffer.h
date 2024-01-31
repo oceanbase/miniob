@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <memory>
 #include <deque>
+#include <atomic>
 
 #include "common/rc.h"
 #include "common/types.h"
