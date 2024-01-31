@@ -23,4 +23,4 @@ using PageNum = int32_t;
 using SlotNum = int32_t;
 
 /// LSN for log sequence number
-using LSN = int32_t;
+using LSN = int64_t;
