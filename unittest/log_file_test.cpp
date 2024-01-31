@@ -116,6 +116,58 @@ TEST(LogFileReader, basic)
   filesystem::remove(log_file);
 }
 
+TEST(LogFileReadWrite, test_read_write)
+{
+  const char *log_file = "test_log_file_read_write.log";
+
+  filesystem::remove(log_file);
+
+  LogFileWriter writer;
+  LSN end_lsn = 1000 - 1;
+  ASSERT_EQ(RC::SUCCESS, writer.open(log_file, end_lsn));
+  ASSERT_TRUE(writer.valid());
+
+  LogEntry entry;
+
+  LSN one_lsn = end_lsn - 500;
+  for (LSN lsn = 1; lsn <= one_lsn; ++lsn) {
+    ASSERT_EQ(entry.init(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+    ASSERT_EQ(RC::SUCCESS, writer.write(entry));
+  }
+
+  writer.close();
+
+  LogFileReader reader;
+  ASSERT_EQ(RC::SUCCESS, reader.open(log_file));
+
+  int count = 0;
+  auto callback = [&count](LogEntry &entry) -> RC {
+    count++;
+    return RC::SUCCESS;
+  };
+
+  count = 0;
+  ASSERT_EQ(RC::SUCCESS, reader.iterate(callback));
+  ASSERT_EQ(one_lsn, count);
+
+  writer.close();
+  reader.close();
+
+  ASSERT_EQ(RC::SUCCESS, writer.open(log_file, end_lsn));
+
+  for (LSN i = one_lsn + 1; i <= end_lsn; i++) {
+    ASSERT_EQ(RC::SUCCESS, entry.init(i, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10));
+    ASSERT_EQ(RC::SUCCESS, writer.write(entry));
+  }
+
+  ASSERT_EQ(RC::SUCCESS, reader.open(log_file));
+  count = 0;
+  ASSERT_EQ(RC::SUCCESS, reader.iterate(callback, 0));
+  ASSERT_EQ(end_lsn, count);
+
+  // filesystem::remove(log_file);
+}
+
 TEST(LogFileManager, get_lsn_from_filename)
 {
   const char *file_prefix = LogFileManager::file_prefix_;
@@ -199,7 +251,7 @@ TEST(LogFileManager, init_with_files)
   ASSERT_EQ(RC::SUCCESS, manager.list_files(result_files, 0));
   ASSERT_EQ(files.size(), result_files.size());
   for (int i = 0; i < files.size(); ++i) {
-    ASSERT_EQ(files[i], result_files[i]);
+    ASSERT_EQ(files[i], filesystem::path(result_files[i]).filename());
   }
 
   ASSERT_EQ(RC::SUCCESS, manager.list_files(result_files, 100));

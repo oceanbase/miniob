@@ -42,7 +42,7 @@ struct LogHeader final
 class LogEntry
 {
 public:
-  LogEntry() = default;
+  LogEntry();
   ~LogEntry() = default;
 
   /**
@@ -74,6 +74,8 @@ public:
   int32_t payload_size() const { return header_.size; }
   int32_t total_size() const { return LogHeader::SIZE + header_.size; }
 
+  void set_lsn(LSN lsn) { header_.lsn = lsn; }
+  
   LSN lsn() const { return header_.lsn; }
   LogModule module() const { return LogModule(header_.module_id); }
 

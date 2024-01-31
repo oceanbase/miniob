@@ -184,6 +184,8 @@ RC LogFileWriter::write(LogEntry &entry)
     return RC::FILE_NOT_OPENED;
   }
 
+  ASSERT(entry.lsn() > 0 && entry.payload_size() >= 0, "invalid log entry. entry=%s", entry.to_string().c_str());
+
   if (entry.lsn() <= last_lsn_) {
     LOG_WARN("write log entry failed. lsn is too small. filename=%s, last_lsn=%ld, entry=%s", 
              filename_.c_str(), last_lsn_, entry.to_string().c_str());
@@ -301,7 +303,7 @@ RC LogFileManager::list_files(std::vector<std::string> &files, LSN start_lsn)
   // 其实他写的不好，我们只需要找到比start_lsn相等或者小的第一个日志文件就可以了
   for (auto &file : log_files_) {
     if (file.first + max_entry_number_per_file_ - 1 >= start_lsn) {
-      files.emplace_back(file.second.filename().string());
+      files.emplace_back(file.second.string());
     }
   }
 
@@ -317,7 +319,7 @@ RC LogFileManager::last_file(LogFileWriter &file_writer)
   file_writer.close();
 
   auto last_file_item = log_files_.rbegin();
-  return file_writer.open(last_file_item->second.filename().c_str(), 
+  return file_writer.open(last_file_item->second.c_str(), 
                           last_file_item->first + max_entry_number_per_file_ - 1);
 }
 

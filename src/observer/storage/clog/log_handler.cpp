@@ -165,10 +165,10 @@ void LogHandler::thread_func()
 
   LogFileWriter file_writer;
   
-  while (running_.load() && entry_buffer_.entry_number() > 0) {
-    if (!file_writer.valid() || file_writer.full()) {
-      RC rc = RC::SUCCESS;
-      if (file_writer.full()) {
+  RC rc = RC::SUCCESS;
+  while (running_.load() || entry_buffer_.entry_number() > 0) {
+    if (!file_writer.valid() || rc == RC::LOG_FILE_FULL) {
+      if (rc == RC::LOG_FILE_FULL) {
         rc = file_manager_.next_file(file_writer);
       } else {
         rc = file_manager_.last_file(file_writer);
@@ -182,12 +182,12 @@ void LogHandler::thread_func()
     }
 
     int flush_count = 0;
-    RC rc = entry_buffer_.flush(file_writer, flush_count);
-    if (OB_FAIL(rc)) {
+    rc = entry_buffer_.flush(file_writer, flush_count);
+    if (OB_FAIL(rc) && RC::LOG_FILE_FULL != rc) {
       LOG_WARN("failed to flush log entry buffer. rc=%s", strrc(rc));
     }
 
-    if (flush_count == 0) {
+    if (flush_count == 0 && rc == RC::SUCCESS) {
       this_thread::sleep_for(chrono::milliseconds(1000));
       continue;
     }

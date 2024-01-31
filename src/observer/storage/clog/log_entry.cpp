@@ -35,6 +35,12 @@ string LogHeader::to_string() const
 
 ////////////////////////////////////////////////////////////////////////////////
 // class LogEntry
+LogEntry::LogEntry()
+{
+  header_.lsn = 0;
+  header_.size = 0;
+}
+
 LogEntry::LogEntry(LogEntry &&other)
 {
   header_ = other.header_;
@@ -55,7 +61,7 @@ LogEntry &LogEntry::operator=(LogEntry &&other)
 
   other.header_.lsn = 0;
   other.header_.size = 0;
-  
+
   return *this;
 }
 

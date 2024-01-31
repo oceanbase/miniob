@@ -38,7 +38,7 @@ public:
   LogEntryBuffer() = default;
   ~LogEntryBuffer() = default;
 
-  RC init(LSN lsn);
+  RC init(LSN lsn, int32_t max_bytes = 0);
 
   /**
    * @brief 在缓冲区中追加一条日志
@@ -68,10 +68,12 @@ public:
   LSN flushed_lsn() const { return flushed_lsn_.load(); }
 
 private:
-  common::Mutex mutex_;
+  std::mutex mutex_; /// 当前数据结构一定会在多线程中访问，所以强制使用有效的锁，而不是有条件生效的common::Mutex
   std::deque<LogEntry> entries_;  /// 日志缓冲区
   std::atomic<int64_t> bytes_;    /// 当前缓冲区中的日志数据大小
 
   std::atomic<LSN> current_lsn_{0};
   std::atomic<LSN> flushed_lsn_{0};
+
+  int32_t max_bytes_ = 4 * 1024 * 1024; /// 缓冲区最大字节数
 };
