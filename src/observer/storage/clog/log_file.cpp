@@ -58,6 +58,10 @@ RC LogFileReader::iterate(std::function<RC(LogEntry &)> callback, LSN start_lsn 
   while (true) {
     int ret = readn(fd_, reinterpret_cast<char *>(&header), LogHeader::SIZE);
     if (0 != ret) {
+      if (-1 == ret) {
+        // EOF
+        break;
+      }
       LOG_WARN("read file failed. filename=%s, ret = %d, error=%s", filename_.c_str(), ret, strerror(errno));
       return RC::IOERR_READ;
     }
@@ -101,6 +105,10 @@ RC LogFileReader::skip_to(LSN start_lsn)
   while (true) {
     int ret = readn(fd_, reinterpret_cast<char *>(&header), LogHeader::SIZE);
     if (0 != ret) {
+      if (-1 == ret) {
+        // EOF
+        break;
+      }
       LOG_WARN("read file failed. filename=%s, ret = %d, error=%s", filename_.c_str(), ret, strerror(errno));
       return RC::IOERR_READ;
     }
@@ -168,8 +176,8 @@ RC LogFileWriter::close()
 RC LogFileWriter::write(LogEntry &entry)
 {
   // 一个日志文件写的日志条数是有限制的
-  if (entry.lsn() >= end_lsn_) {
-    return RC::IOERR_TOO_LONG;
+  if (entry.lsn() > end_lsn_) {
+    return RC::LOG_FILE_FULL;
   }
 
   if (fd_ < 0) {
@@ -177,9 +185,9 @@ RC LogFileWriter::write(LogEntry &entry)
   }
 
   if (entry.lsn() <= last_lsn_) {
-    LOG_WARN("write log entry failed. filename=%s, last_lsn=%ld, entry=%s", 
+    LOG_WARN("write log entry failed. lsn is too small. filename=%s, last_lsn=%ld, entry=%s", 
              filename_.c_str(), last_lsn_, entry.to_string().c_str());
-    return RC::IOERR_TOO_LONG;
+    return RC::INVALID_ARGUMENT;
   }
 
   /// WARNING 这里需要处理日志写一半的情况
@@ -191,7 +199,7 @@ RC LogFileWriter::write(LogEntry &entry)
     return RC::IOERR_WRITE;
   }
 
-  ret = writen(fd_, entry.data(), entry.size());
+  ret = writen(fd_, entry.data(), entry.payload_size());
   if (0 != ret) {
     LOG_WARN("write log entry payload failed. filename=%s, ret = %d, error=%s, entry=%s", 
              filename_.c_str(), ret, strerror(errno), entry.to_string().c_str());
@@ -292,7 +300,7 @@ RC LogFileManager::list_files(std::vector<std::string> &files, LSN start_lsn)
   // 这里的代码是AI自动生成的
   // 其实他写的不好，我们只需要找到比start_lsn相等或者小的第一个日志文件就可以了
   for (auto &file : log_files_) {
-    if (file.first + max_entry_number_per_file_ >= start_lsn) {
+    if (file.first + max_entry_number_per_file_ - 1 >= start_lsn) {
       files.emplace_back(file.second.filename().string());
     }
   }

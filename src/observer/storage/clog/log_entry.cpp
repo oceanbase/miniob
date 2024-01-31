@@ -39,6 +39,9 @@ LogEntry::LogEntry(LogEntry &&other)
 {
   header_ = other.header_;
   data_ = std::move(other.data_);
+
+  other.header_.lsn = 0;
+  other.header_.size = 0;
 }
 
 LogEntry &LogEntry::operator=(LogEntry &&other)
@@ -49,6 +52,10 @@ LogEntry &LogEntry::operator=(LogEntry &&other)
 
   header_ = other.header_;
   data_ = std::move(other.data_);
+
+  other.header_.lsn = 0;
+  other.header_.size = 0;
+  
   return *this;
 }
 

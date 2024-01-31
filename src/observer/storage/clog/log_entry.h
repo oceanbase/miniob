@@ -71,7 +71,8 @@ public:
 
   const LogHeader &header() const { return header_; }
   const char *data() const { return data_.get(); }
-  int32_t size() const { return LogHeader::SIZE + header_.size; }
+  int32_t payload_size() const { return header_.size; }
+  int32_t total_size() const { return LogHeader::SIZE + header_.size; }
 
   LSN lsn() const { return header_.lsn; }
   LogModule module() const { return LogModule(header_.module_id); }

@@ -22,24 +22,29 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_module.h"
 
 using namespace std;
+using namespace common;
 
 TEST(LogFileWriter, basic)
 {
+  const char *filename = "test_log_file_writer.log";
+
   // test LogFileWriter open, close, valid
   LogFileWriter writer;
   LSN end_lsn = 1000 - 1;
-  ASSERT_EQ(RC::SUCCESS, writer.open("test_log_file_writer.log", end_lsn));
+  ASSERT_EQ(RC::SUCCESS, writer.open(filename, end_lsn));
   ASSERT_TRUE(writer.valid());
   ASSERT_FALSE(writer.full());
   ASSERT_EQ(RC::SUCCESS, writer.close());
 
   // test LogFileWriter write
-  ASSERT_EQ(RC::SUCCESS, writer.open("test_log_file_writer.log", end_lsn));
+  ASSERT_EQ(RC::SUCCESS, writer.open(filename, end_lsn));
 
   LogEntry entry;
 
   for (LSN lsn = 1; lsn <= end_lsn - 1; ++lsn) {
     ASSERT_EQ(entry.init(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+    char buf[10];
+    memcpy(buf, entry.data(), 10);
     ASSERT_EQ(RC::SUCCESS, writer.write(entry));
     ASSERT_TRUE(writer.valid());
     ASSERT_FALSE(writer.full());
@@ -56,15 +61,19 @@ TEST(LogFileWriter, basic)
   ASSERT_NE(RC::SUCCESS, writer.write(entry));
 
   writer.close();
-  ASSERT_EQ(RC::SUCCESS, writer.open("test_log_file_writer.log", end_lsn));
+  ASSERT_EQ(RC::SUCCESS, writer.open(filename, end_lsn));
   ASSERT_EQ(entry.init(end_lsn + 1, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
   ASSERT_NE(RC::SUCCESS, writer.write(entry));
   ASSERT_TRUE(writer.full());
+
+  filesystem::remove(filename);
 }
 
 TEST(LogFileReader, basic)
 {
   const char *log_file = "test_log_file_reader.log";
+
+  filesystem::remove(log_file);
 
   LogFileWriter writer;
   LSN end_lsn = 1000 - 1;
@@ -90,6 +99,7 @@ TEST(LogFileReader, basic)
     return RC::SUCCESS;
   };
 
+  count = 0;
   ASSERT_EQ(RC::SUCCESS, reader.iterate(callback));
   ASSERT_EQ(end_lsn, count);
 
@@ -102,6 +112,8 @@ TEST(LogFileReader, basic)
   count = 0;
   ASSERT_EQ(RC::SUCCESS, reader.iterate(callback, start_lsn));
   ASSERT_EQ(0, count);
+
+  filesystem::remove(log_file);
 }
 
 TEST(LogFileManager, get_lsn_from_filename)
@@ -164,6 +176,8 @@ TEST(LogFileManager, init_with_files)
   const char *directory = "init_with_files";
   int max_entry_number_per_file = 1000;
 
+  filesystem::remove_all(directory);
+
   ASSERT_TRUE(filesystem::create_directory(directory));
 
   LSN lsns[] = {1000, 2000, 3000};
@@ -224,6 +238,8 @@ TEST(LogFileManager, last_file)
   const char *directory = "last_file";
   int max_entry_number_per_file = 1000;
 
+  filesystem::remove_all(directory);
+
   LogFileManager manager;
   ASSERT_EQ(RC::SUCCESS, manager.init(directory, max_entry_number_per_file));
   ASSERT_TRUE(filesystem::is_directory(directory));
@@ -234,7 +250,8 @@ TEST(LogFileManager, last_file)
 
   // test the lsn of the filename of the writer
   LSN lsn = 0;
-  ASSERT_EQ(RC::SUCCESS, LogFileManager::get_lsn_from_filename(writer.filename(), lsn));
+  filesystem::path file_path(writer.filename());
+  ASSERT_EQ(RC::SUCCESS, LogFileManager::get_lsn_from_filename(file_path.filename(), lsn));
   ASSERT_EQ(0, lsn);
 
   ASSERT_TRUE(filesystem::remove_all(directory));
@@ -257,7 +274,7 @@ TEST(LogFileManager, last_file)
 
   ASSERT_EQ(RC::SUCCESS, manager.last_file(writer));
   ASSERT_TRUE(writer.valid());
-  ASSERT_EQ(files[2], writer.filename());
+  ASSERT_EQ(files[2], filesystem::path(writer.filename()).filename());
 
   filesystem::remove_all(directory);
 }
@@ -267,6 +284,8 @@ TEST(LogFileManager, next_file)
   // create an empty directory and try to open next file
   const char *directory = "next_file";
   int max_entry_number_per_file = 1000;
+
+  filesystem::remove_all(directory);
 
   LogFileManager manager;
   ASSERT_EQ(RC::SUCCESS, manager.init(directory, max_entry_number_per_file));
@@ -278,7 +297,7 @@ TEST(LogFileManager, next_file)
 
   // test the lsn of the filename of the writer
   LSN lsn = 0;
-  ASSERT_EQ(RC::SUCCESS, LogFileManager::get_lsn_from_filename(writer.filename(), lsn));
+  ASSERT_EQ(RC::SUCCESS, LogFileManager::get_lsn_from_filename(filesystem::path(writer.filename()).filename(), lsn));
   ASSERT_EQ(0, lsn);
 
   ASSERT_TRUE(filesystem::remove_all(directory));
@@ -301,7 +320,7 @@ TEST(LogFileManager, next_file)
 
   ASSERT_EQ(RC::SUCCESS, manager.next_file(writer));
   ASSERT_TRUE(writer.valid());
-  ASSERT_EQ(RC::SUCCESS, LogFileManager::get_lsn_from_filename(writer.filename(), lsn));
+  ASSERT_EQ(RC::SUCCESS, LogFileManager::get_lsn_from_filename(filesystem::path(writer.filename()).filename(), lsn));
   ASSERT_EQ(4000, lsn);
 
   writer.close();
@@ -311,5 +330,6 @@ TEST(LogFileManager, next_file)
 int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
+  LoggerFactory::init_default("log_file_test.log", LOG_LEVEL_TRACE);
   return RUN_ALL_TESTS();
 }

@@ -44,7 +44,7 @@ RC LogEntryBuffer::append(LSN &lsn, LogModule module, unique_ptr<char[]> data, i
   }
 
   entries_.emplace_back(std::move(entry));
-  bytes_ += entry.size();
+  bytes_ += entry.total_size();
   return RC::SUCCESS;
 }
 
@@ -62,7 +62,7 @@ RC LogEntryBuffer::flush(LogFileWriter &writer, int &count)
 
       entry = std::move(entries_.front());
       entries_.pop_front();
-      bytes_ -= entry.size();
+      bytes_ -= entry.total_size();
     }
     
     RC rc = writer.write(entry);

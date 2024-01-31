@@ -77,12 +77,12 @@ public:
   std::string to_string() const;
 
   const char *filename() const { return filename_.c_str(); }
-  
+
 private:
   std::string filename_;
   int fd_ = -1;
   int last_lsn_ = 0;
-  int end_lsn_ = 0;
+  int end_lsn_ = 0;  /// 当前日志文件中允许写入的最大的LSN，包括这条日志
 };
 
 /**

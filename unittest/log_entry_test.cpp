@@ -37,16 +37,16 @@ TEST(LogEntry, size)
 {
   LogEntry entry;
   ASSERT_EQ(entry.init(1, LogModule::Id::BPLUS_TREE, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
-  ASSERT_EQ(entry.size(), 10 + LogHeader::SIZE);
+  ASSERT_EQ(entry.total_size(), 10 + LogHeader::SIZE);
 
   unique_ptr<char[]> data(new char[10]);
-  memcpy(data.get(), entry.data(), 10); // test that the data of entry can be copyed
+  memcpy(data.get(), entry.data(), entry.payload_size()); // test that the data of entry can be copyed
 
   LogEntry entry2(std::move(entry));
-  memcpy(data.get(), entry2.data(), 10);
+  memcpy(data.get(), entry2.data(), entry2.payload_size());
 
   ASSERT_EQ(entry.init(1, LogModule::Id::BPLUS_TREE, unique_ptr<char[]>(new char[0]), 0), RC::SUCCESS);
-  ASSERT_EQ(entry.size(), LogHeader::SIZE);
+  ASSERT_EQ(entry.total_size(), LogHeader::SIZE);
 
   // size is too large
   long long int size = LogEntry::max_payload_size() + 1;
