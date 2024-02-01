@@ -17,8 +17,10 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 #include "common/types.h"
 #include "common/rc.h"
+#include "storage/clog/log_replayer.h"
 
 class DiskBufferPool;
+class BufferPoolManager;
 class LogHandler;
 struct Page;
 
@@ -57,11 +59,13 @@ private:
   Type type_;
 };
 
-struct BufferPoolLogHeader
+struct BufferPoolLogEntry
 {
   int32_t  buffer_pool_id;  /// buffer pool id
   int32_t  operation_type;  /// operation type
   PageNum  page_num;        /// page number
+
+  std::string to_string() const;
 };
 
 class BufferPoolLogHandler final
@@ -80,4 +84,16 @@ private:
 private:
   DiskBufferPool &buffer_pool_;
   LogHandler &log_handler_;
+};
+
+class BufferPoolLogReplayer final : public LogReplayer
+{
+public:
+  BufferPoolLogReplayer(BufferPoolManager &bp_manager);
+  virtual ~BufferPoolLogReplayer() = default;
+
+  RC replay(const LogEntry &entry) override;
+
+private:
+  BufferPoolManager &bp_manager_;
 };

@@ -91,9 +91,9 @@ public:
    * @brief 每个页面都有一个编号
    * @details 当前页面编号记录在了页面数据中，其实可以不记录，从磁盘中加载时记录在Frame信息中即可。
    */
-  PageNum page_num() const { return page_.page_num; }
-  void    set_page_num(PageNum page_num) { page_.page_num = page_num; }
-  FrameId frame_id() const { return FrameId(file_desc_, page_.page_num); }
+  PageNum page_num() const { return page_num_; }
+  void    set_page_num(PageNum page_num) { page_num_ = page_num; }
+  FrameId frame_id() const { return FrameId(file_desc_, page_num_); }
 
   /**
    * @brief 为了实现持久化，需要将页面的修改记录记录到日志中，这里记录了日志序列号
@@ -164,6 +164,7 @@ private:
   bool             dirty_ = false;
   std::atomic<int> pin_count_{0};
   unsigned long    acc_time_  = 0;
+  PageNum          page_num_ = -1;
   int              file_desc_ = -1;
   Page             page_;
 

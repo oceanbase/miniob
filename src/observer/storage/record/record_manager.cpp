@@ -325,7 +325,7 @@ RC RecordFileHandler::init_free_pages()
   RC rc = RC::SUCCESS;
 
   BufferPoolIterator bp_iterator;
-  bp_iterator.init(*disk_buffer_pool_);
+  bp_iterator.init(*disk_buffer_pool_, 1);
   RecordPageHandler record_page_handler;
   PageNum           current_page_num = 0;
 
@@ -504,7 +504,7 @@ RC RecordFileScanner::open_scan(
   trx_              = trx;
   readonly_         = readonly;
 
-  RC rc = bp_iterator_.init(buffer_pool);
+  RC rc = bp_iterator_.init(buffer_pool, 1);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to init bp iterator. rc=%d:%s", rc, strrc(rc));
     return rc;

@@ -204,8 +204,8 @@ public:
   RC get_this_page(PageNum page_num, Frame **frame);
 
   /**
-   * 在指定文件中分配一个新的页面，并将其放入缓冲区，返回页面句柄指针。
-   * 分配页面时，如果文件中有空闲页，就直接分配一个空闲页；
+   * @brief 在指定文件中分配一个新的页面，并将其放入缓冲区，返回页面句柄指针。
+   * @details 分配页面时，如果文件中有空闲页，就直接分配一个空闲页；
    * 如果文件中没有空闲页，则扩展文件规模来增加新的空闲页。
    */
   RC allocate_page(Frame **frame);
@@ -255,6 +255,9 @@ public:
    * 回放日志时处理page0中已被认定为不存在的page
    */
   RC recover_page(PageNum page_num);
+
+  RC redo_allocate_page(LSN lsn, PageNum page_num);
+  RC redo_deallocate_page(LSN lsn, PageNum page_num);
 
 public:
   int32_t id() const { return file_header_->buffer_pool_id; }
@@ -310,6 +313,14 @@ public:
   RC close_file(const char *file_name);
 
   RC flush_page(Frame &frame);
+
+  /**
+   * @brief 根据ID获取对应的BufferPool对象
+   * @details 在做redo时，需要根据ID获取对应的BufferPool对象，然后让bufferPool对象自己做redo
+   * @param id buffer pool id
+   * @param bp buffer pool 对象
+   */
+  RC get_buffer_pool(int32_t id, DiskBufferPool *&bp);
 
 public:
   static void set_instance(BufferPoolManager *bpm);  // TODO 优化全局变量的表示方法
