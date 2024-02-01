@@ -26,11 +26,21 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 #include "storage/table/table_meta.h"
 #include "storage/trx/trx.h"
+#include "storage/clog/disk_log_handler.h"
+
+using namespace std;
+using namespace common;
 
 Db::~Db()
 {
   for (auto &iter : opened_tables_) {
     delete iter.second;
+  }
+
+  if (log_handler_) {
+    log_handler_->stop();
+    log_handler_->wait();
+    log_handler_.reset();
   }
   LOG_INFO("Db has been closed: %s", name_.c_str());
 }
@@ -59,6 +69,14 @@ RC Db::init(const char *name, const char *dbpath)
     return rc;
   }
 
+  filesystem::path clog_path = filesystem::path(dbpath) / "clog";
+  log_handler_ = make_unique<DiskLogHandler>();
+  rc = log_handler_->init(clog_path.c_str());
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to init log handler. dbpath=%s, rc=%s", dbpath, strrc(rc));
+    return rc;
+  }
+
   name_ = name;
   path_ = dbpath;
 
@@ -68,6 +86,7 @@ RC Db::init(const char *name, const char *dbpath)
     return rc;
   }
 
+  // TODO do recovery with disk log handler
   rc = recover();
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to recover db. dbpath=%s, rc=%s", dbpath, strrc(rc));
@@ -89,7 +108,7 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfoS
   std::string table_file_path = table_meta_file(path_.c_str(), table_name);
   Table      *table           = new Table();
   int32_t     table_id        = next_table_id_++;
-  rc = table->create(table_id, table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes);
+  rc = table->create(this, table_id, table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;
@@ -123,7 +142,8 @@ Table *Db::find_table(int32_t table_id) const
 RC Db::open_all_tables()
 {
   std::vector<std::string> table_meta_files;
-  int                      ret = common::list_file(path_.c_str(), TABLE_META_FILE_PATTERN, table_meta_files);
+
+  int ret = common::list_file(path_.c_str(), TABLE_META_FILE_PATTERN, table_meta_files);
   if (ret < 0) {
     LOG_ERROR("Failed to list table meta files under %s.", path_.c_str());
     return RC::IOERR_READ;
@@ -132,7 +152,7 @@ RC Db::open_all_tables()
   RC rc = RC::SUCCESS;
   for (const std::string &filename : table_meta_files) {
     Table *table = new Table();
-    rc           = table->open(filename.c_str(), path_.c_str());
+    rc           = table->open(this, filename.c_str(), path_.c_str());
     if (rc != RC::SUCCESS) {
       delete table;
       LOG_ERROR("Failed to open table. filename=%s", filename.c_str());
@@ -185,3 +205,4 @@ RC Db::sync()
 RC Db::recover() { return clog_manager_->recover(this); }
 
 CLogManager *Db::clog_manager() { return clog_manager_.get(); }
+LogHandler &Db::log_handler() { return *log_handler_; }

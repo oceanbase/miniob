@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse_defs.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/index/bplus_tree.h"
+#include "storage/clog/vacuous_log_handler.h"
 #include "gtest/gtest.h"
 
 using namespace common;
@@ -466,10 +467,12 @@ TEST(test_bplus_tree, test_chars)
 {
   LoggerFactory::init_default("test_chars.log");
 
+  VacuousLogHandler log_handler;
+
   const char *index_name = "chars.btree";
   ::remove(index_name);
   handler = new BplusTreeHandler();
-  handler->create(index_name, CHARS, 8, ORDER, ORDER);
+  handler->create(log_handler, index_name, CHARS, 8, ORDER, ORDER);
 
   char keys[][9] = {"abcdefg", "12345678", "12345678", "abcdefg", "abcdefga"};
 
@@ -503,10 +506,12 @@ TEST(test_bplus_tree, test_scanner)
 {
   LoggerFactory::init_default("test.log");
 
+  VacuousLogHandler log_handler;
+
   const char *index_name = "scanner.btree";
   ::remove(index_name);
   handler = new BplusTreeHandler();
-  handler->create(index_name, INTS, sizeof(int), ORDER, ORDER);
+  handler->create(log_handler, index_name, INTS, sizeof(int), ORDER, ORDER);
 
   int count = 0;
   RC  rc    = RC::SUCCESS;
@@ -713,9 +718,10 @@ TEST(test_bplus_tree, test_bplus_tree_insert)
 {
   LoggerFactory::init_default("test.log");
 
+  VacuousLogHandler log_handler;
   ::remove(index_name);
   handler = new BplusTreeHandler();
-  handler->create(index_name, INTS, sizeof(int), ORDER, ORDER);
+  handler->create(log_handler, index_name, INTS, sizeof(int), ORDER, ORDER);
 
   test_insert();
 

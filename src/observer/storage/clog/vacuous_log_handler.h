@@ -12,18 +12,24 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai on 2024/02/01
 //
 
+#pragma once
+
 #include "storage/clog/log_handler.h"
 
-using namespace std;
 
-RC LogHandler::append(LSN &lsn, LogModule::Id module, const char *data, int32_t size)
+// VacuousLogHandler is a log handler implenmentation that do nothing in all methods.
+// It is used for testing.
+class VacuousLogHandler : public LogHandler
 {
-  unique_ptr<char[]> buf(new char[size]);
-  memcpy(buf.get(), data, size);
-  return append(lsn, module, std::move(buf), size);
-}
+public:
+  VacuousLogHandler() = default;
+  ~VacuousLogHandler() = default;
 
-RC LogHandler::append(LSN &lsn, LogModule::Id module, std::unique_ptr<char[]> data, int32_t size)
-{
-  return _append(lsn, LogModule(module), std::move(data), size);
-}
+  RC replay(LogReplayer &replayer, LSN start_lsn) override { return RC::SUCCESS; }
+  RC iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn) override { return RC::SUCCESS; }
+
+  RC wait_lsn(LSN lsn) override { return RC::SUCCESS; }
+
+private:
+  RC _append(LSN &lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size) override { return RC::SUCCESS; }
+};

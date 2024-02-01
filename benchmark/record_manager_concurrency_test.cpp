@@ -23,6 +23,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/condition_filter.h"
 #include "storage/record/record_manager.h"
 #include "storage/trx/vacuous_trx.h"
+#include "storage/clog/vacuous_log_handler.h"
 
 using namespace std;
 using namespace common;
@@ -99,7 +100,7 @@ public:
       throw runtime_error("failed to create record buffer pool file.");
     }
 
-    rc = bpm.open_file(record_filename.c_str(), buffer_pool_);
+    rc = bpm.open_file(log_handler_, record_filename.c_str(), buffer_pool_);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to open record file. filename=%s, rc=%s", record_filename.c_str(), strrc(rc));
       throw runtime_error("failed to open record file");
@@ -227,6 +228,7 @@ public:
 protected:
   DiskBufferPool   *buffer_pool_ = nullptr;
   RecordFileHandler handler_;
+  VacuousLogHandler log_handler_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

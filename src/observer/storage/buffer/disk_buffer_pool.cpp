@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
 #include "storage/buffer/disk_buffer_pool.h"
+#include "storage/buffer/buffer_pool_log.h"
+#include "storage/db/db.h"
 
 using namespace common;
 using namespace std;
@@ -206,8 +208,8 @@ RC BufferPoolIterator::reset()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-DiskBufferPool::DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager)
-    : bp_manager_(bp_manager), frame_manager_(frame_manager)
+DiskBufferPool::DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager, LogHandler &log_handler)
+    : bp_manager_(bp_manager), frame_manager_(frame_manager), log_handler_(*this, log_handler)
 {}
 
 DiskBufferPool::~DiskBufferPool()
@@ -228,8 +230,7 @@ RC DiskBufferPool::open_file(const char *file_name)
   file_name_ = file_name;
   file_desc_ = fd;
 
-  RC rc = RC::SUCCESS;
-  rc    = allocate_frame(BP_HEADER_PAGE, &hdr_frame_);
+  RC rc = allocate_frame(BP_HEADER_PAGE, &hdr_frame_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("failed to allocate frame for header. file name %s", file_name_.c_str());
     close(fd);
@@ -337,6 +338,14 @@ RC DiskBufferPool::allocate_page(Frame **frame)
         file_header_->bitmap[byte] |= (1 << bit);
         // TODO,  do we need clean the loaded page's data?
         hdr_frame_->mark_dirty();
+        LSN lsn = 0;
+        rc = log_handler_.allocate_page(i, lsn);
+        if (OB_FAIL(rc)) {
+          LOG_ERROR("Failed to log allocate page %d, rc=%s", i, strrc(rc));
+          // 忽略了错误
+        }
+
+        hdr_frame_->set_lsn(lsn);
 
         lock_.unlock();
         return get_this_page(i, frame);
@@ -350,6 +359,14 @@ RC DiskBufferPool::allocate_page(Frame **frame)
     lock_.unlock();
     return RC::BUFFERPOOL_NOBUF;
   }
+
+  LSN lsn = 0;
+  rc = log_handler_.allocate_page(file_header_->page_count, lsn);
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to log allocate page %d, rc=%s", file_header_->page_count, strrc(rc));
+    // 忽略了错误
+  }
+  hdr_frame_->set_lsn(lsn);
 
   PageNum page_num        = file_header_->page_count;
   Frame  *allocated_frame = nullptr;
@@ -400,6 +417,14 @@ RC DiskBufferPool::dispose_page(PageNum page_num)
     return RC::NOTFOUND;
   }
 
+  LSN lsn = 0;
+  RC rc = log_handler_.deallocate_page(page_num, lsn);
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to log deallocate page %d, rc=%s", page_num, strrc(rc));
+    // ignore error handle
+  }
+
+  hdr_frame_->set_lsn(lsn);
   hdr_frame_->mark_dirty();
   file_header_->allocated_pages--;
   char tmp = 1 << (page_num % 8);
@@ -437,6 +462,7 @@ RC DiskBufferPool::purge_frame(PageNum page_num, Frame *buf)
 RC DiskBufferPool::purge_page(PageNum page_num)
 {
   std::scoped_lock lock_guard(lock_);
+
   Frame           *used_frame = frame_manager_.get(file_desc_, page_num);
   if (used_frame != nullptr) {
     return purge_frame(page_num, used_frame);
@@ -487,6 +513,12 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
 {
   // The better way is use mmap the block into memory,
   // so it is easier to flush data to file.
+
+  RC rc = log_handler_.flush_page(frame.page());
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to log flush page %d, rc=%s", frame.page_num(), strrc(rc));
+    // ignore error handle
+  }
 
   Page   &page   = frame.page();
   int64_t offset = ((int64_t)page.page_num) * sizeof(Page);
@@ -647,6 +679,7 @@ RC BufferPoolManager::create_file(const char *file_name)
   BPFileHeader *file_header    = (BPFileHeader *)page.data;
   file_header->allocated_pages = 1;
   file_header->page_count      = 1;
+  file_header->buffer_pool_id  = next_buffer_pool_id_.fetch_add(1);
 
   char *bitmap = file_header->bitmap;
   bitmap[0] |= 0x01;
@@ -667,7 +700,7 @@ RC BufferPoolManager::create_file(const char *file_name)
   return RC::SUCCESS;
 }
 
-RC BufferPoolManager::open_file(const char *_file_name, DiskBufferPool *&_bp)
+RC BufferPoolManager::open_file(LogHandler &log_handler, const char *_file_name, DiskBufferPool *&_bp)
 {
   std::string file_name(_file_name);
 
@@ -677,7 +710,7 @@ RC BufferPoolManager::open_file(const char *_file_name, DiskBufferPool *&_bp)
     return RC::BUFFERPOOL_OPEN;
   }
 
-  DiskBufferPool *bp = new DiskBufferPool(*this, frame_manager_);
+  DiskBufferPool *bp = new DiskBufferPool(*this, frame_manager_, log_handler);
   RC              rc = bp->open_file(_file_name);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open file name");
@@ -685,8 +718,13 @@ RC BufferPoolManager::open_file(const char *_file_name, DiskBufferPool *&_bp)
     return rc;
   }
 
+  if (bp->id() >= next_buffer_pool_id_.load()) {
+    next_buffer_pool_id_.store(bp->id() + 1);
+  }
+
   buffer_pools_.insert(std::pair<std::string, DiskBufferPool *>(file_name, bp));
   fd_buffer_pools_.insert(std::pair<int, DiskBufferPool *>(bp->file_desc(), bp));
+  id_to_buffer_pools_.insert(std::pair<int32_t, DiskBufferPool *>(bp->id(), bp));
   LOG_DEBUG("insert buffer pool into fd buffer pools. fd=%d, bp=%p, lbt=%s", bp->file_desc(), bp, lbt());
   _bp = bp;
   return RC::SUCCESS;
@@ -718,6 +756,8 @@ RC BufferPoolManager::close_file(const char *_file_name)
     ASSERT(count == 1, "the buffer pool was not erased from fd buffer pools.");
   }
 
+  id_to_buffer_pools_.erase(iter->second->id());
+
   DiskBufferPool *bp = iter->second;
   buffer_pools_.erase(iter);
   lock_.unlock();
@@ -742,7 +782,8 @@ RC BufferPoolManager::flush_page(Frame &frame)
 }
 
 static BufferPoolManager *default_bpm = nullptr;
-void                      BufferPoolManager::set_instance(BufferPoolManager *bpm)
+
+void BufferPoolManager::set_instance(BufferPoolManager *bpm)
 {
   if (default_bpm != nullptr && bpm != nullptr) {
     LOG_ERROR("default buffer pool manager has been setted");

@@ -18,12 +18,15 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/record/record_manager.h"
 #include "storage/trx/vacuous_trx.h"
+#include "storage/clog/vacuous_log_handler.h"
 #include "gtest/gtest.h"
 
 using namespace common;
 
 TEST(test_record_page_handler, test_record_page_handler)
 {
+  VacuousLogHandler log_handler;
+
   const char *record_manager_file = "record_manager.bp";
   ::remove(record_manager_file);
 
@@ -32,7 +35,7 @@ TEST(test_record_page_handler, test_record_page_handler)
   RC                 rc  = bpm->create_file(record_manager_file);
   ASSERT_EQ(rc, RC::SUCCESS);
 
-  rc = bpm->open_file(record_manager_file, bp);
+  rc = bpm->open_file(log_handler, record_manager_file, bp);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   Frame *frame = nullptr;
@@ -111,6 +114,8 @@ TEST(test_record_page_handler, test_record_page_handler)
 
 TEST(test_record_page_handler, test_record_file_iterator)
 {
+  VacuousLogHandler log_handler;
+
   const char *record_manager_file = "record_manager.bp";
   ::remove(record_manager_file);
 
@@ -119,7 +124,7 @@ TEST(test_record_page_handler, test_record_file_iterator)
   RC                 rc  = bpm->create_file(record_manager_file);
   ASSERT_EQ(rc, RC::SUCCESS);
 
-  rc = bpm->open_file(record_manager_file, bp);
+  rc = bpm->open_file(log_handler, record_manager_file, bp);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   RecordFileHandler file_handler;

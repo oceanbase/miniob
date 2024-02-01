@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/defs.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
+#include "storage/db/db.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/common/condition_filter.h"
 #include "storage/common/meta_util.h"
@@ -50,8 +51,8 @@ Table::~Table()
   LOG_INFO("Table has been closed: %s", name());
 }
 
-RC Table::create(int32_t table_id, const char *path, const char *name, const char *base_dir, int attribute_count,
-    const AttrInfoSqlNode attributes[])
+RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
+    int attribute_count, const AttrInfoSqlNode attributes[])
 {
   if (table_id < 0) {
     LOG_WARN("invalid table id. table_id=%d, table_name=%s", table_id, name);
@@ -117,12 +118,13 @@ RC Table::create(int32_t table_id, const char *path, const char *name, const cha
     return rc;
   }
 
+  db_ = db;
   base_dir_ = base_dir;
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
   return rc;
 }
 
-RC Table::open(const char *meta_file, const char *base_dir)
+RC Table::open(Db *db, const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件
   std::fstream fs;
@@ -147,6 +149,7 @@ RC Table::open(const char *meta_file, const char *base_dir)
     return rc;
   }
 
+  db_ = db;
   base_dir_ = base_dir;
 
   const int index_num = table_meta_.index_num();
@@ -164,7 +167,7 @@ RC Table::open(const char *meta_file, const char *base_dir)
     BplusTreeIndex *index      = new BplusTreeIndex();
     std::string     index_file = table_index_file(base_dir, name(), index_meta->name());
 
-    rc = index->open(index_file.c_str(), *index_meta, *field_meta);
+    rc = index->open(this, index_file.c_str(), *index_meta, *field_meta);
     if (rc != RC::SUCCESS) {
       delete index;
       LOG_ERROR("Failed to open index. table=%s, index=%s, file=%s, rc=%s",
@@ -303,7 +306,7 @@ RC Table::init_record_handler(const char *base_dir)
 {
   std::string data_file = table_data_file(base_dir, table_meta_.name());
 
-  RC rc = BufferPoolManager::instance().open_file(data_file.c_str(), data_buffer_pool_);
+  RC rc = BufferPoolManager::instance().open_file(db_->log_handler(), data_file.c_str(), data_buffer_pool_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to open disk buffer pool for file:%s. rc=%d:%s", data_file.c_str(), rc, strrc(rc));
     return rc;
@@ -353,7 +356,7 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
   BplusTreeIndex *index      = new BplusTreeIndex();
   std::string     index_file = table_index_file(base_dir_.c_str(), name(), index_name);
 
-  rc = index->create(index_file.c_str(), new_index_meta, *field_meta);
+  rc = index->create(this, index_file.c_str(), new_index_meta, *field_meta);
   if (rc != RC::SUCCESS) {
     delete index;
     LOG_ERROR("Failed to create bplus tree index. file name=%s, rc=%d:%s", index_file.c_str(), rc, strrc(rc));
