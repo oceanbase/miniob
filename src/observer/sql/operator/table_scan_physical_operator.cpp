@@ -30,17 +30,10 @@ RC TableScanPhysicalOperator::open(Trx *trx)
 
 RC TableScanPhysicalOperator::next()
 {
-  if (!record_scanner_.has_next()) {
-    return RC::RECORD_EOF;
-  }
+  RC rc = RC::SUCCESS;
 
-  RC   rc            = RC::SUCCESS;
   bool filter_result = false;
-  while (record_scanner_.has_next()) {
-    rc = record_scanner_.next(current_record_);
-    if (rc != RC::SUCCESS) {
-      return rc;
-    }
+  while (OB_SUCC(rc = record_scanner_.next(current_record_))) {
 
     tuple_.set_record(&current_record_);
     rc = filter(tuple_, filter_result);

@@ -41,4 +41,5 @@ public:
 private:
   Table *table_ = nullptr;
   Trx   *trx_   = nullptr;
+  std::vector<Record> records_;
 };

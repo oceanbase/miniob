@@ -72,7 +72,7 @@ RC IndexScanPhysicalOperator::next()
 
   bool filter_result = false;
   while (RC::SUCCESS == (rc = index_scanner_->next_entry(&rid))) {
-    rc = record_handler_->get_record(record_page_handler_, &rid, readonly_, &current_record_);
+    rc = record_handler_->get_record(rid, current_record_);
     if (rc != RC::SUCCESS) {
       return rc;
     }

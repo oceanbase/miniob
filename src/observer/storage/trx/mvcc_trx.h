@@ -97,7 +97,8 @@ private:
   static const int32_t MAX_TRX_ID = std::numeric_limits<int32_t>::max();
 
 private:
-  using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
+  // using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
+  using OperationSet = std::vector<Operation>;
   MvccTrxKit  &trx_kit_;
   CLogManager *log_manager_ = nullptr;
   int32_t      trx_id_      = -1;

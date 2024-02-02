@@ -44,7 +44,7 @@ TEST(test_record_page_handler, test_record_page_handler)
 
   const int         record_size = 8;
   RecordPageHandler record_page_handle;
-  rc = record_page_handle.init_empty_page(*bp, frame->page_num(), record_size);
+  rc = record_page_handle.init_empty_page(*bp, log_handler, frame->page_num(), record_size);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   RecordPageIterator iterator;
@@ -128,20 +128,22 @@ TEST(test_record_page_handler, test_record_file_iterator)
   ASSERT_EQ(rc, RC::SUCCESS);
 
   RecordFileHandler file_handler;
-  rc = file_handler.init(bp);
+  rc = file_handler.init(*bp, log_handler);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   VacuousTrx        trx;
   RecordFileScanner file_scanner;
-  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, true /*readonly*/, nullptr /*condition_filter*/);
+  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, log_handler, true /*readonly*/, nullptr /*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   int    count = 0;
   Record record;
-  while (file_scanner.has_next()) {
-    rc = file_scanner.next(record);
+  while (OB_SUCC(rc = file_scanner.next(record))) {
     ASSERT_EQ(rc, RC::SUCCESS);
     count++;
+  }
+  if (rc == RC::RECORD_EOF) {
+    rc = RC::SUCCESS;
   }
   file_scanner.close_scan();
   ASSERT_EQ(count, 0);
@@ -156,14 +158,16 @@ TEST(test_record_page_handler, test_record_file_iterator)
     rids.push_back(rid);
   }
 
-  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, true /*readonly*/, nullptr /*condition_filter*/);
+  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, log_handler, true /*readonly*/, nullptr /*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;
-  while (file_scanner.has_next()) {
-    rc = file_scanner.next(record);
+  while (OB_SUCC(rc = file_scanner.next(record))) {
     ASSERT_EQ(rc, RC::SUCCESS);
     count++;
+  }
+  if (rc == RC::RECORD_EOF) {
+    rc = RC::SUCCESS;
   }
   file_scanner.close_scan();
   ASSERT_EQ(count, rids.size());
@@ -173,14 +177,16 @@ TEST(test_record_page_handler, test_record_file_iterator)
     ASSERT_EQ(rc, RC::SUCCESS);
   }
 
-  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, true /*readonly*/, nullptr /*condition_filter*/);
+  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, log_handler, true /*readonly*/, nullptr /*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;
-  while (file_scanner.has_next()) {
-    rc = file_scanner.next(record);
+  while (OB_SUCC(rc = file_scanner.next(record))) {
     ASSERT_EQ(rc, RC::SUCCESS);
     count++;
+  }
+  if (rc == RC::RECORD_EOF) {
+    rc = RC::SUCCESS;
   }
   file_scanner.close_scan();
   ASSERT_EQ(count, rids.size() / 2);
