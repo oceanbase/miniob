@@ -29,6 +29,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/trx/latch_memo.h"
 
+class LogHandler;
+
 /**
  * @brief B+树的实现
  * @defgroup BPlusTree
@@ -442,15 +444,19 @@ public:
    * 此函数创建一个名为fileName的索引。
    * attrType描述被索引属性的类型，attrLength描述被索引属性的长度
    */
-  RC create(
-      const char *file_name, AttrType attr_type, int attr_length, int internal_max_size = -1, int leaf_max_size = -1);
+  RC create(LogHandler &log_handler,
+            const char *file_name, 
+            AttrType attr_type, 
+            int attr_length, 
+            int internal_max_size = -1, 
+            int leaf_max_size = -1);
 
   /**
    * 打开名为fileName的索引文件。
    * 如果方法调用成功，则indexHandle为指向被打开的索引句柄的指针。
    * 索引句柄用于在索引中插入或删除索引项，也可用于索引的扫描
    */
-  RC open(const char *file_name);
+  RC open(LogHandler &log_handler, const char *file_name);
 
   /**
    * 关闭句柄indexHandle对应的索引文件

@@ -33,9 +33,12 @@ See the Mulan PSL v2 for more details. */
 #include "common/types.h"
 #include "storage/buffer/frame.h"
 #include "storage/buffer/page.h"
+#include "storage/buffer/buffer_pool_log.h"
 
 class BufferPoolManager;
 class DiskBufferPool;
+class LogHandler;
+class BufferPoolLogHandler;
 
 /**
  * @brief BufferPool 的实现
@@ -57,6 +60,7 @@ class DiskBufferPool;
  */
 struct BPFileHeader
 {
+  int32_t buffer_pool_id;   //! buffer pool id
   int32_t page_count;       //! 当前文件一共有多少个页面
   int32_t allocated_pages;  //! 已经分配了多少个页面
   char    bitmap[0];        //! 页面分配位图, 第0个页面(就是当前页面)，总是1
@@ -175,17 +179,14 @@ private:
 /**
  * @brief BufferPool的实现
  * @ingroup BufferPool
+ * @details 一个文件被划分成多个相同大小的页面，并在需要访问的时候，会从文件读取到内存中。
+ * DiskBufferPool 就负责管理磁盘文件，以及负责管理页面在文件与内存中的交互，比如读取、写回。
  */
-class DiskBufferPool
+class DiskBufferPool final
 {
 public:
-  DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager);
+  DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager, LogHandler &log_handler);
   ~DiskBufferPool();
-
-  /**
-   * 创建一个名称为指定文件名的分页文件
-   */
-  RC create_file(const char *file_name);
 
   /**
    * 根据文件名打开一个分页文件
@@ -203,8 +204,8 @@ public:
   RC get_this_page(PageNum page_num, Frame **frame);
 
   /**
-   * 在指定文件中分配一个新的页面，并将其放入缓冲区，返回页面句柄指针。
-   * 分配页面时，如果文件中有空闲页，就直接分配一个空闲页；
+   * @brief 在指定文件中分配一个新的页面，并将其放入缓冲区，返回页面句柄指针。
+   * @details 分配页面时，如果文件中有空闲页，就直接分配一个空闲页；
    * 如果文件中没有空闲页，则扩展文件规模来增加新的空闲页。
    */
   RC allocate_page(Frame **frame);
@@ -255,6 +256,12 @@ public:
    */
   RC recover_page(PageNum page_num);
 
+  RC redo_allocate_page(LSN lsn, PageNum page_num);
+  RC redo_deallocate_page(LSN lsn, PageNum page_num);
+
+public:
+  int32_t id() const { return file_header_->buffer_pool_id; }
+
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);
 
@@ -275,14 +282,15 @@ protected:
   RC flush_page_internal(Frame &frame);
 
 private:
-  BufferPoolManager &bp_manager_;
-  BPFrameManager    &frame_manager_;
+  BufferPoolManager &bp_manager_;     /// BufferPool 管理器
+  BPFrameManager    &frame_manager_;  /// Frame 管理器
+  BufferPoolLogHandler log_handler_; /// BufferPool 日志处理器
 
-  std::string       file_name_;
-  int               file_desc_   = -1;
-  Frame            *hdr_frame_   = nullptr;
-  BPFileHeader     *file_header_ = nullptr;
-  std::set<PageNum> disposed_pages_;
+  std::string       file_name_;       /// 文件名
+  int               file_desc_   = -1;  /// 文件描述符
+  Frame            *hdr_frame_   = nullptr; /// 文件头页面
+  BPFileHeader     *file_header_ = nullptr; /// 文件头
+  std::set<PageNum> disposed_pages_; /// 已经释放的页面
 
   common::Mutex lock_;
 
@@ -301,13 +309,22 @@ public:
   ~BufferPoolManager();
 
   RC create_file(const char *file_name);
-  RC open_file(const char *file_name, DiskBufferPool *&bp);
+  RC open_file(LogHandler &log_handler, const char *file_name, DiskBufferPool *&bp);
   RC close_file(const char *file_name);
 
   RC flush_page(Frame &frame);
 
+  /**
+   * @brief 根据ID获取对应的BufferPool对象
+   * @details 在做redo时，需要根据ID获取对应的BufferPool对象，然后让bufferPool对象自己做redo
+   * @param id buffer pool id
+   * @param bp buffer pool 对象
+   */
+  RC get_buffer_pool(int32_t id, DiskBufferPool *&bp);
+
 public:
-  static void               set_instance(BufferPoolManager *bpm);  // TODO 优化全局变量的表示方法
+  static void set_instance(BufferPoolManager *bpm);  // TODO 优化全局变量的表示方法
+
   static BufferPoolManager &instance();
 
 private:
@@ -316,4 +333,6 @@ private:
   common::Mutex                                     lock_;
   std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;
   std::unordered_map<int, DiskBufferPool *>         fd_buffer_pools_;
+  std::unordered_map<int32_t, DiskBufferPool *>     id_to_buffer_pools_;  // TODO fd_buffer_pool 与 id_to_buffer_pool保留一个就可以
+  std::atomic<int32_t> next_buffer_pool_id_{1}; // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
 };

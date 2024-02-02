@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
 #include "storage/buffer/disk_buffer_pool.h"
+#include "storage/buffer/buffer_pool_log.h"
+#include "storage/db/db.h"
 
 using namespace common;
 using namespace std;
@@ -127,8 +129,8 @@ Frame *BPFrameManager::alloc(int file_desc, PageNum page_num)
 
   frame = allocator_.alloc();
   if (frame != nullptr) {
-    ASSERT(
-        frame->pin_count() == 0, "got an invalid frame that pin count is not 0. frame=%s", to_string(*frame).c_str());
+    ASSERT(frame->pin_count() == 0, "got an invalid frame that pin count is not 0. frame=%s", 
+           to_string(*frame).c_str());
     frame->set_page_num(page_num);
     frame->pin();
     frames_.put(frame_id, frame);
@@ -152,6 +154,7 @@ RC BPFrameManager::free_internal(const FrameId &frame_id, Frame *frame)
       "failed to free frame. found=%d, frameId=%s, frame_source=%p, frame=%p, pinCount=%d, lbt=%s",
       found, to_string(frame_id).c_str(), frame_source, frame, frame->pin_count(), lbt());
 
+  frame->set_page_num(-1);
   frame->unpin();
   frames_.remove(frame_id);
   allocator_.free(frame);
@@ -181,9 +184,9 @@ RC BufferPoolIterator::init(DiskBufferPool &bp, PageNum start_page /* = 0 */)
 {
   bitmap_.init(bp.file_header_->bitmap, bp.file_header_->page_count);
   if (start_page <= 0) {
-    current_page_num_ = 0;
+    current_page_num_ = -1;
   } else {
-    current_page_num_ = start_page;
+    current_page_num_ = start_page - 1;
   }
   return RC::SUCCESS;
 }
@@ -206,8 +209,8 @@ RC BufferPoolIterator::reset()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-DiskBufferPool::DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager)
-    : bp_manager_(bp_manager), frame_manager_(frame_manager)
+DiskBufferPool::DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager, LogHandler &log_handler)
+    : bp_manager_(bp_manager), frame_manager_(frame_manager), log_handler_(*this, log_handler)
 {}
 
 DiskBufferPool::~DiskBufferPool()
@@ -228,8 +231,7 @@ RC DiskBufferPool::open_file(const char *file_name)
   file_name_ = file_name;
   file_desc_ = fd;
 
-  RC rc = RC::SUCCESS;
-  rc    = allocate_frame(BP_HEADER_PAGE, &hdr_frame_);
+  RC rc = allocate_frame(BP_HEADER_PAGE, &hdr_frame_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("failed to allocate frame for header. file name %s", file_name_.c_str());
     close(fd);
@@ -300,7 +302,8 @@ RC DiskBufferPool::get_this_page(PageNum page_num, Frame **frame)
 
   // Allocate one page and load the data into this page
   Frame *allocated_frame = nullptr;
-  rc                     = allocate_frame(page_num, &allocated_frame);
+
+  rc = allocate_frame(page_num, &allocated_frame);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to alloc frame %s:%d, due to failed to alloc page.", file_name_.c_str(), page_num);
     return rc;
@@ -337,6 +340,14 @@ RC DiskBufferPool::allocate_page(Frame **frame)
         file_header_->bitmap[byte] |= (1 << bit);
         // TODO,  do we need clean the loaded page's data?
         hdr_frame_->mark_dirty();
+        LSN lsn = 0;
+        rc = log_handler_.allocate_page(i, lsn);
+        if (OB_FAIL(rc)) {
+          LOG_ERROR("Failed to log allocate page %d, rc=%s", i, strrc(rc));
+          // 忽略了错误
+        }
+
+        hdr_frame_->set_lsn(lsn);
 
         lock_.unlock();
         return get_this_page(i, frame);
@@ -350,6 +361,14 @@ RC DiskBufferPool::allocate_page(Frame **frame)
     lock_.unlock();
     return RC::BUFFERPOOL_NOBUF;
   }
+
+  LSN lsn = 0;
+  rc = log_handler_.allocate_page(file_header_->page_count, lsn);
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to log allocate page %d, rc=%s", file_header_->page_count, strrc(rc));
+    // 忽略了错误
+  }
+  hdr_frame_->set_lsn(lsn);
 
   PageNum page_num        = file_header_->page_count;
   Frame  *allocated_frame = nullptr;
@@ -390,16 +409,28 @@ RC DiskBufferPool::allocate_page(Frame **frame)
 
 RC DiskBufferPool::dispose_page(PageNum page_num)
 {
+  if (page_num == 0) {
+    LOG_ERROR("Failed to dispose page %d, because it is the first page. filename=%s", page_num, file_name_.c_str());
+    return RC::INTERNAL;
+  }
+  
   std::scoped_lock lock_guard(lock_);
   Frame           *used_frame = frame_manager_.get(file_desc_, page_num);
   if (used_frame != nullptr) {
     ASSERT("the page try to dispose is in use. frame:%s", to_string(*used_frame).c_str());
     frame_manager_.free(file_desc_, page_num, used_frame);
   } else {
-    LOG_WARN("failed to fetch the page while disposing it. pageNum=%d", page_num);
-    return RC::NOTFOUND;
+    LOG_DEBUG("page not found in memory while disposing it. pageNum=%d", page_num);
   }
 
+  LSN lsn = 0;
+  RC rc = log_handler_.deallocate_page(page_num, lsn);
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to log deallocate page %d, rc=%s", page_num, strrc(rc));
+    // ignore error handle
+  }
+
+  hdr_frame_->set_lsn(lsn);
   hdr_frame_->mark_dirty();
   file_header_->allocated_pages--;
   char tmp = 1 << (page_num % 8);
@@ -437,6 +468,7 @@ RC DiskBufferPool::purge_frame(PageNum page_num, Frame *buf)
 RC DiskBufferPool::purge_page(PageNum page_num)
 {
   std::scoped_lock lock_guard(lock_);
+
   Frame           *used_frame = frame_manager_.get(file_desc_, page_num);
   if (used_frame != nullptr) {
     return purge_frame(page_num, used_frame);
@@ -488,8 +520,14 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
   // The better way is use mmap the block into memory,
   // so it is easier to flush data to file.
 
+  RC rc = log_handler_.flush_page(frame.page());
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to log flush page %d, rc=%s", frame.page_num(), strrc(rc));
+    // ignore error handle
+  }
+
   Page   &page   = frame.page();
-  int64_t offset = ((int64_t)page.page_num) * sizeof(Page);
+  int64_t offset = ((int64_t)frame.page_num()) * sizeof(Page);
   if (lseek(file_desc_, offset, SEEK_SET) == offset - 1) {
     LOG_ERROR("Failed to flush page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_SEEK;
@@ -500,7 +538,7 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
     return RC::IOERR_WRITE;
   }
   frame.clear_dirty();
-  LOG_DEBUG("Flush block. file desc=%d, pageNum=%d, pin count=%d", file_desc_, page.page_num, frame.pin_count());
+  LOG_DEBUG("Flush block. file desc=%d, pageNum=%d, pin count=%d", file_desc_, frame.page_num(), frame.pin_count());
 
   return RC::SUCCESS;
 }
@@ -534,6 +572,72 @@ RC DiskBufferPool::recover_page(PageNum page_num)
   return RC::SUCCESS;
 }
 
+RC DiskBufferPool::redo_allocate_page(LSN lsn, PageNum page_num)
+{
+  if (hdr_frame_->lsn() >= lsn) {
+    return RC::SUCCESS;
+  }
+
+  // std::scoped_lock lock_guard(lock_); // redo 过程中可以不加锁
+  if (page_num < file_header_->page_count) {
+    Bitmap bitmap(file_header_->bitmap, file_header_->page_count);
+    if (bitmap.get_bit(page_num)) {
+      LOG_WARN("page %d has been allocated. file=%s", page_num, file_name_.c_str());
+      return RC::SUCCESS;
+    }
+
+    bitmap.set_bit(page_num);
+    file_header_->allocated_pages++;
+    hdr_frame_->mark_dirty();
+    return RC::SUCCESS;
+  }
+
+  if (page_num > file_header_->page_count) {
+    LOG_WARN("page %d is not continuous. file=%s", page_num, file_name_.c_str());
+    return RC::INTERNAL;
+  }
+
+  // page_num == file_header_->page_count
+  if (file_header_->page_count >= BPFileHeader::MAX_PAGE_NUM) {
+    LOG_WARN("file buffer pool is full. page count %d, max page count %d",
+        file_header_->page_count, BPFileHeader::MAX_PAGE_NUM);
+    return RC::INTERNAL;
+  }
+
+  file_header_->allocated_pages++;
+  file_header_->page_count++;
+  hdr_frame_->mark_dirty();
+
+  Bitmap bitmap(file_header_->bitmap, file_header_->page_count);
+  bitmap.set_bit(page_num);
+  LOG_TRACE("[redo] allocate new page. file=%s, pageNum=%d", file_name_.c_str(), page_num);
+  return RC::SUCCESS;
+}
+
+RC DiskBufferPool::redo_deallocate_page(LSN lsn, PageNum page_num)
+{
+  if (hdr_frame_->lsn() >= lsn) {
+    return RC::SUCCESS;
+  }
+
+  if (page_num >= file_header_->page_count) {
+    LOG_WARN("page %d is not exist. file=%s", page_num, file_name_.c_str());
+    return RC::INTERNAL;
+  }
+
+  Bitmap bitmap(file_header_->bitmap, file_header_->page_count);
+  if (!bitmap.get_bit(page_num)) {
+    LOG_WARN("page %d has been deallocated. file=%s", page_num, file_name_.c_str());
+    return RC::INTERNAL;
+  }
+
+  bitmap.clear_bit(page_num);
+  file_header_->allocated_pages--;
+  hdr_frame_->mark_dirty();
+  LOG_TRACE("[redo] deallocate page. file=%s, pageNum=%d", file_name_.c_str(), page_num);
+  return RC::SUCCESS;
+}
+
 RC DiskBufferPool::allocate_frame(PageNum page_num, Frame **buffer)
 {
   auto purger = [this](Frame *frame) {
@@ -558,6 +662,7 @@ RC DiskBufferPool::allocate_frame(PageNum page_num, Frame **buffer)
     Frame *frame = frame_manager_.alloc(file_desc_, page_num);
     if (frame != nullptr) {
       *buffer = frame;
+      LOG_DEBUG("allocate frame %p, page num %d", frame, page_num);
       return RC::SUCCESS;
     }
 
@@ -596,6 +701,11 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
               file_name_.c_str(), file_desc_, page_num, strerror(errno), ret, file_header_->allocated_pages);
     return RC::IOERR_READ;
   }
+
+  frame->set_page_num(page_num);
+
+  LOG_DEBUG("Load page %s:%d, file_desc:%d, pin count:%d, frame=%p", 
+            file_name_.c_str(), page_num, file_desc_, frame->pin_count(), frame);
   return RC::SUCCESS;
 }
 
@@ -647,6 +757,7 @@ RC BufferPoolManager::create_file(const char *file_name)
   BPFileHeader *file_header    = (BPFileHeader *)page.data;
   file_header->allocated_pages = 1;
   file_header->page_count      = 1;
+  file_header->buffer_pool_id  = next_buffer_pool_id_.fetch_add(1);
 
   char *bitmap = file_header->bitmap;
   bitmap[0] |= 0x01;
@@ -667,7 +778,7 @@ RC BufferPoolManager::create_file(const char *file_name)
   return RC::SUCCESS;
 }
 
-RC BufferPoolManager::open_file(const char *_file_name, DiskBufferPool *&_bp)
+RC BufferPoolManager::open_file(LogHandler &log_handler, const char *_file_name, DiskBufferPool *&_bp)
 {
   std::string file_name(_file_name);
 
@@ -677,7 +788,7 @@ RC BufferPoolManager::open_file(const char *_file_name, DiskBufferPool *&_bp)
     return RC::BUFFERPOOL_OPEN;
   }
 
-  DiskBufferPool *bp = new DiskBufferPool(*this, frame_manager_);
+  DiskBufferPool *bp = new DiskBufferPool(*this, frame_manager_, log_handler);
   RC              rc = bp->open_file(_file_name);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open file name");
@@ -685,8 +796,13 @@ RC BufferPoolManager::open_file(const char *_file_name, DiskBufferPool *&_bp)
     return rc;
   }
 
+  if (bp->id() >= next_buffer_pool_id_.load()) {
+    next_buffer_pool_id_.store(bp->id() + 1);
+  }
+
   buffer_pools_.insert(std::pair<std::string, DiskBufferPool *>(file_name, bp));
   fd_buffer_pools_.insert(std::pair<int, DiskBufferPool *>(bp->file_desc(), bp));
+  id_to_buffer_pools_.insert(std::pair<int32_t, DiskBufferPool *>(bp->id(), bp));
   LOG_DEBUG("insert buffer pool into fd buffer pools. fd=%d, bp=%p, lbt=%s", bp->file_desc(), bp, lbt());
   _bp = bp;
   return RC::SUCCESS;
@@ -718,6 +834,8 @@ RC BufferPoolManager::close_file(const char *_file_name)
     ASSERT(count == 1, "the buffer pool was not erased from fd buffer pools.");
   }
 
+  id_to_buffer_pools_.erase(iter->second->id());
+
   DiskBufferPool *bp = iter->second;
   buffer_pools_.erase(iter);
   lock_.unlock();
@@ -741,8 +859,23 @@ RC BufferPoolManager::flush_page(Frame &frame)
   return bp->flush_page(frame);
 }
 
+RC BufferPoolManager::get_buffer_pool(int32_t id, DiskBufferPool *&bp)
+{
+  std::scoped_lock lock_guard(lock_);
+
+  auto iter = id_to_buffer_pools_.find(id);
+  if (iter == id_to_buffer_pools_.end()) {
+    LOG_WARN("unknown buffer pool of id %d", id);
+    return RC::INTERNAL;
+  }
+
+  bp = iter->second;
+  return RC::SUCCESS;
+}
+
 static BufferPoolManager *default_bpm = nullptr;
-void                      BufferPoolManager::set_instance(BufferPoolManager *bpm)
+
+void BufferPoolManager::set_instance(BufferPoolManager *bpm)
 {
   if (default_bpm != nullptr && bpm != nullptr) {
     LOG_ERROR("default buffer pool manager has been setted");

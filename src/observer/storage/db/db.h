@@ -21,9 +21,11 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/rc.h"
 #include "sql/parser/parse_defs.h"
+#include "storage/clog/disk_log_handler.h"
 
 class Table;
 class CLogManager;
+class LogHandler;
 
 /**
  * @brief 一个DB实例负责管理一批表
@@ -59,6 +61,7 @@ public:
   RC recover();
 
   CLogManager *clog_manager();
+  LogHandler &log_handler();
 
 private:
   RC open_all_tables();
@@ -68,6 +71,7 @@ private:
   std::string                              path_;
   std::unordered_map<std::string, Table *> opened_tables_;
   std::unique_ptr<CLogManager>             clog_manager_;
+  std::unique_ptr<DiskLogHandler>          log_handler_;
 
   /// 给每个table都分配一个ID，用来记录日志。这里假设所有的DDL都不会并发操作，所以相关的数据都不上锁
   int32_t next_table_id_ = 0;

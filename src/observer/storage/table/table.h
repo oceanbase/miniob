@@ -28,6 +28,7 @@ class Index;
 class IndexScanner;
 class RecordDeleter;
 class Trx;
+class Db;
 
 /**
  * @brief 表
@@ -47,7 +48,7 @@ public:
    * @param attribute_count 字段个数
    * @param attributes 字段
    */
-  RC create(int32_t table_id, const char *path, const char *name, const char *base_dir, int attribute_count,
+  RC create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir, int attribute_count,
       const AttrInfoSqlNode attributes[]);
 
   /**
@@ -55,7 +56,7 @@ public:
    * @param meta_file 保存表元数据的文件完整路径
    * @param base_dir 表所在的文件夹，表记录数据文件、索引数据文件存放位置
    */
-  RC open(const char *meta_file, const char *base_dir);
+  RC open(Db *db, const char *meta_file, const char *base_dir);
 
   /**
    * @brief 根据给定的字段生成一个记录/行
@@ -88,6 +89,8 @@ public:
 public:
   int32_t     table_id() const { return table_meta_.table_id(); }
   const char *name() const;
+  
+  Db *db() const { return db_; }
 
   const TableMeta &table_meta() const;
 
@@ -105,6 +108,7 @@ public:
   Index *find_index_by_field(const char *field_name) const;
 
 private:
+  Db *                 db_ = nullptr;
   std::string          base_dir_;
   TableMeta            table_meta_;
   DiskBufferPool      *data_buffer_pool_ = nullptr;  /// 数据文件关联的buffer pool

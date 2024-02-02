@@ -79,21 +79,49 @@ public:
 
   int     file_desc() const { return file_desc_; }
   void    set_file_desc(int fd) { file_desc_ = fd; }
+
+  /**
+   * @brief 在磁盘和内存中内容完全一致的数据页
+   * @details 磁盘文件划分为一个个页面，每次从磁盘加载到内存中，也是一个页面，就是 Page。
+   * frame 是为了管理这些页面而维护的一个数据结构。
+   */
   Page   &page() { return page_; }
-  PageNum page_num() const { return page_.page_num; }
-  void    set_page_num(PageNum page_num) { page_.page_num = page_num; }
-  FrameId frame_id() const { return FrameId(file_desc_, page_.page_num); }
+
+  /**
+   * @brief 每个页面都有一个编号
+   * @details 当前页面编号记录在了页面数据中，其实可以不记录，从磁盘中加载时记录在Frame信息中即可。
+   */
+  PageNum page_num() const { return page_num_; }
+  void    set_page_num(PageNum page_num) { page_num_ = page_num; }
+  FrameId frame_id() const { return FrameId(file_desc_, page_num_); }
+
+  /**
+   * @brief 为了实现持久化，需要将页面的修改记录记录到日志中，这里记录了日志序列号
+   * @details 如果当前页面从磁盘中加载出来时，它的日志序列号比当前WAL(Write-Ahead-Logging)中的一些
+   * 序列号要小，那就可以从日志中读取这些更大序列号的日志，做重做操作，将页面恢复到最新状态，也就是redo。
+   */
   LSN     lsn() const { return page_.lsn; }
   void    set_lsn(LSN lsn) { page_.lsn = lsn; }
 
-  /// 刷新访问时间 TODO touch is better?
+  /**
+   * @brief 刷新当前内存页面的访问时间
+   * @details 由于内存是有限的，比磁盘要小很多。那当我们访问某些文件页面时，可能由于内存不足
+   * 而要淘汰一些页面。我们选择淘汰哪些页面呢？这里使用了LRU算法，即最近最少使用的页面被淘汰。
+   * 最近最少使用，采用的依据就是访问时间。所以每次访问某个页面时，我们都要刷新一下访问时间。
+   */
   void access();
 
   /**
-   * @brief 标记指定页面为“脏”页。如果修改了页面的内容，则应调用此函数，
+   * @brief 标记指定页面为“脏”页。
+   * @details 如果修改了页面的内容，则应调用此函数，
    * 以便该页面被淘汰出缓冲区时系统将新的页面数据写入磁盘文件
    */
   void mark_dirty() { dirty_ = true; }
+
+  /**
+   * @brief 重置“脏”标记
+   * @details 如果页面已经被写入磁盘文件，则应调用此函数。
+   */
   void clear_dirty() { dirty_ = false; }
   bool dirty() const { return dirty_; }
 
@@ -103,7 +131,8 @@ public:
 
   /**
    * @brief 给当前页帧增加引用计数
-   * pin通常都会加着frame manager锁来访问
+   * pin通常都会加着frame manager锁来访问。
+   * 当我们访问某个页面时，我们不期望此页面被淘汰，所以我们会增加引用计数。
    */
   void pin();
 
@@ -135,6 +164,7 @@ private:
   bool             dirty_ = false;
   std::atomic<int> pin_count_{0};
   unsigned long    acc_time_  = 0;
+  PageNum          page_num_ = -1;
   int              file_desc_ = -1;
   Page             page_;
 

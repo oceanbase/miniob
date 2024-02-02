@@ -686,8 +686,12 @@ RC BplusTreeHandler::sync()
   return disk_buffer_pool_->flush_all_pages();
 }
 
-RC BplusTreeHandler::create(const char *file_name, AttrType attr_type, int attr_length, int internal_max_size /* = -1*/,
-    int leaf_max_size /* = -1 */)
+RC BplusTreeHandler::create(LogHandler &log_handler, 
+                            const char *file_name, 
+                            AttrType attr_type, 
+                            int attr_length, 
+                            int internal_max_size /* = -1*/,
+                            int leaf_max_size /* = -1 */)
 {
   BufferPoolManager &bpm = BufferPoolManager::instance();
 
@@ -700,7 +704,7 @@ RC BplusTreeHandler::create(const char *file_name, AttrType attr_type, int attr_
 
   DiskBufferPool *bp = nullptr;
 
-  rc = bpm.open_file(file_name, bp);
+  rc = bpm.open_file(log_handler, file_name, bp);
   if (rc != RC::SUCCESS) {
     LOG_WARN("Failed to open file. file name=%s, rc=%d:%s", file_name, rc, strrc(rc));
     return rc;
@@ -762,7 +766,7 @@ RC BplusTreeHandler::create(const char *file_name, AttrType attr_type, int attr_
   return RC::SUCCESS;
 }
 
-RC BplusTreeHandler::open(const char *file_name)
+RC BplusTreeHandler::open(LogHandler &log_handler, const char *file_name)
 {
   if (disk_buffer_pool_ != nullptr) {
     LOG_WARN("%s has been opened before index.open.", file_name);
@@ -772,7 +776,7 @@ RC BplusTreeHandler::open(const char *file_name)
   BufferPoolManager &bpm              = BufferPoolManager::instance();
   DiskBufferPool    *disk_buffer_pool = nullptr;
 
-  RC rc = bpm.open_file(file_name, disk_buffer_pool);
+  RC rc = bpm.open_file(log_handler, file_name, disk_buffer_pool);
   if (rc != RC::SUCCESS) {
     LOG_WARN("Failed to open file name=%s, rc=%d:%s", file_name, rc, strrc(rc));
     return rc;

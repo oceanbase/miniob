@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #define protected public
 
 #include "gtest/gtest.h"
-#include "storage/clog/log_handler.h"
+#include "storage/clog/disk_log_handler.h"
 #include "storage/clog/log_replayer.h"
 #include "common/thread/thread_pool_executor.h"
 
@@ -39,11 +39,11 @@ private:
   int64_t count_ = 0;
 };
 
-TEST(LogHandler, empty)
+TEST(DiskLogHandler, empty)
 {
-  // specific an empty directory and test LogHandler start/stop and so on
+  // specific an empty directory and test DiskLogHandler start/stop and so on
   const char *path = "test_log_handler";
-  LogHandler handler;
+  DiskLogHandler handler;
   ASSERT_EQ(RC::SUCCESS, handler.init(path));
   ASSERT_EQ(RC::SUCCESS, handler.start());
   ASSERT_EQ(RC::SUCCESS, handler.stop());
@@ -52,13 +52,13 @@ TEST(LogHandler, empty)
   filesystem::remove_all(path);
 }
 
-TEST(LogHandler, test_append_and_wait)
+TEST(DiskLogHandler, test_append_and_wait)
 {
-  // specific an empty directory and call LogHandler::append 10000 times and stop it
+  // specific an empty directory and call DiskLogHandler::append 10000 times and stop it
   const char *path = "test_log_handler";
   filesystem::remove_all(path);
 
-  LogHandler handler;
+  DiskLogHandler handler;
   ASSERT_EQ(RC::SUCCESS, handler.init(path));
   TestLogReplayer replayer;
   ASSERT_EQ(RC::SUCCESS, handler.replay(replayer, 0));
@@ -80,14 +80,14 @@ TEST(LogHandler, test_append_and_wait)
   filesystem::remove_all(path);
 }
 
-TEST(LogHandler, test_replay)
+TEST(DiskLogHandler, test_replay)
 {
-  // create an empty directory and init a LogHandler and then test replay
+  // create an empty directory and init a DiskLogHandler and then test replay
   // We will do nothing as there is no log file in the directory
   const char *path = "test_log_handler";
   filesystem::remove_all(path);
 
-  LogHandler handler;
+  DiskLogHandler handler;
   TestLogReplayer replayer;
   ASSERT_EQ(RC::SUCCESS, handler.init(path));
   ASSERT_EQ(RC::SUCCESS, handler.replay(replayer, 0));
@@ -114,7 +114,7 @@ TEST(LogHandler, test_replay)
 
   LOG_INFO("write %d log entries done and restart log handle", times);
 
-  LogHandler handler2;
+  DiskLogHandler handler2;
   ASSERT_EQ(RC::SUCCESS, handler2.init(path));
   ASSERT_EQ(RC::SUCCESS, handler2.replay(replayer, 0));
   ASSERT_EQ(times, replayer.count());
@@ -137,7 +137,7 @@ TEST(LogHandler, test_replay)
   ASSERT_EQ(RC::SUCCESS, handler2.iterate(log_entry_counter, 0));
   ASSERT_EQ(count, times + times2);
 
-  LogHandler handler3;
+  DiskLogHandler handler3;
   ASSERT_EQ(RC::SUCCESS, handler3.init(path));
   TestLogReplayer replayer3;
   ASSERT_EQ(RC::SUCCESS, handler3.replay(replayer3, 2000));
@@ -147,12 +147,12 @@ TEST(LogHandler, test_replay)
   // filesystem::remove_all(path);
 }
 
-TEST(LogHandler, multi_thread)
+TEST(DiskLogHandler, multi_thread)
 {
   const char *directory = "test_log_handler_multi_thread";
   filesystem::remove_all(directory);
 
-  LogHandler handler;
+  DiskLogHandler handler;
   TestLogReplayer replayer;
   ASSERT_EQ(RC::SUCCESS, handler.init(directory));
   ASSERT_EQ(RC::SUCCESS, handler.replay(replayer, 0));
@@ -160,7 +160,7 @@ TEST(LogHandler, multi_thread)
 
   const int times = 200000;
   ThreadPoolExecutor executor;
-  ASSERT_EQ(0, executor.init("TestLogHandler", 4, 4, 60*1000));
+  ASSERT_EQ(0, executor.init("TestDiskLogHandler", 4, 4, 60*1000));
 
   for (int i = 0; i < times; ++i) {
     ASSERT_EQ(0, executor.execute([&handler]() -> void {

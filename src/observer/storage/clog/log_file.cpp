@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include <charconv>
 #include "common/log/log.h"
 #include "storage/clog/log_file.h"
-#include "storage/clog/log_handler.h"
+#include "storage/clog/log_entry.h"
 #include "common/io/io.h"
 
 using namespace std;
@@ -183,8 +183,6 @@ RC LogFileWriter::write(LogEntry &entry)
   if (fd_ < 0) {
     return RC::FILE_NOT_OPENED;
   }
-
-  ASSERT(entry.lsn() > 0 && entry.payload_size() >= 0, "invalid log entry. entry=%s", entry.to_string().c_str());
 
   if (entry.lsn() <= last_lsn_) {
     LOG_WARN("write log entry failed. lsn is too small. filename=%s, last_lsn=%ld, entry=%s", 
