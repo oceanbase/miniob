@@ -31,7 +31,8 @@ public:
   explicit LogModule(Id id) : id_(id) {}
   explicit LogModule(int32_t id) : id_(static_cast<Id>(id)) {}
 
-  int32_t id() const { return static_cast<int32_t>(id_); }
+  Id id() const { return id_; }
+  int32_t index() const { return static_cast<int32_t>(id_); }
 
   const char *name() const
   {

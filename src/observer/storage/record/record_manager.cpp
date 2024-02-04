@@ -79,6 +79,11 @@ RC RecordPageIterator::next(Record &record)
 
 RecordPageHandler::~RecordPageHandler() { cleanup(); }
 
+RC RecordPageHandler::init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, ReadWriteMode mode)
+{
+  return init(buffer_pool, log_handler, page_num, mode == ReadWriteMode::READ_ONLY);
+}
+
 RC RecordPageHandler::init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, bool readonly)
 {
   if (disk_buffer_pool_ != nullptr) {
@@ -153,15 +158,12 @@ RC RecordPageHandler::init_empty_page(
 
   (void)log_handler_.init(log_handler, buffer_pool.id(), record_size);
 
-  LSN lsn = 0;
-  rc = log_handler_.init_new_page(page_num, lsn);
+  rc = log_handler_.init_new_page(frame_, page_num);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to init empty page: write log failed. page_num:record_size %d:%d. rc=%s", 
               page_num, record_size, strrc(rc));
     return rc;
   }
-
-  frame_->set_lsn(lsn);
 
   page_header_->record_num          = 0;
   page_header_->record_real_size    = record_size;
@@ -214,13 +216,11 @@ RC RecordPageHandler::insert_record(const char *data, RID *rid)
   bitmap.set_bit(index);
   page_header_->record_num++;
 
-  LSN lsn = 0;
-  RC rc = log_handler_.insert_record(RID(get_page_num(), index), data, lsn);
+  RC rc = log_handler_.insert_record(frame_, RID(get_page_num(), index), data);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to insert record. page_num %d:%d. rc=%s", disk_buffer_pool_->file_desc(), frame_->page_num(), strrc(rc));
     // return rc; // ignore errors
   }
-  frame_->set_lsn(lsn);
 
   // assert index < page_header_->record_capacity
   char *record_data = get_record_data(index);
@@ -275,14 +275,12 @@ RC RecordPageHandler::delete_record(const RID *rid)
     page_header_->record_num--;
     frame_->mark_dirty();
 
-    LSN lsn = 0;
-    RC rc = log_handler_.delete_record(*rid, lsn);
+    RC rc = log_handler_.delete_record(frame_, *rid);
     if (OB_FAIL(rc)) {
       LOG_ERROR("Failed to delete record. page_num %d:%d. rc=%s", disk_buffer_pool_->file_desc(), frame_->page_num(), strrc(rc));
       // return rc; // ignore errors
     }
 
-    frame_->set_lsn(lsn);
     return RC::SUCCESS;
   } else {
     LOG_DEBUG("Invalid slot_num %d, slot is empty, page_num %d.", rid->slot_num, frame_->page_num());
@@ -310,15 +308,13 @@ RC RecordPageHandler::update_record(const RID &rid, const char *data)
       memcpy(record_data, data, page_header_->record_real_size);
     }
 
-    LSN lsn = 0;
-    RC rc = log_handler_.update_record(rid, data, lsn);
+    RC rc = log_handler_.update_record(frame_, rid, data);
     if (OB_FAIL(rc)) {
       LOG_ERROR("Failed to update record. page_num %d:%d. rc=%s", 
                 disk_buffer_pool_->file_desc(), frame_->page_num(), strrc(rc));
       // return rc; // ignore errors
     }
 
-    frame_->set_lsn(lsn);
     return RC::SUCCESS;
   } else {
     LOG_DEBUG("Invalid slot_num %d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
@@ -579,6 +575,12 @@ RC RecordFileHandler::visit_record(const RID &rid, std::function<bool(Record &)>
 RecordFileScanner::~RecordFileScanner() { close_scan(); }
 
 RC RecordFileScanner::open_scan(
+    Table *table, DiskBufferPool &buffer_pool, Trx *trx, LogHandler &log_handler, ReadWriteMode mode, ConditionFilter *condition_filter)
+{
+  return open_scan(table, buffer_pool, trx, log_handler, mode == ReadWriteMode::READ_ONLY, condition_filter);
+}
+
+RC RecordFileScanner::open_scan(
     Table *table, DiskBufferPool &buffer_pool, Trx *trx, LogHandler &log_handler, bool readonly, ConditionFilter *condition_filter)
 {
   close_scan();
@@ -595,11 +597,6 @@ RC RecordFileScanner::open_scan(
     return rc;
   }
   condition_filter_ = condition_filter;
-
-  rc = fetch_next_record();
-  if (rc == RC::RECORD_EOF) {
-    rc = RC::SUCCESS;
-  }
 
   return rc;
 }

@@ -18,9 +18,13 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 #include "common/types.h"
 #include "common/rc.h"
+#include "storage/clog/log_replayer.h"
 
 struct RID;
 class LogHandler;
+class Frame;
+class BufferPoolManager;
+class DiskBufferPool;
 
 class RecordOperation
 {
@@ -72,13 +76,31 @@ public:
 
   RC init(LogHandler &log_handler, int32_t buffer_pool_id, int32_t record_size);
 
-  RC init_new_page(PageNum page_num, LSN &lsn);
-  RC insert_record(const RID &rid, const char *record, LSN &lsn);
-  RC delete_record(const RID &rid, LSN &lsn);
-  RC update_record(const RID &rid, const char *record, LSN &lsn);
+  RC init_new_page(Frame *frame, PageNum page_num);
+  RC insert_record(Frame *frame, const RID &rid, const char *record);
+  RC delete_record(Frame *frame, const RID &rid);
+  RC update_record(Frame *frame, const RID &rid, const char *record);
 
 private:
   LogHandler *log_handler_ = nullptr;
   int32_t buffer_pool_id_ = -1;
   int32_t record_size_ = -1;
+};
+
+class RecordLogReplayer final : public LogReplayer
+{
+public:
+  RecordLogReplayer(BufferPoolManager &bpm);
+  virtual ~RecordLogReplayer() = default;
+
+  virtual RC replay(const LogEntry &entry) override;
+
+private:
+  RC replay_init_page(DiskBufferPool &buffer_pool, const RecordLogHeader &log_header);
+  RC replay_insert(DiskBufferPool &buffer_pool, const RecordLogHeader &log_header);
+  RC replay_delete(DiskBufferPool &buffer_pool, const RecordLogHeader &log_header);
+  RC replay_update(DiskBufferPool &buffer_pool, const RecordLogHeader &log_header);
+
+private:
+  BufferPoolManager &bpm_;
 };

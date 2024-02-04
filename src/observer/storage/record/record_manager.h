@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/record/record.h"
 #include "storage/record/record_log.h"
+#include "common/types.h"
 
 class LogHandler;
 class ConditionFilter;
@@ -138,6 +139,8 @@ public:
    * @param readonly    是否只读。在访问页面时，需要对页面加锁
    */
   RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, bool readonly);
+
+  RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, ReadWriteMode mode);
 
   /**
    * @brief 数据库恢复时，与普通的运行场景有所不同，不做任何并发操作，也不需要加锁
@@ -333,6 +336,7 @@ public:
    * @param condition_filter 做一些初步过滤操作
    */
   RC open_scan(Table *table, DiskBufferPool &buffer_pool, Trx *trx, LogHandler &log_handler, bool readonly, ConditionFilter *condition_filter);
+  RC open_scan(Table *table, DiskBufferPool &buffer_pool, Trx *trx, LogHandler &log_handler, ReadWriteMode mode, ConditionFilter *condition_filter);
 
   /**
    * @brief 关闭一个文件扫描，释放相应的资源

@@ -82,6 +82,14 @@ struct RID
   }
 };
 
+struct RIDHash
+{
+  size_t operator() (const RID &rid) const noexcept
+  {
+    return std::hash<PageNum>()(rid.page_num) ^ std::hash<SlotNum>()(rid.slot_num);
+  }
+};
+
 /**
  * @brief 表示一个记录
  * 当前的记录都是连续存放的空间（内存或磁盘上）。
