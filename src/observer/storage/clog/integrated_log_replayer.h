@@ -20,6 +20,11 @@ See the Mulan PSL v2 for more details. */
 
 class BufferPoolManager;
 
+/**
+ * @brief 整体日志回放类
+ * @ingroup Clog
+ * @details 负责回放所有日志，是其它各模块日志回放的分发器
+ */
 class IntegratedLogReplayer : public LogReplayer
 {
 public:
@@ -29,6 +34,6 @@ public:
   RC replay(const LogEntry &entry) override;
 
 private:
-  BufferPoolLogReplayer buffer_pool_log_replayer_;
-  RecordLogReplayer record_log_replayer_;
+  BufferPoolLogReplayer buffer_pool_log_replayer_; ///< 缓冲池日志回放器
+  RecordLogReplayer     record_log_replayer_;      ///< record manager 日志回放器
 };

@@ -34,6 +34,17 @@ class LogReplayer;
  * @details 该模块负责日志的写入、读取、回放等功能。
  * 会在后台开启一个线程，一直尝试刷新内存中的日志到磁盘。
  * 所有的CLog日志文件都存放在指定的目录下，每个日志文件按照日志条数来划分。
+ * 调用的顺序应该是：
+ * @code {.cpp}
+ * DiskLogHandler handler;
+ * handler.init("/path/to/log");
+ * // replay 在一次启动只运行一次，它会计算当前日志的一些最新状态，必须在start之前执行
+ * handler.replay(replayer, start_lsn);
+ * handler.start();
+ * handler.stop();
+ * handler.wait();
+ * @endcode
+ * 
  */
 class DiskLogHandler : public LogHandler
 {
@@ -47,29 +58,74 @@ public:
    * @param path 日志文件存放的目录
    */
   RC init(const char *path);
+
+  /**
+   * @brief 启动线程刷新日志到磁盘
+   */
   RC start();
+  /**
+   * @brief 设置停止标识，并不会真正的停止
+   */
   RC stop();
+
+  /**
+   * @brief 等待线程结束
+   * @details 会刷新完所有日志到磁盘
+   */
   RC wait();
 
+  /**
+   * @brief 回放日志
+   * @details 日志回放后，会记录当前日志的最新状态，包括当前最大的LSN。
+   * 所以这个接口应该在启动之前调用一次。
+   * @param replayer 回放日志接口
+   * @param start_lsn 从哪个位置开始回放
+   */
   RC replay(LogReplayer &replayer, LSN start_lsn) override;
+
+  /**
+   * @brief 迭代日志
+   * @details 从start_lsn开始，迭代所有的日志。这仅仅是一个辅助函数。
+   * @param consumer 消费者
+   * @param start_lsn 从哪个位置开始迭代
+   */
   RC iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn) override;
 
+  /**
+   * @brief 等待指定的日志刷盘
+   * 
+   * @param lsn 想要等待的日志
+   */
   RC wait_lsn(LSN lsn) override;
 
+  /// @brief 当前的LSN
   LSN current_lsn() const { return entry_buffer_.current_lsn(); }
+  /// @brief 当前刷新到哪个日志
   LSN current_flushed_lsn() const { return entry_buffer_.flushed_lsn(); }
 
 private:
+  /**
+   * @brief 在缓存中增加一条日志
+   * 
+   * @param[out] lsn    返回的LSN
+   * @param[in] module  日志模块
+   * @param[in] data    日志数据。具体的数据由各个模块自己定义
+   * @param[in] size    数据的大小，不包含日志头
+   */
   RC _append(LSN &lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size) override;
 private:
+
+  /**
+   * @brief 刷新日志的线程函数
+   */
   void thread_func();
 
 private:
-  std::unique_ptr<std::thread> thread_;
-  std::atomic_bool running_{false};
+  std::unique_ptr<std::thread> thread_;  /// 刷新日志的线程
+  std::atomic_bool running_{false};      /// 是否还要继续运行
 
-  LogFileManager file_manager_;
-  LogEntryBuffer entry_buffer_;
+  LogFileManager file_manager_;  /// 管理所有的日志文件
+  LogEntryBuffer entry_buffer_;  /// 缓存日志
 
-  std::string path_;
+  std::string path_; /// 日志文件存放的目录
 };

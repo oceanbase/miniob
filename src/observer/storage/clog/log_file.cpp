@@ -298,7 +298,7 @@ RC LogFileManager::list_files(std::vector<std::string> &files, LSN start_lsn)
   files.clear();
 
   // 这里的代码是AI自动生成的
-  // 其实他写的不好，我们只需要找到比start_lsn相等或者小的第一个日志文件就可以了
+  // 其实写的不好，我们只需要找到比start_lsn相等或者小的第一个日志文件就可以了
   for (auto &file : log_files_) {
     if (file.first + max_entry_number_per_file_ - 1 >= start_lsn) {
       files.emplace_back(file.second.string());

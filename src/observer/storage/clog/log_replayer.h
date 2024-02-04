@@ -19,11 +19,20 @@ See the Mulan PSL v2 for more details. */
 
 class LogEntry;
 
+/**
+ * @brief 日志回放接口类
+ * @ingroup CLog
+ */
 class LogReplayer
 {
 public:
   LogReplayer() = default;
   virtual ~LogReplayer() = default;
 
+  /**
+   * @brief 回放一条日志
+   * 
+   * @param entry 日志
+   */
   virtual RC replay(const LogEntry &entry) = 0;
 };
