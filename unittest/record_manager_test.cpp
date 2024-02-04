@@ -183,7 +183,7 @@ TEST(RecordFileScanner, test_record_file_iterator)
     ASSERT_EQ(rc, RC::SUCCESS);
   }
 
-  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, log_handler, true /*readonly*/, nullptr /*condition_filter*/);
+  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;

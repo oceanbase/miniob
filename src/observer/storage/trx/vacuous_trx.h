@@ -43,7 +43,7 @@ public:
 
   RC insert_record(Table *table, Record &record) override;
   RC delete_record(Table *table, Record &record) override;
-  RC visit_record(Table *table, Record &record, bool readonly) override;
+  RC visit_record(Table *table, Record &record, ReadWriteMode mode) override;
   RC start_if_need() override;
   RC commit() override;
   RC rollback() override;

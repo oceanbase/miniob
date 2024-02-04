@@ -81,11 +81,6 @@ RecordPageHandler::~RecordPageHandler() { cleanup(); }
 
 RC RecordPageHandler::init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, ReadWriteMode mode)
 {
-  return init(buffer_pool, log_handler, page_num, mode == ReadWriteMode::READ_ONLY);
-}
-
-RC RecordPageHandler::init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, bool readonly)
-{
   if (disk_buffer_pool_ != nullptr) {
     if (frame_->page_num() == page_num) {
       LOG_WARN("Disk buffer pool has been opened for page_num %d.", page_num);
@@ -103,14 +98,14 @@ RC RecordPageHandler::init(DiskBufferPool &buffer_pool, LogHandler &log_handler,
 
   char *data = frame_->data();
 
-  if (readonly) {
+  if (mode == ReadWriteMode::READ_ONLY) {
     frame_->read_latch();
   } else {
     frame_->write_latch();
   }
   disk_buffer_pool_ = &buffer_pool;
   
-  readonly_         = readonly;
+  rw_mode_         = mode;
   page_header_      = (PageHeader *)(data);
   bitmap_           = data + PAGE_HEADER_SIZE;
 
@@ -137,7 +132,7 @@ RC RecordPageHandler::recover_init(DiskBufferPool &buffer_pool, PageNum page_num
 
   frame_->write_latch();
   disk_buffer_pool_ = &buffer_pool;
-  readonly_         = false;
+  rw_mode_         = ReadWriteMode::READ_WRITE;
   page_header_      = (PageHeader *)(data);
   bitmap_           = data + PAGE_HEADER_SIZE;
 
@@ -150,7 +145,7 @@ RC RecordPageHandler::recover_init(DiskBufferPool &buffer_pool, PageNum page_num
 RC RecordPageHandler::init_empty_page(
     DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, int record_size)
 {
-  RC rc = init(buffer_pool, log_handler, page_num, false /*readonly*/);
+  RC rc = init(buffer_pool, log_handler, page_num, ReadWriteMode::READ_WRITE);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to init empty page page_num:record_size %d:%d. rc=%s", page_num, record_size, strrc(rc));
     return rc;
@@ -189,7 +184,7 @@ RC RecordPageHandler::init_empty_page(
 RC RecordPageHandler::cleanup()
 {
   if (disk_buffer_pool_ != nullptr) {
-    if (readonly_) {
+    if (rw_mode_ == ReadWriteMode::READ_ONLY) {
       frame_->read_unlatch();
     } else {
       frame_->write_unlatch();
@@ -203,7 +198,8 @@ RC RecordPageHandler::cleanup()
 
 RC RecordPageHandler::insert_record(const char *data, RID *rid)
 {
-  ASSERT(readonly_ == false, "cannot insert record into page while the page is readonly");
+  ASSERT(rw_mode_ != ReadWriteMode::READ_ONLY, 
+         "cannot insert record into page while the page is readonly");
 
   if (page_header_->record_num == page_header_->record_capacity) {
     LOG_WARN("Page is full, page_num %d:%d.", disk_buffer_pool_->file_desc(), frame_->page_num());
@@ -262,7 +258,8 @@ RC RecordPageHandler::recover_insert_record(const char *data, const RID &rid)
 
 RC RecordPageHandler::delete_record(const RID *rid)
 {
-  ASSERT(readonly_ == false, "cannot delete record from page while the page is readonly");
+  ASSERT(rw_mode_ != ReadWriteMode::READ_ONLY, 
+         "cannot delete record from page while the page is readonly");
 
   if (rid->slot_num >= page_header_->record_capacity) {
     LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, page_num %d.", rid->slot_num, frame_->page_num());
@@ -290,7 +287,7 @@ RC RecordPageHandler::delete_record(const RID *rid)
 
 RC RecordPageHandler::update_record(const RID &rid, const char *data)
 {
-  ASSERT(readonly_ == false, "cannot delete record from page while the page is readonly");
+  ASSERT(rw_mode_ != ReadWriteMode::READ_ONLY, "cannot delete record from page while the page is readonly");
 
   if (rid.slot_num >= page_header_->record_capacity) {
     LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, page_num %d.", rid.slot_num, frame_->page_num());
@@ -395,7 +392,7 @@ RC RecordFileHandler::init_free_pages()
   while (bp_iterator.has_next()) {
     current_page_num = bp_iterator.next();
 
-    rc = record_page_handler.init(*disk_buffer_pool_, *log_handler_, current_page_num, true /*readonly*/);
+    rc = record_page_handler.init(*disk_buffer_pool_, *log_handler_, current_page_num, ReadWriteMode::READ_ONLY);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to init record page handler. page num=%d, rc=%d:%s", current_page_num, rc, strrc(rc));
       return rc;
@@ -425,7 +422,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
   while (!free_pages_.empty()) {
     current_page_num = *free_pages_.begin();
 
-    ret = record_page_handler.init(*disk_buffer_pool_, *log_handler_, current_page_num, false /*readonly*/);
+    ret = record_page_handler.init(*disk_buffer_pool_, *log_handler_, current_page_num, ReadWriteMode::READ_WRITE);
     if (OB_FAIL(ret)) {
       lock_.unlock();
       LOG_WARN("failed to init record page handler. page num=%d, rc=%d:%s", current_page_num, ret, strrc(ret));
@@ -496,7 +493,7 @@ RC RecordFileHandler::delete_record(const RID *rid)
 
   RecordPageHandler page_handler;
 
-  rc = page_handler.init(*disk_buffer_pool_, *log_handler_, rid->page_num, false /*readonly*/);
+  rc = page_handler.init(*disk_buffer_pool_, *log_handler_, rid->page_num, ReadWriteMode::READ_WRITE);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to init record page handler.page number=%d. rc=%s", rid->page_num, strrc(rc));
     return rc;
@@ -522,7 +519,7 @@ RC RecordFileHandler::get_record(const RID &rid, Record &record)
 {
   RecordPageHandler page_handler;
 
-  RC rc = page_handler.init(*disk_buffer_pool_, *log_handler_, rid.page_num, false/*readonly*/);
+  RC rc = page_handler.init(*disk_buffer_pool_, *log_handler_, rid.page_num, ReadWriteMode::READ_WRITE);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to init record page handler.page number=%d", rid.page_num);
     return rc;
@@ -544,7 +541,7 @@ RC RecordFileHandler::visit_record(const RID &rid, std::function<bool(Record &)>
 {
   RecordPageHandler page_handler;
 
-  RC rc = page_handler.init(*disk_buffer_pool_, *log_handler_, rid.page_num, false/*readonly*/);
+  RC rc = page_handler.init(*disk_buffer_pool_, *log_handler_, rid.page_num, ReadWriteMode::READ_WRITE);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to init record page handler.page number=%d", rid.page_num);
     return rc;
@@ -577,19 +574,13 @@ RecordFileScanner::~RecordFileScanner() { close_scan(); }
 RC RecordFileScanner::open_scan(
     Table *table, DiskBufferPool &buffer_pool, Trx *trx, LogHandler &log_handler, ReadWriteMode mode, ConditionFilter *condition_filter)
 {
-  return open_scan(table, buffer_pool, trx, log_handler, mode == ReadWriteMode::READ_ONLY, condition_filter);
-}
-
-RC RecordFileScanner::open_scan(
-    Table *table, DiskBufferPool &buffer_pool, Trx *trx, LogHandler &log_handler, bool readonly, ConditionFilter *condition_filter)
-{
   close_scan();
 
   table_            = table;
   disk_buffer_pool_ = &buffer_pool;
   trx_              = trx;
   log_handler_      = &log_handler;
-  readonly_         = readonly;
+  rw_mode_          = mode;
 
   RC rc = bp_iterator_.init(buffer_pool, 1);
   if (rc != RC::SUCCESS) {
@@ -625,7 +616,7 @@ RC RecordFileScanner::fetch_next_record()
   while (bp_iterator_.has_next()) {
     PageNum page_num = bp_iterator_.next();
     record_page_handler_.cleanup();
-    rc = record_page_handler_.init(*disk_buffer_pool_, *log_handler_, page_num, readonly_);
+    rc = record_page_handler_.init(*disk_buffer_pool_, *log_handler_, page_num, rw_mode_);
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to init record page handler. page_num=%d, rc=%s", page_num, strrc(rc));
       return rc;
@@ -672,7 +663,7 @@ RC RecordFileScanner::fetch_next_record_in_page()
     }
 
     // 让当前事务探测一下是否访问冲突，或者需要加锁、等锁等操作，由事务自己决定
-    rc = trx_->visit_record(table_, next_record_, readonly_);
+    rc = trx_->visit_record(table_, next_record_, rw_mode_);
     if (rc == RC::RECORD_INVISIBLE) {
       // 可以参考MvccTrx，表示当前记录不可见
       // 这种模式仅在 readonly 事务下是有效的

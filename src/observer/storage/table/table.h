@@ -14,8 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "storage/table/table_meta.h"
 #include <functional>
+
+#include "storage/table/table_meta.h"
+#include "common/types.h"
 
 struct RID;
 class Record;
@@ -82,7 +84,7 @@ public:
   // TODO refactor
   RC create_index(Trx *trx, const FieldMeta *field_meta, const char *index_name);
 
-  RC get_record_scanner(RecordFileScanner &scanner, Trx *trx, bool readonly);
+  RC get_record_scanner(RecordFileScanner &scanner, Trx *trx, ReadWriteMode mode);
 
   RecordFileHandler *record_handler() const { return record_handler_; }
 

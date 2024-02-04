@@ -151,7 +151,7 @@ RC MvccTrx::delete_record(Table *table, Record &record)
   RC delete_result = RC::SUCCESS;
 
   RC rc = table->visit_record(record.rid(), [this, table, &delete_result, &end_field](Record &inplace_record) -> bool {
-    RC rc = this->visit_record(table, inplace_record, false/*readonly*/);
+    RC rc = this->visit_record(table, inplace_record, ReadWriteMode::READ_WRITE);
     if (OB_FAIL(rc)) {
       delete_result = rc;
       return false;
@@ -180,7 +180,7 @@ RC MvccTrx::delete_record(Table *table, Record &record)
   return RC::SUCCESS;
 }
 
-RC MvccTrx::visit_record(Table *table, Record &record, bool readonly)
+RC MvccTrx::visit_record(Table *table, Record &record, ReadWriteMode mode)
 {
   Field begin_field;
   Field end_field;
@@ -201,7 +201,7 @@ RC MvccTrx::visit_record(Table *table, Record &record, bool readonly)
     rc = (-begin_xid == trx_id_) ? RC::SUCCESS : RC::RECORD_INVISIBLE;
   } else if (end_xid < 0) {
     // end xid 小于0 说明是正在删除但是还没有提交的数据
-    if (readonly) {
+    if (mode == ReadWriteMode::READ_ONLY) {
       // 如果 -end_xid 就是当前事务的事务号，说明是当前事务删除的
       rc = (-end_xid != trx_id_) ? RC::SUCCESS : RC::RECORD_INVISIBLE;
     } else {

@@ -129,8 +129,13 @@ public:
       return *this;
     }
 
-    this->~Record();
-    new (this) Record(other);
+    if (!owner_ || len_ != other.len_) {
+      this->~Record();
+      new (this) Record(other);
+      return *this;
+    }
+
+    memcpy(data_, other.data_, other.len_);
     return *this;
   }
 
