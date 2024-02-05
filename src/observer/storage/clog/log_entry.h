@@ -30,7 +30,7 @@ struct LogHeader final
   int32_t size;       /// 日志数据大小，不包含日志头
   int32_t module_id;  /// 日志模块编号
 
-  static const int32_t SIZE; /// 日志头大小
+  static const int32_t SIZE;  /// 日志头大小
 
   std::string to_string() const;
 };
@@ -50,10 +50,10 @@ public:
    */
   LogEntry(LogEntry &&other);
 
-  LogEntry &operator= (LogEntry &&other);
+  LogEntry &operator=(LogEntry &&other);
 
-  LogEntry(const LogEntry &) = delete;
-  LogEntry &operator= (const LogEntry &) = delete;
+  LogEntry(const LogEntry &)            = delete;
+  LogEntry &operator=(const LogEntry &) = delete;
 
 public:
   /**
@@ -70,19 +70,19 @@ public:
   RC init(LSN lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size);
 
   const LogHeader &header() const { return header_; }
-  const char *data() const { return data_.get(); }
-  int32_t payload_size() const { return header_.size; }
-  int32_t total_size() const { return LogHeader::SIZE + header_.size; }
+  const char      *data() const { return data_.get(); }
+  int32_t          payload_size() const { return header_.size; }
+  int32_t          total_size() const { return LogHeader::SIZE + header_.size; }
 
   void set_lsn(LSN lsn) { header_.lsn = lsn; }
-  
-  LSN lsn() const { return header_.lsn; }
+
+  LSN       lsn() const { return header_.lsn; }
   LogModule module() const { return LogModule(header_.module_id); }
 
 public:
   std::string to_string() const;
 
 private:
-  LogHeader               header_;    /// 日志头
-  std::unique_ptr<char[]> data_;      /// 日志数据
+  LogHeader               header_;  /// 日志头
+  std::unique_ptr<char[]> data_;    /// 日志数据
 };

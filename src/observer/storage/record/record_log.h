@@ -76,6 +76,18 @@ public:
 
   RC init(LogHandler &log_handler, int32_t buffer_pool_id, int32_t record_size);
 
+  /**
+   * @brief 初始化一个新的页面
+   * @details 记录一个初始化新页面的日志。
+   * TODO 这条日志通常伴随着一个buffer pool中创建页面的日志，这时候其实存在一个问题：
+   * 通常情况下日志是这样的：
+   * 1. buffer pool.allocate page
+   * 2. record_log_handler.init_new_page
+   * 如果第一条日志记录下来了，但是第二条日志没有记录下来，就会出现问题。就丢失了一个页面，
+   * 或者页面在访问时会出现异常。
+   * @param frame 页帧
+   * @param page_num 页面编号
+   */
   RC init_new_page(Frame *frame, PageNum page_num);
   RC insert_record(Frame *frame, const RID &rid, const char *record);
   RC delete_record(Frame *frame, const RID &rid);
