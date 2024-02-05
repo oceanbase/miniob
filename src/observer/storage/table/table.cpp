@@ -207,29 +207,19 @@ RC Table::insert_record(Record &record)
   return rc;
 }
 
-RC Table::visit_record(const RID &rid, bool readonly, std::function<void(Record &)> visitor)
+RC Table::visit_record(const RID &rid, std::function<bool(Record &)> visitor)
 {
-  return record_handler_->visit_record(rid, readonly, visitor);
+  return record_handler_->visit_record(rid, visitor);
 }
 
 RC Table::get_record(const RID &rid, Record &record)
 {
-  const int record_size = table_meta_.record_size();
-  char     *record_data = (char *)malloc(record_size);
-  ASSERT(nullptr != record_data, "failed to malloc memory. record data size=%d", record_size);
-
-  auto copier = [&record, record_data, record_size](Record &record_src) {
-    memcpy(record_data, record_src.data(), record_size);
-    record.set_rid(record_src.rid());
-  };
-  RC rc = record_handler_->visit_record(rid, true /*readonly*/, copier);
+  RC rc = record_handler_->get_record(rid, record);
   if (rc != RC::SUCCESS) {
-    free(record_data);
     LOG_WARN("failed to visit record. rid=%s, table=%s, rc=%s", rid.to_string().c_str(), name(), strrc(rc));
     return rc;
   }
 
-  record.set_data_owner(record_data, record_size);
   return rc;
 }
 
@@ -314,7 +304,7 @@ RC Table::init_record_handler(const char *base_dir)
 
   record_handler_ = new RecordFileHandler();
 
-  rc = record_handler_->init(data_buffer_pool_);
+  rc = record_handler_->init(*data_buffer_pool_, db_->log_handler());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to init record handler. rc=%s", strrc(rc));
     data_buffer_pool_->close_file();
@@ -327,9 +317,9 @@ RC Table::init_record_handler(const char *base_dir)
   return rc;
 }
 
-RC Table::get_record_scanner(RecordFileScanner &scanner, Trx *trx, bool readonly)
+RC Table::get_record_scanner(RecordFileScanner &scanner, Trx *trx, ReadWriteMode mode)
 {
-  RC rc = scanner.open_scan(this, *data_buffer_pool_, trx, readonly, nullptr);
+  RC rc = scanner.open_scan(this, *data_buffer_pool_, trx, db_->log_handler(), mode, nullptr);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("failed to open scanner. rc=%s", strrc(rc));
   }
@@ -365,7 +355,7 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
 
   // 遍历当前的所有数据，插入这个索引
   RecordFileScanner scanner;
-  rc = get_record_scanner(scanner, trx, true /*readonly*/);
+  rc = get_record_scanner(scanner, trx, ReadWriteMode::READ_ONLY);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to create scanner while creating index. table=%s, index=%s, rc=%s", 
              name(), index_name, strrc(rc));
@@ -373,19 +363,20 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
   }
 
   Record record;
-  while (scanner.has_next()) {
-    rc = scanner.next(record);
-    if (rc != RC::SUCCESS) {
-      LOG_WARN("failed to scan records while creating index. table=%s, index=%s, rc=%s",
-               name(), index_name, strrc(rc));
-      return rc;
-    }
+  while (OB_SUCC(rc = scanner.next(record))) {
     rc = index->insert_entry(record.data(), &record.rid());
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to insert record into index while creating index. table=%s, index=%s, rc=%s",
                name(), index_name, strrc(rc));
       return rc;
     }
+  }
+  if (RC::RECORD_EOF == rc) {
+    rc = RC::SUCCESS;
+  } else {
+    LOG_WARN("failed to insert record into index while creating index. table=%s, index=%s, rc=%s",
+             name(), index_name, strrc(rc));
+    return rc;
   }
   scanner.close_scan();
   LOG_INFO("inserted all records into new index. table=%s, index=%s", name(), index_name);
@@ -431,6 +422,18 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
 
   LOG_INFO("Successfully added a new index (%s) on the table (%s)", index_name, name());
   return rc;
+}
+
+RC Table::delete_record(const RID &rid)
+{
+  RC rc = RC::SUCCESS;
+  Record record;
+  rc = get_record(rid, record);
+  if (OB_FAIL(rc)) {
+    return rc;
+  }
+
+  return delete_record(record);
 }
 
 RC Table::delete_record(const Record &record)

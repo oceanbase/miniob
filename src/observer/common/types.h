@@ -29,3 +29,9 @@ using SlotNum = int32_t;
 using LSN = int64_t;
 
 #define LSN_FORMAT PRId64
+
+enum class ReadWriteMode
+{
+  READ_ONLY,
+  READ_WRITE
+};

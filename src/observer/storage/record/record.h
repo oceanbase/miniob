@@ -82,6 +82,14 @@ struct RID
   }
 };
 
+struct RIDHash
+{
+  size_t operator() (const RID &rid) const noexcept
+  {
+    return std::hash<PageNum>()(rid.page_num) ^ std::hash<SlotNum>()(rid.slot_num);
+  }
+};
+
 /**
  * @brief 表示一个记录
  * 当前的记录都是连续存放的空间（内存或磁盘上）。
@@ -121,8 +129,43 @@ public:
       return *this;
     }
 
+    if (!owner_ || len_ != other.len_) {
+      this->~Record();
+      new (this) Record(other);
+      return *this;
+    }
+
+    memcpy(data_, other.data_, other.len_);
+    return *this;
+  }
+
+  Record(Record &&other)
+  {
+    rid_   = other.rid_;
+
+    if (!other.owner_) {
+      data_ = other.data_;
+      len_  = other.len_;
+      other.data_ = nullptr;
+      other.len_  = 0;
+      this->owner_ = false;
+    } else {
+      data_  = other.data_;
+      len_   = other.len_;
+      other.data_ = nullptr;
+      other.len_  = 0;
+      this->owner_ = true;
+    }
+  }
+
+  Record &operator=(Record &&other)
+  {
+    if (this == &other) {
+      return *this;
+    }
+
     this->~Record();
-    new (this) Record(other);
+    new (this) Record(std::move(other));
     return *this;
   }
 
@@ -139,6 +182,20 @@ public:
     this->data_  = data;
     this->len_   = len;
     this->owner_ = true;
+  }
+
+  RC copy_data(const char *data, int len)
+  {
+    ASSERT(len!= 0, "the len of data should not be 0");
+    char *tmp = (char *)malloc(len);
+    if (nullptr == tmp) {
+      LOG_WARN("failed to allocate memory. size=%d", len);
+      return RC::NOMEM;
+    }
+
+    memcpy(tmp, data, len);
+    set_data_owner(tmp, len);
+    return RC::SUCCESS;
   }
 
   char       *data() { return this->data_; }

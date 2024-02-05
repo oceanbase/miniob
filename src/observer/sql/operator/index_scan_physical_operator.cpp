@@ -16,11 +16,11 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/index.h"
 #include "storage/trx/trx.h"
 
-IndexScanPhysicalOperator::IndexScanPhysicalOperator(Table *table, Index *index, bool readonly, const Value *left_value,
+IndexScanPhysicalOperator::IndexScanPhysicalOperator(Table *table, Index *index, ReadWriteMode mode, const Value *left_value,
     bool left_inclusive, const Value *right_value, bool right_inclusive)
     : table_(table),
       index_(index),
-      readonly_(readonly),
+      mode_(mode),
       left_inclusive_(left_inclusive),
       right_inclusive_(right_inclusive)
 {
@@ -72,7 +72,7 @@ RC IndexScanPhysicalOperator::next()
 
   bool filter_result = false;
   while (RC::SUCCESS == (rc = index_scanner_->next_entry(&rid))) {
-    rc = record_handler_->get_record(record_page_handler_, &rid, readonly_, &current_record_);
+    rc = record_handler_->get_record(rid, current_record_);
     if (rc != RC::SUCCESS) {
       return rc;
     }
@@ -87,7 +87,7 @@ RC IndexScanPhysicalOperator::next()
       continue;
     }
 
-    rc = trx_->visit_record(table_, current_record_, readonly_);
+    rc = trx_->visit_record(table_, current_record_, mode_);
     if (rc == RC::RECORD_INVISIBLE) {
       continue;
     } else {

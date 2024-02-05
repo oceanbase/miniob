@@ -78,7 +78,7 @@ RC LogEntry::init(LSN lsn, LogModule module, unique_ptr<char[]> data, int32_t si
   }
 
   header_.lsn = lsn;
-  header_.module_id = module.id();
+  header_.module_id = module.index();
   header_.size = size;
   data_ = std::move(data);
   return RC::SUCCESS;

@@ -14,8 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "storage/table/table_meta.h"
 #include <functional>
+
+#include "storage/table/table_meta.h"
+#include "common/types.h"
 
 struct RID;
 class Record;
@@ -74,7 +76,7 @@ public:
    */
   RC insert_record(Record &record);
   RC delete_record(const Record &record);
-  RC visit_record(const RID &rid, bool readonly, std::function<void(Record &)> visitor);
+  RC delete_record(const RID &rid);
   RC get_record(const RID &rid, Record &record);
 
   RC recover_insert_record(Record &record);
@@ -82,9 +84,18 @@ public:
   // TODO refactor
   RC create_index(Trx *trx, const FieldMeta *field_meta, const char *index_name);
 
-  RC get_record_scanner(RecordFileScanner &scanner, Trx *trx, bool readonly);
+  RC get_record_scanner(RecordFileScanner &scanner, Trx *trx, ReadWriteMode mode);
 
   RecordFileHandler *record_handler() const { return record_handler_; }
+
+  /**
+   * @brief 可以在页面锁保护的情况下访问记录
+   * @details 当前是在事务中访问记录，为了提供一个“原子性”的访问模式
+   * @param rid 
+   * @param visitor 
+   * @return RC 
+   */
+  RC visit_record(const RID &rid, std::function<bool(Record &)> visitor);
 
 public:
   int32_t     table_id() const { return table_meta_.table_id(); }

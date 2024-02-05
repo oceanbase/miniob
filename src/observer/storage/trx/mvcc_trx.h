@@ -74,12 +74,12 @@ public:
    *
    * @param table    要访问的数据属于哪张表
    * @param record   要访问哪条数据
-   * @param readonly 是否只读访问
+   * @param mode     是否只读访问
    * @return RC      - SUCCESS 成功
    *                 - RECORD_INVISIBLE 此数据对当前事务不可见，应该跳过
    *                 - LOCKED_CONCURRENCY_CONFLICT 与其它事务有冲突
    */
-  RC visit_record(Table *table, Record &record, bool readonly) override;
+  RC visit_record(Table *table, Record &record, ReadWriteMode mode) override;
 
   RC start_if_need() override;
   RC commit() override;
@@ -97,7 +97,8 @@ private:
   static const int32_t MAX_TRX_ID = std::numeric_limits<int32_t>::max();
 
 private:
-  using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
+  // using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
+  using OperationSet = std::vector<Operation>;
   MvccTrxKit  &trx_kit_;
   CLogManager *log_manager_ = nullptr;
   int32_t      trx_id_      = -1;

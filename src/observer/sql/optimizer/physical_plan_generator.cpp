@@ -132,13 +132,13 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
 
     const Value               &value           = value_expr->get_value();
     IndexScanPhysicalOperator *index_scan_oper = new IndexScanPhysicalOperator(
-        table, index, table_get_oper.readonly(), &value, true /*left_inclusive*/, &value, true /*right_inclusive*/);
+        table, index, table_get_oper.read_write_mode(), &value, true /*left_inclusive*/, &value, true /*right_inclusive*/);
 
     index_scan_oper->set_predicates(std::move(predicates));
     oper = unique_ptr<PhysicalOperator>(index_scan_oper);
     LOG_TRACE("use index scan");
   } else {
-    auto table_scan_oper = new TableScanPhysicalOperator(table, table_get_oper.readonly());
+    auto table_scan_oper = new TableScanPhysicalOperator(table, table_get_oper.read_write_mode());
     table_scan_oper->set_predicates(std::move(predicates));
     oper = unique_ptr<PhysicalOperator>(table_scan_oper);
     LOG_TRACE("use table scan");
@@ -220,7 +220,8 @@ RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, unique
   RC rc = RC::SUCCESS;
   if (!child_opers.empty()) {
     LogicalOperator *child_oper = child_opers.front().get();
-    rc                          = create(*child_oper, child_physical_oper);
+
+    rc = create(*child_oper, child_physical_oper);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to create physical operator. rc=%s", strrc(rc));
       return rc;
@@ -239,7 +240,7 @@ RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, uniq
 {
   vector<unique_ptr<LogicalOperator>> &child_opers = explain_oper.children();
 
-  RC                           rc = RC::SUCCESS;
+  RC rc = RC::SUCCESS;
 
   unique_ptr<PhysicalOperator> explain_physical_oper(new ExplainPhysicalOperator);
   for (unique_ptr<LogicalOperator> &child_oper : child_opers) {
@@ -285,7 +286,7 @@ RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr
 
 RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper)
 {
-  RC                    rc        = RC::SUCCESS;
+  RC rc = RC::SUCCESS;
 
   CalcPhysicalOperator *calc_oper = new CalcPhysicalOperator(std::move(logical_oper.expressions()));
   oper.reset(calc_oper);
