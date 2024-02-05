@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/bplus_tree.h"
 #include "common/lang/lower_bound.h"
 #include "common/log/log.h"
+#include "common/global_context.h"
 #include "sql/parser/parse_defs.h"
 #include "storage/buffer/disk_buffer_pool.h"
 
@@ -693,7 +694,7 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
                             int internal_max_size /* = -1*/,
                             int leaf_max_size /* = -1 */)
 {
-  BufferPoolManager &bpm = BufferPoolManager::instance();
+  BufferPoolManager &bpm = *GCTX.buffer_pool_manager_;
 
   RC rc = bpm.create_file(file_name);
   if (rc != RC::SUCCESS) {
@@ -711,7 +712,7 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
   }
   LOG_INFO("Successfully open index file %s.", file_name);
 
-  Frame *header_frame;
+  Frame *header_frame = nullptr;
   rc = bp->allocate_page(&header_frame);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to allocate header page for bplus tree. rc=%d:%s", rc, strrc(rc));
@@ -773,7 +774,7 @@ RC BplusTreeHandler::open(LogHandler &log_handler, const char *file_name)
     return RC::RECORD_OPENNED;
   }
 
-  BufferPoolManager &bpm              = BufferPoolManager::instance();
+  BufferPoolManager &bpm              = *GCTX.buffer_pool_manager_;
   DiskBufferPool    *disk_buffer_pool = nullptr;
 
   RC rc = bpm.open_file(log_handler, file_name, disk_buffer_pool);
