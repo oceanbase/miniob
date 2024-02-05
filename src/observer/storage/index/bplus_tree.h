@@ -131,28 +131,8 @@ public:
 
   std::string operator()(const char *v) const
   {
-    switch (attr_type_) {
-      case INTS: {
-        return std::to_string(*(int *)v);
-      } break;
-      case FLOATS: {
-        return std::to_string(*(float *)v);
-      }
-      case CHARS: {
-        std::string str;
-        for (int i = 0; i < attr_length_; i++) {
-          if (v[i] == 0) {
-            break;
-          }
-          str.push_back(v[i]);
-        }
-        return str;
-      }
-      default: {
-        ASSERT(false, "unknown attr type. %d", attr_type_);
-      }
-    }
-    return std::string();
+    Value value(attr_type_, const_cast<char *>(v), attr_length_);
+    return value.to_string();
   }
 
 private:
@@ -445,10 +425,10 @@ public:
    * attrType描述被索引属性的类型，attrLength描述被索引属性的长度
    */
   RC create(LogHandler &log_handler,
-            const char *file_name, 
-            AttrType attr_type, 
-            int attr_length, 
-            int internal_max_size = -1, 
+            const char *file_name,
+            AttrType attr_type,
+            int attr_length,
+            int internal_max_size = -1,
             int leaf_max_size = -1);
 
   /**
