@@ -320,12 +320,18 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
   index_file_header.key_length        = 4 + sizeof(RID);
   index_file_header.attr_type         = INTS;
 
+  VacuousLogHandler log_handler;
+  BufferPoolManager bpm;
+  BPFrameManager frame_manager("test");
+  DiskBufferPool buffer_pool(bpm, frame_manager, log_handler);
+  BplusTreeMiniTransaction mtr(buffer_pool, log_handler, index_file_header.key_length, sizeof(RID));
+
   Frame frame;
 
   KeyComparator key_comparator;
   key_comparator.init(INTS, 4);
 
-  LeafIndexNodeHandler leaf_node(index_file_header, &frame);
+  LeafIndexNodeHandler leaf_node(mtr, index_file_header, &frame);
   leaf_node.init_empty();
   ASSERT_EQ(0, leaf_node.size());
 
@@ -377,12 +383,18 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
   index_file_header.key_length        = 4 + sizeof(RID);
   index_file_header.attr_type         = INTS;
 
+  VacuousLogHandler log_handler;
+  BufferPoolManager bpm;
+  BPFrameManager frame_manager("test");
+  DiskBufferPool buffer_pool(bpm, frame_manager, log_handler);
+  BplusTreeMiniTransaction mtr(buffer_pool, log_handler, index_file_header.key_length, sizeof(RID));
+
   Frame frame;
 
   KeyComparator key_comparator;
   key_comparator.init(INTS, 4);
 
-  InternalIndexNodeHandler internal_node(index_file_header, &frame);
+  InternalIndexNodeHandler internal_node(mtr, index_file_header, &frame);
   internal_node.init_empty();
   ASSERT_EQ(0, internal_node.size());
 
