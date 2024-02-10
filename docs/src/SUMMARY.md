@@ -22,6 +22,7 @@
   - [B+树实现](./design/miniob-bplus-tree.md)
   - [并发B+树实现](./design/miniob-bplus-tree-concurrency.md)
   - [线程池模型](./design/miniob-thread-model.md)
+  - [通讯协议简介](./design/miniob-mysql-protocol.md)
   - [Doxy代码文档](./design/doxy/html/index.html)
 
 - [OceanBase 数据库大赛](./game/introduction.md)
