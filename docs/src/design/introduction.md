@@ -10,5 +10,5 @@
 - [B+树实现](./miniob-bplus-tree.md)
 - [并发B+树实现](./miniob-bplus-tree-concurrency.md)
 - [线程池模型](./miniob-thread-model.md)
-- [通讯协议简介](./design/miniob-mysql-protocol.md)
+- [通讯协议简介](./miniob-mysql-protocol.md)
 - [Doxy文档](./doxy/html/index.html)
