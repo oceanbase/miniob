@@ -9,7 +9,7 @@ CMAKE_COMMAND="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --log-level=STATUS"
 
 ALL_ARGS=("$@")
 BUILD_ARGS=()
-MAKE_ARGS=(-j $CPU_CORES)
+MAKE_ARGS=()
 MAKE=make
 
 echo "$0 ${ALL_ARGS[@]}"
@@ -21,10 +21,11 @@ function usage
   echo "./build.sh init # install dependence"
   echo "./build.sh clean"
   echo "./build.sh [BuildType] [--make [MakeOptions]]"
+  echo "./build.sh [BuildType] [[MakeOptions]]"
   echo ""
   echo "OPTIONS:"
   echo "BuildType => debug(default), release"
-  echo "MakeOptions => Options to make command, default: -j N"
+  echo "MakeOptions => Options to make command, default: -jN"
 
   echo ""
   echo "Examples:"
@@ -42,6 +43,9 @@ function parse_args
     if [[ "$arg" == "--make" ]]
     then
       make_start=true
+    elif [[ "$arg" =~ ^-j[0-9]+ ]]
+    then
+      MAKE_ARGS+=("$arg")
     elif [[ $make_start == false ]]
     then
       BUILD_ARGS+=("$arg")
