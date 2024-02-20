@@ -30,12 +30,12 @@ RC LogEntryBuffer::init(LSN lsn, int32_t max_bytes /*= 0*/)
   return RC::SUCCESS;
 }
 
-RC LogEntryBuffer::append(LSN &lsn, LogModule::Id module_id, unique_ptr<char[]> data, int32_t size)
+RC LogEntryBuffer::append(LSN &lsn, LogModule::Id module_id, vector<char> &&data)
 {
-  return append(lsn, LogModule(module_id), std::move(data), size);
+  return append(lsn, LogModule(module_id), std::move(data));
 }
 
-RC LogEntryBuffer::append(LSN &lsn, LogModule module, unique_ptr<char[]> data, int32_t size)
+RC LogEntryBuffer::append(LSN &lsn, LogModule module, vector<char> &&data)
 {
   /// 控制当前buffer使用的内存
   /// 简单粗暴，强制原地等待
@@ -45,7 +45,7 @@ RC LogEntryBuffer::append(LSN &lsn, LogModule module, unique_ptr<char[]> data, i
   }
 
   LogEntry entry;
-  RC rc = entry.init(lsn, module, std::move(data), size);
+  RC rc = entry.init(lsn, module, std::move(data));
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to init log entry. rc=%s", strrc(rc));
     return rc;

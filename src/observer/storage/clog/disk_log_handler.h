@@ -110,9 +110,8 @@ private:
    * @param[out] lsn    返回的LSN
    * @param[in] module  日志模块
    * @param[in] data    日志数据。具体的数据由各个模块自己定义
-   * @param[in] size    数据的大小，不包含日志头
    */
-  RC _append(LSN &lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size) override;
+  RC _append(LSN &lsn, LogModule module, std::vector<char> &&data) override;
 private:
 
   /**

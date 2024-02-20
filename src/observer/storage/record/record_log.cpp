@@ -94,7 +94,7 @@ RC RecordLogHandler::init_new_page(Frame *frame, PageNum page_num)
 
   LSN lsn = 0;
   RC rc = log_handler_->append(
-      lsn, LogModule::Id::RECORD_MANAGER, reinterpret_cast<const char *>(&header), RecordLogHeader::SIZE);
+      lsn, LogModule::Id::RECORD_MANAGER, span<const char>(reinterpret_cast<const char *>(&header), RecordLogHeader::SIZE));
   if (OB_SUCC(rc) && lsn > 0) {
     frame->set_lsn(lsn);
   }
@@ -104,16 +104,16 @@ RC RecordLogHandler::init_new_page(Frame *frame, PageNum page_num)
 RC RecordLogHandler::insert_record(Frame *frame, const RID &rid, const char *record)
 {
   const int          log_payload_size = RecordLogHeader::SIZE + record_size_;
-  unique_ptr<char[]> log_payload(new char[log_payload_size]);
-  RecordLogHeader   *header = reinterpret_cast<RecordLogHeader *>(log_payload.get());
+  vector<char>       log_payload(log_payload_size);
+  RecordLogHeader   *header = reinterpret_cast<RecordLogHeader *>(log_payload.data());
   header->buffer_pool_id    = buffer_pool_id_;
   header->operation_type    = RecordOperation(RecordOperation::Type::INSERT).type_id();
   header->page_num          = rid.page_num;
   header->slot_num          = rid.slot_num;
-  memcpy(log_payload.get() + RecordLogHeader::SIZE, record, record_size_);
+  memcpy(log_payload.data() + RecordLogHeader::SIZE, record, record_size_);
 
   LSN lsn = 0;
-  RC rc = log_handler_->append(lsn, LogModule::Id::RECORD_MANAGER, std::move(log_payload), log_payload_size);
+  RC rc = log_handler_->append(lsn, LogModule::Id::RECORD_MANAGER, std::move(log_payload));
   if (OB_SUCC(rc) && lsn > 0) {
     frame->set_lsn(lsn);
   }
@@ -123,16 +123,16 @@ RC RecordLogHandler::insert_record(Frame *frame, const RID &rid, const char *rec
 RC RecordLogHandler::update_record(Frame *frame, const RID &rid, const char *record)
 {
   const int          log_payload_size = RecordLogHeader::SIZE + record_size_;
-  unique_ptr<char[]> log_payload(new char[log_payload_size]);
-  RecordLogHeader   *header = reinterpret_cast<RecordLogHeader *>(log_payload.get());
+  vector<char> log_payload(log_payload_size);
+  RecordLogHeader   *header = reinterpret_cast<RecordLogHeader *>(log_payload.data());
   header->buffer_pool_id    = buffer_pool_id_;
   header->operation_type    = RecordOperation(RecordOperation::Type::UPDATE).type_id();
   header->page_num          = rid.page_num;
   header->slot_num          = rid.slot_num;
-  memcpy(log_payload.get() + RecordLogHeader::SIZE, record, record_size_);
+  memcpy(log_payload.data() + RecordLogHeader::SIZE, record, record_size_);
 
   LSN lsn = 0;
-  RC rc = log_handler_->append(lsn, LogModule::Id::RECORD_MANAGER, std::move(log_payload), log_payload_size);
+  RC rc = log_handler_->append(lsn, LogModule::Id::RECORD_MANAGER, std::move(log_payload));
   if (OB_SUCC(rc) && lsn > 0) {
     frame->set_lsn(lsn);
   }
@@ -149,7 +149,7 @@ RC RecordLogHandler::delete_record(Frame *frame, const RID &rid)
 
   LSN lsn = 0;
   RC rc = log_handler_->append(
-      lsn, LogModule::Id::RECORD_MANAGER, reinterpret_cast<const char *>(&header), RecordLogHeader::SIZE);
+      lsn, LogModule::Id::RECORD_MANAGER, span<const char>(reinterpret_cast<const char *>(&header), RecordLogHeader::SIZE));
   if (OB_SUCC(rc) && lsn > 0) {
     frame->set_lsn(lsn);
   }

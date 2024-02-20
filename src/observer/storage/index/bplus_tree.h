@@ -31,6 +31,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/bplus_tree_log.h"
 
 class BplusTreeHandler;
+class BplusTreeMiniTransaction;
 
 /**
  * @brief B+树的实现
@@ -213,9 +214,9 @@ struct IndexNode
 {
   static constexpr int HEADER_SIZE = 12;
 
-  bool    is_leaf;
-  int     key_num;
-  PageNum parent;
+  bool    is_leaf;   /// 当前是叶子节点还是内部节点
+  int     key_num;   /// 当前页面上一共有多少个键值对
+  PageNum parent;    /// 父节点页面编号
 };
 
 /**
@@ -258,7 +259,7 @@ struct InternalIndexNode : public IndexNode
   static constexpr int HEADER_SIZE = IndexNode::HEADER_SIZE;
 
   /**
-   * internal node just store order -1 keys and order rids, the last rid is last rght child.
+   * internal node just store order -1 keys and order rids, the last rid is last right child.
    */
   char array[0];
 };
@@ -275,39 +276,65 @@ public:
   IndexNodeHandler(BplusTreeMiniTransaction &mtr, const IndexFileHeader &header, Frame *frame);
   virtual ~IndexNodeHandler() = default;
 
+  /// @brief 初始化一个新的页面
+  /// @param leaf 是否叶子节点
   void init_empty(bool leaf);
 
+  /// 是否叶子节点
   bool is_leaf() const;
-  int  key_size() const;
-  int  value_size() const;
-  int  item_size() const;
+
+  /// @brief 存储的键值大小
+  virtual int  key_size() const;
+  /// @brief 存储的值的大小。内部节点和叶子节点是不一样的，但是这里返回的是叶子节点存储的大小
+  virtual int  value_size() const;
+  /// @brief 存储的键值对的大小。值是指叶子节点中存放的数据
+  virtual int  item_size() const;
 
   void    increase_size(int n);
   int     size() const;
   int     max_size() const;
   int     min_size() const;
-  void    set_parent_page_num(PageNum page_num);
+  RC      set_parent_page_num(PageNum page_num);
   PageNum parent_page_num() const;
   PageNum page_num() const;
 
+  /**
+   * @brief 判断对指定的操作，是否安全的
+   * @details 安全是指在操作执行后，节点不需要调整，比如分裂、合并或重新分配
+   * @param op 将要执行的操作
+   * @param is_root_node 是否根节点
+   */
   bool is_safe(BplusTreeOperationType op, bool is_root_node);
 
+  /**
+   * @brief 验证当前节点是否有问题
+   */
   bool validate() const;
 
+  Frame *frame() const { return frame_; }
+
   friend std::string to_string(const IndexNodeHandler &handler);
+
+  RC recover_insert_items(int index, const char *items, int num);
+  RC recover_remove_items(int index, int num);
+
+protected:
+  virtual char *__item_at(int index) const { return nullptr; }
+  char *__key_at(int index) const { return __item_at(index); }
+  char *__value_at(int index) const { return __item_at(index) + key_size(); };
 
 protected:
   BplusTreeMiniTransaction &mtr_;
   const IndexFileHeader &header_;
-  PageNum                page_num_;
-  IndexNode             *node_;
+  Frame                 *frame_ = nullptr;
+  IndexNode             *node_ = nullptr;
 };
 
 /**
  * @brief 叶子节点的操作
  * @ingroup BPlusTree
  */
-class LeafIndexNodeHandler : public IndexNodeHandler
+class LeafIndexNodeHandler final : public IndexNodeHandler
 {
 public:
   LeafIndexNodeHandler(BplusTreeMiniTransaction &mtr, const IndexFileHeader &header, Frame *frame);
@@ -341,23 +368,22 @@ public:
 
   friend std::string to_string(const LeafIndexNodeHandler &handler, const KeyPrinter &printer);
 
-private:
-  char *__item_at(int index) const;
-  char *__key_at(int index) const;
-  char *__value_at(int index) const;
+protected:
+  char *__item_at(int index) const override;
 
+  void append(const char *items, int num);
   void append(const char *item);
   void preappend(const char *item);
 
 private:
-  LeafIndexNode *leaf_node_;
+  LeafIndexNode *leaf_node_ = nullptr;
 };
 
 /**
  * @brief 内部节点的操作
  * @ingroup BPlusTree
  */
-class InternalIndexNodeHandler : public IndexNodeHandler
+class InternalIndexNodeHandler final : public IndexNodeHandler
 {
 public:
   InternalIndexNodeHandler(BplusTreeMiniTransaction &mtr, const IndexFileHeader &header, Frame *frame);
@@ -366,7 +392,7 @@ public:
   void init_empty();
   void create_new_root(PageNum first_page_num, const char *key, PageNum page_num);
 
-  void    insert(const char *key, PageNum page_num, const KeyComparator &comparator);
+  RC      insert(const char *key, PageNum page_num, const KeyComparator &comparator);
   char   *key_at(int index);
   PageNum value_at(int index);
 
@@ -388,6 +414,11 @@ public:
   int lookup(
       const KeyComparator &comparator, const char *key, bool *found = nullptr, int *insert_position = nullptr) const;
 
+  /**
+   * @brief 把当前节点的所有数据都迁移到另一个节点上
+   * 
+   * @param other 数据迁移的目标节点
+   */
   RC move_to(InternalIndexNodeHandler &other);
   RC move_first_to_end(InternalIndexNodeHandler &other);
   RC move_last_to_front(InternalIndexNodeHandler &other);
@@ -398,17 +429,16 @@ public:
   friend std::string to_string(const InternalIndexNodeHandler &handler, const KeyPrinter &printer);
 
 private:
-  RC copy_from(const char *items, int num);
+  RC insert_items(int index, const char *items, int num);
+  RC append(const char *items, int num);
   RC append(const char *item);
   RC preappend(const char *item);
 
 private:
-  char *__item_at(int index) const;
-  char *__key_at(int index) const;
-  char *__value_at(int index) const;
+  char *__item_at(int index) const override;
 
-  int value_size() const;
-  int item_size() const;
+  int value_size() const override;
+  int item_size() const override;
 
 private:
   InternalIndexNode *internal_node_ = nullptr;
@@ -438,6 +468,7 @@ public:
    * 索引句柄用于在索引中插入或删除索引项，也可用于索引的扫描
    */
   RC open(LogHandler &log_handler, const char *file_name);
+  RC open(LogHandler &log_handler, DiskBufferPool &buffer_pool);
 
   /**
    * 关闭句柄indexHandle对应的索引文件
@@ -483,6 +514,9 @@ public:
   LogHandler &log_handler() const { return *log_handler_; }
 
 public:
+  RC rocover_update_root_page(BplusTreeMiniTransaction &mtr, PageNum root_page_num);
+
+public:
   /**
    * 这些函数都是线程不安全的，不要在多线程的环境下调用
    */
@@ -525,14 +559,12 @@ protected:
   RC insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, Frame *frame, const char *pkey, const RID *rid);
   RC create_new_tree(BplusTreeMiniTransaction &mtr, const char *key, const RID *rid);
 
-  void update_root_page_num(PageNum root_page_num);
   void update_root_page_num_locked(BplusTreeMiniTransaction &mtr, PageNum root_page_num);
 
   RC adjust_root(BplusTreeMiniTransaction &mtr, Frame *root_frame);
 
 private:
   common::MemPoolItem::unique_ptr make_key(const char *user_key, const RID &rid);
-  void                            free_key(char *key);
 
 protected:
   LogHandler *log_handler_ = nullptr;
@@ -590,8 +622,8 @@ private:
   bool touch_end();
 
 private:
-  bool              inited_ = false;
-  BplusTreeHandler &tree_handler_;
+  bool                     inited_ = false;
+  BplusTreeHandler        &tree_handler_;
   BplusTreeMiniTransaction mtr_;
 
   /// 使用左右叶子节点和位置来表示扫描的起始位置和终止位置

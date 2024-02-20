@@ -54,10 +54,7 @@ RC BufferPoolLogHandler::append_log(BufferPoolOperation::Type type, PageNum page
   log.page_num = page_num;
   log.operation_type = BufferPoolOperation(type).type_id();
 
-  unique_ptr<char[]> data(new char[sizeof(log)]);
-  memcpy(data.get(), &log, sizeof(log));
-
-  return log_handler_.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data), sizeof(log));
+  return log_handler_.append(lsn, LogModule::Id::BUFFER_POOL, span<const char>(reinterpret_cast<const char *>(&log), sizeof(log)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

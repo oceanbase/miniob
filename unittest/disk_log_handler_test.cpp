@@ -67,7 +67,8 @@ TEST(DiskLogHandler, test_append_and_wait)
   int times = 10000;
   for (int i = 0; i < times; ++i) {
     LSN lsn = 0;
-    ASSERT_EQ(handler.append(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+    vector<char> data(10);
+    ASSERT_EQ(handler.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
 
     if (i % 999 == 0) {
       ASSERT_EQ(RC::SUCCESS, handler.wait_lsn(i));
@@ -98,7 +99,8 @@ TEST(DiskLogHandler, test_replay)
   for (int i = 0; i < times; ++i) {
     LogEntry entry;
     LSN lsn = 0;
-    ASSERT_EQ(handler.append(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+    vector<char> data(10);
+    ASSERT_EQ(handler.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
   }
 
   ASSERT_EQ(RC::SUCCESS, handler.stop());
@@ -125,7 +127,8 @@ TEST(DiskLogHandler, test_replay)
   const int times2 = 2030;
   for (int i = 0; i < times2; ++i) {
     LSN lsn = 0;
-    ASSERT_EQ(handler2.append(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+    vector<char> data(10);
+    ASSERT_EQ(handler2.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
   }
 
   ASSERT_EQ(handler2.current_lsn(), times2 + times);
@@ -165,7 +168,8 @@ TEST(DiskLogHandler, multi_thread)
   for (int i = 0; i < times; ++i) {
     ASSERT_EQ(0, executor.execute([&handler]() -> void {
       LSN lsn = 0;
-      ASSERT_EQ(handler.append(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+      vector<char> data(10);
+      ASSERT_EQ(handler.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
     }));
   }
 

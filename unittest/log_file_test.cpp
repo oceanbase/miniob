@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #define private public
 #define protected public
 
+#include <span>
+
 #include "gtest/gtest.h"
 #include "common/log/log.h"
 #include "storage/clog/log_file.h"
@@ -42,7 +44,8 @@ TEST(LogFileWriter, basic)
   LogEntry entry;
 
   for (LSN lsn = 1; lsn <= end_lsn - 1; ++lsn) {
-    ASSERT_EQ(entry.init(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+    vector<char> data(10);
+    ASSERT_EQ(entry.init(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
     char buf[10];
     memcpy(buf, entry.data(), 10);
     ASSERT_EQ(RC::SUCCESS, writer.write(entry));
@@ -51,18 +54,21 @@ TEST(LogFileWriter, basic)
   }
 
   // test LogFileWriter full
-  ASSERT_EQ(entry.init(end_lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+  vector<char> data(10);
+  ASSERT_EQ(entry.init(end_lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
   ASSERT_EQ(RC::SUCCESS, writer.write(entry));
   ASSERT_TRUE(writer.valid());
   ASSERT_TRUE(writer.full());
 
   // test LogFileWriter write smaller lsn log
-  ASSERT_EQ(entry.init(end_lsn - 100, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+  data.resize(10);
+  ASSERT_EQ(entry.init(end_lsn - 100, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
   ASSERT_NE(RC::SUCCESS, writer.write(entry));
 
+  data.resize(10);
   writer.close();
   ASSERT_EQ(RC::SUCCESS, writer.open(filename, end_lsn));
-  ASSERT_EQ(entry.init(end_lsn + 1, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+  ASSERT_EQ(entry.init(end_lsn + 1, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
   ASSERT_NE(RC::SUCCESS, writer.write(entry));
   ASSERT_TRUE(writer.full());
 
@@ -83,7 +89,8 @@ TEST(LogFileReader, basic)
   LogEntry entry;
 
   for (LSN lsn = 1; lsn <= end_lsn; ++lsn) {
-    ASSERT_EQ(entry.init(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+    vector<char> data(10);
+    ASSERT_EQ(entry.init(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
     ASSERT_EQ(RC::SUCCESS, writer.write(entry));
   }
 
@@ -131,7 +138,8 @@ TEST(LogFileReadWrite, test_read_write)
 
   LSN one_lsn = end_lsn - 500;
   for (LSN lsn = 1; lsn <= one_lsn; ++lsn) {
-    ASSERT_EQ(entry.init(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10), RC::SUCCESS);
+    vector<char> data(10);
+    ASSERT_EQ(entry.init(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
     ASSERT_EQ(RC::SUCCESS, writer.write(entry));
   }
 
@@ -156,7 +164,8 @@ TEST(LogFileReadWrite, test_read_write)
   ASSERT_EQ(RC::SUCCESS, writer.open(log_file, end_lsn));
 
   for (LSN i = one_lsn + 1; i <= end_lsn; i++) {
-    ASSERT_EQ(RC::SUCCESS, entry.init(i, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10));
+    vector<char> data(10);
+    ASSERT_EQ(RC::SUCCESS, entry.init(i, LogModule::Id::BUFFER_POOL, std::move(data)));
     ASSERT_EQ(RC::SUCCESS, writer.write(entry));
   }
 

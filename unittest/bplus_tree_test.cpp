@@ -324,7 +324,9 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
   BufferPoolManager bpm;
   BPFrameManager frame_manager("test");
   DiskBufferPool buffer_pool(bpm, frame_manager, log_handler);
-  BplusTreeMiniTransaction mtr(buffer_pool, log_handler, index_file_header.key_length, sizeof(RID));
+  BplusTreeHandler tree_handler;
+  ASSERT_EQ(RC::SUCCESS, tree_handler.open(log_handler, buffer_pool));
+  BplusTreeMiniTransaction mtr(tree_handler);
 
   Frame frame;
 
@@ -387,7 +389,9 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
   BufferPoolManager bpm;
   BPFrameManager frame_manager("test");
   DiskBufferPool buffer_pool(bpm, frame_manager, log_handler);
-  BplusTreeMiniTransaction mtr(buffer_pool, log_handler, index_file_header.key_length, sizeof(RID));
+  BplusTreeHandler tree_handler;
+  tree_handler.open(log_handler, buffer_pool);
+  BplusTreeMiniTransaction mtr(tree_handler);
 
   Frame frame;
 

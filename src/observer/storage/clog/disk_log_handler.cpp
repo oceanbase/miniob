@@ -133,12 +133,12 @@ RC DiskLogHandler::iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn)
   return RC::SUCCESS;
 }
 
-RC DiskLogHandler::_append(LSN &lsn, LogModule module, unique_ptr<char[]> data, int32_t size)
+RC DiskLogHandler::_append(LSN &lsn, LogModule module, vector<char> &&data)
 {
   ASSERT(running_.load(), "log handler is not running. lsn=%ld, module=%s, size=%d", 
-        lsn, module.name(), size);
+        lsn, module.name(), data.size());
 
-  RC rc = entry_buffer_.append(lsn, module, std::move(data), size);
+  RC rc = entry_buffer_.append(lsn, module, std::move(data));
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to append log entry to buffer. rc=%s", strrc(rc));
     return rc;
