@@ -25,13 +25,6 @@
             "program": "${workspaceFolder}/${defaultBuildTask}/bin/observer",
             "args": ["-f", "${workspaceFolder}/etc/observer.ini", "-P", "cli"],
             "cwd": "${workspaceFolder}/${defaultBuildTask}/"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "unittest",
-            "program": "${workspaceFolder}/${defaultBuildTask}/bin/bplus_tree_log_entry_test",
-            "cwd": "${workspaceFolder}/${defaultBuildTask}/"
         }
     ]
 }
