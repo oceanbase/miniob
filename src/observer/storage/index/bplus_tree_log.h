@@ -67,7 +67,11 @@ public:
 
   RC commit();
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler);
-  RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler, common::Deserializer &redo_buffer);
+
+  static RC redo(BufferPoolManager &bpm, const LogEntry &entry);
+
+private:
+  RC __redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler, common::Deserializer &redo_buffer);
 
 protected:
   RC append_log_entry(std::unique_ptr<bplus_tree::LogEntryHandler> entry);
@@ -78,10 +82,10 @@ private:
 
   std::vector<std::unique_ptr<bplus_tree::LogEntryHandler>> entries_;
 
-  bool rolling_back_ = false;
+  bool need_log_ = false;
 };
 
-class BplusTreeMiniTransaction
+class BplusTreeMiniTransaction final
 {
 public:
   BplusTreeMiniTransaction(BplusTreeHandler &tree_handler, RC *operation_result = nullptr);

@@ -461,6 +461,12 @@ public:
             int attr_length,
             int internal_max_size = -1,
             int leaf_max_size = -1);
+  RC create(LogHandler &log_handler,
+            DiskBufferPool &buffer_pool,
+            AttrType attr_type,
+            int attr_length,
+            int internal_max_size = -1,
+            int leaf_max_size = -1);
 
   /**
    * 打开名为fileName的索引文件。
@@ -605,12 +611,26 @@ public:
    * @param right_user_key 扫描范围的右边界。如果是null，则没有右边界
    * @param right_len right_user_key 的内存大小(只有在变长字段中才会关注)
    * @param right_inclusive 右边界的值是否包含在内
+   * TODO 重构参数表示方法
    */
   RC open(const char *left_user_key, int left_len, bool left_inclusive, const char *right_user_key, int right_len,
       bool right_inclusive);
 
+  /**
+   * @brief 获取下一条记录
+   * 
+   * @param rid 当前默认所有值都是RID类型。对B+树来说并不是一个好的抽象
+   * @return RC RECORD_EOF 表示遍历完成
+   * TODO 需要增加返回 key 的接口
+   * @warning 不要在遍历时删除数据。删除数据会导致遍历器失效。
+   * 当前默认的走索引删除的逻辑就是这样做的，所以删除逻辑有BUG。
+   */
   RC next_entry(RID &rid);
 
+  /**
+   * @brief 关闭当前扫描器
+   * @details 可以不调用，在析构函数时会自动执行
+   */
   RC close();
 
 private:
@@ -620,6 +640,10 @@ private:
   RC fix_user_key(const char *user_key, int key_len, bool want_greater, char **fixed_key, bool *should_inclusive);
 
   void fetch_item(RID &rid);
+
+  /**
+   * @brief 判断是否到了扫描的结束位置
+   */
   bool touch_end();
 
 private:

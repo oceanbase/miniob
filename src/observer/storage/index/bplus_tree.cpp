@@ -793,13 +793,6 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
                             int internal_max_size /* = -1*/,
                             int leaf_max_size /* = -1 */)
 {
-  if (internal_max_size < 0) {
-    internal_max_size = calc_internal_page_capacity(attr_length);
-  }
-  if (leaf_max_size < 0) {
-    leaf_max_size = calc_leaf_page_capacity(attr_length);
-  }
-
   BufferPoolManager &bpm = *GCTX.buffer_pool_manager_;
 
   RC rc = bpm.create_file(file_name);
@@ -818,8 +811,34 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
   }
   LOG_INFO("Successfully open index file %s.", file_name);
 
+  rc = this->create(log_handler, *bp, attr_type, attr_length, internal_max_size, leaf_max_size);
+  if (OB_FAIL(rc)) {
+    bpm.close_file(file_name);
+    return rc;
+  }
+
+  LOG_INFO("Successfully create index file %s.", file_name);
+  return rc;
+}
+
+RC BplusTreeHandler::create(LogHandler &log_handler,
+            DiskBufferPool &buffer_pool,
+            AttrType attr_type,
+            int attr_length,
+            int internal_max_size /* = -1 */,
+            int leaf_max_size /* = -1 */)
+{
+  if (internal_max_size < 0) {
+    internal_max_size = calc_internal_page_capacity(attr_length);
+  }
+  if (leaf_max_size < 0) {
+    leaf_max_size = calc_leaf_page_capacity(attr_length);
+  }
+
   log_handler_      = &log_handler;
-  disk_buffer_pool_ = bp;
+  disk_buffer_pool_ = &buffer_pool;
+
+  RC rc = RC::SUCCESS;
 
   BplusTreeMiniTransaction mtr(*this, &rc);
 
@@ -828,14 +847,12 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
   rc = mtr.latch_memo().allocate_page(header_frame);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to allocate header page for bplus tree. rc=%d:%s", rc, strrc(rc));
-    bpm.close_file(file_name);
     return rc;
   }
 
   if (header_frame->page_num() != FIRST_INDEX_PAGE) {
-    LOG_WARN("header page num should be %d but got %d. is it a new file : %s",
-             FIRST_INDEX_PAGE, header_frame->page_num(), file_name);
-    bpm.close_file(file_name);
+    LOG_WARN("header page num should be %d but got %d. is it a new file",
+             FIRST_INDEX_PAGE, header_frame->page_num());
     return RC::INTERNAL;
   }
 
@@ -848,16 +865,17 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
   file_header->leaf_max_size     = leaf_max_size;
   file_header->root_page         = BP_INVALID_PAGE_NUM;
 
-  mtr.logger().init_header_page(header_frame, *file_header);
+  // 取消记录日志的原因请参考下面的sync调用的地方。
+  // mtr.logger().init_header_page(header_frame, *file_header);
 
   header_frame->mark_dirty();
 
   memcpy(&file_header_, pdata, sizeof(file_header_));
   header_dirty_ = false;
 
-  mem_pool_item_ = make_unique<common::MemPoolItem>(file_name);
+  mem_pool_item_ = make_unique<common::MemPoolItem>("b+tree");
   if (mem_pool_item_->init(file_header->key_length) < 0) {
-    LOG_WARN("Failed to init memory pool for index %s", file_name);
+    LOG_WARN("Failed to init memory pool for index");
     close();
     return RC::NOMEM;
   }
@@ -865,9 +883,18 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
   key_comparator_.init(file_header->attr_type, file_header->attr_length);
   key_printer_.init(file_header->attr_type, file_header->attr_length);
 
-  // this->sync(); 当前支持记录日志了，就不用再sync了
+  /*
+  虽然我们针对B+树记录了WAL，但是我们记录的都是逻辑日志，并没有记录某个页面如何修改的物理日志。
+  在做恢复时，必须先创建出来一个tree handler对象。但是如果元数据页面不正确的话，我们无法创建一个正确的tree handler对象。
+  因此这里取消第一次元数据页面修改的WAL记录，而改用更简单的方式，直接将元数据页面刷到磁盘。
+  */
+  rc = this->sync();
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to sync index header. rc=%d:%s", rc, strrc(rc));
+    return rc;
+  }
 
-  LOG_INFO("Successfully create index %s", file_name);
+  LOG_INFO("Successfully create index");
   return RC::SUCCESS;
 }
 
@@ -1821,6 +1848,11 @@ RC BplusTreeScanner::open(const char *left_user_key, int left_len, bool left_inc
   if (nullptr == left_user_key) {
     rc = tree_handler_.left_most_page(mtr_, current_frame_);
     if (OB_FAIL(rc)) {
+      if (rc == RC::EMPTY) {
+        current_frame_ = nullptr;
+        return RC::SUCCESS;
+      }
+      
       LOG_WARN("failed to find left most page. rc=%s", strrc(rc));
       return rc;
     }

@@ -26,7 +26,16 @@ string LogOperation::to_string() const
   ss << std::to_string(index()) << ":";
   switch (type_) {
     case Type::INIT_HEADER_PAGE: ss << "INIT_HEADER_PAGE"; break;
-    default: ss << "UNKNOWN"; break;
+    case Type::UPDATE_ROOT_PAGE: ss << "UPDATE_ROOT_PAGE"; break;
+    case Type::SET_PARENT_PAGE: ss << "SET_PARENT_PAGE"; break;
+    case Type::LEAF_INIT_EMPTY: ss << "LEAF_INIT_EMPTY"; break;
+    case Type::LEAF_SET_NEXT_PAGE: ss << "LEAF_SET_NEXT_PAGE"; break;
+    case Type::INTERNAL_INIT_EMPTY: ss << "INTERNAL_INIT_EMPTY"; break;
+    case Type::INTERNAL_CREATE_NEW_ROOT: ss << "INTERNAL_CREATE_NEW_ROOT"; break;
+    case Type::INTERNAL_UPDATE_KEY: ss << "INTERNAL_UPDATE_KEY"; break;
+    case Type::NODE_INSERT: ss << "NODE_INSERT"; break;
+    case Type::NODE_REMOVE: ss << "NODE_REMOVE"; break;
+    default: ss << "INVALID"; break;
   }
   return ss.str();
 }
@@ -310,11 +319,19 @@ RC NormalOperationLogEntryHandler::rollback(BplusTreeMiniTransaction &mtr, Bplus
 
 RC NormalOperationLogEntryHandler::redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler)
 {
+  InternalIndexNodeHandler internal_node(mtr, tree_handler.file_header(), frame());
+  LeafIndexNodeHandler leaf_node(mtr, tree_handler.file_header(), frame());
   IndexNodeHandler node_handler(mtr, tree_handler.file_header(), frame());
+  IndexNodeHandler *real_handler = nullptr;
+  if (node_handler.is_leaf()) {
+    real_handler = &leaf_node;
+  } else {
+    real_handler = &internal_node;
+  }
   if (operation_type().type() == LogOperation::Type::NODE_INSERT) {
-    return node_handler.recover_insert_items(index_, items_.data(), item_num_);
+    return real_handler->recover_insert_items(index_, items_.data(), item_num_);
   } else {  // should be NODE_REMOVE
-    return node_handler.recover_remove_items(index_, item_num_);
+    return real_handler->recover_remove_items(index_, item_num_);
   }
 }
 
