@@ -19,17 +19,21 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-class SerializeBuffer final
+/**
+ * @brief 序列化工具
+ * @details 这个设计可以拆分开更精确，Buffer + Serializer
+ */
+class Serializer final
 {
 public:
   using BufferType = std::vector<char>;
 
 public:
-  SerializeBuffer() = default;
-  ~SerializeBuffer() = default;
+  Serializer() = default;
+  ~Serializer() = default;
 
-  SerializeBuffer(const SerializeBuffer &) = delete;
-  SerializeBuffer &operator=(const SerializeBuffer &) = delete;
+  Serializer(const Serializer &) = delete;
+  Serializer &operator=(const Serializer &) = delete;
 
   int write(std::span<const char> data);
   int write(const char *data, int size) { return write(std::span<const char>(data, size)); }
@@ -43,6 +47,29 @@ public:
 
 private:
   BufferType buffer_;
+};
+
+class Deserializer final
+{
+public:
+  explicit Deserializer(std::span<const char> buffer) : buffer_(buffer) {}
+  Deserializer(const char *buffer, int size) : buffer_(buffer, size) {}
+  ~Deserializer() = default;
+
+  Deserializer(const Deserializer &) = delete;
+  Deserializer &operator=(const Deserializer &) = delete;
+
+  int read(std::span<char> data);
+  int read(char *data, int size) { return read(std::span<char>(data, size)); }
+  int64_t size() const { return buffer_.size(); }
+  int64_t remain() const { return buffer_.size() - position_; }
+
+  int read_int32(int32_t &value);
+  int read_int64(int64_t &value);
+
+private:
+  std::span<const char> buffer_;
+  int64_t position_ = 0;
 };
 
 } // namespace common

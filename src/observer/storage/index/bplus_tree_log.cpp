@@ -15,11 +15,14 @@ See the Mulan PSL v2 for more details. */
 #include <sstream>
 #include <ranges>
 
+#include "common/log/log.h"
 #include "storage/index/bplus_tree_log.h"
 #include "storage/index/bplus_tree.h"
 #include "storage/clog/log_handler.h"
+#include "storage/clog/log_entry.h"
 #include "storage/index/bplus_tree_log_entry.h"
-#include "common/lang/serialize_buffer.h"
+#include "common/lang/serializer.h"
+#include "storage/clog/vacuous_log_handler.h"
 
 using namespace std;
 using namespace common;
@@ -37,57 +40,57 @@ BplusTreeLogger::~BplusTreeLogger()
   commit();
 }
 
-RC BplusTreeLogger::init_header_page(Frame *frame, int32_t attr_length, int32_t attr_type, int32_t internal_max_size, int32_t leaf_max_size)
+RC BplusTreeLogger::init_header_page(Frame *frame, const IndexFileHeader &header)
 {
-  return append_log_entry(make_unique<InitHeaderPageLogEntry>(frame, attr_length, attr_type, internal_max_size, leaf_max_size));
+  return append_log_entry(make_unique<InitHeaderPageLogEntryHandler>(frame, header));
 }
 
 RC BplusTreeLogger::update_root_page(Frame *frame, PageNum root_page_num, PageNum old_page_num)
 {
-  return append_log_entry(make_unique<UpdateRootPageLogEntry>(frame, root_page_num, old_page_num));
+  return append_log_entry(make_unique<UpdateRootPageLogEntryHandler>(frame, root_page_num, old_page_num));
 }
 
 RC BplusTreeLogger::leaf_init_empty(IndexNodeHandler &node_handler)
 {
-  return append_log_entry(make_unique<LeafInitEmptyLogEntry>(node_handler));
+  return append_log_entry(make_unique<LeafInitEmptyLogEntryHandler>(node_handler.frame()));
 }
 
 RC BplusTreeLogger::node_insert_items(IndexNodeHandler &node_handler, int index, span<const char> items, int item_num)
 {
-  return append_log_entry(make_unique<NormalOperationLogEntry>(node_handler, LogOperation::Type::NODE_INSERT, index, items, item_num));
+  return append_log_entry(make_unique<NormalOperationLogEntryHandler>(node_handler.frame(), LogOperation::Type::NODE_INSERT, index, items, item_num));
 }
 
 RC BplusTreeLogger::node_remove_items(IndexNodeHandler &node_handler, int index, span<const char> items, int item_num)
 {
-  return append_log_entry(make_unique<NormalOperationLogEntry>(node_handler, LogOperation::Type::NODE_REMOVE, index, items, item_num));
+  return append_log_entry(make_unique<NormalOperationLogEntryHandler>(node_handler.frame(), LogOperation::Type::NODE_REMOVE, index, items, item_num));
 }
 
 RC BplusTreeLogger::leaf_set_next_page(IndexNodeHandler &node_handler, PageNum page_num, PageNum old_page_num)
 {
-  return append_log_entry(make_unique<LeafSetNextPageLogEntry>(node_handler, page_num, old_page_num));
+  return append_log_entry(make_unique<LeafSetNextPageLogEntryHandler>(node_handler.frame(), page_num, old_page_num));
 }
 
 RC BplusTreeLogger::internal_init_empty(IndexNodeHandler &node_handler)
 {
-  return append_log_entry(make_unique<InternalInitEmptyLogEntry>(node_handler));
+  return append_log_entry(make_unique<InternalInitEmptyLogEntryHandler>(node_handler.frame()));
 }
 
 RC BplusTreeLogger::internal_create_new_root(IndexNodeHandler &node_handler, PageNum first_page_num, span<const char> key, PageNum page_num)
 {
-  return append_log_entry(make_unique<InternalCreateNewRootLogEntry>(node_handler, first_page_num, key, page_num));
+  return append_log_entry(make_unique<InternalCreateNewRootLogEntryHandler>(node_handler.frame(), first_page_num, key, page_num));
 }
 
 RC BplusTreeLogger::internal_update_key(IndexNodeHandler &node_handler, int index, span<const char> key, span<const char> old_key)
 {
-  return append_log_entry(make_unique<InternalUpdateKeyLogEntry>(node_handler, index, key, old_key));
+  return append_log_entry(make_unique<InternalUpdateKeyLogEntryHandler>(node_handler.frame(), index, key, old_key));
 }
 
 RC BplusTreeLogger::set_parent_page(IndexNodeHandler &node_handler, PageNum page_num, PageNum old_page_num)
 {
-  return append_log_entry(make_unique<SetParentPageLogEntry>(node_handler, page_num, old_page_num));
+  return append_log_entry(make_unique<SetParentPageLogEntryHandler>(node_handler.frame(), page_num, old_page_num));
 }
 
-RC BplusTreeLogger::append_log_entry(unique_ptr<bplus_tree::LogEntry> entry)
+RC BplusTreeLogger::append_log_entry(unique_ptr<bplus_tree::LogEntryHandler> entry)
 {
   if (rolling_back_) {
     return RC::SUCCESS;
@@ -100,14 +103,14 @@ RC BplusTreeLogger::append_log_entry(unique_ptr<bplus_tree::LogEntry> entry)
 RC BplusTreeLogger::commit()
 {
   LSN lsn = 0;
-  SerializeBuffer buffer;
+  Serializer buffer;
   buffer.write_int32(buffer_pool_id_);
 
   for (auto &entry : entries_) {
     entry->serialize(buffer);
   }
 
-  SerializeBuffer::BufferType &buffer_data = buffer.data();
+  Serializer::BufferType &buffer_data = buffer.data();
   RC rc = log_handler_.append(lsn, LogModule::Id::BPLUS_TREE, std::move(buffer_data));
   if (RC::SUCCESS != rc) {
     LOG_WARN("failed to append log entry. rc=%s", strrc(rc));
@@ -131,6 +134,29 @@ RC BplusTreeLogger::rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tr
   }
 
   entries_.clear();
+  rolling_back_ = false;
+  return RC::SUCCESS;
+}
+
+RC BplusTreeLogger::redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler, Deserializer &redo_buffer)
+{
+  rolling_back_ = true;
+
+  while (redo_buffer.remain() > 0) {
+    unique_ptr<LogEntryHandler> entry;
+    RC rc = LogEntryHandler::from_buffer(tree_handler.buffer_pool(), redo_buffer, entry);
+    if (RC::SUCCESS != rc) {
+      LOG_WARN("failed to deserialize log entry. rc=%s", strrc(rc));
+      return rc;
+    }
+
+    rc = entry->redo(mtr, tree_handler);
+    if (RC::SUCCESS != rc) {
+      LOG_WARN("failed to rollback log entry. rc=%s", strrc(rc));
+      return rc;
+    }
+  }
+
   rolling_back_ = false;
   return RC::SUCCESS;
 }
@@ -161,4 +187,47 @@ RC BplusTreeMiniTransaction::commit()
 RC BplusTreeMiniTransaction::rollback()
 {
   return logger_.rollback(*this, tree_handler_);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// class BplusTreeLogReplayer
+BplusTreeLogReplayer::BplusTreeLogReplayer(BufferPoolManager &bpm)
+  : buffer_pool_manager_(bpm)
+{}
+
+RC BplusTreeLogReplayer::replay(const LogEntry &entry)
+{
+  ASSERT(entry.module().id() == LogModule::Id::BPLUS_TREE, "invalid log entry: %s", entry.to_string().c_str());
+
+  Deserializer buffer(entry.data(), entry.payload_size());
+  int32_t buffer_pool_id = -1;
+  int ret = buffer.read_int32(buffer_pool_id);
+  if (ret != 0) {
+    LOG_ERROR("failed to read buffer pool id. ret=%d", ret);
+    return RC::IOERR_READ;
+  }
+
+  DiskBufferPool *buffer_pool = nullptr;
+  RC rc = buffer_pool_manager_.get_buffer_pool(buffer_pool_id, buffer_pool);
+  if (OB_FAIL(rc) || buffer_pool == nullptr) {
+    LOG_WARN("failed to get buffer pool. rc=%s, buffer_pool_id=%d", strrc(rc), buffer_pool_id);
+    return rc;
+  }
+
+  VacuousLogHandler log_handler;
+  BplusTreeHandler tree_handler;
+  rc = tree_handler.open(log_handler, *buffer_pool);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to open bplus tree handler. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  BplusTreeMiniTransaction mtr(tree_handler);
+  BplusTreeLogger logger(log_handler, buffer_pool_id);
+  rc = logger.redo(mtr, tree_handler, buffer);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to redo log entry. rc=%s", strrc(rc));
+    return rc;
+  }
+  return rc;
 }

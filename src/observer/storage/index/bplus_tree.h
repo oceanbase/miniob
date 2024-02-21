@@ -187,7 +187,7 @@ struct IndexFileHeader
   int32_t  key_length;         ///< attr length + sizeof(RID)
   AttrType attr_type;          ///< 键值的类型
 
-  const std::string to_string()
+  const std::string to_string() const
   {
     std::stringstream ss;
 
@@ -340,8 +340,8 @@ public:
   LeafIndexNodeHandler(BplusTreeMiniTransaction &mtr, const IndexFileHeader &header, Frame *frame);
   virtual ~LeafIndexNodeHandler() = default;
 
-  void    init_empty();
-  void    set_next_page(PageNum page_num);
+  RC      init_empty();
+  RC      set_next_page(PageNum page_num);
   PageNum next_page() const;
 
   char *key_at(int index);
@@ -353,8 +353,8 @@ public:
    */
   int lookup(const KeyComparator &comparator, const char *key, bool *found = nullptr) const;
 
-  void insert(int index, const char *key, const char *value);
-  void remove(int index);
+  RC insert(int index, const char *key, const char *value);
+  RC remove(int index);
   int  remove(const char *key, const KeyComparator &comparator);
   RC   move_half_to(LeafIndexNodeHandler &other);
   RC   move_first_to_end(LeafIndexNodeHandler &other);
@@ -371,9 +371,9 @@ public:
 protected:
   char *__item_at(int index) const override;
 
-  void append(const char *items, int num);
-  void append(const char *item);
-  void preappend(const char *item);
+  RC append(const char *items, int num);
+  RC append(const char *item);
+  RC preappend(const char *item);
 
 private:
   LeafIndexNode *leaf_node_ = nullptr;
@@ -389,8 +389,8 @@ public:
   InternalIndexNodeHandler(BplusTreeMiniTransaction &mtr, const IndexFileHeader &header, Frame *frame);
   virtual ~InternalIndexNodeHandler() = default;
 
-  void init_empty();
-  void create_new_root(PageNum first_page_num, const char *key, PageNum page_num);
+  RC init_empty();
+  RC create_new_root(PageNum first_page_num, const char *key, PageNum page_num);
 
   RC      insert(const char *key, PageNum page_num, const KeyComparator &comparator);
   char   *key_at(int index);
@@ -514,7 +514,8 @@ public:
   LogHandler &log_handler() const { return *log_handler_; }
 
 public:
-  RC rocover_update_root_page(BplusTreeMiniTransaction &mtr, PageNum root_page_num);
+  RC recover_update_root_page(BplusTreeMiniTransaction &mtr, PageNum root_page_num);
+  RC recover_init_header_page(BplusTreeMiniTransaction &mtr, Frame *frame, const IndexFileHeader &header);
 
 public:
   /**
@@ -570,7 +571,7 @@ protected:
   LogHandler *log_handler_ = nullptr;
   DiskBufferPool *disk_buffer_pool_ = nullptr;
   bool            header_dirty_     = false;  //
-  IndexFileHeader file_header_;
+  IndexFileHeader file_header_; // TODO remove me
 
   // 在调整根节点时，需要加上这个锁。
   // 这个锁可以使用递归读写锁，但是这里偷懒先不改

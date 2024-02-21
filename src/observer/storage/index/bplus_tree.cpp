@@ -92,6 +92,7 @@ RC IndexNodeHandler::set_parent_page_num(PageNum page_num)
   RC rc = mtr_.logger().set_parent_page(*this, page_num, this->node_->parent);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log set parent page. rc=%s", strrc(rc));
+    return rc;
   }
   this->node_->parent = page_num;
   return rc;
@@ -186,23 +187,28 @@ LeafIndexNodeHandler::LeafIndexNodeHandler(BplusTreeMiniTransaction &mtr, const 
     : IndexNodeHandler(mtr, header, frame), leaf_node_((LeafIndexNode *)frame->data())
 {}
 
-void LeafIndexNodeHandler::init_empty()
+RC LeafIndexNodeHandler::init_empty()
 {
   RC rc = mtr_.logger().leaf_init_empty(*this);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log init empty leaf node. rc=%s", strrc(rc));
+    return rc;
   }
   IndexNodeHandler::init_empty(true/*leaf*/);
   leaf_node_->next_brother = BP_INVALID_PAGE_NUM;
+  return RC::SUCCESS;
 }
 
-void LeafIndexNodeHandler::set_next_page(PageNum page_num) 
+RC LeafIndexNodeHandler::set_next_page(PageNum page_num) 
 { 
   RC rc = mtr_.logger().leaf_set_next_page(*this, page_num, leaf_node_->next_brother);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log set next page. rc=%s", strrc(rc));
+    return rc;
   }
+
   leaf_node_->next_brother = page_num; 
+  return RC::SUCCESS;
 }
 
 PageNum LeafIndexNodeHandler::next_page() const { return leaf_node_->next_brother; }
@@ -228,7 +234,7 @@ int LeafIndexNodeHandler::lookup(const KeyComparator &comparator, const char *ke
   return iter - iter_begin;
 }
 
-void LeafIndexNodeHandler::insert(int index, const char *key, const char *value)
+RC LeafIndexNodeHandler::insert(int index, const char *key, const char *value)
 {
   vector<char> item(key_size() + value_size());
   memcpy(item.data(), key, key_size());
@@ -237,21 +243,25 @@ void LeafIndexNodeHandler::insert(int index, const char *key, const char *value)
   RC rc = mtr_.logger().node_insert_items(*this, index, item, 1);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log insert item. rc=%s", strrc(rc));
+    return rc;
   }
 
   recover_insert_items(index, item.data(), 1);
+  return RC::SUCCESS;
 }
 
-void LeafIndexNodeHandler::remove(int index)
+RC LeafIndexNodeHandler::remove(int index)
 {
   assert(index >= 0 && index < size());
 
   RC rc = mtr_.logger().node_remove_items(*this, index, span<const char>(__item_at(index), item_size()), 1);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log remove item. rc=%s", strrc(rc));
+    return rc;
   }
 
   recover_remove_items(index, 1);
+  return RC::SUCCESS;
 }
 
 int LeafIndexNodeHandler::remove(const char *key, const KeyComparator &comparator)
@@ -276,7 +286,9 @@ RC LeafIndexNodeHandler::move_half_to(LeafIndexNodeHandler &other)
   RC rc = mtr_.logger().node_remove_items(*this, move_index, span<const char>(__item_at(move_index), move_item_num * item_size()), move_item_num);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log shrink leaf node. rc=%s", strrc(rc));
+    return rc;
   }
+
   recover_remove_items(move_index, move_item_num);
   return RC::SUCCESS;
 }
@@ -284,8 +296,7 @@ RC LeafIndexNodeHandler::move_first_to_end(LeafIndexNodeHandler &other)
 {
   other.append(__item_at(0));
 
-  this->remove(0);
-  return RC::SUCCESS;
+  return this->remove(0);
 }
 
 RC LeafIndexNodeHandler::move_last_to_front(LeafIndexNodeHandler &other)
@@ -313,24 +324,25 @@ RC LeafIndexNodeHandler::move_to(LeafIndexNodeHandler &other)
 }
 
 // 复制一些数据到当前节点的最右边
-void LeafIndexNodeHandler::append(const char *items, int num)
+RC LeafIndexNodeHandler::append(const char *items, int num)
 {
   RC rc = mtr_.logger().node_insert_items(*this, size(), span<const char>(items, num * item_size()), num);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log append items. rc=%d:%s", rc, strrc(rc));
+    return rc;
   }
 
-  recover_insert_items(size(), items, num);
+  return recover_insert_items(size(), items, num);
 }
 
-void LeafIndexNodeHandler::append(const char *item)
+RC LeafIndexNodeHandler::append(const char *item)
 {
-  append(item, 1);
+  return append(item, 1);
 }
 
-void LeafIndexNodeHandler::preappend(const char *item)
+RC LeafIndexNodeHandler::preappend(const char *item)
 {
-  insert(0, item, item + key_size());
+  return insert(0, item, item + key_size());
 }
 
 char *LeafIndexNodeHandler::__item_at(int index) const { return leaf_node_->array + (index * item_size()); }
@@ -429,15 +441,16 @@ std::string to_string(const InternalIndexNodeHandler &node, const KeyPrinter &pr
   return ss.str();
 }
 
-void InternalIndexNodeHandler::init_empty() 
+RC InternalIndexNodeHandler::init_empty() 
 {
   RC rc = mtr_.logger().internal_init_empty(*this);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log init empty internal node. rc=%s", strrc(rc));
   }
-  IndexNodeHandler::init_empty(false/*leaf*/); 
+  IndexNodeHandler::init_empty(false/*leaf*/);
+  return RC::SUCCESS;
 }
-void InternalIndexNodeHandler::create_new_root(PageNum first_page_num, const char *key, PageNum page_num)
+RC InternalIndexNodeHandler::create_new_root(PageNum first_page_num, const char *key, PageNum page_num)
 {
   RC rc = mtr_.logger().internal_create_new_root(*this, first_page_num, span<const char>(key, key_size()), page_num);
   if (OB_FAIL(rc)) {
@@ -449,6 +462,7 @@ void InternalIndexNodeHandler::create_new_root(PageNum first_page_num, const cha
   memcpy(__item_at(1), key, key_size());
   memcpy(__value_at(1), &page_num, value_size());
   increase_size(2);
+  return RC::SUCCESS;
 }
 
 /**
@@ -825,8 +839,6 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
     return RC::INTERNAL;
   }
 
-  mtr.logger().init_header_page(header_frame, attr_type, attr_length, internal_max_size, leaf_max_size);
-
   char            *pdata         = header_frame->data();
   IndexFileHeader *file_header   = (IndexFileHeader *)pdata;
   file_header->attr_length       = attr_length;
@@ -835,6 +847,8 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
   file_header->internal_max_size = internal_max_size;
   file_header->leaf_max_size     = leaf_max_size;
   file_header->root_page         = BP_INVALID_PAGE_NUM;
+
+  mtr.logger().init_header_page(header_frame, *file_header);
 
   header_frame->mark_dirty();
 
@@ -1376,9 +1390,23 @@ RC BplusTreeHandler::split(BplusTreeMiniTransaction &mtr, Frame *frame, Frame *&
   return RC::SUCCESS;
 }
 
-RC BplusTreeHandler::rocover_update_root_page(BplusTreeMiniTransaction &mtr, PageNum root_page_num)
+RC BplusTreeHandler::recover_update_root_page(BplusTreeMiniTransaction &mtr, PageNum root_page_num)
 {
   update_root_page_num_locked(mtr, root_page_num);
+  return RC::SUCCESS;
+}
+
+RC BplusTreeHandler::recover_init_header_page(BplusTreeMiniTransaction &mtr, Frame *frame, const IndexFileHeader &header)
+{
+  IndexFileHeader *file_header = reinterpret_cast<IndexFileHeader *>(frame->data());
+  memcpy(file_header, &header, sizeof(IndexFileHeader));
+  file_header_ = header;
+  header_dirty_ = false;
+  frame->mark_dirty();
+
+  key_comparator_.init(file_header_.attr_type, file_header_.attr_length);
+  key_printer_.init(file_header_.attr_type, file_header_.attr_length);
+
   return RC::SUCCESS;
 }
 

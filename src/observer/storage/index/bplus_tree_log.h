@@ -22,16 +22,24 @@ See the Mulan PSL v2 for more details. */
 #include "common/types.h"
 #include "common/rc.h"
 #include "storage/index/latch_memo.h"
+#include "storage/clog/log_replayer.h"
 // #include "storage/index/bplus_tree_log_entry.h"
 
+struct IndexFileHeader;
+class LogEntry;
 class LogHandler;
 class BplusTreeHandler;
 class Frame;
 class IndexNodeHandler;
 class BplusTreeMiniTransaction;
+class BufferPoolManager;
 
 namespace bplus_tree {
-class LogEntry;
+class LogEntryHandler;
+}
+
+namespace common {
+class Deserializer;
 }
 
 class BplusTreeLogger final
@@ -40,8 +48,7 @@ public:
   BplusTreeLogger(LogHandler &log_handler, int32_t buffer_pool_id);
   ~BplusTreeLogger();
 
-  RC init_header_page(
-      Frame *frame, int32_t attr_length, int32_t attr_type, int32_t internal_max_size, int32_t leaf_max_size);
+  RC init_header_page(Frame *frame, const IndexFileHeader &header);
   RC update_root_page(Frame *frame, PageNum root_page_num, PageNum old_page_num);
 
   RC node_insert_items(IndexNodeHandler &node_handler, int index, std::span<const char> items, int item_num);
@@ -60,15 +67,16 @@ public:
 
   RC commit();
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler);
+  RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler, common::Deserializer &redo_buffer);
 
 protected:
-  RC append_log_entry(std::unique_ptr<bplus_tree::LogEntry> entry);
+  RC append_log_entry(std::unique_ptr<bplus_tree::LogEntryHandler> entry);
 
 private:
   LogHandler &log_handler_;
   int32_t     buffer_pool_id_ = -1;
 
-  std::vector<std::unique_ptr<bplus_tree::LogEntry>> entries_;
+  std::vector<std::unique_ptr<bplus_tree::LogEntryHandler>> entries_;
 
   bool rolling_back_ = false;
 };
@@ -88,6 +96,18 @@ public:
 private:
   BplusTreeHandler &tree_handler_;
   RC               *operation_result_ = nullptr;
-  LatchMemo       latch_memo_;
-  BplusTreeLogger logger_;
+  LatchMemo         latch_memo_;
+  BplusTreeLogger   logger_;
+};
+
+class BplusTreeLogReplayer : public LogReplayer
+{
+public:
+  BplusTreeLogReplayer(BufferPoolManager &bpm);
+  virtual ~BplusTreeLogReplayer() = default;
+
+  virtual RC replay(const LogEntry &entry) override;
+
+private:
+  BufferPoolManager &buffer_pool_manager_;
 };

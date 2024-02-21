@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "type": "cppdbg",
             "request": "launch",
@@ -23,6 +24,13 @@
             "name": "LLDB",
             "program": "${workspaceFolder}/${defaultBuildTask}/bin/observer",
             "args": ["-f", "${workspaceFolder}/etc/observer.ini", "-P", "cli"],
+            "cwd": "${workspaceFolder}/${defaultBuildTask}/"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "unittest",
+            "program": "${workspaceFolder}/${defaultBuildTask}/bin/bplus_tree_log_entry_test",
             "cwd": "${workspaceFolder}/${defaultBuildTask}/"
         }
     ]

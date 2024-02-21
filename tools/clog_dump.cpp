@@ -19,8 +19,12 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_file.h"
 #include "storage/buffer/buffer_pool_log.h"
 #include "storage/record/record_log.h"
+#include "storage/index/bplus_tree_log_entry.h"
+#include "common/lang/serializer.h"
 
 using namespace std;
+using namespace common;
+using namespace bplus_tree;
 
 class LogEntryStringifier
 {
@@ -46,6 +50,20 @@ public:
         } else {
           auto *record_log_header = reinterpret_cast<const RecordLogHeader *>(entry.data());
           ss << record_log_header->to_string();
+        }
+      } break;
+      case LogModule::Id::BPLUS_TREE: {
+        unique_ptr<LogEntryHandler> handler;
+        Deserializer buffer(entry.data(), entry.payload_size());
+        auto fake_frame_getter = [](PageNum, Frame *&frame) -> RC {
+          frame = nullptr;
+          return RC::SUCCESS;
+        };
+        RC rc = LogEntryHandler::from_buffer(fake_frame_getter, buffer, handler);
+        if (OB_FAIL(rc)) {
+          ss << "failed to parse bplus tree log entry. rc = " << strrc(rc);
+        } else {
+          ss << handler->to_string();
         }
       } break;
       

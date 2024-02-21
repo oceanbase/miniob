@@ -12,27 +12,50 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai.wyl on 2024/02/20.
 //
 
-#include "common/lang/serialize_buffer.h"
+#include "common/lang/serializer.h"
 
 using namespace std;
 
 namespace common {
-int SerializeBuffer::write(span<const char> data)
+int Serializer::write(span<const char> data)
 {
   buffer_.insert(buffer_.end(), data.begin(), data.end());
   return 0;
 }
 
-int SerializeBuffer::write_int32(int32_t value)
+int Serializer::write_int32(int32_t value)
 {
   char *p = reinterpret_cast<char *>(&value);
   return write(span(p, sizeof(value)));
 }
 
-int SerializeBuffer::write_int64(int64_t value)
+int Serializer::write_int64(int64_t value)
 {
   char *p = reinterpret_cast<char *>(&value);
   return write(span(p, sizeof(value)));
+}
+
+int Deserializer::read(span<char> data)
+{
+  if (data.size() > remain()) {
+    return -1;
+  }
+
+  memcpy(data.data(), buffer_.data() + position_, data.size());
+  position_ += data.size();
+  return 0;
+}
+
+int Deserializer::read_int32(int32_t &value)
+{
+  span<char> data(reinterpret_cast<char *>(&value), sizeof(value));
+  return read(data);
+}
+
+int Deserializer::read_int64(int64_t &value)
+{
+  span<char> data(reinterpret_cast<char *>(&value), sizeof(value));
+  return read(data);
 }
 
 } // namespace common
