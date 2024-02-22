@@ -260,7 +260,7 @@ public:
   RC redo_deallocate_page(LSN lsn, PageNum page_num);
 
 public:
-  int32_t id() const { return file_header_->buffer_pool_id; }
+  int32_t id() const { return buffer_pool_id_; }
 
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);
@@ -286,11 +286,14 @@ private:
   BPFrameManager    &frame_manager_;  /// Frame 管理器
   BufferPoolLogHandler log_handler_; /// BufferPool 日志处理器
 
-  std::string       file_name_;       /// 文件名
   int               file_desc_   = -1;  /// 文件描述符
+  /// 由于在最开始打开文件时，没有正确的buffer pool id不能加载header frame，所以单独从文件中读取此标识
+  int32_t           buffer_pool_id_ = -1;
   Frame            *hdr_frame_   = nullptr; /// 文件头页面
   BPFileHeader     *file_header_ = nullptr; /// 文件头
   std::set<PageNum> disposed_pages_; /// 已经释放的页面
+
+  std::string       file_name_;       /// 文件名
 
   common::Mutex lock_;
 
@@ -302,7 +305,7 @@ private:
  * @brief BufferPool的管理类
  * @ingroup BufferPool
  */
-class BufferPoolManager
+class BufferPoolManager final
 {
 public:
   BufferPoolManager(int memory_size = 0);
@@ -332,7 +335,6 @@ private:
 
   common::Mutex                                     lock_;
   std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;
-  std::unordered_map<int, DiskBufferPool *>         fd_buffer_pools_;
   std::unordered_map<int32_t, DiskBufferPool *>     id_to_buffer_pools_;  // TODO fd_buffer_pool 与 id_to_buffer_pool保留一个就可以
   std::atomic<int32_t> next_buffer_pool_id_{1}; // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
 };
