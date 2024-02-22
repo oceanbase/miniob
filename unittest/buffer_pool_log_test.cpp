@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai on 2024/02/01
 //
 
+#include <algorithm>
+
 #include "gtest/gtest.h"
 #include "common/log/log.h"
 #include "storage/buffer/disk_buffer_pool.h"

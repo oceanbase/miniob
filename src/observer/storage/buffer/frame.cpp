@@ -82,8 +82,8 @@ void Frame::write_latch(intptr_t xid)
   write_locker_ = xid;
   ++write_recursive_count_;
   TRACE("frame write lock success."
-        "this=%p, pin=%d, pageNum=%d, write locker=%lx(recursive=%d), fd=%d, xid=%lx, lbt=%s",
-        this, pin_count_.load(), page_num_, write_locker_, write_recursive_count_, file_desc_, xid, lbt());
+        "this=%p, pin=%d, write locker=%lx(recursive=%d), xid=%lx, lbt=%s",
+        this, pin_count_.load(), to_string(frame_id_).c_str(), write_locker_, write_recursive_count_, xid, lbt());
 #endif
 }
 

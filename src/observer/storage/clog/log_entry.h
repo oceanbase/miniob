@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include <memory>
 #include <string>
+#include <vector>
+
 #include "common/rc.h"
 #include "common/types.h"
 #include "storage/clog/log_module.h"

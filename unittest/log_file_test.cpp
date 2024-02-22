@@ -12,12 +12,13 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai on 2024/01/31
 //
 
-#define private public
-#define protected public
-
 #include <span>
 
 #include "gtest/gtest.h"
+
+#define private public
+#define protected public
+
 #include "common/log/log.h"
 #include "storage/clog/log_file.h"
 #include "storage/clog/log_entry.h"
@@ -259,7 +260,7 @@ TEST(LogFileManager, init_with_files)
   vector<string> result_files;
   ASSERT_EQ(RC::SUCCESS, manager.list_files(result_files, 0));
   ASSERT_EQ(files.size(), result_files.size());
-  for (int i = 0; i < files.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(files.size()); ++i) {
     ASSERT_EQ(files[i], filesystem::path(result_files[i]).filename());
   }
 

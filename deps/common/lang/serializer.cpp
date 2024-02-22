@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai.wyl on 2024/02/20.
 //
 
+#include <string.h>
+
 #include "common/lang/serializer.h"
 
 using namespace std;
@@ -37,7 +39,7 @@ int Serializer::write_int64(int64_t value)
 
 int Deserializer::read(span<char> data)
 {
-  if (data.size() > remain()) {
+  if (static_cast<int64_t>(data.size()) > remain()) {
     return -1;
   }
 

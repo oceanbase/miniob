@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai.wyl on 2024/02/21
 //
 
+#include <filesystem>
+
 #include "gtest/gtest.h"
 #include "storage/index/bplus_tree_log_entry.h"
 #include "common/lang/serializer.h"

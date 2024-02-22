@@ -454,8 +454,8 @@ RC InternalCreateNewRootLogEntryHandler::deserialize(Frame *frame, Deserializer 
   int32_t first_page_num = -1;
   int32_t page_num = -1;
   int32_t key_size = -1;
-  if ((ret = buffer.read_int32(first_page_num)) < 0 || (ret = buffer.read_int32(page_num) < 0 ||
-      (ret = buffer.read_int32(key_size)) < 0)) {
+  if ((ret = buffer.read_int32(first_page_num)) < 0 || (ret = buffer.read_int32(page_num)) < 0 ||
+      (ret = buffer.read_int32(key_size)) < 0) {
     return RC::INTERNAL;
   }
 

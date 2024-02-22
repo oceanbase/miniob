@@ -12,10 +12,10 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai on 2024/01/31
 //
 
+#include "gtest/gtest.h"
+
 #define private public
 #define protected public
-
-#include "gtest/gtest.h"
 #include "storage/clog/log_buffer.h"
 #include "storage/clog/log_file.h"
 
