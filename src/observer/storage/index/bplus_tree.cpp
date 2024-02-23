@@ -168,6 +168,7 @@ RC IndexNodeHandler::recover_insert_items(int index, const char *items, int num)
   }
 
   memcpy(__item_at(index), items, static_cast<size_t>(num) * item_size);
+  increase_size(num);
   return RC::SUCCESS;
 }
 
@@ -466,9 +467,11 @@ RC InternalIndexNodeHandler::create_new_root(PageNum first_page_num, const char 
 }
 
 /**
- * insert one entry
- * the entry to be inserted will never at the first slot.
+ * @brief insert one entry
+ * @details the entry to be inserted will never at the first slot.
  * the right child page after split will always have bigger keys.
+ * @NOTE We don't need to set child's parent page num here. You can see the callers for details
+ * It's also friendly to unittest that we don't set the child's parent page num.
  */
 RC InternalIndexNodeHandler::insert(const char *key, PageNum page_num, const KeyComparator &comparator)
 {
@@ -477,7 +480,13 @@ RC InternalIndexNodeHandler::insert(const char *key, PageNum page_num, const Key
   vector<char> item(key_size() + sizeof(PageNum));
   memcpy(item.data(), key, key_size());
   memcpy(item.data() + key_size(), &page_num, sizeof(PageNum));
-  return insert_items(insert_position, item.data(), 1);
+  RC rc = mtr_.logger().node_insert_items(*this, insert_position, span<const char>(item.data(), item.size()), 1);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to log insert item. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  return recover_insert_items(insert_position, item.data(), 1);
 }
 
 /**

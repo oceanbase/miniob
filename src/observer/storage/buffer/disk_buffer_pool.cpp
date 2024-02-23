@@ -302,7 +302,7 @@ RC DiskBufferPool::get_this_page(PageNum page_num, Frame **frame)
   RC rc  = RC::SUCCESS;
   *frame = nullptr;
 
-  Frame *used_match_frame = frame_manager_.get(file_desc_, page_num);
+  Frame *used_match_frame = frame_manager_.get(id(), page_num);
   if (used_match_frame != nullptr) {
     used_match_frame->access();
     *frame = used_match_frame;
@@ -426,10 +426,10 @@ RC DiskBufferPool::dispose_page(PageNum page_num)
   }
   
   std::scoped_lock lock_guard(lock_);
-  Frame           *used_frame = frame_manager_.get(file_desc_, page_num);
+  Frame           *used_frame = frame_manager_.get(id(), page_num);
   if (used_frame != nullptr) {
     ASSERT("the page try to dispose is in use. frame:%s", to_string(*used_frame).c_str());
-    frame_manager_.free(file_desc_, page_num, used_frame);
+    frame_manager_.free(id(), page_num, used_frame);
   } else {
     LOG_DEBUG("page not found in memory while disposing it. pageNum=%d", page_num);
   }
@@ -472,7 +472,7 @@ RC DiskBufferPool::purge_frame(PageNum page_num, Frame *buf)
   }
 
   LOG_DEBUG("Successfully purge frame =%p, page %d of %d(file desc)", buf, buf->page_num(), buf->buffer_pool_id());
-  frame_manager_.free(file_desc_, page_num, buf);
+  frame_manager_.free(id(), page_num, buf);
   return RC::SUCCESS;
 }
 
@@ -480,7 +480,7 @@ RC DiskBufferPool::purge_page(PageNum page_num)
 {
   std::scoped_lock lock_guard(lock_);
 
-  Frame           *used_frame = frame_manager_.get(file_desc_, page_num);
+  Frame           *used_frame = frame_manager_.get(id(), page_num);
   if (used_frame != nullptr) {
     return purge_frame(page_num, used_frame);
   }
@@ -490,7 +490,7 @@ RC DiskBufferPool::purge_page(PageNum page_num)
 
 RC DiskBufferPool::purge_all_pages()
 {
-  std::list<Frame *> used = frame_manager_.find_list(file_desc_);
+  std::list<Frame *> used = frame_manager_.find_list(id());
 
   std::scoped_lock lock_guard(lock_);
   for (std::list<Frame *>::iterator it = used.begin(); it != used.end(); ++it) {
@@ -503,20 +503,20 @@ RC DiskBufferPool::purge_all_pages()
 
 RC DiskBufferPool::check_all_pages_unpinned()
 {
-  std::list<Frame *> frames = frame_manager_.find_list(file_desc_);
+  std::list<Frame *> frames = frame_manager_.find_list(id());
 
   std::scoped_lock lock_guard(lock_);
   for (Frame *frame : frames) {
     frame->unpin();
     if (frame->page_num() == BP_HEADER_PAGE && frame->pin_count() > 1) {
-      LOG_WARN("This page has been pinned. file desc=%d, pageNum:%d, pin count=%d",
-          file_desc_, frame->page_num(), frame->pin_count());
+      LOG_WARN("This page has been pinned. id=%d, pageNum:%d, pin count=%d",
+          id(), frame->page_num(), frame->pin_count());
     } else if (frame->page_num() != BP_HEADER_PAGE && frame->pin_count() > 0) {
-      LOG_WARN("This page has been pinned. file desc=%d, pageNum:%d, pin count=%d",
-          file_desc_, frame->page_num(), frame->pin_count());
+      LOG_WARN("This page has been pinned. id=%d, pageNum:%d, pin count=%d",
+          id(), frame->page_num(), frame->pin_count());
     }
   }
-  LOG_INFO("all pages have been checked of file desc %d", file_desc_);
+  LOG_INFO("all pages have been checked of id %d", id());
   return RC::SUCCESS;
 }
 
@@ -556,7 +556,7 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
 
 RC DiskBufferPool::flush_all_pages()
 {
-  std::list<Frame *> used = frame_manager_.find_list(file_desc_);
+  std::list<Frame *> used = frame_manager_.find_list(id());
   for (Frame *frame : used) {
     RC rc = flush_page(*frame);
     if (rc != RC::SUCCESS) {
