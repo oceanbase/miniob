@@ -1,12 +1,12 @@
 [submodule "deps/3rd/libevent"]
 	path = deps/3rd/libevent
-	url = https://github.com/libevent/libevent
+	url = https://gitee.com/sunkang315629/libevent
 [submodule "deps/3rd/jsoncpp"]
 	path = deps/3rd/jsoncpp
-	url = https://github.com/open-source-parsers/jsoncpp
+	url = https://gitee.com/wangxiaoshuo_1_15133227828/jsoncpp
 [submodule "deps/3rd/googletest"]
 	path = deps/3rd/googletest
-	url = https://github.com/google/googletest
+	url = https://gitee.com/wangxiaoshuo_1_15133227828/googletest
 [submodule "deps/3rd/benchmark"]
 	path = deps/3rd/benchmark
-	url = https://github.com/google/benchmark
+	url = https://gitee.com/EwenWan/benchmark
