@@ -9,4 +9,4 @@
 	url = https://gitee.com/wangxiaoshuo_1_15133227828/googletest
 [submodule "deps/3rd/benchmark"]
 	path = deps/3rd/benchmark
-	url = https://gitee.com/EwenWan/benchmark
+	url = https://gitee.com/ws-mirror-github/google.benchmark
