@@ -231,8 +231,8 @@ RC DiskBufferPool::open_file(const char *file_name)
   file_name_ = file_name;
   file_desc_ = fd;
 
-  BPFileHeader file_header;
-  int ret = readn(file_desc_, &file_header, sizeof(file_header));
+  Page header_page;
+  int ret = readn(file_desc_, &header_page, sizeof(header_page));
   if (ret != 0) {
     LOG_ERROR("Failed to read first page of %s, due to %s.", file_name, strerror(errno));
     close(fd);
@@ -240,7 +240,8 @@ RC DiskBufferPool::open_file(const char *file_name)
     return RC::IOERR_READ;
   }
 
-  buffer_pool_id_ = file_header.buffer_pool_id;
+  BPFileHeader *tmp_file_header = reinterpret_cast<BPFileHeader *>(header_page.data);
+  buffer_pool_id_ = tmp_file_header->buffer_pool_id;
 
   RC rc = allocate_frame(BP_HEADER_PAGE, &hdr_frame_);
   if (rc != RC::SUCCESS) {

@@ -104,6 +104,31 @@ TEST(DiskBufferPool, allocate_dispose)
   ASSERT_EQ(buffer_pool_manager.close_file(buffer_pool_filename.c_str()), RC::SUCCESS);
 }
 
+TEST(BufferPool, create)
+{
+  filesystem::path test_directory("buffer_pool");
+  filesystem::path bp_file = test_directory / "create.bp";
+  filesystem::remove_all(test_directory);
+  filesystem::create_directory(test_directory);
+
+  BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.create_file(bp_file.c_str()));
+
+  VacuousLogHandler log_handler;
+  DiskBufferPool *buffer_pool = nullptr;
+  ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, bp_file.c_str(), buffer_pool));
+  ASSERT_NE(buffer_pool, nullptr);
+
+  BufferPoolManager bpm2;
+  filesystem::path bp_file2 = test_directory / "create2.bp";
+  filesystem::copy_file(bp_file, bp_file2);
+
+  DiskBufferPool *buffer_pool2 = nullptr;
+  ASSERT_EQ(RC::SUCCESS, bpm2.open_file(log_handler, bp_file2.c_str(), buffer_pool2));
+  ASSERT_NE(buffer_pool2, nullptr);
+  ASSERT_EQ(buffer_pool->id(), buffer_pool2->id());
+}
+
 int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);

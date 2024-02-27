@@ -83,7 +83,7 @@ private:
 
   std::vector<std::unique_ptr<bplus_tree::LogEntryHandler>> entries_;
 
-  bool need_log_ = false;
+  bool need_log_ = true;
 };
 
 class BplusTreeMiniTransaction final
