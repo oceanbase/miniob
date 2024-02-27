@@ -212,6 +212,33 @@ RC BplusTreeLogger::__redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHand
   return RC::SUCCESS;
 }
 
+string BplusTreeLogger::log_entry_to_string(const LogEntry &entry)
+{
+  stringstream ss;
+  Deserializer buffer(entry.data(), entry.payload_size());
+  int32_t      buffer_pool_id = -1;
+  int          ret            = buffer.read_int32(buffer_pool_id);
+  if (ret != 0) {
+    LOG_ERROR("failed to read buffer pool id. ret=%d", ret);
+    return ss.str();
+  }
+
+  ss << "buffer_pool_id:" << buffer_pool_id;
+  while (buffer.remain() > 0) {
+    unique_ptr<LogEntryHandler> entry;
+
+    RC rc = LogEntryHandler::from_buffer(buffer, entry);
+    if (RC::SUCCESS != rc) {
+      LOG_WARN("failed to deserialize log entry. rc=%s", strrc(rc));
+      return ss.str();
+    }
+
+    ss << ",";
+    ss << entry->to_string();
+  }
+  return ss.str();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // class BplusTreeMiniTransaction
 BplusTreeMiniTransaction::BplusTreeMiniTransaction(BplusTreeHandler &tree_handler, RC *operation_result /* =nullptr */)

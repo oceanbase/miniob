@@ -43,7 +43,19 @@ string LogOperation::to_string() const
 ///////////////////////////////////////////////////////////////////////////////
 // LogEntry
 LogEntryHandler::LogEntryHandler(LogOperation operation, Frame *frame) : operation_type_(operation), frame_(frame)
-{}
+{
+  if (frame_ != nullptr) {
+    set_page_num(frame->page_num());
+  }
+}
+
+PageNum LogEntryHandler::page_num() const
+{
+  if (frame_ != nullptr) {
+    return frame_->page_num();
+  }
+  return page_num_;
+}
 
 RC LogEntryHandler::serialize(Serializer &buffer) const
 {
@@ -74,7 +86,7 @@ string LogEntryHandler::to_string() const
 {
   stringstream ss;
   ss << "operation=" << operation_type().to_string()
-     << ", page_num=" << frame_->page_num();
+     << ", page_num=" << page_num();
   return ss.str();
 }
 
@@ -87,7 +99,7 @@ RC LogEntryHandler::from_buffer(Deserializer &deserializer, unique_ptr<LogEntryH
   return from_buffer(fake_frame_getter, deserializer, handler);
 }
 
-RC LogEntryHandler::from_buffer(DiskBufferPool &buffer_pool, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler)
+RC LogEntryHandler::from_buffer(DiskBufferPool &buffer_pool, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler)
 {
   auto frame_getter = [&buffer_pool](PageNum page_num, Frame *&frame) -> RC {
     return buffer_pool.get_this_page(page_num, &frame);
@@ -95,7 +107,7 @@ RC LogEntryHandler::from_buffer(DiskBufferPool &buffer_pool, common::Deserialize
   return from_buffer(frame_getter, buffer, handler);
 }
 
-RC LogEntryHandler::from_buffer(std::function<RC(PageNum, Frame *&)> frame_getter, Deserializer &buffer, unique_ptr<LogEntryHandler> &handler)
+RC LogEntryHandler::from_buffer(function<RC(PageNum, Frame *&)> frame_getter, Deserializer &buffer, unique_ptr<LogEntryHandler> &handler)
 {
   int32_t type = -1;
   PageNum page_num = -1;
@@ -124,40 +136,40 @@ RC LogEntryHandler::from_buffer(std::function<RC(PageNum, Frame *&)> frame_gette
 
   switch (operation.type()) {
     case LogOperation::Type::INIT_HEADER_PAGE: {
-      return InitHeaderPageLogEntryHandler::deserialize(frame, buffer, handler);
+      rc = InitHeaderPageLogEntryHandler::deserialize(frame, buffer, handler);
     } break;
 
     case LogOperation::Type::UPDATE_ROOT_PAGE: {
-      return UpdateRootPageLogEntryHandler::deserialize(frame, buffer, handler);
+      rc = UpdateRootPageLogEntryHandler::deserialize(frame, buffer, handler);
     } break;
 
     case LogOperation::Type::SET_PARENT_PAGE: {
-      return SetParentPageLogEntryHandler::deserialize(frame, buffer, handler);
+      rc = SetParentPageLogEntryHandler::deserialize(frame, buffer, handler);
     } break;
 
     case LogOperation::Type::LEAF_INIT_EMPTY: {
-      return LeafInitEmptyLogEntryHandler::deserialize(frame, buffer, handler);
+      rc = LeafInitEmptyLogEntryHandler::deserialize(frame, buffer, handler);
     } break;
 
     case LogOperation::Type::LEAF_SET_NEXT_PAGE: {
-      return LeafSetNextPageLogEntryHandler::deserialize(frame, buffer, handler);
+      rc = LeafSetNextPageLogEntryHandler::deserialize(frame, buffer, handler);
     } break;
 
     case LogOperation::Type::INTERNAL_INIT_EMPTY: {
-      return InternalInitEmptyLogEntryHandler::deserialize(frame, buffer, handler);
+      rc = InternalInitEmptyLogEntryHandler::deserialize(frame, buffer, handler);
     } break;
 
     case LogOperation::Type::INTERNAL_CREATE_NEW_ROOT: {
-      return InternalCreateNewRootLogEntryHandler::deserialize(frame, buffer, handler);
+      rc = InternalCreateNewRootLogEntryHandler::deserialize(frame, buffer, handler);
     } break;
 
     case LogOperation::Type::INTERNAL_UPDATE_KEY: {
-      return InternalUpdateKeyLogEntryHandler::deserialize(frame, buffer, handler);
+      rc = InternalUpdateKeyLogEntryHandler::deserialize(frame, buffer, handler);
     } break;
 
     case LogOperation::Type::NODE_INSERT:
     case LogOperation::Type::NODE_REMOVE: { 
-      return NormalOperationLogEntryHandler::deserialize(frame, operation, buffer, handler);
+      rc = NormalOperationLogEntryHandler::deserialize(frame, operation, buffer, handler);
     } break;
     
     default: {
@@ -165,6 +177,11 @@ RC LogEntryHandler::from_buffer(std::function<RC(PageNum, Frame *&)> frame_gette
       return RC::INTERNAL;
     }
   }
+
+  if (OB_SUCC(rc) && handler) {
+    handler->set_page_num(page_num);
+  }
+  return rc;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -423,7 +440,7 @@ RC InternalInitEmptyLogEntryHandler::deserialize(Frame *frame, Deserializer &buf
 
 ///////////////////////////////////////////////////////////////////////////////
 // InternalCreateNewRootLogEntryHandler
-InternalCreateNewRootLogEntryHandler::InternalCreateNewRootLogEntryHandler(Frame *frame, PageNum first_page_num, std::span<const char> key,
+InternalCreateNewRootLogEntryHandler::InternalCreateNewRootLogEntryHandler(Frame *frame, PageNum first_page_num, span<const char> key,
       PageNum page_num)
       : NodeLogEntryHandler(LogOperation::Type::INTERNAL_CREATE_NEW_ROOT, frame),
         first_page_num_(first_page_num),

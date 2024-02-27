@@ -53,18 +53,7 @@ public:
         }
       } break;
       case LogModule::Id::BPLUS_TREE: {
-        unique_ptr<LogEntryHandler> handler;
-        Deserializer buffer(entry.data(), entry.payload_size());
-        auto fake_frame_getter = [](PageNum, Frame *&frame) -> RC {
-          frame = nullptr;
-          return RC::SUCCESS;
-        };
-        RC rc = LogEntryHandler::from_buffer(fake_frame_getter, buffer, handler);
-        if (OB_FAIL(rc)) {
-          ss << "failed to parse bplus tree log entry. rc = " << strrc(rc);
-        } else {
-          ss << handler->to_string();
-        }
+	ss << BplusTreeLogger::log_entry_to_string(entry);
       } break;
       
       default: {

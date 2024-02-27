@@ -73,6 +73,9 @@ public:
   Frame       *frame() { return frame_; }
   const Frame *frame() const { return frame_; }
 
+  PageNum page_num() const;
+  void set_page_num(PageNum page_num) { page_num_ = page_num; }
+
   LogOperation operation_type() const { return operation_type_; }
 
   RC serialize(common::Serializer &buffer) const;
@@ -101,6 +104,10 @@ public:
 protected:
   LogOperation operation_type_;
   Frame       *frame_ = nullptr;
+
+  /// page num本来存放在frame中。但是只有在运行时才能拿到frame，为了强制适配
+  /// 解析文件buffer时不存在运行时的情况，直接记录page num
+  PageNum      page_num_ = BP_INVALID_PAGE_NUM;
 };
 
 class NodeLogEntryHandler : public LogEntryHandler

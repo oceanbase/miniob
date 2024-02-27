@@ -70,6 +70,7 @@ public:
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler);
 
   static RC redo(BufferPoolManager &bpm, const LogEntry &entry);
+  static std::string log_entry_to_string(const LogEntry &entry);
 
 private:
   RC __redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler, common::Deserializer &redo_buffer);
