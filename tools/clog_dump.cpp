@@ -19,8 +19,12 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_file.h"
 #include "storage/buffer/buffer_pool_log.h"
 #include "storage/record/record_log.h"
+#include "storage/index/bplus_tree_log_entry.h"
+#include "common/lang/serializer.h"
 
 using namespace std;
+using namespace common;
+using namespace bplus_tree;
 
 class LogEntryStringifier
 {
@@ -31,7 +35,7 @@ public:
     ss << entry.header().to_string() << ", ";
     switch (entry.module().id()) {
       case LogModule::Id::BUFFER_POOL: {
-        if (entry.payload_size() < sizeof(BufferPoolLogEntry)) {
+        if (entry.payload_size() < static_cast<int32_t>(sizeof(BufferPoolLogEntry))) {
           ss << "invalid buffer pool log entry. " << "payload size = " << entry.payload_size()
              << ", expected size = " << sizeof(BufferPoolLogEntry);
         } else {
@@ -48,6 +52,9 @@ public:
           ss << record_log_header->to_string();
         }
       } break;
+      case LogModule::Id::BPLUS_TREE: {
+	ss << BplusTreeLogger::log_entry_to_string(entry);
+      } break;
       
       default: {
         ss << "unknown log entry. " << "module id = " << entry.module().index();
@@ -62,7 +69,7 @@ void dump_file(const filesystem::path &filepath)
   LogFileReader log_file;
   RC rc = log_file.open(filepath.c_str());
   if (OB_FAIL(rc)) {
-    printf("failed to open log file. filename = %s, rc = %d\n", filepath.c_str(), rc);
+    printf("failed to open log file. filename = %s, rc = %s\n", filepath.c_str(), strrc(rc));
     return;
   }
 
@@ -76,7 +83,7 @@ void dump_file(const filesystem::path &filepath)
   });
 
   if (OB_FAIL(rc)) {
-    printf("failed to iterate log file. filename = %s, rc = %d\n", filepath.c_str(), rc);
+    printf("failed to iterate log file. filename = %s, rc = %s\n", filepath.c_str(), strrc(rc));
     return;
   }
 
@@ -90,14 +97,14 @@ void dump_directory(const filesystem::path &directory)
   LogFileManager log_file_manager;
   RC rc = log_file_manager.init(directory.c_str(), 1);
   if (OB_FAIL(rc)) {
-    printf("failed to init log file manager. rc = %d\n", rc);
+    printf("failed to init log file manager. rc = %s\n", strrc(rc));
     return;
   }
 
   vector<string> filenames;
   rc = log_file_manager.list_files(filenames, 0);
   if (OB_FAIL(rc)) {
-    printf("failed to list log files. directory = %s, rc = %d\n", directory.c_str(), rc);
+    printf("failed to list log files. directory = %s, rc = %s\n", directory.c_str(), strrc(rc));
     return;
   }
 
@@ -107,7 +114,7 @@ void dump_directory(const filesystem::path &directory)
     LogFileReader log_file;
     rc = log_file.open(filename.c_str());
     if (OB_FAIL(rc)) {
-      printf("failed to open log file. filename = %s, rc = %d\n", filename.c_str(), rc);
+      printf("failed to open log file. filename = %s, rc = %s\n", filename.c_str(), strrc(rc));
       return;
     }
 
@@ -119,7 +126,7 @@ void dump_directory(const filesystem::path &directory)
     });
 
     if (OB_FAIL(rc)) {
-      printf("failed to iterate log file. filename = %s, rc = %d\n", filename.c_str(), rc);
+      printf("failed to iterate log file. filename = %s, rc = %s\n", filename.c_str(), strrc(rc));
       return;
     }
 

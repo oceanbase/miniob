@@ -17,67 +17,67 @@ See the Mulan PSL v2 for more details. */
 
 void test_get(BPFrameManager &frame_manager)
 {
-  const int file_desc = 0;
-  PageNum   page_num  = 1;
-  Frame    *frame1    = frame_manager.alloc(file_desc, page_num);
+  const int buffer_pool_id = 0;
+  PageNum   page_num       = 1;
+  Frame    *frame1         = frame_manager.alloc(buffer_pool_id, page_num);
   ASSERT_NE(frame1, nullptr);
 
-  frame1->set_file_desc(file_desc);
+  frame1->set_buffer_pool_id(buffer_pool_id);
   frame1->set_page_num(page_num);
 
-  ASSERT_EQ(frame1, frame_manager.get(file_desc, 1));
+  ASSERT_EQ(frame1, frame_manager.get(buffer_pool_id, 1));
   frame1->unpin();
 
-  Frame *frame2 = frame_manager.alloc(file_desc, 2);
+  Frame *frame2 = frame_manager.alloc(buffer_pool_id, 2);
   ASSERT_NE(frame2, nullptr);
-  frame2->set_file_desc(0);
+  frame2->set_buffer_pool_id(0);
   frame2->set_page_num(2);
 
-  ASSERT_EQ(frame1, frame_manager.get(file_desc, 1));
+  ASSERT_EQ(frame1, frame_manager.get(buffer_pool_id, 1));
   frame1->unpin();
 
-  Frame *frame3 = frame_manager.alloc(file_desc, 3);
+  Frame *frame3 = frame_manager.alloc(buffer_pool_id, 3);
   ASSERT_NE(frame3, nullptr);
-  frame3->set_file_desc(file_desc);
+  frame3->set_buffer_pool_id(buffer_pool_id);
   frame3->set_page_num(3);
 
-  frame2 = frame_manager.get(file_desc, 2);
+  frame2 = frame_manager.get(buffer_pool_id, 2);
   ASSERT_NE(frame2, nullptr);
   frame2->unpin();
 
-  Frame *frame4 = frame_manager.alloc(file_desc, 4);
-  frame4->set_file_desc(file_desc);
+  Frame *frame4 = frame_manager.alloc(buffer_pool_id, 4);
+  frame4->set_buffer_pool_id(buffer_pool_id);
   frame4->set_page_num(4);
 
-  frame_manager.free(file_desc, frame1->page_num(), frame1);
-  frame1 = frame_manager.get(file_desc, 1);
+  frame_manager.free(buffer_pool_id, frame1->page_num(), frame1);
+  frame1 = frame_manager.get(buffer_pool_id, 1);
   ASSERT_EQ(frame1, nullptr);
 
-  ASSERT_EQ(frame3, frame_manager.get(file_desc, 3));
+  ASSERT_EQ(frame3, frame_manager.get(buffer_pool_id, 3));
   frame3->unpin();
 
-  ASSERT_EQ(frame4, frame_manager.get(file_desc, 4));
+  ASSERT_EQ(frame4, frame_manager.get(buffer_pool_id, 4));
   frame4->unpin();
 
-  frame_manager.free(file_desc, frame2->page_num(), frame2);
-  frame_manager.free(file_desc, frame3->page_num(), frame3);
-  frame_manager.free(file_desc, frame4->page_num(), frame4);
+  frame_manager.free(buffer_pool_id, frame2->page_num(), frame2);
+  frame_manager.free(buffer_pool_id, frame3->page_num(), frame3);
+  frame_manager.free(buffer_pool_id, frame4->page_num(), frame4);
 
-  ASSERT_EQ(nullptr, frame_manager.get(file_desc, 2));
-  ASSERT_EQ(nullptr, frame_manager.get(file_desc, 3));
-  ASSERT_EQ(nullptr, frame_manager.get(file_desc, 4));
+  ASSERT_EQ(nullptr, frame_manager.get(buffer_pool_id, 2));
+  ASSERT_EQ(nullptr, frame_manager.get(buffer_pool_id, 3));
+  ASSERT_EQ(nullptr, frame_manager.get(buffer_pool_id, 4));
 }
 
 void test_alloc(BPFrameManager &frame_manager)
 {
   std::list<Frame *> used_list;
 
-  const int file_desc = 0;
-  size_t    size      = 0;
+  const int buffer_pool_id = 0;
+  size_t    size           = 0;
   for (; true; size++) {
-    Frame *item = frame_manager.alloc(file_desc, size);
+    Frame *item = frame_manager.alloc(buffer_pool_id, size);
     if (item != nullptr) {
-      item->set_file_desc(file_desc);
+      item->set_buffer_pool_id(buffer_pool_id);
       item->set_page_num(size);
       used_list.push_back(item);
     } else {
@@ -89,7 +89,7 @@ void test_alloc(BPFrameManager &frame_manager)
   ASSERT_EQ(used_list.size(), frame_manager.frame_num());
 
   for (size_t i = size; i < size * 2; i++) {
-    Frame *item = frame_manager.alloc(file_desc, i);
+    Frame *item = frame_manager.alloc(buffer_pool_id, i);
 
     ASSERT_EQ(item, nullptr);
   }
@@ -99,12 +99,12 @@ void test_alloc(BPFrameManager &frame_manager)
       Frame *item = used_list.front();
       used_list.pop_front();
 
-      RC rc = frame_manager.free(file_desc, item->page_num(), item);
+      RC rc = frame_manager.free(buffer_pool_id, item->page_num(), item);
       ASSERT_EQ(rc, RC::SUCCESS);
     } else {
-      Frame *item = frame_manager.alloc(file_desc, i);
+      Frame *item = frame_manager.alloc(buffer_pool_id, i);
       ASSERT_NE(item, nullptr);
-      item->set_file_desc(file_desc);
+      item->set_buffer_pool_id(buffer_pool_id);
       item->set_page_num(i);
       used_list.push_back(item);
     }

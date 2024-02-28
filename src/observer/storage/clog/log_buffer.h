@@ -43,8 +43,8 @@ public:
   /**
    * @brief 在缓冲区中追加一条日志
    */
-  RC append(LSN &lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size);
-  RC append(LSN &lsn, LogModule::Id module_id, std::unique_ptr<char[]> data, int32_t size);
+  RC append(LSN &lsn, LogModule::Id module_id, vector<char> &&data);
+  RC append(LSN &lsn, LogModule module, std::vector<char> &&data);
 
   /**
    * @brief 刷新缓冲区中的日志到磁盘

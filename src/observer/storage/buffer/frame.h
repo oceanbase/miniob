@@ -33,18 +33,22 @@ See the Mulan PSL v2 for more details. */
 class FrameId
 {
 public:
-  FrameId(int file_desc, PageNum page_num);
+  FrameId() = default;
+  FrameId(int buffer_pool_id, PageNum page_num);
   bool    equal_to(const FrameId &other) const;
   bool    operator==(const FrameId &other) const;
   size_t  hash() const;
-  int     file_desc() const;
+  int     buffer_pool_id() const;
   PageNum page_num() const;
+
+  void set_buffer_pool_id(int buffer_pool_id) { buffer_pool_id_ = buffer_pool_id; }
+  void set_page_num(PageNum page_num) { page_num_ = page_num; }
 
   friend std::string to_string(const FrameId &frame_id);
 
 private:
-  int     file_desc_;
-  PageNum page_num_;
+  int     buffer_pool_id_ = -1;
+  PageNum page_num_ = -1;
 };
 
 /**
@@ -77,8 +81,8 @@ public:
 
   void clear_page() { memset(&page_, 0, sizeof(page_)); }
 
-  int     file_desc() const { return file_desc_; }
-  void    set_file_desc(int fd) { file_desc_ = fd; }
+  int     buffer_pool_id() const { return frame_id_.buffer_pool_id(); }
+  void    set_buffer_pool_id(int id) { frame_id_.set_buffer_pool_id(id); }
 
   /**
    * @brief 在磁盘和内存中内容完全一致的数据页
@@ -91,9 +95,9 @@ public:
    * @brief 每个页面都有一个编号
    * @details 当前页面编号记录在了页面数据中，其实可以不记录，从磁盘中加载时记录在Frame信息中即可。
    */
-  PageNum page_num() const { return page_num_; }
-  void    set_page_num(PageNum page_num) { page_num_ = page_num; }
-  FrameId frame_id() const { return FrameId(file_desc_, page_num_); }
+  PageNum page_num() const { return frame_id_.page_num(); }
+  void    set_page_num(PageNum page_num) { frame_id_.set_page_num(page_num); }
+  FrameId frame_id() const { return frame_id_; }
 
   /**
    * @brief 为了实现持久化，需要将页面的修改记录记录到日志中，这里记录了日志序列号
@@ -164,8 +168,7 @@ private:
   bool             dirty_ = false;
   std::atomic<int> pin_count_{0};
   unsigned long    acc_time_  = 0;
-  PageNum          page_num_ = -1;
-  int              file_desc_ = -1;
+  FrameId          frame_id_;
   Page             page_;
 
   /// 在非并发编译时，加锁解锁动作将什么都不做

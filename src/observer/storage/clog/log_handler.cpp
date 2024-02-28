@@ -16,14 +16,13 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
-RC LogHandler::append(LSN &lsn, LogModule::Id module, const char *data, int32_t size)
+RC LogHandler::append(LSN &lsn, LogModule::Id module, span<const char> data)
 {
-  unique_ptr<char[]> buf(new char[size]);
-  memcpy(buf.get(), data, size);
-  return append(lsn, module, std::move(buf), size);
+  vector<char> data_vec(data.begin(), data.end());
+  return append(lsn, module, std::move(data_vec));
 }
 
-RC LogHandler::append(LSN &lsn, LogModule::Id module, std::unique_ptr<char[]> data, int32_t size)
+RC LogHandler::append(LSN &lsn, LogModule::Id module, vector<char> &&data)
 {
-  return _append(lsn, LogModule(module), std::move(data), size);
+  return _append(lsn, LogModule(module), std::move(data));
 }

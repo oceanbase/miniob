@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_replayer.h"
 #include "storage/buffer/buffer_pool_log.h"
 #include "storage/record/record_log.h"
+#include "storage/index/bplus_tree_log.h"
 
 class BufferPoolManager;
 
@@ -36,4 +37,5 @@ public:
 private:
   BufferPoolLogReplayer buffer_pool_log_replayer_; ///< 缓冲池日志回放器
   RecordLogReplayer     record_log_replayer_;      ///< record manager 日志回放器
+  BplusTreeLogReplayer  bplus_tree_log_replayer_;   ///< bplus tree 日志回放器
 };

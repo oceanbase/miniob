@@ -71,15 +71,15 @@ RC LogFileReader::iterate(std::function<RC(LogEntry &)> callback, LSN start_lsn 
       return RC::IOERR_READ;
     }
 
-    unique_ptr<char[]> data(new char[header.size]);
-    ret = readn(fd_, data.get(), header.size);
+    vector<char> data(header.size);
+    ret = readn(fd_, data.data(), header.size);
     if (0 != ret) {
       LOG_WARN("read file failed. filename=%s, ret = %d, error=%s", filename_.c_str(), ret, strerror(errno));
       return RC::IOERR_READ;
     }
 
     LogEntry entry;
-    entry.init(header.lsn, LogModule(header.module_id), std::move(data), header.size);
+    entry.init(header.lsn, LogModule(header.module_id), std::move(data));
     rc = callback(entry);
     if (OB_FAIL(rc)) {
       return rc;

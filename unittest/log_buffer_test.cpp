@@ -12,10 +12,10 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai on 2024/01/31
 //
 
+#include "gtest/gtest.h"
+
 #define private public
 #define protected public
-
-#include "gtest/gtest.h"
 #include "storage/clog/log_buffer.h"
 #include "storage/clog/log_file.h"
 
@@ -30,8 +30,10 @@ TEST(LogEntryBuffer, test_append)
   LogEntryBuffer buffer;
   ASSERT_EQ(RC::SUCCESS, buffer.init(start_lsn));
 
+  vector<char> data(10);
+
   LSN lsn = 0;
-  ASSERT_EQ(RC::SUCCESS, buffer.append(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10));
+  ASSERT_EQ(RC::SUCCESS, buffer.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)));
   ASSERT_EQ(lsn, start_lsn + 1);
   ASSERT_EQ(buffer.current_lsn(), lsn);
 
@@ -45,7 +47,8 @@ TEST(LogEntryBuffer, test_append)
   ASSERT_EQ(count, 1);
 
   for (LSN i = lsn + 1; i <= end_lsn; i++) {
-    ASSERT_EQ(RC::SUCCESS, buffer.append(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10));
+    vector<char> data(10);
+    ASSERT_EQ(RC::SUCCESS, buffer.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)));
     ASSERT_EQ(lsn, i);
     ASSERT_EQ(buffer.current_lsn(), lsn);
   }
@@ -55,7 +58,7 @@ TEST(LogEntryBuffer, test_append)
   }
   ASSERT_EQ(buffer.flushed_lsn(), end_lsn);
 
-  ASSERT_EQ(RC::SUCCESS, buffer.append(lsn, LogModule::Id::BUFFER_POOL, unique_ptr<char[]>(new char[10]), 10));
+  ASSERT_EQ(RC::SUCCESS, buffer.append(lsn, LogModule::Id::BUFFER_POOL, vector<char>(10)));
 
   ASSERT_NE(RC::SUCCESS, buffer.flush(writer, count));
 

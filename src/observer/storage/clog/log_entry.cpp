@@ -65,21 +65,21 @@ LogEntry &LogEntry::operator=(LogEntry &&other)
   return *this;
 }
 
-RC LogEntry::init(LSN lsn, LogModule::Id module_id, unique_ptr<char[]> data, int32_t size)
+RC LogEntry::init(LSN lsn, LogModule::Id module_id, vector<char> &&data)
 {
-  return init(lsn, LogModule(module_id), std::move(data), size);
+  return init(lsn, LogModule(module_id), std::move(data));
 }
 
-RC LogEntry::init(LSN lsn, LogModule module, unique_ptr<char[]> data, int32_t size)
+RC LogEntry::init(LSN lsn, LogModule module, vector<char> &&data)
 {
-  if (size > max_payload_size()) {
-    LOG_DEBUG("log entry size is too large. size=%d, max_payload_size=%d", size, max_payload_size());
+  if (static_cast<int32_t>(data.size()) > max_payload_size()) {
+    LOG_DEBUG("log entry size is too large. size=%d, max_payload_size=%d", data.size(), max_payload_size());
     return RC::INVALID_ARGUMENT;
   }
 
   header_.lsn = lsn;
   header_.module_id = module.index();
-  header_.size = size;
+  header_.size = static_cast<int32_t>(data.size());
   data_ = std::move(data);
   return RC::SUCCESS;
 }

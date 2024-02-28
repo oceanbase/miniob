@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/03/08.
 //
 
-#include "storage/trx/latch_memo.h"
+#include "storage/index/latch_memo.h"
 #include "common/lang/mutex.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/buffer/frame.h"

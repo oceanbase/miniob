@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <iostream>
 #include <list>
+#include <filesystem>
 
 #include "common/log/log.h"
 #include "sql/parser/parse_defs.h"
@@ -119,7 +120,7 @@ void test_insert()
         LOG_INFO("Begin to check duplicated insert the page's num %s", rid.to_string().c_str());
       }
     } else {
-      LOG_INFO("check duplicate Insert %d. rid=%s. i%TIMES=%d", i, rid.to_string().c_str(), i%TIMES);
+      LOG_INFO("check duplicate Insert %d. rid=%s. TIMES=%d", i, rid.to_string().c_str(), TIMES);
     }
     rc    = handler->insert_entry((const char *)&i, &rid);
     int t = i % TIMES;
@@ -312,6 +313,12 @@ void test_delete()
 
 TEST(test_bplus_tree, test_leaf_index_node_handle)
 {
+  filesystem::path test_directory("bplus_tree");
+  filesystem::remove_all(test_directory);
+  filesystem::create_directories(test_directory);
+
+  filesystem::path buffer_pool_file = test_directory / "test_leaf_index_node_handle.bp";
+  
   IndexFileHeader index_file_header;
   index_file_header.root_page         = BP_INVALID_PAGE_NUM;
   index_file_header.internal_max_size = 5;
@@ -320,12 +327,23 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
   index_file_header.key_length        = 4 + sizeof(RID);
   index_file_header.attr_type         = INTS;
 
+  VacuousLogHandler log_handler;
+  BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
+
+  DiskBufferPool *buffer_pool = nullptr;
+  ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, buffer_pool_file.c_str(), buffer_pool));
+  
+  BplusTreeHandler tree_handler;
+  ASSERT_EQ(RC::SUCCESS, tree_handler.create(log_handler, *buffer_pool, index_file_header.attr_type, index_file_header.attr_length, index_file_header.internal_max_size, index_file_header.leaf_max_size));
+  BplusTreeMiniTransaction mtr(tree_handler);
+
   Frame frame;
 
   KeyComparator key_comparator;
   key_comparator.init(INTS, 4);
 
-  LeafIndexNodeHandler leaf_node(index_file_header, &frame);
+  LeafIndexNodeHandler leaf_node(mtr, index_file_header, &frame);
   leaf_node.init_empty();
   ASSERT_EQ(0, leaf_node.size());
 
@@ -340,7 +358,7 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
     key   = i * 2 + 1;
     index = leaf_node.lookup(key_comparator, key_mem, &found);
     ASSERT_EQ(false, found);
-    leaf_node.insert(index, (const char *)&key, (const char *)&rid);
+    ASSERT_EQ(RC::SUCCESS, leaf_node.insert(index, (const char *)&key, (const char *)&rid));
   }
 
   ASSERT_EQ(5, leaf_node.size());
@@ -369,6 +387,12 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
 }
 TEST(test_bplus_tree, test_internal_index_node_handle)
 {
+  filesystem::path test_directory("bplus_tree");
+  filesystem::remove_all(test_directory);
+  filesystem::create_directories(test_directory);
+
+  filesystem::path buffer_pool_file = test_directory / "test_internal_index_node_handle.bp";
+
   IndexFileHeader index_file_header;
   index_file_header.root_page         = BP_INVALID_PAGE_NUM;
   index_file_header.internal_max_size = 5;
@@ -377,12 +401,24 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
   index_file_header.key_length        = 4 + sizeof(RID);
   index_file_header.attr_type         = INTS;
 
+  VacuousLogHandler log_handler;
+  BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
+
+  DiskBufferPool *buffer_pool = nullptr;
+  ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, buffer_pool_file.c_str(), buffer_pool));
+  ASSERT_NE(nullptr, buffer_pool);
+
+  BplusTreeHandler tree_handler;
+  ASSERT_EQ(RC::SUCCESS, tree_handler.create(log_handler, *buffer_pool, index_file_header.attr_type, index_file_header.attr_length, index_file_header.internal_max_size, index_file_header.leaf_max_size));
+  BplusTreeMiniTransaction mtr(tree_handler);
+
   Frame frame;
 
   KeyComparator key_comparator;
   key_comparator.init(INTS, 4);
 
-  InternalIndexNodeHandler internal_node(index_file_header, &frame);
+  InternalIndexNodeHandler internal_node(mtr, index_file_header, &frame);
   internal_node.init_empty();
   ASSERT_EQ(0, internal_node.size());
 
@@ -469,10 +505,20 @@ TEST(test_bplus_tree, test_chars)
 
   VacuousLogHandler log_handler;
 
-  const char *index_name = "chars.btree";
-  ::remove(index_name);
-  handler = new BplusTreeHandler();
-  handler->create(log_handler, index_name, CHARS, 8, ORDER, ORDER);
+  filesystem::path test_directory("bplus_tree");
+  filesystem::path buffer_pool_file = test_directory / "chars.btree";
+  filesystem::remove_all(test_directory);
+  filesystem::create_directory(test_directory);
+
+  BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
+
+  DiskBufferPool *buffer_pool = nullptr;
+  ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, buffer_pool_file.c_str(), buffer_pool));
+  ASSERT_NE(nullptr, buffer_pool);
+
+  BplusTreeHandler handler;
+  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, CHARS, 8, ORDER, ORDER));
 
   char keys[][9] = {"abcdefg", "12345678", "12345678", "abcdefg", "abcdefga"};
 
@@ -481,15 +527,15 @@ TEST(test_bplus_tree, test_chars)
   for (size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); i++) {
     rid.page_num = 0;
     rid.slot_num = i;
-    rc           = handler->insert_entry(keys[i], &rid);
+    rc           = handler.insert_entry(keys[i], &rid);
     ASSERT_EQ(RC::SUCCESS, rc);
   }
 
   LOG_INFO("begin to print bplus tree of chars");
-  handler->print_tree();
+  handler.print_tree();
   LOG_INFO("end to print bplus tree of chars");
 
-  BplusTreeScanner scanner(*handler);
+  BplusTreeScanner scanner(handler);
   const char      *key = "abcdefg";
   rc                   = scanner.open(key, strlen(key), true, key, strlen(key), true);
   ASSERT_EQ(rc, RC::SUCCESS);
@@ -506,12 +552,22 @@ TEST(test_bplus_tree, test_scanner)
 {
   LoggerFactory::init_default("test.log");
 
+  filesystem::path test_directory("bplus_tree");
+  filesystem::path buffer_pool_file = test_directory / "scanner.btree";
+  filesystem::remove_all(test_directory);
+  filesystem::create_directory(test_directory);
+
   VacuousLogHandler log_handler;
 
-  const char *index_name = "scanner.btree";
-  ::remove(index_name);
-  handler = new BplusTreeHandler();
-  handler->create(log_handler, index_name, INTS, sizeof(int), ORDER, ORDER);
+  BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
+
+  DiskBufferPool *buffer_pool = nullptr;
+  ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, buffer_pool_file.c_str(), buffer_pool));
+  ASSERT_NE(nullptr, buffer_pool);
+
+  BplusTreeHandler handler;
+  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, INTS, sizeof(int), ORDER, ORDER));
 
   int count = 0;
   RC  rc    = RC::SUCCESS;
@@ -521,13 +577,13 @@ TEST(test_bplus_tree, test_scanner)
     int key      = i * 2 + 1;
     rid.page_num = 0;
     rid.slot_num = key;
-    rc           = handler->insert_entry((const char *)&key, &rid);
+    rc           = handler.insert_entry((const char *)&key, &rid);
     ASSERT_EQ(RC::SUCCESS, rc);
   }
 
-  handler->print_tree();
+  handler.print_tree();
 
-  BplusTreeScanner scanner(*handler);
+  BplusTreeScanner scanner(handler);
 
   int begin = -100;
   int end   = -20;
@@ -718,10 +774,22 @@ TEST(test_bplus_tree, test_bplus_tree_insert)
 {
   LoggerFactory::init_default("test.log");
 
+  filesystem::path test_directory("bplus_tree");
+  filesystem::path buffer_pool_file = test_directory / "test_bplus_tree_insert.btree";
+  filesystem::remove_all(test_directory);
+  filesystem::create_directory(test_directory);
+
   VacuousLogHandler log_handler;
-  ::remove(index_name);
+
+  BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
+
+  DiskBufferPool *buffer_pool = nullptr;
+  ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, buffer_pool_file.c_str(), buffer_pool));
+  ASSERT_NE(nullptr, buffer_pool);
+
   handler = new BplusTreeHandler();
-  handler->create(log_handler, index_name, INTS, sizeof(int), ORDER, ORDER);
+  ASSERT_EQ(RC::SUCCESS, handler->create(log_handler, *buffer_pool, INTS, sizeof(int), ORDER, ORDER));
 
   test_insert();
 

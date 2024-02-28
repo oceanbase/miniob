@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include <memory>
 #include <string>
+#include <vector>
+
 #include "common/rc.h"
 #include "common/types.h"
 #include "storage/clog/log_module.h"
@@ -66,11 +68,11 @@ public:
   static int32_t max_payload_size() { return max_size() - LogHeader::SIZE; }
 
 public:
-  RC init(LSN lsn, LogModule::Id module_id, std::unique_ptr<char[]> data, int32_t size);
-  RC init(LSN lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size);
+  RC init(LSN lsn, LogModule::Id module_id, std::vector<char> &&data);
+  RC init(LSN lsn, LogModule module, std::vector<char> &&data);
 
   const LogHeader &header() const { return header_; }
-  const char      *data() const { return data_.get(); }
+  const char      *data() const { return data_.data(); }
   int32_t          payload_size() const { return header_.size; }
   int32_t          total_size() const { return LogHeader::SIZE + header_.size; }
 
@@ -84,5 +86,5 @@ public:
 
 private:
   LogHeader               header_;  /// 日志头
-  std::unique_ptr<char[]> data_;    /// 日志数据
+  std::vector<char>       data_;    /// 日志数据
 };

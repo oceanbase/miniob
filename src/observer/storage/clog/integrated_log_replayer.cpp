@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_entry.h"
 
 IntegratedLogReplayer::IntegratedLogReplayer(BufferPoolManager &bpm) 
-  : buffer_pool_log_replayer_(bpm), record_log_replayer_(bpm) 
+  : buffer_pool_log_replayer_(bpm), record_log_replayer_(bpm), bplus_tree_log_replayer_(bpm)
 {}
 
 RC IntegratedLogReplayer::replay(const LogEntry &entry)
@@ -26,6 +26,8 @@ RC IntegratedLogReplayer::replay(const LogEntry &entry)
       return buffer_pool_log_replayer_.replay(entry);
     case LogModule::Id::RECORD_MANAGER:
       return record_log_replayer_.replay(entry);
+    case LogModule::Id::BPLUS_TREE:
+      return bplus_tree_log_replayer_.replay(entry);
     default:
       return RC::INVALID_ARGUMENT;
   }

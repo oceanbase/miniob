@@ -31,7 +31,7 @@ public:
   RC wait_lsn(LSN lsn) override { return RC::SUCCESS; }
 
 private:
-  RC _append(LSN &lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size) override 
+  RC _append(LSN &lsn, LogModule module, std::vector<char> &&) override 
   { 
     lsn = 0;
     return RC::SUCCESS; 

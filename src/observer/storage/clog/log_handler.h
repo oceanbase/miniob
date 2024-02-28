@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <memory>
 #include <functional>
+#include <span>
 
 #include "common/rc.h"
 #include "common/types.h"
@@ -44,11 +45,11 @@ public:
   virtual RC replay(LogReplayer &replayer, LSN start_lsn) = 0;
   virtual RC iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn) = 0;
 
-  virtual RC append(LSN &lsn, LogModule::Id module, const char *data, int32_t size);
-  virtual RC append(LSN &lsn, LogModule::Id module, std::unique_ptr<char[]> data, int32_t size);
+  virtual RC append(LSN &lsn, LogModule::Id module, std::span<const char> data);
+  virtual RC append(LSN &lsn, LogModule::Id module, std::vector<char> &&data);
 
   virtual RC wait_lsn(LSN lsn) = 0;
 
 private:
-  virtual RC _append(LSN &lsn, LogModule module, std::unique_ptr<char[]> data, int32_t size) = 0;
+  virtual RC _append(LSN &lsn, LogModule module, std::vector<char> &&data) = 0;
 };
