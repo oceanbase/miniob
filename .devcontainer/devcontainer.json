@@ -1,0 +1,8 @@
+{
+  "image": "oceanbase/miniob",
+  "features": {
+    "ghcr.io/wxw-matt/devcontainer-features/apt:latest": {
+      "packages": "cmake flex bison texinfo libreadline-dev"
+    }
+  }
+}
