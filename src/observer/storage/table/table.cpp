@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/defs.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
+#include "common/global_context.h"
 #include "storage/db/db.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/common/condition_filter.h"
@@ -87,7 +88,8 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   close(fd);
 
   // 创建文件
-  if ((rc = table_meta_.init(table_id, name, attribute_count, attributes)) != RC::SUCCESS) {
+  const std::vector<FieldMeta> *trx_fields = db_->trx_kit().trx_fields();
+  if ((rc = table_meta_.init(table_id, name, trx_fields, attribute_count, attributes)) != RC::SUCCESS) {
     LOG_ERROR("Failed to init table meta. name:%s, ret:%d", name, rc);
     return rc;  // delete table file
   }
@@ -104,7 +106,7 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   fs.close();
 
   std::string        data_file = table_data_file(base_dir, name);
-  BufferPoolManager &bpm       = BufferPoolManager::instance();
+  BufferPoolManager &bpm       = db_->buffer_pool_manager();
   rc                           = bpm.create_file(data_file.c_str());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create disk buffer pool of data file. file name=%s", data_file.c_str());
@@ -296,7 +298,8 @@ RC Table::init_record_handler(const char *base_dir)
 {
   std::string data_file = table_data_file(base_dir, table_meta_.name());
 
-  RC rc = BufferPoolManager::instance().open_file(db_->log_handler(), data_file.c_str(), data_buffer_pool_);
+  BufferPoolManager &bpm = db_->buffer_pool_manager();
+  RC rc = bpm.open_file(db_->log_handler(), data_file.c_str(), data_buffer_pool_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to open disk buffer pool for file:%s. rc=%d:%s", data_file.c_str(), rc, strrc(rc));
     return rc;

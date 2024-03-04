@@ -40,7 +40,6 @@ const int         page_size  = 1024;
 RID               rid, check_rid;
 int               k = 0;
 
-void init_bpm() { BufferPoolManager::set_instance(&bpm); }
 void test_insert()
 {
   RC rc = RC::SUCCESS;
@@ -812,7 +811,6 @@ int main(int argc, char **argv)
   // main函数返回RUN_ALL_TESTS()的运行结果
 
   LoggerFactory::init_default("test.log", LOG_LEVEL_TRACE);
-  init_bpm();
   int rc = RUN_ALL_TESTS();
 
   return rc;

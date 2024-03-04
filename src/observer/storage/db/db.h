@@ -24,8 +24,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/disk_log_handler.h"
 
 class Table;
-class CLogManager;
 class LogHandler;
+class BufferPoolManager;
+class TrxKit;
 
 /**
  * @brief 一个DB实例负责管理一批表
@@ -43,10 +44,12 @@ public:
    * @details 从指定的目录下加载指定名称的数据库。这里就会加载dbpath目录下的数据。
    * @param name   数据库名称
    * @param dbpath 当前数据库放在哪个目录下
+   * @param trx_kit_name 使用哪种类型的事务模型
    * @note 数据库不是放在dbpath/name下，是直接使用dbpath目录
    */
-  RC init(const char *name, const char *dbpath);
+  RC init(const char *name, const char *dbpath, const char *trx_kit_name);
 
+  // refactor me: use vector or span instead of array
   RC create_table(const char *table_name, int attribute_count, const AttrInfoSqlNode *attributes);
 
   Table *find_table(const char *table_name) const;
@@ -58,21 +61,27 @@ public:
 
   RC sync();
 
-  RC recover();
-
-  CLogManager *clog_manager();
   LogHandler &log_handler();
+  BufferPoolManager &buffer_pool_manager();
+  TrxKit &trx_kit();
 
 private:
   RC open_all_tables();
+  RC recover();
+
+  RC init_meta();
+  RC flush_meta();
 
 private:
   std::string                              name_;
   std::string                              path_;
   std::unordered_map<std::string, Table *> opened_tables_;
-  std::unique_ptr<CLogManager>             clog_manager_;
+  std::unique_ptr<BufferPoolManager>       buffer_pool_manager_;
   std::unique_ptr<DiskLogHandler>          log_handler_;
+  std::unique_ptr<TrxKit>                  trx_kit_;
 
   /// 给每个table都分配一个ID，用来记录日志。这里假设所有的DDL都不会并发操作，所以相关的数据都不上锁
   int32_t next_table_id_ = 0;
+
+  LSN check_point_lsn_ = 0;
 };

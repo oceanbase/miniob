@@ -28,6 +28,9 @@ See the Mulan PSL v2 for more details. */
   DEFINE_RC(NOMEM)                       \
   DEFINE_RC(NOTFOUND)                    \
   DEFINE_RC(EMPTY)                       \
+  DEFINE_RC(FULL)                        \
+  DEFINE_RC(EXIST)                       \
+  DEFINE_RC(NOT_EXIST)                   \
   DEFINE_RC(BUFFERPOOL_OPEN)             \
   DEFINE_RC(BUFFERPOOL_NOBUF)            \
   DEFINE_RC(BUFFERPOOL_INVALID_PAGE_NUM) \
@@ -71,7 +74,8 @@ See the Mulan PSL v2 for more details. */
   DEFINE_RC(VARIABLE_NOT_EXISTS)         \
   DEFINE_RC(VARIABLE_NOT_VALID)          \
   DEFINE_RC(LOGBUF_FULL)                 \
-  DEFINE_RC(LOG_FILE_FULL)
+  DEFINE_RC(LOG_FILE_FULL)               \
+  DEFINE_RC(LOG_ENTRY_INVALID)
 
 enum class RC
 {

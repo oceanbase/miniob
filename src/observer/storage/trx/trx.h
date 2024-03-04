@@ -31,9 +31,10 @@ See the Mulan PSL v2 for more details. */
  */
 
 class Db;
-class CLogManager;
-class CLogRecord;
+class LogHandler;
+class LogEntry;
 class Trx;
+class LogReplayer;
 
 /**
  * @brief 描述一个操作，比如插入、删除行等
@@ -112,19 +113,20 @@ public:
   TrxKit()          = default;
   virtual ~TrxKit() = default;
 
-  virtual RC                            init()                               = 0;
-  virtual const std::vector<FieldMeta> *trx_fields() const                   = 0;
-  virtual Trx                          *create_trx(CLogManager *log_manager) = 0;
-  virtual Trx                          *create_trx(int32_t trx_id)           = 0;
-  virtual Trx                          *find_trx(int32_t trx_id)             = 0;
-  virtual void                          all_trxes(std::vector<Trx *> &trxes) = 0;
+  virtual RC                            init()             = 0;
+  virtual const std::vector<FieldMeta> *trx_fields() const = 0;
+
+  virtual Trx *create_trx(LogHandler &log_handler)                 = 0;
+  virtual Trx *create_trx(LogHandler &log_handler, int32_t trx_id) = 0;
+  virtual Trx *find_trx(int32_t trx_id)                            = 0;
+  virtual void all_trxes(std::vector<Trx *> &trxes)                = 0;
 
   virtual void destroy_trx(Trx *trx) = 0;
 
+  virtual LogReplayer *create_log_replayer(Db &db, LogHandler &log_handler) = 0;
+  
 public:
   static TrxKit *create(const char *name);
-  static RC      init_global(const char *name);
-  static TrxKit *instance();
 };
 
 /**
@@ -137,15 +139,15 @@ public:
   Trx()          = default;
   virtual ~Trx() = default;
 
-  virtual RC insert_record(Table *table, Record &record)               = 0;
-  virtual RC delete_record(Table *table, Record &record)               = 0;
+  virtual RC insert_record(Table *table, Record &record)                    = 0;
+  virtual RC delete_record(Table *table, Record &record)                    = 0;
   virtual RC visit_record(Table *table, Record &record, ReadWriteMode mode) = 0;
 
   virtual RC start_if_need() = 0;
   virtual RC commit()        = 0;
   virtual RC rollback()      = 0;
 
-  virtual RC redo(Db *db, const CLogRecord &log_record);
+  virtual RC redo(Db *db, const LogEntry &log_entry) = 0;
 
   virtual int32_t id() const = 0;
 };

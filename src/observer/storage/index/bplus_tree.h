@@ -456,6 +456,7 @@ public:
    * attrType描述被索引属性的类型，attrLength描述被索引属性的长度
    */
   RC create(LogHandler &log_handler,
+            BufferPoolManager &bpm,
             const char *file_name,
             AttrType attr_type,
             int attr_length,
@@ -473,7 +474,7 @@ public:
    * 如果方法调用成功，则indexHandle为指向被打开的索引句柄的指针。
    * 索引句柄用于在索引中插入或删除索引项，也可用于索引的扫描
    */
-  RC open(LogHandler &log_handler, const char *file_name);
+  RC open(LogHandler &log_handler, BufferPoolManager &bpm, const char *file_name);
   RC open(LogHandler &log_handler, DiskBufferPool &buffer_pool);
 
   /**

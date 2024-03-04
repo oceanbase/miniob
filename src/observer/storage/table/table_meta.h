@@ -36,7 +36,7 @@ public:
 
   void swap(TableMeta &other) noexcept;
 
-  RC init(int32_t table_id, const char *name, int field_num, const AttrInfoSqlNode attributes[]);
+  RC init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields, int field_num, const AttrInfoSqlNode attributes[]);
 
   RC add_index(const IndexMeta &index);
 
@@ -70,6 +70,7 @@ public:
 protected:
   int32_t                table_id_ = -1;
   std::string            name_;
+  std::vector<FieldMeta> trx_fields_;
   std::vector<FieldMeta> fields_;  // 包含sys_fields
   std::vector<IndexMeta> indexes_;
 

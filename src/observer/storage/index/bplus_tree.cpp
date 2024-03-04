@@ -795,15 +795,14 @@ RC BplusTreeHandler::sync()
   return disk_buffer_pool_->flush_all_pages();
 }
 
-RC BplusTreeHandler::create(LogHandler &log_handler, 
+RC BplusTreeHandler::create(LogHandler &log_handler,
+                            BufferPoolManager &bpm,
                             const char *file_name, 
                             AttrType attr_type, 
                             int attr_length, 
                             int internal_max_size /* = -1*/,
                             int leaf_max_size /* = -1 */)
 {
-  BufferPoolManager &bpm = *GCTX.buffer_pool_manager_;
-
   RC rc = bpm.create_file(file_name);
   if (OB_FAIL(rc)) {
     LOG_WARN("Failed to create file. file name=%s, rc=%d:%s", file_name, rc, strrc(rc));
@@ -907,14 +906,13 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
   return RC::SUCCESS;
 }
 
-RC BplusTreeHandler::open(LogHandler &log_handler, const char *file_name)
+RC BplusTreeHandler::open(LogHandler &log_handler, BufferPoolManager &bpm, const char *file_name)
 {
   if (disk_buffer_pool_ != nullptr) {
     LOG_WARN("%s has been opened before index.open.", file_name);
     return RC::RECORD_OPENNED;
   }
 
-  BufferPoolManager &bpm              = *GCTX.buffer_pool_manager_;
   DiskBufferPool    *disk_buffer_pool = nullptr;
 
   RC rc = bpm.open_file(log_handler, file_name, disk_buffer_pool);

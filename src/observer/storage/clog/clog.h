@@ -41,6 +41,7 @@ class Db;
  * 恢复数据库。
  */
 
+#if 0
 /**
  * @enum CLogType
  * @ingroup CLog
@@ -404,3 +405,4 @@ private:
   CLogBuffer *log_buffer_ = nullptr;  ///< 日志缓存。新增日志时先放到内存，也就是这个buffer中
   CLogFile   *log_file_   = nullptr;  ///< 管理日志，比如读写日志
 };
+#endif

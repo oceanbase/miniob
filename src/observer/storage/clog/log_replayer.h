@@ -35,4 +35,9 @@ public:
    * @param entry 日志
    */
   virtual RC replay(const LogEntry &entry) = 0;
+
+  /**
+   * @brief 当所有日志回放完成时的回调函数
+   */
+  virtual RC on_done() { return RC::SUCCESS; }
 };

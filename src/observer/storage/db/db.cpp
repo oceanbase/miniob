@@ -17,16 +17,19 @@ See the Mulan PSL v2 for more details. */
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <vector>
+#include <filesystem>
 
 #include "common/lang/string.h"
 #include "common/log/log.h"
 #include "common/os/path.h"
+#include "common/global_context.h"
 #include "storage/clog/clog.h"
 #include "storage/common/meta_util.h"
 #include "storage/table/table.h"
 #include "storage/table/table_meta.h"
 #include "storage/trx/trx.h"
 #include "storage/clog/disk_log_handler.h"
+#include "storage/clog/integrated_log_replayer.h"
 
 using namespace std;
 using namespace common;
@@ -45,29 +48,29 @@ Db::~Db()
   LOG_INFO("Db has been closed: %s", name_.c_str());
 }
 
-RC Db::init(const char *name, const char *dbpath)
+RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name)
 {
+  RC rc = RC::SUCCESS;
+
   if (common::is_blank(name)) {
     LOG_ERROR("Failed to init DB, name cannot be empty");
     return RC::INVALID_ARGUMENT;
   }
 
-  if (!common::is_directory(dbpath)) {
+  if (!filesystem::is_directory(dbpath)) {
     LOG_ERROR("Failed to init DB, path is not a directory: %s", dbpath);
-    return RC::INTERNAL;
+    return RC::INVALID_ARGUMENT;
   }
 
-  clog_manager_.reset(new CLogManager());
-  if (clog_manager_ == nullptr) {
-    LOG_ERROR("Failed to init CLogManager.");
-    return RC::NOMEM;
+  TrxKit *trx_kit = TrxKit::create(trx_kit_name);
+  if (trx_kit == nullptr) {
+    LOG_ERROR("Failed to create trx kit: %s", trx_kit_name);
+    return RC::INVALID_ARGUMENT;
   }
 
-  RC rc = clog_manager_->init(dbpath);
-  if (OB_FAIL(rc)) {
-    LOG_WARN("failed to init clog manager. dbpath=%s, rc=%s", dbpath, strrc(rc));
-    return rc;
-  }
+  trx_kit_.reset(trx_kit);
+
+  buffer_pool_manager_ = make_unique<BufferPoolManager>();
 
   filesystem::path clog_path = filesystem::path(dbpath) / "clog";
   log_handler_ = make_unique<DiskLogHandler>();
@@ -80,13 +83,18 @@ RC Db::init(const char *name, const char *dbpath)
   name_ = name;
   path_ = dbpath;
 
+  rc = init_meta();
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to init meta. dbpath=%s, rc=%s", dbpath, strrc(rc));
+    return rc;
+  }
+
   rc = open_all_tables();
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to open all tables. dbpath=%s, rc=%s", dbpath, strrc(rc));
     return rc;
   }
 
-  // TODO do recovery with disk log handler
   rc = recover();
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to recover db. dbpath=%s, rc=%s", dbpath, strrc(rc));
@@ -198,11 +206,119 @@ RC Db::sync()
     }
     LOG_INFO("Successfully sync table db:%s, table:%s.", name_.c_str(), table->name());
   }
+
+  /*
+  在sync期间，不允许有未完成的事务，也不允许开启新的事物。
+  这个约束不是从程序层面处理的，而是认为的约束。
+  */
+  LSN current_lsn = log_handler_->current_lsn();
+  rc = log_handler_->wait_lsn(current_lsn);
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to wait lsn. lsn=%ld, rc=%d:%s", current_lsn, rc, strrc(rc));
+    return rc;
+  }
+
+  check_point_lsn_ = current_lsn;
+  rc = flush_meta();
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to flush meta. db=%s, rc=%d:%s", name_.c_str(), rc, strrc(rc));
+    return rc;
+  }
   LOG_INFO("Successfully sync db. db=%s", name_.c_str());
   return rc;
 }
 
-RC Db::recover() { return clog_manager_->recover(this); }
+RC Db::recover()
+{
+  LogReplayer *trx_log_replayer = trx_kit_->create_log_replayer(*this, *log_handler_);
+  if (trx_log_replayer == nullptr) {
+    LOG_ERROR("Failed to create trx log replayer.");
+    return RC::INTERNAL;
+  }
 
-CLogManager *Db::clog_manager() { return clog_manager_.get(); }
+  IntegratedLogReplayer log_replayer(*buffer_pool_manager_, unique_ptr<LogReplayer>(trx_log_replayer));
+  RC rc = log_handler_->replay(log_replayer, check_point_lsn_/*start_lsn*/);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to replay log. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  LOG_INFO("Successfully recover db. db=%s", name_.c_str());
+  return rc;
+}
+
+RC Db::init_meta()
+{
+  filesystem::path db_meta_file_path = db_meta_file(path_.c_str(), name_.c_str());
+  if (!filesystem::exists(db_meta_file_path)) {
+    check_point_lsn_ = 0;
+    LOG_INFO("Db meta file not exist. db=%s, file=%s", name_.c_str(), db_meta_file_path.c_str());
+    return RC::SUCCESS;
+  }
+
+  RC rc = RC::SUCCESS;
+  int fd = open(db_meta_file_path.c_str(), O_RDONLY);
+  if (fd < 0) {
+    LOG_ERROR("Failed to open db meta file. db=%s, file=%s, errno=%s", 
+              name_.c_str(), db_meta_file_path.c_str(), strerror(errno));
+    return RC::IOERR_READ;
+  }
+
+  char buffer[1024];
+  int  n = read(fd, buffer, sizeof(buffer));
+  if (n < 0) {
+    LOG_ERROR("Failed to read db meta file. db=%s, file=%s, errno=%s", 
+              name_.c_str(), db_meta_file_path.c_str(), strerror(errno));
+    rc = RC::IOERR_READ;
+  } else {
+    if (n >= sizeof(buffer)) {
+      LOG_WARN("Db meta file is too large. db=%s, file=%s, buffer size=%ld", 
+               name_.c_str(), db_meta_file_path.c_str(), sizeof(buffer));
+      return RC::IOERR_TOO_LONG;
+    }
+
+    buffer[n] = '\0';
+    check_point_lsn_ = atoll(buffer);
+    LOG_INFO("Successfully read db meta file. db=%s, file=%s, check_point_lsn=%ld", 
+             name_.c_str(), db_meta_file_path.c_str(), check_point_lsn_);
+  }
+  close(fd);
+
+  return rc;
+}
+
+RC Db::flush_meta()
+{
+  filesystem::path meta_file_path = db_meta_file(path_.c_str(), name_.c_str());
+  filesystem::path temp_meta_file_path = meta_file_path;
+  temp_meta_file_path += ".tmp";
+
+  RC rc = RC::SUCCESS;
+  int fd = open(temp_meta_file_path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
+  if (fd < 0) {
+    LOG_ERROR("Failed to open db meta file. db=%s, file=%s, errno=%s", 
+              name_.c_str(), temp_meta_file_path.c_str(), strerror(errno));
+    return RC::IOERR_WRITE;
+  }
+
+  string buffer = to_string(check_point_lsn_);
+  int n = write(fd, buffer.c_str(), buffer.size());
+  if (n < 0) {
+    LOG_ERROR("Failed to write db meta file. db=%s, file=%s, errno=%s", 
+              name_.c_str(), temp_meta_file_path.c_str(), strerror(errno));
+    rc = RC::IOERR_WRITE;
+  } else if (n != buffer.size()) {
+    LOG_ERROR("Failed to write db meta file. db=%s, file=%s, buffer size=%ld, write size=%d", 
+              name_.c_str(), temp_meta_file_path.c_str(), buffer.size(), n);
+    rc = RC::IOERR_WRITE;
+  } else {
+    LOG_INFO("Successfully write db meta file. db=%s, file=%s, check_point_lsn=%ld", 
+             name_.c_str(), temp_meta_file_path.c_str(), check_point_lsn_);
+  }
+
+  return rc;
+}
+
 LogHandler &Db::log_handler() { return *log_handler_; }
+BufferPoolManager &Db::buffer_pool_manager() { return *buffer_pool_manager_; }
+TrxKit &Db::trx_kit() { return *trx_kit_; }

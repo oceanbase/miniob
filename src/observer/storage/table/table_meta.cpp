@@ -13,9 +13,10 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <algorithm>
-#include <common/lang/string.h>
 
+#include "common/lang/string.h"
 #include "common/log/log.h"
+#include "common/global_context.h"
 #include "storage/table/table_meta.h"
 #include "storage/trx/trx.h"
 #include "json/json.h"
@@ -43,7 +44,8 @@ void TableMeta::swap(TableMeta &other) noexcept
   std::swap(record_size_, other.record_size_);
 }
 
-RC TableMeta::init(int32_t table_id, const char *name, int field_num, const AttrInfoSqlNode attributes[])
+RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields, int field_num,
+    const AttrInfoSqlNode attributes[])
 {
   if (common::is_blank(name)) {
     LOG_ERROR("Name cannot be empty");
@@ -60,8 +62,9 @@ RC TableMeta::init(int32_t table_id, const char *name, int field_num, const Attr
   int field_offset  = 0;
   int trx_field_num = 0;
 
-  const vector<FieldMeta> *trx_fields = TrxKit::instance()->trx_fields();
   if (trx_fields != nullptr) {
+    trx_fields_ = *trx_fields;
+
     fields_.resize(field_num + trx_fields->size());
 
     for (size_t i = 0; i < trx_fields->size(); i++) {
@@ -135,14 +138,7 @@ const FieldMeta *TableMeta::find_field_by_offset(int offset) const
 }
 int TableMeta::field_num() const { return fields_.size(); }
 
-int TableMeta::sys_field_num() const
-{
-  const vector<FieldMeta> *trx_fields = TrxKit::instance()->trx_fields();
-  if (nullptr == trx_fields) {
-    return 0;
-  }
-  return static_cast<int>(trx_fields->size());
-}
+int TableMeta::sys_field_num() const { return static_cast<int>(trx_fields_.size()); }
 
 const IndexMeta *TableMeta::index(const char *name) const
 {

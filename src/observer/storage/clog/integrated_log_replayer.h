@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/buffer_pool_log.h"
 #include "storage/record/record_log.h"
 #include "storage/index/bplus_tree_log.h"
+#include "storage/trx/mvcc_trx_log.h"
 
 class BufferPoolManager;
 
@@ -30,12 +31,16 @@ class IntegratedLogReplayer : public LogReplayer
 {
 public:
   IntegratedLogReplayer(BufferPoolManager &bpm);
+  IntegratedLogReplayer(BufferPoolManager &bpm, std::unique_ptr<LogReplayer> trx_log_replayer);
   virtual ~IntegratedLogReplayer() = default;
 
   RC replay(const LogEntry &entry) override;
 
+  RC on_done() override;
+
 private:
-  BufferPoolLogReplayer buffer_pool_log_replayer_; ///< 缓冲池日志回放器
-  RecordLogReplayer     record_log_replayer_;      ///< record manager 日志回放器
+  BufferPoolLogReplayer buffer_pool_log_replayer_;  ///< 缓冲池日志回放器
+  RecordLogReplayer     record_log_replayer_;       ///< record manager 日志回放器
   BplusTreeLogReplayer  bplus_tree_log_replayer_;   ///< bplus tree 日志回放器
+  std::unique_ptr<LogReplayer> trx_log_replayer_;     ///< trx 日志回放器
 };
