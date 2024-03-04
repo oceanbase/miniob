@@ -88,7 +88,7 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   close(fd);
 
   // 创建文件
-  const std::vector<FieldMeta> *trx_fields = db_->trx_kit().trx_fields();
+  const std::vector<FieldMeta> *trx_fields = db->trx_kit().trx_fields();
   if ((rc = table_meta_.init(table_id, name, trx_fields, attribute_count, attributes)) != RC::SUCCESS) {
     LOG_ERROR("Failed to init table meta. name:%s, ret:%d", name, rc);
     return rc;  // delete table file
@@ -105,8 +105,11 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   table_meta_.serialize(fs);
   fs.close();
 
+  db_ = db;
+  base_dir_ = base_dir;
+
   std::string        data_file = table_data_file(base_dir, name);
-  BufferPoolManager &bpm       = db_->buffer_pool_manager();
+  BufferPoolManager &bpm       = db->buffer_pool_manager();
   rc                           = bpm.create_file(data_file.c_str());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create disk buffer pool of data file. file name=%s", data_file.c_str());
@@ -120,8 +123,6 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
     return rc;
   }
 
-  db_ = db;
-  base_dir_ = base_dir;
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
   return rc;
 }

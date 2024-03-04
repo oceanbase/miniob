@@ -43,6 +43,9 @@ TEST(MvccTrxLog, wal)
   filesystem::path db_path2 = test_directory / dbname2;
   const char *trx_kit_name = "mvcc";
 
+  filesystem::create_directories(db_path);
+  filesystem::create_directories(db_path2);
+
   auto db = make_unique<Db>();
   ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name));
 
