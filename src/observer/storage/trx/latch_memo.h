@@ -41,9 +41,9 @@ struct LatchMemoItem
   LatchMemoItem(LatchMemoType type, Frame *frame);
   LatchMemoItem(LatchMemoType type, common::SharedMutex *lock);
 
-  LatchMemoType type = LatchMemoType::NONE;
-  Frame *frame = nullptr;
-  common::SharedMutex *lock = nullptr;
+  LatchMemoType        type  = LatchMemoType::NONE;
+  Frame               *frame = nullptr;
+  common::SharedMutex *lock  = nullptr;
 };
 
 class LatchMemo final
@@ -70,13 +70,13 @@ public:
 
   void release_to(int point);
 
-  int  memo_point() const { return static_cast<int>(items_.size()); }
+  int memo_point() const { return static_cast<int>(items_.size()); }
 
 private:
   void release_item(LatchMemoItem &item);
-  
+
 private:
-  DiskBufferPool *           buffer_pool_ = nullptr;
-  std::deque<LatchMemoItem>  items_;
-  std::vector<PageNum>       disposed_pages_;
+  DiskBufferPool           *buffer_pool_ = nullptr;
+  std::deque<LatchMemoItem> items_;
+  std::vector<PageNum>      disposed_pages_;
 };

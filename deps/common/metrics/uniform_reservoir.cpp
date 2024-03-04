@@ -86,7 +86,7 @@ void UniformReservoir::update(double value)
     data[count] = (value);
   } else {
     size_t rcount = next(data.size());
-    data[rcount] = (value);
+    data[rcount]  = (value);
   }
 
   MUTEX_UNLOCK(&mutex);

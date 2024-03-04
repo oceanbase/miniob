@@ -15,21 +15,10 @@ See the Mulan PSL v2 for more details. */
 #include "session_event.h"
 #include "net/communicator.h"
 
-SessionEvent::SessionEvent(Communicator *comm) 
-    : communicator_(comm),
-    sql_result_(communicator_->session())
-{}
+SessionEvent::SessionEvent(Communicator *comm) : communicator_(comm), sql_result_(communicator_->session()) {}
 
-SessionEvent::~SessionEvent()
-{
-}
+SessionEvent::~SessionEvent() {}
 
-Communicator *SessionEvent::get_communicator() const
-{
-  return communicator_;
-}
+Communicator *SessionEvent::get_communicator() const { return communicator_; }
 
-Session *SessionEvent::session() const
-{
-  return communicator_->session();
-}
+Session *SessionEvent::session() const { return communicator_->session(); }

@@ -25,13 +25,17 @@ See the Mulan PSL v2 for more details. */
 class CliCommunicator : public PlainCommunicator
 {
 public:
-  CliCommunicator() = default;
+  CliCommunicator()          = default;
   virtual ~CliCommunicator() = default;
 
   RC init(int fd, Session *session, const std::string &addr) override;
   RC read_event(SessionEvent *&event) override;
   RC write_result(SessionEvent *event, bool &need_disconnect) override;
 
+  bool exit() const { return exit_; }
+
 private:
-  int write_fd_ = -1; ///< 与使用远程通讯模式不同，如果读数据使用标准输入，那么输出应该是标准输出
+  bool exit_ = false;  ///< 是否需要退出
+
+  int write_fd_ = -1;  ///< 与使用远程通讯模式不同，如果读数据使用标准输入，那么输出应该是标准输出
 };

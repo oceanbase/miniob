@@ -206,7 +206,7 @@ void MD5Update(MD5_CTX *context, unsigned char *input, unsigned int inputLen)
 void MD5Final(unsigned char digest[16], MD5_CTX *context)
 {
   unsigned char bits[8];
-  unsigned int index, padLen;
+  unsigned int  index, padLen;
 
   /* Save number of bits */
   Encode(bits, context->count, 8);
@@ -214,7 +214,7 @@ void MD5Final(unsigned char digest[16], MD5_CTX *context)
   /*
    * Pad out to 56 mod 64.
    */
-  index = (unsigned int)((context->count[0] >> 3) & 0x3f);
+  index  = (unsigned int)((context->count[0] >> 3) & 0x3f);
   padLen = (index < 56) ? (56 - index) : (120 - index);
   MD5Update(context, PADDING, padLen);
 
@@ -331,7 +331,7 @@ static void Encode(unsigned char *output, UINT4 *input, unsigned int len)
   unsigned int i, j;
 
   for (i = 0, j = 0; j < len; i++, j += 4) {
-    output[j] = (unsigned char)(input[i] & 0xff);
+    output[j]     = (unsigned char)(input[i] & 0xff);
     output[j + 1] = (unsigned char)((input[i] >> 8) & 0xff);
     output[j + 2] = (unsigned char)((input[i] >> 16) & 0xff);
     output[j + 3] = (unsigned char)((input[i] >> 24) & 0xff);
@@ -379,7 +379,7 @@ static void MD5_memset(POINTER output, int value, unsigned int len)
  */
 int MD5String(char *string, unsigned char digest[16])
 {
-  MD5_CTX context;
+  MD5_CTX      context;
   unsigned int len = strlen(string);
 
   MD5Init(&context);
@@ -400,9 +400,9 @@ int MD5Buffer(char *buffer, unsigned int len, unsigned char digest[16])
 
 int MD5File(char *filename, unsigned char digest[16])
 {
-  FILE *file;
-  MD5_CTX context;
-  int len;
+  FILE         *file;
+  MD5_CTX       context;
+  int           len;
   unsigned char buffer[1024];
 
   if ((file = fopen(filename, "rb")) == NULL)

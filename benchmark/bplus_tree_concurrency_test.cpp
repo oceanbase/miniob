@@ -11,14 +11,14 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by Wangyunlai on 2023/03/14
 //
+#include <benchmark/benchmark.h>
 #include <inttypes.h>
 #include <stdexcept>
-#include <benchmark/benchmark.h>
 
-#include "storage/index/bplus_tree.h"
-#include "storage/buffer/disk_buffer_pool.h"
 #include "common/log/log.h"
-#include "integer_generator.h"
+#include "common/math/integer_generator.h"
+#include "storage/buffer/disk_buffer_pool.h"
+#include "storage/index/bplus_tree.h"
 
 using namespace std;
 using namespace common;

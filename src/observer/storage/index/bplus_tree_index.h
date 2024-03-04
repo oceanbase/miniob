@@ -14,14 +14,14 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "storage/index/index.h"
 #include "storage/index/bplus_tree.h"
+#include "storage/index/index.h"
 
 /**
  * @brief B+树索引
  * @ingroup Index
  */
-class BplusTreeIndex : public Index 
+class BplusTreeIndex : public Index
 {
 public:
   BplusTreeIndex() = default;
@@ -43,7 +43,7 @@ public:
   RC sync() override;
 
 private:
-  bool inited_ = false;
+  bool             inited_ = false;
   BplusTreeHandler index_handler_;
 };
 
@@ -51,7 +51,7 @@ private:
  * @brief B+树索引扫描器
  * @ingroup Index
  */
-class BplusTreeIndexScanner : public IndexScanner 
+class BplusTreeIndexScanner : public IndexScanner
 {
 public:
   BplusTreeIndexScanner(BplusTreeHandler &tree_handle);

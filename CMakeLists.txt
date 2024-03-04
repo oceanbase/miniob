@@ -11,7 +11,11 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 OPTION(ENABLE_ASAN "Enable build with address sanitizer" ON)
+OPTION(ENABLE_TSAN "Build with thread sanitizer" OFF)
+OPTION(ENABLE_UBSAN "Build with undefined behavior sanitizer" OFF)
 OPTION(WITH_UNIT_TESTS "Compile miniob with unit tests" ON)
+OPTION(WITH_BENCHMARK "Compile benchmark" OFF)
+OPTION(ENABLE_COVERAGE "Enable unittest coverage" OFF)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)
 OPTION(STATIC_STDLIB "Link std library static or dynamic, such as libgcc, libstdc++, libasan" OFF)
 
@@ -61,11 +65,44 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${STATIC_STDLIB})
 ENDIF()
 
 IF (ENABLE_ASAN)
-    SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
+    MESSAGE(STATUS "Instrumenting with Address Sanitizer")
+    SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope")
     IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${STATIC_STDLIB})
         ADD_LINK_OPTIONS(-static-libasan)
     ENDIF()
 ENDIF()
+
+IF (ENABLE_TSAN)
+    # supported flags
+    # https://github.com/google/sanitizers/wiki/ThreadSanitizerFlags
+    MESSAGE(STATUS "Instrumenting with Thread Sanitizer")
+    SET(TSAN_FLAGS "-fno-omit-frame-pointer -fsanitize=thread")
+    SET(TSAN_CCFLAGS "${TSAN_CCFLAGS} -mllvm -tsan-instrument-memory-accesses=0")
+    SET(TSAN_CCFLAGS "${TSAN_CCFLAGS} -mllvm -tsan-instrument-atomics=0")
+    SET(TSAN_CCFLAGS "${TSAN_CCFLAGS} -mllvm -tsan-instrument-func-entry-exit=1")
+    SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} ${TSAN_FLAGS} ${TSAN_CCFLAGS}")
+    # -Qunused-arguments 有些编译器不支持，所以先删掉
+    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${STATIC_STDLIB})
+        ADD_LINK_OPTIONS(-static-libtsan)
+    ENDIF()
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${TSAN_FLAGS}")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${TSAN_FLAGS}")
+ENDIF (ENABLE_TSAN)
+
+IF (ENABLE_UBSAN)
+    # Only success on Mac Clang
+    MESSAGE(STATUS "Instrumenting with Undefined Behavior Sanitizer")
+    SET(UBSAN_FLAGS "${UBSAN_FLAGS} -fno-omit-frame-pointer")
+    SET(UBSAN_FLAGS "${UBSAN_FLAGS} -fsanitize=undefined")
+    SET(UBSAN_FLAGS "${UBSAN_FLAGS} -fsanitize=implicit-conversion")
+    SET(UBSAN_FLAGS "${UBSAN_FLAGS} -fsanitize=implicit-integer-truncation")
+    SET(UBSAN_FLAGS "${UBSAN_FLAGS} -fsanitize=integer")
+    SET(UBSAN_FLAGS "${UBSAN_FLAGS} -fsanitize=nullability")
+    SET(UBSAN_FLAGS "${UBSAN_FLAGS} -fsanitize=vptr")
+    SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} ${UBSAN_FLAGS}")
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${UBSAN_FLAGS}")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${UBSAN_FLAGS}")
+ENDIF (ENABLE_UBSAN)
 
 IF (CMAKE_INSTALL_PREFIX)
     MESSAGE(STATUS "CMAKE_INSTALL_PREFIX has been set as " ${CMAKE_INSTALL_PREFIX} )
@@ -92,43 +129,29 @@ ENDIF ()
 
 INCLUDE_DIRECTORIES(. ${PROJECT_SOURCE_DIR}/deps /usr/local/include)
 
-# ADD_SUBDIRECTORY(src bin)  bin 为目标目录， 可以省略
-ADD_SUBDIRECTORY(deps)
-ADD_SUBDIRECTORY(src/obclient)
-ADD_SUBDIRECTORY(src/observer)
-ADD_SUBDIRECTORY(test/perf)
-ADD_SUBDIRECTORY(benchmark)
-ADD_SUBDIRECTORY(tools)
-
 IF(WITH_UNIT_TESTS)
-    SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -fprofile-arcs -ftest-coverage")
+    IF (ENABLE_COVERAGE)
+        SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -fprofile-arcs -ftest-coverage")
+    ENDIF (ENABLE_COVERAGE)
     enable_testing()
-    ADD_SUBDIRECTORY(unittest)
 ENDIF(WITH_UNIT_TESTS)
 
 SET(CMAKE_CXX_FLAGS ${CMAKE_COMMON_FLAGS})
 SET(CMAKE_C_FLAGS ${CMAKE_COMMON_FLAGS})
 MESSAGE(STATUS "CMAKE_CXX_FLAGS is " ${CMAKE_CXX_FLAGS})
 
-INSTALL(DIRECTORY etc DESTINATION .
-		FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
+# ADD_SUBDIRECTORY(src bin)  bin 为目标目录， 可以省略
+ADD_SUBDIRECTORY(deps)
+ADD_SUBDIRECTORY(src/obclient)
+ADD_SUBDIRECTORY(src/observer)
+ADD_SUBDIRECTORY(test/perf)
+ADD_SUBDIRECTORY(tools)
 
-#INSTALL([[SCRIPT <file>] [CODE <code>]] [...])
-# script 表示安装时，调用cmake 脚步
-# code 表示安装时，执行cmake 命令， 例如
-INSTALL(CODE "MESSAGE(\"Sample install message.\")")
-# EXEC_PROGRAM make时执行命令
-#EXEC_PROGRAM(Executable [directory in which to run]
-#        [ARGS <arguments to executable>]
-#        [OUTPUT_VARIABLE <var>]
+IF (WITH_BENCHMARK)
+    ADD_SUBDIRECTORY(benchmark)
+ENDIF(WITH_BENCHMARK)
 
-#EXEC_PROGRAM(Executable [directory in which to run]
-#        [ARGS <arguments to executable>]
-#        [OUTPUT_VARIABLE <var>]
-#        [RETURN_VALUE <var>])
-# 生产make时，执行
-#EXEC_PROGRAM(ls ARGS "*.c" OUTPUT_VARIABLE LS_OUTPUT RETURN_VALUE
-#        LS_RVALUE)
-#IF(not LS_RVALUE)
-#    MESSAGE(STATUS "ls result: " ${LS_OUTPUT})
-#ENDIF(not LS_RVALUE)
+IF(WITH_UNIT_TESTS)
+    ADD_SUBDIRECTORY(unittest)
+ENDIF(WITH_UNIT_TESTS)
+

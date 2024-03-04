@@ -22,19 +22,20 @@ namespace common {
 /**
  * The most simple sample function
  */
-class Sampler {
+class Sampler
+{
 public:
   Sampler();
   virtual ~Sampler();
 
   bool sampling();
 
-  void set_ratio(double ratio);
+  void   set_ratio(double ratio);
   double get_ratio();
 
 private:
-  double ratio_ = 1.0;
-  int ratio_num_ = 1;
+  double          ratio_     = 1.0;
+  int             ratio_num_ = 1;
   RandomGenerator random_;
 };
 

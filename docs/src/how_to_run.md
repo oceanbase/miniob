@@ -57,6 +57,7 @@ bash build.sh -DCONCURRENCY=ON
 | -s | 服务端监听的unix socket文件。如果不指定，并且没有使用TCP或cli的方式启动，就会使用TCP的方式启动服务端。 |
 | -P | 使用的通讯协议。当前支持文本协议(plain，也是默认值)，MySQL协议(mysql)，直接交互(cli)。<br/>使用plain协议时，请使用自带的obclient连接服务端。<br/>使用mysql协议时，使用mariadb或mysql客户端连接。<br/>直接交互模式(cli)不需要使用客户端连接，因此无法开启多个连接。  |
 | -t | 事务模型。没有事务(vacuous，默认值)和MVCC(mvcc)。 使用mvcc时一定要编译支持并发模式的代码。  |
+| -T | 线程模型。一个连接一个线程(one-thread-per-connection，默认值)和一个线程池处理所有连接(java-thread-pool)。 |
 | -n | buffer pool 的内存大小，单位字节。 |
 
 **更多**

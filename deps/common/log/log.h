@@ -14,43 +14,49 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <sys/time.h>
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <set>
 #include <string>
-#include <functional>
 
 #include "common/defs.h"
 
 namespace common {
 
-const unsigned int ONE_KILO = 1024;
+const unsigned int ONE_KILO            = 1024;
 const unsigned int FILENAME_LENGTH_MAX = 256;  // the max filename length
 
-const int LOG_STATUS_OK = 0;
+const int LOG_STATUS_OK  = 0;
 const int LOG_STATUS_ERR = 1;
-const int LOG_MAX_LINE = 100000;
+const int LOG_MAX_LINE   = 100000;
 
-typedef enum {
+typedef enum
+{
   LOG_LEVEL_PANIC = 0,
-  LOG_LEVEL_ERR = 1,
-  LOG_LEVEL_WARN = 2,
-  LOG_LEVEL_INFO = 3,
+  LOG_LEVEL_ERR   = 1,
+  LOG_LEVEL_WARN  = 2,
+  LOG_LEVEL_INFO  = 3,
   LOG_LEVEL_DEBUG = 4,
   LOG_LEVEL_TRACE = 5,
   LOG_LEVEL_LAST
 } LOG_LEVEL;
 
-typedef enum { LOG_ROTATE_BYDAY = 0, LOG_ROTATE_BYSIZE, LOG_ROTATE_LAST } LOG_ROTATE;
+typedef enum
+{
+  LOG_ROTATE_BYDAY = 0,
+  LOG_ROTATE_BYSIZE,
+  LOG_ROTATE_LAST
+} LOG_ROTATE;
 
-class Log 
+class Log
 {
 public:
   Log(const std::string &log_name, const LOG_LEVEL log_level = LOG_LEVEL_INFO,
@@ -88,13 +94,13 @@ public:
 
   int output(const LOG_LEVEL level, const char *module, const char *prefix, const char *f, ...);
 
-  int set_console_level(const LOG_LEVEL console_level);
+  int       set_console_level(const LOG_LEVEL console_level);
   LOG_LEVEL get_console_level();
 
-  int set_log_level(const LOG_LEVEL log_level);
+  int       set_log_level(const LOG_LEVEL log_level);
   LOG_LEVEL get_log_level();
 
-  int set_rotate_type(LOG_ROTATE rotate_type);
+  int        set_rotate_type(LOG_ROTATE rotate_type);
   LOG_ROTATE get_rotate_type();
 
   const char *prefix_msg(const LOG_LEVEL level);
@@ -114,9 +120,9 @@ public:
    * @details 比如设置一个获取当前session标识的函数，那么每次在打印日志时都会输出session信息。
    *          这个回调函数返回了一个intptr_t类型的数据，可能返回字符串更好，但是现在够用了。
    */
-  void set_context_getter(std::function<intptr_t()> context_getter);
+  void     set_context_getter(std::function<intptr_t()> context_getter);
   intptr_t context_id();
-  
+
 private:
   void check_param_valid();
 
@@ -129,31 +135,33 @@ private:
 
 private:
   pthread_mutex_t lock_;
-  std::ofstream ofs_;
-  std::string log_name_;
-  LOG_LEVEL log_level_;
-  LOG_LEVEL console_level_;
+  std::ofstream   ofs_;
+  std::string     log_name_;
+  LOG_LEVEL       log_level_;
+  LOG_LEVEL       console_level_;
 
-  typedef struct _LogDate {
+  typedef struct _LogDate
+  {
     int year_;
     int mon_;
     int day_;
   } LogDate;
-  LogDate log_date_;
-  int log_line_;
-  int log_max_line_;
+  LogDate    log_date_;
+  int        log_line_;
+  int        log_max_line_;
   LOG_ROTATE rotate_type_;
 
   typedef std::map<LOG_LEVEL, std::string> LogPrefixMap;
-  LogPrefixMap prefix_map_;
+  LogPrefixMap                             prefix_map_;
 
   typedef std::set<std::string> DefaultSet;
-  DefaultSet default_set_;
+  DefaultSet                    default_set_;
 
   std::function<intptr_t()> context_getter_;
 };
 
-class LoggerFactory {
+class LoggerFactory
+{
 public:
   LoggerFactory();
   virtual ~LoggerFactory();
@@ -177,11 +185,14 @@ extern Log *g_log;
   if (common::g_log) {                                                     \
     struct timeval tv;                                                     \
     gettimeofday(&tv, NULL);                                               \
-    struct tm *p = localtime(&tv.tv_sec);                                  \
+    struct tm  curr_time;                                                  \
+    struct tm *p = localtime_r(&tv.tv_sec, &curr_time);                    \
+                                                                           \
     char sz_head[LOG_HEAD_SIZE] = {0};                                     \
     if (p) {                                                               \
       int usec = (int)tv.tv_usec;                                          \
-      snprintf(sz_head, LOG_HEAD_SIZE,                                     \
+      snprintf(sz_head,                                                    \
+          LOG_HEAD_SIZE,                                                   \
           "%04d-%02d-%02d %02d:%02d:%02u.%06d pid:%u tid:%llx ctx:%lx",    \
           p->tm_year + 1900,                                               \
           p->tm_mon + 1,                                                   \
@@ -202,8 +213,7 @@ extern Log *g_log;
         (common::g_log)->prefix_msg(level),                                \
         __FUNCTION__,                                                      \
         __FILE_NAME__,                                                     \
-        (int32_t)__LINE__                                                  \
-        );                                                                 \
+        (int32_t)__LINE__);                                                \
   }
 
 #define LOG_OUTPUT(level, fmt, ...)                                    \
@@ -306,22 +316,31 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
 
 #ifndef ASSERT
 #ifdef DEBUG
-#define ASSERT(expression, description, ...)   \
-  do {                                         \
-    if (!(expression)) {                       \
-      LOG_PANIC(description, ##__VA_ARGS__);   \
-      assert(expression);                      \
-    }                                          \
+#define ASSERT(expression, description, ...) \
+  do {                                       \
+    if (!(expression)) {                     \
+      LOG_PANIC(description, ##__VA_ARGS__); \
+      assert(expression);                    \
+    }                                        \
   } while (0)
 
-#else // DEBUG
-#define ASSERT(expression, description, ...)   \
-  do {                                         \
-     (void)(expression);                       \
+#else  // DEBUG
+#define ASSERT(expression, description, ...) \
+  do {                                       \
+    (void)(expression);                      \
   } while (0)
-#endif // DEBUG
+#endif  // DEBUG
 
 #endif  // ASSERT
+
+#ifndef TRACE
+#ifdef DEBUG
+#define TRACE(format, ...) LOG_TRACE(format, ##__VA_ARGS__)
+#else  // DEBUG
+#define TRACE(...)
+#endif  // DEBUG
+
+#endif  // TRACE
 
 #define SYS_OUTPUT_FILE_POS ", File:" << __FILE__ << ", line:" << __LINE__ << ",function:" << __FUNCTION__
 #define SYS_OUTPUT_ERROR ",error:" << errno << ":" << strerror(errno)

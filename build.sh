@@ -9,7 +9,7 @@ CMAKE_COMMAND="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --log-level=STATUS"
 
 ALL_ARGS=("$@")
 BUILD_ARGS=()
-MAKE_ARGS=(-j $CPU_CORES)
+MAKE_ARGS=()
 MAKE=make
 
 echo "$0 ${ALL_ARGS[@]}"
@@ -78,7 +78,6 @@ function do_init
 
   # build libevent
   cd ${TOPDIR}/deps/3rd/libevent && \
-    git checkout release-2.1.12-stable && \
     mkdir -p build && \
     cd build && \
     ${CMAKE_COMMAND} .. -DEVENT__DISABLE_OPENSSL=ON -DEVENT__LIBRARY_TYPE=BOTH && \
@@ -97,7 +96,7 @@ function do_init
   cd ${TOPDIR}/deps/3rd/benchmark && \
     mkdir -p build && \
     cd build && \
-    ${CMAKE_COMMAND} .. -DBENCHMARK_ENABLE_TESTING=OFF  -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF && \
+    ${CMAKE_COMMAND} .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBENCHMARK_ENABLE_TESTING=OFF  -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF && \
     ${MAKE_COMMAND} -j4 && \
     ${MAKE_COMMAND} install
 

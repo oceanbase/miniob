@@ -14,9 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
-#include "sql/operator/physical_operator.h"
 #include "sql/expr/expression.h"
+#include "sql/operator/physical_operator.h"
 
 class FilterStmt;
 
@@ -31,10 +30,7 @@ public:
 
   virtual ~PredicatePhysicalOperator() = default;
 
-  PhysicalOperatorType type() const override
-  {
-    return PhysicalOperatorType::PREDICATE;
-  }
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::PREDICATE; }
 
   RC open(Trx *trx) override;
   RC next() override;

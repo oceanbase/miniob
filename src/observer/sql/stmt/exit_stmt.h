@@ -14,9 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "sql/stmt/stmt.h"
 
 /**
@@ -26,8 +23,7 @@ See the Mulan PSL v2 for more details. */
 class ExitStmt : public Stmt
 {
 public:
-  ExitStmt()
-  {}
+  ExitStmt() {}
   virtual ~ExitStmt() = default;
 
   StmtType type() const override { return StmtType::EXIT; }

@@ -1,3 +1,9 @@
+<div align="center">
+
+[![Coverage Status](https://codecov.io/gh/oceanbase/miniob/branch/main/graph/badge.svg)](https://codecov.io/gh/oceanbase/miniob)
+
+</div>
+
 # MiniOB 概述
 
 MiniOB 是 [OceanBase](https://github.com/oceanbase/oceanbase) 团队基于华中科技大学数据库课程原型，联合多所高校重新开发的、专为零基础的同学设计的数据库入门学习项目。我们的目标是为在校学生、数据库从业者、爱好者或对基础技术感兴趣的人提供一个友好的数据库学习项目。
@@ -88,6 +94,9 @@ OceanBase 初赛基于一套适合初学者实践的数据库实训平台 MiniOB
 # Contributing
 
 OceanBase 社区热情欢迎每一位对数据库技术热爱的开发者，期待与您携手开启思维碰撞之旅。无论是文档格式调整或文字修正、问题修复还是增加新功能，都是参与和贡献 OceanBase 社区的方式之一。现在就开始您的首次贡献吧！更多详情，请参考 [社区贡献](CONTRIBUTING.md).
+
+# Contributors
+<a href="https://github.com/oceanbase/miniob/graphs/contributors"><img src="https://contributors-img.web.app/image?repo=oceanbase/miniob&width=890" /></a>
 
 # License
 

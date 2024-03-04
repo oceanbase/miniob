@@ -31,13 +31,27 @@ jobs:
 
     - name: BuildDebug
       shell: bash
-      run: bash build.sh debug --make -j4
+      run: bash build.sh debug -DENABLE_COVERAGE=ON --make -j4
 
     - name: Test
       shell: bash
       run: |
         cd build_debug
         make test
+
+    - name: lcov
+      shell: bash
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt-get update && sudo apt-get install -y lcov
+        cd build_debug
+        rm -rf unittest
+        lcov -c -d ./ -o coverage.info
+
+    - uses: codecov/codecov-action@v3
+      with:
+        file: build_debug/coverage.info
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   build-on-mac:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.

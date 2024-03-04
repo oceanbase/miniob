@@ -31,7 +31,7 @@ Md5Test::~Md5Test()
 
 void Md5Test::string()
 {
-  char buf[512] = "/home/fastdfs/longda";
+  char          buf[512]   = "/home/fastdfs/longda";
   unsigned char digest[16] = {0};
   MD5String(buf, digest);
   for (int i = 0; i < 16; i++) {

@@ -13,8 +13,8 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/operator/table_scan_physical_operator.h"
-#include "storage/table/table.h"
 #include "event/sql_debug.h"
+#include "storage/table/table.h"
 
 using namespace std;
 
@@ -34,7 +34,7 @@ RC TableScanPhysicalOperator::next()
     return RC::RECORD_EOF;
   }
 
-  RC rc = RC::SUCCESS;
+  RC   rc            = RC::SUCCESS;
   bool filter_result = false;
   while (record_scanner_.has_next()) {
     rc = record_scanner_.next(current_record_);
@@ -59,10 +59,7 @@ RC TableScanPhysicalOperator::next()
   return rc;
 }
 
-RC TableScanPhysicalOperator::close()
-{
-  return record_scanner_.close_scan();
-}
+RC TableScanPhysicalOperator::close() { return record_scanner_.close_scan(); }
 
 Tuple *TableScanPhysicalOperator::current_tuple()
 {
@@ -70,10 +67,7 @@ Tuple *TableScanPhysicalOperator::current_tuple()
   return &tuple_;
 }
 
-string TableScanPhysicalOperator::param() const
-{
-  return table_->name();
-}
+string TableScanPhysicalOperator::param() const { return table_->name(); }
 
 void TableScanPhysicalOperator::set_predicates(vector<unique_ptr<Expression>> &&exprs)
 {
@@ -82,7 +76,7 @@ void TableScanPhysicalOperator::set_predicates(vector<unique_ptr<Expression>> &&
 
 RC TableScanPhysicalOperator::filter(RowTuple &tuple, bool &result)
 {
-  RC rc = RC::SUCCESS;
+  RC    rc = RC::SUCCESS;
   Value value;
   for (unique_ptr<Expression> &expr : predicates_) {
     rc = expr->get_value(tuple, value);

@@ -39,9 +39,9 @@ int readFromFile(const std::string &fileName, char *&outputData, size_t &fileSiz
   // size_t fsSize = ftell( file );
   // fseek( file, 0, SEEK_SET );
 
-  char buffer[4 * ONE_KILO];
+  char   buffer[4 * ONE_KILO];
   size_t readSize = 0;
-  size_t oneRead = 0;
+  size_t oneRead  = 0;
 
   char *data = NULL;
   do {
@@ -72,10 +72,10 @@ int readFromFile(const std::string &fileName, char *&outputData, size_t &fileSiz
 
   fclose(file);
 
-  data = (char *)lrealloc(data, readSize + 1);
+  data           = (char *)lrealloc(data, readSize + 1);
   data[readSize] = '\0';
-  outputData = data;
-  fileSize = readSize;
+  outputData     = data;
+  fileSize       = readSize;
   return 0;
 }
 
@@ -87,8 +87,8 @@ int writeToFile(const std::string &fileName, const char *data, uint32_t dataSize
     return -1;
   }
 
-  uint32_t leftSize = dataSize;
-  const char *buffer = data;
+  uint32_t    leftSize = dataSize;
+  const char *buffer   = data;
   while (leftSize > 0) {
     int writeCount = fwrite(buffer, 1, leftSize, file);
     if (writeCount <= 0) {
@@ -134,15 +134,15 @@ int getFileNum(int64_t &fileNum, const std::string &path, const std::string &pat
 {
   try {
     DIR *dirp = NULL;
-    dirp = opendir(path.c_str());
+    dirp      = opendir(path.c_str());
     if (dirp == NULL) {
       std::cerr << "Failed to opendir " << path << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
       return -1;
     }
 
-    std::string fullPath;
+    std::string    fullPath;
     struct dirent *entry = NULL;
-    struct stat fs;
+    struct stat    fs;
     while ((entry = readdir(dirp)) != NULL) {
       // don't care ".", "..", ".****" hidden files
       if (!strncmp(entry->d_name, ".", 1)) {
@@ -197,15 +197,15 @@ int getFileList(std::vector<std::string> &fileList, const std::string &path, con
 {
   try {
     DIR *dirp = NULL;
-    dirp = opendir(path.c_str());
+    dirp      = opendir(path.c_str());
     if (dirp == NULL) {
       std::cerr << "Failed to opendir " << path << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
       return -1;
     }
 
-    std::string fullPath;
+    std::string    fullPath;
     struct dirent *entry = NULL;
-    struct stat fs;
+    struct stat    fs;
     while ((entry = readdir(dirp)) != NULL) {
       // don't care ".", "..", ".****" hidden files
       if (!strncmp(entry->d_name, ".", 1)) {
@@ -259,15 +259,15 @@ int getDirList(std::vector<std::string> &dirList, const std::string &path, const
 {
   try {
     DIR *dirp = NULL;
-    dirp = opendir(path.c_str());
+    dirp      = opendir(path.c_str());
     if (dirp == NULL) {
       std::cerr << "Failed to opendir " << path << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
       return -1;
     }
 
-    std::string fullPath;
+    std::string    fullPath;
     struct dirent *entry = NULL;
-    struct stat fs;
+    struct stat    fs;
     while ((entry = readdir(dirp)) != NULL) {
       // don't care ".", "..", ".****" hidden files
       if (!strncmp(entry->d_name, ".", 1)) {
@@ -354,17 +354,17 @@ int getFileSize(const char *filePath, int64_t &fileLen)
 int writen(int fd, const void *buf, int size)
 {
   const char *tmp = (const char *)buf;
-  while ( size > 0) {
+  while (size > 0) {
     const ssize_t ret = ::write(fd, tmp, size);
     if (ret >= 0) {
-      tmp  += ret;
+      tmp += ret;
       size -= ret;
       continue;
     }
     const int err = errno;
     if (EAGAIN != err && EINTR != err)
       return err;
-   }
+  }
   return 0;
 }
 
@@ -374,12 +374,12 @@ int readn(int fd, void *buf, int size)
   while (size > 0) {
     const ssize_t ret = ::read(fd, tmp, size);
     if (ret > 0) {
-      tmp  += ret;
+      tmp += ret;
       size -= ret;
       continue;
     }
     if (0 == ret)
-      return -1; // end of file
+      return -1;  // end of file
 
     const int err = errno;
     if (EAGAIN != err && EINTR != err)

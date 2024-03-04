@@ -26,11 +26,9 @@ Sampler *&get_sampler()
   return g_sampler;
 }
 
-Sampler::Sampler() : random_()
-{}
+Sampler::Sampler() : random_() {}
 
-Sampler::~Sampler()
-{}
+Sampler::~Sampler() {}
 
 bool Sampler::sampling()
 {
@@ -42,16 +40,13 @@ bool Sampler::sampling()
   }
 }
 
-double Sampler::get_ratio()
-{
-  return ratio_;
-}
+double Sampler::get_ratio() { return ratio_; }
 
 void Sampler::set_ratio(double ratio)
 {
   if (0 <= ratio && ratio <= 1) {
     this->ratio_ = ratio;
-    ratio_num_ = ratio * RANGE_SIZE;
+    ratio_num_   = ratio * RANGE_SIZE;
   } else {
     LOG_WARN("Invalid ratio :%lf", ratio);
   }

@@ -26,45 +26,41 @@ See the Mulan PSL v2 for more details. */
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <event2/thread.h>
+#include <poll.h>
 
+#include <memory>
+
+#include "common/ini_setting.h"
+#include "common/io/io.h"
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
-#include "common/io/io.h"
-#include "common/seda/seda_config.h"
 #include "event/session_event.h"
-#include "session/session.h"
-#include "common/ini_setting.h"
+#include "session/session_stage.h"
 #include "net/communicator.h"
+#include "net/cli_communicator.h"
+#include "session/session.h"
+#include "net/thread_handler.h"
+#include "net/sql_task_handler.h"
 
 using namespace common;
 
-Stage *Server::session_stage_ = nullptr;
-
 ServerParam::ServerParam()
 {
-  listen_addr = INADDR_ANY;
+  listen_addr        = INADDR_ANY;
   max_connection_num = MAX_CONNECTION_NUM_DEFAULT;
-  port = PORT_DEFAULT;
+  port               = PORT_DEFAULT;
 }
 
-Server::Server(ServerParam input_server_param) : server_param_(input_server_param)
-{
-}
+NetServer::NetServer(const ServerParam &input_server_param) : Server(input_server_param) {}
 
-Server::~Server()
+NetServer::~NetServer()
 {
   if (started_) {
     shutdown();
   }
 }
 
-void Server::init()
-{
-  session_stage_ = get_seda_config()->get_stage(SESSION_STAGE_NAME);
-}
-
-int Server::set_non_block(int fd)
+int NetServer::set_non_block(int fd)
 {
   int flags = fcntl(fd, F_GETFL);
   if (flags == -1) {
@@ -80,36 +76,10 @@ int Server::set_non_block(int fd)
   return 0;
 }
 
-void Server::close_connection(Communicator *communicator)
+void NetServer::accept(int fd)
 {
-  LOG_INFO("Close connection of %s.", communicator->addr());
-  event_del(&communicator->read_event());
-  delete communicator;
-}
-
-void Server::recv(int fd, short ev, void *arg)
-{
-  Communicator *comm = (Communicator *)arg;
-
-  SessionEvent *event = nullptr;
-  RC rc = comm->read_event(event);
-  if (rc != RC::SUCCESS) {
-    close_connection(comm);
-    return;
-  }
-
-  if (event == nullptr) {
-    LOG_WARN("event is null while read event return success");
-    return;
-  }
-  session_stage_->add_event(event);
-}
-
-void Server::accept(int fd, short ev, void *arg)
-{
-  Server *instance = (Server *)arg;
   struct sockaddr_in addr;
-  socklen_t addrlen = sizeof(addr);
+  socklen_t          addrlen = sizeof(addr);
 
   int ret = 0;
 
@@ -129,17 +99,17 @@ void Server::accept(int fd, short ev, void *arg)
   address << ip_addr << ":" << addr.sin_port;
   std::string addr_str = address.str();
 
-  ret = instance->set_non_block(client_fd);
+  ret = set_non_block(client_fd);
   if (ret < 0) {
     LOG_ERROR("Failed to set socket of %s as non blocking, %s", addr_str.c_str(), strerror(errno));
     ::close(client_fd);
     return;
   }
 
-  if (!instance->server_param_.use_unix_socket) {
+  if (!server_param_.use_unix_socket) {
     // unix socket不支持设置NODELAY
     int yes = 1;
-    ret = setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
+    ret     = setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
     if (ret < 0) {
       LOG_ERROR("Failed to set socket of %s option as : TCP_NODELAY %s\n", addr_str.c_str(), strerror(errno));
       ::close(client_fd);
@@ -147,7 +117,8 @@ void Server::accept(int fd, short ev, void *arg)
     }
   }
 
-  Communicator *communicator = instance->communicator_factory_.create(instance->server_param_.protocol);
+  Communicator *communicator = communicator_factory_.create(server_param_.protocol);
+
   RC rc = communicator->init(client_fd, new Session(Session::default_session()), addr_str);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to init communicator. rc=%s", strrc(rc));
@@ -155,19 +126,9 @@ void Server::accept(int fd, short ev, void *arg)
     return;
   }
 
-  event_set(&communicator->read_event(), client_fd, EV_READ | EV_PERSIST, recv, communicator);
-
-  ret = event_base_set(instance->event_base_, &communicator->read_event());
-  if (ret < 0) {
-    LOG_ERROR("Failed to do event_base_set for read event of %s into libevent, %s", 
-              communicator->addr(), strerror(errno));
-    delete communicator;
-    return;
-  }
-
-  ret = event_add(&communicator->read_event(), nullptr);
-  if (ret < 0) {
-    LOG_ERROR("Failed to event_add for read event of %s into libevent, %s", communicator->addr(), strerror(errno));
+  rc = thread_handler_->new_connection(communicator);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to handle new connection. rc=%s", strrc(rc));
     delete communicator;
     return;
   }
@@ -175,10 +136,10 @@ void Server::accept(int fd, short ev, void *arg)
   LOG_INFO("Accepted connection from %s\n", communicator->addr());
 }
 
-int Server::start()
+int NetServer::start()
 {
   if (server_param_.use_std_io) {
-    return start_stdin_server();
+    return -1;
   } else if (server_param_.use_unix_socket) {
     return start_unix_socket_server();
   } else {
@@ -186,9 +147,9 @@ int Server::start()
   }
 }
 
-int Server::start_tcp_server()
+int NetServer::start_tcp_server()
 {
-  int ret = 0;
+  int                ret = 0;
   struct sockaddr_in sa;
 
   server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -198,7 +159,7 @@ int Server::start_tcp_server()
   }
 
   int yes = 1;
-  ret = setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+  ret     = setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
   if (ret < 0) {
     LOG_ERROR("Failed to set socket option of reuse address: %s.", strerror(errno));
     ::close(server_socket_);
@@ -213,8 +174,8 @@ int Server::start_tcp_server()
   }
 
   memset(&sa, 0, sizeof(sa));
-  sa.sin_family = AF_INET;
-  sa.sin_port = htons(server_param_.port);
+  sa.sin_family      = AF_INET;
+  sa.sin_port        = htons(server_param_.port);
   sa.sin_addr.s_addr = htonl(server_param_.listen_addr);
 
   ret = ::bind(server_socket_, (struct sockaddr *)&sa, sizeof(sa));
@@ -232,28 +193,14 @@ int Server::start_tcp_server()
   }
   LOG_INFO("Listen on port %d", server_param_.port);
 
-  listen_ev_ = event_new(event_base_, server_socket_, EV_READ | EV_PERSIST, accept, this);
-  if (listen_ev_ == nullptr) {
-    LOG_ERROR("Failed to create listen event, %s.", strerror(errno));
-    ::close(server_socket_);
-    return -1;
-  }
-
-  ret = event_add(listen_ev_, nullptr);
-  if (ret < 0) {
-    LOG_ERROR("event_add(): can not add accept event into libevent, %s", strerror(errno));
-    ::close(server_socket_);
-    return -1;
-  }
-
   started_ = true;
   LOG_INFO("Observer start success");
   return 0;
 }
 
-int Server::start_unix_socket_server()
+int NetServer::start_unix_socket_server()
 {
-  int ret = 0;
+  int ret        = 0;
   server_socket_ = socket(PF_UNIX, SOCK_STREAM, 0);
   if (server_socket_ < 0) {
     LOG_ERROR("socket(): can not create unix socket: %s.", strerror(errno));
@@ -289,64 +236,23 @@ int Server::start_unix_socket_server()
   }
   LOG_INFO("Listen on unix socket: %s", sockaddr.sun_path);
 
-  listen_ev_ = event_new(event_base_, server_socket_, EV_READ | EV_PERSIST, accept, this);
-  if (listen_ev_ == nullptr) {
-    LOG_ERROR("Failed to create listen event, %s.", strerror(errno));
-    ::close(server_socket_);
-    return -1;
-  }
-
-  ret = event_add(listen_ev_, nullptr);
-  if (ret < 0) {
-    LOG_ERROR("event_add(): can not add accept event into libevent, %s", strerror(errno));
-    ::close(server_socket_);
-    return -1;
-  }
-
   started_ = true;
   LOG_INFO("Observer start success");
   return 0;
 }
 
-int Server::start_stdin_server()
+int NetServer::serve()
 {
-  Communicator *communicator = communicator_factory_.create(server_param_.protocol);
-  RC rc = communicator->init(STDIN_FILENO, new Session(Session::default_session()), "stdin");
-  if (OB_FAIL(rc)) {
-    LOG_WARN("failed to init cli communicator. rc=%s", strrc(rc));
+  thread_handler_ = ThreadHandler::create(server_param_.thread_handling.c_str());
+  if (thread_handler_ == nullptr) {
+    LOG_ERROR("Failed to create thread handler: %s", server_param_.thread_handling.c_str());
     return -1;
   }
 
-  started_ = true;
-
-  while (started_) {
-    SessionEvent *event = nullptr;
-    rc = communicator->read_event(event);
-    if (OB_FAIL(rc)) {
-      LOG_WARN("failed to read event. rc=%s", strrc(rc));
-      return -1;
-    }
-
-    if (event == nullptr) {
-      break;
-    }
-
-    /// 在当前线程立即处理对应的事件
-    session_stage_->handle_event(event);
-  }
-
-  delete communicator;
-  communicator = nullptr;
-  return 0;
-}
-
-int Server::serve()
-{
-  evthread_use_pthreads();
-  event_base_ = event_base_new();
-  if (event_base_ == nullptr) {
-    LOG_ERROR("Failed to create event base, %s.", strerror(errno));
-    exit(-1);
+  RC rc = thread_handler_->start();
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("failed to start thread handler: %s", strrc(rc));
+    return -1;
   }
 
   int retval = start();
@@ -356,32 +262,87 @@ int Server::serve()
   }
 
   if (!server_param_.use_std_io) {
-    event_base_dispatch(event_base_);
+    struct pollfd poll_fd;
+    poll_fd.fd      = server_socket_;
+    poll_fd.events  = POLLIN;
+    poll_fd.revents = 0;
+
+    while (started_) {
+      int ret = poll(&poll_fd, 1, 500);
+      if (ret < 0) {
+        LOG_WARN("[listen socket] poll error. fd = %d, ret = %d, error=%s", poll_fd.fd, ret, strerror(errno));
+        break;
+      } else if (0 == ret) {
+        // LOG_TRACE("poll timeout. fd = %d", poll_fd.fd);
+        continue;
+      }
+
+      if (poll_fd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+        LOG_ERROR("poll error. fd = %d, revents = %d", poll_fd.fd, poll_fd.revents);
+        break;
+      }
+
+      this->accept(server_socket_);
+    }
   }
 
-  if (listen_ev_ != nullptr) {
-    event_del(listen_ev_);
-    event_free(listen_ev_);
-    listen_ev_ = nullptr;
-  }
-
-  if (event_base_ != nullptr) {
-    event_base_free(event_base_);
-    event_base_ = nullptr;
-  }
+  thread_handler_->stop();
+  thread_handler_->await_stop();
+  delete thread_handler_;
+  thread_handler_ = nullptr;
 
   started_ = false;
-  LOG_INFO("Server quit");
+  LOG_INFO("NetServer quit");
   return 0;
 }
 
-void Server::shutdown()
+void NetServer::shutdown()
 {
-  LOG_INFO("Server shutting down");
+  LOG_INFO("NetServer shutting down");
 
   // cleanup
-  if (event_base_ != nullptr && started_) {
-    started_ = false;
-    event_base_loopexit(event_base_, nullptr);
+  started_ = false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CliServer::CliServer(const ServerParam &input_server_param) : Server(input_server_param) {}
+
+CliServer::~CliServer()
+{
+  if (started_) {
+    shutdown();
   }
+}
+
+int CliServer::serve()
+{
+  CliCommunicator communicator;
+
+  RC rc = communicator.init(STDIN_FILENO, new Session(Session::default_session()), "stdin");
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to init cli communicator. rc=%s", strrc(rc));
+    return -1;
+  }
+
+  started_ = true;
+
+  SqlTaskHandler task_handler;
+  while (started_ && !communicator.exit()) {
+    rc = task_handler.handle_event(&communicator);
+    if (OB_FAIL(rc)) {
+      started_ = false;
+    }
+  }
+
+  started_ = false;
+  return 0;
+}
+
+void CliServer::shutdown()
+{
+  LOG_INFO("CliServer shutting down");
+
+  // cleanup
+  started_ = false;
 }

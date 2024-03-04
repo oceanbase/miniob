@@ -12,8 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Longda on 2021/4/13.
 //
 #include "storage/record/record_manager.h"
-#include "common/log/log.h"
 #include "common/lang/bitmap.h"
+#include "common/log/log.h"
 #include "storage/common/condition_filter.h"
 #include "storage/trx/trx.h"
 
@@ -24,7 +24,7 @@ static constexpr int PAGE_HEADER_SIZE = (sizeof(PageHeader));
 /**
  * @brief 8字节对齐
  * 注: ceiling(a / b) = floor((a + b - 1) / b)
- * 
+ *
  * @param size 待对齐的字节数
  */
 int align8(int size) { return (size + 7) / 8 * 8; }
@@ -82,8 +82,12 @@ RecordPageHandler::~RecordPageHandler() { cleanup(); }
 RC RecordPageHandler::init(DiskBufferPool &buffer_pool, PageNum page_num, bool readonly)
 {
   if (disk_buffer_pool_ != nullptr) {
-    LOG_WARN("Disk buffer pool has been opened for page_num %d.", page_num);
-    return RC::RECORD_OPENNED;
+    if (frame_->page_num() == page_num) {
+      LOG_WARN("Disk buffer pool has been opened for page_num %d.", page_num);
+      return RC::RECORD_OPENNED;
+    } else {
+      cleanup();
+    }
   }
 
   RC ret = RC::SUCCESS;
@@ -103,7 +107,7 @@ RC RecordPageHandler::init(DiskBufferPool &buffer_pool, PageNum page_num, bool r
   readonly_         = readonly;
   page_header_      = (PageHeader *)(data);
   bitmap_           = data + PAGE_HEADER_SIZE;
-  
+
   LOG_TRACE("Successfully init page_num %d.", page_num);
   return ret;
 }
@@ -457,7 +461,7 @@ RC RecordFileHandler::get_record(RecordPageHandler &page_handler, const RID *rid
   }
 
   RC ret = page_handler.init(*disk_buffer_pool_, rid->page_num, readonly);
-  if (OB_FAIL(ret)) {
+  if (OB_FAIL(ret) && ret != RC::RECORD_OPENNED) {
     LOG_ERROR("Failed to init record page handler.page number=%d", rid->page_num);
     return ret;
   }

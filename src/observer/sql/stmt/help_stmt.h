@@ -26,8 +26,7 @@ See the Mulan PSL v2 for more details. */
 class HelpStmt : public Stmt
 {
 public:
-  HelpStmt()
-  {}
+  HelpStmt() {}
   virtual ~HelpStmt() = default;
 
   StmtType type() const override { return StmtType::HELP; }

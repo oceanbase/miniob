@@ -13,18 +13,18 @@ See the Mulan PSL v2 for more details. */
 //
 #pragma once
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "common/rc.h"
 
-class PersistHandler 
+class PersistHandler
 {
 public:
   PersistHandler();
@@ -62,5 +62,5 @@ public:
 
 private:
   std::string file_name_;
-  int file_desc_ = -1;
+  int         file_desc_ = -1;
 };

@@ -38,7 +38,7 @@ public:
    * @brief 写数据到文件/socket
    * @details 缓存满会自动刷新缓存
    * @param data 要写入的数据
-   * @param size 要写入的数据大小 
+   * @param size 要写入的数据大小
    * @param write_size 实际写入的数据大小
    */
   RC write(const char *data, int32_t size, int32_t &write_size);
@@ -67,6 +67,6 @@ private:
   RC flush_internal(int32_t size);
 
 private:
-  int fd_ = -1;
+  int        fd_ = -1;
   RingBuffer buffer_;
 };

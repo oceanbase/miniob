@@ -19,7 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-class ConsoleReporter : public Reporter {
+class ConsoleReporter : public Reporter
+{
 public:
   void report(const std::string &tag, Metric *metric);
 };
