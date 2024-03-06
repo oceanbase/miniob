@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <span>
 
 #include "common/rc.h"
 #include "sql/parser/parse_defs.h"
@@ -49,8 +50,7 @@ public:
    */
   RC init(const char *name, const char *dbpath, const char *trx_kit_name);
 
-  // refactor me: use vector or span instead of array
-  RC create_table(const char *table_name, int attribute_count, const AttrInfoSqlNode *attributes);
+  RC create_table(const char *table_name, std::span<const AttrInfoSqlNode> attributes);
 
   Table *find_table(const char *table_name) const;
   Table *find_table(int32_t table_id) const;

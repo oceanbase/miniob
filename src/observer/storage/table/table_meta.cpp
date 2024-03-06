@@ -44,16 +44,16 @@ void TableMeta::swap(TableMeta &other) noexcept
   std::swap(record_size_, other.record_size_);
 }
 
-RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields, int field_num,
-    const AttrInfoSqlNode attributes[])
+RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields,
+                   span<const AttrInfoSqlNode> attributes)
 {
   if (common::is_blank(name)) {
     LOG_ERROR("Name cannot be empty");
     return RC::INVALID_ARGUMENT;
   }
 
-  if (field_num <= 0 || nullptr == attributes) {
-    LOG_ERROR("Invalid argument. name=%s, field_num=%d, attributes=%p", name, field_num, attributes);
+  if (attributes.size() == 0) {
+    LOG_ERROR("Invalid argument. name=%s, field_num=%d", name, attributes.size());
     return RC::INVALID_ARGUMENT;
   }
 
@@ -65,7 +65,7 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
   if (trx_fields != nullptr) {
     trx_fields_ = *trx_fields;
 
-    fields_.resize(field_num + trx_fields->size());
+    fields_.resize(attributes.size() + trx_fields->size());
 
     for (size_t i = 0; i < trx_fields->size(); i++) {
       const FieldMeta &field_meta = (*trx_fields)[i];
@@ -75,14 +75,15 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
 
     trx_field_num = static_cast<int>(trx_fields->size());
   } else {
-    fields_.resize(field_num);
+    fields_.resize(attributes.size());
   }
 
-  for (int i = 0; i < field_num; i++) {
+  for (size_t i = 0; i < attributes.size(); i++) {
     const AttrInfoSqlNode &attr_info = attributes[i];
-    rc                               = fields_[i + trx_field_num].init(
-        attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/);
-    if (rc != RC::SUCCESS) {
+
+    rc = fields_[i + trx_field_num].init(
+      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/);
+    if (OB_FAIL(rc)) {
       LOG_ERROR("Failed to init field meta. table name=%s, field name: %s", name, attr_info.name.c_str());
       return rc;
     }

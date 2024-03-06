@@ -40,13 +40,14 @@ RC DefaultHandler::init(const char *base_dir, const char *trx_kit_name)
   filesystem::path db_dir(base_dir);
   db_dir /= "db";
   error_code ec;
-  if (!filesystem::create_directories(db_dir, ec)) {
+  if (!filesystem::is_directory(db_dir) && !filesystem::create_directories(db_dir, ec)) {
     LOG_ERROR("Cannot access base dir: %s. msg=%d:%s", db_dir.c_str(), errno, strerror(errno));
     return RC::INTERNAL;
   }
 
   base_dir_ = base_dir;
   db_dir_   = db_dir;
+  trx_kit_name_ = trx_kit_name;
 
   const char *sys_db = "sys";
 
@@ -135,14 +136,13 @@ RC DefaultHandler::close_db(const char *dbname) { return RC::UNIMPLENMENT; }
 
 RC DefaultHandler::execute(const char *sql) { return RC::UNIMPLENMENT; }
 
-RC DefaultHandler::create_table(
-    const char *dbname, const char *relation_name, int attribute_count, const AttrInfoSqlNode *attributes)
+RC DefaultHandler::create_table(const char *dbname, const char *relation_name, span<const AttrInfoSqlNode> attributes)
 {
   Db *db = find_db(dbname);
   if (db == nullptr) {
     return RC::SCHEMA_DB_NOT_OPENED;
   }
-  return db->create_table(relation_name, attribute_count, attributes);
+  return db->create_table(relation_name, attributes);
 }
 
 RC DefaultHandler::drop_table(const char *dbname, const char *relation_name) { return RC::UNIMPLENMENT; }

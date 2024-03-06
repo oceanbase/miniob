@@ -53,7 +53,7 @@ Table::~Table()
 }
 
 RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
-    int attribute_count, const AttrInfoSqlNode attributes[])
+    span<const AttrInfoSqlNode> attributes)
 {
   if (table_id < 0) {
     LOG_WARN("invalid table id. table_id=%d, table_name=%s", table_id, name);
@@ -66,8 +66,8 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   }
   LOG_INFO("Begin to create table %s:%s", base_dir, name);
 
-  if (attribute_count <= 0 || nullptr == attributes) {
-    LOG_WARN("Invalid arguments. table_name=%s, attribute_count=%d, attributes=%p", name, attribute_count, attributes);
+  if (attributes.size() == 0) {
+    LOG_WARN("Invalid arguments. table_name=%s, attribute_count=%d", name, attributes.size());
     return RC::INVALID_ARGUMENT;
   }
 
@@ -89,7 +89,7 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
 
   // 创建文件
   const std::vector<FieldMeta> *trx_fields = db->trx_kit().trx_fields();
-  if ((rc = table_meta_.init(table_id, name, trx_fields, attribute_count, attributes)) != RC::SUCCESS) {
+  if ((rc = table_meta_.init(table_id, name, trx_fields, attributes)) != RC::SUCCESS) {
     LOG_ERROR("Failed to init table meta. name:%s, ret:%d", name, rc);
     return rc;  // delete table file
   }

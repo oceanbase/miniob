@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <functional>
+#include <span>
 
 #include "storage/table/table_meta.h"
 #include "common/types.h"
@@ -50,8 +51,8 @@ public:
    * @param attribute_count 字段个数
    * @param attributes 字段
    */
-  RC create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir, int attribute_count,
-      const AttrInfoSqlNode attributes[]);
+  RC create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
+      std::span<const AttrInfoSqlNode> attributes);
 
   /**
    * 打开一个表

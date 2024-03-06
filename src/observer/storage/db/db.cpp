@@ -108,7 +108,7 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name)
   return rc;
 }
 
-RC Db::create_table(const char *table_name, int attribute_count, const AttrInfoSqlNode *attributes)
+RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attributes)
 {
   RC rc = RC::SUCCESS;
   // check table_name
@@ -121,7 +121,7 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfoS
   std::string table_file_path = table_meta_file(path_.c_str(), table_name);
   Table      *table           = new Table();
   int32_t     table_id        = next_table_id_++;
-  rc = table->create(this, table_id, table_file_path.c_str(), table_name, path_.c_str(), attribute_count, attributes);
+  rc = table->create(this, table_id, table_file_path.c_str(), table_name, path_.c_str(), attributes);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;

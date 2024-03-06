@@ -261,7 +261,7 @@ RC MvccTrx::commit()
 
 RC MvccTrx::commit_with_trx_id(int32_t commit_xid)
 {
-  // TODO 这里存在一个很大的问题，不能让其他事务一次性看到当前事务更新到的数据或同时看不到
+  // TODO 原子性提交BUG：这里存在一个很大的问题，不能让其他事务一次性看到当前事务更新到的数据或同时看不到
   RC rc    = RC::SUCCESS;
   started_ = false;
 

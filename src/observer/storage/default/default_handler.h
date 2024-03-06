@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <map>
+#include <span>
 #include <string>
 #include <memory>
 
@@ -74,11 +75,9 @@ public:
    * 类型和属性的长度（见AttrInfo结构定义）
    * @param dbname 数据库名称
    * @param relation_name 表名
-   * @param attribute_count 属性数量
    * @param attributes 属性信息
    */
-  RC create_table(
-      const char *dbname, const char *relation_name, int attribute_count, const AttrInfoSqlNode *attributes);
+  RC create_table(const char *dbname, const char *relation_name, std::span<const AttrInfoSqlNode> attributes);
 
   /**
    * 销毁名为relName的表以及在该表上建立的所有索引
