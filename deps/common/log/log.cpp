@@ -106,7 +106,7 @@ int Log::output(const LOG_LEVEL level, const char *module, const char *prefix, c
       ofs_ << prefix;
       ofs_ << msg;
       ofs_ << "\n";
-      ofs_.flush();
+      // ofs_.flush();
       log_line_++;
       pthread_mutex_unlock(&lock_);
       locked = false;
@@ -116,7 +116,7 @@ int Log::output(const LOG_LEVEL level, const char *module, const char *prefix, c
       ofs_ << prefix;
       ofs_ << msg;
       ofs_ << "\n";
-      ofs_.flush();
+      // ofs_.flush();
       log_line_++;
       pthread_mutex_unlock(&lock_);
       locked = false;
