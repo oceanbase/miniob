@@ -144,6 +144,9 @@ RC Table::open(Db *db, const char *meta_file, const char *base_dir)
   }
   fs.close();
 
+  db_ = db;
+  base_dir_ = base_dir;
+
   // 加载数据文件
   RC rc = init_record_handler(base_dir);
   if (rc != RC::SUCCESS) {
@@ -151,9 +154,6 @@ RC Table::open(Db *db, const char *meta_file, const char *base_dir)
     // don't need to remove the data_file
     return rc;
   }
-
-  db_ = db;
-  base_dir_ = base_dir;
 
   const int index_num = table_meta_.index_num();
   for (int i = 0; i < index_num; i++) {

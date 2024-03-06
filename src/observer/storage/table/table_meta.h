@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <string>
 #include <vector>
+#include <span>
 
 #include "common/lang/serializable.h"
 #include "common/rc.h"
@@ -36,19 +37,20 @@ public:
 
   void swap(TableMeta &other) noexcept;
 
-  RC init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields, int field_num, const AttrInfoSqlNode attributes[]);
+  RC init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields, int field_num,
+      const AttrInfoSqlNode attributes[]);
 
   RC add_index(const IndexMeta &index);
 
 public:
-  int32_t                       table_id() const { return table_id_; }
-  const char                   *name() const;
-  const FieldMeta              *trx_field() const;
-  const FieldMeta              *field(int index) const;
-  const FieldMeta              *field(const char *name) const;
-  const FieldMeta              *find_field_by_offset(int offset) const;
-  const std::vector<FieldMeta> *field_metas() const { return &fields_; }
-  auto                          trx_fields() const -> const std::pair<const FieldMeta *, int>;
+  int32_t          table_id() const { return table_id_; }
+  const char      *name() const;
+  const FieldMeta *trx_field() const;
+  const FieldMeta *field(int index) const;
+  const FieldMeta *field(const char *name) const;
+  const FieldMeta *find_field_by_offset(int offset) const;
+  auto             field_metas() const -> const std::vector<FieldMeta> * { return &fields_; }
+  auto             trx_fields() const -> std::span<const FieldMeta>;
 
   int field_num() const;  // sys field included
   int sys_field_num() const;

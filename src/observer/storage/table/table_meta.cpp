@@ -108,9 +108,9 @@ const char *TableMeta::name() const { return name_.c_str(); }
 
 const FieldMeta *TableMeta::trx_field() const { return &fields_[0]; }
 
-const std::pair<const FieldMeta *, int> TableMeta::trx_fields() const
+span<const FieldMeta> TableMeta::trx_fields() const
 {
-  return std::pair<const FieldMeta *, int>{fields_.data(), sys_field_num()};
+  return span<const FieldMeta>(fields_.data(), sys_field_num());
 }
 
 const FieldMeta *TableMeta::field(int index) const { return &fields_[index]; }
@@ -257,6 +257,12 @@ int TableMeta::deserialize(std::istream &is)
   name_.swap(table_name);
   fields_.swap(fields);
   record_size_ = fields_.back().offset() + fields_.back().len() - fields_.begin()->offset();
+
+  for (const FieldMeta &field_meta : fields_) {
+    if (!field_meta.visible()) {
+      trx_fields_.push_back(field_meta); // 字段加上trx标识更好
+    }
+  }
 
   const Json::Value &indexes_value = table_value[FIELD_INDEXES];
   if (!indexes_value.empty()) {

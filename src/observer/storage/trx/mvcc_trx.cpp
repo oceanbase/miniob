@@ -232,14 +232,14 @@ RC MvccTrx::visit_record(Table *table, Record &record, ReadWriteMode mode)
  */
 void MvccTrx::trx_fields(Table *table, Field &begin_xid_field, Field &end_xid_field) const
 {
-  const TableMeta                        &table_meta = table->table_meta();
-  const std::pair<const FieldMeta *, int> trx_fields = table_meta.trx_fields();
-  ASSERT(trx_fields.second >= 2, "invalid trx fields number. %d", trx_fields.second);
+  const TableMeta      &table_meta = table->table_meta();
+  span<const FieldMeta> trx_fields = table_meta.trx_fields();
+  ASSERT(trx_fields.size() >= 2, "invalid trx fields number. %d", trx_fields.size());
 
   begin_xid_field.set_table(table);
-  begin_xid_field.set_field(&trx_fields.first[0]);
+  begin_xid_field.set_field(&trx_fields[0]);
   end_xid_field.set_table(table);
-  end_xid_field.set_field(&trx_fields.first[1]);
+  end_xid_field.set_field(&trx_fields[1]);
 }
 
 RC MvccTrx::start_if_need()
@@ -456,7 +456,7 @@ RC MvccTrx::redo(Db *db, const LogEntry &log_entry)
     } break;
 
     default: {
-      ASSERT(false, "unsupported redo log. log_record=%s", log_record.to_string().c_str());
+      ASSERT(false, "unsupported redo log. log_record=%s", log_entry.to_string().c_str());
       return RC::INTERNAL;
     } break;
   }

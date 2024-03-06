@@ -100,6 +100,11 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name)
     LOG_WARN("failed to recover db. dbpath=%s, rc=%s", dbpath, strrc(rc));
     return rc;
   }
+
+  rc = log_handler_->start();
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to start log handler. dbpath=%s, rc=%s", dbpath, strrc(rc));
+  }
   return rc;
 }
 
@@ -271,7 +276,7 @@ RC Db::init_meta()
               name_.c_str(), db_meta_file_path.c_str(), strerror(errno));
     rc = RC::IOERR_READ;
   } else {
-    if (n >= sizeof(buffer)) {
+    if (n >= static_cast<int>(sizeof(buffer))) {
       LOG_WARN("Db meta file is too large. db=%s, file=%s, buffer size=%ld", 
                name_.c_str(), db_meta_file_path.c_str(), sizeof(buffer));
       return RC::IOERR_TOO_LONG;
@@ -307,13 +312,22 @@ RC Db::flush_meta()
     LOG_ERROR("Failed to write db meta file. db=%s, file=%s, errno=%s", 
               name_.c_str(), temp_meta_file_path.c_str(), strerror(errno));
     rc = RC::IOERR_WRITE;
-  } else if (n != buffer.size()) {
+  } else if (n != static_cast<int>(buffer.size())) {
     LOG_ERROR("Failed to write db meta file. db=%s, file=%s, buffer size=%ld, write size=%d", 
               name_.c_str(), temp_meta_file_path.c_str(), buffer.size(), n);
     rc = RC::IOERR_WRITE;
   } else {
-    LOG_INFO("Successfully write db meta file. db=%s, file=%s, check_point_lsn=%ld", 
-             name_.c_str(), temp_meta_file_path.c_str(), check_point_lsn_);
+    error_code ec;
+    filesystem::rename(temp_meta_file_path, meta_file_path, ec);
+    if (ec) {
+      LOG_ERROR("Failed to rename db meta file. db=%s, file=%s, errno=%s", 
+                name_.c_str(), temp_meta_file_path.c_str(), ec.message().c_str());
+      rc = RC::IOERR_WRITE;
+    } else {
+
+      LOG_INFO("Successfully write db meta file. db=%s, file=%s, check_point_lsn=%ld", 
+               name_.c_str(), temp_meta_file_path.c_str(), check_point_lsn_);
+    }
   }
 
   return rc;

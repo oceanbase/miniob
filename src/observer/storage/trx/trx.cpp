@@ -26,14 +26,22 @@ See the Mulan PSL v2 for more details. */
 
 TrxKit *TrxKit::create(const char *name)
 {
+  TrxKit *trx_kit = nullptr;
   if (common::is_blank(name) || 0 == strcasecmp(name, "vacuous")) {
-    return new VacuousTrxKit();
+    trx_kit = new VacuousTrxKit();
+  } else if (0 == strcasecmp(name, "mvcc")) {
+    trx_kit = new MvccTrxKit();
+  } else {
+    LOG_ERROR("unknown trx kit name. name=%s", name);
+    return nullptr;
   }
 
-  if (0 == strcasecmp(name, "mvcc")) {
-    return new MvccTrxKit();
+  RC rc = trx_kit->init();
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("failed to init trx kit. name=%s, rc=%s", name, strrc(rc));
+    delete trx_kit;
+    trx_kit = nullptr;
   }
-
-  LOG_ERROR("unknown trx kit name. name=%s", name);
-  return nullptr;
+  
+  return trx_kit;
 }
