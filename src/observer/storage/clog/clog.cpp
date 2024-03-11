@@ -83,7 +83,7 @@ string CLogRecordData::to_string() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int _align8(int size) { return size / 8 * 8 + ((size % 8 == 0) ? 0 : 8); }
+int _align8(int size) { return (size + 7) & ~7; }
 
 CLogRecord *CLogRecord::build_mtr_record(CLogType type, int32_t trx_id)
 {

@@ -27,7 +27,7 @@ static constexpr int PAGE_HEADER_SIZE = (sizeof(PageHeader));
  *
  * @param size 待对齐的字节数
  */
-int align8(int size) { return (size + 7) / 8 * 8; }
+int align8(int size) { return (size + 7) & ~7; }
 
 /**
  * @brief 计算指定大小的页面，可以容纳多少个记录
