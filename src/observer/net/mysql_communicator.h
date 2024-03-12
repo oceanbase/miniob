@@ -35,7 +35,7 @@ public:
    * @details 参考MySQL或MariaDB的手册，服务端要首先向客户端发送一个握手包，等客户端回复后，
    * 再回复一个OkPacket或ErrPacket
    */
-  virtual RC init(int fd, Session *session, const std::string &addr) override;
+  virtual RC init(int fd, std::unique_ptr<Session> session, const std::string &addr) override;
 
   /**
    * @brief 有新的消息到达时，接收消息

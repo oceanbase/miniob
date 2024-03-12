@@ -30,62 +30,69 @@ RC CommandExecutor::execute(SQLStageEvent *sql_event)
 {
   Stmt *stmt = sql_event->stmt();
 
+  RC rc = RC::SUCCESS;
   switch (stmt->type()) {
     case StmtType::CREATE_INDEX: {
       CreateIndexExecutor executor;
-      return executor.execute(sql_event);
+      rc = executor.execute(sql_event);
     } break;
 
     case StmtType::CREATE_TABLE: {
       CreateTableExecutor executor;
-      return executor.execute(sql_event);
+      rc = executor.execute(sql_event);
     } break;
 
     case StmtType::DESC_TABLE: {
       DescTableExecutor executor;
-      return executor.execute(sql_event);
-    }
+      rc = executor.execute(sql_event);
+    } break;
 
     case StmtType::HELP: {
       HelpExecutor executor;
-      return executor.execute(sql_event);
-    }
+      rc = executor.execute(sql_event);
+    } break;
 
     case StmtType::SHOW_TABLES: {
       ShowTablesExecutor executor;
-      return executor.execute(sql_event);
-    }
+      rc = executor.execute(sql_event);
+    } break;
 
     case StmtType::BEGIN: {
       TrxBeginExecutor executor;
-      return executor.execute(sql_event);
-    }
+      rc = executor.execute(sql_event);
+    } break;
 
     case StmtType::COMMIT:
     case StmtType::ROLLBACK: {
       TrxEndExecutor executor;
-      return executor.execute(sql_event);
-    }
+      rc = executor.execute(sql_event);
+    } break;
 
     case StmtType::SET_VARIABLE: {
       SetVariableExecutor executor;
-      return executor.execute(sql_event);
-    }
+      rc = executor.execute(sql_event);
+    } break;
 
     case StmtType::LOAD_DATA: {
       LoadDataExecutor executor;
-      return executor.execute(sql_event);
-    }
+      rc = executor.execute(sql_event);
+    } break;
 
     case StmtType::EXIT: {
-      return RC::SUCCESS;
-    }
+      rc = RC::SUCCESS;
+    } break;
 
     default: {
       LOG_ERROR("unknown command: %d", static_cast<int>(stmt->type()));
-      return RC::UNIMPLENMENT;
-    }
+      rc = RC::UNIMPLENMENT;
+    } break;
   }
 
-  return RC::INTERNAL;
+  if (OB_SUCC(rc) && stmt_type_ddl(stmt->type())) {
+    // 每次做完DDL之后，做一次sync，保证元数据与日志保持一致
+    rc = sql_event->session_event()->session()->get_current_db()->sync();
+    LOG_INFO("sync db after ddl. rc=%d", rc);
+  }
+
+  return rc;
 }

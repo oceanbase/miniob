@@ -28,7 +28,7 @@ public:
   CliCommunicator()          = default;
   virtual ~CliCommunicator() = default;
 
-  RC init(int fd, Session *session, const std::string &addr) override;
+  RC init(int fd, std::unique_ptr<Session> session, const std::string &addr) override;
   RC read_event(SessionEvent *&event) override;
   RC write_result(SessionEvent *event, bool &need_disconnect) override;
 
