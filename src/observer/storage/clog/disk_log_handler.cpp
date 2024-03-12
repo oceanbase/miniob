@@ -150,7 +150,7 @@ RC DiskLogHandler::_append(LSN &lsn, LogModule module, vector<char> &&data)
 RC DiskLogHandler::wait_lsn(LSN lsn)
 {
   while (running_.load() && current_flushed_lsn() < lsn) {
-    this_thread::sleep_for(chrono::milliseconds(1000));
+    this_thread::sleep_for(chrono::milliseconds(100));
   }
 
   return RC::SUCCESS;

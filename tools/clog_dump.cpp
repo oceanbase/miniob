@@ -20,6 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/buffer_pool_log.h"
 #include "storage/record/record_log.h"
 #include "storage/index/bplus_tree_log_entry.h"
+#include "storage/trx/mvcc_trx_log.h"
 #include "common/lang/serializer.h"
 
 using namespace std;
@@ -53,7 +54,23 @@ public:
         }
       } break;
       case LogModule::Id::BPLUS_TREE: {
-	ss << BplusTreeLogger::log_entry_to_string(entry);
+        ss << BplusTreeLogger::log_entry_to_string(entry);
+      } break;
+
+      case LogModule::Id::TRANSACTION: {
+        auto *header = reinterpret_cast<const MvccTrxLogHeader *>(entry.data());
+
+        MvccTrxLogOperation operation_type(header->operation_type);
+        if (operation_type.type() == MvccTrxLogOperation::Type::INSERT_RECORD ||
+            operation_type.type() == MvccTrxLogOperation::Type::DELETE_RECORD) {
+          auto *record_log_header = reinterpret_cast<const MvccTrxRecordLogEntry *>(entry.data());
+          ss << record_log_header->to_string();
+        } else if (operation_type.type() == MvccTrxLogOperation::Type::COMMIT) {
+          auto *commit_log = reinterpret_cast<const MvccTrxCommitLogEntry *>(entry.data());
+          ss << commit_log->to_string();
+        } else {
+          ss << header->to_string();
+        }
       } break;
       
       default: {

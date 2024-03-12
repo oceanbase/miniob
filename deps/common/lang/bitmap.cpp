@@ -77,9 +77,8 @@ int Bitmap::next_unsetted_bit(int start)
         ret = iter * 8 + index_in_byte;
         break;
       }
-
-      start_in_byte = 0;
     }
+    start_in_byte = 0;
   }
 
   if (ret >= size_) {
@@ -100,9 +99,8 @@ int Bitmap::next_setted_bit(int start)
         ret = iter * 8 + index_in_byte;
         break;
       }
-
-      start_in_byte = 0;
     }
+    start_in_byte = 0;
   }
 
   if (ret >= size_) {

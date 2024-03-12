@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/defs.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
+#include "common/global_context.h"
 #include "storage/db/db.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/common/condition_filter.h"
@@ -52,7 +53,7 @@ Table::~Table()
 }
 
 RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
-    int attribute_count, const AttrInfoSqlNode attributes[])
+    span<const AttrInfoSqlNode> attributes)
 {
   if (table_id < 0) {
     LOG_WARN("invalid table id. table_id=%d, table_name=%s", table_id, name);
@@ -65,8 +66,8 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   }
   LOG_INFO("Begin to create table %s:%s", base_dir, name);
 
-  if (attribute_count <= 0 || nullptr == attributes) {
-    LOG_WARN("Invalid arguments. table_name=%s, attribute_count=%d, attributes=%p", name, attribute_count, attributes);
+  if (attributes.size() == 0) {
+    LOG_WARN("Invalid arguments. table_name=%s, attribute_count=%d", name, attributes.size());
     return RC::INVALID_ARGUMENT;
   }
 
@@ -87,7 +88,8 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   close(fd);
 
   // 创建文件
-  if ((rc = table_meta_.init(table_id, name, attribute_count, attributes)) != RC::SUCCESS) {
+  const std::vector<FieldMeta> *trx_fields = db->trx_kit().trx_fields();
+  if ((rc = table_meta_.init(table_id, name, trx_fields, attributes)) != RC::SUCCESS) {
     LOG_ERROR("Failed to init table meta. name:%s, ret:%d", name, rc);
     return rc;  // delete table file
   }
@@ -103,8 +105,11 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   table_meta_.serialize(fs);
   fs.close();
 
+  db_ = db;
+  base_dir_ = base_dir;
+
   std::string        data_file = table_data_file(base_dir, name);
-  BufferPoolManager &bpm       = BufferPoolManager::instance();
+  BufferPoolManager &bpm       = db->buffer_pool_manager();
   rc                           = bpm.create_file(data_file.c_str());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create disk buffer pool of data file. file name=%s", data_file.c_str());
@@ -118,8 +123,6 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
     return rc;
   }
 
-  db_ = db;
-  base_dir_ = base_dir;
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
   return rc;
 }
@@ -141,6 +144,9 @@ RC Table::open(Db *db, const char *meta_file, const char *base_dir)
   }
   fs.close();
 
+  db_ = db;
+  base_dir_ = base_dir;
+
   // 加载数据文件
   RC rc = init_record_handler(base_dir);
   if (rc != RC::SUCCESS) {
@@ -148,9 +154,6 @@ RC Table::open(Db *db, const char *meta_file, const char *base_dir)
     // don't need to remove the data_file
     return rc;
   }
-
-  db_ = db;
-  base_dir_ = base_dir;
 
   const int index_num = table_meta_.index_num();
   for (int i = 0; i < index_num; i++) {
@@ -296,7 +299,8 @@ RC Table::init_record_handler(const char *base_dir)
 {
   std::string data_file = table_data_file(base_dir, table_meta_.name());
 
-  RC rc = BufferPoolManager::instance().open_file(db_->log_handler(), data_file.c_str(), data_buffer_pool_);
+  BufferPoolManager &bpm = db_->buffer_pool_manager();
+  RC rc = bpm.open_file(db_->log_handler(), data_file.c_str(), data_buffer_pool_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to open disk buffer pool for file:%s. rc=%d:%s", data_file.c_str(), rc, strrc(rc));
     return rc;

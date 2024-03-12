@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "gtest/gtest.h"
 
 using namespace common;
-
+#if 0
 TEST(test_clog, test_clog)
 {
   const char *path      = ".";
@@ -43,7 +43,7 @@ TEST(test_clog, test_clog)
   }
   */
 }
-
+#endif
 int main(int argc, char **argv)
 {
   // 分析gtest程序的命令行参数

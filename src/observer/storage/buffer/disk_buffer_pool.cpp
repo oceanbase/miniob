@@ -871,15 +871,3 @@ RC BufferPoolManager::get_buffer_pool(int32_t id, DiskBufferPool *&bp)
   bp = iter->second;
   return RC::SUCCESS;
 }
-
-static BufferPoolManager *default_bpm = nullptr;
-
-void BufferPoolManager::set_instance(BufferPoolManager *bpm)
-{
-  if (default_bpm != nullptr && bpm != nullptr) {
-    LOG_ERROR("default buffer pool manager has been setted");
-    abort();
-  }
-  default_bpm = bpm;
-}
-BufferPoolManager &BufferPoolManager::instance() { return *default_bpm; }

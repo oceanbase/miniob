@@ -24,6 +24,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
+#if 0
 /**
  * @brief 当前的日志使用固定的文件名，而且就这一个文件
  */
@@ -542,3 +543,4 @@ RC CLogManager::recover(Db *db)
 
   return RC::SUCCESS;
 }
+#endif

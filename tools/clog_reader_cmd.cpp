@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/clog.h"
 
 using namespace std;
-
+#if 0
 void dump(const char *filename)
 {
   CLogFile file;
@@ -57,5 +57,11 @@ int main(int argc, char *argv[])
   }
 
   dump(argv[1]);
+  return 0;
+}
+#endif
+
+int main()
+{
   return 0;
 }

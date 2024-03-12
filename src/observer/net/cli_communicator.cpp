@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/os/signal.h"
 #include "event/session_event.h"
 #include "net/buffered_writer.h"
+#include "session/session.h"
 
 #ifdef USE_READLINE
 #include "readline/history.h"
@@ -127,9 +128,9 @@ char *read_command()
   return input_command;
 }
 
-RC CliCommunicator::init(int fd, Session *session, const string &addr)
+RC CliCommunicator::init(int fd, unique_ptr<Session> session, const string &addr)
 {
-  RC rc = PlainCommunicator::init(fd, session, addr);
+  RC rc = PlainCommunicator::init(fd, std::move(session), addr);
   if (OB_FAIL(rc)) {
     LOG_WARN("fail to init communicator", strrc(rc));
     return rc;

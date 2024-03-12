@@ -29,7 +29,7 @@ Session::Session(const Session &other) : db_(other.db_) {}
 Session::~Session()
 {
   if (nullptr != trx_) {
-    GCTX.trx_kit_->destroy_trx(trx_);
+    db_->trx_kit().destroy_trx(trx_);
     trx_ = nullptr;
   }
 }
@@ -46,7 +46,7 @@ Db *Session::get_current_db() const { return db_; }
 
 void Session::set_current_db(const std::string &dbname)
 {
-  DefaultHandler &handler = DefaultHandler::get_default();
+  DefaultHandler &handler = *GCTX.handler_;
   Db             *db      = handler.find_db(dbname.c_str());
   if (db == nullptr) {
     LOG_WARN("no such database: %s", dbname.c_str());
@@ -66,8 +66,12 @@ bool Session::is_trx_multi_operation_mode() const { return trx_multi_operation_m
 
 Trx *Session::current_trx()
 {
+  /*
+  当前把事务与数据库绑定到了一起。这样虽然不合理，但是处理起来也简单。
+  我们在测试过程中，也不需要多个数据库之间做关联。
+  */
   if (trx_ == nullptr) {
-    trx_ = GCTX.trx_kit_->create_trx(db_->clog_manager());
+    trx_ = db_->trx_kit().create_trx(db_->log_handler());
   }
   return trx_;
 }
