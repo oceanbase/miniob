@@ -30,6 +30,10 @@ using LSN = int64_t;
 
 #define LSN_FORMAT PRId64
 
+/**
+ * @brief 读写模式
+ * @details 原来的代码中有大量的true/false来表示是否只读，这种代码不易于阅读
+ */
 enum class ReadWriteMode
 {
   READ_ONLY,

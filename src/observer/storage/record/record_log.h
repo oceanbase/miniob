@@ -26,15 +26,19 @@ class Frame;
 class BufferPoolManager;
 class DiskBufferPool;
 
+/**
+ * @brief 记录管理器操作相关的日志类型
+ * @ingroup CLog
+ */
 class RecordOperation
 {
 public:
   enum class Type : int32_t
   {
     INIT_PAGE,      /// 初始化空页面
-    INSERT,
-    DELETE,
-    UPDATE
+    INSERT,         /// 插入一条记录
+    DELETE,         /// 删除一条记录
+    UPDATE          /// 更新一条记录
   };
 
 public:
@@ -79,7 +83,7 @@ public:
   /**
    * @brief 初始化一个新的页面
    * @details 记录一个初始化新页面的日志。
-   * TODO 这条日志通常伴随着一个buffer pool中创建页面的日志，这时候其实存在一个问题：
+   * @note 这条日志通常伴随着一个buffer pool中创建页面的日志，这时候其实存在一个问题：
    * 通常情况下日志是这样的：
    * 1. buffer pool.allocate page
    * 2. record_log_handler.init_new_page
@@ -89,8 +93,29 @@ public:
    * @param page_num 页面编号
    */
   RC init_new_page(Frame *frame, PageNum page_num);
+
+  /**
+   * @brief 插入一条记录
+   * @param frame 页帧
+   * @param rid 记录的位置
+   * @param record 记录的内容
+   */
   RC insert_record(Frame *frame, const RID &rid, const char *record);
+
+  /**
+   * @brief 删除一条记录
+   * @param frame 页帧
+   * @param rid 记录的位置
+   */
   RC delete_record(Frame *frame, const RID &rid);
+
+  /**
+   * @brief 更新一条记录
+   * @param frame 页帧
+   * @param rid 记录的位置
+   * @param record 更新后的记录。不需要做回滚，所以不用记录原先的数据
+   * @details 更新数据时，通常只更新其中几个字段，这里记录所有数据，是可以优化的。
+   */
   RC update_record(Frame *frame, const RID &rid, const char *record);
 
 private:
@@ -99,6 +124,10 @@ private:
   int32_t record_size_ = -1;
 };
 
+/**
+ * @brief 记录相关的日志重放器
+ * @ingroup CLog
+ */
 class RecordLogReplayer final : public LogReplayer
 {
 public:
