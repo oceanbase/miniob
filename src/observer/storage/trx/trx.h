@@ -40,6 +40,7 @@ class LogReplayer;
  * @brief 描述一个操作，比如插入、删除行等
  * @ingroup Transaction
  * @details 通常包含一个操作的类型，以及操作的对象和具体的数据
+ * @note 这个名称太通用，可以考虑改成更具体的名称
  */
 class Operation
 {

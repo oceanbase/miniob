@@ -21,7 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/os/path.h"
 #include "session/session.h"
-#include "storage/clog/clog.h"
 #include "storage/common/condition_filter.h"
 #include "storage/index/bplus_tree.h"
 #include "storage/record/record_manager.h"
