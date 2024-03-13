@@ -33,6 +33,12 @@ class TrxKit;
  * @brief 一个DB实例负责管理一批表
  * @details 当前DB的存储模式很简单，一个DB对应一个目录，所有的表和数据都放置在这个目录下。
  * 启动时，从指定的目录下加载所有的表和元数据。
+ * 一个DB实例会有一个BufferPoolManager，用来管理所有的数据页，以及一个LogHandler，用来管理所有的日志。
+ * 这样也就约束了事务不能跨DB。buffer pool的内存管理控制也不能跨越Db。
+ * 也可以使用MiniOB非常容易模拟分布式事务，创建两个数据库，然后写一个分布式事务管理器。
+ * 
+ * NOTE: 数据库对象没有做完整的并发控制。比如在查找某张表的同时删除这个表，会引起访问冲突。这个控制是由使用者
+ * 来控制的。如果要完整的实现并发控制，需要实现表锁或类似的机制。
  */
 class Db
 {
@@ -50,38 +56,65 @@ public:
    */
   RC init(const char *name, const char *dbpath, const char *trx_kit_name);
 
+  /**
+   * @brief 创建一个表
+   * @param table_name 表名
+   * @param attributes 表的属性
+   */
   RC create_table(const char *table_name, std::span<const AttrInfoSqlNode> attributes);
 
+  /**
+   * @brief 根据表名查找表
+   */
   Table *find_table(const char *table_name) const;
+  /**
+   * @brief 根据表ID查找表
+   */
   Table *find_table(int32_t table_id) const;
 
+  /// @brief 当前数据库的名称
   const char *name() const;
 
+  /// @brief 列出所有的表
   void all_tables(std::vector<std::string> &table_names) const;
 
+  /**
+   * @brief 将所有内存中的数据，刷新到磁盘中。
+   * @details 注意，这里也没有并发控制，需要由上层来保证当前没有正在进行的事务。
+   */
   RC sync();
 
+  /// @brief 获取当前数据库的日志处理器
   LogHandler &log_handler();
+
+  /// @brief 获取当前数据库的buffer pool管理器
   BufferPoolManager &buffer_pool_manager();
+
+  /// @brief 获取当前数据库的事务管理器
   TrxKit &trx_kit();
 
 private:
+
+  /// @brief 打开所有的表。在数据库初始化的时候会执行
   RC open_all_tables();
+  /// @brief 恢复数据。在数据库初始化的时候运行。
   RC recover();
 
+  /// @brief 初始化元数据。在数据库初始化的时候，加载元数据
   RC init_meta();
+  /// @brief 刷新数据库的元数据到磁盘中。每次执行sync时会执行此操作
   RC flush_meta();
 
 private:
-  std::string                              name_;
-  std::string                              path_;
-  std::unordered_map<std::string, Table *> opened_tables_;
-  std::unique_ptr<BufferPoolManager>       buffer_pool_manager_;
-  std::unique_ptr<DiskLogHandler>          log_handler_;
-  std::unique_ptr<TrxKit>                  trx_kit_;
+  std::string                              name_; ///< 数据库名称
+  std::string                              path_; ///< 数据库文件存放的目录
+  std::unordered_map<std::string, Table *> opened_tables_; ///< 当前所有打开的表
+  std::unique_ptr<BufferPoolManager>       buffer_pool_manager_; ///< 当前数据库的buffer pool管理器
+  std::unique_ptr<DiskLogHandler>          log_handler_; ///< 当前数据库的日志处理器
+  std::unique_ptr<TrxKit>                  trx_kit_; ///< 当前数据库的事务管理器
 
   /// 给每个table都分配一个ID，用来记录日志。这里假设所有的DDL都不会并发操作，所以相关的数据都不上锁
   int32_t next_table_id_ = 0;
 
-  LSN check_point_lsn_ = 0;
+  LSN check_point_lsn_ = 0;  ///< 当前数据库的检查点LSN。会记录到磁盘中。
 };

@@ -134,8 +134,6 @@ RC DefaultHandler::open_db(const char *dbname)
 
 RC DefaultHandler::close_db(const char *dbname) { return RC::UNIMPLENMENT; }
 
-RC DefaultHandler::execute(const char *sql) { return RC::UNIMPLENMENT; }
-
 RC DefaultHandler::create_table(const char *dbname, const char *relation_name, span<const AttrInfoSqlNode> attributes)
 {
   Db *db = find_db(dbname);

@@ -42,14 +42,40 @@ public:
   LogHandler() = default;
   virtual ~LogHandler() = default;
 
+  /**
+   * @brief 回放日志
+   * @param replayer 日志回放器
+   * @param start_lsn 从哪个LSN开始回放
+   */
   virtual RC replay(LogReplayer &replayer, LSN start_lsn) = 0;
+
+  /**
+   * @brief 迭代日志
+   * @param consumer 消费者
+   * @param start_lsn 从哪个LSN开始迭代
+   */
   virtual RC iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn) = 0;
 
+  /**
+   * @brief 写入一条日志
+   * @param lsn 返回的LSN
+   * @param module 日志模块
+   * @param data 日志数据
+   * @note 子类不应该重新实现这个函数
+   */
   virtual RC append(LSN &lsn, LogModule::Id module, std::span<const char> data);
   virtual RC append(LSN &lsn, LogModule::Id module, std::vector<char> &&data);
 
+  /**
+   * @brief 等待某个LSN的日志被刷新到磁盘
+   * @param lsn 日志的LSN
+   */
   virtual RC wait_lsn(LSN lsn) = 0;
 
 private:
+  /**
+   * @brief 写入一条日志
+   * @details 子类应该重现实现这个函数
+   */
   virtual RC _append(LSN &lsn, LogModule module, std::vector<char> &&data) = 0;
 };

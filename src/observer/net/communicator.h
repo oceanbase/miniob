@@ -37,7 +37,7 @@ class BufferedWriter;
  * @details 在listener接收到一个新的连接(参考 server.cpp::accept), 就创建一个Communicator对象。
  * 并调用init进行初始化。
  * 在server中监听到某个连接有新的消息，就通过Communicator::read_event接收消息。
-
+ * TODO 这里的communicator把协议和通讯方式，放在了一起。plain和mysql都是一种协议，他们的通讯手段都是一样的
  */
 class Communicator
 {

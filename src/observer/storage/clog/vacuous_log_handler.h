@@ -17,13 +17,16 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_handler.h"
 
 
-// VacuousLogHandler is a log handler implenmentation that do nothing in all methods.
-// It is used for testing.
+/**
+ * @brief VacuousLogHandler is a log handler implenmentation that do nothing in all methods.
+ * It is used for testing.
+ * @ingroup CLog
+ */
 class VacuousLogHandler : public LogHandler
 {
 public:
   VacuousLogHandler() = default;
-  ~VacuousLogHandler() = default;
+  virtual ~VacuousLogHandler() = default;
 
   RC replay(LogReplayer &replayer, LSN start_lsn) override { return RC::SUCCESS; }
   RC iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn) override { return RC::SUCCESS; }

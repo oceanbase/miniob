@@ -141,8 +141,6 @@ struct UpdateSqlNode
  * @brief 描述一个属性
  * @ingroup SQLParser
  * @details 属性，或者说字段(column, field)
- * Rel -> Relation
- * Attr -> Attribute
  */
 struct AttrInfoSqlNode
 {
