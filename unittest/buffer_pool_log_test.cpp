@@ -78,7 +78,7 @@ TEST(BufferPoolLog, test_wal_normal)
     }
   }
   ASSERT_EQ(RC::SUCCESS, log_handler.stop());
-  ASSERT_EQ(RC::SUCCESS, log_handler.wait());
+  ASSERT_EQ(RC::SUCCESS, log_handler.await_termination());
 
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.close_file(buffer_pool_filename.c_str()));
   buffer_pool = nullptr;
@@ -94,7 +94,7 @@ TEST(BufferPoolLog, test_wal_normal)
   ASSERT_EQ(allocate_page_num + allocate_page_num2 - deallocate_page_num, buffer_pool_page_count(buffer_pool));
   ASSERT_EQ(RC::SUCCESS, log_handler2.start());
   ASSERT_EQ(RC::SUCCESS, log_handler2.stop());
-  ASSERT_EQ(RC::SUCCESS, log_handler2.wait());
+  ASSERT_EQ(RC::SUCCESS, log_handler2.await_termination());
 }
 
 TEST(BufferPoolLog, test_wal_exception)
@@ -148,7 +148,7 @@ TEST(BufferPoolLog, test_wal_exception)
     }
   }
   ASSERT_EQ(RC::SUCCESS, log_handler.stop());
-  ASSERT_EQ(RC::SUCCESS, log_handler.wait());
+  ASSERT_EQ(RC::SUCCESS, log_handler.await_termination());
 
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.close_file(buffer_pool_filename.c_str()));
   buffer_pool = nullptr;
@@ -169,7 +169,7 @@ TEST(BufferPoolLog, test_wal_exception)
   ASSERT_EQ(allocate_page_num + allocate_page_num2 - deallocate_page_num, buffer_pool_page_count(buffer_pool));
   ASSERT_EQ(RC::SUCCESS, log_handler2.start());
   ASSERT_EQ(RC::SUCCESS, log_handler2.stop());
-  ASSERT_EQ(RC::SUCCESS, log_handler2.wait());
+  ASSERT_EQ(RC::SUCCESS, log_handler2.await_termination());
 }
 
 TEST(BufferPoolLog, test_wal_exception2)
@@ -215,7 +215,7 @@ TEST(BufferPoolLog, test_wal_exception2)
   }
 
   ASSERT_EQ(RC::SUCCESS, log_handler.stop());
-  ASSERT_EQ(RC::SUCCESS, log_handler.wait());
+  ASSERT_EQ(RC::SUCCESS, log_handler.await_termination());
 
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.close_file(buffer_pool_filename.c_str()));
   buffer_pool = nullptr;
@@ -248,7 +248,7 @@ TEST(BufferPoolLog, test_wal_exception2)
     }
   }
   ASSERT_EQ(RC::SUCCESS, log_handler2.stop());
-  ASSERT_EQ(RC::SUCCESS, log_handler2.wait());
+  ASSERT_EQ(RC::SUCCESS, log_handler2.await_termination());
 
   ASSERT_EQ(allocate_page_num + allocate_page_num2 - deallocate_page_num, buffer_pool_page_count(buffer_pool));
 
@@ -274,7 +274,7 @@ TEST(BufferPoolLog, test_wal_exception2)
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.close_file(buffer_pool_filename.c_str()));
   buffer_pool = nullptr;
   ASSERT_EQ(RC::SUCCESS, log_handler3.stop());
-  ASSERT_EQ(RC::SUCCESS, log_handler3.wait());
+  ASSERT_EQ(RC::SUCCESS, log_handler3.await_termination());
 }
 
 TEST(BufferPoolLog, test_wal_multi_files)
@@ -348,7 +348,7 @@ TEST(BufferPoolLog, test_wal_multi_files)
     }
   }
   ASSERT_EQ(RC::SUCCESS, log_handler.stop());
-  ASSERT_EQ(RC::SUCCESS, log_handler.wait());
+  ASSERT_EQ(RC::SUCCESS, log_handler.await_termination());
 
   ranges::for_each(buffer_pool_filenames, [&buffer_pool_manager](const filesystem::path &filename) {
     ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.close_file(filename.c_str()));
@@ -385,7 +385,7 @@ TEST(BufferPoolLog, test_wal_multi_files)
   });
   buffer_pools.clear();
   ASSERT_EQ(RC::SUCCESS, log_handler2.stop());
-  ASSERT_EQ(RC::SUCCESS, log_handler2.wait());
+  ASSERT_EQ(RC::SUCCESS, log_handler2.await_termination());
 }
 
 int main(int argc, char **argv)

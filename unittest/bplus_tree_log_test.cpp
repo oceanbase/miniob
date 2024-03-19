@@ -88,7 +88,7 @@ TEST(BplusTreeLog, base)
 
   // 3. write logs to disk
   ASSERT_EQ(log_handler->stop(), RC::SUCCESS);
-  ASSERT_EQ(log_handler->wait(), RC::SUCCESS);
+  ASSERT_EQ(log_handler->await_termination(), RC::SUCCESS);
 
   bplus_tree.reset();
   bpm.reset();
@@ -222,7 +222,7 @@ TEST(BplusTreeLog, concurrency)
 
   // write logs to disk
   ASSERT_EQ(log_handler->stop(), RC::SUCCESS);
-  ASSERT_EQ(log_handler->wait(), RC::SUCCESS);
+  ASSERT_EQ(log_handler->await_termination(), RC::SUCCESS);
 
   // copy all files from src to dst
   filesystem::copy(child_directory_src, child_directory_dst);

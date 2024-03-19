@@ -131,6 +131,7 @@ Frame *BPFrameManager::alloc(int buffer_pool_id, PageNum page_num)
   if (frame != nullptr) {
     ASSERT(frame->pin_count() == 0, "got an invalid frame that pin count is not 0. frame=%s", 
            to_string(*frame).c_str());
+    frame->set_buffer_pool_id(buffer_pool_id);
     frame->set_page_num(page_num);
     frame->pin();
     frames_.put(frame_id, frame);
@@ -459,7 +460,7 @@ RC DiskBufferPool::unpin_page(Frame *frame)
 RC DiskBufferPool::purge_frame(PageNum page_num, Frame *buf)
 {
   if (buf->pin_count() != 1) {
-    LOG_INFO("Begin to free page %d of %d(file id), but it's pin count > 1:%d.",
+    LOG_INFO("Begin to free page %d of %d(buffer pool id), but it's pin count > 1:%d.",
         buf->page_num(), buf->buffer_pool_id(), buf->pin_count());
     return RC::LOCKED_UNLOCK;
   }
@@ -560,6 +561,7 @@ RC DiskBufferPool::flush_all_pages()
   std::list<Frame *> used = frame_manager_.find_list(id());
   for (Frame *frame : used) {
     RC rc = flush_page(*frame);
+    frame->unpin();
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to flush all pages");
       return rc;
@@ -619,6 +621,8 @@ RC DiskBufferPool::redo_allocate_page(LSN lsn, PageNum page_num)
   file_header_->allocated_pages++;
   file_header_->page_count++;
   hdr_frame_->mark_dirty();
+
+  // TODO 应该检查文件是否足够大，包含了当前新分配的页面
 
   Bitmap bitmap(file_header_->bitmap, file_header_->page_count);
   bitmap.set_bit(page_num);

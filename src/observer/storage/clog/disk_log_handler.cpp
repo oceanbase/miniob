@@ -55,7 +55,7 @@ RC DiskLogHandler::stop()
   return RC::SUCCESS;
 }
 
-RC DiskLogHandler::wait()
+RC DiskLogHandler::await_termination()
 {
   if (!thread_) {
     LOG_ERROR("log has not been started");
@@ -154,7 +154,7 @@ RC DiskLogHandler::wait_lsn(LSN lsn)
     this_thread::sleep_for(chrono::milliseconds(100));
   }
 
-  if (current_flushed_lsn() < lsn) {
+  if (current_flushed_lsn() >= lsn) {
     return RC::SUCCESS;
   } else {
     return RC::INTERNAL;

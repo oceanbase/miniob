@@ -43,6 +43,28 @@ public:
   virtual ~LogHandler() = default;
 
   /**
+   * @brief 初始化日志模块
+   * 
+   * @param path 日志文件存放的目录
+   */
+  virtual RC init(const char *path) = 0;
+
+  /**
+   * @brief 启动日志模块
+   */
+  virtual RC start() = 0;
+
+  /**
+   * @brief 停止日志模块
+   */
+  virtual RC stop() = 0;
+
+  /**
+   * @brief 等待日志模块停止
+   */
+  virtual RC await_termination() = 0;
+
+  /**
    * @brief 回放日志
    * @param replayer 日志回放器
    * @param start_lsn 从哪个LSN开始回放
@@ -71,6 +93,10 @@ public:
    * @param lsn 日志的LSN
    */
   virtual RC wait_lsn(LSN lsn) = 0;
+
+  virtual LSN current_lsn() const = 0;
+
+  static RC create(const char *name, LogHandler *&handler);
 
 private:
   /**

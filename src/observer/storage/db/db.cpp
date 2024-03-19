@@ -42,13 +42,13 @@ Db::~Db()
   if (log_handler_) {
     // 停止日志并等待写入完成
     log_handler_->stop();
-    log_handler_->wait();
+    log_handler_->await_termination();
     log_handler_.reset();
   }
   LOG_INFO("Db has been closed: %s", name_.c_str());
 }
 
-RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name)
+RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, const char *log_handler_name)
 {
   RC rc = RC::SUCCESS;
 
@@ -73,8 +73,15 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name)
   buffer_pool_manager_ = make_unique<BufferPoolManager>();
 
   filesystem::path clog_path = filesystem::path(dbpath) / "clog";
-  log_handler_               = make_unique<DiskLogHandler>();
-  rc                         = log_handler_->init(clog_path.c_str());
+  LogHandler *tmp_log_handler = nullptr;
+  rc = LogHandler::create(log_handler_name, tmp_log_handler);
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to create log handler: %s", log_handler_name);
+    return rc;
+  }
+  log_handler_.reset(tmp_log_handler);
+  
+  rc = log_handler_->init(clog_path.c_str());
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to init log handler. dbpath=%s, rc=%s", dbpath, strrc(rc));
     return rc;

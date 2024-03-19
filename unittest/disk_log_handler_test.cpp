@@ -49,7 +49,7 @@ TEST(DiskLogHandler, empty)
   ASSERT_EQ(RC::SUCCESS, handler.init(path));
   ASSERT_EQ(RC::SUCCESS, handler.start());
   ASSERT_EQ(RC::SUCCESS, handler.stop());
-  ASSERT_EQ(RC::SUCCESS, handler.wait());
+  ASSERT_EQ(RC::SUCCESS, handler.await_termination());
 
   filesystem::remove_all(path);
 }
@@ -78,7 +78,7 @@ TEST(DiskLogHandler, test_append_and_wait)
   }
 
   ASSERT_EQ(RC::SUCCESS, handler.stop());
-  ASSERT_EQ(RC::SUCCESS, handler.wait());
+  ASSERT_EQ(RC::SUCCESS, handler.await_termination());
 
   filesystem::remove_all(path);
 }
@@ -106,7 +106,7 @@ TEST(DiskLogHandler, test_replay)
   }
 
   ASSERT_EQ(RC::SUCCESS, handler.stop());
-  ASSERT_EQ(RC::SUCCESS, handler.wait());
+  ASSERT_EQ(RC::SUCCESS, handler.await_termination());
 
   int count = 0;
   auto log_entry_counter = [&count](LogEntry &) -> RC {
@@ -136,7 +136,7 @@ TEST(DiskLogHandler, test_replay)
   ASSERT_EQ(handler2.current_lsn(), times2 + times);
   
   ASSERT_EQ(RC::SUCCESS, handler2.stop());
-  ASSERT_EQ(RC::SUCCESS, handler2.wait());
+  ASSERT_EQ(RC::SUCCESS, handler2.await_termination());
   
   count = 0;
   ASSERT_EQ(RC::SUCCESS, handler2.iterate(log_entry_counter, 0));
@@ -178,7 +178,7 @@ TEST(DiskLogHandler, multi_thread)
   ASSERT_EQ(0, executor.shutdown());
   ASSERT_EQ(0, executor.await_termination());
   ASSERT_EQ(RC::SUCCESS, handler.stop());
-  ASSERT_EQ(RC::SUCCESS, handler.wait());
+  ASSERT_EQ(RC::SUCCESS, handler.await_termination());
 }
 
 int main(int argc, char **argv)

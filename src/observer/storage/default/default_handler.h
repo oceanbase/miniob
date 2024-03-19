@@ -38,8 +38,9 @@ public:
    * @brief 初始化存储引擎
    * @param base_dir 存储引擎的根目录。所有的数据库相关数据文件都放在这个目录下
    * @param trx_kit_name 使用哪种类型的事务模型
+   * @param log_handler_name 使用哪种类型的日志处理器
    */
-  RC   init(const char *base_dir, const char *trx_kit_name);
+  RC   init(const char *base_dir, const char *trx_kit_name, const char *log_handler_name);
   void destroy();
 
   /**
@@ -94,5 +95,6 @@ private:
   std::filesystem::path              base_dir_;    ///< 存储引擎的根目录
   std::filesystem::path              db_dir_;      ///< 数据库文件的根目录
   std::string                        trx_kit_name_; ///< 事务模型的名称
+  std::string                        log_handler_name_; ///< 日志处理器的名称
   std::map<std::string, Db *>        opened_dbs_;  ///< 打开的数据库
 };
