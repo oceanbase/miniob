@@ -173,11 +173,6 @@ RC RecordPageHandler::init_empty_page(
   bitmap_ = frame_->data() + PAGE_HEADER_SIZE;
   memset(bitmap_, 0, page_bitmap_size(page_header_->record_capacity));
 
-  if ((rc = buffer_pool.flush_page(*frame_)) != RC::SUCCESS) {
-    LOG_ERROR("Failed to flush page header %d:%d. rc=%s", buffer_pool.file_desc(), page_num, strrc(rc));
-    return rc;
-  }
-
   return RC::SUCCESS;
 }
 

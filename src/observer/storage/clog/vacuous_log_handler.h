@@ -28,10 +28,10 @@ public:
   VacuousLogHandler() = default;
   virtual ~VacuousLogHandler() = default;
 
-  RC init(const char *path) { return RC::SUCCESS; }
-  RC start() { return RC::SUCCESS; }
-  RC stop() { return RC::SUCCESS; }
-  RC await_termination() { return RC::SUCCESS; }
+  RC init(const char *path) override { return RC::SUCCESS; }
+  RC start() override { return RC::SUCCESS; }
+  RC stop() override { return RC::SUCCESS; }
+  RC await_termination() override { return RC::SUCCESS; }
   RC replay(LogReplayer &replayer, LSN start_lsn) override { return RC::SUCCESS; }
   RC iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn) override { return RC::SUCCESS; }
 

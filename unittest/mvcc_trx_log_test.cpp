@@ -79,7 +79,7 @@ TEST(MvccTrxLog, wal)
   TrxKit &trx_kit = db->trx_kit();
   const int insert_num = 100;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -135,14 +135,10 @@ TEST(MvccTrxLog, wal)
     RecordFileScanner scanner2;
     ASSERT_EQ(RC::SUCCESS, table2->get_record_scanner(scanner2, nullptr, ReadWriteMode::READ_ONLY));
     int count2 = 0;
-    int visible_count2 = 0;
     RC rc = RC::SUCCESS;
     Record record;
     while (OB_SUCC(rc = scanner2.next(record))) {
       count2++;
-      if (OB_SUCC(trx2->visit_record(table2, record, ReadWriteMode::READ_ONLY))) {
-        visible_count2++;
-      }
     }
 
     ASSERT_EQ(insert_num, count2);
@@ -205,7 +201,7 @@ TEST(MvccTrxLog, wal2)
 
   const int insert_num = 100;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -254,7 +250,7 @@ TEST(MvccTrxLog, wal2)
   vector<string> all_table_names(table_names);
   all_table_names.insert(all_table_names.end(), table_names_part2.begin(), table_names_part2.end());
   for (int i = insert_num; i < insert_num + insert_num2; i++) {
-    auto trx_task = [&trx_kit, &all_table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &all_table_names, &db, i] {
       
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
@@ -391,7 +387,7 @@ TEST(MvccTrxLog, wal_rollback)
 
   const int insert_num = 100;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -515,7 +511,7 @@ TEST(MvccTrxLog, wal_rollback_half)
 
   const int insert_num = 100;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -643,7 +639,7 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   TrxKit &trx_kit = db->trx_kit();
   const int insert_num = 1000;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();

@@ -620,8 +620,9 @@ RC DiskBufferPool::redo_allocate_page(LSN lsn, PageNum page_num)
 
   file_header_->allocated_pages++;
   file_header_->page_count++;
+  hdr_frame_->set_lsn(lsn);
   hdr_frame_->mark_dirty();
-
+  
   // TODO 应该检查文件是否足够大，包含了当前新分配的页面
 
   Bitmap bitmap(file_header_->bitmap, file_header_->page_count);
@@ -649,6 +650,7 @@ RC DiskBufferPool::redo_deallocate_page(LSN lsn, PageNum page_num)
 
   bitmap.clear_bit(page_num);
   file_header_->allocated_pages--;
+  hdr_frame_->set_lsn(lsn);
   hdr_frame_->mark_dirty();
   LOG_TRACE("[redo] deallocate page. file=%s, pageNum=%d", file_name_.c_str(), page_num);
   return RC::SUCCESS;

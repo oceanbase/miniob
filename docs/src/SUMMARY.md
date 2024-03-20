@@ -15,7 +15,7 @@
 - [功能模块设计说明文档](./design/introduction.md)
   - [存储实现](./design/miniob-buffer-pool.md)
   - [事务](./design/miniob-transaction.md)
-  - [CLog](./design/miniob-clog.md)
+  - [持久化](./design/miniob-durability.md)
   - [SQL Parser](./design/miniob-sql-parser.md)
   - [如何新增支持一种新类型SQL](./design/miniob-how-to-add-new-sql.md)
   - [表达式解析](./design/miniob-sql-expression.md)
