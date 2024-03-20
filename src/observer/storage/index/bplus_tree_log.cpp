@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include <ranges>
 
 #include "common/log/log.h"
+#include "common/lang/defer.h"
 #include "storage/index/bplus_tree_log.h"
 #include "storage/index/bplus_tree.h"
 #include "storage/clog/log_handler.h"
@@ -186,11 +187,13 @@ RC BplusTreeLogger::__redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHand
 {
   need_log_ = false;
 
+  DEFER(need_log_ = true);
+
   while (redo_buffer.remain() > 0) {
     unique_ptr<LogEntryHandler> entry;
 
     RC rc = LogEntryHandler::from_buffer(tree_handler.buffer_pool(), redo_buffer, entry);
-    if (RC::SUCCESS != rc) {
+    if (OB_FAIL(rc)) {
       LOG_WARN("failed to deserialize log entry. rc=%s", strrc(rc));
       return rc;
     }
@@ -202,13 +205,14 @@ RC BplusTreeLogger::__redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHand
     }
 
     rc = entry->redo(mtr, tree_handler);
-    if (RC::SUCCESS != rc) {
+    if (OB_FAIL(rc)) {
       LOG_WARN("failed to rollback log entry. rc=%s", strrc(rc));
       return rc;
     }
+
+    frame->set_lsn(lsn);
   }
 
-  need_log_ = true;
   return RC::SUCCESS;
 }
 

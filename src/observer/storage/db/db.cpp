@@ -112,10 +112,6 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
     return rc;
   }
 
-  rc = log_handler_->start();
-  if (OB_FAIL(rc)) {
-    LOG_WARN("failed to start log handler. dbpath=%s, rc=%s", dbpath, strrc(rc));
-  }
   return rc;
 }
 
@@ -257,6 +253,18 @@ RC Db::recover()
   RC                    rc = log_handler_->replay(log_replayer, check_point_lsn_ /*start_lsn*/);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to replay log. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  rc = log_handler_->start();
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to start log handler. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  rc = log_replayer.on_done();
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to on_done. rc=%s", strrc(rc));
     return rc;
   }
 

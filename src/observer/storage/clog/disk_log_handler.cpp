@@ -96,7 +96,7 @@ RC DiskLogHandler::replay(LogReplayer &replayer, LSN start_lsn)
   }
 
   LOG_INFO("replay clog files done. start lsn=%ld, max_lsn=%ld", start_lsn, max_lsn);
-  return RC::SUCCESS;
+  return rc;
 }
 
 RC DiskLogHandler::iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn)
