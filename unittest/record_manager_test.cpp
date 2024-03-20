@@ -318,7 +318,7 @@ TEST(RecordManager, durability)
   filesystem::remove(record_manager_file);
   // 停掉log_handler
   ASSERT_EQ(log_handler.stop(), RC::SUCCESS);
-  ASSERT_EQ(log_handler.wait(), RC::SUCCESS);
+  ASSERT_EQ(log_handler.await_termination(), RC::SUCCESS);
 
   // 重新创建资源并尝试从日志中恢复数据，然后校验数据
   DiskLogHandler log_handler2;
@@ -342,7 +342,7 @@ TEST(RecordManager, durability)
   }
 
   ASSERT_EQ(log_handler2.stop(), RC::SUCCESS);
-  ASSERT_EQ(log_handler2.wait(), RC::SUCCESS);
+  ASSERT_EQ(log_handler2.await_termination(), RC::SUCCESS);
   bpm2.close_file(record_manager_file.c_str());
 }
 

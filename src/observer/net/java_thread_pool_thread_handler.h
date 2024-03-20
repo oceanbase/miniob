@@ -35,16 +35,16 @@ public:
   JavaThreadPoolThreadHandler() = default;
   virtual ~JavaThreadPoolThreadHandler();
 
-  //! copydoc ThreadHandler::start
+  //! @copydoc ThreadHandler::start
   virtual RC start() override;
-  //! copydoc ThreadHandler::stop
+  //! @copydoc ThreadHandler::stop
   virtual RC stop() override;
-  //! copydoc ThreadHandler::await_stop
+  //! @copydoc ThreadHandler::await_stop
   virtual RC await_stop() override;
 
-  //! copydoc ThreadHandler::new_connection
+  //! @copydoc ThreadHandler::new_connection
   virtual RC new_connection(Communicator *communicator) override;
-  //! copydoc ThreadHandler::close_connection
+  //! @copydoc ThreadHandler::close_connection
   virtual RC close_connection(Communicator *communicator) override;
 
 public:

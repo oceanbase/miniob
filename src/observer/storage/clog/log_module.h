@@ -16,15 +16,19 @@ See the Mulan PSL v2 for more details. */
 
 #include <stdint.h>
 
+/**
+ * @brief 日志模块
+ * @ingroup CLog
+ */
 class LogModule
 {
 public:
   enum class Id
   {
-    BUFFER_POOL,
-    BPLUS_TREE,
-    RECORD_MANAGER,
-    TRANSACTION
+    BUFFER_POOL,      /// 缓冲池
+    BPLUS_TREE,       /// B+树
+    RECORD_MANAGER,   /// 记录管理
+    TRANSACTION       /// 事务
   };
 
 public:

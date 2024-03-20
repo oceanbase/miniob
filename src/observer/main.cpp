@@ -57,6 +57,7 @@ void usage()
   cout << "-t: transaction model. {vacuous(default), mvcc}." << endl;
   cout << "-T: thread handling model. {one-thread-per-connection(default),java-thread-pool}." << endl;
   cout << "-n: buffer pool memory size in byte" << endl;
+  cout << "-d: durbility mode. {vacuous(default), disk}" << endl;
 }
 
 void parse_parameter(int argc, char **argv)
@@ -81,6 +82,7 @@ void parse_parameter(int argc, char **argv)
       case 't': process_param->set_trx_kit_name(optarg); break;
       case 'T': process_param->set_thread_handling_name(optarg); break;
       case 'n': process_param->set_buffer_pool_memory_size(atoi(optarg)); break;
+      case 'd': process_param->set_durability_mode("disk"); break;
       case 'h':
         usage();
         exit(0);

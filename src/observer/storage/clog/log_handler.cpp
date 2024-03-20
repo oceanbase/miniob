@@ -12,7 +12,12 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai on 2024/02/01
 //
 
+#include <string.h>
+
 #include "storage/clog/log_handler.h"
+#include "common/lang/string.h"
+#include "storage/clog/disk_log_handler.h"
+#include "storage/clog/vacuous_log_handler.h"
 
 using namespace std;
 
@@ -25,4 +30,20 @@ RC LogHandler::append(LSN &lsn, LogModule::Id module, span<const char> data)
 RC LogHandler::append(LSN &lsn, LogModule::Id module, vector<char> &&data)
 {
   return _append(lsn, LogModule(module), std::move(data));
+}
+
+RC LogHandler::create(const char *name, LogHandler *&log_handler)
+{
+  if (name == nullptr || common::is_blank(name)) {
+    name = "vacuous";
+  }
+
+  if (strcasecmp(name, "disk") == 0) {
+    log_handler = new DiskLogHandler();
+  } else if (strcasecmp(name, "vacuous") == 0) {
+    log_handler = new VacuousLogHandler();
+  } else {
+    return RC::INVALID_ARGUMENT;
+  }
+  return RC::SUCCESS;
 }

@@ -948,6 +948,7 @@ RC BplusTreeHandler::open(LogHandler &log_handler, DiskBufferPool &buffer_pool)
   memcpy(&file_header_, pdata, sizeof(IndexFileHeader));
   header_dirty_     = false;
   disk_buffer_pool_ = &buffer_pool;
+  log_handler_      = &log_handler;
 
   mem_pool_item_ = make_unique<common::MemPoolItem>("b+tree");
   if (mem_pool_item_->init(file_header_.key_length) < 0) {

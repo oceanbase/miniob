@@ -44,12 +44,13 @@ TEST(MvccTrxLog, wal)
   filesystem::path db_path = test_directory / dbname;
   filesystem::path db_path2 = test_directory / dbname2;
   const char *trx_kit_name = "mvcc";
+  const char *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
 
   auto db = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
   const int table_num = 10;
   vector<string> table_names;
@@ -78,7 +79,7 @@ TEST(MvccTrxLog, wal)
   TrxKit &trx_kit = db->trx_kit();
   const int insert_num = 100;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -117,7 +118,7 @@ TEST(MvccTrxLog, wal)
   filesystem::copy(db_path, db_path2, filesystem::copy_options::recursive);
 
   auto db2 = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name, log_handler_name));
   vector<string> table_names2;
   db2->all_tables(table_names2);
   sort(table_names.begin(), table_names.end());
@@ -134,14 +135,10 @@ TEST(MvccTrxLog, wal)
     RecordFileScanner scanner2;
     ASSERT_EQ(RC::SUCCESS, table2->get_record_scanner(scanner2, nullptr, ReadWriteMode::READ_ONLY));
     int count2 = 0;
-    int visible_count2 = 0;
     RC rc = RC::SUCCESS;
     Record record;
     while (OB_SUCC(rc = scanner2.next(record))) {
       count2++;
-      if (OB_SUCC(trx2->visit_record(table2, record, ReadWriteMode::READ_ONLY))) {
-        visible_count2++;
-      }
     }
 
     ASSERT_EQ(insert_num, count2);
@@ -168,12 +165,13 @@ TEST(MvccTrxLog, wal2)
   filesystem::path db_path = test_directory / dbname;
   filesystem::path db_path2 = test_directory / dbname2;
   const char *trx_kit_name = "mvcc";
+  const char *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
 
   auto db = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
   const int table_num = 10;
   vector<string> table_names;
@@ -203,7 +201,7 @@ TEST(MvccTrxLog, wal2)
 
   const int insert_num = 100;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -252,7 +250,7 @@ TEST(MvccTrxLog, wal2)
   vector<string> all_table_names(table_names);
   all_table_names.insert(all_table_names.end(), table_names_part2.begin(), table_names_part2.end());
   for (int i = insert_num; i < insert_num + insert_num2; i++) {
-    auto trx_task = [&trx_kit, &all_table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &all_table_names, &db, i] {
       
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
@@ -291,7 +289,7 @@ TEST(MvccTrxLog, wal2)
   filesystem::copy(db_path, db_path2, filesystem::copy_options::recursive);
 
   auto db2 = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name, log_handler_name));
   vector<string> table_names2;
   db2->all_tables(table_names2);
   sort(all_table_names.begin(), all_table_names.end());
@@ -353,12 +351,13 @@ TEST(MvccTrxLog, wal_rollback)
   filesystem::path db_path = test_directory / dbname;
   filesystem::path db_path2 = test_directory / dbname2;
   const char *trx_kit_name = "mvcc";
+  const char *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
 
   auto db = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
   const int table_num = 10;
   vector<string> table_names;
@@ -388,7 +387,7 @@ TEST(MvccTrxLog, wal_rollback)
 
   const int insert_num = 100;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -426,7 +425,7 @@ TEST(MvccTrxLog, wal_rollback)
   filesystem::copy(db_path, db_path2, filesystem::copy_options::recursive);
 
   auto db2 = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name, log_handler_name));
   vector<string> table_names2;
   db2->all_tables(table_names2);
   sort(table_names.begin(), table_names.end());
@@ -476,12 +475,13 @@ TEST(MvccTrxLog, wal_rollback_half)
   filesystem::path db_path = test_directory / dbname;
   filesystem::path db_path2 = test_directory / dbname2;
   const char *trx_kit_name = "mvcc";
+  const char *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
 
   auto db = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
   const int table_num = 10;
   vector<string> table_names;
@@ -511,7 +511,7 @@ TEST(MvccTrxLog, wal_rollback_half)
 
   const int insert_num = 100;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -553,7 +553,7 @@ TEST(MvccTrxLog, wal_rollback_half)
   filesystem::copy(db_path, db_path2, filesystem::copy_options::recursive);
 
   auto db2 = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name, log_handler_name));
   vector<string> table_names2;
   db2->all_tables(table_names2);
   sort(table_names.begin(), table_names.end());
@@ -604,12 +604,13 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   filesystem::path db_path = test_directory / dbname;
   filesystem::path db_path2 = test_directory / dbname2;
   const char *trx_kit_name = "mvcc";
+  const char *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
 
   auto db = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
   const int table_num = 10;
   vector<string> table_names;
@@ -638,7 +639,7 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   TrxKit &trx_kit = db->trx_kit();
   const int insert_num = 1000;
   for (int i = 0; i < insert_num; i++) {
-    auto trx_task = [&trx_kit, &table_names, &db, i, field_num] {
+    auto trx_task = [&trx_kit, &table_names, &db, i] {
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -679,7 +680,7 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   filesystem::copy(db_path, db_path2, filesystem::copy_options::recursive);
 
   auto db2 = make_unique<Db>();
-  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name));
+  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name, log_handler_name));
   vector<string> table_names2;
   db2->all_tables(table_names2);
   sort(table_names.begin(), table_names.end());

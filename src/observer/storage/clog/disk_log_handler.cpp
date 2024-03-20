@@ -55,7 +55,7 @@ RC DiskLogHandler::stop()
   return RC::SUCCESS;
 }
 
-RC DiskLogHandler::wait()
+RC DiskLogHandler::await_termination()
 {
   if (!thread_) {
     LOG_ERROR("log has not been started");
@@ -96,7 +96,7 @@ RC DiskLogHandler::replay(LogReplayer &replayer, LSN start_lsn)
   }
 
   LOG_INFO("replay clog files done. start lsn=%ld, max_lsn=%ld", start_lsn, max_lsn);
-  return RC::SUCCESS;
+  return rc;
 }
 
 RC DiskLogHandler::iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn)
@@ -149,15 +149,25 @@ RC DiskLogHandler::_append(LSN &lsn, LogModule module, vector<char> &&data)
 
 RC DiskLogHandler::wait_lsn(LSN lsn)
 {
+  // 直接强制等待。在生产系统中，我们可能会使用条件变量来等待。
   while (running_.load() && current_flushed_lsn() < lsn) {
     this_thread::sleep_for(chrono::milliseconds(100));
   }
 
-  return RC::SUCCESS;
+  if (current_flushed_lsn() >= lsn) {
+    return RC::SUCCESS;
+  } else {
+    return RC::INTERNAL;
+  }
 }
 
 void DiskLogHandler::thread_func()
 {
+  /*
+  这个线程一直不停的循环，检查日志缓冲区中是否有日志在内存中，如果在内存中就刷新到磁盘。
+  这种做法很粗暴简单，与生产数据库的做法不同。生产数据库通常会在内存达到一定量，或者一定时间
+  之后，会刷新一下磁盘。这样做的好处是减少磁盘的IO次数，提高性能。
+  */
   thread_set_name("LogHandler");
   LOG_INFO("log handler thread started");
 
@@ -167,13 +177,16 @@ void DiskLogHandler::thread_func()
   while (running_.load() || entry_buffer_.entry_number() > 0) {
     if (!file_writer.valid() || rc == RC::LOG_FILE_FULL) {
       if (rc == RC::LOG_FILE_FULL) {
+        // 我们在这里判断日志文件是否写满了。
         rc = file_manager_.next_file(file_writer);
       } else {
         rc = file_manager_.last_file(file_writer);
       }
       if (OB_FAIL(rc)) {
         LOG_WARN("failed to open log file. rc=%s", strrc(rc));
-        this_thread::sleep_for(chrono::milliseconds(1000));
+        // 总是使用最简单的方法等待一段时间，期望错误会被修复。
+        // 这在生产系统中是不被允许的。
+        this_thread::sleep_for(chrono::milliseconds(100));
         continue;
       }
       LOG_INFO("open log file success. file=%s", file_writer.to_string().c_str());
@@ -186,7 +199,7 @@ void DiskLogHandler::thread_func()
     }
 
     if (flush_count == 0 && rc == RC::SUCCESS) {
-      this_thread::sleep_for(chrono::milliseconds(1000));
+      this_thread::sleep_for(chrono::milliseconds(100));
       continue;
     }
   }

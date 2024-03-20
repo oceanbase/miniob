@@ -31,6 +31,7 @@ class LogFileWriter;
  * @ingroup CLog
  * @details 缓存一部分日志在内存中而不是直接写入磁盘。
  * 这里的缓存没有考虑高性能操作，比如使用预分配内存、环形缓冲池等。
+ * 在生产数据库中，通常会使用预分配内存形式的缓存来提高性能，并且可以减少内存碎片。
  */
 class LogEntryBuffer
 {

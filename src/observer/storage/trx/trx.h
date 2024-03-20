@@ -40,6 +40,7 @@ class LogReplayer;
  * @brief 描述一个操作，比如插入、删除行等
  * @ingroup Transaction
  * @details 通常包含一个操作的类型，以及操作的对象和具体的数据
+ * @note 这个名称太通用，可以考虑改成更具体的名称
  */
 class Operation
 {
@@ -117,6 +118,10 @@ public:
   virtual const std::vector<FieldMeta> *trx_fields() const = 0;
 
   virtual Trx *create_trx(LogHandler &log_handler)                 = 0;
+
+  /**
+   * @brief 创建一个事务，日志回放时使用
+   */
   virtual Trx *create_trx(LogHandler &log_handler, int32_t trx_id) = 0;
   virtual Trx *find_trx(int32_t trx_id)                            = 0;
   virtual void all_trxes(std::vector<Trx *> &trxes)                = 0;

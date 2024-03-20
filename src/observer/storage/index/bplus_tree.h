@@ -319,6 +319,11 @@ public:
   RC recover_remove_items(int index, int num);
 
 protected:
+  /**
+   * @brief 获取指定元素的开始内存位置
+   * @note 这并不是一个纯虚函数，是为了可以直接使用 IndexNodeHandler 类。
+   * 但是使用这个类时，注意不能使用与这个函数相关的函数。
+   */
   virtual char *__item_at(int index) const { return nullptr; }
   char *__key_at(int index) const { return __item_at(index); }
   char *__value_at(int index) const { return __item_at(index) + key_size(); };
@@ -452,8 +457,14 @@ class BplusTreeHandler
 {
 public:
   /**
-   * 此函数创建一个名为fileName的索引。
-   * attrType描述被索引属性的类型，attrLength描述被索引属性的长度
+   * @brief 创建一个B+树
+   * @param log_handler 记录日志
+   * @param bpm 缓冲池管理器
+   * @param file_name 文件名
+   * @param attr_type 属性类型
+   * @param attr_length 属性长度
+   * @param internal_max_size 内部节点最大大小
+   * @param leaf_max_size 叶子节点最大大小
    */
   RC create(LogHandler &log_handler,
             BufferPoolManager &bpm,
@@ -470,9 +481,10 @@ public:
             int leaf_max_size = -1);
 
   /**
-   * 打开名为fileName的索引文件。
-   * 如果方法调用成功，则indexHandle为指向被打开的索引句柄的指针。
-   * 索引句柄用于在索引中插入或删除索引项，也可用于索引的扫描
+   * @brief 打开一个B+树
+   * @param log_handler 记录日志
+   * @param bpm 缓冲池管理器
+   * @param file_name 文件名
    */
   RC open(LogHandler &log_handler, BufferPoolManager &bpm, const char *file_name);
   RC open(LogHandler &log_handler, DiskBufferPool &buffer_pool);
@@ -521,7 +533,15 @@ public:
   LogHandler &log_handler() const { return *log_handler_; }
 
 public:
+  /**
+   * @brief 恢复更新ROOT页面
+   * @details 重做日志时调用的接口
+   */
   RC recover_update_root_page(BplusTreeMiniTransaction &mtr, PageNum root_page_num);
+  /**
+   * @brief 恢复初始化头页面
+   * @details 重做日志时调用的接口
+   */
   RC recover_init_header_page(BplusTreeMiniTransaction &mtr, Frame *frame, const IndexFileHeader &header);
 
 public:
@@ -542,43 +562,100 @@ private:
   bool validate_node_recursive(BplusTreeMiniTransaction &mtr, Frame *frame);
 
 protected:
+  /**
+   * @brief 查找叶子节点
+   * @param op 当前想要执行的操作。操作类型不同会在查找的过程中加不同类型的锁
+   * @param key 查找的键值
+   * @param[out] frame 返回找到的叶子节点
+   */
   RC find_leaf(BplusTreeMiniTransaction &mtr, BplusTreeOperationType op, const char *key, Frame *&frame);
+
+  /**
+   * @brief 找到最左边的叶子节点
+   */
   RC left_most_page(BplusTreeMiniTransaction &mtr, Frame *&frame);
+
+  /**
+   * @brief 查找指定的叶子节点
+   * @param op 当前想要执行的操作。操作类型不同会在查找的过程中加不同类型的锁
+   * @param child_page_getter 用于获取子节点的函数
+   * @param[out] frame 返回找到的叶子节点
+   */
   RC find_leaf_internal(BplusTreeMiniTransaction &mtr, BplusTreeOperationType op,
       const std::function<PageNum(InternalIndexNodeHandler &)> &child_page_getter, Frame *&frame);
+
+  /**
+   * @brief 使用crabing protocol 获取页面
+   */
   RC crabing_protocal_fetch_page(
       BplusTreeMiniTransaction &mtr, BplusTreeOperationType op, PageNum page_num, bool is_root_page, Frame *&frame);
 
-  RC insert_into_parent(
-      BplusTreeMiniTransaction &mtr, PageNum parent_page, Frame *left_frame, const char *pkey, Frame &right_frame);
-
+  /**
+   * @brief 从叶子节点中删除指定的键值对
+   */
   RC delete_entry_internal(BplusTreeMiniTransaction &mtr, Frame *leaf_frame, const char *key);
 
+  /**
+   * @brief 拆分节点
+   * @details 当节点中的键值对超过最大值时，需要拆分节点
+   */
   template <typename IndexNodeHandlerType>
   RC split(BplusTreeMiniTransaction &mtr, Frame *frame, Frame *&new_frame);
+
+  /**
+   * @brief 合并或重新分配
+   * @details 当节点中的键值对小于最小值时，需要合并或重新分配
+   */
   template <typename IndexNodeHandlerType>
   RC coalesce_or_redistribute(BplusTreeMiniTransaction &mtr, Frame *frame);
+
+  /**
+   * @brief 合并两个相邻节点
+   * @details 当节点中的键值对小于最小值并且相邻两个节点总和不超过最大节点个数时，需要合并两个相邻节点
+   */
   template <typename IndexNodeHandlerType>
   RC coalesce(BplusTreeMiniTransaction &mtr, Frame *neighbor_frame, Frame *frame, Frame *parent_frame, int index);
+
+  /**
+   * @brief 重新分配两个相邻节点
+   * @details 删除某个元素后，对应节点的元素个数比较少，并且与相邻节点不能合并，就将邻居节点的元素移动一些过来
+   */
   template <typename IndexNodeHandlerType>
   RC redistribute(BplusTreeMiniTransaction &mtr, Frame *neighbor_frame, Frame *frame, Frame *parent_frame, int index);
 
+  /**
+   * @brief 在父节点插入一个元素
+   */
   RC insert_entry_into_parent(BplusTreeMiniTransaction &mtr, Frame *frame, Frame *new_frame, const char *key);
+
+  /**
+   * @brief 在叶子节点插入一个元素
+   */
   RC insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, Frame *frame, const char *pkey, const RID *rid);
+
+  /**
+   * @brief 创建一个新的B+树
+   */
   RC create_new_tree(BplusTreeMiniTransaction &mtr, const char *key, const RID *rid);
 
+  /**
+   * @brief 更新根节点的页号
+   */
   void update_root_page_num_locked(BplusTreeMiniTransaction &mtr, PageNum root_page_num);
 
+  /**
+   * @brief 调整根节点
+   */
   RC adjust_root(BplusTreeMiniTransaction &mtr, Frame *root_frame);
 
 private:
   common::MemPoolItem::unique_ptr make_key(const char *user_key, const RID &rid);
 
 protected:
-  LogHandler *log_handler_ = nullptr;
-  DiskBufferPool *disk_buffer_pool_ = nullptr;
-  bool            header_dirty_     = false;  //
-  IndexFileHeader file_header_; // TODO remove me
+  LogHandler *log_handler_ = nullptr;  /// 日志处理器
+  DiskBufferPool *disk_buffer_pool_ = nullptr; /// 磁盘缓冲池
+  bool            header_dirty_     = false;  /// 是否需要更新头页面
+  IndexFileHeader file_header_;
 
   // 在调整根节点时，需要加上这个锁。
   // 这个锁可以使用递归读写锁，但是这里偷懒先不改

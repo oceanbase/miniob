@@ -54,15 +54,27 @@ private:
   std::string filename_;
 };
 
+/**
+ * @brief 负责写入一个日志文件
+ * @ingroup CLog
+ */
 class LogFileWriter
 {
 public:
   LogFileWriter() = default;
   ~LogFileWriter();
 
+  /**
+   * @brief 打开一个日志文件
+   * @param filename 日志文件名
+   * @param end_lsn 当前日志文件允许的最大LSN（包含）
+   */
   RC open(const char *filename, int end_lsn);
+
+  /// @brief 关闭当前文件
   RC close();
 
+  /// @brief 写入一条日志
   RC write(LogEntry &entry);
 
   /**
@@ -80,9 +92,9 @@ public:
   const char *filename() const { return filename_.c_str(); }
 
 private:
-  std::string filename_;
-  int fd_ = -1;
-  int last_lsn_ = 0;
+  std::string filename_;  /// 日志文件名
+  int fd_ = -1;   /// 日志文件描述符
+  int last_lsn_ = 0; /// 写入的最后一条日志LSN
   int end_lsn_ = 0;  /// 当前日志文件中允许写入的最大的LSN，包括这条日志
 };
 
@@ -117,14 +129,12 @@ public:
   /**
    * @brief 获取最新的一个日志文件名
    * @details 如果当前有文件就获取最后一个日志文件，否则创建一个日志文件，也就是第一个日志文件
-   * @return std::string 日志文件名
    */
   RC last_file(LogFileWriter &file_writer);
 
   /**
    * @brief 获取一个新的日志文件名
    * @details 获取下一个日志文件名。通常是上一个日志文件写满了，通过这个接口生成下一个日志文件
-   * @return std::string 日志文件名
    */
   RC next_file(LogFileWriter &file_writer);
 
@@ -139,8 +149,8 @@ private:
   static constexpr const char * file_prefix_ = "clog_";
   static constexpr const char * file_suffix_ = ".log";
 
-  std::filesystem::path directory_;
-  int max_entry_number_per_file_;
+  std::filesystem::path directory_; /// 日志文件存放的目录
+  int max_entry_number_per_file_;   /// 一个文件最大允许存放多少条日志
 
   std::map<LSN, std::filesystem::path> log_files_;  /// 日志文件名和第一个LSN的映射
 };

@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/record/record_log.h"
 #include "common/log/log.h"
+#include "common/lang/defer.h"
 #include "storage/clog/log_handler.h"
 #include "storage/record/record.h"
 #include "storage/buffer/disk_buffer_pool.h"
@@ -191,12 +192,13 @@ RC RecordLogReplayer::replay(const LogEntry &entry)
     return rc;
   }
 
+  DEFER(buffer_pool->unpin_page(frame));
+
   const LSN frame_lsn = frame->lsn();
 
   if (frame_lsn >= entry.lsn()) {
     LOG_TRACE("page %d has been initialized, skip replaying record log. frame lsn %d, log lsn %d", 
               log_header->page_num, frame_lsn, entry.lsn());
-    frame->unpin();
     return RC::SUCCESS;
   }
 

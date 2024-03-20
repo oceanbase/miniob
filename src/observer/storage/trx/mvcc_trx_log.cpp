@@ -161,8 +161,10 @@ RC MvccTrxLogReplayer::replay(const LogEntry &entry)
     trx = trx_iter->second;
   }
 
+  /// 直接调用事务代码自己的重放函数
   rc = trx->redo(&db_, entry);
 
+  /// 如果事务结束了，需要从内存中把它删除
   if (MvccTrxLogOperation(header->operation_type).type() == MvccTrxLogOperation::Type::ROLLBACK ||
       MvccTrxLogOperation(header->operation_type).type() == MvccTrxLogOperation::Type::COMMIT) {
     Trx *trx = trx_map_[header->trx_id];
@@ -175,6 +177,7 @@ RC MvccTrxLogReplayer::replay(const LogEntry &entry)
 
 RC MvccTrxLogReplayer::on_done()
 {
+  /// 日志回放已经完成，需要把没有提交的事务，回滚掉
   for (auto &pair : trx_map_) {
     MvccTrx *trx = pair.second;
     trx->rollback(); // 恢复时的rollback，可能遇到之前已经回滚一半的事务又再次调用回滚的情况

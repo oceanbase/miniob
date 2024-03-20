@@ -57,22 +57,22 @@ public:
    * 
    * @param path 日志文件存放的目录
    */
-  RC init(const char *path);
+  RC init(const char *path) override;
 
   /**
    * @brief 启动线程刷新日志到磁盘
    */
-  RC start();
+  RC start() override;
   /**
    * @brief 设置停止标识，并不会真正的停止
    */
-  RC stop();
+  RC stop() override;
 
   /**
    * @brief 等待线程结束
    * @details 会刷新完所有日志到磁盘
    */
-  RC wait();
+  RC await_termination() override;
 
   /**
    * @brief 回放日志
@@ -99,7 +99,7 @@ public:
   RC wait_lsn(LSN lsn) override;
 
   /// @brief 当前的LSN
-  LSN current_lsn() const { return entry_buffer_.current_lsn(); }
+  LSN current_lsn() const override { return entry_buffer_.current_lsn(); }
   /// @brief 当前刷新到哪个日志
   LSN current_flushed_lsn() const { return entry_buffer_.flushed_lsn(); }
 
