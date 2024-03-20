@@ -75,6 +75,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
         TRX_COMMIT
         TRX_ROLLBACK
         INT_T
+        DATE_T //lydadd
         STRING_T
         FLOAT_T
         HELP
@@ -121,6 +122,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %token <number> NUMBER
 %token <floats> FLOAT
 %token <string> ID
+%token <string> DATE_STR //lydadd
 %token <string> SSS
 //非终结符
 
@@ -340,6 +342,7 @@ type:
     INT_T      { $$=INTS; }
     | STRING_T { $$=CHARS; }
     | FLOAT_T  { $$=FLOATS; }
+    | DATE_T   { $$=DATES; }//lydadd
     ;
 insert_stmt:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 
@@ -383,6 +386,11 @@ value:
     |SSS {
       char *tmp = common::substr($1,1,strlen($1)-2);
       $$ = new Value(tmp);
+      free(tmp);
+    }
+    |DATE_STR {
+      char *tmp = common::substr($1,1,strlen($1)-2);
+      $$ = new Value(tmp,strlen(tmp),1);
       free(tmp);
     }
     ;

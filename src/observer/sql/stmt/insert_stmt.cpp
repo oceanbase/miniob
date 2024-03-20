@@ -58,6 +58,23 @@ RC InsertStmt::create(Db *db, const InsertSqlNode &inserts, Stmt *&stmt)
           table_name, field_meta->name(), field_type, value_type);
       return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
+    else if(field_type==DATES)
+    {
+      int val=values[i].get_date();
+      //std::cout<<val<<'\n';
+      int year=val/10000,month=(val/100)%100,day=val%100;
+      //std::cout<<year<<" "<<month<<" "<<day<<'\n';
+      if(year<1970||year>2039) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+      if(year==2038&&month>3)  return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+      if(month<1||month>12) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+      int month_to_day[15]={0,31,29,31,30,31,30,31,31,30,31,30,31};
+      if(day<0||day>month_to_day[month]) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+      if(month==2&&day==29)
+      {
+        if(year%4!=0) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+        if(year%100==0&&year%400!=0) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+      }
+    }
   }
 
   // everything alright

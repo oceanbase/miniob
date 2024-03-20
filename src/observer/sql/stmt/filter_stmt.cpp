@@ -89,7 +89,7 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
   }
 
   filter_unit = new FilterUnit;
-
+  
   if (condition.left_is_attr) {
     Table *table = nullptr;
     const FieldMeta *field = nullptr;
@@ -106,7 +106,7 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
     filter_obj.init_value(condition.left_value);
     filter_unit->set_left(filter_obj);
   }
-
+  //std::cout<<condition.right_is_attr<<"\n";
   if (condition.right_is_attr) {
     Table *table = nullptr;
     const FieldMeta *field = nullptr;
@@ -125,7 +125,24 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
   }
 
   filter_unit->set_comp(comp);
-
+  //std::cout<<condition.left_value.get_int()<<"\n";
+  if(condition.right_value.attr_type()==DATES)
+  {
+    int val=condition.right_value.get_date();
+    //std::cout<<val<<'\n';
+    int year=val/10000,month=(val/100)%100,day=val%100;
+    //std::cout<<year<<" "<<month<<" "<<day<<'\n';
+    if(year<1970||year>2039) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    if(year==2038&&month>3)  return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    if(month<1||month>12) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    int month_to_day[15]={0,31,29,31,30,31,30,31,31,30,31,30,31};
+    if(day<0||day>month_to_day[month]) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    if(month==2&&day==29)
+    {
+      if(year%4!=0) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+      if(year%100==0&&year%400!=0) return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    }
+  }
   // 检查两个类型是否能够比较
   return rc;
 }

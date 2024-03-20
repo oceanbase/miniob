@@ -143,12 +143,13 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
     return rc;
   }
 
-  // everything alright
+  // everything alrighth
   SelectStmt *select_stmt = new SelectStmt();
   // TODO add expression copy
   select_stmt->tables_.swap(tables);
   select_stmt->query_fields_.swap(query_fields);
   select_stmt->filter_stmt_ = filter_stmt;
   stmt = select_stmt;
+  //std::cout<<filter_stmt-><<"\n";
   return RC::SUCCESS;
 }
