@@ -77,14 +77,16 @@ public:
 
   void clear_page() { memset(&page_, 0, sizeof(page_)); }
 
-  int     file_desc() const { return file_desc_; }
-  void    set_file_desc(int fd) { file_desc_ = fd; }
-  Page   &page() { return page_; }
-  PageNum page_num() const { return page_.page_num; }
-  void    set_page_num(PageNum page_num) { page_.page_num = page_num; }
-  FrameId frame_id() const { return FrameId(file_desc_, page_.page_num); }
-  LSN     lsn() const { return page_.lsn; }
-  void    set_lsn(LSN lsn) { page_.lsn = lsn; }
+  int      file_desc() const { return file_desc_; }
+  void     set_file_desc(int fd) { file_desc_ = fd; }
+  Page    &page() { return page_; }
+  PageNum  page_num() const { return page_.page_num; }
+  void     set_page_num(PageNum page_num) { page_.page_num = page_num; }
+  FrameId  frame_id() const { return FrameId(file_desc_, page_.page_num); }
+  LSN      lsn() const { return page_.lsn; }
+  void     set_lsn(LSN lsn) { page_.lsn = lsn; }
+  CheckSum check_sum() const { return page_.check_sum; }
+  void     set_check_sum(CheckSum check_sum) { page_.check_sum = check_sum; }
 
   /// 刷新访问时间 TODO touch is better?
   void access();

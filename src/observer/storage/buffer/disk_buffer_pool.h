@@ -286,6 +286,18 @@ private:
 
   common::Mutex lock_;
 
+  unsigned int crc_table[256];
+
+  /*
+   **初始化crc表,生成32位大小的crc表
+   **也可以直接定义出crc表,直接查表,
+   **但总共有256个,看着眼花,用生成的比较方便.
+   */
+  void init_crc_table();
+
+  /*计算buffer的crc校验码*/
+  CheckSum crc32(const char *buffer, unsigned int size);
+
 private:
   friend class BufferPoolIterator;
 };
