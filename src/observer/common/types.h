@@ -25,5 +25,5 @@ using SlotNum = int32_t;
 /// LSN for log sequence number
 using LSN = int32_t;
 
-// page的CRC校验和
+/// page的CRC校验和
 using CheckSum = unsigned int;
