@@ -286,9 +286,6 @@ private:
 
   common::Mutex lock_;
 
-  /*计算buffer的crc校验码*/
-  CheckSum crc32(const char *buffer, unsigned int size);
-
 private:
   friend class BufferPoolIterator;
 };

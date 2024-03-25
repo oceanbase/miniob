@@ -603,16 +603,6 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
 
 int DiskBufferPool::file_desc() const { return file_desc_; }
 
-CheckSum DiskBufferPool::crc32(const char *buffer, unsigned int size)
-{
-  CheckSum     crc = 0xffffffff;
-  unsigned int i;
-  for (i = 0; i < size; i++) {
-    crc = crc_table[(crc ^ buffer[i]) & 0xff] ^ (crc >> 8);
-  }
-  return crc;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 BufferPoolManager::BufferPoolManager(int memory_size /* = 0 */)
 {
