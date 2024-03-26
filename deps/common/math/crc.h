@@ -274,9 +274,8 @@ unsigned int crc_table[] = {0x00000000,
 /// 计算buffer的crc校验码
 unsigned int crc32(const char *buffer, unsigned int size)
 {
-  CheckSum     crc = 0xffffffff;
-  unsigned int i;
-  for (i = 0; i < size; i++) {
+  unsigned int crc = 0xffffffff;
+  for (unsigned int i = 0; i < size; i++) {
     crc = crc_table[(crc ^ buffer[i]) & 0xff] ^ (crc >> 8);
   }
   return crc;
