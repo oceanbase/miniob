@@ -15,7 +15,6 @@ See the Mulan PSL v2 for more details. */
  *      Author: Longda Feng
  */
 
-
 #include <iostream>
 #include <netinet/in.h>
 #include <unistd.h>
