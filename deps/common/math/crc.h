@@ -14,8 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/types.h"
-
 unsigned int crc_table[] = {0x00000000,
     0x77073096,
     0xEE0E612C,
@@ -274,7 +272,7 @@ unsigned int crc_table[] = {0x00000000,
     0x2D02EF8D};
 
 /// 计算buffer的crc校验码
-CheckSum crc32(const char *buffer, unsigned int size)
+unsigned int crc32(const char *buffer, unsigned int size)
 {
   CheckSum     crc = 0xffffffff;
   unsigned int i;
