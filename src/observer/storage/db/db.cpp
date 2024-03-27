@@ -140,9 +140,9 @@ RC Db::open_all_tables()
     }
 
     if (opened_tables_.count(table->name()) != 0) {
-      delete table;
       LOG_ERROR("Duplicate table with difference file name. table=%s, the other filename=%s",
           table->name(), filename.c_str());
+      delete table;
       return RC::INTERNAL;
     }
 
