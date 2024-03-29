@@ -182,7 +182,7 @@ std::string Value::to_string() const
       os << str_value_;
     } break;
     case DATES: {
-      char strDate[15] = "";
+      char strDate[11] = "";
       intDate_to_strDate(num_value_.date_value_,strDate);
       os << strDate;
     } break;
@@ -381,23 +381,30 @@ bool check_date(int y, int m, int d)
   bool leap = is_leap_year(y);
   return y > 0
   && (m > 0) && (m <= 12)
-  && (d > 0) && (d <=((m = 2 && leap) ? 1 : 0) + mon[m]);
+  && (d > 0) && (d <=((m == 2 && leap) ? 1 : 0) + mon[m]);
 }
 
 void strDate_to_intDate(const char* strDate,int& intDate)
 {
   int y,m,d;
   int ret = sscanf(strDate,"%d-%d-%d",&y,&m,&d);
-  if(ret != 3)
-    throw "Date illegal";
-  else if(!check_date(y,m,d))
-    throw "Date illegal";
-  else intDate = 10000*y + 100*m + d;
+  try
+  {
+    if(ret != 3)
+      throw "Date illegal";
+    else if(!check_date(y,m,d))
+      throw "Date illegal";
+    else intDate = 10000*y + 100*m + d;
+  }
+  catch(const char* str)
+  {
+    std::cerr << str << '\n';
+  }
 }
 
-void intDate_to_strDate(const int intDate, char* strDate)
+void intDate_to_strDate(const int intDate, char strDate[11])
 {
-  snprintf(strDate,sizeof(strDate),"%04d-%02d-%02d", intDate/10000, (intDate % 10000)/100, intDate % 100);
+  snprintf(strDate,11,"%04d-%02d-%02d", intDate/10000, (intDate % 10000)/100, intDate % 100);
 }
 
 
