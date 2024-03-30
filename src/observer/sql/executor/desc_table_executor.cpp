@@ -24,7 +24,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/desc_table_stmt.h"
 #include "storage/db/db.h"
 #include "sql/operator/string_list_physical_operator.h"
-
+#include <algorithm> // for std::transform
+#include <cctype> // for ::toupper
 using namespace std;
 
 RC DescTableExecutor::execute(SQLStageEvent *sql_event)
@@ -44,6 +45,7 @@ RC DescTableExecutor::execute(SQLStageEvent *sql_event)
 
   Db *db = session->get_current_db();
   Table *table = db->find_table(table_name);
+  
   if (table != nullptr) {
 
     TupleSchema tuple_schema;
@@ -55,6 +57,7 @@ RC DescTableExecutor::execute(SQLStageEvent *sql_event)
 
     auto oper = new StringListPhysicalOperator;
     const TableMeta &table_meta = table->table_meta();
+    
     for (int i = table_meta.sys_field_num(); i < table_meta.field_num(); i++) {
       const FieldMeta *field_meta = table_meta.field(i);
       oper->append({field_meta->name(), attr_type_to_string(field_meta->type()), std::to_string(field_meta->len())});
