@@ -17,6 +17,43 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "storage/table/table.h"
 
+// bool isValidDateDetailed(const char* strDate) {
+//     int year = 0, month = 0, day = 0;
+//     sscanf(strDate, "%d-%d-%d", &year, &month, &day);
+
+//     if (year < 1 || month < 1 || month > 12 || day < 1) {
+//         return false;
+//     }
+
+//     // 每月天数，考虑平年和闰年的2月份
+//     int daysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+//     if ((year%4==0&&year%100!=0)||(year %400==0)) {
+//         daysInMonth[1] = 29; // 闰年2月29天
+//     }
+
+//     return day <= daysInMonth[month - 1];
+// }
+
+bool isValidDateDetailed(int intDate) {
+    // 提取年、月、日
+    int year = intDate / 10000;
+    int month = (intDate / 100) % 100;
+    int day = intDate % 100;
+
+    // 检查年月日的范围
+    if (year < 1 || month < 1 || month > 12 || day < 1) {
+        return false;
+    }
+
+    // 每月天数，考虑平年和闰年的2月份
+    int daysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
+        daysInMonth[1] = 29; // 闰年2月29天
+    }
+    return day <= daysInMonth[month - 1];
+}
+
+
 InsertStmt::InsertStmt(Table *table, const Value *values, int value_amount)
     : table_(table), values_(values), value_amount_(value_amount)
 {}
@@ -58,9 +95,16 @@ RC InsertStmt::create(Db *db, const InsertSqlNode &inserts, Stmt *&stmt)
           table_name, field_meta->name(), field_type, value_type);
       return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
+    if (value_type == DATES && !isValidDateDetailed(values[i].num_value_.date_value_)) {
+      LOG_WARN("Invalid date value for field %s: %s", field_meta->name(), values[i].data());
+      return RC::INVALID_ARGUMENT;
+    }
+    // if (field_type == DATES && !isValidDateDetailed(values[i].data())) {
+    // LOG_WARN("Invalid date value for field %s: %s", field_meta->name(), values[i].data());
+    // return RC::INVALID_ARGUMENT;
+    // }
   }
 
-  // everything alright
   stmt = new InsertStmt(table, values, value_num);
   return RC::SUCCESS;
 }

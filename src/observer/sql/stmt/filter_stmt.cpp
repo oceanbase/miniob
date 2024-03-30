@@ -19,6 +19,18 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "storage/table/table.h"
 
+bool check_date(int date)
+{
+  int y=date/10000;
+  int m=(date%10000)/100;
+  int d=date%100;
+  const int ch[]={0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  bool flag=((y%4==0&&y%100!=0)||y%400==0);
+  return y > 0
+      && (m > 0)&&(m <= 12)
+      && (d > 0)&&(d <= ((m==2 && flag)?1:0) + ch[m]);
+}
+
 FilterStmt::~FilterStmt()
 {
   for (FilterUnit *unit : filter_units_) {
@@ -77,6 +89,7 @@ RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::str
   return RC::SUCCESS;
 }
 
+
 RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
     const ConditionSqlNode &condition, FilterUnit *&filter_unit)
 {
@@ -125,6 +138,25 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
   }
 
   filter_unit->set_comp(comp);
+    if(condition.right_value.attr_type()==DATES)
+    {
+      if(!check_date(condition.right_value.get_date()))
+      {
+        LOG_WARN("INVALID DATE VALUE");
+        rc = RC::INVALID_ARGUMENT;
+        return rc;
+      }
+    }
+    if(condition.left_value.attr_type()==DATES)
+    {
+      if(!check_date(condition.left_value.get_date()))
+      {
+        LOG_WARN("INVALID DATE VALUE");
+        rc = RC::INVALID_ARGUMENT;
+        return rc;
+      }
+    }
+
 
   // 检查两个类型是否能够比较
   return rc;
