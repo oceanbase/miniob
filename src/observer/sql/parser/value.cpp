@@ -22,6 +22,36 @@ See the Mulan PSL v2 for more details. */
 
 const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans","dates"};
 
+bool is_leap_year(int year) { return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0); }
+
+void strDate_to_intDate_(const char* strDate,int& intDate)
+{
+  int weight = 10000; 
+  intDate = 0; 
+  int tempValue = 0; 
+  
+  for (size_t i = 0; i < strlen(strDate); i++) {  
+      if (strDate[i] != '-') {  
+          tempValue = tempValue * 10 + (strDate[i] - '0');  
+      } else {  
+          intDate += tempValue * weight;  
+          tempValue = 0;  
+          weight /= 100; 
+      }  
+  }  
+  intDate += tempValue * weight; 
+}
+
+void intDate_to_strDate_(std::string &strDate,int intDate){
+  int temp=0;
+  temp=intDate/10000;
+  strDate+=std::to_string(temp)+"-";
+  temp=(intDate%10000)/100;
+  strDate+=std::to_string(temp)+"-";
+  temp=intDate%100;
+  strDate+=std::to_string(temp);
+}
+
 const char *attr_type_to_string(AttrType type)
 {
   if (type >= UNDEFINED && type <= DATES) {
@@ -72,6 +102,7 @@ void Value::set_data(char *data, int length)
       num_value_.bool_value_ = *(int *)data != 0;
       length_                = length;
     } break;
+    //添加DATES类型
     case DATES:{
       num_value_.date_value_=*(int*)data;
       length_               = length;
@@ -173,7 +204,7 @@ std::string Value::to_string() const
     } break;
     case DATES:{
       std::string strDate="";
-      intDate_to_strDate_(num_value_.date_value_,strDate);
+      intDate_to_strDate_(strDate,num_value_.date_value_);
       os<<strDate;
     } break;
     default: {
@@ -329,32 +360,4 @@ bool Value::get_boolean() const
     }
   }
   return false;
-}
-
-bool is_leap_year(int year) { return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0); }
-
-void strDate_to_intDate_(const char* strDate, int& intDate){
-  int weight = 10000; 
-  intDate = 0; 
-  int tempValue = 0; 
-  
-  for (size_t i = 0; i < strlen(strDate); i++) {  
-      if (strDate[i] != '-') {  
-          tempValue = tempValue * 10 + (strDate[i] - '0');  
-      } else {  
-          intDate += tempValue * weight;  
-          tempValue = 0;  
-          weight /= 100; 
-      }  
-  }  
-  intDate += tempValue * weight; 
-}
-
-void intDate_to_strDate_(const int intDate, std::string& strDate) {  int temp=0;
-  temp=intDate/10000;
-  strDate+=std::to_string(temp)+"-";
-  temp=(intDate%10000)/100;
-  strDate+=std::to_string(temp)+"-";
-  temp=intDate%100;
-  strDate+=std::to_string(temp);
 }

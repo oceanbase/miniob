@@ -33,6 +33,7 @@ enum AttrType
 const char *attr_type_to_string(AttrType type);
 AttrType    attr_type_from_string(const char *s);
 
+
 /**
  * @brief 属性的值
  *
@@ -48,7 +49,7 @@ public:
   explicit Value(float val);
   explicit Value(bool val);
   explicit Value(const char *s, int len = 0);
-  explicit Value(const char *date, int len, int flag);
+  explicit Value(const char *s,int len,int flag);//实现
 
   Value(const Value &other)            = default;
   Value &operator=(const Value &other) = default;
@@ -60,8 +61,8 @@ public:
   void set_float(float val);
   void set_boolean(bool val);
   void set_string(const char *s, int len = 0);
-  void set_date(int val);
   void set_value(const Value &value);
+  void set_date(int val);//实现
 
   std::string to_string() const;
 
@@ -81,22 +82,21 @@ public:
   float       get_float() const;
   std::string get_string() const;
   bool        get_boolean() const;
-  int         get_date() const;
+  int         get_date() const;//实现
 
-private:
   AttrType attr_type_ = UNDEFINED;
   int      length_    = 0;
 
-  union {
-    int int_value_;
+  union
+  {
+    int   int_value_;
     float float_value_;
-    bool bool_value_;
-    int date_value_;    
+    bool  bool_value_;
+    int   date_value_;
   } num_value_;
   std::string str_value_;
 };
 
-
-bool is_leap_year(int year);
-void strDate_to_intDate_(const char* strDate, int& intDate);
-void intDate_to_strDate_(const int intDate, std::string& strDate);
+bool is_leap_year(int year)
+void strDate_to_intDate_(const char* strDate,int& intDate);
+void intDate_to_strDate_(std::string &strDate,int intDate);

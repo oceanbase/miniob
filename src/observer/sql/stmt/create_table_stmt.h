@@ -9,39 +9,43 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2023/6/13.
+// Created by Wangyunlai on 2023/4/25.
 //
 
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include "sql/stmt/stmt.h"
 
-class Db;
+struct CreateIndexSqlNode;
+class Table;
+class FieldMeta;
 
 /**
- * @brief 表示创建表的语句
+ * @brief 创建索引的语句
  * @ingroup Statement
- * @details 虽然解析成了stmt，但是与原始的SQL解析后的数据也差不多
  */
-class CreateTableStmt : public Stmt
+class CreateIndexStmt : public Stmt
 {
 public:
-  CreateTableStmt(const std::string &table_name, const std::vector<AttrInfoSqlNode> &attr_infos)
-      : table_name_(table_name), attr_infos_(attr_infos)
+  CreateIndexStmt(Table *table, const FieldMeta *field_meta, const std::string &index_name)
+      : table_(table), field_meta_(field_meta), index_name_(index_name)
   {}
-  virtual ~CreateTableStmt() = default;
 
-  StmtType type() const override { return StmtType::CREATE_TABLE; }
+  virtual ~CreateIndexStmt() = default;
 
-  const std::string                  &table_name() const { return table_name_; }
-  const std::vector<AttrInfoSqlNode> &attr_infos() const { return attr_infos_; }
+  StmtType type() const override { return StmtType::CREATE_INDEX; }
 
-  static RC create(Db *db, const CreateTableSqlNode &create_table, Stmt *&stmt);
+  Table             *table() const { return table_; }
+  const FieldMeta   *field_meta() const { return field_meta_; }
+  const std::string &index_name() const { return index_name_; }
+
+public:
+  static RC create(Db *db, const CreateIndexSqlNode &create_index, Stmt *&stmt);
 
 private:
-  std::string                  table_name_;
-  std::vector<AttrInfoSqlNode> attr_infos_;
+  Table           *table_      = nullptr;
+  const FieldMeta *field_meta_ = nullptr;
+  std::string      index_name_;
 };
