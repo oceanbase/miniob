@@ -18,9 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include <sstream>
 #include <string.h>
-#include <stdlib.h>
+#include <stdlib.h> 
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints",  "floats","booleans", "dates"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans","dates"};
 
 const char *attr_type_to_string(AttrType type)
 {
@@ -47,10 +47,10 @@ Value::Value(bool val) { set_boolean(val); }
 
 Value::Value(const char *s, int len /*= 0*/) { set_string(s, len); }
 
-Value::Value(const char *date, int len, int flag)
-{
-  int intDate = 0;
-  strDate_to_intDate_(date, intDate);
+Value::Value(const char*date,int len, int flag)
+{ 
+  int intDate=0;
+  strDate_to_intDate_(date,intDate);
   set_date(intDate);
 }
 
@@ -72,10 +72,10 @@ void Value::set_data(char *data, int length)
       num_value_.bool_value_ = *(int *)data != 0;
       length_                = length;
     } break;
-    case DATES: {
-      num_value_.date_value_ = *(int *)data;
-      length_                = length;
-    } break;
+    case DATES:{
+      num_value_.date_value_=*(int*)data;
+      length_               = length;
+    }break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
     } break;
@@ -86,13 +86,6 @@ void Value::set_int(int val)
   attr_type_            = INTS;
   num_value_.int_value_ = val;
   length_               = sizeof(val);
-}
-
-void Value::set_date(int val)
-{
-  attr_type_             = DATES;
-  num_value_.date_value_ = val;
-  length_                = sizeof(val);
 }
 
 void Value::set_float(float val)
@@ -117,6 +110,13 @@ void Value::set_string(const char *s, int len /*= 0*/)
     str_value_.assign(s);
   }
   length_ = str_value_.length();
+}
+
+void Value::set_date(int val)
+{
+    attr_type_=DATES;
+    num_value_.date_value_=val;
+    length_=sizeof(val);
 }
 
 void Value::set_value(const Value &value)
@@ -171,10 +171,10 @@ std::string Value::to_string() const
     case CHARS: {
       os << str_value_;
     } break;
-    case DATES: {
-      std::string strDate = " ";
-      intDate_to_strDate_(num_value_.date_value_, strDate);
-      os << strDate;
+    case DATES:{
+      std::string strDate="";
+      intDate_to_strDate_(num_value_.date_value_,strDate);
+      os<<strDate;
     } break;
     default: {
       LOG_WARN("unsupported attr type: %d", attr_type_);
@@ -201,10 +201,10 @@ int Value::compare(const Value &other) const
       } break;
       case BOOLEANS: {
         return common::compare_int((void *)&this->num_value_.bool_value_, (void *)&other.num_value_.bool_value_);
-      } break;
-      case DATES: {
-        return common::compare_date((void *)&this->num_value_.date_value_, (void *)&other.num_value_.date_value_);
-      } break;
+      }
+      case DATES:{
+        return common::compare_date((void *)&this->num_value_.date_value_,(void *)&other.num_value_.date_value_);
+      }
       default: {
         LOG_WARN("unsupported type: %d", this->attr_type_);
       }
@@ -218,6 +218,20 @@ int Value::compare(const Value &other) const
   }
   LOG_WARN("not supported");
   return -1;  // TODO return rc?
+}
+
+int Value::get_date() const
+{
+  switch (attr_type_){
+    case DATES:{
+      return num_value_.date_value_;
+    }
+    default:{
+      LOG_WARN("undefined data type,type id=",attr_type_);
+      return 0;
+    }
+  }
+
 }
 
 int Value::get_int() const
@@ -240,28 +254,12 @@ int Value::get_int() const
     case BOOLEANS: {
       return (int)(num_value_.bool_value_);
     }
-    case DATES: {
-      return (int)(num_value_.date_value_);
-    }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return 0;
     }
   }
   return 0;
-}
-
-int Value::get_date() const
-{
-  switch (attr_type_){
-    case DATES:{
-      return num_value_.date_value_;
-    }
-    default:{
-      LOG_WARN("undefined data type,type id=",attr_type_);
-      return 0;
-    }
-  }
 }
 
 float Value::get_float() const
@@ -284,9 +282,6 @@ float Value::get_float() const
     case BOOLEANS: {
       return float(num_value_.bool_value_);
     } break;
-    case DATES: {
-      return float(num_value_.date_value_);
-    }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return 0;
@@ -328,9 +323,6 @@ bool Value::get_boolean() const
     case BOOLEANS: {
       return num_value_.bool_value_;
     } break;
-    case DATES: {
-      return num_value_.int_value_ >= 0 && num_value_.int_value_ <= 24867;
-    } break;
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return false;
@@ -341,38 +333,24 @@ bool Value::get_boolean() const
 
 bool is_leap_year(int year) { return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0); }
 
-void strDate_to_intDate_(const char* strDate, int& intDate)
-{
-  int year = 0;
-  int month = 0;
-  int day = 0;
-  int ret =sscanf(strDate, "%d-%d-%d", &year, &month, &day);
-  if(ret != 3){
-    throw "FAILURE";
-    return;
-  }
-
-  if( (year <= 0) ||
-      (month <= 0 || month > 12) ||
-      (day <= 0 || day > 31)
-  ) {
-    throw "FAILURE";
-    return;
-  }
-
-  int max_day_in_month[] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  if(!is_leap_year(year)) {
-    max_day_in_month[2] = 28;
-  }
-  if(day > max_day_in_month[month]) {
-    throw "FAILURE";
-    return;
-  }
-
-  intDate = year * 10000 + month * 100 + day;
+void strDate_to_intDate_(const char* strDate, int& intDate){
+  int weight = 10000; 
+  intDate = 0; 
+  int tempValue = 0; 
+  
+  for (size_t i = 0; i < strlen(strDate); i++) {  
+      if (strDate[i] != '-') {  
+          tempValue = tempValue * 10 + (strDate[i] - '0');  
+      } else {  
+          intDate += tempValue * weight;  
+          tempValue = 0;  
+          weight /= 100; 
+      }  
+  }  
+  intDate += tempValue * weight; 
 }
-void intDate_to_strDate_(const int intDate, std::string& strDate) {
-  int temp=0;
+
+void intDate_to_strDate_(const int intDate, std::string& strDate) {  int temp=0;
   temp=intDate/10000;
   strDate+=std::to_string(temp)+"-";
   temp=(intDate%10000)/100;
