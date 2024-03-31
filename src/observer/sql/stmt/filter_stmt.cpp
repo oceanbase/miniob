@@ -124,7 +124,6 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
     filter_obj.init_value(condition.right_value);
     filter_unit->set_right(filter_obj);
   }
-
   filter_unit->set_comp(comp);
 
   // 检查两个类型是否能够比较

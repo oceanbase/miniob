@@ -53,6 +53,7 @@ RC SqlTaskHandler::handle_event(Communicator *communicator)
 
 RC SqlTaskHandler::handle_sql(SQLStageEvent *sql_event)
 {
+  
   RC rc = query_cache_stage_.handle_request(sql_event);
   if (OB_FAIL(rc)) {
     LOG_TRACE("failed to do query cache. rc=%s", strrc(rc));
@@ -60,6 +61,7 @@ RC SqlTaskHandler::handle_sql(SQLStageEvent *sql_event)
   }
 
   rc = parse_stage_.handle_request(sql_event);
+
   if (OB_FAIL(rc)) {
     LOG_TRACE("failed to do parse. rc=%s", strrc(rc));
     return rc;

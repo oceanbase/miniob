@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by WangYunlai on 2023/06/28.
 //
-
+#include "common/rc.h"
 #include "sql/parser/value.h"
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
@@ -19,8 +19,51 @@ See the Mulan PSL v2 for more details. */
 #include <sstream>
 #include <string.h>
 #include <stdlib.h> 
-
+bool fl=true;
 const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans","dates"};
+
+
+bool correctDate(int y,int m,int d){
+  static int mon[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  bool leap = (y%400==0 || (y%100 && y%4==0));
+  return y > 0 && (m > 0) && (m <= 12) && (d > 0) && (d <= ((m==2 && leap)?1:0) + mon[m]);
+}
+
+bool is_leap_year(int year) { return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0); }
+
+void strDate_to_intDate_(const char* strDate,int& intDate)
+{
+  int weight = 10000; 
+  intDate = 0; 
+  int tempValue = 0; 
+  
+  for (size_t i = 0; i < strlen(strDate); i++) {  
+      if (strDate[i] != '-') {  
+          tempValue = tempValue * 10 + (strDate[i] - '0');  
+      } else {  
+          intDate += tempValue * weight;  
+          tempValue = 0;  
+          weight /= 100; 
+      }  
+  }  
+  intDate += tempValue * weight; 
+}
+
+void intDate_to_strDate_(std::string &strDate,int intDate){
+  int temp=0;
+  temp=intDate/10000;
+  strDate+=std::to_string(temp)+"-";
+  temp=(intDate%10000)/100;
+  if(temp<10)
+    strDate+="0"+std::to_string(temp)+"-";
+  else
+    strDate+=std::to_string(temp)+"-";
+  temp=intDate%100;
+  if(temp<10)
+    strDate+="0"+std::to_string(temp);
+  else
+    strDate+=std::to_string(temp);
+}
 
 const char *attr_type_to_string(AttrType type)
 {
@@ -72,6 +115,7 @@ void Value::set_data(char *data, int length)
       num_value_.bool_value_ = *(int *)data != 0;
       length_                = length;
     } break;
+    //添加DATES类型
     case DATES:{
       num_value_.date_value_=*(int*)data;
       length_               = length;
@@ -114,9 +158,16 @@ void Value::set_string(const char *s, int len /*= 0*/)
 
 void Value::set_date(int val)
 {
-    attr_type_=DATES;
-    num_value_.date_value_=val;
-    length_=sizeof(val);
+    fl=correctDate(val/10000,(val%10000)/100,val%100);
+    if(fl==false){
+      //在解析不符合规范条件下需要只输出FALIURE并结束当前语句
+
+    }
+    else{
+      attr_type_=DATES;
+      num_value_.date_value_=val;
+      length_=sizeof(val);
+    }
 }
 
 void Value::set_value(const Value &value)
@@ -329,34 +380,4 @@ bool Value::get_boolean() const
     }
   }
   return false;
-}
-
-bool is_leap_year(int year) { return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0); }
-
-void strDate_to_intDate_(const char* strDate,int& intDate)
-{
-  int weight = 10000; 
-  intDate = 0; 
-  int tempValue = 0; 
-  
-  for (size_t i = 0; i < strlen(strDate); i++) {  
-      if (strDate[i] != '-') {  
-          tempValue = tempValue * 10 + (strDate[i] - '0');  
-      } else {  
-          intDate += tempValue * weight;  
-          tempValue = 0;  
-          weight /= 100; 
-      }  
-  }  
-  intDate += tempValue * weight; 
-}
-
-void intDate_to_strDate_(std::string &strDate,int intDate){
-  int temp=0;
-  temp=intDate/10000;
-  strDate+=std::to_string(temp)+"-";
-  temp=(intDate%10000)/100;
-  strDate+=std::to_string(temp)+"-";
-  temp=intDate%100;
-  strDate+=std::to_string(temp);
 }

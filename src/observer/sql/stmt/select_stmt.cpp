@@ -11,6 +11,8 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by Wangyunlai on 2022/6/6.
 //
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "sql/stmt/select_stmt.h"
 #include "common/lang/string.h"

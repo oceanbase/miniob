@@ -17,7 +17,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
-#include "common/math/crc.h"
 #include "storage/buffer/disk_buffer_pool.h"
 
 using namespace common;
@@ -489,7 +488,6 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
   // The better way is use mmap the block into memory,
   // so it is easier to flush data to file.
 
-  frame.set_check_sum(crc32(frame.page().data, BP_PAGE_DATA_SIZE));
   Page   &page   = frame.page();
   int64_t offset = ((int64_t)page.page_num) * sizeof(Page);
   if (lseek(file_desc_, offset, SEEK_SET) == offset - 1) {
@@ -602,7 +600,6 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
 }
 
 int DiskBufferPool::file_desc() const { return file_desc_; }
-
 ////////////////////////////////////////////////////////////////////////////////
 BufferPoolManager::BufferPoolManager(int memory_size /* = 0 */)
 {

@@ -601,8 +601,7 @@ condition:
       $$->right_is_attr = 0;
       $$->right_value = *$3;
       $$->comp = $2;
-
-      delete $1;
+      delete $1;  
       delete $3;
     }
     | value comp_op value 

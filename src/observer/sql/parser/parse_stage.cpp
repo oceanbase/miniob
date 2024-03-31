@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 
 #include "parse_stage.h"
+#include "value.cpp"
 
 #include "common/conf/ini.h"
 #include "common/io/io.h"
@@ -37,6 +38,7 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
   ParsedSqlResult parsed_sql_result;
 
   parse(sql.c_str(), &parsed_sql_result);
+
   if (parsed_sql_result.sql_nodes().empty()) {
     sql_result->set_return_code(RC::SUCCESS);
     sql_result->set_state_string("");
@@ -52,11 +54,12 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
     // set error information to event
     rc = RC::SQL_SYNTAX;
     sql_result->set_return_code(rc);
-    sql_result->set_state_string("Failed to parse sql t");
+    sql_result->set_state_string("Failed to parse sql test");
     return rc;
   }
 
   sql_event->set_sql_node(std::move(sql_node));
-
+  if(fl==false)
+    sql_result->set_return_code(RC::EMPTY);
   return RC::SUCCESS;
 }

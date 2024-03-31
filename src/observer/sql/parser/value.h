@@ -49,7 +49,7 @@ public:
   explicit Value(float val);
   explicit Value(bool val);
   explicit Value(const char *s, int len = 0);
-  explicit Value(const char *s,int len,int flag);
+  explicit Value(const char *s,int len,int flag);//实现
 
   Value(const Value &other)            = default;
   Value &operator=(const Value &other) = default;
@@ -62,7 +62,7 @@ public:
   void set_boolean(bool val);
   void set_string(const char *s, int len = 0);
   void set_value(const Value &value);
-  void set_date(int val);
+  void set_date(int val);//实现
 
   std::string to_string() const;
 
@@ -82,7 +82,7 @@ public:
   float       get_float() const;
   std::string get_string() const;
   bool        get_boolean() const;
-  int         get_date() const;
+  int         get_date() const;//实现
 
   AttrType attr_type_ = UNDEFINED;
   int      length_    = 0;

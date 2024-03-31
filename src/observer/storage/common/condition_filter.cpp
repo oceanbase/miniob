@@ -63,7 +63,6 @@ RC DefaultConditionFilter::init(Table &table, const ConditionSqlNode &condition)
 
   AttrType type_left  = UNDEFINED;
   AttrType type_right = UNDEFINED;
-
   if (1 == condition.left_is_attr) {
     left.is_attr                = true;
     const FieldMeta *field_left = table_meta.field(condition.left_attr.attribute_name.c_str());

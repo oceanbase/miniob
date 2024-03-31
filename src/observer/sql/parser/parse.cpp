@@ -12,6 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi
 //
 
+#include "value.h"
 #include "sql/parser/parse.h"
 #include "common/log/log.h"
 #include "sql/expr/expression.h"
