@@ -20,7 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include <stdlib.h>
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "dates", "floats", "booleans"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints",  "floats","booleans", "dates"};
 
 const char *attr_type_to_string(AttrType type)
 {
@@ -241,7 +241,7 @@ int Value::get_int() const
       return (int)(num_value_.bool_value_);
     }
     case DATES: {
-      return num_value_.date_value_;
+      return (int)(num_value_.date_value_);
     }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
@@ -253,16 +253,15 @@ int Value::get_int() const
 
 int Value::get_date() const
 {
-  switch (attr_type_) {
-    case DATES: {
+  switch (attr_type_){
+    case DATES:{
       return num_value_.date_value_;
     }
-    default: {
-      LOG_WARN("unknown data type. type=%d", attr_type_);
+    default:{
+      LOG_WARN("undefined data type,type id=",attr_type_);
       return 0;
     }
   }
-  return 0;
 }
 
 float Value::get_float() const
@@ -342,42 +341,42 @@ bool Value::get_boolean() const
 
 bool is_leap_year(int year) { return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0); }
 
-void strDate_to_intDate_(const char *strDate, int &intDate)
+void strDate_to_intDate_(const char* strDate, int& intDate)
 {
-  int year  = 0;
+  int year = 0;
   int month = 0;
-  int day   = 0;
-  int ret   = sscanf(strDate, "%d-%d-%d", &year, &month, &day);
-  if (ret != 3) {
-    throw "Date illegal";
+  int day = 0;
+  int ret =sscanf(strDate, "%d-%d-%d", &year, &month, &day);
+  if(ret != 3){
+    throw "FAILURE";
+    return;
   }
 
-  // 验证日期的有效性
-  if (year < 0 || month < 1 || month > 12 || day < 1 || day > 31) {
-    throw "Date illegal";
+  if( (year <= 0) ||
+      (month <= 0 || month > 12) ||
+      (day <= 0 || day > 31)
+  ) {
+    throw "FAILURE";
+    return;
   }
 
-  // 针对不同月份的天数进行验证
-  if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30) {
-    throw "Date illegal";
-  } else if (month == 2) {
-    bool isLeapYear = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
-    if ((isLeapYear && day > 29) || (!isLeapYear && day > 28)) {
-      throw "Date illegal";
-    }
+  int max_day_in_month[] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  if(!is_leap_year(year)) {
+    max_day_in_month[2] = 28;
+  }
+  if(day > max_day_in_month[month]) {
+    throw "FAILURE";
+    return;
   }
 
-  // 将年、月、日转换为整数形式的日期
   intDate = year * 10000 + month * 100 + day;
 }
-
-void intDate_to_strDate_(const int intDate, std::string &strDate)
-{
-  int temp = 0;
-  temp     = intDate / 10000;
-  strDate += std::to_string(temp) + "-";
-  temp = (intDate % 10000) / 100;
-  strDate += std::to_string(temp) + "-";
-  temp = intDate % 100;
-  strDate += std::to_string(temp);
+void intDate_to_strDate_(const int intDate, std::string& strDate) {
+  int temp=0;
+  temp=intDate/10000;
+  strDate+=std::to_string(temp)+"-";
+  temp=(intDate%10000)/100;
+  strDate+=std::to_string(temp)+"-";
+  temp=intDate%100;
+  strDate+=std::to_string(temp);
 }
