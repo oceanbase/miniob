@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/field/field_meta.h"
 #include "storage/table/table.h"
-
 /**
  * @brief 字段
  *
@@ -25,7 +24,8 @@ class Field
 {
 public:
   Field() = default;
-  Field(const Table *table, const FieldMeta *field) : table_(table), field_(field) {}
+  Field(const Table *table, const FieldMeta *field, const AggrOp aggregation=AggrOp::AGGR_NONE):table_(table),field_(field),aggregation_(aggregation){}
+  //Field(const Table *table, const FieldMeta *field) : table_(table), field_(field) {}
   Field(const Field &) = default;
 
   const Table     *table() const { return table_; }
@@ -35,6 +35,7 @@ public:
 
   const char *table_name() const { return table_->name(); }
   const char *field_name() const { return field_->name(); }
+  const AggrOp aggregation()const{return aggregation_;}
 
   void set_table(const Table *table) { this->table_ = table; }
   void set_field(const FieldMeta *field) { this->field_ = field; }
@@ -47,4 +48,5 @@ public:
 private:
   const Table     *table_ = nullptr;
   const FieldMeta *field_ = nullptr;
+  AggrOp aggregation_=AGGR_NONE;
 };

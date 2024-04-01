@@ -55,6 +55,11 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 
 //标识tokens
 %token  SEMICOLON
+        SUM_F
+        MIN_F
+        MAX_F
+        AVG_F
+        COUNT_F
         CREATE
         DROP
         TABLE
@@ -75,6 +80,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
         TRX_COMMIT
         TRX_ROLLBACK
         INT_T
+        DATE_T
         STRING_T
         FLOAT_T
         HELP
@@ -104,6 +110,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
   ConditionSqlNode *                condition;
   Value *                           value;
   enum CompOp                       comp;
+  enum AggrOp                       aggr;
   RelAttrSqlNode *                  rel_attr;
   std::vector<AttrInfoSqlNode> *    attr_infos;
   AttrInfoSqlNode *                 attr_info;
@@ -122,6 +129,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %token <floats> FLOAT
 %token <string> ID
 %token <string> SSS
+%token <string> DATE_STR
 //非终结符
 
 /** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义的成员变量名称 **/
@@ -130,6 +138,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %type <value>               value
 %type <number>              number
 %type <comp>                comp_op
+%type <aggr>                aggr_op
 %type <rel_attr>            rel_attr
 %type <attr_infos>          attr_def_list
 %type <attr_info>           attr_def
@@ -172,7 +181,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 
 commands: command_wrapper opt_semicolon  //commands or sqls. parser starts here.
   {
-    std::unique_ptr<ParsedSqlNode> sql_node = std::unique_ptr<ParsedSqlNode>($1);
+    std::unique_ptr<ParsedSqlNode> sql_node = std::unique_ptr<ParsedSqlNode>($1);//$1是语句类型名
     sql_result->add_sql_node(std::move(sql_node));
   }
   ;
@@ -341,6 +350,7 @@ type:
     INT_T      { $$=INTS; }
     | STRING_T { $$=CHARS; }
     | FLOAT_T  { $$=FLOATS; }
+    | DATE_T    {$$=DATES;}
     ;
 insert_stmt:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 
@@ -387,6 +397,11 @@ value:
       $$ = new Value(tmp);
       free(tmp);
       free($1);
+    }
+    |DATE_STR {
+        char *tmp = common::substr($1,1,strlen($1)-2);
+        $$ = new Value(tmp,strlen(tmp),1);
+        free(tmp);       
     }
     ;
     
@@ -511,6 +526,14 @@ select_attr:
     }
     ;
 
+aggr_op:
+    SUM_F { $$ = AGGR_SUM; }
+    | MIN_F { $$ = AGGR_MIN; }
+    | MAX_F { $$ = AGGR_MAX; }
+    | AVG_F { $$ = AGGR_AVG; }
+    | COUNT_F { $$ = AGGR_COUNT; }
+    ;
+
 rel_attr:
     ID {
       $$ = new RelAttrSqlNode;
@@ -523,6 +546,10 @@ rel_attr:
       $$->attribute_name = $3;
       free($1);
       free($3);
+    }
+    | aggr_op LBRACE rel_attr RBRACE{
+      $$ = $3;
+      $$->aggregation = $1;
     }
     ;
 

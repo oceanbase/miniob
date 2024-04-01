@@ -16,9 +16,13 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
+#include <ctime>
 #include <sstream>
+#include<string.h>
+#include <iomanip>
+using namespace std;
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "DATES", "floats", "booleans"};
 
 const char *attr_type_to_string(AttrType type)
 {
@@ -45,6 +49,45 @@ Value::Value(bool val) { set_boolean(val); }
 
 Value::Value(const char *s, int len /*= 0*/) { set_string(s, len); }
 
+//***********************date类构造函数*******************************
+Value::Value(const char *s, int len , int flag){
+
+  int int_date=0;
+  if(!str_to_date(s,int_date)){
+    throw std::string("invalid date");
+    return;
+  }
+ 
+  set_date(int_date);
+}
+//*******************************************************************
+bool  str_to_date(const char *str, int &date) {
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    int ret = sscanf(str, "%d-%d-%d", &year, &month, &day);
+    if (ret != 3) {
+        return false;
+    }
+
+    if (year < 1900 || year > 9999 ||
+        (month < 0 || month > 12) ||
+        (day <= 0 || day > 31)) {
+            return false;
+    }
+
+    int max_day_in_month[] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    const int max_day = max_day_in_month[month - 1];
+    if (day > max_day) {
+        return false;
+    }
+
+    if (month == 2 && !is_leap_year(year) && day > 28) {
+        return false;
+    }
+    date = year * 10000 + month * 100 + day;
+    return true;
+}
 void Value::set_data(char *data, int length)
 {
   switch (attr_type_) {
@@ -53,6 +96,10 @@ void Value::set_data(char *data, int length)
     } break;
     case INTS: {
       num_value_.int_value_ = *(int *)data;
+      length_               = length;
+    } break;
+    case DATES: {
+      num_value_.date_value_ = *(int *)data;
       length_               = length;
     } break;
     case FLOATS: {
@@ -74,6 +121,15 @@ void Value::set_int(int val)
   num_value_.int_value_ = val;
   length_               = sizeof(val);
 }
+
+//*********************set_date**************************
+void Value::set_date(int val)
+{
+  attr_type_            = DATES;
+  num_value_.date_value_ = val;
+  length_               = sizeof(val);
+}
+//*******************************************************
 
 void Value::set_float(float val)
 {
@@ -104,6 +160,9 @@ void Value::set_value(const Value &value)
   switch (value.attr_type_) {
     case INTS: {
       set_int(value.get_int());
+    } break;
+    case DATES: {
+      set_int(value.get_date());
     } break;
     case FLOATS: {
       set_float(value.get_float());
@@ -139,6 +198,12 @@ std::string Value::to_string() const
     case INTS: {
       os << num_value_.int_value_;
     } break;
+     case DATES: {
+      int date=num_value_.date_value_;
+      std::string str="";
+      date_to_str(date,str);
+      os << str;
+    } break;
     case FLOATS: {
       os << common::double_to_str(num_value_.float_value_);
     } break;
@@ -161,6 +226,9 @@ int Value::compare(const Value &other) const
     switch (this->attr_type_) {
       case INTS: {
         return common::compare_int((void *)&this->num_value_.int_value_, (void *)&other.num_value_.int_value_);
+      } break;
+      case DATES: {
+        return common::compare_date((void *)&this->num_value_.int_value_, (void *)&other.num_value_.int_value_);
       } break;
       case FLOATS: {
         return common::compare_float((void *)&this->num_value_.float_value_, (void *)&other.num_value_.float_value_);
@@ -203,6 +271,9 @@ int Value::get_int() const
     case INTS: {
       return num_value_.int_value_;
     }
+    case DATES: {
+      return num_value_.date_value_;
+    }
     case FLOATS: {
       return (int)(num_value_.float_value_);
     }
@@ -217,6 +288,12 @@ int Value::get_int() const
   return 0;
 }
 
+//**********************get_date******************************
+int Value::get_date() const{
+  return get_int();
+}
+//************************************************************
+
 float Value::get_float() const
 {
   switch (attr_type_) {
@@ -230,6 +307,9 @@ float Value::get_float() const
     } break;
     case INTS: {
       return float(num_value_.int_value_);
+    } break;
+    case DATES: {
+      return float(num_value_.date_value_);
     } break;
     case FLOATS: {
       return num_value_.float_value_;
@@ -271,6 +351,9 @@ bool Value::get_boolean() const
     case INTS: {
       return num_value_.int_value_ != 0;
     } break;
+    case DATES: {
+      return num_value_.date_value_ != 0;
+    } break;
     case FLOATS: {
       float val = num_value_.float_value_;
       return val >= EPSILON || val <= -EPSILON;
@@ -285,3 +368,27 @@ bool Value::get_boolean() const
   }
   return false;
 }
+
+
+
+bool is_leap_year(int year)
+{
+  return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+}
+
+
+
+
+void date_to_str(int int_date,string&str_date) {
+    char str[11] = {0};
+    int day = int_date % 100;
+    int month = (int_date / 100) % 100;
+    int year = (int_date / 10000);
+    if (year > 9999) {
+        year = 9999;
+    }
+    sprintf(str, "%d-%02d-%02d", year, month, day);
+    str_date=str;
+}
+//----------------------------------------------------------
+//**********************************************************

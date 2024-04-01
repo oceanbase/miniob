@@ -26,6 +26,7 @@ class DeleteLogicalOperator;
 class ExplainLogicalOperator;
 class JoinLogicalOperator;
 class CalcLogicalOperator;
+class AggregateLogicalOperator;
 
 /**
  * @brief 物理计划生成器
@@ -50,4 +51,6 @@ private:
   RC create_plan(ExplainLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
   RC create_plan(JoinLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
   RC create_plan(CalcLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper);
+
+  RC create_plan(AggregateLogicalOperator &aggregate_oper,unique_ptr<PhysicalOperator>&oper);
 };
