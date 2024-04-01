@@ -23,7 +23,11 @@ int compare_int(void *arg1, void *arg2)
 {
   int v1 = *(int *)arg1;
   int v2 = *(int *)arg2;
-  return v1 - v2;
+ return v1 - v2;
+}
+
+int compare_date(void *arg1, void *arg2){
+  return compare_int(arg1,arg2);
 }
 
 int compare_float(void *arg1, void *arg2)

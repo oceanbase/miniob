@@ -13,17 +13,19 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <sstream>
+#include <sstream>
+#include <iomanip>
 #include "sql/parser/value.h"
 #include "storage/field/field.h"
 #include "common/log/log.h"
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
+const char *ATTR_TYPE_NAME[] =  {"undefined", "chars", "ints", "floats", "DATES","booleans"};
 
 const char *attr_type_to_string(AttrType type)
 {
-  if (type >= UNDEFINED && type <= FLOATS) {
+  if (type >= UNDEFINED && type <= DATES) {
     return ATTR_TYPE_NAME[type];
   }
   return "unknown";
@@ -58,6 +60,21 @@ Value::Value(const char *s, int len /*= 0*/)
   set_string(s, len);
 }
 
+
+Value::Value(const char *strDate, int len , int flag){
+    int year, month, day;
+    char dash1, dash2;
+    std::istringstream iss(strDate);
+    iss >> year >> dash1 >> month >> dash2 >> day;
+    if (!ValidDate(year, month, day)) {
+        throw std::string("invalid date");
+    }
+    int intDate;
+    strDate_to_intDate_(strDate, intDate);
+    set_date(intDate);
+}
+
+
 void Value::set_data(char *data, int length)
 {
   switch (attr_type_) {
@@ -76,6 +93,10 @@ void Value::set_data(char *data, int length)
       num_value_.bool_value_ = *(int *)data != 0;
       length_ = length;
     } break;
+    case DATES:{
+      num_value_.date_value_=*(int *)data;
+      length_=length;
+    }break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
     } break;
@@ -86,6 +107,13 @@ void Value::set_int(int val)
   attr_type_ = INTS;
   num_value_.int_value_ = val;
   length_ = sizeof(val);
+}
+
+void Value::set_date(int val)
+{
+  attr_type_=DATES;
+  num_value_.date_value_=val;
+  length_=sizeof(val);
 }
 
 void Value::set_float(float val)
@@ -127,6 +155,10 @@ void Value::set_value(const Value &value)
     case BOOLEANS: {
       set_boolean(value.get_boolean());
     } break;
+    case DATES:{
+      set_date(value.get_date());
+      break;
+    }
     case UNDEFINED: {
       ASSERT(false, "got an invalid value type");
     } break;
@@ -161,6 +193,11 @@ std::string Value::to_string() const
     case CHARS: {
       os << str_value_;
     } break;
+    case DATES:{
+      std::string strDate = "";
+      const_cast<Value*>(this)->intDate_to_strDate_(num_value_.date_value_, strDate);
+      os<<strDate;
+    }break;
     default: {
       LOG_WARN("unsupported attr type: %d", attr_type_);
     } break;
@@ -175,6 +212,9 @@ int Value::compare(const Value &other) const
       case INTS: {
         return common::compare_int((void *)&this->num_value_.int_value_, (void *)&other.num_value_.int_value_);
       } break;
+      case DATES:{
+        return common::compare_date((void *)&this->num_value_.int_value_, (void *)&other.num_value_.date_value_);
+      }break;
       case FLOATS: {
         return common::compare_float((void *)&this->num_value_.float_value_, (void *)&other.num_value_.float_value_);
       } break;
@@ -216,6 +256,9 @@ int Value::get_int() const
     case INTS: {
       return num_value_.int_value_;
     }
+    case DATES: {
+      return num_value_.date_value_;
+    }
     case FLOATS: {
       return (int)(num_value_.float_value_);
     }
@@ -228,6 +271,10 @@ int Value::get_int() const
     }
   }
   return 0;
+}
+
+int Value::get_date() const{
+  return get_int();
 }
 
 float Value::get_float() const
@@ -243,6 +290,9 @@ float Value::get_float() const
     } break;
     case INTS: {
       return float(num_value_.int_value_);
+    } break;
+    case DATES: {
+      return float(num_value_.date_value_);
     } break;
     case FLOATS: {
       return num_value_.float_value_;
@@ -287,6 +337,9 @@ bool Value::get_boolean() const
     case INTS: {
       return num_value_.int_value_ != 0;
     } break;
+    case DATES: {
+      return num_value_.date_value_ != 0;
+    } break;
     case FLOATS: {
       float val = num_value_.float_value_;
       return val >= EPSILON || val <= -EPSILON;
@@ -300,4 +353,67 @@ bool Value::get_boolean() const
     }
   }
   return false;
+}
+
+int Value::is_leap_year(int year)const
+{
+    return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0));
+}
+
+bool Value::ValidDate(int year,int month,int day)
+{
+    if (month < 1 || month > 12) return false;  
+    if (day < 1 || day > 31) return false; 
+    if (month == 2) {
+        if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
+            return day <= 29;
+        } else {
+            return day <= 28;
+        }
+    }
+    if (month == 4 || month == 6 || month == 9 || month == 11) {
+        return day <= 30;
+    }
+    return true;
+}
+
+void Value::strDate_to_intDate_(const char* strDate, int& intDate) {
+    int year, month, day;
+    sscanf(strDate, "%d-%d-%d", &year, &month, &day);
+    
+    intDate = 0;
+    for (int y = 0; y < year; ++y) {
+        intDate += is_leap_year(y) ? 366 : 365;
+    }
+    int days_in_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    for (int m = 1; m < month; ++m) {
+        if (m == 2 && is_leap_year(year)) {
+            intDate += 29;
+        } else {
+            intDate += days_in_month[m - 1];
+        }
+    }
+    intDate += day - 1;
+}
+
+void Value::intDate_to_strDate_(const int intDate, std::string& strDate) {
+    int days = intDate;
+    int year = 0;
+    while (days >= (is_leap_year(year) ? 366 : 365)) {
+        days -= (is_leap_year(year) ? 366 : 365);
+        year++;
+    }
+    int month = 1;
+    int days_in_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    while (true) {
+        int days_this_month = (month == 2 && is_leap_year(year)) ? 29 : days_in_month[month - 1];
+        if (days < days_this_month) break;
+        days -= days_this_month;
+        month++;
+    }
+    int day = days + 1;
+
+    char buffer[11];
+    sprintf(buffer, "%04d-%02d-%02d", year, month, day);
+    strDate = std::string(buffer);
 }
