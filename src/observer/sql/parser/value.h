@@ -14,8 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-
+#include<string>
+using namespace std;
 /**
  * @brief 属性的类型
  *
@@ -24,8 +24,14 @@ enum AttrType
 {
   UNDEFINED,
   CHARS,     ///< 字符串类型
-  INTS,      ///< 整数类型(4字节)
+  INTS,  
+  DATES,    ///< 整数类型(4字节)
   FLOATS,    ///< 浮点数类型(4字节)
+
+//******************************
+      ///< 整数类型(4字节)
+//******************************
+
   BOOLEANS,  ///< boolean类型，当前不是由parser解析出来的，是程序内部使用的
 };
 
@@ -48,6 +54,10 @@ public:
   explicit Value(bool val);
   explicit Value(const char *s, int len = 0);
 
+  //**********************************************************
+  explicit Value(const char *s, int len , int flag);
+  //**********************************************************
+
   Value(const Value &other)            = default;
   Value &operator=(const Value &other) = default;
 
@@ -57,6 +67,11 @@ public:
   void set_int(int val);
   void set_float(float val);
   void set_boolean(bool val);
+
+  //**********************************************************
+  void set_date(int val);
+  //**********************************************************
+
   void set_string(const char *s, int len = 0);
   void set_value(const Value &value);
 
@@ -69,6 +84,8 @@ public:
 
   AttrType attr_type() const { return attr_type_; }
 
+
+
 public:
   /**
    * 获取对应的值
@@ -79,6 +96,9 @@ public:
   std::string get_string() const;
   bool        get_boolean() const;
 
+//**********************get_date******************************
+  int         get_date() const;
+//************************************************************
 private:
   AttrType attr_type_ = UNDEFINED;
   int      length_    = 0;
@@ -86,8 +106,15 @@ private:
   union
   {
     int   int_value_;
+     //**************date_value*******************
+    int   date_value_;
+    //*******************************************
     float float_value_;
     bool  bool_value_;
+
   } num_value_;
   std::string str_value_;
 };
+bool str_to_date(const char *str, int &date) ;
+void date_to_str(int int_date,std::string&str_date) ;
+bool is_leap_year(int year);
