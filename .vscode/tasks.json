@@ -26,7 +26,8 @@
         {
             "label": "gen_parser",
             "type": "shell",
-            "command": "cd ${workspaceFolder}/src/observer/sql/parser && bash gen_parser.sh"
+            "command": "cd ${workspaceFolder}/src/observer/sql/parser && bash gen_parser.sh",
+            "problemMatcher": []
         }
     ]
 }

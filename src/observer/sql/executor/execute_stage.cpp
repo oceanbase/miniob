@@ -69,10 +69,12 @@ RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
       bool        with_table_name = select_stmt->tables().size() > 1;
 
       for (const Field &field : select_stmt->query_fields()) {
+        const AggrOp aggr = field.aggregation();
         if (with_table_name) {
-          schema.append_cell(field.table_name(), field.field_name());
+          //const AggrOp aggr = field.aggregation();
+          schema.append_cell(field.table_name(), field.field_name(), aggr);
         } else {
-          schema.append_cell(field.field_name());
+          schema.append_cell(field.field_name(), aggr);
         }
       }
     } break;
