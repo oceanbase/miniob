@@ -78,9 +78,7 @@ RC insert_record_from_file(Table *table,
         } else {
           record_values[i].set_int(int_value);
         }
-      }
-
-      break;
+      }break;
       case FLOATS: {
         deserialize_stream.clear();
         deserialize_stream.str(file_value);
@@ -97,6 +95,23 @@ RC insert_record_from_file(Table *table,
       case CHARS: {
         record_values[i].set_string(file_value.c_str());
       } break;
+      // case DATES: {
+      //   deserialize_stream.clear();  // 清理stream的状态，防止多次解析出现异常
+      //   deserialize_stream.str(file_value);
+
+      //   int date_value;
+      //   deserialize_stream >> date_value;
+      //   int y = date_value/10000;
+      //   int m = (date_value % 10000)/100;
+      //   int d = date_value % 100;
+      //   if (!deserialize_stream || !deserialize_stream.eof() || !check_date(y,m,d)) {
+      //     errmsg << "need an integer but got '" << file_values[i] << "' (field index:" << i << ")";
+      //     rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
+      //   } else {
+      //     record_values[i].set_date(date_value);
+      //   }
+      // }
+
       default: {
         errmsg << "Unsupported field type to loading: " << field->type();
         rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;

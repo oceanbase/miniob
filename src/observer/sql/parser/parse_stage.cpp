@@ -36,7 +36,19 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
 
   ParsedSqlResult parsed_sql_result;
 
-  parse(sql.c_str(), &parsed_sql_result);
+  try
+  {
+    parse(sql.c_str(), &parsed_sql_result);
+  }
+  catch(const char* str)
+  {
+    sql_result->set_return_code(RC::INVALID_ARGUMENT);
+    LOG_WARN("got multi sql commands but only 1 will be handled");
+    return RC::INVALID_ARGUMENT;
+  }
+
+  // parse(sql.c_str(), &parsed_sql_result);
+  
   if (parsed_sql_result.sql_nodes().empty()) {
     sql_result->set_return_code(RC::SUCCESS);
     sql_result->set_state_string("");

@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats","dates","booleans"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats","DATES","booleans"};
 
 const char *attr_type_to_string(AttrType type)
 {
@@ -60,9 +60,13 @@ Value::Value(const char *s, int len /*= 0*/)
 
 Value::Value(const char *date, int len, int flag)
 {
-  int intDate = 0;
+  int intDate = -1;
   strDate_to_intDate(date,intDate);
-  set_date(intDate);
+  if(intDate == -1)
+  {
+    throw "illegal date";
+  }
+  else set_date(intDate);
 }
 
 void Value::set_data(char *data, int length)
@@ -250,9 +254,9 @@ int Value::get_int() const
     case BOOLEANS: {
       return (int)(num_value_.bool_value_);
     }
-    case DATES: {
-      return num_value_.date_value_;
-    }
+    // case DATES: {
+    //   return num_value_.date_value_;
+    // }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return 0;
@@ -281,9 +285,9 @@ float Value::get_float() const
     case BOOLEANS: {
       return float(num_value_.bool_value_);
     } break;
-    case DATES: {
-      return float(num_value_.date_value_);
-    } break;
+    // case DATES: {
+    //   return float(num_value_.date_value_);
+    // } break;
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return 0;
@@ -328,9 +332,9 @@ bool Value::get_boolean() const
     case BOOLEANS: {
       return num_value_.bool_value_;
     } break;
-    case DATES: {
-      return num_value_.date_value_ != 0;
-    }
+    // case DATES: {
+    //   return num_value_.date_value_ != 0;
+    // }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return false;
@@ -388,19 +392,12 @@ void strDate_to_intDate(const char* strDate,int& intDate)
 {
   int y,m,d;
   int ret = sscanf(strDate,"%d-%d-%d",&y,&m,&d);
-  try
+  if(ret != 3 || !check_date(y,m,d))
   {
-    if(ret != 3)
-      throw "Date illegal";
-    else if(!check_date(y,m,d))
-      throw "Date illegal";
-    else intDate = 10000*y + 100*m + d;
+    return;
   }
-  catch(const char* str)
-  {
-    std::cerr << str << '\n';
-  }
-}
+  intDate = 10000*y + 100*m + d;
+} 
 
 void intDate_to_strDate(const int intDate, char strDate[11])
 {
