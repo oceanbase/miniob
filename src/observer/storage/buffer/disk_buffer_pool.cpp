@@ -207,8 +207,9 @@ RC BufferPoolIterator::reset()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-DiskBufferPool::DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager)
-    : bp_manager_(bp_manager), frame_manager_(frame_manager)
+DiskBufferPool::DiskBufferPool(
+    BufferPoolManager &bp_manager, BPFrameManager &frame_manager, DoubleWriteBuffer &dblwr_manager)
+    : bp_manager_(bp_manager), frame_manager_(frame_manager), dblwr_manager_(dblwr_manager)
 {}
 
 DiskBufferPool::~DiskBufferPool()
@@ -311,12 +312,17 @@ RC DiskBufferPool::get_this_page(PageNum page_num, Frame **frame)
   // allocated_frame->pin(); // pined in manager::get
   allocated_frame->access();
 
-  if ((rc = load_page(page_num, allocated_frame)) != RC::SUCCESS) {
-    LOG_ERROR("Failed to load page %s:%d", file_name_.c_str(), page_num);
-    purge_frame(page_num, allocated_frame);
-    return rc;
+  // check if the page is in double write buffer
+  auto ret = dblwr_manager_.get_page(file_name_, page_num);
+  if (ret != std::nullopt) {
+    allocated_frame->page() = ret.value();
+  } else {
+    if ((rc = load_page(page_num, allocated_frame)) != RC::SUCCESS) {
+      LOG_ERROR("Failed to load page %s:%d", file_name_.c_str(), page_num);
+      purge_frame(page_num, allocated_frame);
+      return rc;
+    }
   }
-
   *frame = allocated_frame;
   return RC::SUCCESS;
 }
@@ -490,17 +496,13 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
   // so it is easier to flush data to file.
 
   frame.set_check_sum(crc32(frame.page().data, BP_PAGE_DATA_SIZE));
-  Page   &page   = frame.page();
-  int64_t offset = ((int64_t)page.page_num) * sizeof(Page);
-  if (lseek(file_desc_, offset, SEEK_SET) == offset - 1) {
-    LOG_ERROR("Failed to flush page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
-    return RC::IOERR_SEEK;
+  Page &page = frame.page();
+
+  RC rc = dblwr_manager_.add_page(file_name_, page);
+  if (rc != RC::SUCCESS) {
+    return rc;
   }
 
-  if (writen(file_desc_, &page, sizeof(Page)) != 0) {
-    LOG_ERROR("Failed to flush page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
-    return RC::IOERR_WRITE;
-  }
   frame.clear_dirty();
   LOG_DEBUG("Flush block. file desc=%d, pageNum=%d, pin count=%d", file_desc_, page.page_num, frame.pin_count());
 
@@ -611,6 +613,7 @@ BufferPoolManager::BufferPoolManager(int memory_size /* = 0 */)
   }
   const int pool_num = std::max(memory_size / BP_PAGE_SIZE / DEFAULT_ITEM_NUM_PER_POOL, 1);
   frame_manager_.init(pool_num);
+  dblwr_buffer_ = new DoubleWriteBuffer(*this);
   LOG_INFO("buffer pool manager init with memory size %d, page num: %d, pool num: %d",
            memory_size, pool_num * DEFAULT_ITEM_NUM_PER_POOL, pool_num);
 }
@@ -623,6 +626,8 @@ BufferPoolManager::~BufferPoolManager()
   for (auto &iter : tmp_bps) {
     delete iter.second;
   }
+
+  delete dblwr_buffer_;
 }
 
 RC BufferPoolManager::create_file(const char *file_name)
@@ -680,7 +685,7 @@ RC BufferPoolManager::open_file(const char *_file_name, DiskBufferPool *&_bp)
     return RC::BUFFERPOOL_OPEN;
   }
 
-  DiskBufferPool *bp = new DiskBufferPool(*this, frame_manager_);
+  DiskBufferPool *bp = new DiskBufferPool(*this, frame_manager_, *dblwr_buffer_);
   RC              rc = bp->open_file(_file_name);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open file name");
@@ -744,6 +749,16 @@ RC BufferPoolManager::flush_page(Frame &frame)
   return bp->flush_page(frame);
 }
 
+RC BufferPoolManager::get_disk_buffer(std::string file_name, DiskBufferPool **buf)
+{
+  if (buffer_pools_.count(file_name) == 0) {
+    open_file(file_name.c_str(), *buf);
+  }
+  *buf = buffer_pools_[file_name];
+
+  return RC::SUCCESS;
+}
+
 static BufferPoolManager *default_bpm = nullptr;
 void                      BufferPoolManager::set_instance(BufferPoolManager *bpm)
 {
@@ -754,3 +769,115 @@ void                      BufferPoolManager::set_instance(BufferPoolManager *bpm
   default_bpm = bpm;
 }
 BufferPoolManager &BufferPoolManager::instance() { return *default_bpm; }
+
+DoubleWriteBuffer::DoubleWriteBuffer(BufferPoolManager &bp_manager) : bp_manager_(bp_manager) { open_file(); }
+
+DoubleWriteBuffer::~DoubleWriteBuffer()
+{
+  for (auto page : dblwr_pages_) {
+    delete page;
+  }
+  close(file_desc_);
+}
+
+RC DoubleWriteBuffer::open_file()
+{
+  int fd = open(DBLWR_FILE_NAME, O_RDWR);
+  if (fd < 0) {
+    LOG_ERROR("Failed to open for readwrite %s, due to %s.", DBLWR_FILE_NAME, strerror(errno));
+    return RC::IOERR_ACCESS;
+  }
+
+  file_desc_ = fd;
+
+  return RC::SUCCESS;
+}
+
+RC DoubleWriteBuffer::flush_page()
+{
+  sync();
+  for (const auto &page : dblwr_pages_) {
+    RC rc = write_page(page);
+    if (rc != RC::SUCCESS) {
+      return rc;
+    }
+    delete page;
+  }
+
+  dblwr_pages_.clear();
+
+  return RC::SUCCESS;
+}
+
+RC DoubleWriteBuffer::add_page(const std::string &file_name, Page page)
+{
+  std::scoped_lock lock_guard(lock_);
+
+  for (auto dblwr_page : dblwr_pages_) {
+    if (dblwr_page->get_file_name() == file_name && dblwr_page->get_page().page_num == page.page_num) {
+      dblwr_page->get_page() = page;
+      return RC::SUCCESS;
+    }
+  }
+
+  if (dblwr_pages_.size() >= DBLWR_BUFFER_MAX_SIZE) {
+    RC rc = flush_page();
+    if (rc != RC::SUCCESS) {
+      return rc;
+    }
+  }
+
+  int64_t page_cnt   = dblwr_pages_.size();
+  auto    dblwr_page = new DoubleWritePage((int)dblwr_pages_.size(), file_name, page);
+  dblwr_pages_.push_back(dblwr_page);
+
+  int64_t offset = page_cnt * sizeof(DoubleWritePage);
+  if (lseek(file_desc_, offset, SEEK_SET) == offset - 1) {
+    LOG_ERROR("Failed to flush page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
+    return RC::IOERR_SEEK;
+  }
+
+  if (writen(file_desc_, &page, sizeof(Page)) != 0) {
+    LOG_ERROR("Failed to flush page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
+    return RC::IOERR_WRITE;
+  }
+
+  return RC::SUCCESS;
+}
+
+RC DoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
+{
+  DiskBufferPool *disk_buffer = nullptr;
+  auto            file_name   = dblwr_page->get_file_name();
+  bp_manager_.get_disk_buffer(file_name, &disk_buffer);
+
+  disk_buffer->lock();
+  Page   &page   = dblwr_page->get_page();
+  int64_t offset = ((int64_t)page.page_num) * sizeof(Page);
+  if (lseek(disk_buffer->file_desc(), offset, SEEK_SET) == offset - 1) {
+    LOG_ERROR("Failed to flush page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
+    disk_buffer->unlock();
+    return RC::IOERR_SEEK;
+  }
+
+  if (writen(disk_buffer->file_desc(), &page, sizeof(Page)) != 0) {
+    LOG_ERROR("Failed to flush page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
+    disk_buffer->unlock();
+    return RC::IOERR_WRITE;
+  }
+
+  disk_buffer->unlock();
+  return RC::SUCCESS;
+}
+
+std::optional<Page> DoubleWriteBuffer::get_page(const std::string &file_name, PageNum page_num)
+{
+  std::scoped_lock lock_guard(lock_);
+  for (auto dblwr_page : dblwr_pages_) {
+    if (dblwr_page->get_file_name() == file_name && dblwr_page->get_page().page_num == page_num) {
+      return std::make_optional<Page>(dblwr_page->get_page());
+    }
+  }
+
+  return std::nullopt;
+}
