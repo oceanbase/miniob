@@ -47,7 +47,7 @@ class DoubleWritePage
 public:
   DoubleWritePage(PageNum page_num, std::string file_name, Page page) : page_(page)
   {
-    for (int i = 0; i < file_name.size(); i++) {
+    for (size_t i = 0; i < file_name.size(); i++) {
       file_name_[i] = file_name[i];
     }
     file_name_[file_name.size()] = '\0';
