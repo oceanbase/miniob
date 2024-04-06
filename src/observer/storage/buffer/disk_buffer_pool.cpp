@@ -785,7 +785,7 @@ DoubleWriteBuffer::~DoubleWriteBuffer()
 
 RC DoubleWriteBuffer::open_file()
 {
-  int fd = open(DBLWR_FILE_NAME, O_CREAT | O_RDWR);
+  int fd = open(DBLWR_FILE_NAME, O_CREAT | O_RDWR, 0644);
   if (fd < 0) {
     LOG_ERROR("Failed to open or creat %s, due to %s.", DBLWR_FILE_NAME, strerror(errno));
     return RC::SCHEMA_DB_EXIST;
