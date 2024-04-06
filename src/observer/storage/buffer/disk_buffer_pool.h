@@ -259,9 +259,6 @@ public:
    */
   RC recover_page(PageNum page_num);
 
-  void lock() { lock_.lock(); }
-  void unlock() { lock_.unlock(); }
-
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);
 
@@ -358,7 +355,7 @@ public:
   /**
    * 查看buffer中是否存在该页面
    */
-  std::optional<Page> get_page(const std::string &file_name, PageNum page_num);
+  std::optional<Page> get_page(const std::string &file_name, PageNum &page_num);
 
 private:
   int                       file_desc_ = -1;
