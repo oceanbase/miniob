@@ -114,5 +114,5 @@ private:
 };
 
 bool is_valid_date(int intDate);
-void strDate_to_intDate(const char* strDate,int& intDate);
+void strDate_to_intDate(const char* strDate, int& intDate);
 void intDate_to_strDate(const int intDate,std::string& strDate);

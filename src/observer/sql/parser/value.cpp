@@ -348,16 +348,25 @@ bool Value::get_boolean() const
   return false;
 }
 
-void strDate_to_intDate(const char* strDate,int& intDate)
-{
-  std::string dateStr(strDate);
-    std::string yearStr = dateStr.substr(0, 4);
-    std::string monthStr = dateStr.substr(5, 2);
-    std::string dayStr = dateStr.substr(8, 2);
+void strDate_to_intDate(const char* strDate, int& intDate) {
+    std::istringstream iss(strDate);
+    std::string token;
+    int year, month, day;
 
-    int year = std::stoi(yearStr);
-    int month = std::stoi(monthStr);
-    int day = std::stoi(dayStr);
+    std::getline(iss, token, '-');
+    year = std::stoi(token);
+    std::getline(iss, token, '-');
+    if (token.length() > 1) {
+        month = std::stoi(token);
+    } else {
+        month = std::stoi(token.substr(0, 1));
+    }
+    std::getline(iss, token, '-');
+    if (token.length() > 1) {
+        day = std::stoi(token);
+    } else {
+        day = std::stoi(token.substr(0, 1));
+    }
 
     intDate = year * 10000 + month * 100 + day;
 }
