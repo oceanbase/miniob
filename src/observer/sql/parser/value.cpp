@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by WangYunlai on 2023/06/28.
 //
-
+#include <string>
 #include <sstream>
 #include "sql/parser/value.h"
 #include "storage/field/field.h"
@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints","dates", "floats", "booleans"};
 
 const char *attr_type_to_string(AttrType type)
 {
@@ -58,6 +58,21 @@ Value::Value(const char *s, int len /*= 0*/)
   set_string(s, len);
 }
 
+Value::Value(const char *date, int len,int flag)
+{
+  int intDate=0;
+  strDate_to_intDate(date,intDate);
+  if(is_valid_date(intDate))
+  {
+    set_date(intDate);
+  }
+  else
+  {
+    throw (std::string ("this is a invaild date!"));
+    return;
+  }
+}
+
 void Value::set_data(char *data, int length)
 {
   switch (attr_type_) {
@@ -66,6 +81,10 @@ void Value::set_data(char *data, int length)
     } break;
     case INTS: {
       num_value_.int_value_ = *(int *)data;
+      length_ = length;
+    } break;
+    case DATES: {
+      num_value_.date_value_ = *(int *)data;
       length_ = length;
     } break;
     case FLOATS: {
@@ -87,7 +106,12 @@ void Value::set_int(int val)
   num_value_.int_value_ = val;
   length_ = sizeof(val);
 }
-
+void Value::set_date(int val)
+{
+  attr_type_ = DATES;
+  num_value_.date_value_ = val;
+  length_ = sizeof(val);
+}
 void Value::set_float(float val)
 {
   attr_type_ = FLOATS;
@@ -152,6 +176,11 @@ std::string Value::to_string() const
     case INTS: {
       os << num_value_.int_value_;
     } break;
+    case DATES: {
+      std::string strDate=" ";
+      intDate_to_strDate(num_value_.int_value_,strDate);
+      os << strDate;
+    } break;
     case FLOATS: {
       os << common::double_to_str(num_value_.float_value_);
     } break;
@@ -174,6 +203,9 @@ int Value::compare(const Value &other) const
     switch (this->attr_type_) {
       case INTS: {
         return common::compare_int((void *)&this->num_value_.int_value_, (void *)&other.num_value_.int_value_);
+      } break;
+      case DATES: {
+        return common::compare_date((void *)&this->num_value_.date_value_, (void *)&other.num_value_.date_value_);
       } break;
       case FLOATS: {
         return common::compare_float((void *)&this->num_value_.float_value_, (void *)&other.num_value_.float_value_);
@@ -221,6 +253,20 @@ int Value::get_int() const
     }
     case BOOLEANS: {
       return (int)(num_value_.bool_value_);
+    }
+    default: {
+      LOG_WARN("unknown data type. type=%d", attr_type_);
+      return 0;
+    }
+  }
+  return 0;
+}
+
+int Value::get_date() const
+{
+  switch (attr_type_) {
+    case DATES: {
+      return num_value_.date_value_;
     }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
@@ -300,4 +346,82 @@ bool Value::get_boolean() const
     }
   }
   return false;
+}
+
+void strDate_to_intDate(const char* strDate,int& intDate)
+{
+  std::string dateStr(strDate);
+    std::string yearStr = dateStr.substr(0, 4);
+    std::string monthStr = dateStr.substr(5, 2);
+    std::string dayStr = dateStr.substr(8, 2);
+
+    int year = std::stoi(yearStr);
+    int month = std::stoi(monthStr);
+    int day = std::stoi(dayStr);
+
+    intDate = year * 10000 + month * 100 + day;
+}
+
+void intDate_to_strDate(const int intDate,std::string& strDate)
+{
+  int year = intDate / 10000;
+    int month = (intDate / 100) % 100;
+    int day = intDate % 100;
+
+    std::ostringstream oss;
+    oss << year << "-";
+    if (month < 10)
+    {
+        oss << "0";
+    }
+    oss << month << "-";
+    if (day < 10)
+    {
+        oss << "0";
+    }
+    oss << day;
+
+    strDate = oss.str();
+}
+
+bool is_valid_date(int intDate)
+{
+    int year = intDate / 10000;
+    int month = (intDate / 100) % 100;
+    int day = intDate % 100;
+
+    if (year < 1)
+    {
+        return false; // 年份不合法
+    }
+
+    if (month < 1 || month > 12)
+    {
+        return false; // 月份不合法
+    }
+
+    int maxDay = 31; // 默认最大天数为31
+
+    if (month == 4 || month == 6 || month == 9 || month == 11)
+    {
+        maxDay = 30; // 4月、6月、9月、11月只有30天
+    }
+    else if (month == 2)
+    {
+        if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+        {
+            maxDay = 29; // 闰年2月有29天
+        }
+        else
+        {
+            maxDay = 28; // 非闰年2月有28天
+        }
+    }
+
+    if (day < 1 || day > maxDay)
+    {
+        return false; // 日不合法
+    }
+
+    return true; // 日期合法
 }

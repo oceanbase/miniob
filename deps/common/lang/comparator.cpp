@@ -59,5 +59,10 @@ int compare_string(void *arg1, int arg1_max_length, void *arg2, int arg2_max_len
   }
   return 0;
 }
-
+int compare_date(void *arg1, void *arg2)
+{
+  int v1 = *(int *)arg1;
+  int v2 = *(int *)arg2;
+  return v1 - v2;
+}
 } // namespace common
