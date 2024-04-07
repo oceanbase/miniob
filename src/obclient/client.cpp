@@ -157,7 +157,7 @@ Learn more about MiniOB at https://github.com/oceanbase/miniob
 
 int main(int argc, char *argv[])
 {
-  printf(startup_tips);
+  printf("%s", startup_tips);
 
   const char  *unix_socket_path = nullptr;
   const char  *server_host      = "127.0.0.1";
