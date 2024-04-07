@@ -586,7 +586,8 @@ RC DiskBufferPool::check_page_num(PageNum page_num)
 
 RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
 {
-  int64_t offset = ((int64_t)page_num) * BP_PAGE_SIZE;
+  std::scoped_lock lock_guard(wr_lock_);
+  int64_t          offset = ((int64_t)page_num) * BP_PAGE_SIZE;
   if (lseek(file_desc_, offset, SEEK_SET) == -1) {
     LOG_ERROR("Failed to load page %s:%d, due to failed to lseek:%s.", file_name_.c_str(), page_num, strerror(errno));
 
@@ -749,10 +750,10 @@ RC BufferPoolManager::flush_page(Frame &frame)
   return bp->flush_page(frame);
 }
 
-RC BufferPoolManager::get_disk_buffer(std::string file_name, DiskBufferPool **buf)
+RC BufferPoolManager::get_disk_buffer(const char *file_name, DiskBufferPool **buf)
 {
   if (buffer_pools_.count(file_name) == 0) {
-    RC rc = open_file(file_name.c_str(), *buf);
+    RC rc = open_file(file_name, *buf);
     if (rc != RC::SUCCESS) {
       return rc;
     }
@@ -807,34 +808,35 @@ RC DoubleWriteBuffer::flush_page()
   }
 
   dblwr_pages_.clear();
+  pages_.clear();
 
   return RC::SUCCESS;
 }
 
-RC DoubleWriteBuffer::add_page(const std::string &file_name, Page page)
+RC DoubleWriteBuffer::add_page(const std::string &file_name, Page &page)
 {
   std::scoped_lock lock_guard(lock_);
+  string           key = file_name + to_string(page.page_num);
 
-  for (auto dblwr_page : dblwr_pages_) {
-    if (dblwr_page->get_file_name() == file_name && dblwr_page->get_page().page_num == page.page_num) {
-      dblwr_page->get_page() = page;
-      return RC::SUCCESS;
-    }
+  if (pages_.count(key) != 0) {
+    pages_.at(key)->get_page() = page;
+    return RC::SUCCESS;
   }
 
   if (dblwr_pages_.size() >= DBLWR_BUFFER_MAX_SIZE) {
     RC rc = flush_page();
     if (rc != RC::SUCCESS) {
+      LOG_ERROR("Failed to flush pages in double write buffer");
       return rc;
     }
   }
 
-  int64_t page_cnt   = dblwr_pages_.size();
-  auto    dblwr_page = new DoubleWritePage((int)dblwr_pages_.size(), file_name, page);
+  int64_t          page_cnt   = dblwr_pages_.size();
+  DoubleWritePage *dblwr_page = new DoubleWritePage((int)dblwr_pages_.size(), file_name, page);
   dblwr_pages_.push_back(dblwr_page);
 
   int64_t offset = page_cnt * sizeof(DoubleWritePage);
-  if (lseek(file_desc_, offset, SEEK_SET) == offset - 1) {
+  if (lseek(file_desc_, offset, SEEK_SET) == -1) {
     LOG_ERROR("Failed to add page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_SEEK;
   }
@@ -844,37 +846,44 @@ RC DoubleWriteBuffer::add_page(const std::string &file_name, Page page)
     return RC::IOERR_WRITE;
   }
 
+  pages_[key] = dblwr_page;
+
   return RC::SUCCESS;
 }
 
 RC DoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
 {
   DiskBufferPool *disk_buffer = nullptr;
-  auto            file_name   = dblwr_page->get_file_name();
+  const char     *file_name   = dblwr_page->get_file_name();
   bp_manager_.get_disk_buffer(file_name, &disk_buffer);
+
+  disk_buffer->lock();
 
   Page   &page   = dblwr_page->get_page();
   int64_t offset = ((int64_t)page.page_num) * sizeof(Page);
-  if (lseek(disk_buffer->file_desc(), offset, SEEK_SET) == offset - 1) {
+  if (lseek(disk_buffer->file_desc(), offset, SEEK_SET) == -1) {
     LOG_ERROR("Failed to write page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
+    disk_buffer->unlock();
     return RC::IOERR_SEEK;
   }
 
   if (writen(disk_buffer->file_desc(), &page, sizeof(Page)) != 0) {
     LOG_ERROR("Failed to write page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
+    disk_buffer->unlock();
     return RC::IOERR_WRITE;
   }
 
+  disk_buffer->unlock();
   return RC::SUCCESS;
 }
 
 std::optional<Page> DoubleWriteBuffer::get_page(const std::string &file_name, PageNum &page_num)
 {
   std::scoped_lock lock_guard(lock_);
-  for (auto dblwr_page : dblwr_pages_) {
-    if (dblwr_page->get_file_name() == file_name && dblwr_page->get_page().page_num == page_num) {
-      return std::make_optional<Page>(dblwr_page->get_page());
-    }
+
+  string key = file_name + to_string(page_num);
+  if (pages_.count(key) != 0) {
+    return make_optional<Page>(pages_.at(key)->get_page());
   }
 
   return std::nullopt;

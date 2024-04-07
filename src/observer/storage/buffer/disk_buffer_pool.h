@@ -259,6 +259,9 @@ public:
    */
   RC recover_page(PageNum page_num);
 
+  void lock() { wr_lock_.lock(); }
+  void unlock() { wr_lock_.unlock(); }
+
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);
 
@@ -290,6 +293,7 @@ private:
   std::set<PageNum> disposed_pages_;
 
   common::Mutex lock_;
+  common::Mutex wr_lock_;
 
 private:
   friend class BufferPoolIterator;
@@ -310,7 +314,7 @@ public:
   RC close_file(const char *file_name);
 
   RC flush_page(Frame &frame);
-  RC get_disk_buffer(std::string file_name, DiskBufferPool **buf);
+  RC get_disk_buffer(const char *file_name, DiskBufferPool **buf);
 
 public:
   static void               set_instance(BufferPoolManager *bpm);  // TODO 优化全局变量的表示方法
@@ -323,6 +327,25 @@ private:
   common::Mutex                                     lock_;
   std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;
   std::unordered_map<int, DiskBufferPool *>         fd_buffer_pools_;
+};
+
+static constexpr const int FILE_NAME_SIZE = (1 << 10);
+static constexpr const int DW_PAGE_SIZE   = FILE_NAME_SIZE + BP_PAGE_SIZE + sizeof(PageNum);
+class DoubleWritePage
+{
+public:
+  DoubleWritePage(PageNum page_num, const std::string &file_name, Page &page) : page_(page)
+  {
+    snprintf(file_name_, FILE_NAME_SIZE, "%s", file_name.c_str());
+  }
+
+  const char *get_file_name() { return file_name_; }
+
+  Page &get_page() { return page_; }
+
+private:
+  char file_name_[FILE_NAME_SIZE];
+  Page page_;
 };
 
 class DoubleWriteBuffer
@@ -345,7 +368,7 @@ public:
   /**
    * 将页面加入buffer，并且写入磁盘中的共享表空间
    */
-  RC add_page(const std::string &file_name, Page page);
+  RC add_page(const std::string &file_name, Page &page);
 
   /**
    * 将buffer中的页面写入对应的磁盘
@@ -358,8 +381,10 @@ public:
   std::optional<Page> get_page(const std::string &file_name, PageNum &page_num);
 
 private:
-  int                       file_desc_ = -1;
-  common::Mutex             lock_;
-  BufferPoolManager        &bp_manager_;
-  vector<DoubleWritePage *> dblwr_pages_;
+  int                            file_desc_ = -1;
+  common::Mutex                  lock_;
+  BufferPoolManager             &bp_manager_;
+  std::vector<DoubleWritePage *> dblwr_pages_;
+
+  std::unordered_map<std::string, DoubleWritePage *> pages_;
 };
