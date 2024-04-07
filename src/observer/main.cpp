@@ -165,9 +165,21 @@ void quit_signal_handle(int signum)
   pthread_create(&tid, nullptr, quit_thread_func, (void *)(intptr_t)signum);
 }
 
+const char *startup_tips = R"(
+Welcome to the OceanBase database implementation course.
+
+Copyright (c) 2021 OceanBase and/or its affiliates.
+
+Learn more about OceanBase at https://github.com/oceanbase/oceanbase
+Learn more about MiniOB at https://github.com/oceanbase/miniob
+
+)";
+
 int main(int argc, char **argv)
 {
   int rc = STATUS_SUCCESS;
+
+  cout << startup_tips;
 
   set_signal_handler(quit_signal_handle);
 
