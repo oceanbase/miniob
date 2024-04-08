@@ -833,7 +833,8 @@ RC DoubleWriteBuffer::flush_page()
 RC DoubleWriteBuffer::add_page(const std::string &file_name, Page &page)
 {
   std::scoped_lock lock_guard(lock_);
-  string           key = file_name + to_string(page.page_num);
+  LOG_ERROR("add page name = %s num = %d",file_name.c_str(), page.page_num);
+  string key = file_name + to_string(page.page_num);
 
   if (pages_.count(key) != 0) {
     pages_.at(key)->get_page() = page;
@@ -870,6 +871,7 @@ RC DoubleWriteBuffer::add_page(const std::string &file_name, Page &page)
 
 RC DoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
 {
+  LOG_ERROR("write page name = %s num = %d", dblwr_page->get_file_name(), dblwr_page->get_page().page_num);
   DiskBufferPool *disk_buffer = nullptr;
   const char     *file_name   = dblwr_page->get_file_name();
   bp_manager_.get_disk_buffer(file_name, &disk_buffer);
