@@ -245,12 +245,12 @@ public:
   int file_desc() const;
 
   /**
-   * 如果页面是脏的，就将数据刷新到磁盘
+   * 如果页面是脏的，就将数据刷新到double write buffer
    */
   RC flush_page(Frame &frame);
 
   /**
-   * 刷新所有页面到磁盘，即使pin count不是0
+   * 刷新所有页面到double write buffer，即使pin count不是0
    */
   RC flush_all_pages();
 
@@ -259,8 +259,10 @@ public:
    */
   RC recover_page(PageNum page_num);
 
-  void lock() { wr_lock_.lock(); }
-  void unlock() { wr_lock_.unlock(); }
+  /**
+   * 刷新页面到磁盘
+   */
+  RC write_page(Page &page);
 
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);

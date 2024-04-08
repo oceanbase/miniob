@@ -538,6 +538,23 @@ RC DiskBufferPool::recover_page(PageNum page_num)
   return RC::SUCCESS;
 }
 
+RC DiskBufferPool::write_page(Page &page)
+{
+  scoped_lock lock_guard(wr_lock_);
+  int64_t     offset = ((int64_t)page.page_num) * sizeof(Page);
+  if (lseek(file_desc_, offset, SEEK_SET) == -1) {
+    LOG_ERROR("Failed to write page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
+    return RC::IOERR_SEEK;
+  }
+
+  if (writen(file_desc_, &page, sizeof(Page)) != 0) {
+    LOG_ERROR("Failed to write page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
+    return RC::IOERR_WRITE;
+  }
+
+  return RC::SUCCESS;
+}
+
 RC DiskBufferPool::allocate_frame(PageNum page_num, Frame **buffer)
 {
   auto purger = [this](Frame *frame) {
@@ -857,24 +874,7 @@ RC DoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
   const char     *file_name   = dblwr_page->get_file_name();
   bp_manager_.get_disk_buffer(file_name, &disk_buffer);
 
-  disk_buffer->lock();
-
-  Page   &page   = dblwr_page->get_page();
-  int64_t offset = ((int64_t)page.page_num) * sizeof(Page);
-  if (lseek(disk_buffer->file_desc(), offset, SEEK_SET) == -1) {
-    LOG_ERROR("Failed to write page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
-    disk_buffer->unlock();
-    return RC::IOERR_SEEK;
-  }
-
-  if (writen(disk_buffer->file_desc(), &page, sizeof(Page)) != 0) {
-    LOG_ERROR("Failed to write page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
-    disk_buffer->unlock();
-    return RC::IOERR_WRITE;
-  }
-
-  disk_buffer->unlock();
-  return RC::SUCCESS;
+  return disk_buffer->write_page(dblwr_page->get_page());
 }
 
 std::optional<Page> DoubleWriteBuffer::get_page(const std::string &file_name, PageNum &page_num)
