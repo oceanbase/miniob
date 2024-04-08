@@ -555,6 +555,27 @@ RC DiskBufferPool::write_page(Page &page)
   return RC::SUCCESS;
 }
 
+RC DiskBufferPool::open_file_for_dwb(const char *file_name)
+{
+  int fd = open(file_name, O_RDWR);
+  if (fd < 0) {
+    LOG_ERROR("Failed to open file %s, because %s.", file_name, strerror(errno));
+    return RC::IOERR_ACCESS;
+  }
+  LOG_INFO("Successfully open buffer pool file %s.", file_name);
+
+  file_name_ = file_name;
+  file_desc_ = fd;
+
+  return RC::SUCCESS;
+}
+
+RC DiskBufferPool::close_file_for_dwb()
+{
+  file_desc_ = -1;
+  return RC::SUCCESS;
+}
+
 RC DiskBufferPool::allocate_frame(PageNum page_num, Frame **buffer)
 {
   auto purger = [this](Frame *frame) {
@@ -769,13 +790,10 @@ RC BufferPoolManager::flush_page(Frame &frame)
 
 RC BufferPoolManager::get_disk_buffer(const char *file_name, DiskBufferPool **buf)
 {
-  if (buffer_pools_.count(file_name) == 0) {
-    RC rc = open_file(file_name, *buf);
-    if (rc != RC::SUCCESS) {
-      return rc;
-    }
+
+  if (buffer_pools_.count(file_name) != 0) {
+    *buf = buffer_pools_[file_name];
   }
-  *buf = buffer_pools_[file_name];
 
   return RC::SUCCESS;
 }
@@ -816,6 +834,25 @@ RC DoubleWriteBuffer::open_file()
 RC DoubleWriteBuffer::flush_page()
 {
   sync();
+
+  buffers_.clear();
+  for (const auto &page : dblwr_pages_) {
+    DiskBufferPool *disk_buffer = nullptr;
+    const char     *file_name   = page->get_file_name();
+    bp_manager_.get_disk_buffer(file_name, &disk_buffer);
+
+    /**
+     * 如果bpm中没有对应的DiskBufferPool，就创建一个新的DiskBufferPool。
+     * 调用bpm中open_file时，需要申请一个新的frame，而如果此时frame manager已满，需要purge page，会导致无限循环
+     */
+    if (disk_buffer == nullptr) {
+      disk_buffer = new DiskBufferPool(bp_manager_, bp_manager_.get_frame_manager(), *this);
+      disk_buffer->open_file_for_dwb(file_name);
+      buffer_to_delete.push_back(disk_buffer);
+    }
+    buffers_[file_name] = disk_buffer;
+  }
+
   for (const auto &page : dblwr_pages_) {
     RC rc = write_page(page);
     if (rc != RC::SUCCESS) {
@@ -824,8 +861,15 @@ RC DoubleWriteBuffer::flush_page()
     delete page;
   }
 
+  for (const auto &buffer : buffer_to_delete) {
+    buffer->close_file_for_dwb();
+    delete buffer;
+  }
+
   dblwr_pages_.clear();
   pages_.clear();
+  buffers_.clear();
+  buffer_to_delete.clear();
 
   return RC::SUCCESS;
 }
@@ -870,9 +914,12 @@ RC DoubleWriteBuffer::add_page(const std::string &file_name, Page &page)
 
 RC DoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
 {
-  DiskBufferPool *disk_buffer = nullptr;
-  const char     *file_name   = dblwr_page->get_file_name();
-  bp_manager_.get_disk_buffer(file_name, &disk_buffer);
+  if (buffers_.count(dblwr_page->get_file_name()) == 0) {
+    LOG_ERROR("can't find disk buffer when write page");
+    return RC::IOERR_WRITE;
+  }
+
+  DiskBufferPool *disk_buffer = buffers_[dblwr_page->get_file_name()];
 
   return disk_buffer->write_page(dblwr_page->get_page());
 }

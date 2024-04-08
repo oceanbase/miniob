@@ -264,6 +264,9 @@ public:
    */
   RC write_page(Page &page);
 
+  RC open_file_for_dwb(const char *file_name);
+  RC close_file_for_dwb();
+
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);
 
@@ -317,6 +320,8 @@ public:
 
   RC flush_page(Frame &frame);
   RC get_disk_buffer(const char *file_name, DiskBufferPool **buf);
+
+  BPFrameManager &get_frame_manager() { return frame_manager_; }
 
 public:
   static void               set_instance(BufferPoolManager *bpm);  // TODO 优化全局变量的表示方法
@@ -389,4 +394,6 @@ private:
   std::vector<DoubleWritePage *> dblwr_pages_;
 
   std::unordered_map<std::string, DoubleWritePage *> pages_;
+  std::unordered_map<std::string, DiskBufferPool *>  buffers_;
+  std::list<DiskBufferPool *>                        buffer_to_delete;
 };
