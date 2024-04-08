@@ -324,7 +324,7 @@ public:
 
 private:
   BPFrameManager     frame_manager_{"BufPool"};
-  DoubleWriteBuffer *dblwr_buffer_;
+  DoubleWriteBuffer *dblwr_buffer_ = nullptr;
 
   common::Mutex                                     lock_;
   std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;
