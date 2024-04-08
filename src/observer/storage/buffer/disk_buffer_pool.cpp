@@ -837,6 +837,9 @@ RC DoubleWriteBuffer::flush_page()
 
   buffers_.clear();
   for (const auto &page : dblwr_pages_) {
+    if (buffers_.count(page->get_file_name()) != 0) {
+      continue;
+    }
     DiskBufferPool *disk_buffer = nullptr;
     const char     *file_name   = page->get_file_name();
     bp_manager_.get_disk_buffer(file_name, &disk_buffer);
