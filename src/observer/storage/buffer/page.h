@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/types.h"
 #include <stdint.h>
-#include <string>
 
 using TrxID = int32_t;
 
