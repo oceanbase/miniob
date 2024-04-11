@@ -837,23 +837,13 @@ RC DoubleWriteBuffer::flush_page()
 
   buffers_.clear();
   for (const auto &page : dblwr_pages_) {
-    if (buffers_.count(page->get_file_name()) != 0) {
-      continue;
-    }
-    DiskBufferPool *disk_buffer = nullptr;
-    const char     *file_name   = page->get_file_name();
-    bp_manager_.get_disk_buffer(file_name, &disk_buffer);
+    const char *file_name = page->get_file_name();
 
-    /**
-     * 如果bpm中没有对应的DiskBufferPool，就创建一个新的DiskBufferPool。
-     * 调用bpm中open_file时，需要申请一个新的frame，而如果此时frame manager已满，需要purge page，会导致无限循环
-     */
-    if (disk_buffer == nullptr) {
-      disk_buffer = new DiskBufferPool(bp_manager_, bp_manager_.get_frame_manager(), *this);
-      disk_buffer->open_file_for_dwb(file_name);
-      buffer_to_delete.push_back(disk_buffer);
+    RC rc = get_disk_buffer(file_name);
+    if (rc != RC::SUCCESS) {
+      LOG_ERROR("failed to get disk buffer");
+      return rc;
     }
-    buffers_[file_name] = disk_buffer;
   }
 
   for (const auto &page : dblwr_pages_) {
@@ -899,13 +889,13 @@ RC DoubleWriteBuffer::add_page(const std::string &file_name, Page &page)
   DoubleWritePage *dblwr_page = new DoubleWritePage((int)dblwr_pages_.size(), file_name, page);
   dblwr_pages_.push_back(dblwr_page);
 
-  int64_t offset = page_cnt * sizeof(DoubleWritePage);
+  int64_t offset = page_cnt * DW_PAGE_SIZE;
   if (lseek(file_desc_, offset, SEEK_SET) == -1) {
     LOG_ERROR("Failed to add page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_SEEK;
   }
 
-  if (writen(file_desc_, dblwr_page, sizeof(DoubleWritePage)) != 0) {
+  if (writen(file_desc_, dblwr_page, DW_PAGE_SIZE) != 0) {
     LOG_ERROR("Failed to add page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_WRITE;
   }
@@ -927,8 +917,37 @@ RC DoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
   return disk_buffer->write_page(dblwr_page->get_page());
 }
 
-RC DoubleWriteBuffer::read_pages()
+RC DoubleWriteBuffer::get_disk_buffer(const char *file_name)
 {
+  if (buffers_.count(file_name) != 0) {
+    return RC::SUCCESS;
+  }
+
+  DiskBufferPool *disk_buffer = nullptr;
+  bp_manager_.get_disk_buffer(file_name, &disk_buffer);
+
+  /**
+   * 如果bpm中没有对应的DiskBufferPool，就创建一个新的DiskBufferPool。
+   * 调用bpm中open_file时，需要申请一个新的frame，而如果此时frame manager已满，需要purge page，会导致无限循环
+   */
+  if (disk_buffer == nullptr) {
+    disk_buffer = new DiskBufferPool(bp_manager_, bp_manager_.get_frame_manager(), *this);
+    RC rc       = disk_buffer->open_file_for_dwb(file_name);
+    if (rc != RC::SUCCESS) {
+      LOG_ERROR("failed to open file for dwb");
+      return rc;
+    }
+    buffer_to_delete.push_back(disk_buffer);
+  }
+  buffers_[file_name] = disk_buffer;
+
+  return RC::SUCCESS;
+}
+
+RC DoubleWriteBuffer::recover()
+{
+  scoped_lock lock_guard(lock_);
+
   for (int page_num = 0; page_num < DBLWR_BUFFER_MAX_SIZE; page_num++) {
     int64_t offset = ((int64_t)page_num) * DW_PAGE_SIZE;
 
@@ -937,19 +956,38 @@ RC DoubleWriteBuffer::read_pages()
       return RC::IOERR_SEEK;
     }
 
-    auto dblwr_page = new DoubleWritePage();
-    int  ret        = readn(file_desc_, dblwr_page, DW_PAGE_SIZE);
+    auto  dblwr_page = new DoubleWritePage();
+    Page &page       = dblwr_page->get_page();
+    page.check_sum   = (CheckSum)-1;
+
+    int ret = readn(file_desc_, dblwr_page, DW_PAGE_SIZE);
     if (ret != 0) {
       LOG_ERROR("Failed to load dblwr page:%d, due to failed to read data:%s", page_num, strerror(errno));
       return RC::IOERR_READ;
     }
 
-    if (crc32(dblwr_page->get_page().data, BP_PAGE_DATA_SIZE) == dblwr_page->get_page().check_sum) {
-      dblwr_pages_.push_back(dblwr_page);
-    } else {
-      delete dblwr_page;
+    if (crc32(page.data, BP_PAGE_DATA_SIZE) == page.check_sum) {
+      RC rc = get_disk_buffer(dblwr_page->get_file_name());
+      if (rc != RC::SUCCESS) {
+        return rc;
+      }
+
+      rc = write_page(dblwr_page);
+      if (rc != RC::SUCCESS) {
+        return rc;
+      }
     }
+
+    delete dblwr_page;
   }
+
+  for (const auto &buffer : buffer_to_delete) {
+    buffer->close_file_for_dwb();
+    delete buffer;
+  }
+
+  buffers_.clear();
+  buffer_to_delete.clear();
 
   return RC::SUCCESS;
 }

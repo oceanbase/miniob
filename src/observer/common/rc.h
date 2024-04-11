@@ -74,8 +74,7 @@ See the Mulan PSL v2 for more details. */
   DEFINE_RC(VARIABLE_NOT_EXISTS)         \
   DEFINE_RC(VARIABLE_NOT_VALID)          \
   DEFINE_RC(LOGBUF_FULL)                 \
-  DEFINE_RC(DBLWR_READ_ERRO)             \
-  DEFINE_RC(DBLWR_FLUSH_ERRO)
+  DEFINE_RC(DBLWR_RECOVER_ERRO)
 enum class RC
 {
 #define DEFINE_RC(name) name,

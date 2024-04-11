@@ -338,7 +338,7 @@ private:
 };
 
 static constexpr const int FILE_NAME_SIZE = (1 << 10);
-static constexpr const int DW_PAGE_SIZE   = FILE_NAME_SIZE + BP_PAGE_SIZE + sizeof(PageNum);
+static constexpr const int DW_PAGE_SIZE   = FILE_NAME_SIZE + BP_PAGE_SIZE;
 class DoubleWritePage
 {
 public:
@@ -384,10 +384,12 @@ public:
    */
   RC write_page(DoubleWritePage *page);
 
+  RC get_disk_buffer(const char *file_name);
+
   /**
    * 将共享表空间的页读入buffer
    */
-  RC read_pages();
+  RC recover();
 
   /**
    * 查看buffer中是否存在该页面

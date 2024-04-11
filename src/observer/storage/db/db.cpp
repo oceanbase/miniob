@@ -197,16 +197,10 @@ RC Db::init_dblwr_buffer()
   BufferPoolManager &bpm          = BufferPoolManager::instance();
   DoubleWriteBuffer *dblwr_buffer = bpm.get_dblwr_buffer();
 
-  RC rc = dblwr_buffer->read_pages();
+  RC rc = dblwr_buffer->recover();
   if (OB_FAIL(rc)) {
-    LOG_ERROR("fail to read pages in dblwr buffer");
-    return RC::DBLWR_READ_ERRO;
-  }
-
-  rc = dblwr_buffer->flush_page();
-  if (OB_FAIL(rc)) {
-    LOG_ERROR("fail to flush pages in dblwr buffer");
-    return RC::DBLWR_FLUSH_ERRO;
+    LOG_ERROR("fail to recover in dblwr buffer");
+    return RC::DBLWR_RECOVER_ERRO;
   }
 
   return RC::SUCCESS;
