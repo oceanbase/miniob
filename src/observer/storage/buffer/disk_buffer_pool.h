@@ -386,6 +386,8 @@ public:
 
   RC get_disk_buffer(const char *file_name);
 
+  void clear_buffer();
+
   /**
    * 将共享表空间的页读入buffer
    */

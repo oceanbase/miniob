@@ -854,15 +854,10 @@ RC DoubleWriteBuffer::flush_page()
     delete page;
   }
 
-  for (const auto &buffer : buffer_to_delete) {
-    buffer->close_file_for_dwb();
-    delete buffer;
-  }
+  clear_buffer();
 
   dblwr_pages_.clear();
   pages_.clear();
-  buffers_.clear();
-  buffer_to_delete.clear();
 
   return RC::SUCCESS;
 }
@@ -952,7 +947,7 @@ RC DoubleWriteBuffer::recover()
     int64_t offset = ((int64_t)page_num) * DW_PAGE_SIZE;
 
     if (lseek(file_desc_, offset, SEEK_SET) == -1) {
-      LOG_ERROR("Failed to load dblwr page:%d, due to failed to lseek:%s.", page_num, strerror(errno));
+      LOG_ERROR("Failed to load page %d, due to failed to lseek:%s.", page_num, strerror(errno));
       return RC::IOERR_SEEK;
     }
 
@@ -960,20 +955,26 @@ RC DoubleWriteBuffer::recover()
     Page &page       = dblwr_page->get_page();
     page.check_sum   = (CheckSum)-1;
 
-    int ret = readn(file_desc_, dblwr_page, DW_PAGE_SIZE);
-    if (ret != 0) {
-      LOG_ERROR("Failed to load dblwr page:%d, due to failed to read data:%s", page_num, strerror(errno));
+    int ret = readn(file_desc_, &dblwr_page, DW_PAGE_SIZE);
+    if (ret != 0 && ret != -1) {
+      LOG_ERROR("Failed to load page, file_desc:%d, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
+                file_desc_, page_num, strerror(errno), ret, page_num);
+      delete dblwr_page;
       return RC::IOERR_READ;
     }
 
     if (crc32(page.data, BP_PAGE_DATA_SIZE) == page.check_sum) {
       RC rc = get_disk_buffer(dblwr_page->get_file_name());
       if (rc != RC::SUCCESS) {
+        clear_buffer();
+        delete dblwr_page;
         return rc;
       }
 
       rc = write_page(dblwr_page);
       if (rc != RC::SUCCESS) {
+        clear_buffer();
+        delete dblwr_page;
         return rc;
       }
     }
@@ -981,6 +982,13 @@ RC DoubleWriteBuffer::recover()
     delete dblwr_page;
   }
 
+  clear_buffer();
+
+  return RC::SUCCESS;
+}
+
+void DoubleWriteBuffer::clear_buffer()
+{
   for (const auto &buffer : buffer_to_delete) {
     buffer->close_file_for_dwb();
     delete buffer;
@@ -988,8 +996,6 @@ RC DoubleWriteBuffer::recover()
 
   buffers_.clear();
   buffer_to_delete.clear();
-
-  return RC::SUCCESS;
 }
 
 std::optional<Page> DoubleWriteBuffer::get_page(const std::string &file_name, PageNum &page_num)
