@@ -68,6 +68,12 @@ RC Db::init(const char *name, const char *dbpath)
     return rc;
   }
 
+  rc = init_dblwr_buffer();
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to init dblwr buffer. rc = %s", strrc(rc));
+    return rc;
+  }
+
   rc = recover();
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to recover db. dbpath=%s, rc=%s", dbpath, strrc(rc));
@@ -185,3 +191,23 @@ RC Db::sync()
 RC Db::recover() { return clog_manager_->recover(this); }
 
 CLogManager *Db::clog_manager() { return clog_manager_.get(); }
+
+RC Db::init_dblwr_buffer()
+{
+  BufferPoolManager &bpm          = BufferPoolManager::instance();
+  DoubleWriteBuffer *dblwr_buffer = bpm.get_dblwr_buffer();
+
+  RC rc = dblwr_buffer->read_pages();
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("fail to read pages in dblwr buffer");
+    return RC::DBLWR_READ_ERRO;
+  }
+
+  rc = dblwr_buffer->flush_page();
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("fail to flush pages in dblwr buffer");
+    return RC::DBLWR_FLUSH_ERRO;
+  }
+
+  return RC::SUCCESS;
+}

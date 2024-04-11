@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/rc.h"
 #include "sql/parser/parse_defs.h"
+#include "storage/buffer/disk_buffer_pool.h"
 
 class Table;
 class CLogManager;
@@ -62,6 +63,7 @@ public:
 
 private:
   RC open_all_tables();
+  RC init_dblwr_buffer();
 
 private:
   std::string                              name_;

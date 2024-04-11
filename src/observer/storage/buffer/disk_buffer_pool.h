@@ -321,7 +321,8 @@ public:
   RC flush_page(Frame &frame);
   RC get_disk_buffer(const char *file_name, DiskBufferPool **buf);
 
-  BPFrameManager &get_frame_manager() { return frame_manager_; }
+  BPFrameManager    &get_frame_manager() { return frame_manager_; }
+  DoubleWriteBuffer *get_dblwr_buffer() { return dblwr_buffer_; }
 
 public:
   static void               set_instance(BufferPoolManager *bpm);  // TODO 优化全局变量的表示方法
@@ -341,6 +342,7 @@ static constexpr const int DW_PAGE_SIZE   = FILE_NAME_SIZE + BP_PAGE_SIZE + size
 class DoubleWritePage
 {
 public:
+  DoubleWritePage(){};
   DoubleWritePage(PageNum page_num, const std::string &file_name, Page &page) : page_(page)
   {
     snprintf(file_name_, FILE_NAME_SIZE, "%s", file_name.c_str());
@@ -381,6 +383,11 @@ public:
    * 将buffer中的页面写入对应的磁盘
    */
   RC write_page(DoubleWritePage *page);
+
+  /**
+   * 将共享表空间的页读入buffer
+   */
+  RC read_pages();
 
   /**
    * 查看buffer中是否存在该页面

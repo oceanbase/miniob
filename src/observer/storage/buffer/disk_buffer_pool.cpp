@@ -905,7 +905,7 @@ RC DoubleWriteBuffer::add_page(const std::string &file_name, Page &page)
     return RC::IOERR_SEEK;
   }
 
-  if (writen(file_desc_, &page, sizeof(Page)) != 0) {
+  if (writen(file_desc_, dblwr_page, sizeof(DoubleWritePage)) != 0) {
     LOG_ERROR("Failed to add page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_WRITE;
   }
@@ -925,6 +925,33 @@ RC DoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
   DiskBufferPool *disk_buffer = buffers_[dblwr_page->get_file_name()];
 
   return disk_buffer->write_page(dblwr_page->get_page());
+}
+
+RC DoubleWriteBuffer::read_pages()
+{
+  for (int page_num = 0; page_num < DBLWR_BUFFER_MAX_SIZE; page_num++) {
+    int64_t offset = ((int64_t)page_num) * DW_PAGE_SIZE;
+
+    if (lseek(file_desc_, offset, SEEK_SET) == -1) {
+      LOG_ERROR("Failed to load dblwr page:%d, due to failed to lseek:%s.", page_num, strerror(errno));
+      return RC::IOERR_SEEK;
+    }
+
+    auto dblwr_page = new DoubleWritePage();
+    int  ret        = readn(file_desc_, dblwr_page, DW_PAGE_SIZE);
+    if (ret != 0) {
+      LOG_ERROR("Failed to load dblwr page:%d, due to failed to read data:%s", page_num, strerror(errno));
+      return RC::IOERR_READ;
+    }
+
+    if (crc32(dblwr_page->get_page().data, BP_PAGE_DATA_SIZE) == dblwr_page->get_page().check_sum) {
+      dblwr_pages_.push_back(dblwr_page);
+    } else {
+      delete dblwr_page;
+    }
+  }
+
+  return RC::SUCCESS;
 }
 
 std::optional<Page> DoubleWriteBuffer::get_page(const std::string &file_name, PageNum &page_num)
