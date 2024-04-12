@@ -399,7 +399,8 @@ public:
   std::optional<Page> get_page(const std::string &file_name, PageNum &page_num);
 
 private:
-  int                            file_desc_ = -1;
+  int                            file_desc_    = -1;
+  int                            max_page_cnt_ = 0;
   common::Mutex                  lock_;
   BufferPoolManager             &bp_manager_;
   std::vector<DoubleWritePage *> dblwr_pages_;

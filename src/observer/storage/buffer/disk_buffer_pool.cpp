@@ -884,7 +884,20 @@ RC DoubleWriteBuffer::add_page(const std::string &file_name, Page &page)
   DoubleWritePage *dblwr_page = new DoubleWritePage((int)dblwr_pages_.size(), file_name, page);
   dblwr_pages_.push_back(dblwr_page);
 
-  int64_t offset = page_cnt * DW_PAGE_SIZE;
+  if (page_cnt + 1 > max_page_cnt_) {
+    max_page_cnt_ = page_cnt + 1;
+    if (lseek(file_desc_, 0, SEEK_SET) == -1) {
+      LOG_ERROR("Failed to add page header due to failed to seek %s.", strerror(errno));
+      return RC::IOERR_SEEK;
+    }
+
+    if (writen(file_desc_, &max_page_cnt_, sizeof(int)) != 0) {
+      LOG_ERROR("Failed to add page header due to %s.", strerror(errno));
+      return RC::IOERR_WRITE;
+    }
+  }
+
+  int64_t offset = page_cnt * DW_PAGE_SIZE + sizeof(int);
   if (lseek(file_desc_, offset, SEEK_SET) == -1) {
     LOG_ERROR("Failed to add page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_SEEK;
@@ -943,8 +956,21 @@ RC DoubleWriteBuffer::recover()
 {
   scoped_lock lock_guard(lock_);
 
-  for (int page_num = 0; page_num < DBLWR_BUFFER_MAX_SIZE; page_num++) {
-    int64_t offset = ((int64_t)page_num) * DW_PAGE_SIZE;
+  int page_cnt = 0;
+  if (lseek(file_desc_, 0, SEEK_SET) == -1) {
+    LOG_ERROR("Failed to load page header, due to failed to lseek:%s.", strerror(errno));
+    return RC::IOERR_SEEK;
+  }
+
+  int ret = readn(file_desc_, &page_cnt, sizeof(int));
+  if (ret != 0 && ret != -1) {
+    LOG_ERROR("Failed to load page header, file_desc:%d, due to failed to read data:%s, ret=%d",
+                file_desc_, strerror(errno), ret);
+    return RC::IOERR_READ;
+  }
+
+  for (int page_num = 0; page_num < page_cnt; page_num++) {
+    int64_t offset = ((int64_t)page_num) * DW_PAGE_SIZE + sizeof(int);
 
     if (lseek(file_desc_, offset, SEEK_SET) == -1) {
       LOG_ERROR("Failed to load page %d, due to failed to lseek:%s.", page_num, strerror(errno));
@@ -955,8 +981,8 @@ RC DoubleWriteBuffer::recover()
     Page &page       = dblwr_page->get_page();
     page.check_sum   = (CheckSum)-1;
 
-    int ret = readn(file_desc_, &dblwr_page, DW_PAGE_SIZE);
-    if (ret != 0 && ret != -1) {
+    ret = readn(file_desc_, &dblwr_page, DW_PAGE_SIZE);
+    if (ret != 0) {
       LOG_ERROR("Failed to load page, file_desc:%d, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
                 file_desc_, page_num, strerror(errno), ret, page_num);
       delete dblwr_page;
