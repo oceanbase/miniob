@@ -852,10 +852,7 @@ RC DoubleWriteBuffer::flush_page()
     delete pair.second;
   }
 
-  for (const auto &buffer : buffer_to_delete) {
-    buffer->close_file_for_dwb();
-    delete buffer;
-  }
+  clear_buffer();
 
   dblwr_pages_.clear();
   buffer_to_delete.clear();
@@ -886,13 +883,26 @@ RC DoubleWriteBuffer::add_page(const std::string &file_name, Page &page)
   DoubleWritePage *dblwr_page = new DoubleWritePage((int)dblwr_pages_.size(), file_name, page);
   dblwr_pages_.insert(std::pair<DoubleWritePageKey, DoubleWritePage *>(key, dblwr_page));
 
-  int64_t offset = page_cnt * sizeof(DoubleWritePage);
+  if (page_cnt + 1 > max_page_cnt_) {
+    max_page_cnt_ = page_cnt + 1;
+    if (lseek(file_desc_, 0, SEEK_SET) == -1) {
+      LOG_ERROR("Failed to add page header due to failed to seek %s.", strerror(errno));
+      return RC::IOERR_SEEK;
+    }
+
+    if (writen(file_desc_, &max_page_cnt_, sizeof(int)) != 0) {
+      LOG_ERROR("Failed to add page header due to %s.", strerror(errno));
+      return RC::IOERR_WRITE;
+    }
+  }
+
+  int64_t offset = page_cnt * DW_PAGE_SIZE + sizeof(int);
   if (lseek(file_desc_, offset, SEEK_SET) == -1) {
     LOG_ERROR("Failed to add page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_SEEK;
   }
 
-  if (writen(file_desc_, &page, sizeof(Page)) != 0) {
+  if (writen(file_desc_, dblwr_page, DW_PAGE_SIZE) != 0) {
     LOG_ERROR("Failed to add page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
     return RC::IOERR_WRITE;
   }
@@ -941,6 +951,105 @@ RC DoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
   ASSERT(disk_buffer != nullptr, "failed to get disk buffer pool of %s", dblwr_page->get_file_name());
 
   return disk_buffer->write_page(dblwr_page->get_page());
+}
+
+RC DoubleWriteBuffer::get_disk_buffer(const char *file_name)
+{
+  if (buffers_.count(file_name) != 0) {
+    return RC::SUCCESS;
+  }
+
+  DiskBufferPool *disk_buffer = nullptr;
+  bp_manager_.get_disk_buffer(file_name, &disk_buffer);
+
+  /**
+   * 如果bpm中没有对应的DiskBufferPool，就创建一个新的DiskBufferPool。
+   * 调用bpm中open_file时，需要申请一个新的frame，而如果此时frame manager已满，需要purge page，会导致无限循环
+   */
+  if (disk_buffer == nullptr) {
+    disk_buffer = new DiskBufferPool(bp_manager_, bp_manager_.get_frame_manager(), *this);
+    RC rc       = disk_buffer->open_file_for_dwb(file_name);
+    if (rc != RC::SUCCESS) {
+      LOG_ERROR("failed to open file for dwb");
+      return rc;
+    }
+    buffer_to_delete.push_back(disk_buffer);
+  }
+  buffers_[file_name] = disk_buffer;
+
+  return RC::SUCCESS;
+}
+
+RC DoubleWriteBuffer::recover()
+{
+  scoped_lock lock_guard(lock_);
+
+  int page_cnt = 0;
+  if (lseek(file_desc_, 0, SEEK_SET) == -1) {
+    LOG_ERROR("Failed to load page header, due to failed to lseek:%s.", strerror(errno));
+    return RC::IOERR_SEEK;
+  }
+
+  int ret = readn(file_desc_, &page_cnt, sizeof(int));
+  if (ret != 0 && ret != -1) {
+    LOG_ERROR("Failed to load page header, file_desc:%d, due to failed to read data:%s, ret=%d",
+                file_desc_, strerror(errno), ret);
+    return RC::IOERR_READ;
+  }
+
+  for (int page_num = 0; page_num < page_cnt; page_num++) {
+    int64_t offset = ((int64_t)page_num) * DW_PAGE_SIZE + sizeof(int);
+
+    if (lseek(file_desc_, offset, SEEK_SET) == -1) {
+      LOG_ERROR("Failed to load page %d, due to failed to lseek:%s.", page_num, strerror(errno));
+      return RC::IOERR_SEEK;
+    }
+
+    auto  dblwr_page = new DoubleWritePage();
+    Page &page       = dblwr_page->get_page();
+    page.check_sum   = (CheckSum)-1;
+
+    ret = readn(file_desc_, &dblwr_page, DW_PAGE_SIZE);
+    if (ret != 0) {
+      LOG_ERROR("Failed to load page, file_desc:%d, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
+                file_desc_, page_num, strerror(errno), ret, page_num);
+      delete dblwr_page;
+      return RC::IOERR_READ;
+    }
+
+    if (crc32(page.data, BP_PAGE_DATA_SIZE) == page.check_sum) {
+      RC rc = get_disk_buffer(dblwr_page->get_file_name());
+      if (rc != RC::SUCCESS) {
+        clear_buffer();
+        delete dblwr_page;
+        return rc;
+      }
+
+      rc = write_page(dblwr_page);
+      if (rc != RC::SUCCESS) {
+        clear_buffer();
+        delete dblwr_page;
+        return rc;
+      }
+    }
+
+    delete dblwr_page;
+  }
+
+  clear_buffer();
+
+  return RC::SUCCESS;
+}
+
+void DoubleWriteBuffer::clear_buffer()
+{
+  for (const auto &buffer : buffer_to_delete) {
+    buffer->close_file_for_dwb();
+    delete buffer;
+  }
+
+  buffers_.clear();
+  buffer_to_delete.clear();
 }
 
 std::optional<Page> DoubleWriteBuffer::get_page(const std::string &file_name, PageNum &page_num)
