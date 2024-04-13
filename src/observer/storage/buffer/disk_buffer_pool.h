@@ -260,14 +260,12 @@ public:
   RC recover_page(PageNum page_num);
 
   /**
-   * 刷新页面到磁盘。直接将页面写入磁盘
+   * 刷新页面到磁盘
    */
   RC write_page(Page &page);
 
   RC open_file_for_dwb(const char *file_name);
   RC close_file_for_dwb();
-
-  const char *filename() const { return file_name_.c_str(); }
 
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);
@@ -321,8 +319,7 @@ public:
   RC close_file(const char *file_name);
 
   RC flush_page(Frame &frame);
-
-  DiskBufferPool *get_disk_buffer(const char *file_name);
+  RC get_disk_buffer(const char *file_name, DiskBufferPool **buf);
 
   BPFrameManager    &get_frame_manager() { return frame_manager_; }
   DoubleWriteBuffer *get_dblwr_buffer() { return dblwr_buffer_; }
@@ -360,25 +357,6 @@ private:
   Page page_;
 };
 
-struct DoubleWritePageKey
-{
-  std::string file_name;
-  PageNum     page_num;
-
-  bool operator==(const DoubleWritePageKey &other) const
-  {
-    return file_name == other.file_name && page_num == other.page_num;
-  }
-};
-
-struct DoubleWritePageKeyHash
-{
-  size_t operator()(const DoubleWritePageKey &key) const
-  {
-    return std::hash<std::string>()(key.file_name) ^ std::hash<PageNum>()(key.page_num);
-  }
-};
-
 class DoubleWriteBuffer
 {
 public:
@@ -402,9 +380,9 @@ public:
   RC add_page(const std::string &file_name, Page &page);
 
   /**
-   * @brief 删除所有与指定文件相关的页面
+   * 将buffer中的页面写入对应的磁盘
    */
-  RC clear_pages(DiskBufferPool *bp);
+  RC write_page(DoubleWritePage *page);
 
   RC get_disk_buffer(const char *file_name);
 
@@ -421,17 +399,13 @@ public:
   std::optional<Page> get_page(const std::string &file_name, PageNum &page_num);
 
 private:
-  /**
-   * 将buffer中的页面写入对应的磁盘
-   */
-  RC write_page(DoubleWritePage *page);
-
-private:
   int                            file_desc_    = -1;
   int                            max_page_cnt_ = 0;
   common::Mutex                  lock_;
   BufferPoolManager             &bp_manager_;
+  std::vector<DoubleWritePage *> dblwr_pages_;
 
-  std::unordered_map<DoubleWritePageKey, DoubleWritePage *, DoubleWritePageKeyHash> dblwr_pages_;
+  std::unordered_map<std::string, DoubleWritePage *> pages_;
+  std::unordered_map<std::string, DiskBufferPool *>  buffers_;
   std::list<DiskBufferPool *>                        buffer_to_delete;
 };
