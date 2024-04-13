@@ -121,9 +121,6 @@ public:
     }
 
     handler_.close();
-    // TODO 很怪，引入double write buffer后，必须要求先close buffer pool，再执行bpm.close_file。
-    // 以后必须修理好bpm、buffer pool、double write buffer之间的关系
-    buffer_pool_->close_file();
     bpm.close_file(this->record_filename().c_str());
     buffer_pool_ = nullptr;
     LOG_INFO("test %s teardown done. threads=%d, thread index=%d",
@@ -138,7 +135,7 @@ public:
     RID             rid;
     TestRecord      record;
     vector<int32_t> record_values;
-//    record_values.reserve(max - min);
+    record_values.reserve(max - min);
     for (int32_t value = min; value < max; ++value) {
       record_values.push_back(value);
     }
@@ -161,7 +158,7 @@ public:
   {
     int32_t max = static_cast<int32_t>(state.range(0) * 3);
     if (max <= 0) {
-      max = INT32_MAX / 2 - 1;
+      max = INT32_MAX - 1;
     }
     return max;
   }
