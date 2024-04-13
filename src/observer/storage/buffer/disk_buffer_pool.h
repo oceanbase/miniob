@@ -357,6 +357,11 @@ private:
   Page page_;
 };
 
+struct DoubleWriteBufferHeader
+{
+  int32_t page_cnt;
+};
+
 class DoubleWriteBuffer
 {
 public:
@@ -399,10 +404,10 @@ public:
   std::optional<Page> get_page(const std::string &file_name, PageNum &page_num);
 
 private:
-  int                            file_desc_    = -1;
-  int                            max_page_cnt_ = 0;
+  int                            file_desc_ = -1;
   common::Mutex                  lock_;
   BufferPoolManager             &bp_manager_;
+  DoubleWriteBufferHeader        header_;
   std::vector<DoubleWritePage *> dblwr_pages_;
 
   std::unordered_map<std::string, DoubleWritePage *> pages_;
