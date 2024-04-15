@@ -1,5 +1,6 @@
 # 功能模块设计说明
 
+- [Miniob架构](./miniob-architecture.md)
 - [存储实现](./miniob-buffer-pool.md)
 - [事务](./miniob-transaction.md)
 - [持久化](./miniob-durability.md)

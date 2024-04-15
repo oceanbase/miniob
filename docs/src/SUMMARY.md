@@ -13,6 +13,7 @@
   - [MiniOB 调试](./dev-env/miniob-how-to-debug.md)
 
 - [功能模块设计说明文档](./design/introduction.md)
+  - [Miniob架构](./design/miniob-architecture.md)
   - [存储实现](./design/miniob-buffer-pool.md)
   - [事务](./design/miniob-transaction.md)
   - [持久化](./design/miniob-durability.md)
