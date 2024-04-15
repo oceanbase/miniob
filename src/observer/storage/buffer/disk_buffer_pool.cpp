@@ -968,7 +968,7 @@ RC DoubleWriteBuffer::recover()
     return RC::IOERR_READ;
   }
 
-  auto dblwr_page = new DoubleWritePage();
+  auto dblwr_page = make_unique<DoubleWritePage>();
   for (int page_num = 0; page_num < header_.page_cnt; page_num++) {
     int64_t offset = ((int64_t)page_num) * DW_PAGE_SIZE + sizeof(int);
 
@@ -984,7 +984,6 @@ RC DoubleWriteBuffer::recover()
     if (ret != 0) {
       LOG_ERROR("Failed to load page, file_desc:%d, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
                 file_desc_, page_num, strerror(errno), ret, page_num);
-      delete dblwr_page;
       return RC::IOERR_READ;
     }
 
@@ -992,19 +991,15 @@ RC DoubleWriteBuffer::recover()
       RC rc = get_disk_buffer(dblwr_page->get_file_name());
       if (rc != RC::SUCCESS) {
         clear_buffer();
-        delete dblwr_page;
         return rc;
       }
 
       rc = write_page(dblwr_page);
       if (rc != RC::SUCCESS) {
         clear_buffer();
-        delete dblwr_page;
         return rc;
       }
     }
-
-    delete dblwr_page;
   }
 
   clear_buffer();
