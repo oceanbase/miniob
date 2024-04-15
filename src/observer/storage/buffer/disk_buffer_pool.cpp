@@ -980,7 +980,7 @@ RC DoubleWriteBuffer::recover()
     Page &page     = dblwr_page->get_page();
     page.check_sum = (CheckSum)-1;
 
-    ret = readn(file_desc_, &dblwr_page, DW_PAGE_SIZE);
+    ret = readn(file_desc_, dblwr_page.get(), DW_PAGE_SIZE);
     if (ret != 0) {
       LOG_ERROR("Failed to load page, file_desc:%d, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
                 file_desc_, page_num, strerror(errno), ret, page_num);
@@ -994,7 +994,7 @@ RC DoubleWriteBuffer::recover()
         return rc;
       }
 
-      rc = write_page(dblwr_page);
+      rc = write_page(dblwr_page.get());
       if (rc != RC::SUCCESS) {
         clear_buffer();
         return rc;
