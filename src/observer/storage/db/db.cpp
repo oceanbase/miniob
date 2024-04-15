@@ -105,6 +105,12 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
     return rc;
   }
 
+  rc = init_dblwr_buffer();
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to init dblwr buffer. rc = %s", strrc(rc));
+    return rc;
+  }
+
   // 尝试恢复数据库，重做redo日志
   rc = recover();
   if (OB_FAIL(rc)) {
@@ -355,6 +361,20 @@ RC Db::flush_meta()
   }
 
   return rc;
+}
+
+RC Db::init_dblwr_buffer()
+{
+  BufferPoolManager &bpm          = BufferPoolManager::instance();
+  DoubleWriteBuffer *dblwr_buffer = bpm.get_dblwr_buffer();
+
+  RC rc = dblwr_buffer->recover();
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("fail to recover in dblwr buffer");
+    return RC::DBLWR_RECOVER_ERRO;
+  }
+
+  return RC::SUCCESS;
 }
 
 LogHandler        &Db::log_handler() { return *log_handler_; }

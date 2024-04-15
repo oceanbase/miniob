@@ -145,8 +145,20 @@ int init_tcp_sock(const char *server_host, int server_port)
   return sockfd;
 }
 
+const char *startup_tips = R"(
+Welcome to the OceanBase database implementation course.
+
+Copyright (c) 2021 OceanBase and/or its affiliates.
+
+Learn more about OceanBase at https://github.com/oceanbase/oceanbase
+Learn more about MiniOB at https://github.com/oceanbase/miniob
+
+)";
+
 int main(int argc, char *argv[])
 {
+  printf("%s", startup_tips);
+
   const char  *unix_socket_path = nullptr;
   const char  *server_host      = "127.0.0.1";
   int          server_port      = PORT_DEFAULT;

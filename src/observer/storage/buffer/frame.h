@@ -108,6 +108,13 @@ public:
   void    set_lsn(LSN lsn) { page_.lsn = lsn; }
 
   /**
+   * @brief 页面校验和
+   * @details 用于校验页面完整性。如果页面写入一半时出现异常，可以通过校验和检测出来。
+   */
+  CheckSum check_sum() const { return page_.check_sum; }
+  void     set_check_sum(CheckSum check_sum) { page_.check_sum = check_sum; }
+
+  /**
    * @brief 刷新当前内存页面的访问时间
    * @details 由于内存是有限的，比磁盘要小很多。那当我们访问某些文件页面时，可能由于内存不足
    * 而要淘汰一些页面。我们选择淘汰哪些页面呢？这里使用了LRU算法，即最近最少使用的页面被淘汰。

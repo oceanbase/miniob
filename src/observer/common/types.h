@@ -39,3 +39,6 @@ enum class ReadWriteMode
   READ_ONLY,
   READ_WRITE
 };
+
+/// page的CRC校验和
+using CheckSum = unsigned int;

@@ -22,6 +22,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/rc.h"
 #include "sql/parser/parse_defs.h"
+#include "storage/buffer/disk_buffer_pool.h"
 #include "storage/clog/disk_log_handler.h"
 
 class Table;
@@ -104,6 +105,9 @@ private:
   RC init_meta();
   /// @brief 刷新数据库的元数据到磁盘中。每次执行sync时会执行此操作
   RC flush_meta();
+
+  /// @brief 初始化数据库的double buffer pool
+  RC init_dblwr_buffer();
 
 private:
   std::string                              name_; ///< 数据库名称
