@@ -365,13 +365,12 @@ RC Db::flush_meta()
 
 RC Db::init_dblwr_buffer()
 {
-  BufferPoolManager &bpm          = BufferPoolManager::instance();
-  DoubleWriteBuffer *dblwr_buffer = bpm.get_dblwr_buffer();
+  DoubleWriteBuffer *dblwr_buffer = buffer_pool_manager_->get_dblwr_buffer();
 
   RC rc = dblwr_buffer->recover();
   if (OB_FAIL(rc)) {
     LOG_ERROR("fail to recover in dblwr buffer");
-    return RC::DBLWR_RECOVER_ERRO;
+    return rc;
   }
 
   return RC::SUCCESS;

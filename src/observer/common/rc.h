@@ -75,8 +75,7 @@ See the Mulan PSL v2 for more details. */
   DEFINE_RC(VARIABLE_NOT_VALID)          \
   DEFINE_RC(LOGBUF_FULL)                 \
   DEFINE_RC(LOG_FILE_FULL)               \
-  DEFINE_RC(LOG_ENTRY_INVALID)           \
-  DEFINE_RC(DBLWR_RECOVER_ERRO)
+  DEFINE_RC(LOG_ENTRY_INVALID)
 
 enum class RC
 {

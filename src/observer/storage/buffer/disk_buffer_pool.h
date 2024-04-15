@@ -48,7 +48,6 @@ class BufferPoolLogHandler;
  */
 
 #define BP_FILE_SUB_HDR_SIZE (sizeof(BPFileSubHeader))
-#define DBLWR_BUFFER_MAX_SIZE 16
 #define DBLWR_FILE_NAME "dblwr.db"
 
 /**
@@ -189,7 +188,8 @@ private:
 class DiskBufferPool final
 {
 public:
-  DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager, DoubleWriteBuffer &dblwr_manager, LogHandler &log_handler);
+  DiskBufferPool(BufferPoolManager &bp_manager, BPFrameManager &frame_manager, DoubleWriteBuffer &dblwr_manager,
+      LogHandler &log_handler);
   ~DiskBufferPool();
 
   /**
@@ -263,7 +263,7 @@ public:
   /**
    * 刷新页面到磁盘
    */
-  RC write_page(Page &page);
+  RC write_page(PageNum page_num, Page &page);
 
   RC open_file_for_dwb(const char *file_name);
   RC close_file_for_dwb();
@@ -273,6 +273,8 @@ public:
 
 public:
   int32_t id() const { return buffer_pool_id_; }
+
+  const char *filename() const { return file_name_.c_str(); }
 
 protected:
   RC allocate_frame(PageNum page_num, Frame **buf);
@@ -294,19 +296,19 @@ protected:
   RC flush_page_internal(Frame &frame);
 
 private:
-  BufferPoolManager &bp_manager_;     /// BufferPool 管理器
-  BPFrameManager    &frame_manager_;  /// Frame 管理器
-  DoubleWriteBuffer &dblwr_manager_;  /// Double Write Buffer 管理器
-  BufferPoolLogHandler log_handler_; /// BufferPool 日志处理器
+  BufferPoolManager   &bp_manager_;     /// BufferPool 管理器
+  BPFrameManager      &frame_manager_;  /// Frame 管理器
+  DoubleWriteBuffer   &dblwr_manager_;  /// Double Write Buffer 管理器
+  BufferPoolLogHandler log_handler_;    /// BufferPool 日志处理器
 
-  int               file_desc_   = -1;  /// 文件描述符
+  int file_desc_ = -1;  /// 文件描述符
   /// 由于在最开始打开文件时，没有正确的buffer pool id不能加载header frame，所以单独从文件中读取此标识
   int32_t           buffer_pool_id_ = -1;
-  Frame            *hdr_frame_   = nullptr; /// 文件头页面
-  BPFileHeader     *file_header_ = nullptr; /// 文件头
-  std::set<PageNum> disposed_pages_; /// 已经释放的页面
+  Frame            *hdr_frame_      = nullptr;  /// 文件头页面
+  BPFileHeader     *file_header_    = nullptr;  /// 文件头
+  std::set<PageNum> disposed_pages_;            /// 已经释放的页面
 
-  std::string       file_name_;       /// 文件名
+  std::string file_name_;  /// 文件名
 
   common::Mutex lock_;
   common::Mutex wr_lock_;
@@ -350,38 +352,59 @@ private:
   common::Mutex                                     lock_;
   std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;
   std::unordered_map<int32_t, DiskBufferPool *>     id_to_buffer_pools_;
-  std::atomic<int32_t> next_buffer_pool_id_{1}; // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
+  std::atomic<int32_t> next_buffer_pool_id_{1};  // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
 };
 
-static constexpr const int FILE_NAME_SIZE = (1 << 10);
-static constexpr const int DW_PAGE_SIZE   = FILE_NAME_SIZE + BP_PAGE_SIZE;
-class DoubleWritePage
+// TODO change to FrameId
+struct DoubleWritePageKey
+{
+  int32_t     buffer_pool_id;
+  PageNum     page_num;
+
+  bool operator==(const DoubleWritePageKey &other) const
+  {
+    return buffer_pool_id == other.buffer_pool_id && page_num == other.page_num;
+  }
+};
+
+struct DoubleWritePageKeyHash
+{
+  size_t operator()(const DoubleWritePageKey &key) const
+  {
+    return std::hash<int32_t>()(key.buffer_pool_id) ^ std::hash<PageNum>()(key.page_num);
+  }
+};
+
+struct DoubleWritePage
 {
 public:
-  DoubleWritePage(){};
-  DoubleWritePage(PageNum page_num, const std::string &file_name, Page &page) : page_(page)
-  {
-    snprintf(file_name_, FILE_NAME_SIZE, "%s", file_name.c_str());
-  }
+  DoubleWritePage() = default;
+  DoubleWritePage(int32_t buffer_pool_id, PageNum page_num, Page &page);
 
-  const char *get_file_name() { return file_name_; }
+public:
+  DoubleWritePageKey key;
+  Page               page;
 
-  Page &get_page() { return page_; }
-
-private:
-  char file_name_[FILE_NAME_SIZE];
-  Page page_;
+  static const int32_t SIZE;
 };
 
 struct DoubleWriteBufferHeader
 {
   int32_t page_cnt;
+
+  static const int32_t SIZE;
 };
 
 class DoubleWriteBuffer
 {
 public:
-  DoubleWriteBuffer(BufferPoolManager &bp_manager);
+  /**
+   * @brief 构造函数
+   * 
+   * @param bp_manager 关联的buffer pool manager
+   * @param max_pages  内存中保存的最大页面数
+   */
+  DoubleWriteBuffer(BufferPoolManager &bp_manager, int max_pages = 16);
   ~DoubleWriteBuffer();
 
   /**
@@ -391,23 +414,24 @@ public:
 
   /**
    * 将buffer中的页全部写入磁盘，并且清空buffer
-   * ToDo 目前的解决方案是等buffer装满后再刷盘，可能会导致程序卡住一段时间
+   * TODO 目前的解决方案是等buffer装满后再刷盘，可能会导致程序卡住一段时间
    */
   RC flush_page();
 
   /**
    * 将页面加入buffer，并且写入磁盘中的共享表空间
    */
-  RC add_page(const std::string &file_name, Page &page);
+  RC add_page(int32_t buffer_pool_id, PageNum page_num, Page &page);
 
   /**
    * 将buffer中的页面写入对应的磁盘
    */
   RC write_page(DoubleWritePage *page);
 
-  RC get_disk_buffer(const char *file_name);
-
-  void clear_buffer();
+  /**
+   * @brief 清空所有与指定buffer pool关联的页面
+   */
+  RC clear_pages(DiskBufferPool *bp);
 
   /**
    * 将共享表空间的页读入buffer
@@ -417,94 +441,14 @@ public:
   /**
    * 查看buffer中是否存在该页面
    */
-  std::optional<Page> get_page(const std::string &file_name, PageNum &page_num);
+  std::optional<Page> get_page(int32_t buffer_pool_id, PageNum page_num);
 
 private:
-  int                            file_desc_ = -1;
-  common::Mutex                  lock_;
-  BufferPoolManager             &bp_manager_;
-  DoubleWriteBufferHeader        header_;
-  std::vector<DoubleWritePage *> dblwr_pages_;
+  int                     file_desc_ = -1;
+  int                     max_pages_ = 0;
+  common::Mutex           lock_;
+  BufferPoolManager      &bp_manager_;
+  DoubleWriteBufferHeader header_;
 
-  std::unordered_map<std::string, DoubleWritePage *> pages_;
-  std::unordered_map<std::string, DiskBufferPool *>  buffers_;
-  std::list<DiskBufferPool *>                        buffer_to_delete;
-};
-
-static constexpr const int FILE_NAME_SIZE = (1 << 10);
-static constexpr const int DW_PAGE_SIZE   = FILE_NAME_SIZE + BP_PAGE_SIZE;
-class DoubleWritePage
-{
-public:
-  DoubleWritePage(){};
-  DoubleWritePage(PageNum page_num, const std::string &file_name, Page &page) : page_(page)
-  {
-    snprintf(file_name_, FILE_NAME_SIZE, "%s", file_name.c_str());
-  }
-
-  const char *get_file_name() { return file_name_; }
-
-  Page &get_page() { return page_; }
-
-private:
-  char file_name_[FILE_NAME_SIZE];
-  Page page_;
-};
-
-struct DoubleWriteBufferHeader
-{
-  int32_t page_cnt;
-};
-
-class DoubleWriteBuffer
-{
-public:
-  DoubleWriteBuffer(BufferPoolManager &bp_manager);
-  ~DoubleWriteBuffer();
-
-  /**
-   * 打开磁盘中的共享表空间文件
-   */
-  RC open_file();
-
-  /**
-   * 将buffer中的页全部写入磁盘，并且清空buffer
-   * ToDo 目前的解决方案是等buffer装满后再刷盘，可能会导致程序卡住一段时间
-   */
-  RC flush_page();
-
-  /**
-   * 将页面加入buffer，并且写入磁盘中的共享表空间
-   */
-  RC add_page(const std::string &file_name, Page &page);
-
-  /**
-   * 将buffer中的页面写入对应的磁盘
-   */
-  RC write_page(DoubleWritePage *page);
-
-  RC get_disk_buffer(const char *file_name);
-
-  void clear_buffer();
-
-  /**
-   * 将共享表空间的页读入buffer
-   */
-  RC recover();
-
-  /**
-   * 查看buffer中是否存在该页面
-   */
-  std::optional<Page> get_page(const std::string &file_name, PageNum &page_num);
-
-private:
-  int                            file_desc_ = -1;
-  common::Mutex                  lock_;
-  BufferPoolManager             &bp_manager_;
-  DoubleWriteBufferHeader        header_;
-  std::vector<DoubleWritePage *> dblwr_pages_;
-
-  std::unordered_map<std::string, DoubleWritePage *> pages_;
-  std::unordered_map<std::string, DiskBufferPool *>  buffers_;
-  std::list<DiskBufferPool *>                        buffer_to_delete;
+  std::unordered_map<DoubleWritePageKey, DoubleWritePage *, DoubleWritePageKeyHash> dblwr_pages_;
 };

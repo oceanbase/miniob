@@ -254,7 +254,11 @@ BplusTreeMiniTransaction::BplusTreeMiniTransaction(BplusTreeHandler &tree_handle
 
 BplusTreeMiniTransaction::~BplusTreeMiniTransaction()
 {
-  if (operation_result_ && OB_SUCC(*operation_result_)) {
+  if (nullptr == operation_result_) {
+    return;
+  }
+  
+  if (OB_SUCC(*operation_result_)) {
     commit();
   } else {
     rollback();

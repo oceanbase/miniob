@@ -317,7 +317,7 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
   filesystem::create_directories(test_directory);
 
   filesystem::path buffer_pool_file = test_directory / "test_leaf_index_node_handle.bp";
-  
+
   IndexFileHeader index_file_header;
   index_file_header.root_page         = BP_INVALID_PAGE_NUM;
   index_file_header.internal_max_size = 5;
@@ -332,9 +332,15 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
 
   DiskBufferPool *buffer_pool = nullptr;
   ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, buffer_pool_file.c_str(), buffer_pool));
-  
+
   BplusTreeHandler tree_handler;
-  ASSERT_EQ(RC::SUCCESS, tree_handler.create(log_handler, *buffer_pool, index_file_header.attr_type, index_file_header.attr_length, index_file_header.internal_max_size, index_file_header.leaf_max_size));
+  ASSERT_EQ(RC::SUCCESS,
+      tree_handler.create(log_handler,
+          *buffer_pool,
+          index_file_header.attr_type,
+          index_file_header.attr_length,
+          index_file_header.internal_max_size,
+          index_file_header.leaf_max_size));
   BplusTreeMiniTransaction mtr(tree_handler);
 
   Frame frame;
@@ -409,7 +415,13 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
   ASSERT_NE(nullptr, buffer_pool);
 
   BplusTreeHandler tree_handler;
-  ASSERT_EQ(RC::SUCCESS, tree_handler.create(log_handler, *buffer_pool, index_file_header.attr_type, index_file_header.attr_length, index_file_header.internal_max_size, index_file_header.leaf_max_size));
+  ASSERT_EQ(RC::SUCCESS,
+      tree_handler.create(log_handler,
+          *buffer_pool,
+          index_file_header.attr_type,
+          index_file_header.attr_length,
+          index_file_header.internal_max_size,
+          index_file_header.leaf_max_size));
   BplusTreeMiniTransaction mtr(tree_handler);
 
   Frame frame;
@@ -767,6 +779,8 @@ TEST(test_bplus_tree, test_scanner)
   ASSERT_EQ(RC::RECORD_EOF, rc);
 
   scanner.close();
+
+  handler.close();
 }
 
 TEST(test_bplus_tree, test_bplus_tree_insert)
