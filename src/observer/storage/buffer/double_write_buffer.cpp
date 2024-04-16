@@ -104,7 +104,7 @@ RC DiskDoubleWriteBuffer::add_page(DiskBufferPool *bp, PageNum page_num, Page &p
     return RC::SUCCESS;
   }
 
-  if (dblwr_pages_.size() >= max_pages_) {
+  if (static_cast<int>(dblwr_pages_.size()) >= max_pages_) {
     RC rc = flush_page();
     if (rc != RC::SUCCESS) {
       LOG_ERROR("Failed to flush pages in double write buffer");
