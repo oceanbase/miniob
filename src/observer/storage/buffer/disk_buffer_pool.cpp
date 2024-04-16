@@ -334,17 +334,12 @@ RC DiskBufferPool::get_this_page(PageNum page_num, Frame **frame)
   // allocated_frame->pin(); // pined in manager::get
   allocated_frame->access();
 
-  // check if the page is in double write buffer
-  optional<Page> ret = dblwr_manager_.get_page(id(), page_num);
-  if (ret != nullopt) {
-    allocated_frame->page() = ret.value();
-  } else {
-    if ((rc = load_page(page_num, allocated_frame)) != RC::SUCCESS) {
-      LOG_ERROR("Failed to load page %s:%d", file_name_.c_str(), page_num);
-      purge_frame(page_num, allocated_frame);
-      return rc;
-    }
+  if ((rc = load_page(page_num, allocated_frame)) != RC::SUCCESS) {
+    LOG_ERROR("Failed to load page %s:%d", file_name_.c_str(), page_num);
+    purge_frame(page_num, allocated_frame);
+    return rc;
   }
+
   *frame = allocated_frame;
   return RC::SUCCESS;
 }
@@ -554,7 +549,7 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
 
   frame.set_check_sum(crc32(frame.page().data, BP_PAGE_DATA_SIZE));
 
-  rc = dblwr_manager_.add_page(id(), frame.page_num(), frame.page());
+  rc = dblwr_manager_.add_page(this, frame.page_num(), frame.page());
   if (OB_FAIL(rc)) {
     return rc;
   }
@@ -752,6 +747,12 @@ RC DiskBufferPool::check_page_num(PageNum page_num)
 
 RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
 {
+  Page &page = frame->page();
+  RC rc = dblwr_manager_.read_page(this, page_num, page);
+  if (OB_SUCC(rc)) {
+    return rc;
+  }
+
   scoped_lock lock_guard(wr_lock_);
   int64_t          offset = ((int64_t)page_num) * BP_PAGE_SIZE;
   if (lseek(file_desc_, offset, SEEK_SET) == -1) {
@@ -760,8 +761,7 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
     return RC::IOERR_SEEK;
   }
 
-  Page &page = frame->page();
-  int   ret  = readn(file_desc_, &page, BP_PAGE_SIZE);
+  int ret = readn(file_desc_, &page, BP_PAGE_SIZE);
   if (ret != 0) {
     LOG_ERROR("Failed to load page %s, file_desc:%d, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
               file_name_.c_str(), file_desc_, page_num, strerror(errno), ret, file_header_->allocated_pages);
@@ -785,7 +785,6 @@ BufferPoolManager::BufferPoolManager(int memory_size /* = 0 */)
   }
   const int pool_num = max(memory_size / BP_PAGE_SIZE / DEFAULT_ITEM_NUM_PER_POOL, 1);
   frame_manager_.init(pool_num);
-  dblwr_buffer_ = new DoubleWriteBuffer(*this);
   LOG_INFO("buffer pool manager init with memory size %d, page num: %d, pool num: %d",
            memory_size, pool_num * DEFAULT_ITEM_NUM_PER_POOL, pool_num);
 }
@@ -798,8 +797,12 @@ BufferPoolManager::~BufferPoolManager()
   for (auto &iter : tmp_bps) {
     delete iter.second;
   }
+}
 
-  delete dblwr_buffer_;
+RC BufferPoolManager::init(unique_ptr<DoubleWriteBuffer> dblwr_buffer)
+{
+  dblwr_buffer_ = std::move(dblwr_buffer);
+  return RC::SUCCESS;
 }
 
 RC BufferPoolManager::create_file(const char *file_name)
@@ -915,19 +918,10 @@ RC BufferPoolManager::flush_page(Frame &frame)
   return bp->flush_page(frame);
 }
 
-RC BufferPoolManager::get_disk_buffer(const char *file_name, DiskBufferPool **buf)
-{
-  scoped_lock lock_guard(lock_);
-
-  if (buffer_pools_.count(file_name) != 0) {
-    *buf = buffer_pools_[file_name];
-  }
-
-  return RC::SUCCESS;
-}
-
 RC BufferPoolManager::get_buffer_pool(int32_t id, DiskBufferPool *&bp)
 {
+  bp = nullptr;
+
   scoped_lock lock_guard(lock_);
 
   auto iter = id_to_buffer_pools_.find(id);
@@ -935,210 +929,8 @@ RC BufferPoolManager::get_buffer_pool(int32_t id, DiskBufferPool *&bp)
     LOG_WARN("unknown buffer pool of id %d", id);
     return RC::INTERNAL;
   }
-  return RC::SUCCESS;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-DoubleWritePage::DoubleWritePage(int32_t buffer_pool_id, PageNum page_num, Page &_page)
-  : key{buffer_pool_id, page_num}, page(_page)
-{}
-
-const int32_t DoubleWritePage::SIZE = sizeof(DoubleWritePage);
-
-const int32_t DoubleWriteBufferHeader::SIZE = sizeof(DoubleWriteBufferHeader);
-
-DoubleWriteBuffer::DoubleWriteBuffer(BufferPoolManager &bp_manager, int max_pages /*=16*/) 
-  : max_pages_(max_pages), bp_manager_(bp_manager)
-{ 
-  open_file(); 
-}
-
-DoubleWriteBuffer::~DoubleWriteBuffer()
-{
-  for (auto &node : dblwr_pages_) {
-    delete node.second;
-  }
-  close(file_desc_);
-}
-
-RC DoubleWriteBuffer::open_file()
-{
-  int fd = open(DBLWR_FILE_NAME, O_CREAT | O_RDWR, 0644);
-  if (fd < 0) {
-    LOG_ERROR("Failed to open or creat %s, due to %s.", DBLWR_FILE_NAME, strerror(errno));
-    return RC::SCHEMA_DB_EXIST;
-  }
-
-  file_desc_ = fd;
-  return RC::SUCCESS;
-}
-
-RC DoubleWriteBuffer::flush_page()
-{
-  sync();
-
-  for (const auto &pair : dblwr_pages_) {
-    RC rc = write_page(pair.second);
-    if (rc != RC::SUCCESS) {
-      return rc;
-    }
-    delete pair.second;
-  }
-
-  dblwr_pages_.clear();
-
-  return RC::SUCCESS;
-}
-
-RC DoubleWriteBuffer::add_page(int32_t buffer_pool_id, PageNum page_num, Page &page)
-{
-  scoped_lock lock_guard(lock_);
-  DoubleWritePageKey key{buffer_pool_id, page_num};
-  auto iter = dblwr_pages_.find(key);
-  if (iter != dblwr_pages_.end()) {
-    iter->second->page = page;
-    return RC::SUCCESS;
-  }
-
-  if (dblwr_pages_.size() >= max_pages_) {
-    RC rc = flush_page();
-    if (rc != RC::SUCCESS) {
-      LOG_ERROR("Failed to flush pages in double write buffer");
-      return rc;
-    }
-  }
-
-  int64_t          page_cnt   = dblwr_pages_.size();
-  DoubleWritePage *dblwr_page = new DoubleWritePage(buffer_pool_id, page_num, page);
-  dblwr_pages_.insert(std::pair<DoubleWritePageKey, DoubleWritePage *>(key, dblwr_page));
-
-  int64_t offset = page_cnt * DoubleWritePage::SIZE + DoubleWriteBufferHeader::SIZE;
-  if (lseek(file_desc_, offset, SEEK_SET) == -1) {
-    LOG_ERROR("Failed to add page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
-    return RC::IOERR_SEEK;
-  }
-
-  if (writen(file_desc_, dblwr_page, DoubleWritePage::SIZE) != 0) {
-    LOG_ERROR("Failed to add page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
-    return RC::IOERR_WRITE;
-  }
-
-  if (page_cnt + 1 > header_.page_cnt) {
-    header_.page_cnt = page_cnt + 1;
-    if (lseek(file_desc_, 0, SEEK_SET) == -1) {
-      LOG_ERROR("Failed to add page header due to failed to seek %s.", strerror(errno));
-      return RC::IOERR_SEEK;
-    }
-
-    if (writen(file_desc_, &header_, sizeof(header_)) != 0) {
-      LOG_ERROR("Failed to add page header due to %s.", strerror(errno));
-      return RC::IOERR_WRITE;
-    }
-  }
-
-  return RC::SUCCESS;
-}
-
-RC DoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
-{
-  DiskBufferPool *disk_buffer = nullptr;
-  RC rc = bp_manager_.get_buffer_pool(dblwr_page->key.buffer_pool_id, disk_buffer);
-  ASSERT(OB_SUCC(rc) && disk_buffer != nullptr, "failed to get disk buffer pool of %d", dblwr_page->key.buffer_pool_id);
-
-  return disk_buffer->write_page(dblwr_page->key.page_num, dblwr_page->page);
-}
-
-RC DoubleWriteBuffer::clear_pages(DiskBufferPool *buffer_pool)
-{
-  vector<DoubleWritePage *> spec_pages;
   
-  auto remove_pred = [&spec_pages, buffer_pool](const pair<DoubleWritePageKey, DoubleWritePage *> &pair) {
-    DoubleWritePage *dbl_page = pair.second;
-    if (buffer_pool->id() == dbl_page->key.buffer_pool_id) {
-      spec_pages.push_back(dbl_page);
-      return true;
-    }
-    return false;
-  };
-
-  lock_.lock();
-  erase_if(dblwr_pages_, remove_pred);
-  lock_.unlock();
-
-  LOG_INFO("clear pages in double write buffer. file name=%s, page count=%d",
-           buffer_pool->filename(), spec_pages.size());
-
-  RC rc = RC::SUCCESS;
-  for (DoubleWritePage *dbl_page : spec_pages) {
-    rc = buffer_pool->write_page(dbl_page->key.page_num, dbl_page->page);
-    if (OB_FAIL(rc)) {
-      LOG_WARN("Failed to write page %s:%d to disk buffer pool. rc=%s",
-               buffer_pool->filename(), dbl_page->key.page_num, strrc(rc));
-      break;
-    }
-  }
-
-  ranges::for_each(spec_pages, [](DoubleWritePage *dbl_page) { delete dbl_page; });
-
+  bp = iter->second;
   return RC::SUCCESS;
 }
 
-RC DoubleWriteBuffer::recover()
-{
-  scoped_lock lock_guard(lock_);
-
-  if (lseek(file_desc_, 0, SEEK_SET) == -1) {
-    LOG_ERROR("Failed to load page header, due to failed to lseek:%s.", strerror(errno));
-    return RC::IOERR_SEEK;
-  }
-
-  int ret = readn(file_desc_, &header_, sizeof(header_));
-  if (ret != 0 && ret != -1) {
-    LOG_ERROR("Failed to load page header, file_desc:%d, due to failed to read data:%s, ret=%d",
-                file_desc_, strerror(errno), ret);
-    return RC::IOERR_READ;
-  }
-
-  auto dblwr_page = make_unique<DoubleWritePage>();
-  for (int page_num = 0; page_num < header_.page_cnt; page_num++) {
-    int64_t offset = ((int64_t)page_num) * DoubleWritePage::SIZE + DoubleWriteBufferHeader::SIZE;
-
-    if (lseek(file_desc_, offset, SEEK_SET) == -1) {
-      LOG_ERROR("Failed to load page %d, due to failed to lseek:%s.", page_num, strerror(errno));
-      return RC::IOERR_SEEK;
-    }
-
-    Page &page     = dblwr_page->page;
-    page.check_sum = (CheckSum)-1;
-
-    ret = readn(file_desc_, dblwr_page.get(), DoubleWritePage::SIZE);
-    if (ret != 0) {
-      LOG_ERROR("Failed to load page, file_desc:%d, page num:%d, due to failed to read data:%s, ret=%d, page count=%d",
-                file_desc_, page_num, strerror(errno), ret, page_num);
-      return RC::IOERR_READ;
-    }
-
-    if (crc32(page.data, BP_PAGE_DATA_SIZE) == page.check_sum) {
-      RC rc = write_page(dblwr_page.get());
-      if (OB_FAIL(rc)) {
-        return rc;
-      }
-    }
-  }
-
-  return RC::SUCCESS;
-}
-
-optional<Page> DoubleWriteBuffer::get_page(int32_t buffer_pool_id, PageNum page_num)
-{
-  scoped_lock lock_guard(lock_);
-
-  DoubleWritePageKey key{buffer_pool_id, page_num};
-  auto iter = dblwr_pages_.find(key);
-  if (iter != dblwr_pages_.end()) {
-    return make_optional<Page>(iter->second->page);
-  }
-
-  return nullopt;
-}

@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/clog/vacuous_log_handler.h"
+#include "storage/buffer/double_write_buffer.h"
 
 using namespace std;
 using namespace common;
@@ -54,6 +55,7 @@ TEST(DiskBufferPool, allocate_dispose)
 
   // 1. 创建buffer pool manager
   BufferPoolManager buffer_pool_manager;
+  ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
 
   // 2. 创建buffer pool log handler
   VacuousLogHandler log_handler;
@@ -112,6 +114,7 @@ TEST(BufferPool, create)
   filesystem::create_directory(test_directory);
 
   BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, bpm.create_file(bp_file.c_str()));
 
   VacuousLogHandler log_handler;
@@ -120,6 +123,7 @@ TEST(BufferPool, create)
   ASSERT_NE(buffer_pool, nullptr);
 
   BufferPoolManager bpm2;
+  ASSERT_EQ(RC::SUCCESS, bpm2.init(make_unique<VacuousDoubleWriteBuffer>()));
   filesystem::path bp_file2 = test_directory / "create2.bp";
   filesystem::copy_file(bp_file, bp_file2);
 

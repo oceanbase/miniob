@@ -22,6 +22,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/vacuous_trx.h"
 #include "storage/clog/vacuous_log_handler.h"
 #include "storage/clog/disk_log_handler.h"
+#include "storage/buffer/double_write_buffer.h"
 #include "common/math/integer_generator.h"
 #include "common/thread/thread_pool_executor.h"
 #include "storage/clog/integrated_log_replayer.h"
@@ -38,6 +39,7 @@ TEST(RecordPageHandler, test_record_page_handler)
   ::remove(record_manager_file);
 
   BufferPoolManager *bpm = new BufferPoolManager();
+  ASSERT_EQ(RC::SUCCESS, bpm->init(make_unique<VacuousDoubleWriteBuffer>()));
   DiskBufferPool    *bp  = nullptr;
   RC                 rc  = bpm->create_file(record_manager_file);
   ASSERT_EQ(rc, RC::SUCCESS);
@@ -127,6 +129,7 @@ TEST(RecordFileScanner, test_record_file_iterator)
   filesystem::remove(record_manager_file);
 
   BufferPoolManager *bpm = new BufferPoolManager();
+  ASSERT_EQ(RC::SUCCESS, bpm->init(make_unique<VacuousDoubleWriteBuffer>()));
   DiskBufferPool    *bp  = nullptr;
   RC                 rc  = bpm->create_file(record_manager_file);
   ASSERT_EQ(rc, RC::SUCCESS);
@@ -215,6 +218,8 @@ TEST(RecordManager, durability)
   filesystem::path record_manager_file = directory / "record_manager.bp";
 
   BufferPoolManager bpm;
+  unique_ptr<VacuousDoubleWriteBuffer> double_write_buffer = make_unique<VacuousDoubleWriteBuffer>();
+  ASSERT_EQ(bpm.init(std::move(double_write_buffer)), RC::SUCCESS);
 
   DiskLogHandler log_handler;
   IntegratedLogReplayer log_replayer(bpm);
@@ -323,6 +328,7 @@ TEST(RecordManager, durability)
   // 重新创建资源并尝试从日志中恢复数据，然后校验数据
   DiskLogHandler log_handler2;
   BufferPoolManager bpm2;
+  ASSERT_EQ(RC::SUCCESS, bpm2.init(make_unique<VacuousDoubleWriteBuffer>()));
   DiskBufferPool *buffer_pool2 = nullptr;
   filesystem::copy(record_manager_file_copy, record_manager_file);
   ASSERT_EQ(bpm2.open_file(log_handler2, record_manager_file.c_str(), buffer_pool2), RC::SUCCESS);

@@ -71,6 +71,22 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
   trx_kit_.reset(trx_kit);
 
   buffer_pool_manager_ = make_unique<BufferPoolManager>();
+  auto dblwr_buffer = make_unique<DiskDoubleWriteBuffer>(*buffer_pool_manager_);
+
+  const char *double_write_buffer_filename = "dblwr.db";
+  filesystem::path double_write_buffer_file_path = filesystem::path(dbpath) / double_write_buffer_filename;
+  rc = dblwr_buffer->open_file(double_write_buffer_file_path.c_str());
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to open double write buffer file. file=%s, rc=%s",
+              double_write_buffer_file_path.c_str(), strrc(rc));
+    return rc;
+  }
+
+  rc = buffer_pool_manager_->init(std::move(dblwr_buffer));
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to init buffer pool manager. dbpath=%s, rc=%s", dbpath, strrc(rc));
+    return rc;
+  }
 
   filesystem::path clog_path = filesystem::path(dbpath) / "clog";
   LogHandler *tmp_log_handler = nullptr;
@@ -365,8 +381,7 @@ RC Db::flush_meta()
 
 RC Db::init_dblwr_buffer()
 {
-  DoubleWriteBuffer *dblwr_buffer = buffer_pool_manager_->get_dblwr_buffer();
-
+  auto dblwr_buffer = static_cast<DiskDoubleWriteBuffer *>(buffer_pool_manager_->get_dblwr_buffer());
   RC rc = dblwr_buffer->recover();
   if (OB_FAIL(rc)) {
     LOG_ERROR("fail to recover in dblwr buffer");

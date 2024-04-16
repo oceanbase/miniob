@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/clog/disk_log_handler.h"
 #include "storage/buffer/buffer_pool_log.h"
+#include "storage/buffer/double_write_buffer.h"
 
 using namespace std;
 using namespace common;
@@ -47,6 +48,7 @@ TEST(BufferPoolLog, test_wal_normal)
 
   filesystem::path buffer_pool_filename = test_path / "buffer_pool.bp";
   BufferPoolManager buffer_pool_manager;
+  ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.create_file(buffer_pool_filename.c_str()));
 
   DiskLogHandler log_handler;
@@ -117,6 +119,7 @@ TEST(BufferPoolLog, test_wal_exception)
 
   filesystem::path buffer_pool_filename = test_path / "buffer_pool.bp";
   BufferPoolManager buffer_pool_manager;
+  ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.create_file(buffer_pool_filename.c_str()));
 
   BufferPoolLogReplayer log_replayer(buffer_pool_manager);
@@ -156,6 +159,7 @@ TEST(BufferPoolLog, test_wal_exception)
   ASSERT_TRUE(filesystem::remove(buffer_pool_filename));
 
   BufferPoolManager buffer_pool_manager2;
+  ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.create_file(buffer_pool_filename.c_str()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.open_file(log_handler, buffer_pool_filename.c_str(), buffer_pool));
   ASSERT_NE(buffer_pool, nullptr);
@@ -195,6 +199,7 @@ TEST(BufferPoolLog, test_wal_exception2)
 
   filesystem::path buffer_pool_filename = test_path / "buffer_pool.bp";
   BufferPoolManager buffer_pool_manager;
+  ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.create_file(buffer_pool_filename.c_str()));
 
   BufferPoolLogReplayer log_replayer(buffer_pool_manager);
@@ -303,6 +308,7 @@ TEST(BufferPoolLog, test_wal_multi_files)
   }
 
   BufferPoolManager buffer_pool_manager;
+  ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
   ranges::for_each(buffer_pool_filenames, [&buffer_pool_manager](const filesystem::path &filename) {
     ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.create_file(filename.c_str()));
   });
@@ -360,6 +366,7 @@ TEST(BufferPoolLog, test_wal_multi_files)
   });
 
   BufferPoolManager buffer_pool_manager2;
+  ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.init(make_unique<VacuousDoubleWriteBuffer>()));
   ranges::for_each(buffer_pool_filenames, [&buffer_pool_manager2](const filesystem::path &filename) {
     ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.create_file(filename.c_str()));
   });

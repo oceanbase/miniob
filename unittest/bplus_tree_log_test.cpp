@@ -23,6 +23,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/integrated_log_replayer.h"
 #include "common/math/integer_generator.h"
 #include "common/thread/thread_pool_executor.h"
+#include "storage/buffer/double_write_buffer.h"
 
 using namespace std;
 using namespace common;
@@ -53,6 +54,7 @@ TEST(BplusTreeLog, base)
 
   // 1. create a bplus tree and a disk logger
   auto bpm = make_unique<BufferPoolManager>();
+  ASSERT_EQ(RC::SUCCESS, bpm->init(make_unique<VacuousDoubleWriteBuffer>()));
   DiskBufferPool *buffer_pool = nullptr;
   auto log_handler = make_unique<DiskLogHandler>();
   ASSERT_EQ(RC::SUCCESS, bpm->create_file(bp_filename.c_str()));
@@ -100,6 +102,7 @@ TEST(BplusTreeLog, base)
   ASSERT_TRUE(filesystem::copy_file(bp_filename, bp_filename2));
 
   auto bpm2 = make_unique<BufferPoolManager>();
+  ASSERT_EQ(RC::SUCCESS, bpm2->init(make_unique<VacuousDoubleWriteBuffer>()));
   auto log_handler2 = make_unique<DiskLogHandler>();
   DiskBufferPool *buffer_pool2 = nullptr;
   ASSERT_EQ(RC::SUCCESS, bpm2->open_file(*log_handler2, bp_filename2.c_str(), buffer_pool2));
@@ -155,6 +158,7 @@ TEST(BplusTreeLog, concurrency)
 
   vector<DiskBufferPool *> buffer_pools;
   auto bpm = make_unique<BufferPoolManager>();
+  ASSERT_EQ(RC::SUCCESS, bpm->init(make_unique<VacuousDoubleWriteBuffer>()));
   auto log_handler = make_unique<DiskLogHandler>();
   for (filesystem::path &bp_filename : bp_filenames) {
     ASSERT_EQ(RC::SUCCESS, bpm->create_file(bp_filename.c_str()));
@@ -229,6 +233,7 @@ TEST(BplusTreeLog, concurrency)
 
   // open another context
   auto bpm2 = make_unique<BufferPoolManager>();
+  ASSERT_EQ(RC::SUCCESS, bpm2->init(make_unique<VacuousDoubleWriteBuffer>()));
   auto log_handler2 = make_unique<DiskLogHandler>();
   vector<DiskBufferPool *> buffer_pools2;
   vector<filesystem::path> bp_filenames2;

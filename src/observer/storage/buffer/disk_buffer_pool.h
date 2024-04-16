@@ -25,6 +25,7 @@ See the Mulan PSL v2 for more details. */
 #include <time.h>
 #include <unordered_map>
 #include <optional>
+#include <memory>
 
 #include "common/lang/bitmap.h"
 #include "common/lang/lru_cache.h"
@@ -48,7 +49,6 @@ class BufferPoolLogHandler;
  */
 
 #define BP_FILE_SUB_HDR_SIZE (sizeof(BPFileSubHeader))
-#define DBLWR_FILE_NAME "dblwr.db"
 
 /**
  * @brief BufferPool的文件第一个页面，存放一些元数据信息，包括了后面每页的分配信息。
@@ -327,15 +327,16 @@ public:
   BufferPoolManager(int memory_size = 0);
   ~BufferPoolManager();
 
+  RC init(std::unique_ptr<DoubleWriteBuffer> dblwr_buffer);
+
   RC create_file(const char *file_name);
   RC open_file(LogHandler &log_handler, const char *file_name, DiskBufferPool *&bp);
   RC close_file(const char *file_name);
 
   RC flush_page(Frame &frame);
-  RC get_disk_buffer(const char *file_name, DiskBufferPool **buf);
 
   BPFrameManager    &get_frame_manager() { return frame_manager_; }
-  DoubleWriteBuffer *get_dblwr_buffer() { return dblwr_buffer_; }
+  DoubleWriteBuffer *get_dblwr_buffer() { return dblwr_buffer_.get(); }
 
   /**
    * @brief 根据ID获取对应的BufferPool对象
@@ -347,108 +348,11 @@ public:
 
 private:
   BPFrameManager     frame_manager_{"BufPool"};
-  DoubleWriteBuffer *dblwr_buffer_ = nullptr;
+
+  std::unique_ptr<DoubleWriteBuffer> dblwr_buffer_;
 
   common::Mutex                                     lock_;
   std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;
   std::unordered_map<int32_t, DiskBufferPool *>     id_to_buffer_pools_;
   std::atomic<int32_t> next_buffer_pool_id_{1};  // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
-};
-
-// TODO change to FrameId
-struct DoubleWritePageKey
-{
-  int32_t     buffer_pool_id;
-  PageNum     page_num;
-
-  bool operator==(const DoubleWritePageKey &other) const
-  {
-    return buffer_pool_id == other.buffer_pool_id && page_num == other.page_num;
-  }
-};
-
-struct DoubleWritePageKeyHash
-{
-  size_t operator()(const DoubleWritePageKey &key) const
-  {
-    return std::hash<int32_t>()(key.buffer_pool_id) ^ std::hash<PageNum>()(key.page_num);
-  }
-};
-
-struct DoubleWritePage
-{
-public:
-  DoubleWritePage() = default;
-  DoubleWritePage(int32_t buffer_pool_id, PageNum page_num, Page &page);
-
-public:
-  DoubleWritePageKey key;
-  Page               page;
-
-  static const int32_t SIZE;
-};
-
-struct DoubleWriteBufferHeader
-{
-  int32_t page_cnt;
-
-  static const int32_t SIZE;
-};
-
-class DoubleWriteBuffer
-{
-public:
-  /**
-   * @brief 构造函数
-   * 
-   * @param bp_manager 关联的buffer pool manager
-   * @param max_pages  内存中保存的最大页面数
-   */
-  DoubleWriteBuffer(BufferPoolManager &bp_manager, int max_pages = 16);
-  ~DoubleWriteBuffer();
-
-  /**
-   * 打开磁盘中的共享表空间文件
-   */
-  RC open_file();
-
-  /**
-   * 将buffer中的页全部写入磁盘，并且清空buffer
-   * TODO 目前的解决方案是等buffer装满后再刷盘，可能会导致程序卡住一段时间
-   */
-  RC flush_page();
-
-  /**
-   * 将页面加入buffer，并且写入磁盘中的共享表空间
-   */
-  RC add_page(int32_t buffer_pool_id, PageNum page_num, Page &page);
-
-  /**
-   * 将buffer中的页面写入对应的磁盘
-   */
-  RC write_page(DoubleWritePage *page);
-
-  /**
-   * @brief 清空所有与指定buffer pool关联的页面
-   */
-  RC clear_pages(DiskBufferPool *bp);
-
-  /**
-   * 将共享表空间的页读入buffer
-   */
-  RC recover();
-
-  /**
-   * 查看buffer中是否存在该页面
-   */
-  std::optional<Page> get_page(int32_t buffer_pool_id, PageNum page_num);
-
-private:
-  int                     file_desc_ = -1;
-  int                     max_pages_ = 0;
-  common::Mutex           lock_;
-  BufferPoolManager      &bp_manager_;
-  DoubleWriteBufferHeader header_;
-
-  std::unordered_map<DoubleWritePageKey, DoubleWritePage *, DoubleWritePageKeyHash> dblwr_pages_;
 };

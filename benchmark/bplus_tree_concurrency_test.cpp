@@ -20,13 +20,11 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/index/bplus_tree.h"
 #include "storage/clog/vacuous_log_handler.h"
+#include "storage/buffer/double_write_buffer.h"
 
 using namespace std;
 using namespace common;
 using namespace benchmark;
-
-once_flag         init_bpm_flag;
-BufferPoolManager bpm{512};
 
 struct Stat
 {
@@ -59,6 +57,8 @@ public:
       return;
     }
 
+    bpm_.init(make_unique<VacuousDoubleWriteBuffer>());
+
     string log_name       = this->Name() + ".log";
     string btree_filename = this->Name() + ".btree";
     LoggerFactory::init_default(log_name.c_str(), LOG_LEVEL_TRACE);
@@ -71,7 +71,7 @@ public:
     const char *filename = btree_filename.c_str();
 
     RC rc = handler_.create(log_handler_, 
-                            bpm, filename, 
+                            bpm_, filename, 
                             INTS, 
                             sizeof(int32_t) /*attr_len*/, 
                             internal_max_size, 
@@ -185,6 +185,7 @@ public:
   }
 
 protected:
+  BufferPoolManager bpm_{512};
   BplusTreeHandler  handler_;
   VacuousLogHandler log_handler_;
 };

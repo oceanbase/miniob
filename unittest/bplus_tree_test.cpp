@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/index/bplus_tree.h"
 #include "storage/clog/vacuous_log_handler.h"
+#include "storage/buffer/double_write_buffer.h"
 #include "gtest/gtest.h"
 
 using namespace common;
@@ -32,17 +33,16 @@ using namespace common;
 #define INSERT_NUM (TIMES * ORDER * ORDER * ORDER * ORDER)
 #define POOL_NUM 2
 
-BufferPoolManager bpm;
-BplusTreeHandler *handler    = nullptr;
 const char       *index_name = "test.btree";
 int               insert_num = INSERT_NUM;
 const int         page_size  = 1024;
-RID               rid, check_rid;
 int               k = 0;
 
-void test_insert()
+void test_insert(BplusTreeHandler *handler)
 {
   RC rc = RC::SUCCESS;
+  RID rid;
+
   for (int i = 0; i < insert_num; i++) {
 
     rid.page_num = i / page_size;
@@ -135,8 +135,10 @@ void test_insert()
   }
 }
 
-void test_get()
+void test_get(BplusTreeHandler *handler)
 {
+  RID rid;
+  RID check_rid;
   std::list<RID> rids;
   for (int i = 0; i < insert_num; i++) {
     rid.page_num = i / page_size;
@@ -160,10 +162,12 @@ void test_get()
   }
 }
 
-void test_delete()
+void test_delete(BplusTreeHandler *handler)
 {
   RC             rc = RC::SUCCESS;
   std::list<RID> rids;
+  RID rid;
+  RID check_rid;
 
   for (int i = 0; i < insert_num / 2; i++) {
     rid.page_num = i / page_size;
@@ -328,6 +332,7 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
 
   VacuousLogHandler log_handler;
   BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
 
   DiskBufferPool *buffer_pool = nullptr;
@@ -408,6 +413,7 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
 
   VacuousLogHandler log_handler;
   BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
 
   DiskBufferPool *buffer_pool = nullptr;
@@ -522,6 +528,7 @@ TEST(test_bplus_tree, test_chars)
   filesystem::create_directory(test_directory);
 
   BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
 
   DiskBufferPool *buffer_pool = nullptr;
@@ -571,6 +578,7 @@ TEST(test_bplus_tree, test_scanner)
   VacuousLogHandler log_handler;
 
   BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
 
   DiskBufferPool *buffer_pool = nullptr;
@@ -795,20 +803,21 @@ TEST(test_bplus_tree, test_bplus_tree_insert)
   VacuousLogHandler log_handler;
 
   BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
 
   DiskBufferPool *buffer_pool = nullptr;
   ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, buffer_pool_file.c_str(), buffer_pool));
   ASSERT_NE(nullptr, buffer_pool);
 
-  handler = new BplusTreeHandler();
+  BplusTreeHandler *handler = new BplusTreeHandler();
   ASSERT_EQ(RC::SUCCESS, handler->create(log_handler, *buffer_pool, INTS, sizeof(int), ORDER, ORDER));
 
-  test_insert();
+  test_insert(handler);
 
-  test_get();
+  test_get(handler);
 
-  test_delete();
+  test_delete(handler);
 
   handler->close();
   delete handler;

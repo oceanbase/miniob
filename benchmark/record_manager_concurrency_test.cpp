@@ -24,13 +24,11 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/trx/vacuous_trx.h"
 #include "storage/clog/vacuous_log_handler.h"
+#include "storage/buffer/double_write_buffer.h"
 
 using namespace std;
 using namespace common;
 using namespace benchmark;
-
-once_flag         init_bpm_flag;
-BufferPoolManager bpm{512};
 
 struct Stat
 {
@@ -86,19 +84,21 @@ public:
       return;
     }
 
+    bpm_.init(make_unique<VacuousDoubleWriteBuffer>());
+
     string log_name        = this->Name() + ".log";
     string record_filename = this->record_filename();
     LoggerFactory::init_default(log_name.c_str(), LOG_LEVEL_INFO);
 
     ::remove(record_filename.c_str());
 
-    RC rc = bpm.create_file(record_filename.c_str());
+    RC rc = bpm_.create_file(record_filename.c_str());
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to create record buffer pool file. filename=%s, rc=%s", record_filename.c_str(), strrc(rc));
       throw runtime_error("failed to create record buffer pool file.");
     }
 
-    rc = bpm.open_file(log_handler_, record_filename.c_str(), buffer_pool_);
+    rc = bpm_.open_file(log_handler_, record_filename.c_str(), buffer_pool_);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to open record file. filename=%s, rc=%s", record_filename.c_str(), strrc(rc));
       throw runtime_error("failed to open record file");
@@ -123,7 +123,7 @@ public:
     // TODO 很怪，引入double write buffer后，必须要求先close buffer pool，再执行bpm.close_file。
     // 以后必须修理好bpm、buffer pool、double write buffer之间的关系
     buffer_pool_->close_file();
-    bpm.close_file(this->record_filename().c_str());
+    bpm_.close_file(this->record_filename().c_str());
     buffer_pool_ = nullptr;
     LOG_INFO("test %s teardown done. threads=%d, thread index=%d",
         this->Name().c_str(),
@@ -231,6 +231,7 @@ public:
   }
 
 protected:
+  BufferPoolManager bpm_{512};
   DiskBufferPool   *buffer_pool_ = nullptr;
   RecordFileHandler handler_;
   VacuousLogHandler log_handler_;
