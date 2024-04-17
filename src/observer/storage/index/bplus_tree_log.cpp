@@ -203,8 +203,6 @@ RC BplusTreeLogger::__redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHand
     if (frame != nullptr) {
       frames.push_back(frame);
     }
-    int32_t bp = frame ? frame->buffer_pool_id() : 0;
-    PageNum page_num = frame ? frame->page_num() : -1;
 
     if (nullptr == frame || frame->lsn() >= lsn) {
       LOG_TRACE("no need to redo. frame=%p, lsn=%ld, redo lsn=%ld", frame, frame ? frame->lsn() : 0, lsn);

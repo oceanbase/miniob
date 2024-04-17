@@ -16,7 +16,7 @@ OPTION(ENABLE_UBSAN "Build with undefined behavior sanitizer" OFF)
 OPTION(WITH_UNIT_TESTS "Compile miniob with unit tests" ON)
 OPTION(WITH_BENCHMARK "Compile benchmark" OFF)
 OPTION(ENABLE_COVERAGE "Enable unittest coverage" OFF)
-OPTION(ENABLE_NOPIE "Enable no pie", OFF)
+OPTION(ENABLE_NOPIE "Enable no pie" OFF)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)
 OPTION(STATIC_STDLIB "Link std library static or dynamic, such as libgcc, libstdc++, libasan" OFF)
 
