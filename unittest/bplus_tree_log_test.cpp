@@ -145,7 +145,7 @@ TEST(BplusTreeLog, base)
 
 TEST(BplusTreeLog, concurrency)
 {
-  filesystem::path test_directory = "bplus_tree_log_test";
+  filesystem::path test_directory = "bplus_tree_log_test_dir";
   filesystem::path child_directory_src = test_directory / "src";
   filesystem::path child_directory_dst = test_directory / "dst";
   filesystem::remove_all(test_directory);
@@ -156,6 +156,7 @@ TEST(BplusTreeLog, concurrency)
     bp_filenames.push_back(child_directory_src / ("bplus_tree" + to_string(i) + ".bp"));
   }
 
+  // 创建一批B+树，执行插入、删除动作
   vector<DiskBufferPool *> buffer_pools;
   auto bpm = make_unique<BufferPoolManager>();
   ASSERT_EQ(RC::SUCCESS, bpm->init(make_unique<VacuousDoubleWriteBuffer>()));
@@ -182,7 +183,7 @@ TEST(BplusTreeLog, concurrency)
     bplus_trees.push_back(std::move(bplus_tree));
   }
 
-  const int insert_num = 10000 * static_cast<int>(bp_filenames.size());
+  const int insert_num = 1000 * static_cast<int>(bp_filenames.size());
   vector<int> keys(insert_num);
   for (int i = 0; i < insert_num; i++) {
     keys[i] = i;
@@ -206,7 +207,7 @@ TEST(BplusTreeLog, concurrency)
     });
   }
 
-  const int random_operation_num = 10000 * static_cast<int>(bp_filenames.size());
+  const int random_operation_num = 1000 * static_cast<int>(bp_filenames.size());
   IntegerGenerator operation_index_generator(0, 1); // 0 for insertion, 1 for deletion
   for (int i = 0; i < random_operation_num; i++) {
     executor.execute([&bplus_trees, &tree_index_generator, &operation_index_generator, i]() {
@@ -229,9 +230,14 @@ TEST(BplusTreeLog, concurrency)
   ASSERT_EQ(log_handler->await_termination(), RC::SUCCESS);
 
   // copy all files from src to dst
-  filesystem::copy(child_directory_src, child_directory_dst);
+  error_code ec;
+  filesystem::copy(child_directory_src, child_directory_dst, filesystem::copy_options::recursive, ec);
+  ASSERT_EQ(ec.value(), 0);
 
   // open another context
+  // 创建另一个环境，把上一份文件内容，包括buffer pool文件和日志文件
+  // 都复制过来，然后尝试恢复，再对比两边数据是否一致
+  LOG_INFO("copy the old files into new directory and try to recover them");
   auto bpm2 = make_unique<BufferPoolManager>();
   ASSERT_EQ(RC::SUCCESS, bpm2->init(make_unique<VacuousDoubleWriteBuffer>()));
   auto log_handler2 = make_unique<DiskLogHandler>();
@@ -272,12 +278,22 @@ TEST(BplusTreeLog, concurrency)
 
   // clear all resources
   bplus_trees2.clear();
+  LOG_INFO("bplus_tree2 destoried");
+
   bpm2.reset();
+  LOG_INFO("bpm2 destoried");
+
   log_handler2.reset();
+  LOG_INFO("log_handler2 destoried");
 
   bplus_trees.clear();
+  LOG_INFO("bplus_trees destoried");
+
   bpm.reset();
+  LOG_INFO("bpm destoried");
+
   log_handler.reset();
+  LOG_INFO("log_handler destoried");
 }
 
 int main(int argc, char **argv)

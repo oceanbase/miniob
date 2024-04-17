@@ -94,7 +94,7 @@ int BPFrameManager::purge_frames(int count, function<RC(Frame *frame)> purger)
     } else {
       frame->unpin();
       LOG_WARN("failed to purge frame. frame_id=%s, rc=%s", 
-               to_string(frame->frame_id()).c_str(), strrc(rc));
+               frame->frame_id().to_string().c_str(), strrc(rc));
     }
   }
   LOG_INFO("purge frame done. number=%d", freed_count);
@@ -154,7 +154,7 @@ RC BPFrameManager::free_internal(const FrameId &frame_id, Frame *frame)
   [[maybe_unused]] bool found        = frames_.get(frame_id, frame_source);
   ASSERT(found && frame == frame_source && frame->pin_count() == 1,
       "failed to free frame. found=%d, frameId=%s, frame_source=%p, frame=%p, pinCount=%d, lbt=%s",
-      found, to_string(frame_id).c_str(), frame_source, frame, frame->pin_count(), lbt());
+      found, frame_id.to_string().c_str(), frame_source, frame, frame->pin_count(), lbt());
 
   frame->set_page_num(-1);
   frame->unpin();
@@ -468,20 +468,20 @@ RC DiskBufferPool::unpin_page(Frame *frame)
 RC DiskBufferPool::purge_frame(PageNum page_num, Frame *buf)
 {
   if (buf->pin_count() != 1) {
-    LOG_INFO("Begin to free page %d of %d(buffer pool id), but it's pin count > 1:%d.",
-        buf->page_num(), buf->buffer_pool_id(), buf->pin_count());
+    LOG_INFO("Begin to free page %d frame_id=%s, but it's pin count > 1:%d.",
+        buf->page_num(), buf->frame_id().to_string().c_str(), buf->pin_count());
     return RC::LOCKED_UNLOCK;
   }
 
   if (buf->dirty()) {
     RC rc = flush_page_internal(*buf);
     if (rc != RC::SUCCESS) {
-      LOG_WARN("Failed to flush page %d of %d(file desc) during purge page.", buf->page_num(), buf->buffer_pool_id());
+      LOG_WARN("Failed to flush page %d frame_id=%s during purge page.", buf->page_num(), buf->frame_id().to_string().c_str());
       return rc;
     }
   }
 
-  LOG_DEBUG("Successfully purge frame =%p, page %d of %d(file desc)", buf, buf->page_num(), buf->buffer_pool_id());
+  LOG_DEBUG("Successfully purge frame =%p, page %d frame_id=%s", buf, buf->page_num(), buf->frame_id().to_string().c_str());
   frame_manager_.free(id(), page_num, buf);
   return RC::SUCCESS;
 }
