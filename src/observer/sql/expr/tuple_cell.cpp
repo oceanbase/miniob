@@ -19,13 +19,17 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
 
-TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, const char *alias)
+TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, const char *alias, const AggrOp aggr)
 {
   if (table_name) {
     table_name_ = table_name;
   }
   if (field_name) {
     field_name_ = field_name;
+  }
+  if (aggr)
+  {
+    aggr_ = aggr;
   }
   if (alias) {
     alias_ = alias;
@@ -35,12 +39,48 @@ TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, con
     } else {
       alias_ = table_name_ + "." + field_name_;
     }
+
+    if(aggr_ == AggrOp::AGGR_COUNT_ALL)
+    {
+      alias_ = "COUNT(*)";
+    }else if(aggr_ != AggrOp::AGGR_NONE){
+      std::string aggr_repr;
+      aggr_to_string(aggr_, aggr_repr);
+      for(int i = 0;i < alias_.length();i++)
+        {
+          if(alias_[i] >= 97 && alias_[i] <= 122)
+          {
+            alias_[i] -= 32;
+          }
+        }
+      alias_ = aggr_repr + "(" + alias_ + ")";
+    }
   }
 }
 
-TupleCellSpec::TupleCellSpec(const char *alias)
+TupleCellSpec::TupleCellSpec(const char *alias, const AggrOp aggr)
 {
+  if (aggr)
+  {
+    aggr_ = aggr;
+  }
   if (alias) {
     alias_ = alias;
+    if(aggr_ == AggrOp::AGGR_COUNT_ALL)
+      {
+        alias_ = "COUNT(*)";
+      }else if(aggr_ != AggrOp::AGGR_NONE){
+        std::string aggr_repr;
+        aggr_to_string(aggr_, aggr_repr);
+        for(int i = 0;i < alias_.length();i++)
+        {
+          if(alias_[i] >= 97 && alias_[i] <= 122)
+          {
+            alias_[i] -= 32;
+          }
+        }
+        alias_ = aggr_repr + "(" + alias_ + ")";
+      }
   }
+
 }
