@@ -167,7 +167,7 @@ public:
   void read_unlatch();
   void read_unlatch(intptr_t xid);
 
-  friend std::string to_string(const Frame &frame);
+  std::string to_string() const;
 
 private:
   friend class BufferPool;

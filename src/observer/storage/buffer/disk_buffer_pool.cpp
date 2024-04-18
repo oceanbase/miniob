@@ -104,6 +104,7 @@ int BPFrameManager::purge_frames(int count, function<RC(Frame *frame)> purger)
 Frame *BPFrameManager::get(int buffer_pool_id, PageNum page_num)
 {
   FrameId                     frame_id(buffer_pool_id, page_num);
+
   lock_guard<mutex> lock_guard(lock_);
   return get_internal(frame_id);
 }
@@ -123,6 +124,7 @@ Frame *BPFrameManager::alloc(int buffer_pool_id, PageNum page_num)
   FrameId frame_id(buffer_pool_id, page_num);
 
   lock_guard<mutex> lock_guard(lock_);
+
   Frame                      *frame = get_internal(frame_id);
   if (frame != nullptr) {
     return frame;
@@ -131,7 +133,7 @@ Frame *BPFrameManager::alloc(int buffer_pool_id, PageNum page_num)
   frame = allocator_.alloc();
   if (frame != nullptr) {
     ASSERT(frame->pin_count() == 0, "got an invalid frame that pin count is not 0. frame=%s", 
-           to_string(*frame).c_str());
+           frame->to_string().c_str());
     frame->set_buffer_pool_id(buffer_pool_id);
     frame->set_page_num(page_num);
     frame->pin();
@@ -438,7 +440,7 @@ RC DiskBufferPool::dispose_page(PageNum page_num)
   scoped_lock lock_guard(lock_);
   Frame           *used_frame = frame_manager_.get(id(), page_num);
   if (used_frame != nullptr) {
-    ASSERT("the page try to dispose is in use. frame:%s", to_string(*used_frame).c_str());
+    ASSERT("the page try to dispose is in use. frame:%s", used_frame->to_string().c_str());
     frame_manager_.free(id(), page_num, used_frame);
   } else {
     LOG_DEBUG("page not found in memory while disposing it. pageNum=%d", page_num);
@@ -543,7 +545,7 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
 
   RC rc = log_handler_.flush_page(frame.page());
   if (OB_FAIL(rc)) {
-    LOG_ERROR("Failed to log flush page %d, rc=%s", frame.page_num(), strrc(rc));
+    LOG_ERROR("Failed to log flush frame= %s, rc=%s", frame.to_string().c_str(), strrc(rc));
     // ignore error handle
   }
 
@@ -555,7 +557,7 @@ RC DiskBufferPool::flush_page_internal(Frame &frame)
   }
 
   frame.clear_dirty();
-  LOG_DEBUG("Flush block. file desc=%d, pageNum=%d, pin count=%d", file_desc_, frame.page_num(), frame.pin_count());
+  LOG_DEBUG("Flush block. file desc=%d, frame=%s", file_desc_, frame.to_string().c_str());
 
   return RC::SUCCESS;
 }
@@ -770,8 +772,8 @@ RC DiskBufferPool::load_page(PageNum page_num, Frame *frame)
 
   frame->set_page_num(page_num);
 
-  LOG_DEBUG("Load page %s:%d, file_desc:%d, pin count:%d, frame=%p", 
-            file_name_.c_str(), page_num, file_desc_, frame->pin_count(), frame);
+  LOG_DEBUG("Load page %s:%d, file_desc:%d, frame=%s",
+            file_name_.c_str(), page_num, file_desc_, frame->to_string().c_str());
   return RC::SUCCESS;
 }
 

@@ -258,10 +258,10 @@ unsigned long current_time()
 
 void Frame::access() { acc_time_ = current_time(); }
 
-string to_string(const Frame &frame)
+string Frame::to_string() const
 {
   stringstream ss;
-  ss << "frame id:" << frame.frame_id().to_string() << ", dirty=" << frame.dirty() << ", pin=" << frame.pin_count()
-     << ", lsn=" << frame.lsn();
+  ss << "frame id:" << frame_id().to_string() << ", dirty=" << dirty() << ", pin=" << pin_count()
+     << ", lsn=" << lsn();
   return ss.str();
 }

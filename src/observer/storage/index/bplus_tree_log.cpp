@@ -201,11 +201,15 @@ RC BplusTreeLogger::__redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHand
     }
     Frame *frame = entry->frame();
     if (frame != nullptr) {
-      frames.push_back(frame);
-    }
-
-    if (nullptr == frame || frame->lsn() >= lsn) {
-      LOG_TRACE("no need to redo. frame=%p, lsn=%ld, redo lsn=%ld", frame, frame ? frame->lsn() : 0, lsn);
+      if (frame->lsn() >= lsn) {
+        LOG_TRACE("no need to redo. frame=%p:%s, redo lsn=%ld", frame, frame->to_string().c_str(), lsn);
+	frame->unpin();
+	continue;
+      } else {
+        frames.push_back(frame);
+      }
+    } else {
+      LOG_TRACE("frame is null, skip the redo action");
       continue;
     }
 

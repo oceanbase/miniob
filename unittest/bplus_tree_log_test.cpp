@@ -44,7 +44,7 @@ RC list_all_values(BplusTreeHandler &tree_handler, vector<RID> &rids)
 
 TEST(BplusTreeLog, base)
 {
-  filesystem::path test_directory = "bplus_tree_log_test";
+  filesystem::path test_directory = "bplus_tree_log_test_dir";
   filesystem::remove_all(test_directory);
   filesystem::create_directory(test_directory);
 
@@ -100,6 +100,8 @@ TEST(BplusTreeLog, base)
   // copy the old buffer pool file
   const filesystem::path bp_filename2 = test_directory / "bplus_tree2.bp";
   ASSERT_TRUE(filesystem::copy_file(bp_filename, bp_filename2));
+
+  LOG_INFO("begin to recover the files");
 
   auto bpm2 = make_unique<BufferPoolManager>();
   ASSERT_EQ(RC::SUCCESS, bpm2->init(make_unique<VacuousDoubleWriteBuffer>()));
