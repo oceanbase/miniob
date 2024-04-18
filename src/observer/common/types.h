@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by Wangyunlai on 2022/6/23.
 //
-
+#include<stdint.h>
 #pragma once
 
 /// 磁盘文件，包括存放数据的文件和索引(B+-Tree)文件，都按照页来组织
