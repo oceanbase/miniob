@@ -44,7 +44,7 @@ public:
 
 private:
   bool             inited_ = false;
-  Table *          table_  = nullptr;
+  Table           *table_  = nullptr;
   BplusTreeHandler index_handler_;
 };
 

@@ -44,17 +44,17 @@ class LogReplayer;
  * handler.stop();
  * handler.wait();
  * @endcode
- * 
+ *
  */
 class DiskLogHandler : public LogHandler
 {
 public:
-  DiskLogHandler() = default;
+  DiskLogHandler()          = default;
   virtual ~DiskLogHandler() = default;
 
   /**
    * @brief 初始化日志模块
-   * 
+   *
    * @param path 日志文件存放的目录
    */
   RC init(const char *path) override;
@@ -89,11 +89,11 @@ public:
    * @param consumer 消费者
    * @param start_lsn 从哪个位置开始迭代
    */
-  RC iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn) override;
+  RC iterate(std::function<RC(LogEntry &)> consumer, LSN start_lsn) override;
 
   /**
    * @brief 等待指定的日志刷盘
-   * 
+   *
    * @param lsn 想要等待的日志
    */
   RC wait_lsn(LSN lsn) override;
@@ -106,25 +106,25 @@ public:
 private:
   /**
    * @brief 在缓存中增加一条日志
-   * 
+   *
    * @param[out] lsn    返回的LSN
    * @param[in] module  日志模块
    * @param[in] data    日志数据。具体的数据由各个模块自己定义
    */
   RC _append(LSN &lsn, LogModule module, std::vector<char> &&data) override;
-private:
 
+private:
   /**
    * @brief 刷新日志的线程函数
    */
   void thread_func();
 
 private:
-  std::unique_ptr<std::thread> thread_;  /// 刷新日志的线程
-  std::atomic_bool running_{false};      /// 是否还要继续运行
+  std::unique_ptr<std::thread> thread_;          /// 刷新日志的线程
+  std::atomic_bool             running_{false};  /// 是否还要继续运行
 
   LogFileManager file_manager_;  /// 管理所有的日志文件
   LogEntryBuffer entry_buffer_;  /// 缓存日志
 
-  std::string path_; /// 日志文件存放的目录
+  std::string path_;  /// 日志文件存放的目录
 };

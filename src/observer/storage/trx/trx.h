@@ -117,7 +117,7 @@ public:
   virtual RC                            init()             = 0;
   virtual const std::vector<FieldMeta> *trx_fields() const = 0;
 
-  virtual Trx *create_trx(LogHandler &log_handler)                 = 0;
+  virtual Trx *create_trx(LogHandler &log_handler) = 0;
 
   /**
    * @brief 创建一个事务，日志回放时使用
@@ -129,7 +129,7 @@ public:
   virtual void destroy_trx(Trx *trx) = 0;
 
   virtual LogReplayer *create_log_replayer(Db &db, LogHandler &log_handler) = 0;
-  
+
 public:
   static TrxKit *create(const char *name);
 };

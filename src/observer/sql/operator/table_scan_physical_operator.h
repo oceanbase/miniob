@@ -48,9 +48,9 @@ private:
   RC filter(RowTuple &tuple, bool &result);
 
 private:
-  Table                                   *table_    = nullptr;
-  Trx                                     *trx_      = nullptr;
-  ReadWriteMode                            mode_ = ReadWriteMode::READ_WRITE;
+  Table                                   *table_ = nullptr;
+  Trx                                     *trx_   = nullptr;
+  ReadWriteMode                            mode_  = ReadWriteMode::READ_WRITE;
   RecordFileScanner                        record_scanner_;
   Record                                   current_record_;
   RowTuple                                 tuple_;

@@ -39,12 +39,12 @@ class LogEntry;
 class LogHandler
 {
 public:
-  LogHandler() = default;
+  LogHandler()          = default;
   virtual ~LogHandler() = default;
 
   /**
    * @brief 初始化日志模块
-   * 
+   *
    * @param path 日志文件存放的目录
    */
   virtual RC init(const char *path) = 0;
@@ -76,7 +76,7 @@ public:
    * @param consumer 消费者
    * @param start_lsn 从哪个LSN开始迭代
    */
-  virtual RC iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn) = 0;
+  virtual RC iterate(std::function<RC(LogEntry &)> consumer, LSN start_lsn) = 0;
 
   /**
    * @brief 写入一条日志

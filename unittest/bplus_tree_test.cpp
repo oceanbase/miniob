@@ -33,14 +33,14 @@ using namespace common;
 #define INSERT_NUM (TIMES * ORDER * ORDER * ORDER * ORDER)
 #define POOL_NUM 2
 
-const char       *index_name = "test.btree";
-int               insert_num = INSERT_NUM;
-const int         page_size  = 1024;
-int               k = 0;
+const char *index_name = "test.btree";
+int         insert_num = INSERT_NUM;
+const int   page_size  = 1024;
+int         k          = 0;
 
 void test_insert(BplusTreeHandler *handler)
 {
-  RC rc = RC::SUCCESS;
+  RC  rc = RC::SUCCESS;
   RID rid;
 
   for (int i = 0; i < insert_num; i++) {
@@ -137,8 +137,8 @@ void test_insert(BplusTreeHandler *handler)
 
 void test_get(BplusTreeHandler *handler)
 {
-  RID rid;
-  RID check_rid;
+  RID            rid;
+  RID            check_rid;
   std::list<RID> rids;
   for (int i = 0; i < insert_num; i++) {
     rid.page_num = i / page_size;
@@ -166,8 +166,8 @@ void test_delete(BplusTreeHandler *handler)
 {
   RC             rc = RC::SUCCESS;
   std::list<RID> rids;
-  RID rid;
-  RID check_rid;
+  RID            rid;
+  RID            check_rid;
 
   for (int i = 0; i < insert_num / 2; i++) {
     rid.page_num = i / page_size;

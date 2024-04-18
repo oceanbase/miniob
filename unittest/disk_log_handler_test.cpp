@@ -12,7 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai on 2024/01/31
 //
 
-
 #include "gtest/gtest.h"
 
 #define private public
@@ -44,7 +43,7 @@ private:
 TEST(DiskLogHandler, empty)
 {
   // specific an empty directory and test DiskLogHandler start/stop and so on
-  const char *path = "test_log_handler";
+  const char    *path = "test_log_handler";
   DiskLogHandler handler;
   ASSERT_EQ(RC::SUCCESS, handler.init(path));
   ASSERT_EQ(RC::SUCCESS, handler.start());
@@ -68,7 +67,7 @@ TEST(DiskLogHandler, test_append_and_wait)
 
   int times = 10000;
   for (int i = 0; i < times; ++i) {
-    LSN lsn = 0;
+    LSN          lsn = 0;
     vector<char> data(10);
     ASSERT_EQ(handler.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
 
@@ -90,7 +89,7 @@ TEST(DiskLogHandler, test_replay)
   const char *path = "test_log_handler";
   filesystem::remove_all(path);
 
-  DiskLogHandler handler;
+  DiskLogHandler  handler;
   TestLogReplayer replayer;
   ASSERT_EQ(RC::SUCCESS, handler.init(path));
   ASSERT_EQ(RC::SUCCESS, handler.replay(replayer, 0));
@@ -99,8 +98,8 @@ TEST(DiskLogHandler, test_replay)
 
   const int times = 10010;
   for (int i = 0; i < times; ++i) {
-    LogEntry entry;
-    LSN lsn = 0;
+    LogEntry     entry;
+    LSN          lsn = 0;
     vector<char> data(10);
     ASSERT_EQ(handler.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
   }
@@ -108,7 +107,7 @@ TEST(DiskLogHandler, test_replay)
   ASSERT_EQ(RC::SUCCESS, handler.stop());
   ASSERT_EQ(RC::SUCCESS, handler.await_termination());
 
-  int count = 0;
+  int  count             = 0;
   auto log_entry_counter = [&count](LogEntry &) -> RC {
     count++;
     return RC::SUCCESS;
@@ -128,16 +127,16 @@ TEST(DiskLogHandler, test_replay)
 
   const int times2 = 2030;
   for (int i = 0; i < times2; ++i) {
-    LSN lsn = 0;
+    LSN          lsn = 0;
     vector<char> data(10);
     ASSERT_EQ(handler2.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
   }
 
   ASSERT_EQ(handler2.current_lsn(), times2 + times);
-  
+
   ASSERT_EQ(RC::SUCCESS, handler2.stop());
   ASSERT_EQ(RC::SUCCESS, handler2.await_termination());
-  
+
   count = 0;
   ASSERT_EQ(RC::SUCCESS, handler2.iterate(log_entry_counter, 0));
   ASSERT_EQ(count, times + times2);
@@ -157,19 +156,19 @@ TEST(DiskLogHandler, multi_thread)
   const char *directory = "test_log_handler_multi_thread";
   filesystem::remove_all(directory);
 
-  DiskLogHandler handler;
+  DiskLogHandler  handler;
   TestLogReplayer replayer;
   ASSERT_EQ(RC::SUCCESS, handler.init(directory));
   ASSERT_EQ(RC::SUCCESS, handler.replay(replayer, 0));
   ASSERT_EQ(RC::SUCCESS, handler.start());
 
-  const int times = 200000;
+  const int          times = 200000;
   ThreadPoolExecutor executor;
-  ASSERT_EQ(0, executor.init("TestDiskLogHandler", 4, 4, 60*1000));
+  ASSERT_EQ(0, executor.init("TestDiskLogHandler", 4, 4, 60 * 1000));
 
   for (int i = 0; i < times; ++i) {
     ASSERT_EQ(0, executor.execute([&handler]() -> void {
-      LSN lsn = 0;
+      LSN          lsn = 0;
       vector<char> data(10);
       ASSERT_EQ(handler.append(lsn, LogModule::Id::BUFFER_POOL, std::move(data)), RC::SUCCESS);
     }));

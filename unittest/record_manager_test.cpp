@@ -40,8 +40,8 @@ TEST(RecordPageHandler, test_record_page_handler)
 
   BufferPoolManager *bpm = new BufferPoolManager();
   ASSERT_EQ(RC::SUCCESS, bpm->init(make_unique<VacuousDoubleWriteBuffer>()));
-  DiskBufferPool    *bp  = nullptr;
-  RC                 rc  = bpm->create_file(record_manager_file);
+  DiskBufferPool *bp = nullptr;
+  RC              rc = bpm->create_file(record_manager_file);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   rc = bpm->open_file(log_handler, record_manager_file, bp);
@@ -130,8 +130,8 @@ TEST(RecordFileScanner, test_record_file_iterator)
 
   BufferPoolManager *bpm = new BufferPoolManager();
   ASSERT_EQ(RC::SUCCESS, bpm->init(make_unique<VacuousDoubleWriteBuffer>()));
-  DiskBufferPool    *bp  = nullptr;
-  RC                 rc  = bpm->create_file(record_manager_file);
+  DiskBufferPool *bp = nullptr;
+  RC              rc = bpm->create_file(record_manager_file);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   rc = bpm->open_file(log_handler, record_manager_file, bp);
@@ -143,7 +143,8 @@ TEST(RecordFileScanner, test_record_file_iterator)
 
   VacuousTrx        trx;
   RecordFileScanner file_scanner;
-  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
+  rc = file_scanner.open_scan(
+      nullptr /*table*/, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   int    count = 0;
@@ -168,7 +169,8 @@ TEST(RecordFileScanner, test_record_file_iterator)
     rids.push_back(rid);
   }
 
-  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
+  rc = file_scanner.open_scan(
+      nullptr /*table*/, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;
@@ -186,7 +188,8 @@ TEST(RecordFileScanner, test_record_file_iterator)
     ASSERT_EQ(rc, RC::SUCCESS);
   }
 
-  rc = file_scanner.open_scan(nullptr /*table*/, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
+  rc = file_scanner.open_scan(
+      nullptr /*table*/, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;
@@ -206,27 +209,27 @@ TEST(RecordFileScanner, test_record_file_iterator)
 TEST(RecordManager, durability)
 {
   /*
-    * 测试场景：
-    * 1. 创建一个文件，插入一些记录
-    * 2. 随机进行插入、更新、删除操作
-    * 3. 重启数据库，检查记录是否恢复
-  */
+   * 测试场景：
+   * 1. 创建一个文件，插入一些记录
+   * 2. 随机进行插入、更新、删除操作
+   * 3. 重启数据库，检查记录是否恢复
+   */
   filesystem::path directory("record_manager_durability");
   filesystem::remove_all(directory);
   ASSERT_TRUE(filesystem::create_directories(directory));
 
   filesystem::path record_manager_file = directory / "record_manager.bp";
 
-  BufferPoolManager bpm;
+  BufferPoolManager                    bpm;
   unique_ptr<VacuousDoubleWriteBuffer> double_write_buffer = make_unique<VacuousDoubleWriteBuffer>();
   ASSERT_EQ(bpm.init(std::move(double_write_buffer)), RC::SUCCESS);
 
-  DiskLogHandler log_handler;
+  DiskLogHandler        log_handler;
   IntegratedLogReplayer log_replayer(bpm);
   ASSERT_EQ(log_handler.init(directory.c_str()), RC::SUCCESS);
   ASSERT_EQ(log_handler.replay(log_replayer, 0), RC::SUCCESS);
   ASSERT_EQ(log_handler.start(), RC::SUCCESS);
-  
+
   DiskBufferPool *buffer_pool = nullptr;
   ASSERT_EQ(bpm.create_file(record_manager_file.c_str()), RC::SUCCESS);
   ASSERT_EQ(bpm.open_file(log_handler, record_manager_file.c_str(), buffer_pool), RC::SUCCESS);
@@ -234,13 +237,13 @@ TEST(RecordManager, durability)
 
   RecordFileHandler record_file_handler;
   ASSERT_EQ(record_file_handler.init(*buffer_pool, log_handler), RC::SUCCESS);
-  
-  const int record_size = 100;
+
+  const int  record_size              = 100;
   const char record_data[record_size] = "hello, world!";
-  const int insert_record_num = 1000;
+  const int  insert_record_num        = 1000;
 
   unordered_map<RID, string, RIDHash> record_map;
-  mutex record_map_lock;
+  mutex                               record_map_lock;
   for (int i = 0; i < insert_record_num; i++) {
     RID rid;
     ASSERT_EQ(record_file_handler.insert_record(record_data, record_size, &rid), RC::SUCCESS);
@@ -255,65 +258,67 @@ TEST(RecordManager, durability)
   ASSERT_EQ(executor.init("RecordManagerTest", 4, 4, 60 * 1000), 0);
 
   IntegerGenerator operation_random(0, 2);
-  const int random_operation_num = 1000;
+  const int        random_operation_num = 1000;
   for (int i = 0; i < random_operation_num; i++) {
-    auto task = [&operation_random, &record_suffix_random, &record_file_handler, &record_map, &record_map_lock, record_data]() {
-      int operation_type = operation_random.next();
-      switch (operation_type) {
-        case 0: { // insert
-          RID rid;
-          record_map_lock.lock();
-          ASSERT_EQ(record_file_handler.insert_record(record_data, record_size, &rid), RC::SUCCESS);
-          record_map.emplace(rid, string(record_data));
-          record_map_lock.unlock();
-          break;
-        }
-        case 1: { // update
-          
-          int suffix = record_suffix_random.next();
-          string new_record = string(record_data) + to_string(suffix);
-          
-          record_map_lock.lock();
-          IntegerGenerator record_random(0, record_map.size() - 1);
-          auto iter = record_map.begin();
-          advance(iter, record_random.next());
-          RID rid = iter->first;
-          ASSERT_EQ(record_file_handler.visit_record(rid, [&new_record](Record &record) {
-            memcpy(record.data(), new_record.c_str(), new_record.size());
-            return true;
-          }), RC::SUCCESS);
+    auto task =
+        [&operation_random, &record_suffix_random, &record_file_handler, &record_map, &record_map_lock, record_data]() {
+          int operation_type = operation_random.next();
+          switch (operation_type) {
+            case 0: {  // insert
+              RID rid;
+              record_map_lock.lock();
+              ASSERT_EQ(record_file_handler.insert_record(record_data, record_size, &rid), RC::SUCCESS);
+              record_map.emplace(rid, string(record_data));
+              record_map_lock.unlock();
+              break;
+            }
+            case 1: {  // update
 
-          record_map[rid] = new_record;
-          record_map_lock.unlock();
+              int    suffix     = record_suffix_random.next();
+              string new_record = string(record_data) + to_string(suffix);
 
-          break;
-        }
+              record_map_lock.lock();
+              IntegerGenerator record_random(0, record_map.size() - 1);
+              auto             iter = record_map.begin();
+              advance(iter, record_random.next());
+              RID rid = iter->first;
+              ASSERT_EQ(record_file_handler.visit_record(rid,
+                            [&new_record](Record &record) {
+                              memcpy(record.data(), new_record.c_str(), new_record.size());
+                              return true;
+                            }),
+                  RC::SUCCESS);
 
-        case 2: { // delete
-          record_map_lock.lock();
-          IntegerGenerator record_random(0, record_map.size() - 1);
-          int index = record_random.next();
-          auto iter = record_map.begin();
-          advance(iter, index);
-          RID rid = iter->first;
-          ASSERT_EQ(record_file_handler.delete_record(&rid), RC::SUCCESS);
-          record_map.erase(rid);
-          record_map_lock.unlock();
-          break;
-        }
+              record_map[rid] = new_record;
+              record_map_lock.unlock();
 
-        default: {
-          ASSERT_TRUE(false);
-        }
-      }
-    };
+              break;
+            }
+
+            case 2: {  // delete
+              record_map_lock.lock();
+              IntegerGenerator record_random(0, record_map.size() - 1);
+              int              index = record_random.next();
+              auto             iter  = record_map.begin();
+              advance(iter, index);
+              RID rid = iter->first;
+              ASSERT_EQ(record_file_handler.delete_record(&rid), RC::SUCCESS);
+              record_map.erase(rid);
+              record_map_lock.unlock();
+              break;
+            }
+
+            default: {
+              ASSERT_TRUE(false);
+            }
+          }
+        };
 
     ASSERT_EQ(executor.execute(task), 0);
   }
 
   ASSERT_EQ(executor.shutdown(), 0);
   ASSERT_EQ(executor.await_termination(), 0);
-
 
   // 把文件复制出来
   filesystem::path record_manager_file_copy = directory / "record_manager_copy.bp";
@@ -326,7 +331,7 @@ TEST(RecordManager, durability)
   ASSERT_EQ(log_handler.await_termination(), RC::SUCCESS);
 
   // 重新创建资源并尝试从日志中恢复数据，然后校验数据
-  DiskLogHandler log_handler2;
+  DiskLogHandler    log_handler2;
   BufferPoolManager bpm2;
   ASSERT_EQ(RC::SUCCESS, bpm2.init(make_unique<VacuousDoubleWriteBuffer>()));
   DiskBufferPool *buffer_pool2 = nullptr;

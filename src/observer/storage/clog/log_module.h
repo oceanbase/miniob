@@ -25,36 +25,30 @@ class LogModule
 public:
   enum class Id
   {
-    BUFFER_POOL,      /// 缓冲池
-    BPLUS_TREE,       /// B+树
-    RECORD_MANAGER,   /// 记录管理
-    TRANSACTION       /// 事务
+    BUFFER_POOL,     /// 缓冲池
+    BPLUS_TREE,      /// B+树
+    RECORD_MANAGER,  /// 记录管理
+    TRANSACTION      /// 事务
   };
 
 public:
   explicit LogModule(Id id) : id_(id) {}
   explicit LogModule(int32_t id) : id_(static_cast<Id>(id)) {}
 
-  Id id() const { return id_; }
+  Id      id() const { return id_; }
   int32_t index() const { return static_cast<int32_t>(id_); }
 
   const char *name() const
   {
-    switch (id_)
-    {
-    case Id::BUFFER_POOL:
-      return "BUFFER_POOL";
-    case Id::BPLUS_TREE:
-      return "BPLUS_TREE";
-    case Id::RECORD_MANAGER:
-      return "RECORD_MANAGER";
-    case Id::TRANSACTION:
-      return "TRANSACTION";
-    default:
-      return "UNKNOWN";
+    switch (id_) {
+      case Id::BUFFER_POOL: return "BUFFER_POOL";
+      case Id::BPLUS_TREE: return "BPLUS_TREE";
+      case Id::RECORD_MANAGER: return "RECORD_MANAGER";
+      case Id::TRANSACTION: return "TRANSACTION";
+      default: return "UNKNOWN";
     }
   }
-  
+
 private:
   Id id_;
 };

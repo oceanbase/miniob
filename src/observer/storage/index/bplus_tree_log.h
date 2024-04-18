@@ -48,13 +48,13 @@ class Deserializer;
  * @ingroup CLog
  * @details 封装B+树持久化需要的各种日志，并负责落地。
  * 如果一个操作中途失败，可以使用rollback进行回滚。
- * 
+ *
  * 一个B+树的操作，比如插入或删除一个节点，可能由于页面满了而需要分裂，或者由于页面太空了而需要合并，进而
  * 产生很多个日志记录。我们把这些日志记录都放在一个事务中，并生成一个系统中的“大”日志，使这一系列操作要么
  * 都成功，或者一起回滚。
  * 同时，B+树在实际执行中，边执行一些动作修改内存中的数据，边记录日志也记录在内存中。当所有操作执行完成后，
  * 将日志一次性的写入到日志文件中。同时能够保证，修改过的脏页在刷新到磁盘之前，日志已经写入到日志文件中。
- * 
+ *
  * 在日志回滚或者重做的过程中，其实不需要再记录新的日志，但是调用的B+树本身的接口都是同一个，并没有编写特殊的
  * 类似redo_xxx函数，因此需要这个类本身做判断，是否需要记录日志。
  */
@@ -156,7 +156,7 @@ private:
   LogHandler &log_handler_;
   int32_t     buffer_pool_id_ = -1;  /// 关联的缓冲池ID
 
-  std::vector<std::unique_ptr<bplus_tree::LogEntryHandler>> entries_; /// 当前记录了的日志
+  std::vector<std::unique_ptr<bplus_tree::LogEntryHandler>> entries_;  /// 当前记录了的日志
 
   bool need_log_ = true;  /// 是否需要记录日志。在回滚或重做过程中，不需要记录日志。
 };

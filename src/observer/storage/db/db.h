@@ -38,7 +38,7 @@ class TrxKit;
  * 一个DB实例会有一个BufferPoolManager，用来管理所有的数据页，以及一个LogHandler，用来管理所有的日志。
  * 这样也就约束了事务不能跨DB。buffer pool的内存管理控制也不能跨越Db。
  * 也可以使用MiniOB非常容易模拟分布式事务，创建两个数据库，然后写一个分布式事务管理器。
- * 
+ *
  * NOTE: 数据库对象没有做完整的并发控制。比如在查找某张表的同时删除这个表，会引起访问冲突。这个控制是由使用者
  * 来控制的。如果要完整的实现并发控制，需要实现表锁或类似的机制。
  */
@@ -96,7 +96,6 @@ public:
   TrxKit &trx_kit();
 
 private:
-
   /// @brief 打开所有的表。在数据库初始化的时候会执行
   RC open_all_tables();
   /// @brief 恢复数据。在数据库初始化的时候运行。
@@ -111,12 +110,12 @@ private:
   RC init_dblwr_buffer();
 
 private:
-  std::string                              name_; ///< 数据库名称
-  std::string                              path_; ///< 数据库文件存放的目录
-  std::unordered_map<std::string, Table *> opened_tables_; ///< 当前所有打开的表
-  std::unique_ptr<BufferPoolManager>       buffer_pool_manager_; ///< 当前数据库的buffer pool管理器
-  std::unique_ptr<LogHandler>              log_handler_; ///< 当前数据库的日志处理器
-  std::unique_ptr<TrxKit>                  trx_kit_; ///< 当前数据库的事务管理器
+  std::string                              name_;                 ///< 数据库名称
+  std::string                              path_;                 ///< 数据库文件存放的目录
+  std::unordered_map<std::string, Table *> opened_tables_;        ///< 当前所有打开的表
+  std::unique_ptr<BufferPoolManager>       buffer_pool_manager_;  ///< 当前数据库的buffer pool管理器
+  std::unique_ptr<LogHandler>              log_handler_;          ///< 当前数据库的日志处理器
+  std::unique_ptr<TrxKit>                  trx_kit_;              ///< 当前数据库的事务管理器
 
   /// 给每个table都分配一个ID，用来记录日志。这里假设所有的DDL都不会并发操作，所以相关的数据都不上锁
   int32_t next_table_id_ = 0;

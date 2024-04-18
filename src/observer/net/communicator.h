@@ -82,9 +82,9 @@ public:
 
 protected:
   std::unique_ptr<Session> session_;
-  std::string     addr_;
-  BufferedWriter *writer_ = nullptr;
-  int             fd_     = -1;
+  std::string              addr_;
+  BufferedWriter          *writer_ = nullptr;
+  int                      fd_     = -1;
 };
 
 /**

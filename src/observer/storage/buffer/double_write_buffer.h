@@ -28,7 +28,7 @@ class BufferPoolManager;
 class DoubleWriteBuffer
 {
 public:
-  DoubleWriteBuffer() = default;
+  DoubleWriteBuffer()          = default;
   virtual ~DoubleWriteBuffer() = default;
 
   /**
@@ -54,8 +54,8 @@ struct DoubleWriteBufferHeader
 // TODO change to FrameId
 struct DoubleWritePageKey
 {
-  int32_t     buffer_pool_id;
-  PageNum     page_num;
+  int32_t buffer_pool_id;
+  PageNum page_num;
 
   bool operator==(const DoubleWritePageKey &other) const
   {
@@ -86,7 +86,7 @@ class DiskDoubleWriteBuffer : public DoubleWriteBuffer
 public:
   /**
    * @brief 构造函数
-   * 
+   *
    * @param bp_manager 关联的buffer pool manager
    * @param max_pages  内存中保存的最大页面数
    */
@@ -147,7 +147,7 @@ public:
    */
   RC add_page(DiskBufferPool *bp, PageNum page_num, Page &page) override;
 
-  RC read_page(DiskBufferPool *bp, PageNum page_num, Page &page) override { return RC::BUFFERPOOL_INVALID_PAGE_NUM;}
+  RC read_page(DiskBufferPool *bp, PageNum page_num, Page &page) override { return RC::BUFFERPOOL_INVALID_PAGE_NUM; }
 
   /**
    * @brief 清空所有与指定buffer pool关联的页面

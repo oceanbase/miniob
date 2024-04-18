@@ -39,7 +39,7 @@ public:
   Tuple *current_tuple() override { return nullptr; }
 
 private:
-  Table *table_ = nullptr;
-  Trx   *trx_   = nullptr;
+  Table              *table_ = nullptr;
+  Trx                *trx_   = nullptr;
   std::vector<Record> records_;
 };

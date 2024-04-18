@@ -85,7 +85,7 @@ public:
 
   int buffer_pool_memory_size() const { return buffer_pool_memory_size_; }
 
-  void set_durability_mode(const char *mode) { durability_mode_ = mode; }
+  void               set_durability_mode(const char *mode) { durability_mode_ = mode; }
   const std::string &durability_mode() const { return durability_mode_; }
 
 private:

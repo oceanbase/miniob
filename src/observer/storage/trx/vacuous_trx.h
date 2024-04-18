@@ -59,7 +59,7 @@ public:
 class VacuousTrxLogReplayer : public LogReplayer
 {
 public:
-  VacuousTrxLogReplayer() = default;
+  VacuousTrxLogReplayer()          = default;
   virtual ~VacuousTrxLogReplayer() = default;
 
   RC replay(const LogEntry &) override { return RC::SUCCESS; }

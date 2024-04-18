@@ -85,6 +85,6 @@ public:
   std::string to_string() const;
 
 private:
-  LogHeader               header_;  /// 日志头
-  std::vector<char>       data_;    /// 日志数据
+  LogHeader         header_;  /// 日志头
+  std::vector<char> data_;    /// 日志数据
 };

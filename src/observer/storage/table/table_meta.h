@@ -38,7 +38,7 @@ public:
   void swap(TableMeta &other) noexcept;
 
   RC init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields,
-          std::span<const AttrInfoSqlNode> attributes);
+      std::span<const AttrInfoSqlNode> attributes);
 
   RC add_index(const IndexMeta &index);
 
@@ -49,7 +49,7 @@ public:
   const FieldMeta *field(int index) const;
   const FieldMeta *field(const char *name) const;
   const FieldMeta *find_field_by_offset(int offset) const;
-  auto             field_metas() const -> const std::vector<FieldMeta> * { return &fields_; }
+  auto             field_metas() const -> const std::vector<FieldMeta>             *{ return &fields_; }
   auto             trx_fields() const -> std::span<const FieldMeta>;
 
   int field_num() const;  // sys field included

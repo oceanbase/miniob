@@ -26,7 +26,7 @@ using namespace common;
 
 int buffer_pool_page_count(DiskBufferPool *buffer_pool)
 {
-  int count = 0;
+  int                count = 0;
   BufferPoolIterator iterator;
   iterator.init(*buffer_pool, 1);
   while (iterator.has_next()) {
@@ -46,17 +46,17 @@ TEST(BufferPoolLog, test_wal_normal)
   filesystem::remove_all(test_path);
   filesystem::create_directory(test_path);
 
-  filesystem::path buffer_pool_filename = test_path / "buffer_pool.bp";
+  filesystem::path  buffer_pool_filename = test_path / "buffer_pool.bp";
   BufferPoolManager buffer_pool_manager;
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.create_file(buffer_pool_filename.c_str()));
 
-  DiskLogHandler log_handler;
+  DiskLogHandler  log_handler;
   DiskBufferPool *buffer_pool = nullptr;
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.open_file(log_handler, buffer_pool_filename.c_str(), buffer_pool));
 
   BufferPoolLogReplayer log_replayer(buffer_pool_manager);
-  
+
   ASSERT_EQ(RC::SUCCESS, log_handler.init(clog_path.c_str()));
   ASSERT_EQ(RC::SUCCESS, log_handler.replay(log_replayer, 0));
   ASSERT_EQ(RC::SUCCESS, log_handler.start());
@@ -68,7 +68,7 @@ TEST(BufferPoolLog, test_wal_normal)
     ASSERT_EQ(RC::SUCCESS, buffer_pool->unpin_page(frame));
   }
 
-  const int allocate_page_num2 = 100;
+  const int allocate_page_num2  = 100;
   const int deallocate_page_num = 50;
   for (int i = 1; i <= allocate_page_num2 + deallocate_page_num; i++) {
     if (i % 3 != 0) {
@@ -103,28 +103,28 @@ TEST(BufferPoolLog, test_wal_exception)
 {
   /// 测试没有落盘但是日志落盘的情况重做日志
   /*
-    * 1. 创建一个buffer pool
-    * 2. 分配100个页面
-    * 3. 分配100个页面，释放50个页面
-    * 4. 关闭buffer pool并删除文件
-    * 5. 创建一个新文件，模拟日志没有落地的情况
-    * 6. 重做日志
-    * 7. 重做后的页面数应该是150
-  */
+   * 1. 创建一个buffer pool
+   * 2. 分配100个页面
+   * 3. 分配100个页面，释放50个页面
+   * 4. 关闭buffer pool并删除文件
+   * 5. 创建一个新文件，模拟日志没有落地的情况
+   * 6. 重做日志
+   * 7. 重做后的页面数应该是150
+   */
   filesystem::path test_path("test_disk_buffer_pool_wal_exception");
   filesystem::path clog_path = test_path / "clog";
 
   filesystem::remove_all(test_path);
   filesystem::create_directory(test_path);
 
-  filesystem::path buffer_pool_filename = test_path / "buffer_pool.bp";
+  filesystem::path  buffer_pool_filename = test_path / "buffer_pool.bp";
   BufferPoolManager buffer_pool_manager;
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.create_file(buffer_pool_filename.c_str()));
 
   BufferPoolLogReplayer log_replayer(buffer_pool_manager);
 
-  DiskLogHandler log_handler;
+  DiskLogHandler  log_handler;
   DiskBufferPool *buffer_pool = nullptr;
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.open_file(log_handler, buffer_pool_filename.c_str(), buffer_pool));
 
@@ -139,7 +139,7 @@ TEST(BufferPoolLog, test_wal_exception)
     ASSERT_EQ(RC::SUCCESS, buffer_pool->unpin_page(frame));
   }
 
-  const int allocate_page_num2 = 100;
+  const int allocate_page_num2  = 100;
   const int deallocate_page_num = 50;
   for (int i = 1; i <= allocate_page_num2 + deallocate_page_num; i++) {
     if (i % 3 != 0) {
@@ -180,31 +180,31 @@ TEST(BufferPoolLog, test_wal_exception2)
 {
   /// 测试没有落盘但是日志落盘的情况重做日志
   /*
-    * 1. 创建一个buffer pool
-    * 2. 分配100个页面
-    * 3. 正常关闭文件
-    * 4. 复制文件保存起来
-    * 5. 重新打开日志和这个文件
-    * 6. 分配100个页面，释放50个页面
-    * 7. 关闭buffer pool并删除文件
-    * 8. 复制之前保存的文件
-    * 9. 打开复制的文件
-    * 10. 重做后的页面数应该是150
-  */
+   * 1. 创建一个buffer pool
+   * 2. 分配100个页面
+   * 3. 正常关闭文件
+   * 4. 复制文件保存起来
+   * 5. 重新打开日志和这个文件
+   * 6. 分配100个页面，释放50个页面
+   * 7. 关闭buffer pool并删除文件
+   * 8. 复制之前保存的文件
+   * 9. 打开复制的文件
+   * 10. 重做后的页面数应该是150
+   */
   filesystem::path test_path("test_disk_buffer_pool_wal_exception");
   filesystem::path clog_path = test_path / "clog";
 
   filesystem::remove_all(test_path);
   filesystem::create_directory(test_path);
 
-  filesystem::path buffer_pool_filename = test_path / "buffer_pool.bp";
+  filesystem::path  buffer_pool_filename = test_path / "buffer_pool.bp";
   BufferPoolManager buffer_pool_manager;
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.create_file(buffer_pool_filename.c_str()));
 
   BufferPoolLogReplayer log_replayer(buffer_pool_manager);
-  DiskBufferPool *buffer_pool = nullptr;
-  DiskLogHandler log_handler;
+  DiskBufferPool       *buffer_pool = nullptr;
+  DiskLogHandler        log_handler;
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.open_file(log_handler, buffer_pool_filename.c_str(), buffer_pool));
 
   ASSERT_EQ(RC::SUCCESS, log_handler.init(clog_path.c_str()));
@@ -231,7 +231,7 @@ TEST(BufferPoolLog, test_wal_exception2)
 
   /// step 5 重新打开日志和文件
   DiskLogHandler log_handler2;
-  
+
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.open_file(log_handler2, buffer_pool_filename.c_str(), buffer_pool));
   ASSERT_NE(buffer_pool, nullptr);
   ASSERT_EQ(buffer_pool_page_count(buffer_pool), allocate_page_num);
@@ -241,7 +241,7 @@ TEST(BufferPoolLog, test_wal_exception2)
   ASSERT_EQ(RC::SUCCESS, log_handler2.start());
 
   /// step 6 分配100个页面，释放50个页面
-  const int allocate_page_num2 = 100;
+  const int allocate_page_num2  = 100;
   const int deallocate_page_num = 50;
   for (int i = 1; i <= allocate_page_num2 + deallocate_page_num; i++) {
     if (i % 3 != 0) {
@@ -286,14 +286,14 @@ TEST(BufferPoolLog, test_wal_multi_files)
 {
   /// 测试多个buffer pool文件，没有正常落盘但是日志落地的情况。使用重建文件的方式模拟异常情况
   /*
-    * 1. 创建10个buffer pool文件
-    * 2. 每个文件分配100个页面
-    * 3. 每个分配100个页面，释放50个页面
-    * 4. 关闭所有buffer pool文件并删除
-    * 5. 创建10个新文件，模拟日志没有落地的情况
-    * 6. 重做日志
-    * 7. 重做后每个文件页面数应该是150
-  */
+   * 1. 创建10个buffer pool文件
+   * 2. 每个文件分配100个页面
+   * 3. 每个分配100个页面，释放50个页面
+   * 4. 关闭所有buffer pool文件并删除
+   * 5. 创建10个新文件，模拟日志没有落地的情况
+   * 6. 重做日志
+   * 7. 重做后每个文件页面数应该是150
+   */
   filesystem::path test_path("test_disk_buffer_pool_wal_exception");
   filesystem::path clog_path = test_path / "clog";
 
@@ -301,7 +301,7 @@ TEST(BufferPoolLog, test_wal_multi_files)
   filesystem::create_directory(test_path);
 
   vector<filesystem::path> buffer_pool_filenames;
-  const int buffer_pool_file_num = 10;
+  const int                buffer_pool_file_num = 10;
   for (int i = 0; i < buffer_pool_file_num; i++) {
     filesystem::path buffer_pool_filename = test_path / ("buffer_pool_" + to_string(i) + ".bp");
     buffer_pool_filenames.push_back(buffer_pool_filename);
@@ -316,12 +316,12 @@ TEST(BufferPoolLog, test_wal_multi_files)
   DiskLogHandler log_handler;
 
   vector<DiskBufferPool *> buffer_pools;
-  ranges::for_each(buffer_pool_filenames, 
-                   [&buffer_pool_manager, &buffer_pools, &log_handler](const filesystem::path &filename) {
-    DiskBufferPool *buffer_pool = nullptr;
-    ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.open_file(log_handler, filename.c_str(), buffer_pool));
-    buffer_pools.push_back(buffer_pool);
-  });
+  ranges::for_each(
+      buffer_pool_filenames, [&buffer_pool_manager, &buffer_pools, &log_handler](const filesystem::path &filename) {
+        DiskBufferPool *buffer_pool = nullptr;
+        ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.open_file(log_handler, filename.c_str(), buffer_pool));
+        buffer_pools.push_back(buffer_pool);
+      });
 
   BufferPoolLogReplayer log_replayer(buffer_pool_manager);
 
@@ -338,7 +338,7 @@ TEST(BufferPoolLog, test_wal_multi_files)
     });
   }
 
-  const int allocate_page_num2 = 100;
+  const int allocate_page_num2  = 100;
   const int deallocate_page_num = 50;
   for (int i = 1; i <= allocate_page_num2 + deallocate_page_num; i++) {
     if (i % 3 != 0) {
@@ -348,9 +348,8 @@ TEST(BufferPoolLog, test_wal_multi_files)
         ASSERT_EQ(RC::SUCCESS, buffer_pool->unpin_page(frame));
       });
     } else {
-      ranges::for_each(buffer_pools, [i](DiskBufferPool *buffer_pool) {
-        ASSERT_EQ(RC::SUCCESS, buffer_pool->dispose_page(i / 3));
-      });
+      ranges::for_each(
+          buffer_pools, [i](DiskBufferPool *buffer_pool) { ASSERT_EQ(RC::SUCCESS, buffer_pool->dispose_page(i / 3)); });
     }
   }
   ASSERT_EQ(RC::SUCCESS, log_handler.stop());
@@ -361,9 +360,8 @@ TEST(BufferPoolLog, test_wal_multi_files)
   });
   buffer_pools.clear();
 
-  ranges::for_each(buffer_pool_filenames, [](const filesystem::path &filename) {
-    ASSERT_TRUE(filesystem::remove(filename));
-  });
+  ranges::for_each(
+      buffer_pool_filenames, [](const filesystem::path &filename) { ASSERT_TRUE(filesystem::remove(filename)); });
 
   BufferPoolManager buffer_pool_manager2;
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.init(make_unique<VacuousDoubleWriteBuffer>()));
@@ -372,13 +370,13 @@ TEST(BufferPoolLog, test_wal_multi_files)
   });
 
   DiskLogHandler log_handler2;
-  ranges::for_each(buffer_pool_filenames, 
-                   [&buffer_pool_manager2, &buffer_pools, &log_handler2](const filesystem::path &filename) {
-    DiskBufferPool *buffer_pool = nullptr;
-    ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.open_file(log_handler2, filename.c_str(), buffer_pool));
-    ASSERT_NE(buffer_pool, nullptr);
-    buffer_pools.push_back(buffer_pool);
-  });
+  ranges::for_each(
+      buffer_pool_filenames, [&buffer_pool_manager2, &buffer_pools, &log_handler2](const filesystem::path &filename) {
+        DiskBufferPool *buffer_pool = nullptr;
+        ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.open_file(log_handler2, filename.c_str(), buffer_pool));
+        ASSERT_NE(buffer_pool, nullptr);
+        buffer_pools.push_back(buffer_pool);
+      });
 
   BufferPoolLogReplayer log_replayer2(buffer_pool_manager2);
   ASSERT_EQ(RC::SUCCESS, log_handler2.init(clog_path.c_str()));

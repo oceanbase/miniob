@@ -29,10 +29,10 @@ public:
   using BufferType = std::vector<char>;
 
 public:
-  Serializer() = default;
+  Serializer()  = default;
   ~Serializer() = default;
 
-  Serializer(const Serializer &) = delete;
+  Serializer(const Serializer &)            = delete;
   Serializer &operator=(const Serializer &) = delete;
 
   /// @brief 写入指定长度的数据
@@ -42,7 +42,7 @@ public:
   /// @brief 当前写入了多少数据
   int64_t size() const { return buffer_.size(); }
 
-  BufferType &data()  { return buffer_; }
+  BufferType       &data() { return buffer_; }
   const BufferType &data() const { return buffer_; }
 
   /// @brief 写入一个int32整数
@@ -64,7 +64,7 @@ public:
   Deserializer(const char *buffer, int size) : buffer_(buffer, size) {}
   ~Deserializer() = default;
 
-  Deserializer(const Deserializer &) = delete;
+  Deserializer(const Deserializer &)            = delete;
   Deserializer &operator=(const Deserializer &) = delete;
 
   /// @brief 读取指定大小的数据
@@ -84,8 +84,8 @@ public:
   int read_int64(int64_t &value);
 
 private:
-  std::span<const char> buffer_;  ///< 存放数据的buffer
-  int64_t position_ = 0;          ///< 当前读取到的位置
+  std::span<const char> buffer_;        ///< 存放数据的buffer
+  int64_t               position_ = 0;  ///< 当前读取到的位置
 };
 
-} // namespace common
+}  // namespace common

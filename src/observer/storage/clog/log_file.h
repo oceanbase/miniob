@@ -33,7 +33,7 @@ class LogEntry;
 class LogFileReader
 {
 public:
-  LogFileReader() = default;
+  LogFileReader()  = default;
   ~LogFileReader() = default;
 
   RC open(const char *filename);
@@ -44,13 +44,13 @@ public:
 private:
   /**
    * @brief 跳到第一条不小于start_lsn的日志
-   * 
+   *
    * @param start_lsn 期望开始的第一条日志的LSN
    */
   RC skip_to(LSN start_lsn);
 
 private:
-  int fd_ = -1;
+  int         fd_ = -1;
   std::string filename_;
 };
 
@@ -92,10 +92,10 @@ public:
   const char *filename() const { return filename_.c_str(); }
 
 private:
-  std::string filename_;  /// 日志文件名
-  int fd_ = -1;   /// 日志文件描述符
-  int last_lsn_ = 0; /// 写入的最后一条日志LSN
-  int end_lsn_ = 0;  /// 当前日志文件中允许写入的最大的LSN，包括这条日志
+  std::string filename_;       /// 日志文件名
+  int         fd_       = -1;  /// 日志文件描述符
+  int         last_lsn_ = 0;   /// 写入的最后一条日志LSN
+  int         end_lsn_  = 0;   /// 当前日志文件中允许写入的最大的LSN，包括这条日志
 };
 
 /**
@@ -107,12 +107,12 @@ private:
 class LogFileManager
 {
 public:
-  LogFileManager() = default;
+  LogFileManager()  = default;
   ~LogFileManager() = default;
 
   /**
    * @brief 初始化
-   * 
+   *
    * @param directory 日志文件目录
    * @param max_entry_number_per_file 一个文件最多存储多少条日志
    */
@@ -120,7 +120,7 @@ public:
 
   /**
    * @brief 列出所有的日志文件，第一个日志文件包含大于等于start_lsn最小的日志
-   * 
+   *
    * @param files 满足条件的所有日志文件名
    * @param start_lsn 想要查找的日志的最小LSN
    */
@@ -146,11 +146,11 @@ private:
   static RC get_lsn_from_filename(const std::string &filename, LSN &lsn);
 
 private:
-  static constexpr const char * file_prefix_ = "clog_";
-  static constexpr const char * file_suffix_ = ".log";
+  static constexpr const char *file_prefix_ = "clog_";
+  static constexpr const char *file_suffix_ = ".log";
 
-  std::filesystem::path directory_; /// 日志文件存放的目录
-  int max_entry_number_per_file_;   /// 一个文件最大允许存放多少条日志
+  std::filesystem::path directory_;                  /// 日志文件存放的目录
+  int                   max_entry_number_per_file_;  /// 一个文件最大允许存放多少条日志
 
   std::map<LSN, std::filesystem::path> log_files_;  /// 日志文件名和第一个LSN的映射
 };

@@ -26,12 +26,12 @@ class LogEntry;
 class LogReplayer
 {
 public:
-  LogReplayer() = default;
+  LogReplayer()          = default;
   virtual ~LogReplayer() = default;
 
   /**
    * @brief 回放一条日志
-   * 
+   *
    * @param entry 日志
    */
   virtual RC replay(const LogEntry &entry) = 0;

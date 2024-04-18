@@ -25,7 +25,7 @@ using namespace common;
 
 int buffer_pool_page_count(DiskBufferPool *buffer_pool)
 {
-  int count = 0;
+  int                count = 0;
   BufferPoolIterator iterator;
   iterator.init(*buffer_pool, 1);
   while (iterator.has_next()) {
@@ -68,8 +68,7 @@ TEST(DiskBufferPool, allocate_dispose)
 
   // 4. 分配100个页面
   const int allocate_page_num = 100;
-  for (int i = 0; i < allocate_page_num; ++i)
-  {
+  for (int i = 0; i < allocate_page_num; ++i) {
     Frame *frame = nullptr;
     ASSERT_EQ(RC::SUCCESS, buffer_pool->allocate_page(&frame));
     ASSERT_NE(frame, nullptr);
@@ -78,7 +77,7 @@ TEST(DiskBufferPool, allocate_dispose)
   }
 
   // 5. 分配100个页面并释放50个页面
-  const int allocate_page_num2 = 100;
+  const int allocate_page_num2  = 100;
   const int deallocate_page_num = 50;
   for (int i = 1; i <= allocate_page_num2 + deallocate_page_num; i++) {
     if (i % 3 == 0) {
@@ -118,7 +117,7 @@ TEST(BufferPool, create)
   ASSERT_EQ(RC::SUCCESS, bpm.create_file(bp_file.c_str()));
 
   VacuousLogHandler log_handler;
-  DiskBufferPool *buffer_pool = nullptr;
+  DiskBufferPool   *buffer_pool = nullptr;
   ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, bp_file.c_str(), buffer_pool));
   ASSERT_NE(buffer_pool, nullptr);
 

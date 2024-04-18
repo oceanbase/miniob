@@ -26,10 +26,10 @@ TEST(Serializer, serializer)
   char str[] = "12345";
 
   Serializer serializer;
-  int32_t a0 = 1;
-  int64_t b0 = 2L + INT32_MAX;
-  int32_t c0 = 3;
-  int64_t d0 = 4L + INT32_MAX;
+  int32_t    a0 = 1;
+  int64_t    b0 = 2L + INT32_MAX;
+  int32_t    c0 = 3;
+  int64_t    d0 = 4L + INT32_MAX;
   serializer.write_int32(a0);
   serializer.write_int64(b0);
   serializer.write_int32(c0);
@@ -37,10 +37,10 @@ TEST(Serializer, serializer)
   serializer.write(std::span<const char>(str, sizeof(str)));
 
   Deserializer deserializer(serializer.data());
-  int32_t a;
-  int64_t b;
-  int32_t c;
-  int64_t d;
+  int32_t      a;
+  int64_t      b;
+  int32_t      c;
+  int64_t      d;
   deserializer.read_int32(a);
   deserializer.read_int64(b);
   deserializer.read_int32(c);
@@ -56,7 +56,7 @@ TEST(Serializer, serializer)
   ASSERT_EQ(0, memcmp(str, str2, sizeof(str)));
 
   char str3[sizeof(str)];
-  int ret = deserializer.read(std::span<char>(str3, sizeof(str3)));
+  int  ret = deserializer.read(std::span<char>(str3, sizeof(str3)));
   ASSERT_NE(ret, 0);
 }
 

@@ -31,7 +31,12 @@ using namespace common;
 RC list_all_values(BplusTreeHandler &tree_handler, vector<RID> &rids)
 {
   auto scanner = make_unique<BplusTreeScanner>(tree_handler);
-  RC rc = scanner->open(nullptr/*left_user_key*/, 0/*left_len*/, true/*left_inclusive*/, nullptr/*right_user_key*/, 0/*right_len*/, true/*right_inclusive*/);
+  RC   rc      = scanner->open(nullptr /*left_user_key*/,
+      0 /*left_len*/,
+      true /*left_inclusive*/,
+      nullptr /*right_user_key*/,
+      0 /*right_len*/,
+      true /*right_inclusive*/);
   if (OB_SUCC(rc)) {
     RID rid;
     while (OB_SUCC(scanner->next_entry(rid))) {
@@ -56,11 +61,11 @@ TEST(BplusTreeLog, base)
   auto bpm = make_unique<BufferPoolManager>();
   ASSERT_EQ(RC::SUCCESS, bpm->init(make_unique<VacuousDoubleWriteBuffer>()));
   DiskBufferPool *buffer_pool = nullptr;
-  auto log_handler = make_unique<DiskLogHandler>();
+  auto            log_handler = make_unique<DiskLogHandler>();
   ASSERT_EQ(RC::SUCCESS, bpm->create_file(bp_filename.c_str()));
   ASSERT_EQ(RC::SUCCESS, bpm->open_file(*log_handler, bp_filename.c_str(), buffer_pool));
   ASSERT_NE(nullptr, buffer_pool);
-  
+
   filesystem::path log_directory = test_directory / "clog";
   ASSERT_EQ(RC::SUCCESS, log_handler->init(log_directory.c_str()));
 
@@ -70,16 +75,16 @@ TEST(BplusTreeLog, base)
 
   auto bplus_tree = make_unique<BplusTreeHandler>();
   ASSERT_EQ(RC::SUCCESS, bplus_tree->create(*log_handler, *buffer_pool, INTS, 4));
-  
+
   // 2. insert some key-value pairs into the bplus tree
-  const int insert_num = 10000;
+  const int   insert_num = 10000;
   vector<int> keys(insert_num);
   for (int i = 0; i < insert_num; i++) {
     keys[i] = i;
   }
 
   random_device rd;
-  mt19937 generator(rd());
+  mt19937       generator(rd());
   shuffle(keys.begin(), keys.end(), generator);
 
   for (int i : keys) {
@@ -105,7 +110,7 @@ TEST(BplusTreeLog, base)
 
   auto bpm2 = make_unique<BufferPoolManager>();
   ASSERT_EQ(RC::SUCCESS, bpm2->init(make_unique<VacuousDoubleWriteBuffer>()));
-  auto log_handler2 = make_unique<DiskLogHandler>();
+  auto            log_handler2 = make_unique<DiskLogHandler>();
   DiskBufferPool *buffer_pool2 = nullptr;
   ASSERT_EQ(RC::SUCCESS, bpm2->open_file(*log_handler2, bp_filename2.c_str(), buffer_pool2));
   ASSERT_NE(nullptr, buffer_pool2);
@@ -122,11 +127,17 @@ TEST(BplusTreeLog, base)
   ASSERT_EQ(RC::SUCCESS, tree_handler2->open(*log_handler2, *buffer_pool2));
 
   auto scanner = make_unique<BplusTreeScanner>(*tree_handler2);
-  ASSERT_EQ(RC::SUCCESS, scanner->open(nullptr/*left_user_key*/, 0/*left_len*/, true/*left_inclusive*/, nullptr/*right_user_key*/, 0/*right_len*/, true/*right_inclusive*/));
+  ASSERT_EQ(RC::SUCCESS,
+      scanner->open(nullptr /*left_user_key*/,
+          0 /*left_len*/,
+          true /*left_inclusive*/,
+          nullptr /*right_user_key*/,
+          0 /*right_len*/,
+          true /*right_inclusive*/));
 
-  RC rc = RC::SUCCESS;
+  RC          rc = RC::SUCCESS;
   vector<RID> rids;
-  RID rid;
+  RID         rid;
   while (OB_SUCC(rc = scanner->next_entry(rid))) {
     rids.push_back(rid);
   }
@@ -147,7 +158,7 @@ TEST(BplusTreeLog, base)
 
 TEST(BplusTreeLog, concurrency)
 {
-  filesystem::path test_directory = "bplus_tree_log_test_dir";
+  filesystem::path test_directory      = "bplus_tree_log_test_dir";
   filesystem::path child_directory_src = test_directory / "src";
   filesystem::path child_directory_dst = test_directory / "dst";
   filesystem::remove_all(test_directory);
@@ -160,7 +171,7 @@ TEST(BplusTreeLog, concurrency)
 
   // 创建一批B+树，执行插入、删除动作
   vector<DiskBufferPool *> buffer_pools;
-  auto bpm = make_unique<BufferPoolManager>();
+  auto                     bpm = make_unique<BufferPoolManager>();
   ASSERT_EQ(RC::SUCCESS, bpm->init(make_unique<VacuousDoubleWriteBuffer>()));
   auto log_handler = make_unique<DiskLogHandler>();
   for (filesystem::path &bp_filename : bp_filenames) {
@@ -185,23 +196,23 @@ TEST(BplusTreeLog, concurrency)
     bplus_trees.push_back(std::move(bplus_tree));
   }
 
-  const int insert_num = 1000 * static_cast<int>(bp_filenames.size());
+  const int   insert_num = 1000 * static_cast<int>(bp_filenames.size());
   vector<int> keys(insert_num);
   for (int i = 0; i < insert_num; i++) {
     keys[i] = i;
   }
 
   random_device rd;
-  mt19937 generator(rd());
+  mt19937       generator(rd());
   shuffle(keys.begin(), keys.end(), generator);
 
-  IntegerGenerator tree_index_generator(0, static_cast<int>(bplus_trees.size() - 1)/*max_value*/);
+  IntegerGenerator tree_index_generator(0, static_cast<int>(bplus_trees.size() - 1) /*max_value*/);
 
   ThreadPoolExecutor executor;
-  ASSERT_EQ(0, executor.init("test", 4, 8, 60*1000));
+  ASSERT_EQ(0, executor.init("test", 4, 8, 60 * 1000));
 
   for (int i : keys) {
-    
+
     executor.execute([&bplus_trees, &tree_index_generator, i]() {
       RID rid(i, i);
       int tree_index = tree_index_generator.next();
@@ -209,11 +220,11 @@ TEST(BplusTreeLog, concurrency)
     });
   }
 
-  const int random_operation_num = 1000 * static_cast<int>(bp_filenames.size());
-  IntegerGenerator operation_index_generator(0, 1); // 0 for insertion, 1 for deletion
+  const int        random_operation_num = 1000 * static_cast<int>(bp_filenames.size());
+  IntegerGenerator operation_index_generator(0, 1);  // 0 for insertion, 1 for deletion
   for (int i = 0; i < random_operation_num; i++) {
     executor.execute([&bplus_trees, &tree_index_generator, &operation_index_generator, i]() {
-      int tree_index = tree_index_generator.next();
+      int tree_index      = tree_index_generator.next();
       int operation_index = operation_index_generator.next();
       RID rid(i, i);
       if (0 == operation_index) {
@@ -242,7 +253,7 @@ TEST(BplusTreeLog, concurrency)
   LOG_INFO("copy the old files into new directory and try to recover them");
   auto bpm2 = make_unique<BufferPoolManager>();
   ASSERT_EQ(RC::SUCCESS, bpm2->init(make_unique<VacuousDoubleWriteBuffer>()));
-  auto log_handler2 = make_unique<DiskLogHandler>();
+  auto                     log_handler2 = make_unique<DiskLogHandler>();
   vector<DiskBufferPool *> buffer_pools2;
   vector<filesystem::path> bp_filenames2;
   for (int i = 0; i < 10; i++) {
