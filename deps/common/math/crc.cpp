@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Wenbin on 2024/3/25.
 //
 
-unsigned int crc_table[] = {
-    0x00000000,
+unsigned int crc_table[] = {0x00000000,
     0x77073096,
     0xEE0E612C,
     0x990951BA,
@@ -268,8 +267,7 @@ unsigned int crc_table[] = {
     0xB40BBE37,
     0xC30C8EA1,
     0x5A05DF1B,
-    0x2D02EF8D
-};
+    0x2D02EF8D};
 
 unsigned int crc32(const char *buffer, unsigned int size)
 {
