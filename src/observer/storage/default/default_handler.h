@@ -92,9 +92,9 @@ public:
   RC sync();
 
 private:
-  std::filesystem::path              base_dir_;    ///< 存储引擎的根目录
-  std::filesystem::path              db_dir_;      ///< 数据库文件的根目录
-  std::string                        trx_kit_name_; ///< 事务模型的名称
-  std::string                        log_handler_name_; ///< 日志处理器的名称
-  std::map<std::string, Db *>        opened_dbs_;  ///< 打开的数据库
+  std::filesystem::path       base_dir_;          ///< 存储引擎的根目录
+  std::filesystem::path       db_dir_;            ///< 数据库文件的根目录
+  std::string                 trx_kit_name_;      ///< 事务模型的名称
+  std::string                 log_handler_name_;  ///< 日志处理器的名称
+  std::map<std::string, Db *> opened_dbs_;        ///< 打开的数据库
 };

@@ -72,7 +72,7 @@ class BenchmarkBase : public Fixture
 public:
   BenchmarkBase() {}
 
-  virtual ~BenchmarkBase() { }
+  virtual ~BenchmarkBase() {}
 
   virtual string Name() const = 0;
 
@@ -202,12 +202,8 @@ public:
     TestConditionFilter condition_filter(begin, end);
     RecordFileScanner   scanner;
     VacuousTrx          trx;
-    RC rc = scanner.open_scan(nullptr /*table*/, 
-                              *buffer_pool_,
-                              &trx,
-                              log_handler_,
-                              ReadWriteMode::READ_ONLY,
-                              &condition_filter);
+    RC                  rc = scanner.open_scan(
+        nullptr /*table*/, *buffer_pool_, &trx, log_handler_, ReadWriteMode::READ_ONLY, &condition_filter);
     if (rc != RC::SUCCESS) {
       stat.scan_open_failed_count++;
     } else {

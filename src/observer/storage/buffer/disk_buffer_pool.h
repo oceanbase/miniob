@@ -347,7 +347,7 @@ public:
   RC get_buffer_pool(int32_t id, DiskBufferPool *&bp);
 
 private:
-  BPFrameManager     frame_manager_{"BufPool"};
+  BPFrameManager frame_manager_{"BufPool"};
 
   std::unique_ptr<DoubleWriteBuffer> dblwr_buffer_;
 

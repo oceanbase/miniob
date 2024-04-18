@@ -39,12 +39,12 @@ TEST(MvccTrxLog, wal)
   filesystem::remove_all(test_directory);
   filesystem::create_directory(test_directory);
 
-  const char *dbname = "test_db";
-  const char *dbname2 = "test_db2";
-  filesystem::path db_path = test_directory / dbname;
-  filesystem::path db_path2 = test_directory / dbname2;
-  const char *trx_kit_name = "mvcc";
-  const char *log_handler_name = "disk";
+  const char      *dbname           = "test_db";
+  const char      *dbname2          = "test_db2";
+  filesystem::path db_path          = test_directory / dbname;
+  filesystem::path db_path2         = test_directory / dbname2;
+  const char      *trx_kit_name     = "mvcc";
+  const char      *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
@@ -52,18 +52,18 @@ TEST(MvccTrxLog, wal)
   auto db = make_unique<Db>();
   ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
-  const int table_num = 10;
+  const int      table_num = 10;
   vector<string> table_names;
   for (int i = 0; i < table_num; i++) {
     table_names.push_back("table_" + to_string(i));
   }
 
-  const int field_num = 10;
+  const int               field_num = 10;
   vector<AttrInfoSqlNode> attr_infos;
   for (int i = 0; i < field_num; i++) {
     AttrInfoSqlNode attr_info;
-    attr_info.name = string("field_") + to_string(i);
-    attr_info.type = AttrType::INTS;
+    attr_info.name   = string("field_") + to_string(i);
+    attr_info.type   = AttrType::INTS;
     attr_info.length = 4;
     attr_infos.push_back(attr_info);
   }
@@ -74,9 +74,9 @@ TEST(MvccTrxLog, wal)
   }
 
   ThreadPoolExecutor executor;
-  ASSERT_EQ(0, executor.init("Trx", 4, 4, 60*1000));
+  ASSERT_EQ(0, executor.init("Trx", 4, 4, 60 * 1000));
 
-  TrxKit &trx_kit = db->trx_kit();
+  TrxKit   &trx_kit    = db->trx_kit();
   const int insert_num = 100;
   for (int i = 0; i < insert_num; i++) {
     auto trx_task = [&trx_kit, &table_names, &db, i] {
@@ -87,7 +87,7 @@ TEST(MvccTrxLog, wal)
       for (const string &table_name : table_names) {
         Table *table = db->find_table(table_name.c_str());
         ASSERT_NE(table, nullptr);
-        
+
         Record record;
 
         vector<Value> values(field_num);
@@ -111,7 +111,7 @@ TEST(MvccTrxLog, wal)
   ASSERT_EQ(0, executor.await_termination());
 
   DiskLogHandler &log_handler = static_cast<DiskLogHandler &>(db->log_handler());
-  LSN current_lsn = log_handler.current_lsn();
+  LSN             current_lsn = log_handler.current_lsn();
   ASSERT_EQ(RC::SUCCESS, log_handler.wait_lsn(current_lsn));
 
   // copy all files from db to db2
@@ -134,8 +134,8 @@ TEST(MvccTrxLog, wal)
 
     RecordFileScanner scanner2;
     ASSERT_EQ(RC::SUCCESS, table2->get_record_scanner(scanner2, nullptr, ReadWriteMode::READ_ONLY));
-    int count2 = 0;
-    RC rc = RC::SUCCESS;
+    int    count2 = 0;
+    RC     rc     = RC::SUCCESS;
     Record record;
     while (OB_SUCC(rc = scanner2.next(record))) {
       count2++;
@@ -152,20 +152,20 @@ TEST(MvccTrxLog, wal)
 TEST(MvccTrxLog, wal2)
 {
   /*
-  创建一个数据库，建一些表，插入一些数据。执行一次sync，将所有buffer pool都落地，然后再创建一批表后所有表插入一部分数据。
-  再等所有日志都落地，将文件都复制到另一个目录。此时buffer pool 应该都没落地。
-  使用新的目录初始化一个新的数据库，然后检查数据是否一致。
+  创建一个数据库，建一些表，插入一些数据。执行一次sync，将所有buffer
+  pool都落地，然后再创建一批表后所有表插入一部分数据。 再等所有日志都落地，将文件都复制到另一个目录。此时buffer pool
+  应该都没落地。 使用新的目录初始化一个新的数据库，然后检查数据是否一致。
   */
   filesystem::path test_directory("mvcc_trx_log_test");
   filesystem::remove_all(test_directory);
   filesystem::create_directory(test_directory);
 
-  const char *dbname = "test_db";
-  const char *dbname2 = "test_db2";
-  filesystem::path db_path = test_directory / dbname;
-  filesystem::path db_path2 = test_directory / dbname2;
-  const char *trx_kit_name = "mvcc";
-  const char *log_handler_name = "disk";
+  const char      *dbname           = "test_db";
+  const char      *dbname2          = "test_db2";
+  filesystem::path db_path          = test_directory / dbname;
+  filesystem::path db_path2         = test_directory / dbname2;
+  const char      *trx_kit_name     = "mvcc";
+  const char      *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
@@ -173,18 +173,18 @@ TEST(MvccTrxLog, wal2)
   auto db = make_unique<Db>();
   ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
-  const int table_num = 10;
+  const int      table_num = 10;
   vector<string> table_names;
   for (int i = 0; i < table_num; i++) {
     table_names.push_back("table_" + to_string(i));
   }
 
-  const int field_num = 10;
+  const int               field_num = 10;
   vector<AttrInfoSqlNode> attr_infos;
   for (int i = 0; i < field_num; i++) {
     AttrInfoSqlNode attr_info;
-    attr_info.name = string("field_") + to_string(i);
-    attr_info.type = AttrType::INTS;
+    attr_info.name   = string("field_") + to_string(i);
+    attr_info.type   = AttrType::INTS;
     attr_info.length = 4;
     attr_infos.push_back(attr_info);
   }
@@ -195,7 +195,7 @@ TEST(MvccTrxLog, wal2)
   }
 
   ThreadPoolExecutor executor;
-  ASSERT_EQ(0, executor.init("Trx", 4, 4, 60*1000));
+  ASSERT_EQ(0, executor.init("Trx", 4, 4, 60 * 1000));
 
   TrxKit &trx_kit = db->trx_kit();
 
@@ -209,7 +209,7 @@ TEST(MvccTrxLog, wal2)
       for (const string &table_name : table_names) {
         Table *table = db->find_table(table_name.c_str());
         ASSERT_NE(table, nullptr);
-        
+
         Record record;
 
         vector<Value> values(field_num);
@@ -238,7 +238,7 @@ TEST(MvccTrxLog, wal2)
   db->sync();
 
   vector<string> table_names_part2;
-  const int table_num2 = 10;
+  const int      table_num2 = 10;
   for (int i = table_num; i < table_num + table_num2; i++) {
     string table_name = "table_" + to_string(i);
     table_names_part2.push_back(table_name);
@@ -246,12 +246,11 @@ TEST(MvccTrxLog, wal2)
     ASSERT_EQ(RC::SUCCESS, db->sync());
   }
 
-  const int insert_num2 = 100;
+  const int      insert_num2 = 100;
   vector<string> all_table_names(table_names);
   all_table_names.insert(all_table_names.end(), table_names_part2.begin(), table_names_part2.end());
   for (int i = insert_num; i < insert_num + insert_num2; i++) {
     auto trx_task = [&trx_kit, &all_table_names, &db, i] {
-      
       Trx *trx = trx_kit.create_trx(db->log_handler());
       ASSERT_NE(trx, nullptr);
       trx->start_if_need();
@@ -259,7 +258,7 @@ TEST(MvccTrxLog, wal2)
       for (const string &table_name : all_table_names) {
         Table *table = db->find_table(table_name.c_str());
         ASSERT_NE(table, nullptr);
-        
+
         Record record;
 
         vector<Value> values(field_num);
@@ -282,7 +281,7 @@ TEST(MvccTrxLog, wal2)
   ASSERT_EQ(0, executor.await_termination());
 
   DiskLogHandler &log_handler = static_cast<DiskLogHandler &>(db->log_handler());
-  LSN current_lsn = log_handler.current_lsn();
+  LSN             current_lsn = log_handler.current_lsn();
   ASSERT_EQ(RC::SUCCESS, log_handler.wait_lsn(current_lsn));
 
   // copy all files from db to db2
@@ -304,8 +303,8 @@ TEST(MvccTrxLog, wal2)
 
     RecordFileScanner scanner2;
     ASSERT_EQ(RC::SUCCESS, table2->get_record_scanner(scanner2, nullptr, ReadWriteMode::READ_ONLY));
-    int count2 = 0;
-    RC rc = RC::SUCCESS;
+    int    count2 = 0;
+    RC     rc     = RC::SUCCESS;
     Record record;
     while (OB_SUCC(rc = scanner2.next(record))) {
       count2++;
@@ -321,8 +320,8 @@ TEST(MvccTrxLog, wal2)
 
     RecordFileScanner scanner2;
     ASSERT_EQ(RC::SUCCESS, table2->get_record_scanner(scanner2, nullptr, ReadWriteMode::READ_ONLY));
-    int count2 = 0;
-    RC rc = RC::SUCCESS;
+    int    count2 = 0;
+    RC     rc     = RC::SUCCESS;
     Record record;
     while (OB_SUCC(rc = scanner2.next(record))) {
       count2++;
@@ -346,12 +345,12 @@ TEST(MvccTrxLog, wal_rollback)
   filesystem::remove_all(test_directory);
   filesystem::create_directory(test_directory);
 
-  const char *dbname = "test_db";
-  const char *dbname2 = "test_db2";
-  filesystem::path db_path = test_directory / dbname;
-  filesystem::path db_path2 = test_directory / dbname2;
-  const char *trx_kit_name = "mvcc";
-  const char *log_handler_name = "disk";
+  const char      *dbname           = "test_db";
+  const char      *dbname2          = "test_db2";
+  filesystem::path db_path          = test_directory / dbname;
+  filesystem::path db_path2         = test_directory / dbname2;
+  const char      *trx_kit_name     = "mvcc";
+  const char      *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
@@ -359,18 +358,18 @@ TEST(MvccTrxLog, wal_rollback)
   auto db = make_unique<Db>();
   ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
-  const int table_num = 10;
+  const int      table_num = 10;
   vector<string> table_names;
   for (int i = 0; i < table_num; i++) {
     table_names.push_back("table_" + to_string(i));
   }
 
-  const int field_num = 10;
+  const int               field_num = 10;
   vector<AttrInfoSqlNode> attr_infos;
   for (int i = 0; i < field_num; i++) {
     AttrInfoSqlNode attr_info;
-    attr_info.name = string("field_") + to_string(i);
-    attr_info.type = AttrType::INTS;
+    attr_info.name   = string("field_") + to_string(i);
+    attr_info.type   = AttrType::INTS;
     attr_info.length = 4;
     attr_infos.push_back(attr_info);
   }
@@ -381,7 +380,7 @@ TEST(MvccTrxLog, wal_rollback)
   }
 
   ThreadPoolExecutor executor;
-  ASSERT_EQ(0, executor.init("trx", 4, 4, 60*1000));
+  ASSERT_EQ(0, executor.init("trx", 4, 4, 60 * 1000));
 
   TrxKit &trx_kit = db->trx_kit();
 
@@ -395,7 +394,7 @@ TEST(MvccTrxLog, wal_rollback)
       for (const string &table_name : table_names) {
         Table *table = db->find_table(table_name.c_str());
         ASSERT_NE(table, nullptr);
-        
+
         Record record;
 
         vector<Value> values(field_num);
@@ -418,7 +417,7 @@ TEST(MvccTrxLog, wal_rollback)
   ASSERT_EQ(0, executor.await_termination());
 
   DiskLogHandler &log_handler = static_cast<DiskLogHandler &>(db->log_handler());
-  LSN current_lsn = log_handler.current_lsn();
+  LSN             current_lsn = log_handler.current_lsn();
   ASSERT_EQ(RC::SUCCESS, log_handler.wait_lsn(current_lsn));
 
   // copy all files from db to db2
@@ -442,9 +441,9 @@ TEST(MvccTrxLog, wal_rollback)
 
     RecordFileScanner scanner2;
     ASSERT_EQ(RC::SUCCESS, table2->get_record_scanner(scanner2, nullptr, ReadWriteMode::READ_ONLY));
-    int visible_count = 0;
+    int    visible_count = 0;
     Record record;
-    RC rc = RC::SUCCESS;
+    RC     rc = RC::SUCCESS;
     while (OB_SUCC(rc = scanner2.next(record))) {
       if (OB_SUCC(trx->visit_record(table2, record, ReadWriteMode::READ_ONLY))) {
         visible_count++;
@@ -470,12 +469,12 @@ TEST(MvccTrxLog, wal_rollback_half)
   filesystem::remove_all(test_directory);
   filesystem::create_directory(test_directory);
 
-  const char *dbname = "test_db";
-  const char *dbname2 = "test_db2";
-  filesystem::path db_path = test_directory / dbname;
-  filesystem::path db_path2 = test_directory / dbname2;
-  const char *trx_kit_name = "mvcc";
-  const char *log_handler_name = "disk";
+  const char      *dbname           = "test_db";
+  const char      *dbname2          = "test_db2";
+  filesystem::path db_path          = test_directory / dbname;
+  filesystem::path db_path2         = test_directory / dbname2;
+  const char      *trx_kit_name     = "mvcc";
+  const char      *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
@@ -483,18 +482,18 @@ TEST(MvccTrxLog, wal_rollback_half)
   auto db = make_unique<Db>();
   ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
-  const int table_num = 10;
+  const int      table_num = 10;
   vector<string> table_names;
   for (int i = 0; i < table_num; i++) {
     table_names.push_back("table_" + to_string(i));
   }
 
-  const int field_num = 10;
+  const int               field_num = 10;
   vector<AttrInfoSqlNode> attr_infos;
   for (int i = 0; i < field_num; i++) {
     AttrInfoSqlNode attr_info;
-    attr_info.name = string("field_") + to_string(i);
-    attr_info.type = AttrType::INTS;
+    attr_info.name   = string("field_") + to_string(i);
+    attr_info.type   = AttrType::INTS;
     attr_info.length = 4;
     attr_infos.push_back(attr_info);
   }
@@ -505,7 +504,7 @@ TEST(MvccTrxLog, wal_rollback_half)
   }
 
   ThreadPoolExecutor executor;
-  ASSERT_EQ(0, executor.init("trx", 4, 4, 60*1000));
+  ASSERT_EQ(0, executor.init("trx", 4, 4, 60 * 1000));
 
   TrxKit &trx_kit = db->trx_kit();
 
@@ -519,7 +518,7 @@ TEST(MvccTrxLog, wal_rollback_half)
       for (const string &table_name : table_names) {
         Table *table = db->find_table(table_name.c_str());
         ASSERT_NE(table, nullptr);
-        
+
         Record record;
 
         vector<Value> values(field_num);
@@ -546,7 +545,7 @@ TEST(MvccTrxLog, wal_rollback_half)
   ASSERT_EQ(0, executor.await_termination());
 
   DiskLogHandler &log_handler = static_cast<DiskLogHandler &>(db->log_handler());
-  LSN current_lsn = log_handler.current_lsn();
+  LSN             current_lsn = log_handler.current_lsn();
   ASSERT_EQ(RC::SUCCESS, log_handler.wait_lsn(current_lsn));
 
   // copy all files from db to db2
@@ -570,9 +569,9 @@ TEST(MvccTrxLog, wal_rollback_half)
 
     RecordFileScanner scanner2;
     ASSERT_EQ(RC::SUCCESS, table2->get_record_scanner(scanner2, nullptr, ReadWriteMode::READ_ONLY));
-    int visible_count = 0;
+    int    visible_count = 0;
     Record record;
-    RC rc = RC::SUCCESS;
+    RC     rc = RC::SUCCESS;
     while (OB_SUCC(rc = scanner2.next(record))) {
       if (OB_SUCC(trx->visit_record(table2, record, ReadWriteMode::READ_ONLY))) {
         visible_count++;
@@ -599,12 +598,12 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   filesystem::remove_all(test_directory);
   filesystem::create_directory(test_directory);
 
-  const char *dbname = "test_db";
-  const char *dbname2 = "test_db2";
-  filesystem::path db_path = test_directory / dbname;
-  filesystem::path db_path2 = test_directory / dbname2;
-  const char *trx_kit_name = "mvcc";
-  const char *log_handler_name = "disk";
+  const char      *dbname           = "test_db";
+  const char      *dbname2          = "test_db2";
+  filesystem::path db_path          = test_directory / dbname;
+  filesystem::path db_path2         = test_directory / dbname2;
+  const char      *trx_kit_name     = "mvcc";
+  const char      *log_handler_name = "disk";
 
   filesystem::create_directories(db_path);
   filesystem::create_directories(db_path2);
@@ -612,18 +611,18 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   auto db = make_unique<Db>();
   ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
 
-  const int table_num = 10;
+  const int      table_num = 10;
   vector<string> table_names;
   for (int i = 0; i < table_num; i++) {
     table_names.push_back("table_" + to_string(i));
   }
 
-  const int field_num = 10;
+  const int               field_num = 10;
   vector<AttrInfoSqlNode> attr_infos;
   for (int i = 0; i < field_num; i++) {
     AttrInfoSqlNode attr_info;
-    attr_info.name = string("field_") + to_string(i);
-    attr_info.type = AttrType::INTS;
+    attr_info.name   = string("field_") + to_string(i);
+    attr_info.type   = AttrType::INTS;
     attr_info.length = 4;
     attr_infos.push_back(attr_info);
   }
@@ -634,9 +633,9 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   }
 
   ThreadPoolExecutor executor;
-  ASSERT_EQ(0, executor.init("trx", 4, 4, 60*1000));
+  ASSERT_EQ(0, executor.init("trx", 4, 4, 60 * 1000));
 
-  TrxKit &trx_kit = db->trx_kit();
+  TrxKit   &trx_kit    = db->trx_kit();
   const int insert_num = 1000;
   for (int i = 0; i < insert_num; i++) {
     auto trx_task = [&trx_kit, &table_names, &db, i] {
@@ -647,7 +646,7 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
       for (const string &table_name : table_names) {
         Table *table = db->find_table(table_name.c_str());
         ASSERT_NE(table, nullptr);
-        
+
         Record record;
 
         vector<Value> values(field_num);
@@ -673,7 +672,7 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   ASSERT_EQ(0, executor.await_termination());
 
   DiskLogHandler &log_handler = static_cast<DiskLogHandler &>(db->log_handler());
-  LSN current_lsn = log_handler.current_lsn();
+  LSN             current_lsn = log_handler.current_lsn();
   ASSERT_EQ(RC::SUCCESS, log_handler.wait_lsn(current_lsn));
 
   // copy all files from db to db2
@@ -697,9 +696,9 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
 
     RecordFileScanner scanner2;
     ASSERT_EQ(RC::SUCCESS, table2->get_record_scanner(scanner2, nullptr, ReadWriteMode::READ_ONLY));
-    int visible_count = 0;
+    int    visible_count = 0;
     Record record;
-    RC rc = RC::SUCCESS;
+    RC     rc = RC::SUCCESS;
     while (OB_SUCC(rc = scanner2.next(record))) {
       if (OB_SUCC(trx->visit_record(table2, record, ReadWriteMode::READ_ONLY))) {
         visible_count++;

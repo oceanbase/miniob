@@ -92,16 +92,16 @@ public:
   /**
    * @brief 可以在页面锁保护的情况下访问记录
    * @details 当前是在事务中访问记录，为了提供一个“原子性”的访问模式
-   * @param rid 
-   * @param visitor 
-   * @return RC 
+   * @param rid
+   * @param visitor
+   * @return RC
    */
   RC visit_record(const RID &rid, std::function<bool(Record &)> visitor);
 
 public:
   int32_t     table_id() const { return table_meta_.table_id(); }
   const char *name() const;
-  
+
   Db *db() const { return db_; }
 
   const TableMeta &table_meta() const;
@@ -120,7 +120,7 @@ public:
   Index *find_index_by_field(const char *field_name) const;
 
 private:
-  Db *                 db_ = nullptr;
+  Db                  *db_ = nullptr;
   std::string          base_dir_;
   TableMeta            table_meta_;
   DiskBufferPool      *data_buffer_pool_ = nullptr;  /// 数据文件关联的buffer pool

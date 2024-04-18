@@ -35,10 +35,10 @@ class RecordOperation
 public:
   enum class Type : int32_t
   {
-    INIT_PAGE,      /// 初始化空页面
-    INSERT,         /// 插入一条记录
-    DELETE,         /// 删除一条记录
-    UPDATE          /// 更新一条记录
+    INIT_PAGE,  /// 初始化空页面
+    INSERT,     /// 插入一条记录
+    DELETE,     /// 删除一条记录
+    UPDATE      /// 更新一条记录
   };
 
 public:
@@ -46,7 +46,7 @@ public:
   explicit RecordOperation(int32_t type) : type_(static_cast<Type>(type)) {}
   ~RecordOperation() = default;
 
-  Type type() const { return type_; }
+  Type    type() const { return type_; }
   int32_t type_id() const { return static_cast<int32_t>(type_); }
 
   std::string to_string() const;
@@ -60,7 +60,8 @@ struct RecordLogHeader
   int32_t buffer_pool_id;
   int32_t operation_type;
   PageNum page_num;
-  union {
+  union
+  {
     SlotNum slot_num;
     int32_t record_size;
   };
@@ -75,7 +76,7 @@ struct RecordLogHeader
 class RecordLogHandler final
 {
 public:
-  RecordLogHandler() = default;
+  RecordLogHandler()  = default;
   ~RecordLogHandler() = default;
 
   RC init(LogHandler &log_handler, int32_t buffer_pool_id, int32_t record_size);
@@ -119,9 +120,9 @@ public:
   RC update_record(Frame *frame, const RID &rid, const char *record);
 
 private:
-  LogHandler *log_handler_ = nullptr;
-  int32_t buffer_pool_id_ = -1;
-  int32_t record_size_ = -1;
+  LogHandler *log_handler_    = nullptr;
+  int32_t     buffer_pool_id_ = -1;
+  int32_t     record_size_    = -1;
 };
 
 /**

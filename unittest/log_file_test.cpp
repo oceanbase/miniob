@@ -33,7 +33,7 @@ TEST(LogFileWriter, basic)
 
   // test LogFileWriter open, close, valid
   LogFileWriter writer;
-  LSN end_lsn = 1000 - 1;
+  LSN           end_lsn = 1000 - 1;
   ASSERT_EQ(RC::SUCCESS, writer.open(filename, end_lsn));
   ASSERT_TRUE(writer.valid());
   ASSERT_FALSE(writer.full());
@@ -83,7 +83,7 @@ TEST(LogFileReader, basic)
   filesystem::remove(log_file);
 
   LogFileWriter writer;
-  LSN end_lsn = 1000 - 1;
+  LSN           end_lsn = 1000 - 1;
   ASSERT_EQ(RC::SUCCESS, writer.open(log_file, end_lsn));
   ASSERT_TRUE(writer.valid());
 
@@ -100,7 +100,7 @@ TEST(LogFileReader, basic)
   LogFileReader reader;
   ASSERT_EQ(RC::SUCCESS, reader.open(log_file));
 
-  int count = 0;
+  int  count    = 0;
   auto callback = [&count](LogEntry &entry) -> RC {
     LOG_DEBUG("entry=%s", entry.to_string().c_str());
     count++;
@@ -112,12 +112,12 @@ TEST(LogFileReader, basic)
   ASSERT_EQ(end_lsn, count);
 
   LSN start_lsn = 500;
-  count = 0;
+  count         = 0;
   ASSERT_EQ(RC::SUCCESS, reader.iterate(callback, start_lsn));
   ASSERT_EQ(end_lsn - start_lsn + 1, count);
 
   start_lsn = end_lsn + 100;
-  count = 0;
+  count     = 0;
   ASSERT_EQ(RC::SUCCESS, reader.iterate(callback, start_lsn));
   ASSERT_EQ(0, count);
 
@@ -131,7 +131,7 @@ TEST(LogFileReadWrite, test_read_write)
   filesystem::remove(log_file);
 
   LogFileWriter writer;
-  LSN end_lsn = 1000 - 1;
+  LSN           end_lsn = 1000 - 1;
   ASSERT_EQ(RC::SUCCESS, writer.open(log_file, end_lsn));
   ASSERT_TRUE(writer.valid());
 
@@ -149,7 +149,7 @@ TEST(LogFileReadWrite, test_read_write)
   LogFileReader reader;
   ASSERT_EQ(RC::SUCCESS, reader.open(log_file));
 
-  int count = 0;
+  int  count    = 0;
   auto callback = [&count](LogEntry &entry) -> RC {
     count++;
     return RC::SUCCESS;
@@ -183,7 +183,7 @@ TEST(LogFileManager, get_lsn_from_filename)
   const char *file_prefix = LogFileManager::file_prefix_;
   const char *file_suffix = LogFileManager::file_suffix_;
 
-  vector<LSN> test_lsn{0, 1, 10, 100, 1000, 10000, 100000, 1000000};
+  vector<LSN>  test_lsn{0, 1, 10, 100, 1000, 10000, 100000, 1000000};
   stringstream filename_ss;
   for (auto lsn : test_lsn) {
     filename_ss.str("");
@@ -196,13 +196,14 @@ TEST(LogFileManager, get_lsn_from_filename)
   // filename with invalid prefix or invalid suffix
   LSN lsn_in_filename = 0;
   ASSERT_NE(RC::SUCCESS, LogFileManager::get_lsn_from_filename("invalid_prefix_1000.log", lsn_in_filename));
-  ASSERT_NE(RC::SUCCESS, LogFileManager::get_lsn_from_filename(string(file_prefix) + "1000.invalid_suffix", lsn_in_filename));
+  ASSERT_NE(
+      RC::SUCCESS, LogFileManager::get_lsn_from_filename(string(file_prefix) + "1000.invalid_suffix", lsn_in_filename));
 }
 
 TEST(LogFileManager, init_not_exists)
 {
-  const char *directory = "not_exists/not_exists2";
-  int max_entry_number_per_file = 1000;
+  const char *directory                 = "not_exists/not_exists2";
+  int         max_entry_number_per_file = 1000;
 
   LogFileManager manager;
   ASSERT_EQ(RC::SUCCESS, manager.init(directory, max_entry_number_per_file));
@@ -217,8 +218,8 @@ TEST(LogFileManager, init_not_exists)
 
 TEST(LogFileManager, init_empty_directory)
 {
-  const char *directory = "empty_directory";
-  int max_entry_number_per_file = 1000;
+  const char *directory                 = "empty_directory";
+  int         max_entry_number_per_file = 1000;
 
   ASSERT_TRUE(filesystem::create_directory(directory));
 
@@ -235,18 +236,18 @@ TEST(LogFileManager, init_empty_directory)
 
 TEST(LogFileManager, init_with_files)
 {
-  const char *directory = "init_with_files";
-  int max_entry_number_per_file = 1000;
+  const char *directory                 = "init_with_files";
+  int         max_entry_number_per_file = 1000;
 
   filesystem::remove_all(directory);
 
   ASSERT_TRUE(filesystem::create_directory(directory));
 
-  LSN lsns[] = {1000, 2000, 3000};
+  LSN            lsns[] = {1000, 2000, 3000};
   vector<string> files;
   for (LSN lsn : lsns) {
     stringstream filename_ss;
-    string filename = string(LogFileManager::file_prefix_) + to_string(lsn) + LogFileManager::file_suffix_;
+    string       filename = string(LogFileManager::file_prefix_) + to_string(lsn) + LogFileManager::file_suffix_;
     files.push_back(filename);
     filename_ss << directory << "/" << filename;
     ofstream ofs(filename_ss.str());
@@ -287,7 +288,7 @@ TEST(LogFileManager, init_with_files)
 
   ASSERT_EQ(RC::SUCCESS, manager.list_files(result_files, 4000));
   ASSERT_EQ(0, result_files.size());
-  
+
   ASSERT_EQ(RC::SUCCESS, manager.list_files(result_files, 5000));
   ASSERT_EQ(0, result_files.size());
 
@@ -297,8 +298,8 @@ TEST(LogFileManager, init_with_files)
 TEST(LogFileManager, last_file)
 {
   // create an empty directory and try to open last file
-  const char *directory = "last_file";
-  int max_entry_number_per_file = 1000;
+  const char *directory                 = "last_file";
+  int         max_entry_number_per_file = 1000;
 
   filesystem::remove_all(directory);
 
@@ -311,7 +312,7 @@ TEST(LogFileManager, last_file)
   ASSERT_TRUE(writer.valid());
 
   // test the lsn of the filename of the writer
-  LSN lsn = 0;
+  LSN              lsn = 0;
   filesystem::path file_path(writer.filename());
   ASSERT_EQ(RC::SUCCESS, LogFileManager::get_lsn_from_filename(file_path.filename(), lsn));
   ASSERT_EQ(0, lsn);
@@ -320,11 +321,11 @@ TEST(LogFileManager, last_file)
 
   // create a directory with some files and try to open last file
   ASSERT_TRUE(filesystem::create_directory(directory));
-  LSN lsns[] = {1000, 2000, 3000};
+  LSN            lsns[] = {1000, 2000, 3000};
   vector<string> files;
   for (LSN lsn : lsns) {
     stringstream filename_ss;
-    string filename = string(LogFileManager::file_prefix_) + to_string(lsn) + LogFileManager::file_suffix_;
+    string       filename = string(LogFileManager::file_prefix_) + to_string(lsn) + LogFileManager::file_suffix_;
     files.push_back(filename);
     filename_ss << directory << "/" << filename;
     ofstream ofs(filename_ss.str());
@@ -344,8 +345,8 @@ TEST(LogFileManager, last_file)
 TEST(LogFileManager, next_file)
 {
   // create an empty directory and try to open next file
-  const char *directory = "next_file";
-  int max_entry_number_per_file = 1000;
+  const char *directory                 = "next_file";
+  int         max_entry_number_per_file = 1000;
 
   filesystem::remove_all(directory);
 
@@ -366,11 +367,11 @@ TEST(LogFileManager, next_file)
 
   // create a directory with some files and try to open next file
   ASSERT_TRUE(filesystem::create_directory(directory));
-  LSN lsns[] = {1000, 2000, 3000};
+  LSN            lsns[] = {1000, 2000, 3000};
   vector<string> files;
   for (LSN lsn : lsns) {
     stringstream filename_ss;
-    string filename = string(LogFileManager::file_prefix_) + to_string(lsn) + LogFileManager::file_suffix_;
+    string       filename = string(LogFileManager::file_prefix_) + to_string(lsn) + LogFileManager::file_suffix_;
     files.push_back(filename);
     filename_ss << directory << "/" << filename;
     ofstream ofs(filename_ss.str());

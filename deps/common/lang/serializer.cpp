@@ -60,4 +60,4 @@ int Deserializer::read_int64(int64_t &value)
   return read(data);
 }
 
-} // namespace common
+}  // namespace common

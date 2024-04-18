@@ -84,7 +84,7 @@ struct RID
 
 struct RIDHash
 {
-  size_t operator() (const RID &rid) const noexcept
+  size_t operator()(const RID &rid) const noexcept
   {
     return std::hash<PageNum>()(rid.page_num) ^ std::hash<SlotNum>()(rid.slot_num);
   }
@@ -142,19 +142,19 @@ public:
 
   Record(Record &&other)
   {
-    rid_   = other.rid_;
+    rid_ = other.rid_;
 
     if (!other.owner_) {
-      data_ = other.data_;
-      len_  = other.len_;
-      other.data_ = nullptr;
-      other.len_  = 0;
+      data_        = other.data_;
+      len_         = other.len_;
+      other.data_  = nullptr;
+      other.len_   = 0;
       this->owner_ = false;
     } else {
-      data_  = other.data_;
-      len_   = other.len_;
-      other.data_ = nullptr;
-      other.len_  = 0;
+      data_        = other.data_;
+      len_         = other.len_;
+      other.data_  = nullptr;
+      other.len_   = 0;
       this->owner_ = true;
     }
   }

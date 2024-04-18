@@ -47,7 +47,7 @@ class BenchmarkBase : public Fixture
 public:
   BenchmarkBase() {}
 
-  virtual ~BenchmarkBase() { }
+  virtual ~BenchmarkBase() {}
 
   virtual string Name() const = 0;
 
@@ -70,12 +70,8 @@ public:
 
     const char *filename = btree_filename.c_str();
 
-    RC rc = handler_.create(log_handler_, 
-                            bpm_, filename, 
-                            INTS, 
-                            sizeof(int32_t) /*attr_len*/, 
-                            internal_max_size, 
-                            leaf_max_size);
+    RC rc = handler_.create(
+        log_handler_, bpm_, filename, INTS, sizeof(int32_t) /*attr_len*/, internal_max_size, leaf_max_size);
     if (rc != RC::SUCCESS) {
       throw runtime_error("failed to create btree handler");
     }

@@ -48,7 +48,7 @@ public:
 
 private:
   int     buffer_pool_id_ = -1;
-  PageNum page_num_ = -1;
+  PageNum page_num_       = -1;
 };
 
 /**
@@ -81,15 +81,15 @@ public:
 
   void clear_page() { memset(&page_, 0, sizeof(page_)); }
 
-  int     buffer_pool_id() const { return frame_id_.buffer_pool_id(); }
-  void    set_buffer_pool_id(int id) { frame_id_.set_buffer_pool_id(id); }
+  int  buffer_pool_id() const { return frame_id_.buffer_pool_id(); }
+  void set_buffer_pool_id(int id) { frame_id_.set_buffer_pool_id(id); }
 
   /**
    * @brief 在磁盘和内存中内容完全一致的数据页
    * @details 磁盘文件划分为一个个页面，每次从磁盘加载到内存中，也是一个页面，就是 Page。
    * frame 是为了管理这些页面而维护的一个数据结构。
    */
-  Page   &page() { return page_; }
+  Page &page() { return page_; }
 
   /**
    * @brief 每个页面都有一个编号
@@ -104,8 +104,8 @@ public:
    * @details 如果当前页面从磁盘中加载出来时，它的日志序列号比当前WAL(Write-Ahead-Logging)中的一些
    * 序列号要小，那就可以从日志中读取这些更大序列号的日志，做重做操作，将页面恢复到最新状态，也就是redo。
    */
-  LSN     lsn() const { return page_.lsn; }
-  void    set_lsn(LSN lsn) { page_.lsn = lsn; }
+  LSN  lsn() const { return page_.lsn; }
+  void set_lsn(LSN lsn) { page_.lsn = lsn; }
 
   /**
    * @brief 页面校验和
@@ -174,7 +174,7 @@ private:
 
   bool             dirty_ = false;
   std::atomic<int> pin_count_{0};
-  unsigned long    acc_time_  = 0;
+  unsigned long    acc_time_ = 0;
   FrameId          frame_id_;
   Page             page_;
 

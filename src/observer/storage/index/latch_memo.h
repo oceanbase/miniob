@@ -58,10 +58,10 @@ public:
   LatchMemo(DiskBufferPool *buffer_pool);
   ~LatchMemo();
 
-  RC   get_page(PageNum page_num, Frame *&frame);
+  RC get_page(PageNum page_num, Frame *&frame);
 
   /// @brief 分配页面
-  RC   allocate_page(Frame *&frame);
+  RC allocate_page(Frame *&frame);
 
   /// @brief 标记为即将释放的页面
   void dispose_page(PageNum page_num);
@@ -87,5 +87,5 @@ private:
 private:
   DiskBufferPool           *buffer_pool_ = nullptr;
   std::deque<LatchMemoItem> items_;
-  std::vector<PageNum>      disposed_pages_;        /// 等待释放的页面
+  std::vector<PageNum>      disposed_pages_;  /// 等待释放的页面
 };

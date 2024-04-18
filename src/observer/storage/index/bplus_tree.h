@@ -214,9 +214,9 @@ struct IndexNode
 {
   static constexpr int HEADER_SIZE = 12;
 
-  bool    is_leaf;   /// 当前是叶子节点还是内部节点
-  int     key_num;   /// 当前页面上一共有多少个键值对
-  PageNum parent;    /// 父节点页面编号
+  bool    is_leaf;  /// 当前是叶子节点还是内部节点
+  int     key_num;  /// 当前页面上一共有多少个键值对
+  PageNum parent;   /// 父节点页面编号
 };
 
 /**
@@ -284,11 +284,11 @@ public:
   bool is_leaf() const;
 
   /// @brief 存储的键值大小
-  virtual int  key_size() const;
+  virtual int key_size() const;
   /// @brief 存储的值的大小。内部节点和叶子节点是不一样的，但是这里返回的是叶子节点存储的大小
-  virtual int  value_size() const;
+  virtual int value_size() const;
   /// @brief 存储的键值对的大小。值是指叶子节点中存放的数据
-  virtual int  item_size() const;
+  virtual int item_size() const;
 
   void    increase_size(int n);
   int     size() const;
@@ -325,14 +325,14 @@ protected:
    * 但是使用这个类时，注意不能使用与这个函数相关的函数。
    */
   virtual char *__item_at(int index) const { return nullptr; }
-  char *__key_at(int index) const { return __item_at(index); }
-  char *__value_at(int index) const { return __item_at(index) + key_size(); };
+  char         *__key_at(int index) const { return __item_at(index); }
+  char         *__value_at(int index) const { return __item_at(index) + key_size(); };
 
 protected:
   BplusTreeMiniTransaction &mtr_;
-  const IndexFileHeader &header_;
-  Frame                 *frame_ = nullptr;
-  IndexNode             *node_ = nullptr;
+  const IndexFileHeader    &header_;
+  Frame                    *frame_ = nullptr;
+  IndexNode                *node_  = nullptr;
 };
 
 /**
@@ -358,12 +358,12 @@ public:
    */
   int lookup(const KeyComparator &comparator, const char *key, bool *found = nullptr) const;
 
-  RC insert(int index, const char *key, const char *value);
-  RC remove(int index);
-  int  remove(const char *key, const KeyComparator &comparator);
-  RC   move_half_to(LeafIndexNodeHandler &other);
-  RC   move_first_to_end(LeafIndexNodeHandler &other);
-  RC   move_last_to_front(LeafIndexNodeHandler &other);
+  RC  insert(int index, const char *key, const char *value);
+  RC  remove(int index);
+  int remove(const char *key, const KeyComparator &comparator);
+  RC  move_half_to(LeafIndexNodeHandler &other);
+  RC  move_first_to_end(LeafIndexNodeHandler &other);
+  RC  move_last_to_front(LeafIndexNodeHandler &other);
   /**
    * move all items to left page
    */
@@ -421,7 +421,7 @@ public:
 
   /**
    * @brief 把当前节点的所有数据都迁移到另一个节点上
-   * 
+   *
    * @param other 数据迁移的目标节点
    */
   RC move_to(InternalIndexNodeHandler &other);
@@ -466,19 +466,10 @@ public:
    * @param internal_max_size 内部节点最大大小
    * @param leaf_max_size 叶子节点最大大小
    */
-  RC create(LogHandler &log_handler,
-            BufferPoolManager &bpm,
-            const char *file_name,
-            AttrType attr_type,
-            int attr_length,
-            int internal_max_size = -1,
-            int leaf_max_size = -1);
-  RC create(LogHandler &log_handler,
-            DiskBufferPool &buffer_pool,
-            AttrType attr_type,
-            int attr_length,
-            int internal_max_size = -1,
-            int leaf_max_size = -1);
+  RC create(LogHandler &log_handler, BufferPoolManager &bpm, const char *file_name, AttrType attr_type, int attr_length,
+      int internal_max_size = -1, int leaf_max_size = -1);
+  RC create(LogHandler &log_handler, DiskBufferPool &buffer_pool, AttrType attr_type, int attr_length,
+      int internal_max_size = -1, int leaf_max_size = -1);
 
   /**
    * @brief 打开一个B+树
@@ -529,8 +520,8 @@ public:
 
 public:
   const IndexFileHeader &file_header() const { return file_header_; }
-  DiskBufferPool &buffer_pool() const { return *disk_buffer_pool_; }
-  LogHandler &log_handler() const { return *log_handler_; }
+  DiskBufferPool        &buffer_pool() const { return *disk_buffer_pool_; }
+  LogHandler            &log_handler() const { return *log_handler_; }
 
 public:
   /**
@@ -652,9 +643,9 @@ private:
   common::MemPoolItem::unique_ptr make_key(const char *user_key, const RID &rid);
 
 protected:
-  LogHandler *log_handler_ = nullptr;  /// 日志处理器
-  DiskBufferPool *disk_buffer_pool_ = nullptr; /// 磁盘缓冲池
-  bool            header_dirty_     = false;  /// 是否需要更新头页面
+  LogHandler     *log_handler_      = nullptr;  /// 日志处理器
+  DiskBufferPool *disk_buffer_pool_ = nullptr;  /// 磁盘缓冲池
+  bool            header_dirty_     = false;    /// 是否需要更新头页面
   IndexFileHeader file_header_;
 
   // 在调整根节点时，需要加上这个锁。
@@ -696,7 +687,7 @@ public:
 
   /**
    * @brief 获取下一条记录
-   * 
+   *
    * @param rid 当前默认所有值都是RID类型。对B+树来说并不是一个好的抽象
    * @return RC RECORD_EOF 表示遍历完成
    * TODO 需要增加返回 key 的接口

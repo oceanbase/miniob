@@ -37,8 +37,8 @@ public:
     switch (entry.module().id()) {
       case LogModule::Id::BUFFER_POOL: {
         if (entry.payload_size() < static_cast<int32_t>(sizeof(BufferPoolLogEntry))) {
-          ss << "invalid buffer pool log entry. " << "payload size = " << entry.payload_size()
-             << ", expected size = " << sizeof(BufferPoolLogEntry);
+          ss << "invalid buffer pool log entry. "
+             << "payload size = " << entry.payload_size() << ", expected size = " << sizeof(BufferPoolLogEntry);
         } else {
           auto *bp_entry = reinterpret_cast<const BufferPoolLogEntry *>(entry.data());
           ss << bp_entry->to_string();
@@ -46,8 +46,8 @@ public:
       } break;
       case LogModule::Id::RECORD_MANAGER: {
         if (entry.payload_size() < RecordLogHeader::SIZE) {
-          ss << "invalid record log entry. " << "payload size = " << entry.payload_size()
-             << ", expected size = " << RecordLogHeader::SIZE;
+          ss << "invalid record log entry. "
+             << "payload size = " << entry.payload_size() << ", expected size = " << RecordLogHeader::SIZE;
         } else {
           auto *record_log_header = reinterpret_cast<const RecordLogHeader *>(entry.data());
           ss << record_log_header->to_string();
@@ -72,9 +72,10 @@ public:
           ss << header->to_string();
         }
       } break;
-      
+
       default: {
-        ss << "unknown log entry. " << "module id = " << entry.module().index();
+        ss << "unknown log entry. "
+           << "module id = " << entry.module().index();
       } break;
     }
     return ss.str();
@@ -84,7 +85,7 @@ public:
 void dump_file(const filesystem::path &filepath)
 {
   LogFileReader log_file;
-  RC rc = log_file.open(filepath.c_str());
+  RC            rc = log_file.open(filepath.c_str());
   if (OB_FAIL(rc)) {
     printf("failed to open log file. filename = %s, rc = %s\n", filepath.c_str(), strrc(rc));
     return;
@@ -112,7 +113,7 @@ void dump_file(const filesystem::path &filepath)
 void dump_directory(const filesystem::path &directory)
 {
   LogFileManager log_file_manager;
-  RC rc = log_file_manager.init(directory.c_str(), 1);
+  RC             rc = log_file_manager.init(directory.c_str(), 1);
   if (OB_FAIL(rc)) {
     printf("failed to init log file manager. rc = %s\n", strrc(rc));
     return;

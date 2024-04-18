@@ -25,8 +25,8 @@ using namespace common;
 TEST(LogEntryBuffer, test_append)
 {
   // test init LogEntryBuffer and append
-  LSN start_lsn = 1000;
-  LSN end_lsn = 2000 - 1;
+  LSN            start_lsn = 1000;
+  LSN            end_lsn   = 2000 - 1;
   LogEntryBuffer buffer;
   ASSERT_EQ(RC::SUCCESS, buffer.init(start_lsn));
 
