@@ -189,28 +189,45 @@ RC BplusTreeLogger::__redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHand
 
   DEFER(need_log_ = true);
 
+  RC rc = RC::SUCCESS;
+  vector<Frame *> frames;
   while (redo_buffer.remain() > 0) {
     unique_ptr<LogEntryHandler> entry;
 
-    RC rc = LogEntryHandler::from_buffer(tree_handler.buffer_pool(), redo_buffer, entry);
+    rc = LogEntryHandler::from_buffer(tree_handler.buffer_pool(), redo_buffer, entry);
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to deserialize log entry. rc=%s", strrc(rc));
-      return rc;
+      break;
     }
-
     Frame *frame = entry->frame();
-    if (nullptr == frame || frame->lsn() >= lsn) {
-      LOG_TRACE("no need to redo. frame=%p, lsn=%ld, redo lsn=%ld", frame, frame ? frame->lsn() : 0, lsn);
+    if (frame != nullptr) {
+      if (frame->lsn() >= lsn) {
+        LOG_TRACE("no need to redo. frame=%p:%s, redo lsn=%ld", frame, frame->to_string().c_str(), lsn);
+	frame->unpin();
+	continue;
+      } else {
+        frames.push_back(frame);
+      }
+    } else {
+      LOG_TRACE("frame is null, skip the redo action");
       continue;
     }
 
     rc = entry->redo(mtr, tree_handler);
     if (OB_FAIL(rc)) {
-      LOG_WARN("failed to rollback log entry. rc=%s", strrc(rc));
-      return rc;
+      LOG_WARN("failed to redo log entry. rc=%s, lsn=%d, entry=%s", strrc(rc), lsn, entry->to_string().c_str());
+      break;
     }
 
-    frame->set_lsn(lsn);
+    // 在这里能设置frame的LSN，因为一个页面可能会有多个操作
+    // frame->set_lsn(lsn);
+  }
+
+  if (OB_SUCC(rc)) {
+    for (Frame *frame : frames) {
+      frame->set_lsn(lsn);
+      frame->unpin();
+    }
   }
 
   return RC::SUCCESS;

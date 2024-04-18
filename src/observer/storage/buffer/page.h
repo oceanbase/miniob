@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 
 using TrxID = int32_t;
 
-static constexpr int BP_INVALID_PAGE_NUM = -1;
+static constexpr PageNum BP_INVALID_PAGE_NUM = -1;
 
 static constexpr PageNum BP_HEADER_PAGE = 0;
 

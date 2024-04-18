@@ -159,7 +159,7 @@ TEST(BufferPoolLog, test_wal_exception)
   ASSERT_TRUE(filesystem::remove(buffer_pool_filename));
 
   BufferPoolManager buffer_pool_manager2;
-  ASSERT_EQ(RC::SUCCESS, buffer_pool_manager.init(make_unique<VacuousDoubleWriteBuffer>()));
+  ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.init(make_unique<VacuousDoubleWriteBuffer>()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.create_file(buffer_pool_filename.c_str()));
   ASSERT_EQ(RC::SUCCESS, buffer_pool_manager2.open_file(log_handler, buffer_pool_filename.c_str(), buffer_pool));
   ASSERT_NE(buffer_pool, nullptr);

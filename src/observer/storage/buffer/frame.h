@@ -44,7 +44,7 @@ public:
   void set_buffer_pool_id(int buffer_pool_id) { buffer_pool_id_ = buffer_pool_id; }
   void set_page_num(PageNum page_num) { page_num_ = page_num; }
 
-  friend std::string to_string(const FrameId &frame_id);
+  std::string to_string() const;
 
 private:
   int     buffer_pool_id_ = -1;
@@ -167,7 +167,7 @@ public:
   void read_unlatch();
   void read_unlatch(intptr_t xid);
 
-  friend std::string to_string(const Frame &frame);
+  std::string to_string() const;
 
 private:
   friend class BufferPool;

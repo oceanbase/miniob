@@ -95,34 +95,34 @@ public:
   /**
    * @brief 获取指定的页面
    *
-   * @param file_desc 文件描述符，也可以当做buffer pool文件的标识
+   * @param buffer_pool_id buffer Pool标识
    * @param page_num  页面号
    * @return Frame* 页帧指针
    */
-  Frame *get(int file_desc, PageNum page_num);
+  Frame *get(int buffer_pool_id, PageNum page_num);
 
   /**
    * @brief 列出所有指定文件的页面
    *
-   * @param file_desc 文件描述符
+   * @param buffer_pool_id buffer Pool标识
    * @return std::list<Frame *> 页帧列表
    */
-  std::list<Frame *> find_list(int file_desc);
+  std::list<Frame *> find_list(int buffer_pool_id);
 
   /**
    * @brief 分配一个新的页面
    *
-   * @param file_desc 文件描述符
+   * @param buffer_pool_id buffer Pool标识
    * @param page_num 页面编号
    * @return Frame* 页帧指针
    */
-  Frame *alloc(int file_desc, PageNum page_num);
+  Frame *alloc(int buffer_pool_id, PageNum page_num);
 
   /**
-   * 尽管frame中已经包含了file_desc和page_num，但是依然要求
+   * 尽管frame中已经包含了buffer_pool_id和page_num，但是依然要求
    * 传入，因为frame可能忘记初始化或者没有初始化
    */
-  RC free(int file_desc, PageNum page_num, Frame *frame);
+  RC free(int buffer_pool_id, PageNum page_num, Frame *frame);
 
   /**
    * 如果不能从空闲链表中分配新的页面，就使用这个接口，
