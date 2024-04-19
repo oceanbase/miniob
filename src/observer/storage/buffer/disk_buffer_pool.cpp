@@ -651,7 +651,8 @@ RC DiskBufferPool::redo_allocate_page(LSN lsn, PageNum page_num)
   }
 
   if (page_num > file_header_->page_count) {
-    LOG_WARN("page %d is not continuous. file=%s", page_num, file_name_.c_str());
+    LOG_WARN("page %d is not continuous. file=%s, page_count=%d",
+             page_num, file_name_.c_str(), file_header_->page_count);
     return RC::INTERNAL;
   }
 

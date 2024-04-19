@@ -127,6 +127,11 @@ private:
    */
   RC write_page(DoubleWritePage *page);
 
+  /**
+   * @brief 将磁盘文件中的内容加载到内存中。在启动时调用
+   */
+  RC load_pages();
+
 private:
   int                     file_desc_ = -1;
   int                     max_pages_ = 0;
