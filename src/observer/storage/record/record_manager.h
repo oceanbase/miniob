@@ -71,6 +71,8 @@ struct PageHeader
   int32_t record_size;          ///< 每条记录占用实际空间大小(可能对齐)
   int32_t record_capacity;      ///< 最大记录个数
   int32_t first_record_offset;  ///< 第一条记录的偏移量
+
+  std::string to_string() const;
 };
 
 /**

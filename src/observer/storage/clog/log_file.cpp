@@ -82,8 +82,10 @@ RC LogFileReader::iterate(std::function<RC(LogEntry &)> callback, LSN start_lsn 
     entry.init(header.lsn, LogModule(header.module_id), std::move(data));
     rc = callback(entry);
     if (OB_FAIL(rc)) {
+      LOG_INFO("iterate log entry failed. entry=%s, rc=%s", entry.to_string().c_str(), strrc(rc));
       return rc;
     }
+    LOG_TRACE("redo log iterate entry success. entry=%s", entry.to_string().c_str());
   }
 
   return RC::SUCCESS;

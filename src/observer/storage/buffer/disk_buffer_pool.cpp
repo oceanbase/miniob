@@ -606,6 +606,7 @@ RC DiskBufferPool::write_page(PageNum page_num, Page &page)
     return RC::IOERR_WRITE;
   }
 
+  LOG_TRACE("write_page: buffer_pool_id:%d, page_num:%d, lsn=%d, check_sum=%d", id(), page_num, page.lsn, page.check_sum);
   return RC::SUCCESS;
 }
 

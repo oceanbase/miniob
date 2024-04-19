@@ -102,12 +102,16 @@ RC DiskDoubleWriteBuffer::add_page(DiskBufferPool *bp, PageNum page_num, Page &p
   auto iter = dblwr_pages_.find(key);
   if (iter != dblwr_pages_.end()) {
     iter->second->page = page;
+    LOG_TRACE("[cache hit]add page into double write buffer. buffer_pool_id:%d,page_num:%d,lsn=%d, dwb size=%d",
+              bp->id(), page_num, page.lsn, static_cast<int>(dblwr_pages_.size()));
     return RC::SUCCESS;
   }
 
   int64_t          page_cnt   = dblwr_pages_.size();
   DoubleWritePage *dblwr_page = new DoubleWritePage(bp->id(), page_num, page);
   dblwr_pages_.insert(std::pair<DoubleWritePageKey, DoubleWritePage *>(key, dblwr_page));
+  LOG_TRACE("insert page into double write buffer. buffer_pool_id:%d,page_num:%d,lsn=%d, dwb size:%d",
+            bp->id(), page_num, page.lsn, static_cast<int>(dblwr_pages_.size()));
 
   int64_t offset = page_cnt * DoubleWritePage::SIZE + DoubleWriteBufferHeader::SIZE;
   if (lseek(file_desc_, offset, SEEK_SET) == -1) {
@@ -149,6 +153,9 @@ RC DiskDoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
   DiskBufferPool *disk_buffer = nullptr;
   RC rc = bp_manager_.get_buffer_pool(dblwr_page->key.buffer_pool_id, disk_buffer);
   ASSERT(OB_SUCC(rc) && disk_buffer != nullptr, "failed to get disk buffer pool of %d", dblwr_page->key.buffer_pool_id);
+
+  LOG_TRACE("double write buffer write page. buffer_pool_id:%d,page_num:%d,lsn=%d",
+            dblwr_page->key.buffer_pool_id, dblwr_page->key.page_num, dblwr_page->page.lsn);
 
   return disk_buffer->write_page(dblwr_page->key.page_num, dblwr_page->page);
 }

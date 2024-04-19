@@ -512,6 +512,8 @@ RC Table::sync()
       return rc;
     }
   }
+
+  rc = data_buffer_pool_->flush_all_pages();
   LOG_INFO("Sync table over. table=%s", name());
   return rc;
 }
