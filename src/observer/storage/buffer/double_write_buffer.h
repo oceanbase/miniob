@@ -90,7 +90,7 @@ public:
    * @param bp_manager 关联的buffer pool manager
    * @param max_pages  内存中保存的最大页面数
    */
-  DiskDoubleWriteBuffer(BufferPoolManager &bp_manager, int max_pages = 1);
+  DiskDoubleWriteBuffer(BufferPoolManager &bp_manager, int max_pages = 16);
   virtual ~DiskDoubleWriteBuffer();
 
   /**

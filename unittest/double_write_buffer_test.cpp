@@ -162,6 +162,8 @@ TEST(DoubleWriteBuffer, single_file_exception)
   }
 
   // bpm = nullptr;
+  log_handler.stop();
+  log_handler.await_termination();
   LOG_INFO("cannot close bpm");
 
   LOG_INFO("reopen the buffer pool and check it");

@@ -256,9 +256,12 @@ RC DiskDoubleWriteBuffer::load_pages()
       return RC::IOERR_READ;
     }
 
-    if (crc32(page.data, BP_PAGE_DATA_SIZE) == page.check_sum) {
-      dblwr_pages_.insert(pair<DoubleWritePageKey, DoubleWritePage *>(
-          DoubleWritePageKey{dblwr_page->key.buffer_pool_id, page_num}, dblwr_page.release()));
+    const CheckSum check_sum = crc32(page.data, BP_PAGE_DATA_SIZE);
+    if (check_sum == page.check_sum) {
+      DoubleWritePageKey key = dblwr_page->key;
+      dblwr_pages_.insert(pair<DoubleWritePageKey, DoubleWritePage *>(key, dblwr_page.release()));
+    } else {
+      LOG_TRACE("got a page with an invalid checksum. on disk:%d, in memory:%d", page.check_sum, check_sum);
     }
   }
 

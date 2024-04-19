@@ -704,7 +704,7 @@ RC MysqlCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
   char              *buf          = new char[buf_size];
   const std::string &state_string = sql_result->state_string();
   if (state_string.empty()) {
-    const char *result = RC::SUCCESS == sql_result->return_code() ? "SUCCESS" : "FAILURE";
+    const char *result = strrc(sql_result->return_code());
     snprintf(buf, buf_size, "%s", result);
   } else {
     snprintf(buf, buf_size, "%s > %s", strrc(sql_result->return_code()), state_string.c_str());
