@@ -56,9 +56,15 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 //标识tokens
 %token  SEMICOLON
         SUM_F
+<<<<<<< HEAD
         AVG_F
         MAX_F
         MIN_F
+=======
+        MIN_F
+        MAX_F
+        AVG_F
+>>>>>>> 09326b5df1b557edbcc220336c59133197146632
         COUNT_F
         CREATE
         DROP
@@ -80,6 +86,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
         TRX_COMMIT
         TRX_ROLLBACK
         INT_T
+        DATE_T
         STRING_T
         FLOAT_T
         DATE_T
@@ -184,7 +191,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 
 commands: command_wrapper opt_semicolon  //commands or sqls. parser starts here.
   {
-    std::unique_ptr<ParsedSqlNode> sql_node = std::unique_ptr<ParsedSqlNode>($1);
+    std::unique_ptr<ParsedSqlNode> sql_node = std::unique_ptr<ParsedSqlNode>($1);//$1是语句类型名
     sql_result->add_sql_node(std::move(sql_node));
   }
   ;
@@ -353,7 +360,11 @@ type:
     INT_T      { $$=INTS; }
     | STRING_T { $$=CHARS; }
     | FLOAT_T  { $$=FLOATS; }
+<<<<<<< HEAD
     | DATE_T   { $$=DATES; }
+=======
+    | DATE_T    {$$=DATES;}
+>>>>>>> 09326b5df1b557edbcc220336c59133197146632
     ;
 insert_stmt:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 
@@ -404,6 +415,11 @@ value:
       char *tmp = common::substr($1,1,strlen($1)-2);
       $$ = new Value(tmp,strlen(tmp),1);
       free(tmp);
+    }
+    |DATE_STR {
+        char *tmp = common::substr($1,1,strlen($1)-2);
+        $$ = new Value(tmp,strlen(tmp),1);
+        free(tmp);       
     }
     ;
     
@@ -528,6 +544,7 @@ select_attr:
     }
     ;
 
+<<<<<<< HEAD
 rel_attr_aggr:
     '*' {
       $$ = new RelAttrSqlNode;
@@ -572,6 +589,14 @@ aggr_op:
     | MAX_F { $$ = AGGR_MAX;}
     | MIN_F { $$ = AGGR_MIN;}
     | COUNT_F { $$ = AGGR_COUNT;}
+=======
+aggr_op:
+    SUM_F { $$ = AGGR_SUM; }
+    | MIN_F { $$ = AGGR_MIN; }
+    | MAX_F { $$ = AGGR_MAX; }
+    | AVG_F { $$ = AGGR_AVG; }
+    | COUNT_F { $$ = AGGR_COUNT; }
+>>>>>>> 09326b5df1b557edbcc220336c59133197146632
     ;
 
 rel_attr:
@@ -587,6 +612,7 @@ rel_attr:
       free($1);
       free($3);
     }
+<<<<<<< HEAD
     | aggr_op LBRACE rel_attr_aggr rel_attr_aggr_list RBRACE {
       $$ = $3;
       $$->aggregation = $1;
@@ -600,6 +626,11 @@ rel_attr:
       $$->relation_name = "";
       $$->aggregation = $1;
       $$->valid = false;
+=======
+    | aggr_op LBRACE rel_attr RBRACE{
+      $$ = $3;
+      $$->aggregation = $1;
+>>>>>>> 09326b5df1b557edbcc220336c59133197146632
     }
     ;
 

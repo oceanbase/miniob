@@ -51,20 +51,20 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
   std::vector<Table *>                     tables;
   std::unordered_map<std::string, Table *> table_map;
   for (size_t i = 0; i < select_sql.relations.size(); i++) {
-    const char *table_name = select_sql.relations[i].c_str();
+    const char *table_name = select_sql.relations[i].c_str();//取出表名
     if (nullptr == table_name) {
       LOG_WARN("invalid argument. relation name is null. index=%d", i);
       return RC::INVALID_ARGUMENT;
     }
 
-    Table *table = db->find_table(table_name);
+    Table *table = db->find_table(table_name);//取表
     if (nullptr == table) {
       LOG_WARN("no such table. db=%s, table_name=%s", db->name(), table_name);
       return RC::SCHEMA_TABLE_NOT_EXIST;
     }
 
     tables.push_back(table);
-    table_map.insert(std::pair<std::string, Table *>(table_name, table));
+    table_map.insert(std::pair<std::string, Table *>(table_name, table));//建立表名到表的映射
   }
 
   // collect query fields in `select` statement
