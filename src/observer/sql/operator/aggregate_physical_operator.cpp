@@ -42,6 +42,9 @@ RC AggregatePhysicalOperator::next()
                     case AttrType::INTS:
                         result_cells.push_back(Value(0));
                         break;
+                    case AttrType::DATES:
+                        result_cells.push_back(Value("0000-00-00"));
+                        break;
                     case AttrType::FLOATS:
                         result_cells.push_back(Value((float)0));
                         break;

@@ -73,10 +73,10 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
 
   // collect query fields in `select` statement
   std::vector<Field> query_fields;
+  bool have_aggregation_ = false;
   for (int i = static_cast<int>(select_sql.attributes.size()) - 1; i >= 0; i--) {
     const RelAttrSqlNode &relation_attr = select_sql.attributes[i];
     const AggrOp aggregation_ = relation_attr.aggregation;
-    bool have_aggregation_ = true;
     bool valid_ = relation_attr.valid;
 
     if(!valid_)
@@ -86,13 +86,13 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
 
     if(aggregation_ != AggrOp::AGGR_NONE)
     {
-      have_aggregation_ == true;
+      have_aggregation_ = true;
     }
     
     if (common::is_blank(relation_attr.relation_name.c_str()) &&
         0 == strcmp(relation_attr.attribute_name.c_str(), "*")) {
-      
-      if(have_aggregation_ && aggregation_ != AGGR_COUNT)
+
+      if(have_aggregation_ && (aggregation_ != AggrOp::AGGR_COUNT))
       {
         return RC::INVALID_ARGUMENT;
       }
@@ -123,7 +123,9 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
         Table *table = iter->second;
         if (0 == strcmp(field_name, "*")) {
 
-          if(have_aggregation_ && aggregation_ != AGGR_COUNT)
+          std::cout << "bbbbbbb";
+
+          if(have_aggregation_ && aggregation_ != AggrOp::AGGR_COUNT)
           {
             return RC::INVALID_ARGUMENT;
           }

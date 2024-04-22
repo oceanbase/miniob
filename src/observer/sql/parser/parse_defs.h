@@ -37,13 +37,13 @@ class Expression;
 
 enum AggrOp
 {
-  AGGR_SUM,     ///< sum
+  AGGR_NONE,     
   AGGR_AVG,
   AGGR_MAX,
   AGGR_MIN,
   AGGR_COUNT,
   AGGR_COUNT_ALL,
-  AGGR_NONE     ///< no aggr
+  AGGR_SUM     
 };
 
 struct RelAttrSqlNode
