@@ -353,7 +353,8 @@ RC MvccTrx::rollback()
   RC rc    = RC::SUCCESS;
   started_ = false;
 
-  for (const Operation &operation : ranges::reverse_view(operations_)) {
+  for (auto iter = operations_.rbegin(), itend = operations_.rend(); iter != itend; ++iter) {
+    const Operation &operation = *iter;
     switch (operation.type()) {
       case Operation::Type::INSERT: {
         RID    rid(operation.page_num(), operation.slot_num());
