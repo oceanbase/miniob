@@ -127,14 +127,14 @@ void NetServer::accept(int fd)
     return;
   }
 
+  LOG_INFO("Accepted connection from %s\n", communicator->addr());
+
   rc = thread_handler_->new_connection(communicator);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to handle new connection. rc=%s", strrc(rc));
     delete communicator;
     return;
   }
-
-  LOG_INFO("Accepted connection from %s\n", communicator->addr());
 }
 
 int NetServer::start()

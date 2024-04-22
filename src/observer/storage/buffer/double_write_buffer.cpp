@@ -74,7 +74,7 @@ RC DiskDoubleWriteBuffer::open_file(const char *filename)
   }
 
   file_desc_ = fd;
-  return RC::SUCCESS;
+  return load_pages();
 }
 
 RC DiskDoubleWriteBuffer::flush_page()
@@ -90,6 +90,7 @@ RC DiskDoubleWriteBuffer::flush_page()
   }
 
   dblwr_pages_.clear();
+  header_.page_cnt = 0;
 
   return RC::SUCCESS;
 }
@@ -101,20 +102,16 @@ RC DiskDoubleWriteBuffer::add_page(DiskBufferPool *bp, PageNum page_num, Page &p
   auto iter = dblwr_pages_.find(key);
   if (iter != dblwr_pages_.end()) {
     iter->second->page = page;
+    LOG_TRACE("[cache hit]add page into double write buffer. buffer_pool_id:%d,page_num:%d,lsn=%d, dwb size=%d",
+              bp->id(), page_num, page.lsn, static_cast<int>(dblwr_pages_.size()));
     return RC::SUCCESS;
-  }
-
-  if (static_cast<int>(dblwr_pages_.size()) >= max_pages_) {
-    RC rc = flush_page();
-    if (rc != RC::SUCCESS) {
-      LOG_ERROR("Failed to flush pages in double write buffer");
-      return rc;
-    }
   }
 
   int64_t          page_cnt   = dblwr_pages_.size();
   DoubleWritePage *dblwr_page = new DoubleWritePage(bp->id(), page_num, page);
   dblwr_pages_.insert(std::pair<DoubleWritePageKey, DoubleWritePage *>(key, dblwr_page));
+  LOG_TRACE("insert page into double write buffer. buffer_pool_id:%d,page_num:%d,lsn=%d, dwb size:%d",
+            bp->id(), page_num, page.lsn, static_cast<int>(dblwr_pages_.size()));
 
   int64_t offset = page_cnt * DoubleWritePage::SIZE + DoubleWriteBufferHeader::SIZE;
   if (lseek(file_desc_, offset, SEEK_SET) == -1) {
@@ -140,6 +137,14 @@ RC DiskDoubleWriteBuffer::add_page(DiskBufferPool *bp, PageNum page_num, Page &p
     }
   }
 
+  if (static_cast<int>(dblwr_pages_.size()) >= max_pages_) {
+    RC rc = flush_page();
+    if (rc != RC::SUCCESS) {
+      LOG_ERROR("Failed to flush pages in double write buffer");
+      return rc;
+    }
+  }
+
   return RC::SUCCESS;
 }
 
@@ -148,6 +153,9 @@ RC DiskDoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
   DiskBufferPool *disk_buffer = nullptr;
   RC rc = bp_manager_.get_buffer_pool(dblwr_page->key.buffer_pool_id, disk_buffer);
   ASSERT(OB_SUCC(rc) && disk_buffer != nullptr, "failed to get disk buffer pool of %d", dblwr_page->key.buffer_pool_id);
+
+  LOG_TRACE("double write buffer write page. buffer_pool_id:%d,page_num:%d,lsn=%d",
+            dblwr_page->key.buffer_pool_id, dblwr_page->key.page_num, dblwr_page->page.lsn);
 
   return disk_buffer->write_page(dblwr_page->key.page_num, dblwr_page->page);
 }
@@ -205,9 +213,17 @@ RC DiskDoubleWriteBuffer::clear_pages(DiskBufferPool *buffer_pool)
   return RC::SUCCESS;
 }
 
-RC DiskDoubleWriteBuffer::recover()
+RC DiskDoubleWriteBuffer::load_pages()
 {
-  scoped_lock lock_guard(lock_);
+  if (file_desc_ < 0) {
+    LOG_ERROR("Failed to load pages, due to file desc is invalid.");
+    return RC::BUFFERPOOL_OPEN;
+  }
+
+  if (!dblwr_pages_.empty()) {
+    LOG_ERROR("Failed to load pages, due to double write buffer is not empty. opened?");
+    return RC::BUFFERPOOL_OPEN;
+  }
 
   if (lseek(file_desc_, 0, SEEK_SET) == -1) {
     LOG_ERROR("Failed to load page header, due to failed to lseek:%s.", strerror(errno));
@@ -221,15 +237,15 @@ RC DiskDoubleWriteBuffer::recover()
     return RC::IOERR_READ;
   }
 
-  auto dblwr_page = make_unique<DoubleWritePage>();
   for (int page_num = 0; page_num < header_.page_cnt; page_num++) {
     int64_t offset = ((int64_t)page_num) * DoubleWritePage::SIZE + DoubleWriteBufferHeader::SIZE;
 
     if (lseek(file_desc_, offset, SEEK_SET) == -1) {
-      LOG_ERROR("Failed to load page %d, due to failed to lseek:%s.", page_num, strerror(errno));
+      LOG_ERROR("Failed to load page %d, offset=%ld, due to failed to lseek:%s.", page_num, offset, strerror(errno));
       return RC::IOERR_SEEK;
     }
 
+    auto dblwr_page = make_unique<DoubleWritePage>();
     Page &page     = dblwr_page->page;
     page.check_sum = (CheckSum)-1;
 
@@ -240,15 +256,22 @@ RC DiskDoubleWriteBuffer::recover()
       return RC::IOERR_READ;
     }
 
-    if (crc32(page.data, BP_PAGE_DATA_SIZE) == page.check_sum) {
-      RC rc = write_page(dblwr_page.get());
-      if (OB_FAIL(rc)) {
-        return rc;
-      }
+    const CheckSum check_sum = crc32(page.data, BP_PAGE_DATA_SIZE);
+    if (check_sum == page.check_sum) {
+      DoubleWritePageKey key = dblwr_page->key;
+      dblwr_pages_.insert(pair<DoubleWritePageKey, DoubleWritePage *>(key, dblwr_page.release()));
+    } else {
+      LOG_TRACE("got a page with an invalid checksum. on disk:%d, in memory:%d", page.check_sum, check_sum);
     }
   }
 
+  LOG_INFO("double write buffer load pages done. page num=%d", dblwr_pages_.size());
   return RC::SUCCESS;
+}
+
+RC DiskDoubleWriteBuffer::recover()
+{
+  return flush_page();
 }
 
 ////////////////////////////////////////////////////////////////

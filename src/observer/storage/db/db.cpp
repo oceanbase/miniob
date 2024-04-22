@@ -265,6 +265,8 @@ RC Db::sync()
 
 RC Db::recover()
 {
+  LOG_TRACE("db recover begin. check_point_lsn=%d", check_point_lsn_);
+
   LogReplayer *trx_log_replayer = trx_kit_->create_log_replayer(*this, *log_handler_);
   if (trx_log_replayer == nullptr) {
     LOG_ERROR("Failed to create trx log replayer.");
@@ -290,7 +292,7 @@ RC Db::recover()
     return rc;
   }
 
-  LOG_INFO("Successfully recover db. db=%s", name_.c_str());
+  LOG_INFO("Successfully recover db. db=%s checkpoint_lsn=%d", name_.c_str(), check_point_lsn_);
   return rc;
 }
 

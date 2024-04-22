@@ -606,6 +606,7 @@ RC DiskBufferPool::write_page(PageNum page_num, Page &page)
     return RC::IOERR_WRITE;
   }
 
+  LOG_TRACE("write_page: buffer_pool_id:%d, page_num:%d, lsn=%d, check_sum=%d", id(), page_num, page.lsn, page.check_sum);
   return RC::SUCCESS;
 }
 
@@ -651,7 +652,8 @@ RC DiskBufferPool::redo_allocate_page(LSN lsn, PageNum page_num)
   }
 
   if (page_num > file_header_->page_count) {
-    LOG_WARN("page %d is not continuous. file=%s", page_num, file_name_.c_str());
+    LOG_WARN("page %d is not continuous. file=%s, page_count=%d",
+             page_num, file_name_.c_str(), file_header_->page_count);
     return RC::INTERNAL;
   }
 

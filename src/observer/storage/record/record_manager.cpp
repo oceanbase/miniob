@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/trx.h"
 #include "storage/clog/log_handler.h"
 
+using namespace std;
 using namespace common;
 
 static constexpr int PAGE_HEADER_SIZE = (sizeof(PageHeader));
@@ -49,6 +50,17 @@ int page_record_capacity(int page_size, int record_size)
  * @param record_capacity 想要存放多少记录
  */
 int page_bitmap_size(int record_capacity) { return (record_capacity + 7) / 8; }
+
+string PageHeader::to_string() const
+{
+  stringstream ss;
+  ss << "record_num:" << record_num
+     << ",record_real_size:" << record_real_size
+     << ",record_size:" << record_size
+     << ",record_capacity:" << record_capacity
+     << ",first_record_offset:" << first_record_offset;
+  return ss.str();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 RecordPageIterator::RecordPageIterator() {}
@@ -257,7 +269,8 @@ RC RecordPageHandler::delete_record(const RID *rid)
          "cannot delete record from page while the page is readonly");
 
   if (rid->slot_num >= page_header_->record_capacity) {
-    LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, page_num %d.", rid->slot_num, frame_->page_num());
+    LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
+              rid->slot_num, frame_->to_string().c_str(), page_header_->to_string().c_str());
     return RC::INVALID_ARGUMENT;
   }
 
@@ -285,7 +298,8 @@ RC RecordPageHandler::update_record(const RID &rid, const char *data)
   ASSERT(rw_mode_ != ReadWriteMode::READ_ONLY, "cannot delete record from page while the page is readonly");
 
   if (rid.slot_num >= page_header_->record_capacity) {
-    LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, page_num %d.", rid.slot_num, frame_->page_num());
+    LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
+              rid.slot_num, frame_->to_string().c_str(), page_header_->to_string().c_str());
     return RC::INVALID_ARGUMENT;
   }
 
@@ -317,7 +331,8 @@ RC RecordPageHandler::update_record(const RID &rid, const char *data)
 RC RecordPageHandler::get_record(const RID &rid, Record &record)
 {
   if (rid.slot_num >= page_header_->record_capacity) {
-    LOG_ERROR("Invalid slot_num:%d, exceed page's record capacity, page_num %d.", rid.slot_num, frame_->page_num());
+    LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
+              rid.slot_num, frame_->to_string().c_str(), page_header_->to_string().c_str());
     return RC::RECORD_INVALID_RID;
   }
 
