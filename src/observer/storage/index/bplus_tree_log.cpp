@@ -136,7 +136,8 @@ RC BplusTreeLogger::rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tr
 {
   need_log_ = false;
 
-  for (auto &entry : ranges::reverse_view(entries_)) {
+  for (auto iter = entries_.rbegin(), itend = entries_.rend(); iter != itend; ++iter) {
+    auto &entry = *iter;
     entry->rollback(mtr, tree_handler);
   }
 
