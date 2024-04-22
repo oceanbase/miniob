@@ -23,6 +23,8 @@ class TupleCellSpec
 public:
   TupleCellSpec(const char *table_name, const char *field_name, const char *alias = nullptr);
   TupleCellSpec(const char *alias);
+  TupleCellSpec(const char *table_name, const char *field_name, const char *alias ,const AggrOp aggr);
+  TupleCellSpec(const char *alias,const AggrOp aggr);
 
   const char *table_name() const
   {
@@ -36,9 +38,11 @@ public:
   {
     return alias_.c_str();
   }
+  void aggr_to_string (const AggrOp aggr_,std::string& aggr_repr);
 
 private:
   std::string table_name_;
   std::string field_name_;
   std::string alias_;
+  AggrOp aggr_;
 };
