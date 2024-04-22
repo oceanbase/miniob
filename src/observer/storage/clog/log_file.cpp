@@ -284,7 +284,7 @@ RC LogFileManager::get_lsn_from_filename(const std::string &filename, LSN &lsn)
     return RC::INVALID_ARGUMENT;
   }
 
-  string_view lsn_str(filename.begin() + strlen(file_prefix_), filename.end() - strlen(file_suffix_));
+  string_view lsn_str(filename.data() + strlen(file_prefix_), filename.length() - strlen(file_suffix_) - strlen(file_prefix_));
   from_chars_result result = from_chars(lsn_str.data(), lsn_str.data() + lsn_str.size(), lsn);
   if (result.ec != errc()) {
     LOG_TRACE("invalid log file name: cannot calc lsn. filename=%s, error=%s", 
