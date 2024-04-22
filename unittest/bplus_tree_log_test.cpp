@@ -284,12 +284,12 @@ TEST(BplusTreeLog, concurrency)
     ASSERT_EQ(RC::SUCCESS, list_all_values(*bplus_trees2[i], rids2));
     LOG_INFO("bplus tree log test. tree index: %d, rids1 size: %d, rids2 size: %d", i, rids1.size(), rids2.size());
     if (rids1.size() != rids2.size()) {
-       for (RID &rid : rids1) {
-	 LOG_INFO("hnwyllmm rid1: %s", rid.to_string().c_str());
-       }
-       for (RID &rid : rids2) {
-	 LOG_INFO("hnwyllmm rid2: %s", rid.to_string().c_str());
-       }
+      for (RID &rid : rids1) {
+        LOG_INFO("hnwyllmm rid1: %s", rid.to_string().c_str());
+      }
+      for (RID &rid : rids2) {
+        LOG_INFO("hnwyllmm rid2: %s", rid.to_string().c_str());
+      }
     }
     ASSERT_EQ(rids1.size(), rids2.size());
     for (int j = 0; j < static_cast<int>(rids1.size()); j++) {

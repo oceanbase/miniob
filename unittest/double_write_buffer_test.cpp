@@ -39,12 +39,12 @@ TEST(DoubleWriteBuffer, single_file_normal)
   filesystem::remove_all(directory);
   filesystem::create_directories(directory);
 
-  filesystem::path buffer_pool_filename = directory / "buffer_pool.bp";
+  filesystem::path buffer_pool_filename         = directory / "buffer_pool.bp";
   filesystem::path double_write_buffer_filename = directory / "double_write_buffer.dwb";
 
-  auto bpm = make_unique<BufferPoolManager>();
+  auto              bpm = make_unique<BufferPoolManager>();
   VacuousLogHandler log_handler;
-  auto double_write_buffer = make_unique<DiskDoubleWriteBuffer>(*bpm);
+  auto              double_write_buffer = make_unique<DiskDoubleWriteBuffer>(*bpm);
   ASSERT_EQ(RC::SUCCESS, double_write_buffer->open_file(double_write_buffer_filename.c_str()));
   ASSERT_EQ(bpm->init(std::move(double_write_buffer)), RC::SUCCESS);
 
@@ -55,7 +55,7 @@ TEST(DoubleWriteBuffer, single_file_normal)
 
   vector<FrameId> allocated_frame_ids;
   vector<FrameId> dispose_frame_ids;
-  int allocate_frame_num = 100;
+  int             allocate_frame_num = 100;
   for (int i = 0; i < allocate_frame_num; i++) {
     Frame *frame = nullptr;
     ASSERT_EQ(RC::SUCCESS, buffer_pool->allocate_page(&frame));
@@ -78,7 +78,7 @@ TEST(DoubleWriteBuffer, single_file_normal)
   LOG_INFO("close buffer pool manager");
 
   LOG_INFO("reopen the buffer pool and check it");
-  bpm = make_unique<BufferPoolManager>();
+  bpm                 = make_unique<BufferPoolManager>();
   double_write_buffer = make_unique<DiskDoubleWriteBuffer>(*bpm);
   ASSERT_EQ(RC::SUCCESS, double_write_buffer->open_file(double_write_buffer_filename.c_str()));
   ASSERT_EQ(bpm->init(std::move(double_write_buffer)), RC::SUCCESS);
@@ -119,13 +119,13 @@ TEST(DoubleWriteBuffer, single_file_exception)
   filesystem::create_directories(src_path);
   filesystem::path dst_path = directory / "dst";
   filesystem::create_directories(dst_path);
-  filesystem::path buffer_pool_filename = src_path / "buffer_pool.bp";
+  filesystem::path buffer_pool_filename         = src_path / "buffer_pool.bp";
   filesystem::path double_write_buffer_filename = src_path / "double_write_buffer.dwb";
 
-  filesystem::path buffer_pool_filename2 = dst_path / "buffer_pool.bp";
+  filesystem::path buffer_pool_filename2         = dst_path / "buffer_pool.bp";
   filesystem::path double_write_buffer_filename2 = dst_path / "double_write_buffer.dwb";
 
-  auto bpm = make_unique<BufferPoolManager>();
+  auto           bpm = make_unique<BufferPoolManager>();
   DiskLogHandler log_handler;
   ASSERT_EQ(RC::SUCCESS, log_handler.init((src_path / "clog").c_str()));
 
@@ -142,7 +142,7 @@ TEST(DoubleWriteBuffer, single_file_exception)
 
   vector<FrameId> allocated_frame_ids;
   vector<FrameId> dispose_frame_ids;
-  int allocate_frame_num = 100;
+  int             allocate_frame_num = 100;
   for (int i = 0; i < allocate_frame_num; i++) {
     Frame *frame = nullptr;
     ASSERT_EQ(RC::SUCCESS, buffer_pool->allocate_page(&frame));
@@ -172,7 +172,7 @@ TEST(DoubleWriteBuffer, single_file_exception)
   DiskLogHandler log_handler2;
   ASSERT_EQ(log_handler2.init((dst_path / "clog").c_str()), RC::SUCCESS);
 
-  auto bpm2 = make_unique<BufferPoolManager>();
+  auto bpm2                 = make_unique<BufferPoolManager>();
   auto double_write_buffer2 = make_unique<DiskDoubleWriteBuffer>(*bpm2);
   ASSERT_EQ(RC::SUCCESS, double_write_buffer2->open_file(double_write_buffer_filename2.c_str()));
   ASSERT_EQ(bpm2->init(std::move(double_write_buffer2)), RC::SUCCESS);
@@ -194,11 +194,11 @@ TEST(DoubleWriteBuffer, single_file_exception)
     PageNum page_num = bp_iterator.next();
     collected_frames.push_back(FrameId(buffer_pool2->id(), page_num));
   }
-  
+
   ASSERT_EQ(allocated_frame_ids, collected_frames);
 
   bpm2 = nullptr;
-  bpm = nullptr;
+  bpm  = nullptr;
 }
 
 int main(int argc, char **argv)
