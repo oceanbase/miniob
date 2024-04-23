@@ -24,8 +24,23 @@ See the Mulan PSL v2 for more details. */
 class Expression;
 
 /**
- * @defgroup SQLParser SQL Parser 
+ * @defgroup SQLParser SQL Parser
  */
+
+/**
+ * @brief 聚合运算符
+ * @ingroup SQLParser
+ */
+enum AggrOp
+{
+  AGGR_SUM,       ///< sum
+  AGGR_AVG,       ///< avg
+  AGGR_MAX,       ///< max
+  AGGR_MIN,       ///< min
+  AGGR_COUNT,     ///< count
+  AGGR_COUNT_ALL, ///< count(*)
+  AGGR_NONE       ///< no aggr
+};
 
 /**
  * @brief 描述一个属性
@@ -38,13 +53,15 @@ struct RelAttrSqlNode
 {
   std::string relation_name;   ///< relation name (may be NULL) 表名
   std::string attribute_name;  ///< attribute name              属性名
+  AggrOp      aggregation = AGGR_NONE;  ///<  aggregation (may be empty) 聚合操作
+  bool valid = true;  ///< 判断聚合是否合法
 };
 
 /**
  * @brief 描述比较运算符
  * @ingroup SQLParser
  */
-enum CompOp 
+enum CompOp
 {
   EQUAL_TO,     ///< "="
   LESS_EQUAL,   ///< "<="
@@ -66,12 +83,12 @@ enum CompOp
 struct ConditionSqlNode
 {
   int             left_is_attr;    ///< TRUE if left-hand side is an attribute
-                                   ///< 1时，操作符左边是属性名，0时，是属性值
+                                 ///< 1时，操作符左边是属性名，0时，是属性值
   Value           left_value;      ///< left-hand side value if left_is_attr = FALSE
   RelAttrSqlNode  left_attr;       ///< left-hand side attribute
   CompOp          comp;            ///< comparison operator
   int             right_is_attr;   ///< TRUE if right-hand side is an attribute
-                                   ///< 1时，操作符右边是属性名，0时，是属性值
+                                 ///< 1时，操作符右边是属性名，0时，是属性值
   RelAttrSqlNode  right_attr;      ///< right-hand side attribute if right_is_attr = TRUE 右边的属性
   Value           right_value;     ///< right-hand side value if right_is_attr = FALSE
 };

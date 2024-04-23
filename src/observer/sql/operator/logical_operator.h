@@ -40,13 +40,14 @@ enum class LogicalOperatorType
   INSERT,     ///< 插入
   DELETE,     ///< 删除，删除可能会有子查询
   EXPLAIN,    ///< 查看执行计划
+  AGGREGATE,
 };
 
 /**
  * @brief 逻辑算子描述当前执行计划要做什么
  * @details 可以看OptimizeStage中相关的代码
  */
-class LogicalOperator 
+class LogicalOperator
 {
 public:
   LogicalOperator() = default;
@@ -69,5 +70,5 @@ protected:
 
   ///< 表达式，比如select中的列，where中的谓词等等，都可以使用表达式来表示
   ///< 表达式能是一个常量，也可以是一个函数，也可以是一个列，也可以是一个子查询等等
-  std::vector<std::unique_ptr<Expression>> expressions_;    
+  std::vector<std::unique_ptr<Expression>> expressions_;
 };

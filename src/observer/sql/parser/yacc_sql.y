@@ -98,13 +98,19 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
         LE
         GE
         NE
-
+        MAX_F
+        MIN_F
+        SUM_F
+        AVG_F
+        COUNT_F
+        
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
   ParsedSqlNode *                   sql_node;
   ConditionSqlNode *                condition;
   Value *                           value;
   enum CompOp                       comp;
+  enum AggrOp                       aggr;
   RelAttrSqlNode *                  rel_attr;
   std::vector<AttrInfoSqlNode> *    attr_infos;
   AttrInfoSqlNode *                 attr_info;
@@ -132,7 +138,10 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %type <value>               value
 %type <number>              number
 %type <comp>                comp_op
+%type <aggr>                aggr_op
 %type <rel_attr>            rel_attr
+%type <rel_attr>            rel_attr_aggr
+%type <rel_attr_list>       rel_attr_aggr_list
 %type <attr_infos>          attr_def_list
 %type <attr_info>           attr_def
 %type <value_list>          value_list
@@ -294,7 +303,6 @@ create_table_stmt:    /*create table 语句的语法解析树*/
 
       if (src_attrs != nullptr) {
         create_table.attr_infos.swap(*src_attrs);
-        delete src_attrs;
       }
       create_table.attr_infos.emplace_back(*$5);
       std::reverse(create_table.attr_infos.begin(), create_table.attr_infos.end());
@@ -352,7 +360,6 @@ insert_stmt:        /*insert   语句的语法解析树*/
       $$->insertion.relation_name = $3;
       if ($7 != nullptr) {
         $$->insertion.values.swap(*$7);
-        delete $7;
       }
       $$->insertion.values.emplace_back(*$6);
       std::reverse($$->insertion.values.begin(), $$->insertion.values.end());
@@ -395,6 +402,7 @@ value:
       $$ = new Value(tmp,strlen(tmp),1);
       free(tmp);
     }
+
     ;
     
 delete_stmt:    /*  delete 语句的语法解析树*/
@@ -518,6 +526,52 @@ select_attr:
     }
     ;
 
+rel_attr_aggr:
+    '*' {
+      $$ = new RelAttrSqlNode;
+      $$->relation_name = "";
+      $$->attribute_name = "*";
+  }
+  | 
+  ID {
+    $$ = new RelAttrSqlNode;
+    $$->attribute_name = $1;
+    free($1);
+  }
+  | ID DOT ID {
+    $$ = new RelAttrSqlNode;
+    $$->relation_name = $1;
+    $$->attribute_name = $3;
+    free($1);
+    free($3); 
+  }
+  ;
+
+rel_attr_aggr_list:
+/* empty */
+    {
+      $$ = nullptr;
+    }
+    | COMMA rel_attr_aggr rel_attr_aggr_list {
+      if ($3 != nullptr) {
+        $$ = $3;
+      } else {
+        $$ = new std::vector<RelAttrSqlNode>;
+      }
+
+      $$->emplace_back(*$2);
+      delete $2;
+  }
+  ;
+    
+aggr_op:
+    SUM_F { $$ = AGGR_SUM;}
+    | AVG_F { $$ = AGGR_AVG;}
+    | MAX_F { $$ = AGGR_MAX;}
+    | MIN_F { $$ = AGGR_MIN;}
+    | COUNT_F { $$ = AGGR_COUNT;}
+    ;
+
 rel_attr:
     ID {
       $$ = new RelAttrSqlNode;
@@ -530,6 +584,20 @@ rel_attr:
       $$->attribute_name = $3;
       free($1);
       free($3);
+    }
+    | aggr_op LBRACE rel_attr_aggr rel_attr_aggr_list RBRACE {
+      $$ = $3;
+      $$->aggregation = $1;
+      if ($4 != nullptr){
+        $$->valid = false;
+        delete $4;
+      }
+    }
+    | aggr_op LBRACE RBRACE {
+      $$ = new RelAttrSqlNode;
+      $$->relation_name = "";
+      $$->aggregation = $1;
+      $$->valid = false;
     }
     ;
 

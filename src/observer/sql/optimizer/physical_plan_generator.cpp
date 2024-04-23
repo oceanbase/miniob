@@ -34,7 +34,30 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/calc_physical_operator.h"
 #include "sql/expr/expression.h"
 #include "common/log/log.h"
-
+#include <sql/operator/aggregate_logical_operator.h>
+#include <sql/operator/aggregate_physical_operator.h>
+#include "sql/operator/physical_operator.h"
+#include "sql/expr/expression.h"
+#include "sql/operator/aggregate_logical_operator.h"
+#include "sql/operator/aggregate_physical_operator.h"
+#include "sql/operator/calc_logical_operator.h"
+#include "sql/operator/calc_physical_operator.h"
+#include "sql/operator/delete_logical_operator.h"
+#include "sql/operator/delete_physical_operator.h"
+#include "sql/operator/explain_logical_operator.h"
+#include "sql/operator/explain_physical_operator.h"
+#include "sql/operator/index_scan_physical_operator.h"
+#include "sql/operator/insert_logical_operator.h"
+#include "sql/operator/insert_physical_operator.h"
+#include "sql/operator/join_logical_operator.h"
+#include "sql/operator/join_physical_operator.h"
+#include "sql/operator/predicate_logical_operator.h"
+#include "sql/operator/predicate_physical_operator.h"
+#include "sql/operator/project_logical_operator.h"
+#include "sql/operator/project_physical_operator.h"
+#include "sql/operator/table_get_logical_operator.h"
+#include "sql/operator/table_scan_physical_operator.h"
+#include "sql/optimizer/physical_plan_generator.h"
 using namespace std;
 
 RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, unique_ptr<PhysicalOperator> &oper)
@@ -42,6 +65,10 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, unique_ptr<P
   RC rc = RC::SUCCESS;
 
   switch (logical_operator.type()) {
+    case LogicalOperatorType::AGGREGATE: {
+      return create_plan(static_cast<AggregateLogicalOperator &>(logical_operator), oper);
+    } break;
+
     case LogicalOperatorType::CALC: {
       return create_plan(static_cast<CalcLogicalOperator &>(logical_operator), oper);
     } break;
@@ -120,7 +147,7 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
       }
 
       const Field &field = field_expr->field();
-      index = table->find_index_by_field(field.field_name());
+      index              = table->find_index_by_field(field.field_name());
       if (nullptr != index) {
         break;
       }
@@ -135,7 +162,7 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
           table, index, table_get_oper.readonly(), 
           &value, true /*left_inclusive*/, 
           &value, true /*right_inclusive*/);
-          
+
     index_scan_oper->set_predicates(std::move(predicates));
     oper = unique_ptr<PhysicalOperator>(index_scan_oper);
     LOG_TRACE("use index scan");
@@ -153,7 +180,7 @@ RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, uniqu
 {
   vector<unique_ptr<LogicalOperator>> &children_opers = pred_oper.children();
   ASSERT(children_opers.size() == 1, "predicate logical operator's sub oper number should be 1");
-
+  
   LogicalOperator &child_oper = *children_opers.front();
 
   unique_ptr<PhysicalOperator> child_phy_oper;
@@ -291,4 +318,31 @@ RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, std::un
   oper.reset(calc_oper);
   return rc;
 }
+RC PhysicalPlanGenerator::create_plan(AggregateLogicalOperator &aggregate_oper, unique_ptr<PhysicalOperator>&oper)
+{
+vector<unique_ptr<LogicalOperator>>&children_opers = aggregate_oper.children();
+ASSERT(children_opers.size()==1, "aggregate logical operator's sub oper number should be 1");
+LogicalOperator &child_oper=*children_opers.front();
+  unique_ptr<PhysicalOperator> child_phy_oper;
+  RC rc = create(child_oper, child_phy_oper);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to create child operator of predicate operator. rc=%s", strrc(rc));
+    return rc;
+  }
 
+  AggregatePhysicalOperator *aggregate_operator = new AggregatePhysicalOperator;
+  const vector<Field> &aggregate_fields = aggregate_oper.fields();
+  LOG_TRACE("got %d aggregation fields", aggregate_fields.size());
+  for (const Field &field : aggregate_fields) {
+    aggregate_operator->add_aggregation(field.aggregation());
+  }
+  
+  if (child_phy_oper) {
+    aggregate_operator->add_child(std::move(child_phy_oper));
+  }
+
+  oper = unique_ptr<PhysicalOperator>(aggregate_operator);
+
+  LOG_TRACE("create an aggregate physical operator");
+  return rc;
+}
