@@ -27,17 +27,6 @@ class Expression;
  */
 
 
-enum AggrOp{
-  AGGR_SUM,
-  AGGR_MIN,
-  AGGR_MAX,
-  AGGR_AVG,
-  AGGR_COUNT,
-  AGGR_COUNT_ALL,
-  AGGR_NONE,
-  
-};
-
 /**
  * @brief 描述一个属性
  * @ingroup SQLParser
