@@ -51,15 +51,9 @@ extern int yydebug;
   {
     SEMICOLON = 258,
     SUM_F = 259,
-<<<<<<< HEAD
     AVG_F = 260,
     MAX_F = 261,
     MIN_F = 262,
-=======
-    MIN_F = 260,
-    MAX_F = 261,
-    AVG_F = 262,
->>>>>>> 09326b5df1b557edbcc220336c59133197146632
     COUNT_F = 263,
     CREATE = 264,
     DROP = 265,
@@ -81,15 +75,9 @@ extern int yydebug;
     TRX_COMMIT = 281,
     TRX_ROLLBACK = 282,
     INT_T = 283,
-<<<<<<< HEAD
     STRING_T = 284,
     FLOAT_T = 285,
     DATE_T = 286,
-=======
-    DATE_T = 284,
-    STRING_T = 285,
-    FLOAT_T = 286,
->>>>>>> 09326b5df1b557edbcc220336c59133197146632
     HELP = 287,
     EXIT = 288,
     DOT = 289,
@@ -144,11 +132,7 @@ union YYSTYPE
   int                               number;
   float                             floats;
 
-<<<<<<< HEAD
 #line 136 "yacc_sql.hpp"
-=======
-#line 135 "yacc_sql.hpp"
->>>>>>> 09326b5df1b557edbcc220336c59133197146632
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -27,17 +27,6 @@ class Expression;
  */
 
 
-enum AggrOp{
-  AGGR_SUM,
-  AGGR_MIN,
-  AGGR_MAX,
-  AGGR_AVG,
-  AGGR_COUNT,
-  AGGR_COUNT_ALL,
-  AGGR_NONE,
-  
-};
-
 /**
  * @brief 描述一个属性
  * @ingroup SQLParser
@@ -315,12 +304,13 @@ class ParsedSqlNode
 {
 public:
   enum SqlCommandFlag flag;
+  
   ErrorSqlNode        error;
   CalcSqlNode         calc;
   SelectSqlNode       selection;
   InsertSqlNode       insertion;
   DeleteSqlNode       deletion;
-  UpdateSqlNode       update;
+  UpdateSqlNode       update;               //update
   CreateTableSqlNode  create_table;
   DropTableSqlNode    drop_table;
   CreateIndexSqlNode  create_index;
