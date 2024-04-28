@@ -265,9 +265,6 @@ public:
    */
   RC write_page(PageNum page_num, Page &page);
 
-  RC open_file_for_dwb(const char *file_name);
-  RC close_file_for_dwb();
-
   RC redo_allocate_page(LSN lsn, PageNum page_num);
   RC redo_deallocate_page(LSN lsn, PageNum page_num);
 

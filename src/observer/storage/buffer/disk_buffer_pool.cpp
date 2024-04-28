@@ -610,27 +610,6 @@ RC DiskBufferPool::write_page(PageNum page_num, Page &page)
   return RC::SUCCESS;
 }
 
-RC DiskBufferPool::open_file_for_dwb(const char *file_name)
-{
-  int fd = open(file_name, O_RDWR);
-  if (fd < 0) {
-    LOG_ERROR("Failed to open file %s, because %s.", file_name, strerror(errno));
-    return RC::IOERR_ACCESS;
-  }
-  LOG_INFO("Successfully open buffer pool file %s.", file_name);
-
-  file_name_ = file_name;
-  file_desc_ = fd;
-
-  return RC::SUCCESS;
-}
-
-RC DiskBufferPool::close_file_for_dwb()
-{
-  file_desc_ = -1;
-  return RC::SUCCESS;
-}
-
 RC DiskBufferPool::redo_allocate_page(LSN lsn, PageNum page_num)
 {
   if (hdr_frame_->lsn() >= lsn) {
