@@ -34,29 +34,23 @@ MiniOB 整体代码简洁，容易上手，设计了一系列由浅入深的题�
 ## 系统架构
 
 MiniOB 整体架构如下图所示:
-![架构](docs/src/images/miniob-introduction-sql-flow.png)
+<img src="./docs/src/design/images/miniob-architecture.svg" width = "60%" alt="InternalNode" align=center />
 
 其中:
 
-- 网络模块：负责与客户端交互，收发客户端请求与应答；
-
-- SQL解析：将用户输入的SQL语句解析成语法树；
-
-- 语义解析模块：将生成的语法树，转换成数据库内部数据结构；
-
-- 查询优化：根据一定规则和统计数据，调整/重写语法树。(部分实现)；
-
-- 计划执行：根据语法树描述，执行并生成结果；
-
-- 存储引擎：负责数据的存储和检索；
-
-- 事务管理：管理事务的提交、回滚、隔离级别等；
-
+- 网络模块(NET Service)：负责与客户端交互，收发客户端请求与应答；
+- SQL解析(Parser)：将用户输入的SQL语句解析成语法树；
+- 语义解析模块(Resolver)：将生成的语法树，转换成数据库内部数据结构；
+- 查询优化(Optimizer)：根据一定规则和统计数据，调整/重写语法树。(部分实现)；
+- 计划执行(Executor)：根据语法树描述，执行并生成结果；
+- 存储引擎(Storage Engine)：负责数据的存储和检索；
+- 事务管理(MVCC)：管理事务的提交、回滚、隔离级别等。当前事务管理仅实现了MVCC模式，因此直接以MVCC展示；
+- 日志管理(Redo Log)：负责记录数据库操作日志；
+- 记录管理(Record Manager)：负责管理某个表数据文件中的记录存放；
+- B+ Tree：表索引存储结构；
 - 会话管理：管理用户连接、调整某个连接的参数；
-
-- 元数据管理：记录当前的数据库、表、字段和索引元数据信息；
-
-- 客户端：作为测试工具，接收用户请求，向服务端发起请求。
+- 元数据管理(Meta Data)：记录当前的数据库、表、字段和索引元数据信息；
+- 客户端(Client)：作为测试工具，接收用户请求，向服务端发起请求。
 
 
 # [OceanBase 大赛](https://open.oceanbase.com/competition)
@@ -104,3 +98,4 @@ MiniOB 采用 [木兰宽松许可证，第2版](https://license.coscl.org.cn/Mul
 - [OceanBase 社区交流群 33254054](https://h5.dingtalk.com/circle/healthCheckin.html?corpId=dingd88359ef5e4c49ef87cda005313eea7a&1fe0ca69-72d=16c86a07-83c&cbdbhh=qwertyuiop&origin=1)
 - [OceanBase 大赛官方交流群 35326455](https://qr.dingtalk.com/action/joingroup?code=v1,k1,g61jI0RwHQA8UMocuTbys2cyM7vck2c6jNE87vdxz9o=&_dt_no_comment=1&origin=11)
 - [OceanBase 官方论坛](https://ask.oceanbase.com/)
+- MiniOB 开发者微信群(添加 hnwyllmm_126 为好友，备注 MiniOB，邀请入群)
