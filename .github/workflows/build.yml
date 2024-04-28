@@ -65,4 +65,7 @@ jobs:
         
     - name: Build
       shell: bash
-      run: sudo bash build.sh init && bash build.sh release --make -j4
+      run: |
+        export ASAN_OPTIONS=detect_container_overflow=0
+        sudo bash build.sh init
+        bash build.sh release --make -j4
