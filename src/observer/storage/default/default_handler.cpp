@@ -15,46 +15,39 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/default_handler.h"
 
 #include <string>
+#include <filesystem>
 
 #include "common/lang/string.h"
 #include "common/log/log.h"
 #include "common/os/path.h"
 #include "session/session.h"
-#include "storage/clog/clog.h"
 #include "storage/common/condition_filter.h"
 #include "storage/index/bplus_tree.h"
 #include "storage/record/record_manager.h"
 #include "storage/table/table.h"
+#include "storage/trx/trx.h"
 
-static DefaultHandler *default_handler = nullptr;
-
-void DefaultHandler::set_default(DefaultHandler *handler)
-{
-  if (default_handler != nullptr && handler != nullptr) {
-    LOG_ERROR("default handler is setted");
-    abort();
-  }
-  default_handler = handler;
-}
-
-DefaultHandler &DefaultHandler::get_default() { return *default_handler; }
+using namespace std;
 
 DefaultHandler::DefaultHandler() {}
 
 DefaultHandler::~DefaultHandler() noexcept { destroy(); }
 
-RC DefaultHandler::init(const char *base_dir)
+RC DefaultHandler::init(const char *base_dir, const char *trx_kit_name, const char *log_handler_name)
 {
   // 检查目录是否存在，或者创建
-  std::string tmp(base_dir);
-  tmp += "/db";
-  if (!common::check_directory(tmp)) {
-    LOG_ERROR("Cannot access base dir: %s. msg=%d:%s", tmp.c_str(), errno, strerror(errno));
+  filesystem::path db_dir(base_dir);
+  db_dir /= "db";
+  error_code ec;
+  if (!filesystem::is_directory(db_dir) && !filesystem::create_directories(db_dir, ec)) {
+    LOG_ERROR("Cannot access base dir: %s. msg=%d:%s", db_dir.c_str(), errno, strerror(errno));
     return RC::INTERNAL;
   }
 
   base_dir_ = base_dir;
-  db_dir_   = tmp + "/";
+  db_dir_   = db_dir;
+  trx_kit_name_ = trx_kit_name;
+  log_handler_name_ = log_handler_name;
 
   const char *sys_db = "sys";
 
@@ -95,15 +88,16 @@ RC DefaultHandler::create_db(const char *dbname)
   }
 
   // 如果对应名录已经存在，返回错误
-  std::string dbpath = db_dir_ + dbname;
-  if (common::is_directory(dbpath.c_str())) {
+  filesystem::path dbpath = db_dir_ / dbname;
+  if (filesystem::is_directory(dbpath)) {
     LOG_WARN("Db already exists: %s", dbname);
     return RC::SCHEMA_DB_EXIST;
   }
 
-  if (!common::check_directory(dbpath)) {
-    LOG_ERROR("Create db fail: %s", dbpath.c_str());
-    return RC::INTERNAL;  // io error
+  error_code ec;
+  if (!filesystem::create_directories(dbpath, ec)) {
+    LOG_ERROR("Create db fail: %s. error=%s", dbpath.c_str(), strerror(errno));
+    return RC::IOERR_WRITE;
   }
   return RC::SUCCESS;
 }
@@ -121,15 +115,15 @@ RC DefaultHandler::open_db(const char *dbname)
     return RC::SUCCESS;
   }
 
-  std::string dbpath = db_dir_ + dbname;
-  if (!common::is_directory(dbpath.c_str())) {
+  filesystem::path dbpath = db_dir_ / dbname;
+  if (!filesystem::is_directory(dbpath)) {
     return RC::SCHEMA_DB_NOT_EXIST;
   }
 
   // open db
   Db *db  = new Db();
   RC  ret = RC::SUCCESS;
-  if ((ret = db->init(dbname, dbpath.c_str())) != RC::SUCCESS) {
+  if ((ret = db->init(dbname, dbpath.c_str(), trx_kit_name_.c_str(), log_handler_name_.c_str())) != RC::SUCCESS) {
     LOG_ERROR("Failed to open db: %s. error=%s", dbname, strrc(ret));
     delete db;
   } else {
@@ -140,23 +134,20 @@ RC DefaultHandler::open_db(const char *dbname)
 
 RC DefaultHandler::close_db(const char *dbname) { return RC::UNIMPLENMENT; }
 
-RC DefaultHandler::execute(const char *sql) { return RC::UNIMPLENMENT; }
-
-RC DefaultHandler::create_table(
-    const char *dbname, const char *relation_name, int attribute_count, const AttrInfoSqlNode *attributes)
+RC DefaultHandler::create_table(const char *dbname, const char *relation_name, span<const AttrInfoSqlNode> attributes)
 {
   Db *db = find_db(dbname);
   if (db == nullptr) {
     return RC::SCHEMA_DB_NOT_OPENED;
   }
-  return db->create_table(relation_name, attribute_count, attributes);
+  return db->create_table(relation_name, attributes);
 }
 
 RC DefaultHandler::drop_table(const char *dbname, const char *relation_name) { return RC::UNIMPLENMENT; }
 
 Db *DefaultHandler::find_db(const char *dbname) const
 {
-  std::map<std::string, Db *>::const_iterator iter = opened_dbs_.find(dbname);
+  map<string, Db *>::const_iterator iter = opened_dbs_.find(dbname);
   if (iter == opened_dbs_.end()) {
     return nullptr;
   }

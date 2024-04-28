@@ -14,15 +14,19 @@ See the Mulan PSL v2 for more details. */
 //
 #pragma once
 
-#include "common/lang/bitmap.h"
-#include "storage/buffer/disk_buffer_pool.h"
-#include "storage/record/record.h"
-#include "storage/trx/latch_memo.h"
 #include <limits>
 #include <sstream>
 
+#include "common/lang/bitmap.h"
+#include "storage/buffer/disk_buffer_pool.h"
+#include "storage/record/record.h"
+#include "storage/record/record_log.h"
+#include "common/types.h"
+
+class LogHandler;
 class ConditionFilter;
 class RecordPageHandler;
+class LogHandler;
 class Trx;
 class Table;
 
@@ -67,6 +71,8 @@ struct PageHeader
   int32_t record_size;          ///< 每条记录占用实际空间大小(可能对齐)
   int32_t record_capacity;      ///< 最大记录个数
   int32_t first_record_offset;  ///< 第一条记录的偏移量
+
+  std::string to_string() const;
 };
 
 /**
@@ -132,9 +138,9 @@ public:
    *
    * @param buffer_pool 关联某个文件时，都通过buffer pool来做读写文件
    * @param page_num    当前处理哪个页面
-   * @param readonly    是否只读。在访问页面时，需要对页面加锁
+   * @param mode        是否只读。在访问页面时，需要对页面加锁
    */
-  RC init(DiskBufferPool &buffer_pool, PageNum page_num, bool readonly);
+  RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, ReadWriteMode mode);
 
   /**
    * @brief 数据库恢复时，与普通的运行场景有所不同，不做任何并发操作，也不需要加锁
@@ -151,7 +157,7 @@ public:
    * @param page_num    当前处理哪个页面
    * @param record_size 每个记录的大小
    */
-  RC init_empty_page(DiskBufferPool &buffer_pool, PageNum page_num, int record_size);
+  RC init_empty_page(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, int record_size);
 
   /**
    * @brief 操作结束后做的清理工作，比如释放页面、解锁
@@ -182,12 +188,18 @@ public:
   RC delete_record(const RID *rid);
 
   /**
+   * @brief
+   *
+   */
+  RC update_record(const RID &rid, const char *data);
+
+  /**
    * @brief 获取指定位置的记录数据
    *
    * @param rid 指定的位置
-   * @param rec 返回指定的数据。这里不会将数据复制出来，而是使用指针，所以调用者必须保证数据使用期间受到保护
+   * @param inplace_record 返回指定的数据。这里不会将数据复制出来，而是使用指针，所以调用者必须保证数据使用期间受到保护
    */
-  RC get_record(const RID *rid, Record *rec);
+  RC get_record(const RID &rid, Record &inplace_record);
 
   /**
    * @brief 返回该记录页的页号
@@ -227,11 +239,12 @@ protected:
   }
 
 protected:
-  DiskBufferPool *disk_buffer_pool_ = nullptr;  ///< 当前操作的buffer pool(文件)
+  DiskBufferPool  *disk_buffer_pool_ = nullptr;  ///< 当前操作的buffer pool(文件)
+  RecordLogHandler log_handler_;                 ///< 当前操作的日志处理器
   Frame *frame_ = nullptr;  ///< 当前操作页面关联的frame(frame的更多概念可以参考buffer pool和frame)
-  bool   readonly_         = false;    ///< 当前的操作是否都是只读的
-  PageHeader *page_header_ = nullptr;  ///< 当前页面上页面头
-  char       *bitmap_      = nullptr;  ///< 当前页面上record分配状态信息bitmap内存起始位置
+  ReadWriteMode rw_mode_     = ReadWriteMode::READ_WRITE;  ///< 当前的操作是否都是只读的
+  PageHeader   *page_header_ = nullptr;                    ///< 当前页面上页面头
+  char         *bitmap_      = nullptr;  ///< 当前页面上record分配状态信息bitmap内存起始位置
 
 private:
   friend class RecordPageIterator;
@@ -253,7 +266,7 @@ public:
    *
    * @param buffer_pool 当前操作的是哪个文件
    */
-  RC init(DiskBufferPool *buffer_pool);
+  RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler);
 
   /**
    * @brief 关闭，做一些资源清理的工作
@@ -285,26 +298,9 @@ public:
    */
   RC recover_insert_record(const char *data, int record_size, const RID &rid);
 
-  /**
-   * @brief 获取指定文件中标识符为rid的记录内容到rec指向的记录结构中
-   * @param page_handler[in]
-   * 访问记录时，会拿住一些资源不释放，比如页面锁，使用这个对象保存相关的资源，并在析构时会自动释放
-   * @param rid 想要获取的记录ID
-   * @param readonly 获取的记录是只读的还是需要修改的
-   * @param rec[out] 通过这个参数返回获取到的记录
-   * @note rec 参数返回的记录并不会复制数据内存。page_handler 对象会拿着相关的资源，比如 pin 住页面和加上页面锁。
-   *       如果page_handler 释放了，那也不能再访问rec对象了。
-   */
-  RC get_record(RecordPageHandler &page_handler, const RID *rid, bool readonly, Record *rec);
+  RC get_record(const RID &rid, Record &record);
 
-  /**
-   * @brief 与get_record类似，访问某个记录，并提供回调函数来操作相应的记录
-   *
-   * @param rid 想要访问的记录ID
-   * @param readonly 是否会修改记录
-   * @param visitor  访问记录的回调函数
-   */
-  RC visit_record(const RID &rid, bool readonly, std::function<void(Record &)> visitor);
+  RC visit_record(const RID &rid, std::function<bool(Record &)> updater);
 
 private:
   /**
@@ -314,7 +310,8 @@ private:
 
 private:
   DiskBufferPool             *disk_buffer_pool_ = nullptr;
-  std::unordered_set<PageNum> free_pages_;  ///< 没有填充满的页面集合
+  LogHandler                 *log_handler_      = nullptr;  ///< 记录日志的处理器
+  std::unordered_set<PageNum> free_pages_;                  ///< 没有填充满的页面集合
   common::Mutex               lock_;  ///< 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
 };
 
@@ -334,11 +331,12 @@ public:
    * @details 如果条件不为空，则要对每条记录进行条件比较，只有满足所有条件的记录才被返回
    * @param table            遍历的哪张表
    * @param buffer_pool      访问的文件
-   * @param readonly         当前是否只读操作。访问数据时，需要对页面加锁。比如
+   * @param mode             当前是否只读操作。访问数据时，需要对页面加锁。比如
    *                         删除时也需要遍历找到数据，然后删除，这时就需要加写锁
    * @param condition_filter 做一些初步过滤操作
    */
-  RC open_scan(Table *table, DiskBufferPool &buffer_pool, Trx *trx, bool readonly, ConditionFilter *condition_filter);
+  RC open_scan(Table *table, DiskBufferPool &buffer_pool, Trx *trx, LogHandler &log_handler, ReadWriteMode mode,
+      ConditionFilter *condition_filter);
 
   /**
    * @brief 关闭一个文件扫描，释放相应的资源
@@ -346,19 +344,13 @@ public:
   RC close_scan();
 
   /**
-   * @brief 判断是否还有数据
-   * @details 判断完成后调用next获取下一条数据
-   */
-  bool has_next();
-
-  /**
    * @brief 获取下一条记录
    *
    * @param record 返回的下一条记录
-   *
-   * @details 获取下一条记录之前先调用has_next()判断是否还有数据
    */
   RC next(Record &record);
+
+  RC update_current(const Record &record);
 
 private:
   /**
@@ -377,7 +369,8 @@ private:
 
   DiskBufferPool *disk_buffer_pool_ = nullptr;  ///< 当前访问的文件
   Trx            *trx_              = nullptr;  ///< 当前是哪个事务在遍历
-  bool            readonly_         = false;    ///< 遍历出来的数据，是否可能对它做修改
+  LogHandler     *log_handler_      = nullptr;
+  ReadWriteMode   rw_mode_ = ReadWriteMode::READ_WRITE;  ///< 遍历出来的数据，是否可能对它做修改
 
   BufferPoolIterator bp_iterator_;                 ///< 遍历buffer pool的所有页面
   ConditionFilter   *condition_filter_ = nullptr;  ///< 过滤record

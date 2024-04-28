@@ -37,6 +37,8 @@ namespace common {
  * 线程分为两类，一类是核心线程，一类是普通线程。核心线程不会退出，普通线程会在空闲一段时间后退出。
  * 线程池有一个任务队列，收到的任务会放到任务队列中。当任务队列中任务的个数比当前线程个数多时，就会
  * 创建新的线程。
+ *
+ * TODO 任务execute接口，增加一个future返回值，可以获取任务的执行结果
  */
 class ThreadPoolExecutor
 {
@@ -112,6 +114,11 @@ public:
    * @brief 处理过的任务个数
    */
   int64_t task_count() const { return task_count_.load(); }
+
+  /**
+   * @brief 任务队列中的任务个数
+   */
+  int64_t queue_size() const { return static_cast<int64_t>(work_queue_->size()); }
 
 private:
   /**

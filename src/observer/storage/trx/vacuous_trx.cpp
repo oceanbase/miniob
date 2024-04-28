@@ -20,15 +20,17 @@ RC VacuousTrxKit::init() { return RC::SUCCESS; }
 
 const vector<FieldMeta> *VacuousTrxKit::trx_fields() const { return nullptr; }
 
-Trx *VacuousTrxKit::create_trx(CLogManager *) { return new VacuousTrx; }
+Trx *VacuousTrxKit::create_trx(LogHandler &) { return new VacuousTrx; }
 
-Trx *VacuousTrxKit::create_trx(int32_t /*trx_id*/) { return nullptr; }
+Trx *VacuousTrxKit::create_trx(LogHandler &, int32_t /*trx_id*/) { return nullptr; }
 
-void VacuousTrxKit::destroy_trx(Trx *) {}
+void VacuousTrxKit::destroy_trx(Trx *trx) { delete trx; }
 
 Trx *VacuousTrxKit::find_trx(int32_t /* trx_id */) { return nullptr; }
 
 void VacuousTrxKit::all_trxes(std::vector<Trx *> &trxes) { return; }
+
+LogReplayer *VacuousTrxKit::create_log_replayer(Db &, LogHandler &) { return new VacuousTrxLogReplayer; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,10 +38,12 @@ RC VacuousTrx::insert_record(Table *table, Record &record) { return table->inser
 
 RC VacuousTrx::delete_record(Table *table, Record &record) { return table->delete_record(record); }
 
-RC VacuousTrx::visit_record(Table *table, Record &record, bool readonly) { return RC::SUCCESS; }
+RC VacuousTrx::visit_record(Table *table, Record &record, ReadWriteMode) { return RC::SUCCESS; }
 
 RC VacuousTrx::start_if_need() { return RC::SUCCESS; }
 
 RC VacuousTrx::commit() { return RC::SUCCESS; }
 
 RC VacuousTrx::rollback() { return RC::SUCCESS; }
+
+RC VacuousTrx::redo(Db *, const LogEntry &) { return RC::SUCCESS; }

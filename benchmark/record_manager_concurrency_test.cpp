@@ -23,13 +23,12 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/condition_filter.h"
 #include "storage/record/record_manager.h"
 #include "storage/trx/vacuous_trx.h"
+#include "storage/clog/vacuous_log_handler.h"
+#include "storage/buffer/double_write_buffer.h"
 
 using namespace std;
 using namespace common;
 using namespace benchmark;
-
-once_flag         init_bpm_flag;
-BufferPoolManager bpm{512};
 
 struct Stat
 {
@@ -73,7 +72,7 @@ class BenchmarkBase : public Fixture
 public:
   BenchmarkBase() {}
 
-  virtual ~BenchmarkBase() { BufferPoolManager::set_instance(nullptr); }
+  virtual ~BenchmarkBase() {}
 
   virtual string Name() const = 0;
 
@@ -85,27 +84,27 @@ public:
       return;
     }
 
+    bpm_.init(make_unique<VacuousDoubleWriteBuffer>());
+
     string log_name        = this->Name() + ".log";
     string record_filename = this->record_filename();
     LoggerFactory::init_default(log_name.c_str(), LOG_LEVEL_INFO);
 
-    std::call_once(init_bpm_flag, []() { BufferPoolManager::set_instance(&bpm); });
-
     ::remove(record_filename.c_str());
 
-    RC rc = bpm.create_file(record_filename.c_str());
+    RC rc = bpm_.create_file(record_filename.c_str());
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to create record buffer pool file. filename=%s, rc=%s", record_filename.c_str(), strrc(rc));
       throw runtime_error("failed to create record buffer pool file.");
     }
 
-    rc = bpm.open_file(record_filename.c_str(), buffer_pool_);
+    rc = bpm_.open_file(log_handler_, record_filename.c_str(), buffer_pool_);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to open record file. filename=%s, rc=%s", record_filename.c_str(), strrc(rc));
       throw runtime_error("failed to open record file");
     }
 
-    rc = handler_.init(buffer_pool_);
+    rc = handler_.init(*buffer_pool_, log_handler_);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to init record file handler. rc=%s", strrc(rc));
       throw runtime_error("failed to init record file handler");
@@ -121,7 +120,10 @@ public:
     }
 
     handler_.close();
-    bpm.close_file(this->record_filename().c_str());
+    // TODO 很怪，引入double write buffer后，必须要求先close buffer pool，再执行bpm.close_file。
+    // 以后必须修理好bpm、buffer pool、double write buffer之间的关系
+    buffer_pool_->close_file();
+    bpm_.close_file(this->record_filename().c_str());
     buffer_pool_ = nullptr;
     LOG_INFO("test %s teardown done. threads=%d, thread index=%d",
         this->Name().c_str(),
@@ -200,14 +202,14 @@ public:
     TestConditionFilter condition_filter(begin, end);
     RecordFileScanner   scanner;
     VacuousTrx          trx;
-    RC rc = scanner.open_scan(nullptr /*table*/, *buffer_pool_, &trx, true /*readonly*/, &condition_filter);
+    RC                  rc = scanner.open_scan(
+        nullptr /*table*/, *buffer_pool_, &trx, log_handler_, ReadWriteMode::READ_ONLY, &condition_filter);
     if (rc != RC::SUCCESS) {
       stat.scan_open_failed_count++;
     } else {
       Record  record;
       int32_t count = 0;
-      while (scanner.has_next()) {
-        rc = scanner.next(record);
+      while (OB_SUCC(rc = scanner.next(record))) {
         ASSERT(rc == RC::SUCCESS, "failed to get record, rc=%s", strrc(rc));
         count++;
       }
@@ -225,8 +227,10 @@ public:
   }
 
 protected:
+  BufferPoolManager bpm_{512};
   DiskBufferPool   *buffer_pool_ = nullptr;
   RecordFileHandler handler_;
+  VacuousLogHandler log_handler_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

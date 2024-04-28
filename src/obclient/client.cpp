@@ -191,11 +191,13 @@ int main(int argc, char *argv[])
   while ((input_command = my_readline(prompt_str)) != nullptr) {
     if (common::is_blank(input_command)) {
       free(input_command);
+      input_command = nullptr;
       continue;
     }
 
     if (is_exit_command(input_command)) {
       free(input_command);
+      input_command = nullptr;
       break;
     }
 
@@ -204,6 +206,8 @@ int main(int argc, char *argv[])
       exit(1);
     }
     free(input_command);
+    input_command = nullptr;
+
     memset(send_buf, 0, sizeof(send_buf));
 
     int len = 0;
@@ -230,6 +234,11 @@ int main(int argc, char *argv[])
       printf("Connection has been closed\n");
       break;
     }
+  }
+
+  if (input_command != nullptr) {
+    free(input_command);
+    input_command = nullptr;
   }
   close(sockfd);
 

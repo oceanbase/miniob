@@ -16,11 +16,11 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/index.h"
 #include "storage/trx/trx.h"
 
-IndexScanPhysicalOperator::IndexScanPhysicalOperator(Table *table, Index *index, bool readonly, const Value *left_value,
+IndexScanPhysicalOperator::IndexScanPhysicalOperator(Table *table, Index *index, ReadWriteMode mode, const Value *left_value,
     bool left_inclusive, const Value *right_value, bool right_inclusive)
     : table_(table),
       index_(index),
-      readonly_(readonly),
+      mode_(mode),
       left_inclusive_(left_inclusive),
       right_inclusive_(right_inclusive)
 {
@@ -72,23 +72,29 @@ RC IndexScanPhysicalOperator::next()
 
   bool filter_result = false;
   while (RC::SUCCESS == (rc = index_scanner_->next_entry(&rid))) {
-    rc = record_handler_->get_record(record_page_handler_, &rid, readonly_, &current_record_);
-    if (rc != RC::SUCCESS) {
+    rc = record_handler_->get_record(rid, current_record_);
+    if (OB_FAIL(rc)) {
+      LOG_TRACE("failed to get record. rid=%s, rc=%s", rid.to_string().c_str(), strrc(rc));
       return rc;
     }
 
+    LOG_TRACE("got a record. rid=%s", rid.to_string().c_str());
+
     tuple_.set_record(&current_record_);
     rc = filter(tuple_, filter_result);
-    if (rc != RC::SUCCESS) {
+    if (OB_FAIL(rc)) {
+      LOG_TRACE("failed to filter record. rc=%s", strrc(rc));
       return rc;
     }
 
     if (!filter_result) {
+      LOG_TRACE("record filtered");
       continue;
     }
 
-    rc = trx_->visit_record(table_, current_record_, readonly_);
+    rc = trx_->visit_record(table_, current_record_, mode_);
     if (rc == RC::RECORD_INVISIBLE) {
+      LOG_TRACE("record invisible");
       continue;
     } else {
       return rc;

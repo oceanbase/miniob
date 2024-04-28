@@ -36,8 +36,8 @@ private:
 
 }  // namespace common
 
-#define AA(B, C) B##C
+#define _SCOPE_UNIQUE_NAME(B, C) B##C
 
-#define BB(B, C) AA(B, C)
+#define SCOPE_UNIQUE_NAME(B) _SCOPE_UNIQUE_NAME(B, __LINE__)
 
-#define DEFER(callback) common::DeferHelper BB(defer_helper_, __LINE__)(callback)
+#define DEFER(...) common::DeferHelper SCOPE_UNIQUE_NAME(defer_helper_)([&]() { __VA_ARGS__; })

@@ -1,8 +1,6 @@
 name: test
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -25,7 +23,6 @@ jobs:
           echo "begin test..."
           python3 test/case/miniob_test.py --test-cases=basic | tail -1 | grep "basic is success"
 
-  # sysbench cannot work property on this platform.
   # I found that sysbench would send more request before receiving last response
   sysbench-test:
     strategy:
@@ -45,22 +42,48 @@ jobs:
           sudo bash script.deb.sh
           sudo apt -y install sysbench mariadb-client
 
-      - name: start server
+      - name: build miniob
         shell: bash
         run: |
           sudo bash build.sh init
           bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF
-          nohup ./build_release/bin/observer -T ${{ matrix.thread_model }} -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc &
+
+      - name: start server
+        shell: bash
+        run: |
+          nohup ./build_release/bin/observer -T ${{ matrix.thread_model }} -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk &
           sleep 10 && echo "wake up"
           mysql --version
           mysql -S /tmp/miniob.sock -e "show tables"
 
+      # error number 41 is LOCKED_CONCURRENCY_CONFLICT
+      # we should change the error number if we update the code
       - name: sysbench test
         shell: bash
         run: |
           cd test/sysbench
-          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 ${{ matrix.test_case }} prepare
-          sysbench --mysql-socket=/tmp/miniob.sock --threads=10 ${{ matrix.test_case }} run
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} prepare
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} run
+
+      - name: stop server
+        shell: bash
+        run: |
+          mysql -S /tmp/miniob.sock -e "create table t(id int)"
+          mysql -S /tmp/miniob.sock -e "show tables"
+          killall observer
+
+      - name: restart server
+        shell: bash
+        run: |
+          nohup ./build_release/bin/observer -T ${{ matrix.thread_model }} -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk &
+          sleep 10 && echo "wake up"
+          mysql -S /tmp/miniob.sock -e "show tables"
+
+      - name: sysbench test again
+        shell: bash
+        run: |
+          cd test/sysbench
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} run
 
   benchmark-test:
     runs-on: ubuntu-latest

@@ -85,6 +85,9 @@ public:
 
   int buffer_pool_memory_size() const { return buffer_pool_memory_size_; }
 
+  void               set_durability_mode(const char *mode) { durability_mode_ = mode; }
+  const std::string &durability_mode() const { return durability_mode_; }
+
 private:
   std::string              std_out_;           // The output file
   std::string              std_err_;           // The err output file
@@ -98,6 +101,7 @@ private:
   std::string              trx_kit_name_;
   std::string              thread_handling_name_;
   int                      buffer_pool_memory_size_ = -1;
+  std::string              durability_mode_;
 };
 
 ProcessParam *&the_process_param();

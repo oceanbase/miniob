@@ -21,10 +21,12 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/mutex.h"
 
-RC Communicator::init(int fd, Session *session, const std::string &addr)
+using namespace std;
+
+RC Communicator::init(int fd, unique_ptr<Session> session, const std::string &addr)
 {
   fd_      = fd;
-  session_ = session;
+  session_ = std::move(session);
   addr_    = addr;
   writer_  = new BufferedWriter(fd_);
   return RC::SUCCESS;
@@ -35,10 +37,6 @@ Communicator::~Communicator()
   if (fd_ >= 0) {
     close(fd_);
     fd_ = -1;
-  }
-  if (session_ != nullptr) {
-    delete session_;
-    session_ = nullptr;
   }
 
   if (writer_ != nullptr) {

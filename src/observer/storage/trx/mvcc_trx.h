@@ -17,8 +17,11 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 
 #include "storage/trx/trx.h"
+#include "storage/trx/mvcc_trx_log.h"
 
 class CLogManager;
+class LogHandler;
+class MvccTrxLogHandler;
 
 class MvccTrxKit : public TrxKit
 {
@@ -28,9 +31,10 @@ public:
 
   RC                            init() override;
   const std::vector<FieldMeta> *trx_fields() const override;
-  Trx                          *create_trx(CLogManager *log_manager) override;
-  Trx                          *create_trx(int32_t trx_id) override;
-  void                          destroy_trx(Trx *trx) override;
+
+  Trx *create_trx(LogHandler &log_handler) override;
+  Trx *create_trx(LogHandler &log_handler, int32_t trx_id) override;
+  void destroy_trx(Trx *trx) override;
 
   /**
    * @brief 找到对应事务号的事务
@@ -38,6 +42,8 @@ public:
    */
   Trx *find_trx(int32_t trx_id) override;
   void all_trxes(std::vector<Trx *> &trxes) override;
+
+  LogReplayer *create_log_replayer(Db &db, LogHandler &log_handler) override;
 
 public:
   int32_t next_trx_id();
@@ -62,8 +68,13 @@ private:
 class MvccTrx : public Trx
 {
 public:
-  MvccTrx(MvccTrxKit &trx_kit, CLogManager *log_manager);
-  MvccTrx(MvccTrxKit &trx_kit, int32_t trx_id);  // used for recover
+  /**
+   * @brief 构造函数
+   * @note 外部不应该直接调用该构造函数，而应该使用TrxKit::create_trx()来创建事务，
+   * 创建事务时，TrxKit会有一些内部信息需要记录
+   */
+  MvccTrx(MvccTrxKit &trx_kit, LogHandler &log_handler);
+  MvccTrx(MvccTrxKit &trx_kit, LogHandler &log_handler, int32_t trx_id);  // used for recover
   virtual ~MvccTrx();
 
   RC insert_record(Table *table, Record &record) override;
@@ -74,18 +85,18 @@ public:
    *
    * @param table    要访问的数据属于哪张表
    * @param record   要访问哪条数据
-   * @param readonly 是否只读访问
+   * @param mode     是否只读访问
    * @return RC      - SUCCESS 成功
    *                 - RECORD_INVISIBLE 此数据对当前事务不可见，应该跳过
    *                 - LOCKED_CONCURRENCY_CONFLICT 与其它事务有冲突
    */
-  RC visit_record(Table *table, Record &record, bool readonly) override;
+  RC visit_record(Table *table, Record &record, ReadWriteMode mode) override;
 
   RC start_if_need() override;
   RC commit() override;
   RC rollback() override;
 
-  RC redo(Db *db, const CLogRecord &log_record) override;
+  RC redo(Db *db, const LogEntry &log_entry) override;
 
   int32_t id() const override { return trx_id_; }
 
@@ -97,11 +108,13 @@ private:
   static const int32_t MAX_TRX_ID = std::numeric_limits<int32_t>::max();
 
 private:
-  using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
-  MvccTrxKit  &trx_kit_;
-  CLogManager *log_manager_ = nullptr;
-  int32_t      trx_id_      = -1;
-  bool         started_     = false;
-  bool         recovering_  = false;
-  OperationSet operations_;
+  // using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
+  using OperationSet = std::vector<Operation>;
+
+  MvccTrxKit       &trx_kit_;
+  MvccTrxLogHandler log_handler_;
+  int32_t           trx_id_     = -1;
+  bool              started_    = false;
+  bool              recovering_ = false;
+  OperationSet      operations_;
 };

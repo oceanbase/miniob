@@ -347,6 +347,9 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
 
 /**
  * 获取当前函数调用栈
+ * @details 比如 lbt=0xffffa939589c 0xaaaab3a8c854 0xaaaab3a60f90
+ * 拿到栈信息后，可以使用下面的例子获取具体的函数调用栈：
+ * addr2line -pCfe ./bin/observer 0xffffa939589c 0xaaaab3a8c854 0xaaaab3a60f90
  */
 const char *lbt();
 

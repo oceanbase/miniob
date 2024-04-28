@@ -14,9 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/rc.h"
-#include <event.h>
 #include <string>
+#include <memory>
+
+#include "common/rc.h"
 
 struct ConnectionContext;
 class SessionEvent;
@@ -36,7 +37,7 @@ class BufferedWriter;
  * @details 在listener接收到一个新的连接(参考 server.cpp::accept), 就创建一个Communicator对象。
  * 并调用init进行初始化。
  * 在server中监听到某个连接有新的消息，就通过Communicator::read_event接收消息。
-
+ * TODO 这里的communicator把协议和通讯方式，放在了一起。plain和mysql都是一种协议，他们的通讯手段都是一样的
  */
 class Communicator
 {
@@ -46,7 +47,7 @@ public:
   /**
    * @brief 接收到一个新的连接时，进行初始化
    */
-  virtual RC init(int fd, Session *session, const std::string &addr);
+  virtual RC init(int fd, std::unique_ptr<Session> session, const std::string &addr);
 
   /**
    * @brief 监听到有新的数据到达，调用此函数进行接收消息
@@ -66,7 +67,7 @@ public:
   /**
    * @brief 关联的会话信息
    */
-  Session *session() const { return session_; }
+  Session *session() const { return session_.get(); }
 
   /**
    * @brief 对端地址
@@ -80,10 +81,10 @@ public:
   int fd() const { return fd_; }
 
 protected:
-  Session        *session_ = nullptr;
-  std::string     addr_;
-  BufferedWriter *writer_ = nullptr;
-  int             fd_     = -1;
+  std::unique_ptr<Session> session_;
+  std::string              addr_;
+  BufferedWriter          *writer_ = nullptr;
+  int                      fd_     = -1;
 };
 
 /**

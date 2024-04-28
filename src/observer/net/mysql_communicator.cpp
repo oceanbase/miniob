@@ -18,9 +18,12 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "common/log/log.h"
 #include "event/session_event.h"
+#include "session/session.h"
 #include "net/buffered_writer.h"
 #include "net/mysql_communicator.h"
 #include "sql/operator/string_list_physical_operator.h"
+
+using namespace std;
 
 /**
  * @brief MySQL协议相关实现
@@ -566,11 +569,11 @@ RC create_version_comment_sql_result(SqlResult *sql_result)
  * @param session 当前的会话
  * @param addr 对端地址
  */
-RC MysqlCommunicator::init(int fd, Session *session, const std::string &addr)
+RC MysqlCommunicator::init(int fd, unique_ptr<Session> session, const std::string &addr)
 {
   // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase.html
   // 按照协议描述，服务端在连接建立后需要先向客户端发送握手信息
-  RC rc = Communicator::init(fd, session, addr);
+  RC rc = Communicator::init(fd, std::move(session), addr);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to init communicator: %s", strrc(rc));
     return rc;
@@ -701,7 +704,7 @@ RC MysqlCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
   char              *buf          = new char[buf_size];
   const std::string &state_string = sql_result->state_string();
   if (state_string.empty()) {
-    const char *result = RC::SUCCESS == sql_result->return_code() ? "SUCCESS" : "FAILURE";
+    const char *result = strrc(sql_result->return_code());
     snprintf(buf, buf_size, "%s", result);
   } else {
     snprintf(buf, buf_size, "%s > %s", strrc(sql_result->return_code()), state_string.c_str());

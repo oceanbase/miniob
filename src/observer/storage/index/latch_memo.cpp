@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/03/08.
 //
 
-#include "storage/trx/latch_memo.h"
+#include "storage/index/latch_memo.h"
 #include "common/lang/mutex.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/buffer/frame.h"
@@ -55,7 +55,7 @@ RC LatchMemo::allocate_page(Frame *&frame)
   RC rc = buffer_pool_->allocate_page(&frame);
   if (rc == RC::SUCCESS) {
     items_.emplace_back(LatchMemoType::PIN, frame);
-    ASSERT(frame->pin_count() == 1, "allocate a new frame. frame=%s", to_string(*frame).c_str());
+    ASSERT(frame->pin_count() == 1, "allocate a new frame. frame=%s", frame->to_string().c_str());
   }
 
   return rc;

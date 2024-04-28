@@ -6,6 +6,7 @@
 .vscode
 !.vscode/tasks.json
 !.vscode/launch.json
+.VSCodeCounter/*
 ./docs/doxy/
 build/*
 build_*

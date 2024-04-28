@@ -20,7 +20,7 @@ using namespace std;
 
 RC TableScanPhysicalOperator::open(Trx *trx)
 {
-  RC rc = table_->get_record_scanner(record_scanner_, trx, readonly_);
+  RC rc = table_->get_record_scanner(record_scanner_, trx, mode_);
   if (rc == RC::SUCCESS) {
     tuple_.set_schema(table_, table_->table_meta().field_metas());
   }
@@ -30,21 +30,16 @@ RC TableScanPhysicalOperator::open(Trx *trx)
 
 RC TableScanPhysicalOperator::next()
 {
-  if (!record_scanner_.has_next()) {
-    return RC::RECORD_EOF;
-  }
+  RC rc = RC::SUCCESS;
 
-  RC   rc            = RC::SUCCESS;
   bool filter_result = false;
-  while (record_scanner_.has_next()) {
-    rc = record_scanner_.next(current_record_);
-    if (rc != RC::SUCCESS) {
-      return rc;
-    }
-
+  while (OB_SUCC(rc = record_scanner_.next(current_record_))) {
+    LOG_TRACE("got a record. rid=%s", current_record_.rid().to_string().c_str());
+    
     tuple_.set_record(&current_record_);
     rc = filter(tuple_, filter_result);
     if (rc != RC::SUCCESS) {
+      LOG_TRACE("record filtered failed=%s", strrc(rc));
       return rc;
     }
 

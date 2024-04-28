@@ -14,12 +14,19 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <map>
+#include <span>
 #include <string>
+#include <memory>
 
 #include "storage/db/db.h"
 
 class Trx;
+class TrxKit;
 
+/**
+ * @brief 数据库存储引擎的入口
+ * @details 参考MySQL，可以抽象handler层，作为SQL层与存储层交互的接口。但是当前还不具备这个条件。
+ */
 class DefaultHandler
 {
 public:
@@ -27,67 +34,54 @@ public:
 
   virtual ~DefaultHandler() noexcept;
 
-  RC   init(const char *base_dir);
+  /**
+   * @brief 初始化存储引擎
+   * @param base_dir 存储引擎的根目录。所有的数据库相关数据文件都放在这个目录下
+   * @param trx_kit_name 使用哪种类型的事务模型
+   * @param log_handler_name 使用哪种类型的日志处理器
+   */
+  RC   init(const char *base_dir, const char *trx_kit_name, const char *log_handler_name);
   void destroy();
 
   /**
-   * 在路径dbPath下创建一个名为dbName的空库，生成相应的系统文件。
-   * 接口要求：一个数据库对应一个文件夹， dbName即为文件夹名，
-   * 文件夹中创建两个系统文件SYSTABLES和SYSCOLUMNS，文件名不能带后缀。
-   * dbPath为创建数据库的路径名，该路径名的最后不要含“\”
-   * @param dbname
-   * @return
+   * @brief 创建一个数据库
+   * @details 在路径base_dir下创建一个名为dbname的空库，生成相应的系统文件。
+   * @param dbname 数据库名称
    */
   RC create_db(const char *dbname);
 
   /**
-   * 删除一个数据库，dbName为要删除的数据库对应文件夹的路径名。
-   * 接口要求：参数dbName等于CreateDB函数中两个参数的拼接，即dbPath+”\”+dbName
-   * @param dbname
-   * @return
+   * @brief 删除数据库
+   * @details 当前并没有实现
+   * @param dbname 数据库名称
    */
   RC drop_db(const char *dbname);
 
   /**
-   * 改变系统的当前数据库为dbName对应的文件夹中的数据库。接口要求同dropDB
-   * @param dbname
-   * @return
+   * @brief 打开一个数据库
+   * @param dbname 数据库名称
    */
   RC open_db(const char *dbname);
 
   /**
-   * 关闭当前数据库。
-   * 该操作将关闭当前数据库中打开的所有文件，关闭文件操作将自动使所有相关的缓冲区页面更新到磁盘
-   * @return
+   * @brief 关闭指定数据库。
+   * @details 该操作将关闭当前数据库中打开的所有文件，关闭文件操作将自动使所有相关的缓冲区页面更新到磁盘
    */
   RC close_db(const char *dbname);
 
   /**
-   * 执行一条除SELECT之外的SQL语句，如果执行成功，返回SUCCESS，否则返回错误码。
-   * 注意：此函数是提供给测试程序专用的接口
-   * @param sql
-   * @return
+   * @brief 在指定的数据库下创建一个表
+   * @param dbname 数据库名称
+   * @param relation_name 表名
+   * @param attributes 属性信息
    */
-  RC execute(const char *sql);
+  RC create_table(const char *dbname, const char *relation_name, std::span<const AttrInfoSqlNode> attributes);
 
   /**
-   * 创建一个名为relName的表。
-   * 参数attrCount表示关系中属性的数量（取值为1到MAXATTRS之间）。
-   * 参数attributes是一个长度为attrCount的数组。
-   * 对于新关系中第i个属性，attributes数组中的第i个元素包含名称、
-   * 类型和属性的长度（见AttrInfo结构定义）
-   * @param relName
-   * @param attrCount
-   * @param attributes
-   * @return
-   */
-  RC create_table(
-      const char *dbname, const char *relation_name, int attribute_count, const AttrInfoSqlNode *attributes);
-
-  /**
-   * 销毁名为relName的表以及在该表上建立的所有索引
-   * @param relName
-   * @return
+   * @brief 删除指定数据库下的表
+   * @details 当前没有实现。需要删除表在内存中和磁盘中的所有资源，包括表的索引文件。
+   * @param dbname 数据库名称
+   * @param relation_name 表名
    */
   RC drop_table(const char *dbname, const char *relation_name);
 
@@ -97,12 +91,10 @@ public:
 
   RC sync();
 
-public:
-  static void            set_default(DefaultHandler *handler);
-  static DefaultHandler &get_default();
-
 private:
-  std::string                 base_dir_;
-  std::string                 db_dir_;
-  std::map<std::string, Db *> opened_dbs_;
-};  // class Handler
+  std::filesystem::path       base_dir_;          ///< 存储引擎的根目录
+  std::filesystem::path       db_dir_;            ///< 数据库文件的根目录
+  std::string                 trx_kit_name_;      ///< 事务模型的名称
+  std::string                 log_handler_name_;  ///< 日志处理器的名称
+  std::map<std::string, Db *> opened_dbs_;        ///< 打开的数据库
+};

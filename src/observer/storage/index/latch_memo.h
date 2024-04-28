@@ -27,12 +27,15 @@ namespace common {
 class SharedMutex;
 }
 
+/**
+ * @brief 对指定页面做的操作类型
+ */
 enum class LatchMemoType
 {
-  NONE,
-  SHARED,
-  EXCLUSIVE,
-  PIN,
+  NONE,       /// 什么都不做
+  SHARED,     /// 共享锁
+  EXCLUSIVE,  /// 独占锁
+  PIN,        /// pin住页面，增加引用计数
 };
 
 struct LatchMemoItem
@@ -55,9 +58,15 @@ public:
   LatchMemo(DiskBufferPool *buffer_pool);
   ~LatchMemo();
 
-  RC   get_page(PageNum page_num, Frame *&frame);
-  RC   allocate_page(Frame *&frame);
+  RC get_page(PageNum page_num, Frame *&frame);
+
+  /// @brief 分配页面
+  RC allocate_page(Frame *&frame);
+
+  /// @brief 标记为即将释放的页面
   void dispose_page(PageNum page_num);
+
+  /// @brief 对指定页面加锁
   void latch(Frame *frame, LatchMemoType type);
   void xlatch(Frame *frame);
   void slatch(Frame *frame);
@@ -78,5 +87,5 @@ private:
 private:
   DiskBufferPool           *buffer_pool_ = nullptr;
   std::deque<LatchMemoItem> items_;
-  std::vector<PageNum>      disposed_pages_;
+  std::vector<PageNum>      disposed_pages_;  /// 等待释放的页面
 };

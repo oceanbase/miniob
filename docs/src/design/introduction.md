@@ -1,8 +1,9 @@
 # 功能模块设计说明
 
+- [Miniob架构](./miniob-architecture.md)
 - [存储实现](./miniob-buffer-pool.md)
 - [事务](./miniob-transaction.md)
-- [CLog](./miniob-clog.md)
+- [持久化](./miniob-durability.md)
 - [SQL Parser](./miniob-sql-parser.md)
 - [如何新增支持一种新类型SQL](./miniob-how-to-add-new-sql.md)
 - [表达式解析](./miniob-sql-expression.md)

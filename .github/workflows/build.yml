@@ -31,7 +31,7 @@ jobs:
 
     - name: BuildDebug
       shell: bash
-      run: bash build.sh debug -DENABLE_COVERAGE=ON --make -j4
+      run: bash build.sh debug -DCONCURRENCY=ON -DENABLE_COVERAGE=ON --make -j4
 
     - name: Test
       shell: bash
@@ -65,4 +65,7 @@ jobs:
         
     - name: Build
       shell: bash
-      run: sudo bash build.sh init && bash build.sh release --make -j4
+      run: |
+        export ASAN_OPTIONS=detect_container_overflow=0
+        sudo bash build.sh init
+        bash build.sh release --make -j4

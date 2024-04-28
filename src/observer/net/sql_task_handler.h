@@ -27,6 +27,7 @@ class SQLStageEvent;
 
 /**
  * @brief SQL请求的处理器
+ * @ingroup SQL
  */
 class SqlTaskHandler
 {
@@ -45,10 +46,10 @@ public:
   RC handle_sql(SQLStageEvent *sql_event);
 
 private:
-  SessionStage    session_stage_;
-  QueryCacheStage query_cache_stage_;
-  ParseStage      parse_stage_;
-  ResolveStage    resolve_stage_;
-  OptimizeStage   optimize_stage_;
-  ExecuteStage    execute_stage_;
+  SessionStage    session_stage_;      /// 会话阶段
+  QueryCacheStage query_cache_stage_;  /// 查询缓存阶段
+  ParseStage      parse_stage_;        /// 解析阶段。将SQL解析成语法树 ParsedSqlNode
+  ResolveStage    resolve_stage_;      /// 解析阶段。将语法树解析成Stmt(statement)
+  OptimizeStage optimize_stage_;  /// 优化阶段。将语句优化成执行计划，包含规则优化和物理优化
+  ExecuteStage  execute_stage_;   /// 执行阶段
 };
