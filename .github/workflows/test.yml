@@ -110,4 +110,43 @@ jobs:
           ./bin/memtracer_performance_test 
           echo "memtracer malloc/free"
           LD_PRELOAD=./lib/libmemtracer.so ./bin/memtracer_performance_test
+  memtracer-test:
+    runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository and submodules
+          uses: actions/checkout@v2
+        
+        - name: build
+          shell: bash
+          run: |
+            sudo bash build.sh init
+            bash build.sh release -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF
+
+        - name: memtracer-performance-test
+          shell: bash
+          run: |
+            cd build_release
+            echo "normal malloc/free"
+            ./bin/memtracer_performance_test 
+            echo "memtracer malloc/free"
+            LD_PRELOAD=./lib/libmemtracer.so ./bin/memtracer_performance_test
+        - name: memtracer-unittest
+          shell: bash
+          run: |
+            cd build_release
+            LD_PRELOAD=./lib/libmemtracer.so ./bin/memtracer_test
+        - name: memtracer-sysbench
+          shell: bash
+          run: |
+            curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh -o script.deb.sh
+            sudo bash script.deb.sh
+            sudo apt -y install sysbench mariadb-client
+            nohup sh -c 'LD_PRELOAD=./build_release/lib/libmemtracer.so ./build_release/bin/observer -T ${{ matrix.thread_model }} -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk' &
+            sleep 10 && echo "wake up"
+            mysql --version
+            mysql -S /tmp/miniob.sock -e "show tables"
+            cd test/sysbench
+            sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 miniob_insert prepare
+            sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 miniob_insert run
+            
 

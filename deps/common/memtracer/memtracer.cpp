@@ -61,7 +61,7 @@ void MemTracer::init()
   // init memory limit
   const char *memory_limit_str = std::getenv("MT_MEMORY_LIMIT");
   if (memory_limit_str != nullptr) {
-    char *             end   = nullptr;
+    char*             end   = nullptr;
     unsigned long long value = std::strtoull(memory_limit_str, &end, 10);
     if (end != memory_limit_str && *end == '\0') {
       MT.set_memory_limit(static_cast<size_t>(value));
@@ -73,7 +73,7 @@ void MemTracer::init()
   // init print_interval
   const char *print_interval_str = std::getenv("MT_PRINT_INTERVAL");
   if (print_interval_str != nullptr) {
-    char *             end   = nullptr;
+    char*             end   = nullptr;
     unsigned long long value = std::strtoull(print_interval_str, &end, 10);
     if (end != print_interval_str && *end == '\0') {
       MT.set_print_interval(static_cast<size_t>(value));
