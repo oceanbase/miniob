@@ -82,7 +82,9 @@ TEST(test_mem_tracer, test_mem_tracer_basic)
     ASSERT_EQ(MT.allocated_memory(), mem_base + 1);
     delete ptr;
     ASSERT_EQ(MT.allocated_memory(), mem_base);
-    ptr = new char[1024];
+  }
+  {
+    char *ptr = new char[1024];
     memset(ptr, 0, 1024);
     ASSERT_EQ(MT.allocated_memory(), mem_base + 1024);
     delete[] ptr;
