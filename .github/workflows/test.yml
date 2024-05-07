@@ -95,10 +95,19 @@ jobs:
         shell: bash
         run: |
           sudo bash build.sh init
-          bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF -DWITH_BENCHMARK=ON
+          bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF
 
-      - name: testing
+      - name: concurrency-test
         shell: bash
         run: |
           cd build_release/bin/
           for file in `find ./ -name "*_concurrency_test" -executable`; do $file; if [ $? -ne 0 ]; then exit 1; fi; done
+      - name: memtracer-test
+        shell: bash
+        run: |
+          cd build_debug
+          echo "normal malloc/free"
+          ./bin/memtracer_performance_test 
+          echo "memtracer malloc/free"
+          LD_PRELOAD=./lib/libmemtracer.so ./bin/memtracer_performance_test
+

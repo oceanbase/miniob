@@ -4,14 +4,31 @@ MESSAGE(STATUS "This is PROJECT_SOURCE_DIR dir " ${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 FILE(GLOB_RECURSE ALL_SRC  *.cpp)
-FOREACH(F ${ALL_SRC})
-    SET(SRC_LIST ${SRC_LIST} ${F})
-    MESSAGE("Use " ${F})
-ENDFOREACH(F)
+
+# exclude memtracer
+SET(EXCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/memtracer")
+
+FOREACH(FILE_PATH ${ALL_SRC})
+    string(FIND "${FILE_PATH}" "${EXCLUDE_DIR}" FOUND_POS)
+    if (FOUND_POS EQUAL -1)
+        set(SRC_LIST ${SRC_LIST} ${FILE_PATH})
+        message("Use ${FILE_PATH}")
+    endif()
+ENDFOREACH(FILE_PATH)
+
+
+file(GLOB MEMTRACER_SOURCES "memtracer/*.cpp")
+
+if (WITH_MEMTRACER)
+    add_library(memtracer SHARED ${MEMTRACER_SOURCES})
+
+    target_compile_options(memtracer PRIVATE -Wno-missing-attributes)
+    target_link_libraries(memtracer pthread)
+endif()
 
 #SHARED，动态库
 #STATIC，静态库
-ADD_LIBRARY(common STATIC ${ALL_SRC} )
+ADD_LIBRARY(common STATIC ${SRC_LIST} )
 
 # 编译静态库时，自动会把同名的动态库给删除， 因此需要临时设置一下
 SET_TARGET_PROPERTIES(common PROPERTIES CLEAN_DIRECT_OUTPUT 1)
