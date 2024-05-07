@@ -105,7 +105,7 @@ jobs:
       - name: memtracer-test
         shell: bash
         run: |
-          cd build_debug
+          cd build_release
           echo "normal malloc/free"
           ./bin/memtracer_performance_test 
           echo "memtracer malloc/free"

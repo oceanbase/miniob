@@ -8,43 +8,44 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-
 #include <cstdlib>
 #include <sys/mman.h>  // mmap/munmap
-#include <syscall.h>  // syscall
+#include <syscall.h>   // syscall
 #include "gtest/gtest.h"
 #include "common/memtracer/memtracer.h"
 
-extern "C" void* __libc_malloc(size_t size);
+extern "C" void *__libc_malloc(size_t size);
 
-class Foo {
+class Foo
+{
 public:
-  Foo(): val(1) {}
+  Foo() : val(1) {}
   int val;
 };
 
-void allocate_and_free_with_new_delete(size_t size) {
-  char* memory = new char[size];
+void allocate_and_free_with_new_delete(size_t size)
+{
+  char *memory = new char[size];
   memset(memory, 0, size);
   delete[] memory;
 }
 
-void thread_function(void (*allocator)(size_t), size_t size) {
-    allocator(size);
-}
+void thread_function(void (*allocator)(size_t), size_t size) { allocator(size); }
 
-void allocate_and_free_with_malloc_free(size_t size) {
-  char* memory = static_cast<char*>(malloc(size));
+void allocate_and_free_with_malloc_free(size_t size)
+{
+  char *memory = static_cast<char *>(malloc(size));
   memset(memory, 0, size);
   free(memory);
 }
 
-void perform_multi_threads_allocation(void (*allocator)(size_t), size_t size, size_t num_threads) {
+void perform_multi_threads_allocation(void (*allocator)(size_t), size_t size, size_t num_threads)
+{
   std::vector<std::thread> threads;
   for (size_t i = 0; i < num_threads; ++i) {
     threads.emplace_back(thread_function, allocator, size);
   }
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 }
@@ -160,8 +161,8 @@ TEST(test_mem_tracer, test_mem_tracer_basic)
 
 TEST(test_mem_tracer, test_mem_tracer_multi_threads)
 {
-  // Since some of the low-level functions also take up memory, 
-  // for example, pthread will alloc stack via `mmap` and 
+  // Since some of the low-level functions also take up memory,
+  // for example, pthread will alloc stack via `mmap` and
   // the thread's stack will not be released after thread join.
   // allocated memory count is not checked here.
   {
@@ -171,7 +172,7 @@ TEST(test_mem_tracer, test_mem_tracer_multi_threads)
     perform_multi_threads_allocation(allocate_and_free_with_new_delete, memory_size, num_threads);
     perform_multi_threads_allocation(allocate_and_free_with_malloc_free, memory_size, num_threads);
   }
-  { 
+  {
     size_t num_threads = 4;
     size_t memory_size = 16;
 
@@ -179,7 +180,7 @@ TEST(test_mem_tracer, test_mem_tracer_multi_threads)
     perform_multi_threads_allocation(allocate_and_free_with_malloc_free, memory_size, num_threads);
   }
 
-  { 
+  {
     size_t num_threads = 16;
     size_t memory_size = 1024;
 
@@ -187,7 +188,7 @@ TEST(test_mem_tracer, test_mem_tracer_multi_threads)
     perform_multi_threads_allocation(allocate_and_free_with_malloc_free, memory_size, num_threads);
   }
 
-  { 
+  {
     size_t num_threads = 64;
     size_t memory_size = 1024;
 
