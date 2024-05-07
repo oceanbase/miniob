@@ -33,11 +33,12 @@ extern "C" void *malloc(size_t size)
 
 extern "C" void *calloc(size_t nelem, size_t size)
 {
-  if (unlikely(orig_malloc == NULL))
+  if (unlikely(orig_malloc == NULL)) {
     return calloc_buffer;
+  }
   MT.init_hook_funcs();
   size_t alloc_size = nelem * size;
-  void *ptr = malloc(alloc_size);
+  void * ptr        = malloc(alloc_size);
   if (unlikely(ptr == NULL)) {
     return NULL;
   }

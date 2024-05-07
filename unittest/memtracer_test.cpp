@@ -10,7 +10,6 @@ See the Mulan PSL v2 for more details. */
 
 #include <cstdlib>
 #include <sys/mman.h>  // mmap/munmap
-#include <syscall.h>   // syscall
 #include "gtest/gtest.h"
 #include "common/memtracer/memtracer.h"
 
