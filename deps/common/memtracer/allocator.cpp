@@ -162,7 +162,7 @@ void operator delete[](void *ptr, std::size_t size) noexcept { free(ptr); }
 extern "C" char *strdup(const char *__s)
 {
   size_t len = strlen(__s);
-  char * p   = (char *)malloc(len + 1);
+  char  *p   = (char *)malloc(len + 1);
   if (p == NULL) {
     return NULL;
   }

@@ -13,7 +13,9 @@ See the Mulan PSL v2 for more details. */
 #include "gtest/gtest.h"
 #include "common/memtracer/memtracer.h"
 
+#ifdef __linux__
 extern "C" void *__libc_malloc(size_t size);
+#endif
 
 class Foo
 {
@@ -51,6 +53,9 @@ void perform_multi_threads_allocation(void (*allocator)(size_t), size_t size, si
 
 TEST(test_mem_tracer, test_mem_tracer_basic)
 {
+  if (getenv("LD_PRELOAD") == nullptr) {
+    GTEST_SKIP();
+  }
   size_t mem_base = MT.allocated_memory();
   // malloc/free
   {
@@ -142,6 +147,7 @@ TEST(test_mem_tracer, test_mem_tracer_basic)
   }
 
   // __libc_malloc
+  #ifdef __linux__
   {
     void *ptr = __libc_malloc(1024);
     memset(ptr, 0, 1024);
@@ -149,6 +155,7 @@ TEST(test_mem_tracer, test_mem_tracer_basic)
     free(ptr);
     ASSERT_EQ(MT.allocated_memory(), mem_base);
   }
+  #endif
 
   // __builtin_malloc
   {
@@ -162,6 +169,9 @@ TEST(test_mem_tracer, test_mem_tracer_basic)
 
 TEST(test_mem_tracer, test_mem_tracer_multi_threads)
 {
+  if (getenv("LD_PRELOAD") == nullptr) {
+    GTEST_SKIP();
+  }
   // Since some of the low-level functions also take up memory,
   // for example, pthread will alloc stack via `mmap` and
   // the thread's stack will not be released after thread join.
@@ -200,11 +210,6 @@ TEST(test_mem_tracer, test_mem_tracer_multi_threads)
 
 int main(int argc, char **argv)
 {
-  if (getenv("LD_PRELOAD") != nullptr) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-  } else {
-    std::cout << "LD_PRELOAD not set. Skipping tests." << std::endl;
-    return 0;
-  }
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
