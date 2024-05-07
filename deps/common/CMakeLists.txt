@@ -2,6 +2,7 @@ MESSAGE(STATUS "This is PROJECT_BINARY_DIR dir " ${PROJECT_BINARY_DIR})
 MESSAGE(STATUS "This is PROJECT_SOURCE_DIR dir " ${PROJECT_SOURCE_DIR})
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+include(CheckCXXCompilerFlag)
 
 FILE(GLOB_RECURSE ALL_SRC  *.cpp)
 
@@ -21,8 +22,10 @@ file(GLOB MEMTRACER_SOURCES "memtracer/*.cpp")
 
 if (WITH_MEMTRACER)
     add_library(memtracer SHARED ${MEMTRACER_SOURCES})
-
-    target_compile_options(memtracer PRIVATE -Wno-missing-attributes)
+    CHECK_CXX_COMPILER_FLAG("-Wno-missing-attributes" COMPILER_SUPPORTS_NO_MISSING_ATTRIBUTES)
+    if(COMPILER_SUPPORTS_NO_MISSING_ATTRIBUTES)
+        target_compile_options(memtracer PRIVATE -Wno-missing-attributes)
+    endif()
     target_link_libraries(memtracer pthread)
 endif()
 

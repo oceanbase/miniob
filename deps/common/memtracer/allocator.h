@@ -13,7 +13,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/memtracer/memtracer.h"
 
 malloc_func_t orig_malloc = nullptr;
-free_func_t orig_free = nullptr;
-mmap_func_t orig_mmap = nullptr;
+free_func_t   orig_free   = nullptr;
+mmap_func_t   orig_mmap   = nullptr;
 munmap_func_t orig_munmap = nullptr;
-
