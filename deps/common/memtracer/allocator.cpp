@@ -37,7 +37,7 @@ extern "C" void *calloc(size_t nelem, size_t size)
     return calloc_buffer;
   MT.init_hook_funcs();
   size_t alloc_size = nelem * size;
-  void * ptr        = malloc(alloc_size);
+  void * ptr = malloc(alloc_size);
   if (unlikely(ptr == NULL)) {
     return NULL;
   }
@@ -169,7 +169,7 @@ extern "C" char *strdup(const char *__s)
   p[len] = 0;
   return p;
 }
-
+#ifdef __linux__
 extern "C" void *__libc_malloc(size_t size) __attribute__((alias("malloc"), used));
 extern "C" void *__libc_calloc(size_t nmemb, size_t size) __attribute__((alias("calloc"), used));
 extern "C" void *__libc_realloc(void *ptr, size_t size) __attribute__((alias("realloc"), used));
@@ -184,3 +184,4 @@ extern "C" void *__libc_mmap(void *start, size_t length, int prot, int flags, in
     __attribute__((alias("mmap"), used));
 extern "C" long int __libc_syscall(long int number, ...) __attribute__((alias("syscall"), used));
 extern "C" char *   __libc_strdup(const char *__s) __attribute__((alias("strdup"), used));
+#endif
