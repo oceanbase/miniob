@@ -24,32 +24,32 @@ munmap_func_t orig_munmap = nullptr;
 extern "C" mt_visible void *malloc(size_t size);
 extern "C" mt_visible void *calloc(size_t nelem, size_t size);
 extern "C" mt_visible void *realloc(void *ptr, size_t size);
-extern "C" mt_visible void free(void *ptr);
-extern "C" mt_visible void cfree(void *ptr);
+extern "C" mt_visible void  free(void *ptr);
+extern "C" mt_visible void  cfree(void *ptr);
 extern "C" mt_visible void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
-extern "C" mt_visible int munmap(void *addr, size_t length);
-extern "C" mt_visible char *strdup(const char *s) __THROW;
-extern "C" mt_visible char *strndup(const char *s, size_t n) __THROW;
+extern "C" mt_visible int   munmap(void *addr, size_t length);
+extern "C" mt_visible char *strdup(const char *s) throw();
+extern "C" mt_visible char *strndup(const char *s, size_t n) throw();
 
 mt_visible void *operator new(std::size_t size);
 mt_visible void *operator new[](std::size_t size);
 mt_visible void *operator new(std::size_t size, const std::nothrow_t &) noexcept;
 mt_visible void *operator new[](std::size_t size, const std::nothrow_t &) noexcept;
-mt_visible void operator delete(void *ptr) noexcept;
-mt_visible void operator delete[](void *ptr) noexcept;
-mt_visible void operator delete(void *ptr, const std::nothrow_t &) noexcept;
-mt_visible void operator delete[](void *ptr, const std::nothrow_t &) noexcept;
-mt_visible void operator delete(void *ptr, std::size_t size) noexcept;
-mt_visible void operator delete[](void *ptr, std::size_t size) noexcept;
+mt_visible void  operator delete(void *ptr) noexcept;
+mt_visible void  operator delete[](void *ptr) noexcept;
+mt_visible void  operator delete(void *ptr, const std::nothrow_t &) noexcept;
+mt_visible void  operator delete[](void *ptr, const std::nothrow_t &) noexcept;
+mt_visible void  operator delete(void *ptr, std::size_t size) noexcept;
+mt_visible void  operator delete[](void *ptr, std::size_t size) noexcept;
 
 // unsupported libc functions, for simpler memory tracking.
-extern "C" mt_visible char* realpath(const char* fname, char* resolved_name);
-extern "C" mt_visible void *memalign(size_t alignment, size_t size);
-extern "C" mt_visible void *valloc(size_t size);
-extern "C" mt_visible void *pvalloc(size_t size);
-extern "C" mt_visible int posix_memalign(void **memptr, size_t alignment, size_t size);
-extern "C" mt_visible int brk(void *addr);
-extern "C" mt_visible void *sbrk(intptr_t increment);
+extern "C" mt_visible char *   realpath(const char *fname, char *resolved_name);
+extern "C" mt_visible void *   memalign(size_t alignment, size_t size);
+extern "C" mt_visible void *   valloc(size_t size);
+extern "C" mt_visible void *   pvalloc(size_t size);
+extern "C" mt_visible int      posix_memalign(void **memptr, size_t alignment, size_t size);
+extern "C" mt_visible int      brk(void *addr);
+extern "C" mt_visible void *   sbrk(intptr_t increment);
 extern "C" mt_visible long int syscall(long int __sysno, ...);
 
 // forword libc interface
@@ -65,8 +65,3 @@ extern "C" mt_visible void *__libc_memalign(size_t alignment, size_t size) __att
 extern "C" mt_visible int   __posix_memalign(void **memptr, size_t alignment, size_t size)
     __attribute__((alias("posix_memalign"), used));
 #endif
-
-
-
-
-

@@ -12,9 +12,8 @@ See the Mulan PSL v2 for more details. */
 #include <sstream>
 #include "memtracer/common.h"
 
-namespace memtracer
-{
-void log_stderr(const char *format, ...) 
+namespace memtracer {
+void log_stderr(const char *format, ...)
 {
   va_list vl;
   va_start(vl, format);
@@ -22,16 +21,4 @@ void log_stderr(const char *format, ...)
   va_end(vl);
 }
 
-// used only for getting memory size from `/proc/self/status`
-long get_memory_size(const std::string &line)
-{
-  std::string        token;
-  std::istringstream iss(line);
-  long               size;
-  // skip token
-  iss >> token;
-  iss >> size;
-  return size;  // KB
-}
-
-}
+}  // namespace memtracer

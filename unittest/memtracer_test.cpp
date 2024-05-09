@@ -146,8 +146,8 @@ TEST(test_mem_tracer, test_mem_tracer_basic)
     // ASSERT_EQ(allocated_memory(), mem_base);
   }
 
-  // __libc_malloc
-  #ifdef __linux__
+// __libc_malloc
+#ifdef __linux__
   {
     void *ptr = __libc_malloc(1024);
     memset(ptr, 0, 1024);
@@ -155,7 +155,7 @@ TEST(test_mem_tracer, test_mem_tracer_basic)
     free(ptr);
     ASSERT_EQ(memtracer::allocated_memory(), mem_base);
   }
-  #endif
+#endif
 
   // __builtin_malloc
   {

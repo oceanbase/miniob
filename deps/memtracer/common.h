@@ -11,10 +11,8 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <stdio.h>
-#include <string>
 
-namespace memtracer
-{
+namespace memtracer {
 #define mt_visible __attribute__((visibility("default")))
 
 using malloc_func_t = void *(*)(size_t);
@@ -24,13 +22,10 @@ using munmap_func_t = int (*)(void *, size_t);
 
 void log_stderr(const char *format, ...);
 
-#define MEMTRACER_LOG(format, ...) \
-do {                                                              \
-  fprintf(stderr, "[MEMTRACER] ");\
-  log_stderr(format, ##__VA_ARGS__);\
-} while (0)
+#define MEMTRACER_LOG(format, ...)     \
+  do {                                 \
+    fprintf(stderr, "[MEMTRACER] ");   \
+    log_stderr(format, ##__VA_ARGS__); \
+  } while (0)
 
-// used only for getting memory size from `/proc/self/status`
-long get_memory_size(const std::string &line);
-
-}
+}  // namespace memtracer

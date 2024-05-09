@@ -9,11 +9,10 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 #include "memtracer.h"
 
-namespace memtracer
-{
+namespace memtracer {
 mt_visible size_t allocated_memory();
 
 mt_visible size_t meta_memory();
 
 mt_visible size_t memory_limit();
-}
+}  // namespace memtracer

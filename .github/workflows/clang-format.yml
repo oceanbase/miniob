@@ -11,6 +11,6 @@ jobs:
         with:
           # sources 和 excludes 最终生成的find查找文件的命令大概是这样的
           # find . -type f ! -wholename "./src/observer/sql/parser/lex_sql.*" \(  -wholename "./**/*.h" -o -wholename "./**/*.cpp" \)
-          sources: "**/*.h,**/*.cpp,src/**/*.h,src/**/*.cpp,deps/common/**/*.h,deps/common/**/*.cpp"
-          excludes: "src/observer/sql/parser/lex_sql.*,src/observer/sql/parser/yacc_sql.*"
+          sources: "**/*.h,**/*.cpp,src/**/*.h,src/**/*.cpp"
+          excludes: "src/observer/sql/parser/lex_sql.*,src/observer/sql/parser/yacc_sql.*,deps/3rd/**/*.cpp,deps/3rd/**/*.h"
           style: "file"

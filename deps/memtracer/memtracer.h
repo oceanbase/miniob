@@ -16,12 +16,11 @@ See the Mulan PSL v2 for more details. */
 #include <mutex>
 #include "memtracer/common.h"
 
-namespace memtracer
-{
+namespace memtracer {
 
 #define MT MemTracer::get_instance()
 
-// MemTracer is used to monitor MiniOB memory usage; 
+// MemTracer is used to monitor MiniOB memory usage;
 // it is used to run and debug MiniOB under memory-constrained conditions.
 // MemTracer statistics memory allocation in MiniOB processes by
 // hooking memory alloc/free functions.
@@ -51,7 +50,10 @@ public:
 
   inline void add_allocated_memory(size_t size) { allocated_memory_.fetch_add(size); }
 
-  void set_memory_limit(size_t memory_limit) { std::call_once(memory_limit_once_, [&](){memory_limit_ = memory_limit;}); }
+  void set_memory_limit(size_t memory_limit)
+  {
+    std::call_once(memory_limit_once_, [&]() { memory_limit_ = memory_limit; });
+  }
 
   void alloc(size_t size);
 
@@ -60,7 +62,6 @@ public:
   inline void init_hook_funcs() { std::call_once(init_hook_funcs_once_, init_hook_funcs_impl); }
 
 private:
-
   static void init_hook_funcs_impl();
 
   void init_stats_thread();
@@ -71,14 +72,14 @@ private:
 
 private:
   bool                is_inited_ = false;
-  bool                is_stop_ = false;
+  bool                is_stop_   = false;
   std::atomic<size_t> allocated_memory_{};
   std::atomic<size_t> alloc_cnt_{};
   std::atomic<size_t> free_cnt_{};
   std::once_flag      init_hook_funcs_once_;
   std::once_flag      memory_limit_once_;
-  size_t              memory_limit_ = UINT64_MAX;
+  size_t              memory_limit_   = UINT64_MAX;
   size_t              print_interval_ = 0;
   std::thread         t_;
 };
-}
+}  // namespace memtracer

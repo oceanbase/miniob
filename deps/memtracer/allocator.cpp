@@ -10,11 +10,12 @@ See the Mulan PSL v2 for more details. */
 
 #include "memtracer/allocator.h"
 #include <stdio.h>
-#include <cstring>
+#include <string.h>
 
 // `dlsym` calls `calloc` internally, so here use a dummy buffer
 // to avoid infinite loop when hook functions initialized.
-// ref: https://stackoverflow.com/questions/7910666/problems-with-ld-preload-and-calloc-interposition-for-certain-executables
+// ref:
+// https://stackoverflow.com/questions/7910666/problems-with-ld-preload-and-calloc-interposition-for-certain-executables
 static unsigned char calloc_buffer[8192];
 
 // only used internally
@@ -44,7 +45,7 @@ mt_visible void *calloc(size_t nelem, size_t size)
     return calloc_buffer;
   }
   size_t alloc_size = nelem * size;
-  void  *ptr        = malloc(alloc_size);
+  void * ptr        = malloc(alloc_size);
   if (ptr == NULL) [[unlikely]] {
     return NULL;
   }
@@ -82,10 +83,7 @@ mt_visible void free(void *ptr)
   orig_free((size_t *)ptr - 1);
 }
 
-mt_visible void cfree(void *ptr)
-{
-  free(ptr);
-}
+mt_visible void cfree(void *ptr) { free(ptr); }
 
 mt_visible void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
@@ -107,10 +105,10 @@ mt_visible int munmap(void *addr, size_t length)
   return res;
 }
 
-mt_visible char *strdup(const char *s)
+mt_visible char *strdup(const char *s) throw()
 {
   size_t len = strlen(s);
-  char  *p   = (char *)malloc(len + 1);
+  char * p   = (char *)malloc(len + 1);
   if (p == NULL) {
     return NULL;
   }
@@ -119,18 +117,19 @@ mt_visible char *strdup(const char *s)
   return p;
 }
 
-mt_visible char *strndup(const char *s, size_t n)
+mt_visible char *strndup(const char *s, size_t n) throw()
 {
-  const char* end = (const char*)memchr(s, 0, n);
-  const size_t m = (end != NULL ? (size_t)(end - s) : n);
-  char* t = (char*)malloc(m + 1);
-  if (t == NULL) return NULL;
+  const char * end = (const char *)memchr(s, 0, n);
+  const size_t m   = (end != NULL ? (size_t)(end - s) : n);
+  char *       t   = (char *)malloc(m + 1);
+  if (t == NULL)
+    return NULL;
   memcpy(t, s, m);
   t[m] = 0;
   return t;
 }
 
-mt_visible char* realpath(const char* fname, char* resolved_name)
+mt_visible char *realpath(const char *fname, char *resolved_name)
 {
   MEMTRACER_LOG("realpath not supported\n");
   exit(-1);
