@@ -7,12 +7,14 @@ THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
+#include "mt_info.h"
 
-#pragma once
+namespace memtracer
+{
 
-#include "common/memtracer/memtracer.h"
+mt_visible size_t allocated_memory() { return MT.allocated_memory(); }
 
-malloc_func_t orig_malloc = nullptr;
-free_func_t   orig_free   = nullptr;
-mmap_func_t   orig_mmap   = nullptr;
-munmap_func_t orig_munmap = nullptr;
+mt_visible size_t meta_memory() { return MT.meta_memory(); }
+
+mt_visible size_t memory_limit() { return MT.memory_limit(); }
+}

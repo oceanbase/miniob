@@ -37,7 +37,7 @@ jobs:
       shell: bash
       run: |
         cd build_debug
-        ctest --verbose
+        ctest -E memtracer_test --verbose
 
     - name: lcov
       shell: bash

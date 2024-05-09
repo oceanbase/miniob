@@ -11,48 +11,37 @@ See the Mulan PSL v2 for more details. */
 #include "memtracer.h"
 #include <dlfcn.h>
 #include <fstream>
-#include <sstream>
 #include <unistd.h>
 #include <chrono>
-
-const int KB = 1024;
-
-// used only for getting memory size from `/proc/self/status`
-long get_memory_size(const std::string &line)
-{
-  std::string        token;
-  std::istringstream iss(line);
-  long               size;
-  // skip token
-  iss >> token;
-  iss >> size;
-  return size;  // KB
-}
+#include <execinfo.h>
+#include <iostream>
+#include <cstdio>
 
 #define REACH_TIME_INTERVAL(i)                                                                                \
-  ({                                                                                                          \
-    bool                    bret      = false;                                                                \
-    static volatile int64_t last_time = 0;                                                                    \
-    auto                    now       = std::chrono::system_clock::now();                                     \
-    int64_t cur_time = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count(); \
-    if (unlikely(int64_t(i + last_time) < cur_time)) {                                                        \
-      last_time = cur_time;                                                                                   \
-      bret      = true;                                                                                       \
-    }                                                                                                         \
-    bret;                                                                                                     \
-  })
+({                                                                                                          \
+  bool                    bret      = false;                                                                \
+  static volatile int64_t last_time = 0;                                                                    \
+  auto                    now       = std::chrono::system_clock::now();                                     \
+  int64_t cur_time = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count(); \
+  if (int64_t(i + last_time) < cur_time) [[unlikely]] {                                                        \
+    last_time = cur_time;                                                                                   \
+    bret      = true;                                                                                       \
+  }                                                                                                         \
+  bret;                                                                                                     \
+})
+extern memtracer::malloc_func_t orig_malloc;
+extern memtracer::free_func_t   orig_free;
+extern memtracer::mmap_func_t   orig_mmap;
+extern memtracer::munmap_func_t orig_munmap;
 
-MemTracer::MemTracer()
-    : is_inited_(false),
-      is_stop_(false),
-      allocated_memory_(0),
-      alloc_cnt_(0),
-      free_cnt_(0),
-      init_hook_funcs_once_(PTHREAD_ONCE_INIT),
-      memory_limit_(UINT64_MAX),
-      print_interval_(0),
-      t_()
-{}
+namespace memtracer
+{
+
+MemTracer &MemTracer::get_instance()
+{
+  static MemTracer instance;
+  return instance;
+}
 
 void MemTracer::init()
 {
@@ -81,24 +70,25 @@ void MemTracer::init()
       fprintf(stderr, "Invalid environment variable value for MT_MEMORY_LIMIT: %s\n", print_interval_str);
     }
   } else {
-    MT.set_print_interval(1000 * 1000);  // 1s
+    MT.set_print_interval(1000 * 1000 * 5);  // 5s
   }
 
-  // init `text` and `data` memory usage
-  std::ifstream status("/proc/self/status");
-  std::string   line;
-
-  long data_segment_kb = 0;
-  long code_segment_kb = 0;
-
-  while (std::getline(status, line)) {
-    if (line.find("VmData:") != std::string::npos) {
-      data_segment_kb = get_memory_size(line);
-    } else if (line.find("VmExe:") != std::string::npos) {
-      code_segment_kb = get_memory_size(line);
+  // init `text` memory usage
+  size_t text_size = 0;
+  std::ifstream file("/proc/self/status");
+  if (file.is_open()) {
+    std::string line;
+    const int KB = 1024;
+    while (std::getline(file, line)) {
+      if (line.find("VmExe") != std::string::npos) {
+        text_size = get_memory_size(line) * KB;
+        break;
+      }
     }
+    file.close();
   }
-  MT.add_allocated_memory(data_segment_kb * KB + code_segment_kb * KB);
+
+  MT.add_allocated_memory(text_size);
   MT.init_stats_thread();
 }
 
@@ -111,8 +101,9 @@ void MemTracer::init_stats_thread()
 
 void MemTracer::alloc(size_t size)
 {
-  if (unlikely(allocated_memory_.load() + size > memory_limit_)) {
-    fprintf(stderr, "Memory limit exceeded!\n");
+  if (allocated_memory_.load() + size > memory_limit_) [[unlikely]] {
+    MEMTRACER_LOG("alloc memory:%lu, allocated_memory: %lu, memory_limit: %lu, Memory limit exceeded!\n",
+        size, allocated_memory_.load(), memory_limit_);
     exit(-1);
   }
   allocated_memory_.fetch_add(size);
@@ -148,9 +139,9 @@ void MemTracer::stat()
   while (!MT.is_stop()) {
     if (REACH_TIME_INTERVAL(print_interval)) {
       // TODO: optimize the output format
-      fprintf(
-          stderr, "[MemTracer] allocated memory: %lu, metadata memory: %lu\n", MT.allocated_memory(), MT.meta_memory());
+      MEMTRACER_LOG("allocated memory: %lu, metadata memory: %lu\n", MT.allocated_memory(), MT.meta_memory());
     }
     std::this_thread::sleep_for(std::chrono::microseconds(sleep_interval));
   }
+}
 }
