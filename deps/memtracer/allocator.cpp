@@ -105,7 +105,7 @@ mt_visible int munmap(void *addr, size_t length)
   return res;
 }
 
-mt_visible char *strdup(const char *s) throw()
+mt_visible char *strdup(const char *s) MT_THROW
 {
   size_t len = strlen(s);
   char * p   = (char *)malloc(len + 1);
@@ -117,7 +117,7 @@ mt_visible char *strdup(const char *s) throw()
   return p;
 }
 
-mt_visible char *strndup(const char *s, size_t n) throw()
+mt_visible char *strndup(const char *s, size_t n) MT_THROW
 {
   const char * end = (const char *)memchr(s, 0, n);
   const size_t m   = (end != NULL ? (size_t)(end - s) : n);

@@ -15,6 +15,11 @@ See the Mulan PSL v2 for more details. */
 #include <sys/mman.h>  // mmap/munmap
 
 using namespace memtracer;
+#if define __linux__
+#define MT_THROW __THROW
+#else
+#define MT_THROW
+#endif
 
 malloc_func_t orig_malloc = nullptr;
 free_func_t   orig_free   = nullptr;
@@ -28,8 +33,8 @@ extern "C" mt_visible void  free(void *ptr);
 extern "C" mt_visible void  cfree(void *ptr);
 extern "C" mt_visible void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
 extern "C" mt_visible int   munmap(void *addr, size_t length);
-extern "C" mt_visible char *strdup(const char *s) throw();
-extern "C" mt_visible char *strndup(const char *s, size_t n) throw();
+extern "C" mt_visible char *strdup(const char *s) MT_THROW;
+extern "C" mt_visible char *strndup(const char *s, size_t n) MT_THROW;
 
 mt_visible void *operator new(std::size_t size);
 mt_visible void *operator new[](std::size_t size);
