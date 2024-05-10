@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include <sys/mman.h>  // mmap/munmap
 
 using namespace memtracer;
-#if define __linux__
+#if defined(__linux__)
 #define MT_THROW __THROW
 #else
 #define MT_THROW
