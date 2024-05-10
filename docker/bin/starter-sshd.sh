@@ -7,6 +7,11 @@ if [ -f /etc/.firstrun ]; then
   rm -f /etc/.firstrun
 fi
 
+if [ -f /etc/ssh/sshd_config ]; then
+  echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+  service ssh restart
+fi
+
 if [ ! -f "${HOST_KEY_DIR}" ]; then
     ssh-keygen -A
 fi
