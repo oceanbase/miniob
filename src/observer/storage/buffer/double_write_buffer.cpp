@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include <fcntl.h>
 
 #include <mutex>
+#include <algorithm>
 
 #include "storage/buffer/double_write_buffer.h"
 #include "storage/buffer/disk_buffer_pool.h"
