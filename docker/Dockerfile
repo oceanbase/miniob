@@ -12,7 +12,7 @@ ENV LANG en_US.utf8
 
 # dev tools
 RUN apt-get update \
-    && apt-get install -y build-essential gdb cmake git wget flex texinfo libreadline-dev diffutils bison 
+    && apt-get install -y build-essential gdb cmake git wget flex texinfo libreadline-dev diffutils bison \
     && apt-get install -y clang-format vim
 
 # install openssh
