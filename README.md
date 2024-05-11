@@ -35,7 +35,7 @@ MiniOB 整体代码简洁，容易上手，设计了一系列由浅入深的题�
 
 MiniOB 整体架构如下图所示:
 
-<img src="./docs/src/design/images/miniob-architecture.svg" width = "60%" alt="InternalNode" align=center />
+<img src="./docs/docs/design/images/miniob-architecture.svg" width = "60%" alt="InternalNode" align=center />
 
 其中:
 
