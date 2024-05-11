@@ -4,7 +4,6 @@ repo_url: https://github.com/oceanbase/miniob
 repo_name: oceanbase/miniob
 plugins:
   - search
-      lang: zh
   - git-authors
 nav:
   - 首页: miniob-introduction.md

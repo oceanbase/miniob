@@ -28,8 +28,6 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
-    env:
-      MDBOOK_VERSION: 0.4.21
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies
