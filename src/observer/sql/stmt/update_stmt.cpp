@@ -18,9 +18,10 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "storage/table/table.h"
 
-UpdateStmt::  UpdateStmt(Table *table,Field field ,Value *value, FilterStmt *filter_stmt)
-    : table_(table), value_(value), field_(field),filter_stmt_(filter_stmt)
+UpdateStmt::  UpdateStmt(Table *table,Field field , Value value, FilterStmt *filter_stmt)
+    : table_(table), value_(value), field_(field), filter_stmt_(filter_stmt)
 {}
+
 UpdateStmt::~UpdateStmt()
 {
   if (nullptr != filter_stmt_) {
@@ -28,6 +29,7 @@ UpdateStmt::~UpdateStmt()
     filter_stmt_ = nullptr;
   }
 }
+
 RC UpdateStmt::create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt)
 {
   const char *table_name=update_sql.relation_name.c_str();
@@ -60,7 +62,21 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt)
     LOG_WARN("failed to create filter statement. rc=%d:%s", rc, strrc(rc));
     return rc;
   }
+////////////////////////////////////////////////////
+  Field s_field = Field(table, field_meta);
+
+//insert
+  Value value     = update_sql.value;
+
+  // check fields type
+  const AttrType   value_type = value.attr_type();
+  const AttrType   field_type = field_meta->type();
+  if (field_type != value_type) {  // TODO try to convert the value type to field type
+      LOG_WARN("field type mismatch. table=%s, field=%s, field type=%d, value_type=%d",
+          table_name, field_meta->name(), field_type, value_type);
+      return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    }
   // TODO
-  stmt = nullptr;
-  return RC::INTERNAL;
+  stmt = new UpdateStmt(table, s_field ,value,filter_stmt);
+  return rc;
 }

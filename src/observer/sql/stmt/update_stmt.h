@@ -31,8 +31,8 @@ class UpdateStmt : public Stmt
 {
 public:
   UpdateStmt() = default;
-  UpdateStmt(Table *table,Field field ,Value *value, FilterStmt *filter_stmt);
   ~UpdateStmt() override;
+  UpdateStmt(Table *table,Field field ,Value value, FilterStmt *filter_stmt);
   StmtType type() const override { return StmtType::UPDATE; }
 
 public:

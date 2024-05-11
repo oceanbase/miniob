@@ -17,6 +17,13 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 #include "storage/trx/trx.h"
 
+
+/*
+  private:
+  Table *table_ = nullptr;
+  Trx   *trx_   = nullptr;
+};
+*/
 RC DeletePhysicalOperator::open(Trx *trx)
 {
   if (children_.empty()) {
