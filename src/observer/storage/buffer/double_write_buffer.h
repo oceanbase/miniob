@@ -46,7 +46,7 @@ public:
 
 struct DoubleWriteBufferHeader
 {
-  int32_t page_cnt;
+  int32_t page_cnt = 0;
 
   static const int32_t SIZE;
 };
