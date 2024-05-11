@@ -112,7 +112,7 @@ jobs:
         shell: bash
         run: |
           sudo bash build.sh init
-          bash build.sh release -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF
+          bash build.sh release -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF -DCONCURRENCY=ON
 
       - name: memtracer-performance-test
         shell: bash
@@ -133,7 +133,7 @@ jobs:
           curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh -o script.deb.sh
           sudo bash script.deb.sh
           sudo apt -y install sysbench mariadb-client
-          nohup sh -c './build_release/bin/observer -T one-thread-per-connection -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk' &
+          nohup sh -c 'LD_PRELOAD=./lib/libmemtracer.so ./build_release/bin/observer -T one-thread-per-connection -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk' &
           sleep 10 && echo "wake up"
           mysql --version
           mysql -S /tmp/miniob.sock -e "show tables"
