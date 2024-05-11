@@ -141,9 +141,9 @@ public:
     this->owner_ = true;
   }
 
-  void reset_data(char *data){
+  // void reset_data(char *data){
     
-  }
+  // }
 
   char       *data() { return this->data_; }
   const char *data() const { return this->data_; }

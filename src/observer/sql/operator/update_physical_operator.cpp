@@ -151,6 +151,7 @@
 #include "storage/table/table.h"
 #include "storage/trx/trx.h"
 #include "sql/stmt/update_stmt.h"
+#include "sql/stmt/delete_stmt.h"
 
 UpdatePhysicalOperator::UpdatePhysicalOperator(Table *table,Field field, Value value)
 :table_(table),field_(field),value_(value)

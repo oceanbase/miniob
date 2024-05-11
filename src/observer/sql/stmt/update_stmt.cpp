@@ -18,17 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "storage/table/table.h"
 
-UpdateStmt::  UpdateStmt(Table *table,Field field , Value value, FilterStmt *filter_stmt)
+UpdateStmt::UpdateStmt(Table *table,Field field , Value value, FilterStmt *filter_stmt)
     : table_(table), value_(value), field_(field), filter_stmt_(filter_stmt)
 {}
-
-UpdateStmt::~UpdateStmt()
-{
-  if (nullptr != filter_stmt_) {
-    delete filter_stmt_;
-    filter_stmt_ = nullptr;
-  }
-}
 
 RC UpdateStmt::create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt)
 {
@@ -77,6 +69,6 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt)
       return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
   // TODO
-  stmt = new UpdateStmt(table, s_field ,value,filter_stmt);
+  stmt = new UpdateStmt(table, s_field ,value, filter_stmt);
   return rc;
 }
