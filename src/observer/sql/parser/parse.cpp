@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse.h"
 #include "common/log/log.h"
 #include "sql/expr/expression.h"
+#include "memtracer/mt_info.h"
 
 RC parse(char *st, ParsedSqlNode *sqln);
 
@@ -41,6 +42,7 @@ int sql_parse(const char *st, ParsedSqlResult *sql_result);
 
 RC parse(const char *st, ParsedSqlResult *sql_result)
 {
+  LOG_ERROR("parse sql `%s`, allocated: %lu\n", st, memtracer::allocated_memory());
   sql_parse(st, sql_result);
   return RC::SUCCESS;
 }

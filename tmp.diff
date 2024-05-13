@@ -1,0 +1,33 @@
+diff --git a/src/observer/CMakeLists.txt b/src/observer/CMakeLists.txt
+index c62ac3c..d105fbf 100644
+--- a/src/observer/CMakeLists.txt
++++ b/src/observer/CMakeLists.txt
+@@ -20,7 +20,7 @@ FIND_PACKAGE(Libevent CONFIG REQUIRED)
+ 
+ # JsonCpp cannot work correctly with FIND_PACKAGE
+ 
+-SET(LIBRARIES common pthread dl libevent::core libevent::pthreads libjsoncpp.a)
++SET(LIBRARIES common pthread dl libevent::core libevent::pthreads libjsoncpp.a memtracer)
+ 
+ # 指定目标文件位置
+ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+diff --git a/src/observer/sql/parser/parse.cpp b/src/observer/sql/parser/parse.cpp
+index def0ed1..4f22799 100644
+--- a/src/observer/sql/parser/parse.cpp
++++ b/src/observer/sql/parser/parse.cpp
+@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
+ #include "sql/parser/parse.h"
+ #include "common/log/log.h"
+ #include "sql/expr/expression.h"
++#include "memtracer/mt_info.h"
+ 
+ RC parse(char *st, ParsedSqlNode *sqln);
+ 
+@@ -41,6 +42,7 @@ int sql_parse(const char *st, ParsedSqlResult *sql_result);
+ 
+ RC parse(const char *st, ParsedSqlResult *sql_result)
+ {
++  fprintf(stderr, "parser allocated: %lu\n", memtracer::allocated_memory());
+   sql_parse(st, sql_result);
+   return RC::SUCCESS;
+ }
