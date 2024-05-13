@@ -11,7 +11,7 @@ MiniOB旨在帮助不太熟悉数据库设计和实现的同学快速掌握和�
 
 ## MiniOB架构介绍
 
-<img src="./images/miniob-architecture.svg" width = "60%" alt="InternalNode" align=center />
+![MiniOB架构](./images/miniob-architecture.svg)
 
 - 网络模块(NET Service)：负责与客户端交互，收发客户端请求与应答；
 - SQL解析(Parser)：将用户输入的SQL语句解析成语法树；

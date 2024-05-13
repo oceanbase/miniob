@@ -32,7 +32,7 @@ nav:
     - design/miniob-bplus-tree-concurrency.md
     - design/miniob-thread-model.md
     - design/miniob-mysql-protocol.md
-    - design/doxy/html/index.html
+    - Doxy 代码文档: design/doxy/html/index.html
   - OceanBase 数据库大赛:
     - game/introduction.md
     - game/miniob-output-convention.md
