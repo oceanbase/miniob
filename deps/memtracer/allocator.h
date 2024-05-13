@@ -9,10 +9,10 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #pragma once
+#include <sys/mman.h>  // mmap/munmap
 
 #include "memtracer/common.h"
 #include "memtracer/memtracer.h"
-#include <sys/mman.h>  // mmap/munmap
 
 using namespace memtracer;
 #if defined(__linux__)

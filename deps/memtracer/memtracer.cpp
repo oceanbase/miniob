@@ -66,7 +66,7 @@ void MemTracer::init()
     if (end != memory_limit_str && *end == '\0') {
       MT.set_memory_limit(static_cast<size_t>(value));
     } else {
-      fprintf(stderr, "Invalid environment variable value for MT_MEMORY_LIMIT: %s\n", memory_limit_str);
+      MEMTRACER_LOG("Invalid environment variable value for MT_MEMORY_LIMIT: %s\n", memory_limit_str);
     }
   }
 
@@ -78,7 +78,7 @@ void MemTracer::init()
     if (end != print_interval_ms_str && *end == '\0') {
       MT.set_print_interval(static_cast<size_t>(value));
     } else {
-      fprintf(stderr, "Invalid environment variable value for MT_MEMORY_LIMIT: %s\n", print_interval_ms_str);
+      MEMTRACER_LOG("Invalid environment variable value for MT_MEMORY_LIMIT: %s\n", print_interval_ms_str);
     }
   } else {
     MT.set_print_interval(1000 * 5);  // 5s
@@ -113,14 +113,13 @@ void MemTracer::init_stats_thread()
 
 void MemTracer::alloc(size_t size)
 {
-  if (allocated_memory_.load() + size > memory_limit_) [[unlikely]] {
+  if (allocated_memory_.fetch_add(size) + size > memory_limit_) [[unlikely]] {
     MEMTRACER_LOG("alloc memory:%lu, allocated_memory: %lu, memory_limit: %lu, Memory limit exceeded!\n",
         size,
         allocated_memory_.load(),
         memory_limit_);
     exit(-1);
   }
-  allocated_memory_.fetch_add(size);
   alloc_cnt_.fetch_add(1);
 }
 
