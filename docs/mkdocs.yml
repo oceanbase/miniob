@@ -2,6 +2,7 @@ site_name: MiniOB
 site_url: https://oceanbase.github.io/miniob
 repo_url: https://github.com/oceanbase/miniob
 repo_name: oceanbase/miniob
+copyright: Copyright © 2024 OceanBase
 plugins:
   - search
   - git-authors
@@ -103,3 +104,12 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to system preference
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/oceanbase
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/oceanbase/miniob
+    - icon: fontawesome/brands/slack
+      link: https://join.slack.com/t/oceanbase/shared_invite/zt-1e25oz3ol-lJ6YNqPHaKwY_mhhioyEuw
