@@ -22,7 +22,7 @@ Double Write其实就是在重做日志前，用户需要一个页的副本，�
 
 ## Double Write Buffer架构
 
-<img src="images/miniob-double-write-buffer-struct.png" width = "60%" alt="Overview" align=center />
+![Double Write Buffer](images/miniob-double-write-buffer-struct.png)
 
 ## Double Write Buffer 工作流程
 

@@ -1,5 +1,9 @@
 ---
 title: MiniOB 介绍
+hide:
+  - navigation
+  - toc
+  - path
 ---
 
 # MiniOB 介绍
@@ -29,7 +33,7 @@ MiniOB 提供了丰富的设计文档和代码注释。如果在阅读代码过�
 
 ## 系统架构
 
-<img src="./design/images/miniob-architecture.svg" width = "60%" alt="InternalNode" align=center />
+![MiniOB 架构](./design/images/miniob-architecture.svg)
 
 其中:
 

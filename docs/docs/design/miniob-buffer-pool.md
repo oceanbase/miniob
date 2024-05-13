@@ -10,7 +10,7 @@ title: 存储实现
 
 首先回顾一下 MiniOB 的框架，在 MiniOB 概述章节已经简单的介绍过，本节重点介绍执行器（Executor）访问的存储引擎。
 
-<img src="images/miniob-overview.png" width = "60%" alt="Overview" align=center />
+![Overview](images/miniob-overview.png)
 
 存储引擎控制整个数据、记录是如何在文件和磁盘中存储，以及如何跟内部 SQL 模块之间进行交互。存储引擎中有三个关键模块：
 
@@ -24,7 +24,7 @@ title: 存储实现
 
 首先介绍 MiniOB 中文件是怎么存放，文件需要管理一些基础对象，如数据结构、表、索引。数据库在 MiniOB 这里体现就是一个文件夹，如下图所示，最上面就是一个目录，MiniOB 启动后会默认创建一个 sys 数据库，所有的操作都默认在 sys 中。
 
-<img src="images/miniob-buffer-pool-directory.png" width = "60%" alt="directory" align=center />
+![目录](images/miniob-buffer-pool-directory.png)
 
 一个数据库下会有多张表。上图示例中只有三张表，接下来以 test1 表为例介绍一下表里都存放什么内容。
 
@@ -40,7 +40,7 @@ Buffer Pool 在传统数据库里是非常重要的基础组件。
 
 首先来了解一下为什么要有一个 Buffer Pool ，数据库的数据是存放在磁盘里的，但不能直接从磁盘中读取数据，而是需要先把磁盘的数据读取到内存中，再在 CPU 做一些运算之后，展示给前端用户。写入也是一样的，一般都会先写入到内存，再把内存中的数据写入到磁盘。这种做法也是一个很常见的缓存机制。
 
-<img src="images/miniob-buffer-pool-implementation.png" width = "60%" alt="buffer pool" align=center />
+![Buffer Pool](images/miniob-buffer-pool-implementation.png)
 
 接着来看 Buffer Pool 在 MiniOB 中是如何组织的。如上图所示，左边是内存，把内存拆分成不同的帧（frame）。假如内存中有四个 frame，对应了右边的多个文件，每个文件按照每页来划分，每个页的大小都是固定的，每个页读取时是以页为单位跟内存中的一个 frame 相对应。
 
@@ -56,7 +56,7 @@ Buffer Pool 在 MiniOB 里面组织的时候，一个 DiskBufferPool 对象对�
 
 - 内存没有空闲空间，还要再去读 Page4，已经没有办法去申请新的内存了。此时就需要从现有的 frame 中淘汰一个页面，比如把 frame1 淘汰掉了，然后把 frame1 跟 Page4 关联起来，再把 Page4 的数据读取到 frame1 里面。淘汰机制也是有一些淘汰条件和算法的，可以先做简单的了解，暂时先不深入讨论细节。
 
-<img src="images/miniob-buffer-pool-page.png" width = "60%" alt="Page" align=center />
+![Page](images/miniob-buffer-pool-page.png)
 
 再来看一下，一个物理的文件上面都有哪些组织结构，如上图所示。
 
@@ -78,7 +78,7 @@ Buffer Pool 在 MiniOB 里面组织的时候，一个 DiskBufferPool 对象对�
 
 MiniOB 的 Record Manager 做了简化，有一些假设，记录通常都是比较短的，加上页表头，不会超出一个页面的大小。另外记录都是固定长度的，这个简化让学习 MiniOB 变得更简单一点。
 
-<img src="images/miniob-buffer-pool-record.png" width = "60%" alt="Record Manager" align=center />
+![Record Manager](images/miniob-buffer-pool-record.png)
 
 上面的图片展示了 MiniOB 的 Record Manager 是怎么实现的，以及 Record 在文件中是如何组织的。
 

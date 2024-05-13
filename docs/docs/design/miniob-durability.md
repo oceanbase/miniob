@@ -2,9 +2,9 @@
 title: 持久化
 ---
 
-本文介绍 [MiniOB](https://github.com/oceanbase/miniob) 中的 clog 模块是如何工作的。
-
 # 背景
+
+> 本文介绍 [MiniOB](https://github.com/oceanbase/miniob) 中的 clog 模块是如何工作的。
 
 持久化(Durability) 是事务中非常重要的一个模块，也是最复杂的一个模块，实现持久化才能保证数据不丢失。而持久化同时还要保证事务的原子性与数据完整性。如果对事务的一些概念不太了解，建议先学习了解事务的基本概念，比如学习[事务处理](lectures/lecture-6.md)章节，或者在网上搜索更多资料。
 
