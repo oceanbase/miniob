@@ -2,6 +2,7 @@ site_name: MiniOB
 site_url: https://oceanbase.github.io/miniob
 repo_url: https://github.com/oceanbase/miniob
 repo_name: oceanbase/miniob
+edit_uri: edit/main/docs/
 copyright: Copyright © 2024 OceanBase
 plugins:
   - search
@@ -79,6 +80,7 @@ theme:
     - navigation.footer
     - toc.follow
     - content.code.copy
+    - content.action.edit
   logo: assets/logo.png
   favicon: assets/favicon.ico
   icon:
