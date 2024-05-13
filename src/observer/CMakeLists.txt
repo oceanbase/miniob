@@ -20,7 +20,7 @@ FIND_PACKAGE(Libevent CONFIG REQUIRED)
 
 # JsonCpp cannot work correctly with FIND_PACKAGE
 
-SET(LIBRARIES common pthread dl libevent::core libevent::pthreads libjsoncpp.a memtracer)
+SET(LIBRARIES common pthread dl libevent::core libevent::pthreads libjsoncpp.a)
 
 # 指定目标文件位置
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
