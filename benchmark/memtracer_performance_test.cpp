@@ -32,14 +32,7 @@ static void BM_NewDelete(benchmark::State &state)
   state.SetBytesProcessed(static_cast<int64_t>(state.iterations() * size));
 }
 
-BENCHMARK(BM_MallocFree)
-    ->Arg(8)
-    ->Arg(64 - 8)
-    ->Arg(512 - 8)
-    ->Arg((1 << 10) - 8)
-    ->Arg((1 << 20) - 8)
-    ->Arg((8 << 20) - 8)
-    ->Arg((1 << 30) - 8);
+BENCHMARK(BM_MallocFree)->Arg(8)->Arg(64)->Arg(512)->Arg(1 << 10)->Arg(1 << 20)->Arg(8 << 20)->Arg(1 << 30);
 BENCHMARK(BM_NewDelete)->Arg(8)->Arg(64)->Arg(512)->Arg(1 << 10)->Arg(1 << 20)->Arg(8 << 20)->Arg(1 << 30);
 
 BENCHMARK_MAIN();
