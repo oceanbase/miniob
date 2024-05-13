@@ -9,7 +9,7 @@ nav:
   - 首页: miniob-introduction.md
   - 快速开始: 
     - 编译: how_to_build.md
-    - 编译运行: how_to_run.md
+    - 运行: how_to_run.md
     - 开发环境:
       - dev-env/introduction.md
       - dev-env/dev_by_gitpod.md
@@ -75,7 +75,9 @@ theme:
     - navigation.tracking
     - navigation.tabs
     - navigation.tabs.sticky
+    - navigation.footer
     - toc.follow
+    - content.code.copy
   logo: assets/logo.png
   favicon: assets/favicon.ico
   icon:

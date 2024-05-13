@@ -2,15 +2,17 @@
 title: MySQL 协议
 ---
 
+# MySQL 通讯协议
+
 > 本篇文档介绍MySQL的通讯流程以及MiniOB对它的支持与实现
 
-# MiniOB 通讯协议简介
+## MiniOB 通讯协议简介
 
 MiniOB 支持使用客户端/服务端模式，客户端与服务端需要通过通讯来交互。当前服务端支持普通的文本协议与MySQL协议。
 普通的文本协议非常简单，每个请求和应答都使用字符串来传递，字符串以'\0'字符结尾，因此文本协议不能支持二进制数据的传输。
 MySQL 是一个非常流行的开源数据库，它有非常丰富的周边生态工具，如果MiniOB可以支持MySQL协议，后续就可以逐步扩展支持这些工具。
 
-# MySQL 通讯协议
+## MySQL 通讯协议
 
 MySQL 服务端与客户端交互的过程。
 
@@ -28,26 +30,26 @@ MySQL 服务端与客户端交互的过程。
 客户端 -> 服务器：发送退出命令包。 
 5.  四次握手断开 TCP 连接。
 
-## MySQL Packet
+### MySQL Packet
 MySQL 协议通过packet来交互。每个packet都包含一个packet header和packet payload。
 packet header包含payload的长度和当前消息包的sequence。sequence是从1开始，每发出一个消息包，sequence都会加1。
 每个消息包都由一些字段构成，字段的类型有很多种，主要有整形和字符串。每种类型又有多种编码方式，比如字符串有固定长度的、以'\0'结尾的和带长度编码的。这些可以参考 mysql_communicator.cpp::store_xxx 函数。
 
 > 注意，MySQL协议中数字都是小端编码。而MiniOB没有对大小端做处理，所以当前只能运行在小端的机器上。
 
-## 认证阶段
+### 认证阶段
 完成MySQL客户端与MiniOB的建连。
 构造handshake包，解析验证包， 返回OK包，确保server与客户端的建连。
 
 **握手包handshake格式**
 
-<img src="images/mysql-handshake.png" width = "50%" alt="mysql-handshake" align=center />
+![mysql-handshake](images/mysql-handshake.png)
 
 在accept接收到新的连接时，server端需要先发起handshake握手包给客户端。
 
 **认证报文**
 
-<img src="images/mysql-auth.png" width = "50%" alt="mysql-auth" align=center />
+![mysql-auth](images/mysql-auth.png)
 
 这里有两次hash加密，基于随机挑战码和密码加密后返回给server端。
 
@@ -55,13 +57,13 @@ MyqlCommunicator::init是在刚接收到新的客户端连接时的接口，它�
 
 **OK包报文**
 
-<img src="images/mysql-ok-packet.png" width = "50%" alt="mysql-ok-packet" align=center />
+![mysql-ok-packet](images/mysql-ok-packet.png)
 
-## 请求交互阶段
+### 请求交互阶段
 
 在完成鉴权后，客户端就可以发送普通的请求命令到服务端，比如 "select * from t;" 查询语句。
 
-<img src="images/mysql-command-packet.png" width = "50%" alt="mysql-command-packet" align=center />
+![mysql-command-packet](images/mysql-command-packet.png)
 
 MiniOB 仅考虑支持普通的文本查询命令。普通的文本查询命令，包格式也符合MySQL Packet的要求。其payload的第一个字节是command，接着就是请求命令，也就是SQL语句。
 
@@ -71,18 +73,18 @@ SQL请求的返回数据类型比较丰富，有OK、Error、EOF和ResultSet。
 
 **OK/EOF包**
 
-<img src="images/mysql-ok-eof-packet.png" width = "50%" alt="mysql-ok-eof-packet" align=center />
+![mysql-ok-eof-packet](images/mysql-ok-eof-packet.png)
 
 **Error包**
 
-<img src="images/mysql-error-packet.png" width = "50%" alt="mysql-error-packet" align=center />
+![mysql-error-packet](images/mysql-error-packet.png)
 
 **ResultSet**
 
-<img src="images/mysql-result-set-packet.png" width = "50%" alt="mysql-result-set-packet" align=center />
+![mysql-result-set-packet](images/mysql-result-set-packet.png)
 
 **抓包**
 
 抓包可以很清晰的看到整个流程。
 
-<img src="images/mysql-packet-flow.png" width = "70%" alt="mysql-packet-flow" align=center />
+![mysql-packet-flow](images/mysql-packet-flow.png)

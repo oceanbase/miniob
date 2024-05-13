@@ -1,12 +1,11 @@
 ---
 title: Date 实现解析
+author: caizj
 ---
 
 # Date实现解析
 
 > 此实现解析有往届选手提供。具体代码实现已经有所变更，因此仅供参考。
-
-- by caizj
 
 ## DATE的存储
 

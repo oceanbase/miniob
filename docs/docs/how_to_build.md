@@ -56,7 +56,7 @@ bash build.sh release
 
 ### 1. sudo找不到cmake
 
-#### Q:
+**Q:**
 
 在“1. 环境初始化”中执行命令:
 
@@ -70,15 +70,15 @@ sudo bash build.sh init
 build.sh: line xx: cmake: command not found
 ```
 
-#### A:
+**A:**
 
-##### 1. 检查“0. base”中cmake版本要求是否满足。
+- 1. 检查“0. base”中cmake版本要求是否满足。
 
 ```bash
 cmake --version
 ```
 
-##### 2. 检查是否出现了“Linux系统下执行sudo命令环境变量失效现象”。
+- 2. 检查是否出现了“Linux系统下执行sudo命令环境变量失效现象”。
 
 ***检查***
 
@@ -132,7 +132,7 @@ sudo bash build.sh init
 
 则不会因为找不到cmake而报错。
 
-##### 更多信息：
+**更多信息：**
 
 关于该问题的更多细节，请参考[问题来源](https://ask.oceanbase.com/t/topic/35604437/7)。
 关于该问题的进一步分析，请参考[Linux系统下执行sudo命令环境变量失效现象](https://zhuanlan.zhihu.com/p/669332689)。
