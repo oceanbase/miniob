@@ -40,13 +40,13 @@ public:
 
   size_t meta_memory() const { return ((alloc_cnt_.load() - free_cnt_.load()) * sizeof(size_t)); }
 
-  size_t print_interval() const { return print_interval_; }
+  size_t print_interval() const { return print_interval_ms_; }
 
   size_t memory_limit() const { return memory_limit_; }
 
   bool is_stop() const { return is_stop_; }
 
-  void set_print_interval(size_t print_interval) { print_interval_ = print_interval; }
+  void set_print_interval(size_t print_interval_ms) { print_interval_ms_ = print_interval_ms; }
 
   inline void add_allocated_memory(size_t size) { allocated_memory_.fetch_add(size); }
 
@@ -79,7 +79,7 @@ private:
   std::once_flag      init_hook_funcs_once_;
   std::once_flag      memory_limit_once_;
   size_t              memory_limit_   = UINT64_MAX;
-  size_t              print_interval_ = 0;
+  size_t              print_interval_ms_ = 0;
   std::thread         t_;
 };
 }  // namespace memtracer

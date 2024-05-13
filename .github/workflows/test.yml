@@ -140,5 +140,9 @@ jobs:
           cd test/sysbench
           sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 miniob_insert prepare
           sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 miniob_insert run
+          killall observer
+          nohup ./build_release/bin/observer -T one-thread-per-connection -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk &
+          sleep 10 && echo "wake up"
+          mysql -S /tmp/miniob.sock -e "show tables"
             
 

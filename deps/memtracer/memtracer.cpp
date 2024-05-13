@@ -23,7 +23,7 @@ See the Mulan PSL v2 for more details. */
     bool                    bret      = false;                                                                \
     static volatile int64_t last_time = 0;                                                                    \
     auto                    now       = std::chrono::system_clock::now();                                     \
-    int64_t cur_time = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count(); \
+    int64_t cur_time = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count(); \
     if (int64_t(i + last_time) < cur_time) [[unlikely]] {                                                     \
       last_time = cur_time;                                                                                   \
       bret      = true;                                                                                       \
@@ -71,20 +71,21 @@ void MemTracer::init()
   }
 
   // init print_interval
-  const char *print_interval_str = std::getenv("MT_PRINT_INTERVAL");
-  if (print_interval_str != nullptr) {
+  const char *print_interval_ms_str = std::getenv("MT_PRINT_INTERVAL_MS");
+  if (print_interval_ms_str != nullptr) {
     char *             end;
-    unsigned long long value = std::strtoull(print_interval_str, &end, 10);
-    if (end != print_interval_str && *end == '\0') {
+    unsigned long long value = std::strtoull(print_interval_ms_str, &end, 10);
+    if (end != print_interval_ms_str && *end == '\0') {
       MT.set_print_interval(static_cast<size_t>(value));
     } else {
-      fprintf(stderr, "Invalid environment variable value for MT_MEMORY_LIMIT: %s\n", print_interval_str);
+      fprintf(stderr, "Invalid environment variable value for MT_MEMORY_LIMIT: %s\n", print_interval_ms_str);
     }
   } else {
-    MT.set_print_interval(1000 * 1000 * 5);  // 5s
+    MT.set_print_interval(1000 * 5);  // 5s
   }
 
   // init `text` memory usage
+  // TODO: support static variables statistic.
   size_t        text_size = 0;
   std::ifstream file("/proc/self/status");
   if (file.is_open()) {
@@ -147,14 +148,14 @@ void MemTracer::init_hook_funcs_impl()
 
 void MemTracer::stat()
 {
-  const size_t print_interval = MT.print_interval();
-  const size_t sleep_interval = 100 * 1000;  // 100 ms
+  const size_t print_interval_ms = MT.print_interval();
+  const size_t sleep_interval = 100;  // 100 ms
   while (!MT.is_stop()) {
-    if (REACH_TIME_INTERVAL(print_interval)) {
+    if (REACH_TIME_INTERVAL(print_interval_ms)) {
       // TODO: optimize the output format
       MEMTRACER_LOG("allocated memory: %lu, metadata memory: %lu\n", MT.allocated_memory(), MT.meta_memory());
     }
-    std::this_thread::sleep_for(std::chrono::microseconds(sleep_interval));
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_interval));
   }
 }
 }  // namespace memtracer

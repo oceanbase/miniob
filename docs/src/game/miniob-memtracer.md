@@ -28,7 +28,7 @@ MT_MEMORY_LIMIT=100000000 LD_PRELOAD=./lib/libmemtracer.so ./bin/observer
 Aborted
 ```
 开发者可根据堆栈地址
-1. 通过链接 MemTracer，可以在 MiniOB 代码任意位置获取当前内存使用情况。示例可参考：`unittest/memtracer_test.cpp`.
+1. TODO: 通过链接 MemTracer，可以在 MiniOB 代码任意位置获取当前内存使用情况。示例可参考：`unittest/memtracer_test.cpp`.
 
 ### 注意
 1. MemTracer 会记录 `mmap` 映射的整个虚拟内存占用, 因此不建议使用 `mmap` 管理内存。

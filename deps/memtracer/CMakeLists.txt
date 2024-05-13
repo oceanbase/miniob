@@ -1,3 +1,5 @@
+include(CheckCXXCompilerFlag)
+
 file(GLOB MEMTRACER_SOURCES "*.cpp")
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
