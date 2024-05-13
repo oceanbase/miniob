@@ -2,7 +2,7 @@ site_name: MiniOB
 site_url: https://oceanbase.github.io/miniob
 repo_url: https://github.com/oceanbase/miniob
 repo_name: oceanbase/miniob
-edit_uri: edit/main/docs/
+edit_uri: edit/main/docs/docs/
 copyright: Copyright © 2024 OceanBase
 plugins:
   - search
