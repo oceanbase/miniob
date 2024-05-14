@@ -71,14 +71,13 @@ private:
   static void stat();
 
 private:
-  bool                is_inited_ = false;
-  bool                is_stop_   = false;
+  bool                is_stop_ = false;
   std::atomic<size_t> allocated_memory_{};
   std::atomic<size_t> alloc_cnt_{};
   std::atomic<size_t> free_cnt_{};
   std::once_flag      init_hook_funcs_once_;
   std::once_flag      memory_limit_once_;
-  size_t              memory_limit_   = UINT64_MAX;
+  size_t              memory_limit_      = UINT64_MAX;
   size_t              print_interval_ms_ = 0;
   std::thread         t_;
 };
