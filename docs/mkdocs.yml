@@ -39,6 +39,7 @@ nav:
     - game/introduction.md
     - game/miniob-output-convention.md
     - game/debug-output.md
+    - game/miniob-memtracer.md
     - game/miniob_topics.md
     - game/github-introduction.md
     - game/gitee-instructions.md

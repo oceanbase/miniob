@@ -15,6 +15,8 @@ OPTION(ENABLE_TSAN "Build with thread sanitizer" OFF)
 OPTION(ENABLE_UBSAN "Build with undefined behavior sanitizer" OFF)
 OPTION(WITH_UNIT_TESTS "Compile miniob with unit tests" ON)
 OPTION(WITH_BENCHMARK "Compile benchmark" OFF)
+# TODO: support MemTracer with sanitizers, currently MemTracer doesn't work with sanitizers.
+OPTION(WITH_MEMTRACER "Compile memtracer" ON)
 OPTION(ENABLE_COVERAGE "Enable unittest coverage" OFF)
 OPTION(ENABLE_NOPIE "Enable no pie" OFF)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)

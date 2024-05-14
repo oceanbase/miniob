@@ -242,6 +242,10 @@ RC Db::sync()
     LOG_INFO("Successfully sync table db:%s, table:%s.", name_.c_str(), table->name());
   }
 
+  auto dblwr_buffer = static_cast<DiskDoubleWriteBuffer *>(buffer_pool_manager_->get_dblwr_buffer());
+  rc = dblwr_buffer->flush_page();
+  LOG_INFO("double write buffer flush pages ret=%s", strrc(rc));
+
   /*
   在sync期间，不允许有未完成的事务，也不允许开启新的事物。
   这个约束不是从程序层面处理的，而是认为的约束。
