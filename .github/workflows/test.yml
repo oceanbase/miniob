@@ -97,8 +97,53 @@ jobs:
           sudo bash build.sh init
           bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF -DWITH_BENCHMARK=ON
 
-      - name: testing
+      - name: concurrency-test
         shell: bash
         run: |
           cd build_release/bin/
           for file in `find ./ -name "*_concurrency_test" -executable`; do $file; if [ $? -ne 0 ]; then exit 1; fi; done
+  memtracer-test:
+    strategy:
+      matrix:
+        memtracer: ['LD_PRELOAD=./lib/libmemtracer.so', '']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+      
+      - name: build
+        shell: bash
+        run: |
+          sudo bash build.sh init
+          bash build.sh release -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF -DCONCURRENCY=ON
+
+      - name: memtracer-performance-test
+        shell: bash
+        run: |
+          cd build_release
+          ${{matrix.memtracer}} ./bin/memtracer_performance_test
+      - name: memtracer-unittest
+        shell: bash
+        run: |
+          cd build_release
+          LD_PRELOAD=./lib/libmemtracer.so ./bin/memtracer_test
+      - name: memtracer-sysbench
+        shell: bash
+        run: |
+          curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh -o script.deb.sh
+          sudo bash script.deb.sh
+          sudo apt -y install sysbench mariadb-client
+          nohup sh -c '${{matrix.memtracer}} ./build_release/bin/observer -T one-thread-per-connection -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk' &
+          sleep 10 && echo "wake up"
+          mysql --version
+          mysql -S /tmp/miniob.sock -e "show tables"
+          cd test/sysbench
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 miniob_insert prepare
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 miniob_insert run
+          killall observer
+          cd ../..
+          nohup ./build_release/bin/observer -T one-thread-per-connection -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk &
+          sleep 10 && echo "wake up"
+          mysql -S /tmp/miniob.sock -e "show tables"
+            
+

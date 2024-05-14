@@ -33,11 +33,12 @@ jobs:
       shell: bash
       run: bash build.sh debug -DCONCURRENCY=ON -DENABLE_COVERAGE=ON --make -j4
 
+    # `memtracer_test` unittest runs in `memtracer-test` action.
     - name: Test
       shell: bash
       run: |
         cd build_debug
-        make test
+        ctest -E memtracer_test --verbose
 
     - name: lcov
       shell: bash

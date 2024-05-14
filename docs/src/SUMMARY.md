@@ -36,6 +36,7 @@
   - [date 测试说明](./game/miniob-test-comment-date.md)
   - [date 实现解析](./game/miniob-date-implementation.md)
   - [drop table 实现解析](./game/miniob-drop-table-implementation.md)
+  - [内存使用监控相关功能介绍](./game/miniob-memtracer.md)
 
 - [数据库基础理论课程](./lectures/index.md)
   - [版权声明](./lectures/copyright.md)
