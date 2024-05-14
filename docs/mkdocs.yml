@@ -115,3 +115,7 @@ extra:
       link: https://hub.docker.com/r/oceanbase/miniob
     - icon: fontawesome/brands/slack
       link: https://join.slack.com/t/oceanbase/shared_invite/zt-1e25oz3ol-lJ6YNqPHaKwY_mhhioyEuw
+
+markdown_extensions:
+  - toc:
+      permalink: true
