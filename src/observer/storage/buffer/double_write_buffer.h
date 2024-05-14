@@ -80,6 +80,8 @@ struct DoubleWritePageKeyHash
  * DoubleWriteBuffer会先在一个共享磁盘文件中写入页面数据，在确定写入成功后，再写入真实的页面。
  * 当我们从磁盘中读取页面时，会校验页面的checksum，如果校验失败，则说明页面写入不完整，这时候可以从
  * DoubleWriteBuffer中读取数据。
+ *
+ * @note 每次都要保证，不管在内存中还是在文件中，这里的数据都是最新的，都比Buffer pool中的数据要新
  */
 class DiskDoubleWriteBuffer : public DoubleWriteBuffer
 {
@@ -126,6 +128,13 @@ private:
    * 将buffer中的页面写入对应的磁盘
    */
   RC write_page(DoubleWritePage *page);
+
+  /**
+   * 将页面写到当前double write buffer文件中
+   * @details 每次页面更新都应该写入到磁盘中。保证double write buffer
+   * 内存和文件中的数据都是最新的。
+   */
+  RC write_page_internal(DoubleWritePage *page);
 
   /**
    * @brief 将磁盘文件中的内容加载到内存中。在启动时调用

@@ -29,17 +29,18 @@ struct DoubleWritePage
 {
 public:
   DoubleWritePage() = default;
-  DoubleWritePage(int32_t buffer_pool_id, PageNum page_num, Page &page);
+  DoubleWritePage(int32_t buffer_pool_id, PageNum page_num, int32_t page_index, Page &page);
 
 public:
   DoubleWritePageKey key;
+  int32_t            page_index = -1; /// 页面在double write buffer文件中的页索引
   Page               page;
 
   static const int32_t SIZE;
 };
 
-DoubleWritePage::DoubleWritePage(int32_t buffer_pool_id, PageNum page_num, Page &_page)
-  : key{buffer_pool_id, page_num}, page(_page)
+DoubleWritePage::DoubleWritePage(int32_t buffer_pool_id, PageNum page_num, int32_t page_index, Page &_page)
+  : key{buffer_pool_id, page_num}, page_index(page_index), page(_page)
 {}
 
 const int32_t DoubleWritePage::SIZE = sizeof(DoubleWritePage);
@@ -105,24 +106,20 @@ RC DiskDoubleWriteBuffer::add_page(DiskBufferPool *bp, PageNum page_num, Page &p
     iter->second->page = page;
     LOG_TRACE("[cache hit]add page into double write buffer. buffer_pool_id:%d,page_num:%d,lsn=%d, dwb size=%d",
               bp->id(), page_num, page.lsn, static_cast<int>(dblwr_pages_.size()));
-    return RC::SUCCESS;
+    return write_page_internal(iter->second);
   }
 
   int64_t          page_cnt   = dblwr_pages_.size();
-  DoubleWritePage *dblwr_page = new DoubleWritePage(bp->id(), page_num, page);
+  DoubleWritePage *dblwr_page = new DoubleWritePage(bp->id(), page_num, page_cnt, page);
   dblwr_pages_.insert(std::pair<DoubleWritePageKey, DoubleWritePage *>(key, dblwr_page));
   LOG_TRACE("insert page into double write buffer. buffer_pool_id:%d,page_num:%d,lsn=%d, dwb size:%d",
             bp->id(), page_num, page.lsn, static_cast<int>(dblwr_pages_.size()));
 
-  int64_t offset = page_cnt * DoubleWritePage::SIZE + DoubleWriteBufferHeader::SIZE;
-  if (lseek(file_desc_, offset, SEEK_SET) == -1) {
-    LOG_ERROR("Failed to add page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
-    return RC::IOERR_SEEK;
-  }
-
-  if (writen(file_desc_, dblwr_page, DoubleWritePage::SIZE) != 0) {
-    LOG_ERROR("Failed to add page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
-    return RC::IOERR_WRITE;
+  RC rc = write_page_internal(dblwr_page);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to write page into double write buffer. rc=%s buffer_pool_id:%d,page_num:%d,lsn=%d.",
+        strrc(rc), bp->id(), page_num, page.lsn);
+    return rc;
   }
 
   if (page_cnt + 1 > header_.page_cnt) {
@@ -149,6 +146,23 @@ RC DiskDoubleWriteBuffer::add_page(DiskBufferPool *bp, PageNum page_num, Page &p
   return RC::SUCCESS;
 }
 
+RC DiskDoubleWriteBuffer::write_page_internal(DoubleWritePage *page)
+{
+  int32_t page_index = page->page_index;
+  int64_t offset = page_index * DoubleWritePage::SIZE + DoubleWriteBufferHeader::SIZE;
+  if (lseek(file_desc_, offset, SEEK_SET) == -1) {
+    LOG_ERROR("Failed to add page %lld of %d due to failed to seek %s.", offset, file_desc_, strerror(errno));
+    return RC::IOERR_SEEK;
+  }
+
+  if (writen(file_desc_, page, DoubleWritePage::SIZE) != 0) {
+    LOG_ERROR("Failed to add page %lld of %d due to %s.", offset, file_desc_, strerror(errno));
+    return RC::IOERR_WRITE;
+  }
+
+  return RC::SUCCESS;
+}
+
 RC DiskDoubleWriteBuffer::write_page(DoubleWritePage *dblwr_page)
 {
   DiskBufferPool *disk_buffer = nullptr;
@@ -168,6 +182,7 @@ RC DiskDoubleWriteBuffer::read_page(DiskBufferPool *bp, PageNum page_num, Page &
   auto iter = dblwr_pages_.find(key);
   if (iter != dblwr_pages_.end()) {
     page = iter->second->page;
+    LOG_TRACE("double write buffer read page success. bp id=%d, page_num:%d, lsn:%d", bp->id(), page_num, page.lsn);
     return RC::SUCCESS;
   }
 
