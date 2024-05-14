@@ -28,34 +28,27 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
-    env:
-      MDBOOK_VERSION: 0.4.21
     steps:
       - uses: actions/checkout@v3
-      - name: Install mdBook
+      - name: Install Dependencies
         run: |
-          curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf -y | sh
-          rustup update
-          cargo install --version ${MDBOOK_VERSION} mdbook
+          python3 -m pip install -r ./docs/requirements.txt
 
       - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v3
-
-      - name: Build with mdBook
-        run: mdbook build
+        run: |
+          mkdocs build
         working-directory: ./docs
 
       - name: Doxygen Action
         uses: mattnotmitt/doxygen-action@v1.9.5
         with:
           working-directory: .
-          doxyfile-path: ./Doxyfile
+          doxyfile-path: ./docs/Doxyfile
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: docs/book
+          path: docs/site
 
   # Deployment job
   deploy:

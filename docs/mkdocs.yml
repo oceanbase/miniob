@@ -1,0 +1,122 @@
+site_name: MiniOB
+site_url: https://oceanbase.github.io/miniob
+repo_url: https://github.com/oceanbase/miniob
+repo_name: oceanbase/miniob
+edit_uri: edit/main/docs/docs/
+copyright: Copyright © 2024 OceanBase
+plugins:
+  - search
+  - git-authors
+nav:
+  - 首页: index.md
+  - 快速开始: 
+    - 编译: how_to_build.md
+    - 运行: how_to_run.md
+    - 开发环境:
+      - dev-env/introduction.md
+      - dev-env/dev_by_gitpod.md
+      - dev-env/how-to-dev-using-docker.md
+      - dev-env/how_to_dev_in_docker_container_by_vscode.md
+      - dev-env/how_to_dev_in_docker_container_by_vscode_on_windows.md
+      - dev-env/how_to_dev_miniob_by_docker_on_windows.md
+      - dev-env/how_to_dev_miniob_by_vscode.md
+      - dev-env/miniob-how-to-debug.md
+  - 设计文档:
+    - design/miniob-architecture.md
+    - design/miniob-buffer-pool.md
+    - design/miniob-double-write-buffer.md
+    - design/miniob-transaction.md
+    - design/miniob-durability.md
+    - design/miniob-sql-parser.md
+    - design/miniob-how-to-add-new-sql.md
+    - design/miniob-sql-expression.md
+    - design/miniob-bplus-tree.md
+    - design/miniob-bplus-tree-concurrency.md
+    - design/miniob-thread-model.md
+    - design/miniob-mysql-protocol.md
+    - Doxy 代码文档: design/doxy/html/index.html
+  - OceanBase 数据库大赛:
+    - game/introduction.md
+    - game/miniob-output-convention.md
+    - game/debug-output.md
+    - game/miniob-memtracer.md
+    - game/miniob_topics.md
+    - game/github-introduction.md
+    - game/gitee-instructions.md
+    - game/miniob-test-comment-date.md
+    - game/miniob-date-implementation.md
+    - game/miniob-drop-table-implementation.md
+  - 数据库实现简明教程:
+    - lectures/copyright.md
+    - lectures/lecture-1.md
+    - lectures/lecture-2.md
+    - lectures/lecture-3.md
+    - lectures/lecture-4.md
+    - lectures/lecture-5.md
+    - lectures/lecture-6.md
+    - lectures/references.md
+  - 博客:
+    - blog/introduction.md
+    - blog/1.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+theme:
+  name: material
+  language: zh
+  features:
+    - search.highlight
+    - navigation.sections
+    - navigation.path
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.footer
+    - toc.follow
+    - content.code.copy
+    - content.action.edit
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default 
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/oceanbase
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/oceanbase/miniob
+    - icon: fontawesome/brands/slack
+      link: https://join.slack.com/t/oceanbase/shared_invite/zt-1e25oz3ol-lJ6YNqPHaKwY_mhhioyEuw
+
+markdown_extensions:
+  - toc:
+      permalink: true

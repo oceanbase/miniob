@@ -1,0 +1,3 @@
+mkdocs-material
+mkdocs-git-authors-plugin
+mkdocs-glightbox
