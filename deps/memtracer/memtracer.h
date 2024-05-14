@@ -71,7 +71,6 @@ private:
   static void stat();
 
 private:
-  bool                is_inited_ = false;
   bool                is_stop_   = false;
   std::atomic<size_t> allocated_memory_{};
   std::atomic<size_t> alloc_cnt_{};
