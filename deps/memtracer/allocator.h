@@ -48,13 +48,13 @@ mt_visible void  operator delete(void *ptr, std::size_t size) noexcept;
 mt_visible void  operator delete[](void *ptr, std::size_t size) noexcept;
 
 // unsupported libc functions, for simpler memory tracking.
-extern "C" mt_visible char *   realpath(const char *fname, char *resolved_name);
-extern "C" mt_visible void *   memalign(size_t alignment, size_t size);
-extern "C" mt_visible void *   valloc(size_t size);
-extern "C" mt_visible void *   pvalloc(size_t size);
+extern "C" mt_visible char    *realpath(const char *fname, char *resolved_name);
+extern "C" mt_visible void    *memalign(size_t alignment, size_t size);
+extern "C" mt_visible void    *valloc(size_t size);
+extern "C" mt_visible void    *pvalloc(size_t size);
 extern "C" mt_visible int      posix_memalign(void **memptr, size_t alignment, size_t size);
 extern "C" mt_visible int      brk(void *addr);
-extern "C" mt_visible void *   sbrk(intptr_t increment);
+extern "C" mt_visible void    *sbrk(intptr_t increment);
 extern "C" mt_visible long int syscall(long int __sysno, ...);
 
 // forword libc interface
