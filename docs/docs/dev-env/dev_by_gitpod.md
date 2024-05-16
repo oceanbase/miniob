@@ -40,7 +40,7 @@ title: 使用 GitPod 开发 MiniOB
   ![gitpod new workspace](images/dev_by_gitpod_gitpod_new_workspace.png)
 
   这里选择自己的代码项目，并且使用vscode浏览器版本，容器规格也选择最小的（最小的规格对miniob来说已经非常充足）
-  ![gitpod open miniob](images/dev_by_gitpod_open_miniob.png)
+  ![gitpod open miniob](images/dev_by_gitpod_open_miniob.jpg)
 
   ![gitpod miniob workspace](images/dev_by_gitpod_miniob_workspace.png)
 
@@ -150,7 +150,7 @@ Git的其它操作链接在这里
 
 ![git auth](images/dev_by_gitpod_git_auth.png)
 
-![git auth1](images/dev_by_gitpod_git_auth2.png)
+![git auth1](images/dev_by_gitpod_git_auth1.png)
 
 ## 信息介绍
 
