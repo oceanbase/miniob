@@ -208,6 +208,32 @@ RC RecordPageHandler::insert_record(const char *data, RID *rid)
   return RC::SUCCESS;
 }
 
+RC RecordPageHandler::update_record(RID *rid, int offset, int len, Value &value){
+  ASSERT(readonly_ == false,"cannot insert record into page while the page id readonly");
+
+  if(rid->slot_num >= page_header_->record_capacity){
+    LOG_ERROR("Invalid slot_num %d,exceed page's record capacity,page_num %d.",rid->slot_num,frame_->page_num());
+    return RC::INVALID_ARGUMENT;
+  }
+  Bitmap bitmap(bitmap_,page_header_->record_capacity);
+  if(!bitmap.get_bit(rid->slot_num)){
+    LOG_DEBUG("Invalid slot_num %d,slot is empty,page_num %d.",rid->slot_num,frame_->page_num());
+    return RC::RECORD_NOT_EXIST;
+  }
+  //
+  char* src_data = frame_->data() + page_header_->first_record_offset + (page_header_->record_size * rid->slot_num);
+  //
+  char* change_loc = (char*)((uint64_t)(src_data) + offset);
+  const char* data = value.data();
+  if(len == -1){
+    len = value.length();
+  }
+  memcpy(change_loc,data,len);
+  //
+  frame_->mark_dirty();
+  return RC::SUCCESS;
+}
+
 RC RecordPageHandler::recover_insert_record(const char *data, const RID &rid)
 {
   if (rid.slot_num >= page_header_->record_capacity) {
@@ -406,6 +432,17 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
 
   // 找到空闲位置
   return record_page_handler.insert_record(data, rid);
+}
+
+RC RecordFileHandler::update_record(RID *rid, int offset, int len, Value &value)
+{
+  RC rc = RC::SUCCESS;
+  RecordPageHandler page_handler;
+  if((rc = page_handler.init(*disk_buffer_pool_, rid->page_num, false)) != RC::SUCCESS){
+    LOG_ERROR("failed to init record_page_handler. page_number=%d. rc=%s", rid->page_num, strrc(rc));
+    return rc;
+  }
+  return RC::SUCCESS;
 }
 
 RC RecordFileHandler::recover_insert_record(const char *data, int record_size, const RID &rid)

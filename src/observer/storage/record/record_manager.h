@@ -172,6 +172,7 @@ public:
    * @param data 要插入的数据行
    * @param rid  插入的位置
    */
+  RC update_record(RID *rid, int offset, int len, Value &value);
   RC recover_insert_record(const char *data, const RID &rid);
 
   /**
@@ -282,6 +283,8 @@ public:
    * @param record_size 记录大小
    * @param rid         要插入记录的指定标识符
    */
+  RC update_record(RID *rid, int offset, int len, Value &value);
+  
   RC recover_insert_record(const char *data, int record_size, const RID &rid);
 
   /**

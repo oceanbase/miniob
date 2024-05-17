@@ -132,8 +132,6 @@ RC SelectStmt::create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt)
         Table *table = iter->second;
         if (0 == strcmp(field_name, "*")) {
 
-          std::cout << "bbbbbbb";
-
           if(have_aggregation_ && aggregation_ != AggrOp::AGGR_COUNT)
           {
             return RC::INVALID_ARGUMENT;

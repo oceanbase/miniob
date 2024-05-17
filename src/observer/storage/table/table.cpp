@@ -207,6 +207,18 @@ RC Table::insert_record(Record &record)
   return rc;
 }
 
+RC Table::update_record(Record &record, int offset, int len, Value &value)
+{
+  RC rc = RC::SUCCESS;
+  rc = record_handler_->update_record(&record.rid(), offset, len, value);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to update record:%s", strrc(rc));
+    return rc;
+  }
+
+  return RC::SUCCESS;
+}
+
 RC Table::visit_record(const RID &rid, bool readonly, std::function<void(Record &)> visitor)
 {
   return record_handler_->visit_record(rid, readonly, visitor);

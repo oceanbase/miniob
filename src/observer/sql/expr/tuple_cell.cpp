@@ -40,10 +40,10 @@ TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, con
       alias_ = table_name_ + "." + field_name_;
     }
 
-    if(aggr_ == AggrOp::AGGR_COUNT_ALL)
+    if(aggr == AggrOp::AGGR_COUNT_ALL)
     {
       alias_ = "COUNT(*)";
-    }else if(aggr_ != AggrOp::AGGR_NONE){
+    }else if(aggr != AggrOp::AGGR_NONE){
       std::string aggr_repr;
       aggr_to_string(aggr_, aggr_repr);
       for(int i = 0;i < alias_.length();i++)
@@ -66,10 +66,10 @@ TupleCellSpec::TupleCellSpec(const char *alias, const AggrOp aggr)
   }
   if (alias) {
     alias_ = alias;
-    if(aggr_ == AggrOp::AGGR_COUNT_ALL)
+    if(aggr == AggrOp::AGGR_COUNT_ALL)
       {
         alias_ = "COUNT(*)";
-      }else if(aggr_ != AggrOp::AGGR_NONE){
+      }else if(aggr != AggrOp::AGGR_NONE){
         std::string aggr_repr;
         aggr_to_string(aggr_, aggr_repr);
         for(int i = 0;i < alias_.length();i++)
