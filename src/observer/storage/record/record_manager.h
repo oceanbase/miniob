@@ -94,7 +94,7 @@ public:
 
   /**
    * @brief 读取下一个记录到record中包括RID和数据，并更新下一个记录位置next_slot_num_
-   * 
+   *
    * @param record 返回的下一个记录
    */
   RC   next(Record &record);
@@ -138,7 +138,7 @@ public:
 
   /**
    * @brief 数据库恢复时，与普通的运行场景有所不同，不做任何并发操作，也不需要加锁
-   * 
+   *
    * @param buffer_pool 关联某个文件时，都通过buffer pool来做读写文件
    * @param page_num    操作的页面编号
    */
@@ -159,6 +159,16 @@ public:
   RC cleanup();
 
   /**
+   * @brief 更新一条记录
+   *
+   * @param rid    如果插入成功，通过这个参数返回插入的位置
+   * @param offset 
+   * @param len
+   * @param value
+   */
+  RC update_record(RID *rid, int offset, int len, Value &value);
+
+  /**
    * @brief 插入一条记录
    *
    * @param data 要插入的记录
@@ -168,7 +178,7 @@ public:
 
   /**
    * @brief 数据库恢复时，在指定位置插入数据
-   * 
+   *
    * @param data 要插入的数据行
    * @param rid  插入的位置
    */
@@ -201,7 +211,7 @@ public:
 
 protected:
   /**
-   * @details 
+   * @details
    * 前面在计算record_capacity时并没有考虑对齐，但第一个record需要8字节对齐
    * 因此按此前计算的record_capacity，最后一个记录的部分数据可能会被挤出页面
    * 所以需要对record_capacity进行修正，保证记录不会溢出
@@ -217,7 +227,7 @@ protected:
 
   /**
    * @brief 获取指定槽位的记录数据
-   * 
+   *
    * @param 指定的记录槽位
    */
   char *get_record_data(SlotNum slot_num)
@@ -259,25 +269,35 @@ public:
    */
   void close();
 
+   /**
+   * @brief 从指定文件中更新指定槽位的记录
+   *
+   * @param rid 待更新记录的标识符
+   * @param offset 该属性字段在表格所有字段中的偏移量
+   * @param len 字段长度
+   * @param value 字段的值
+   */
+  RC update_record(RID *rid, int offset, int len, Value &value);
+
   /**
    * @brief 从指定文件中删除指定槽位的记录
-   * 
+   *
    * @param rid 待删除记录的标识符
    */
   RC delete_record(const RID *rid);
 
   /**
    * @brief 插入一个新的记录到指定文件中，并返回该记录的标识符
-   * 
+   *
    * @param data        纪录内容
    * @param record_size 记录大小
    * @param rid         返回该记录的标识符
    */
   RC insert_record(const char *data, int record_size, RID *rid);
 
-   /**
+  /**
    * @brief 数据库恢复时，在指定文件指定位置插入数据
-   * 
+   *
    * @param data        记录内容
    * @param record_size 记录大小
    * @param rid         要插入记录的指定标识符
@@ -344,7 +364,7 @@ public:
    */
   RC close_scan();
 
-  /** 
+  /**
    * @brief 判断是否还有数据
    * @details 判断完成后调用next获取下一条数据
    */
@@ -352,9 +372,9 @@ public:
 
   /**
    * @brief 获取下一条记录
-   * 
+   *
    * @param record 返回的下一条记录
-   * 
+   *
    * @details 获取下一条记录之前先调用has_next()判断是否还有数据
    */
   RC   next(Record &record);

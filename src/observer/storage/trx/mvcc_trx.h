@@ -68,10 +68,11 @@ public:
 
   RC insert_record(Table *table, Record &record) override;
   RC delete_record(Table *table, Record &record) override;
-
+  RC update_record(Table *table, Record &record, int offset, int len, Value &value) override;
+  
   /**
    * @brief 当访问到某条数据时，使用此函数来判断是否可见，或者是否有访问冲突
-   * 
+   *
    * @param table    要访问的数据属于哪张表
    * @param record   要访问哪条数据
    * @param readonly 是否只读访问

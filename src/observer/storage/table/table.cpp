@@ -55,7 +55,7 @@ RC Table::create(int32_t table_id,
                  const char *name, 
                  const char *base_dir, 
                  int attribute_count, 
-                 const AttrInfoSqlNode attributes[])
+    const AttrInfoSqlNode attributes[])
 {
   if (table_id < 0) {
     LOG_WARN("invalid table id. table_id=%d, table_name=%s", table_id, name);
@@ -180,6 +180,18 @@ RC Table::open(const char *meta_file, const char *base_dir)
   }
 
   return rc;
+}
+
+RC Table::update_record(Record &record, int offset, int len, Value &value)
+{
+  RC rc = RC::SUCCESS;
+  rc = record_handler_->update_record(&record.rid(), offset, len, value);
+  if(rc != RC::SUCCESS) {
+    LOG_WARN("failed to update record: %s", strrc(rc));
+    return rc;
+  }
+
+  return RC::SUCCESS;
 }
 
 RC Table::insert_record(Record &record)
@@ -387,12 +399,12 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to insert record into index while creating index. table=%s, index=%s, rc=%s",
                name(), index_name, strrc(rc));
-      return rc;         
+      return rc;
     }
   }
   scanner.close_scan();
   LOG_INFO("inserted all records into new index. table=%s, index=%s", name(), index_name);
-  
+
   indexes_.push_back(index);
 
   /// 接下来将这个索引放到表的元数据中
