@@ -2,7 +2,7 @@
 
 <div align="left">
 
-[![Chinese Doc](https://img.shields.io/badge/文档-简体中文-blue)](https://oceanbase.github.io/miniob/miniob-introduction.html)
+[![Chinese Doc](https://img.shields.io/badge/文档-简体中文-blue)](https://oceanbase.github.io/miniob/)
 [![MiniOB stars](https://img.shields.io/badge/dynamic/json?color=blue&label=stars&query=stargazers_count&url=https%3A%2F%2Fapi.github.com%2Frepos%2Foceanbase%2Fminiob)](https://github.com/oceanbase/miniob)
 [![Coverage Status](https://codecov.io/gh/oceanbase/miniob/branch/main/graph/badge.svg)](https://codecov.io/gh/oceanbase/miniob)
 
@@ -19,10 +19,10 @@ MiniOB 整体代码简洁，容易上手，设计了一系列由浅入深的题�
 
 为了帮助开发者更好地上手并学习 MiniOB，建议阅读以下内容：
 
-1. [MiniOB 框架介绍](https://oceanbase.github.io/miniob/miniob-introduction.html)
-2. [如何编译 MiniOB 源码](https://oceanbase.github.io/miniob/how_to_build.html)
-3. [如何运行 MiniOB](https://oceanbase.github.io/miniob/how_to_run.html)
-4. [使用 GitPod 开发 MiniOB](https://oceanbase.github.io/miniob/dev-env/dev_by_gitpod.html)
+1. [MiniOB 框架介绍](https://oceanbase.github.io/miniob/design/miniob-architecture/)
+2. [如何编译 MiniOB 源码](https://oceanbase.github.io/miniob/how_to_build/)
+3. [如何运行 MiniOB](https://oceanbase.github.io/miniob/how_to_run/)
+4. [使用 GitPod 开发 MiniOB](https://oceanbase.github.io/miniob/dev-env/dev_by_gitpod/)
 5. [doxygen 代码文档](https://oceanbase.github.io/miniob/design/doxy/html/index.html)
 
 为了帮助大家更好地学习数据库基础知识，OceanBase社区提供了一系列教程。更多文档请参考 [MiniOB GitHub Pages](https://oceanbase.github.io/miniob/)。建议学习：
