@@ -34,7 +34,7 @@ docker基于`anolisos:8.6`制作。
 - flex
 - bison(3.7)
 - gcc/g++ (version=11)
-- miniob 源码(/root/source/miniob)
+- miniob 源码(/root/source/miniob) (注意在v1.1版本后，需要自己下载源码)
 
 docker中在/root/source/miniob目录下载了github的源码，可以根据个人需要，下载自己仓库的源代码，也可以直接使用git pull 拉取最新代码。
 /root/source/miniob/build.sh 提供了一个编译脚本，以DEBUG模式编译miniob。
