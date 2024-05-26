@@ -115,3 +115,6 @@ bool is_leap_year(int year);
 bool check_date(int y, int m, int d);
 void strDate_to_intDate(const char* strDate,int& intDate);
 void intDate_to_strDate(const int intDate, char* strDate);
+
+std::string floatString_to_String(std::string floatString);
+std::string removeFloatStringEndZero(std::string str);
