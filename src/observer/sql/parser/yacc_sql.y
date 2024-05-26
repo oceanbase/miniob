@@ -67,6 +67,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
         INDEX
         CALC
         SELECT
+        INNER
         DESC
         SHOW
         SYNC
@@ -112,6 +113,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
   enum CompOp                       comp;
   enum AggrOp                       aggr;
   RelAttrSqlNode *                  rel_attr;
+  JoinSqlNode *                     join_sql_node;
   std::vector<AttrInfoSqlNode> *    attr_infos;
   AttrInfoSqlNode *                 attr_info;
   Expression *                      expression;
@@ -130,6 +132,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %token <string> ID
 %token <string> DATE_STR
 %token <string> SSS
+%token <string> JOIN
 //非终结符
 
 /** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义的成员变量名称 **/
@@ -148,6 +151,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %type <condition_list>      condition_list
 %type <rel_attr_list>       select_attr
 %type <relation_list>       rel_list
+%type <join_sql_node>       join_list
 %type <rel_attr_list>       attr_list
 %type <rel_attr_list>       rel_attr_aggr_list
 %type <expression>          expression
@@ -432,7 +436,7 @@ update_stmt:      /*  update 语句的语法解析树*/
     }
     ;
 select_stmt:        /*  select 语句的语法解析树*/
-    SELECT select_attr FROM ID rel_list where
+    SELECT select_attr FROM ID rel_list join_list where
     {
       $$ = new ParsedSqlNode(SCF_SELECT);
       if ($2 != nullptr) {
@@ -446,10 +450,17 @@ select_stmt:        /*  select 语句的语法解析树*/
       $$->selection.relations.push_back($4);
       std::reverse($$->selection.relations.begin(), $$->selection.relations.end());
 
+      if ($7 != nullptr) {
+        $$->selection.conditions.swap(*$7);
+        delete $7;
+      }
+
       if ($6 != nullptr) {
-        $$->selection.conditions.swap(*$6);
+        $$->selection.relations.insert($$->selection.relations.end(), $6->relations.begin(), $6->relations.end());
+        $$->selection.conditions.insert($$->selection.conditions.end(), $6->conditions.begin(), $6->conditions.end());
         delete $6;
       }
+      
       free($4);
     }
     ;
@@ -642,6 +653,27 @@ rel_list:
       free($2);
     }
     ;
+
+join_list:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | INNER JOIN ID ON condition_list join_list {
+      $$ = new JoinSqlNode();
+      $$->relations.push_back($3);
+      free($3);
+      if ($5 != nullptr) {
+        $$->conditions.swap(*$5);
+        delete $5;
+      }
+      if ($6 != nullptr) {
+        $$->relations.insert($$->relations.end(), $6->relations.begin(), $6->relations.end());
+        $$->conditions.insert($$->conditions.end(), $6->conditions.begin(), $6->conditions.end());
+        delete $6;
+      }
+    }
+
 where:
     /* empty */
     {
