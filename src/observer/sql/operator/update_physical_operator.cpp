@@ -183,7 +183,7 @@ RC UpdatePhysicalOperator::next()
 
   PhysicalOperator *child = children_[0].get();
 
-  std::vector<Record> insert_record;
+  //std::vector<Record> insert_record;
   while (RC::SUCCESS == (rc = child->next())) {
     Tuple *tuple = child->current_tuple();
     if (nullptr == tuple) {
