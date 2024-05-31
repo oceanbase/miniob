@@ -256,13 +256,13 @@ int Value::compare(const Value &other) const
     return common::compare_str_with_float((void *)this->str_value_.c_str(), this->str_value_.length(), (void *)&other_data);
   } else if (this->attr_type_ == FLOATS && other.attr_type_ == CHARS) {
     float this_data = this->num_value_.float_value_;
-    return -common::compare_str_with_float((void *)other.str_value_.c_str(), other.str_value_.length(), (void *)&this_data);
+    return common::compare_str_with_float((void *)other.str_value_.c_str(), other.str_value_.length(), (void *)&this_data);
   } else if (this->attr_type_ == CHARS && other.attr_type_ == INTS) {
     int other_data = other.num_value_.int_value_;
     return common::compare_str_with_int((void *)this->str_value_.c_str(), this->str_value_.length(), (void *)&other_data);
   } else if (this->attr_type_ == INTS && other.attr_type_ == CHARS) {
     int this_data = this->num_value_.int_value_;
-    return -common::compare_str_with_int((void *)other.str_value_.c_str(), other.str_value_.length(), (void *)&this_data);
+    return common::compare_str_with_int((void *)other.str_value_.c_str(), other.str_value_.length(), (void *)&this_data);
   }
   LOG_WARN("not supported");
   return -1;  // TODO return rc?

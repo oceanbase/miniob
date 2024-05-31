@@ -67,8 +67,6 @@ int compare_string(void *arg1, int arg1_max_length, void *arg2, int arg2_max_len
   return 0;
 }
 
-}  // namespace common
-
 int compare_str_with_float(void *arg1, int arg1_max_length, void *arg2)
 {
   const char *s1  = (const char *)arg1;
@@ -98,3 +96,7 @@ int compare_str_with_int(void *arg1, int arg1_max_length, void *arg2)
   }
   return 0;
 }
+
+
+}  // namespace common
+
