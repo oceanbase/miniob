@@ -14,11 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-#include <span>
-
 #include "common/types.h"
 #include "common/rc.h"
+#include "common/lang/span.h"
+#include "common/lang/string.h"
 #include "storage/index/bplus_tree.h"
 
 class IndexNodeHandler;
@@ -62,7 +61,7 @@ public:
   Type type() const { return type_; }
   int  index() const { return static_cast<int>(type_); }
 
-  std::string to_string() const;
+  string to_string() const;
 
 private:
   Type type_;
@@ -112,7 +111,7 @@ public:
    */
   virtual RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) = 0;
 
-  virtual std::string to_string() const;
+  virtual string to_string() const;
 
   /**
    * @brief 从buffer中反序列化出一个LogEntryHandler
@@ -126,11 +125,11 @@ public:
    * 但是这里实现的时候，只使用了handler，所以在反序列化时，有些场景下根本不需要Frame，但是为了适配，允许传入一个null
    * frame。 在LogEntryHandler类中也做了特殊处理。就是虽然有frame指针对象，但是也另外单独记录了page_num。
    */
-  static RC from_buffer(std::function<RC(PageNum, Frame *&)> frame_getter, common::Deserializer &buffer,
-      std::unique_ptr<LogEntryHandler> &handler);
   static RC from_buffer(
-      DiskBufferPool &buffer_pool, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
-  static RC from_buffer(common::Deserializer &deserializer, std::unique_ptr<LogEntryHandler> &handler);
+      function<RC(PageNum, Frame *&)> frame_getter, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
+  static RC from_buffer(
+      DiskBufferPool &buffer_pool, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
+  static RC from_buffer(common::Deserializer &deserializer, unique_ptr<LogEntryHandler> &handler);
 
 protected:
   LogOperation operation_type_;
@@ -167,9 +166,9 @@ public:
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
   RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
 
-  std::string to_string() const override;
+  string to_string() const override;
 
-  static RC deserialize(Frame *frame, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
+  static RC deserialize(Frame *frame, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
 
   const IndexFileHeader &file_header() const { return file_header_; }
 
@@ -191,9 +190,9 @@ public:
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
   RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
 
-  std::string to_string() const override;
+  string to_string() const override;
 
-  static RC deserialize(Frame *frame, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
+  static RC deserialize(Frame *frame, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
 
   PageNum root_page_num() const { return root_page_num_; }
 
@@ -216,9 +215,9 @@ public:
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
   RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
 
-  std::string to_string() const override;
+  string to_string() const override;
 
-  static RC deserialize(Frame *frame, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
+  static RC deserialize(Frame *frame, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
 
   PageNum parent_page_num() const { return parent_page_num_; }
 
@@ -241,10 +240,10 @@ public:
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
   RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
 
-  std::string to_string() const override;
+  string to_string() const override;
 
   static RC deserialize(
-      Frame *frame, LogOperation operation, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
+      Frame *frame, LogOperation operation, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
 
   int         index() const { return index_; }
   int         item_num() const { return item_num_; }
@@ -252,9 +251,9 @@ public:
   int32_t     item_bytes() const { return static_cast<int32_t>(items_.size()); }
 
 private:
-  int               index_    = -1;
-  int               item_num_ = -1;
-  std::vector<char> items_;
+  int          index_    = -1;
+  int          item_num_ = -1;
+  vector<char> items_;
 };
 
 /**
@@ -271,9 +270,9 @@ public:
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override { return RC::SUCCESS; }
   RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
 
-  // std::string to_string() const override;
+  // string to_string() const override;
 
-  static RC deserialize(Frame *frame, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
+  static RC deserialize(Frame *frame, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
 };
 
 /**
@@ -290,9 +289,9 @@ public:
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
   RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
 
-  std::string to_string() const override;
+  string to_string() const override;
 
-  static RC deserialize(Frame *frame, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
+  static RC deserialize(Frame *frame, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
 
   PageNum new_page_num() const { return new_page_num_; }
 
@@ -315,9 +314,9 @@ public:
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override { return RC::SUCCESS; }
   RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
 
-  // std::string to_string() const override;
+  // string to_string() const override;
 
-  static RC deserialize(Frame *frame, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
+  static RC deserialize(Frame *frame, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
 };
 
 /**
@@ -327,17 +326,16 @@ public:
 class InternalCreateNewRootLogEntryHandler : public NodeLogEntryHandler
 {
 public:
-  InternalCreateNewRootLogEntryHandler(
-      Frame *frame, PageNum first_page_num, std::span<const char> key, PageNum page_num);
+  InternalCreateNewRootLogEntryHandler(Frame *frame, PageNum first_page_num, span<const char> key, PageNum page_num);
   virtual ~InternalCreateNewRootLogEntryHandler() = default;
 
   RC serialize_body(common::Serializer &buffer) const override;
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override { return RC::SUCCESS; }
   RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
 
-  std::string to_string() const override;
+  string to_string() const override;
 
-  static RC deserialize(Frame *frame, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
+  static RC deserialize(Frame *frame, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
 
   PageNum     first_page_num() const { return first_page_num_; }
   PageNum     page_num() const { return page_num_; }
@@ -345,9 +343,9 @@ public:
   int32_t     key_bytes() const { return static_cast<int32_t>(key_.size()); }
 
 private:
-  PageNum           first_page_num_ = -1;
-  PageNum           page_num_       = -1;
-  std::vector<char> key_;
+  PageNum      first_page_num_ = -1;
+  PageNum      page_num_       = -1;
+  vector<char> key_;
 };
 
 /**
@@ -357,25 +355,25 @@ private:
 class InternalUpdateKeyLogEntryHandler : public NodeLogEntryHandler
 {
 public:
-  InternalUpdateKeyLogEntryHandler(Frame *frame, int index, std::span<const char> key, std::span<const char> old_key);
+  InternalUpdateKeyLogEntryHandler(Frame *frame, int index, span<const char> key, span<const char> old_key);
   virtual ~InternalUpdateKeyLogEntryHandler() = default;
 
   RC serialize_body(common::Serializer &buffer) const override;
   RC rollback(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
   RC redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler) override;
 
-  std::string to_string() const override;
+  string to_string() const override;
 
-  static RC deserialize(Frame *frame, common::Deserializer &buffer, std::unique_ptr<LogEntryHandler> &handler);
+  static RC deserialize(Frame *frame, common::Deserializer &buffer, unique_ptr<LogEntryHandler> &handler);
 
   int         index() const { return index_; }
   const char *key() const { return key_.data(); }
   int32_t     key_bytes() const { return static_cast<int32_t>(key_.size()); }
 
 private:
-  int               index_ = -1;
-  std::vector<char> key_;
-  std::vector<char> old_key_;
+  int          index_ = -1;
+  vector<char> key_;
+  vector<char> old_key_;
 };
 
 }  // namespace bplus_tree

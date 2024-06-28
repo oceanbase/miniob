@@ -18,9 +18,10 @@ See the Mulan PSL v2 for more details. */
 #include <stdio.h>
 
 #include <iostream>
-#include <map>
-#include <set>
-#include <string>
+
+#include "common/lang/map.h"
+#include "common/lang/set.h"
+#include "common/lang/string.h"
 
 namespace common {
 
@@ -45,35 +46,34 @@ public:
    * it support load multiple ini configuration files
    * @return, 0 means success, others means failed
    */
-  int load(const std::string &ini_file);
+  int load(const string &ini_file);
 
   /**
    * get the map of the section
    * if the section doesn't exist, return one empty section
    */
-  const std::map<std::string, std::string> &get(const std::string &section = DEFAULT_SECTION);
+  const map<string, string> &get(const string &section = DEFAULT_SECTION);
 
   /**
    * get the value of the key in the section,
    * if the key-value doesn't exist,
    * use the input default_value
    */
-  std::string get(
-      const std::string &key, const std::string &default_value, const std::string &section = DEFAULT_SECTION);
+  string get(const string &key, const string &default_value, const string &section = DEFAULT_SECTION);
 
   /**
    * put the key-value pair to the section
    * if the key-value already exist, just replace it
    * if the section doesn't exist, it will create this section
    */
-  int put(const std::string &key, const std::string &value, const std::string &section = DEFAULT_SECTION);
+  int put(const string &key, const string &value, const string &section = DEFAULT_SECTION);
 
   /**
    * output all configuration to one string
    */
-  void to_string(std::string &output_str);
+  void to_string(string &output_str);
 
-  static const std::string DEFAULT_SECTION;
+  static const string DEFAULT_SECTION;
 
   // one line max length
   static const int MAX_CFG_LINE_LEN = 1024;
@@ -95,28 +95,28 @@ protected:
   /**
    * insert one empty session to sections_
    */
-  void insert_session(const std::string &session_name);
+  void insert_session(const string &session_name);
 
   /**
    * switch session according to the session_name
    * if the section doesn't exist, it will create one
    */
-  std::map<std::string, std::string> *switch_session(const std::string &session_name);
+  map<string, string> *switch_session(const string &session_name);
 
   /**
    * insert one entry to session_map
    * line's format is "key=value"
    *
    */
-  int insert_entry(std::map<std::string, std::string> *session_map, const std::string &line);
+  int insert_entry(map<string, string> *session_map, const string &line);
 
-  typedef std::map<std::string, std::map<std::string, std::string>> SessionsMap;
+  typedef map<string, map<string, string>> SessionsMap;
 
 private:
-  static const std::map<std::string, std::string> empty_map_;
+  static const map<string, string> empty_map_;
 
-  std::set<std::string> file_names_;
-  SessionsMap           sections_;
+  set<string> file_names_;
+  SessionsMap sections_;
 };
 
 /**

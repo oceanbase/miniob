@@ -8,16 +8,17 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Wangyunlai on 2023/01/11.
-//
-
 #pragma once
 
-namespace common {
-class ThreadPool
-{
-public:
-};
+#include <iostream>
 
-}  // namespace common
+#include "common/lang/exception.h"
+#include "common/lang/ios.h"
+#include "common/lang/new.h"
+
+using std::cin;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::ostream;
+using std::istream;

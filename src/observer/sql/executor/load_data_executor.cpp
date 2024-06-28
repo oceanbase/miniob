@@ -58,12 +58,12 @@ RC insert_record_from_file(
     const FieldMeta *field = table->table_meta().field(i + sys_field_num);
 
     std::string &file_value = file_values[i];
-    if (field->type() != CHARS) {
+    if (field->type() != AttrType::CHARS) {
       common::strip(file_value);
     }
 
     switch (field->type()) {
-      case INTS: {
+      case AttrType::INTS: {
         deserialize_stream.clear();  // 清理stream的状态，防止多次解析出现异常
         deserialize_stream.str(file_value);
 
@@ -79,7 +79,7 @@ RC insert_record_from_file(
       }
 
       break;
-      case FLOATS: {
+      case AttrType::FLOATS: {
         deserialize_stream.clear();
         deserialize_stream.str(file_value);
 
@@ -92,11 +92,11 @@ RC insert_record_from_file(
           record_values[i].set_float(float_value);
         }
       } break;
-      case CHARS: {
+      case AttrType::CHARS: {
         record_values[i].set_string(file_value.c_str());
       } break;
       default: {
-        errmsg << "Unsupported field type to loading: " << field->type();
+        errmsg << "Unsupported field type to loading: " << attr_type_to_string(field->type());
         rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
       } break;
     }

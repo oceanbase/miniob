@@ -13,15 +13,16 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <poll.h>
-#include <thread>
 
 #include "net/one_thread_per_connection_thread_handler.h"
 #include "common/log/log.h"
+#include "common/lang/thread.h"
+#include "common/lang/mutex.h"
+#include "common/lang/chrono.h"
 #include "common/thread/thread_util.h"
 #include "net/communicator.h"
 #include "net/sql_task_handler.h"
 
-using namespace std;
 using namespace common;
 
 class Worker
@@ -40,7 +41,7 @@ public:
 
   RC start()
   {
-    thread_ = new std::thread(std::ref(*this));
+    thread_ = new thread(std::ref(*this));
     return RC::SUCCESS;
   }
 
@@ -53,7 +54,7 @@ public:
   RC join()
   {
     if (thread_) {
-      if (thread_->get_id() == std::this_thread::get_id()) {
+      if (thread_->get_id() == this_thread::get_id()) {
         thread_->detach(); // 如果当前线程join当前线程，就会卡死
       } else {
         thread_->join();
@@ -107,7 +108,7 @@ private:
   ThreadHandler &host_;
   SqlTaskHandler task_handler_;
   Communicator *communicator_ = nullptr;
-  std::thread *thread_ = nullptr;
+  thread *thread_ = nullptr;
   volatile bool running_ = true;
 };
 

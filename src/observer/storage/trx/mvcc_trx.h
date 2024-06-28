@@ -14,8 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <vector>
-
+#include "common/lang/vector.h"
 #include "storage/trx/trx.h"
 #include "storage/trx/mvcc_trx_log.h"
 
@@ -30,7 +29,7 @@ public:
   virtual ~MvccTrxKit();
 
   RC                            init() override;
-  const std::vector<FieldMeta> *trx_fields() const override;
+  const vector<FieldMeta> *trx_fields() const override;
 
   Trx *create_trx(LogHandler &log_handler) override;
   Trx *create_trx(LogHandler &log_handler, int32_t trx_id) override;
@@ -41,7 +40,7 @@ public:
    * @details 当前仅在recover场景下使用
    */
   Trx *find_trx(int32_t trx_id) override;
-  void all_trxes(std::vector<Trx *> &trxes) override;
+  void all_trxes(vector<Trx *> &trxes) override;
 
   LogReplayer *create_log_replayer(Db &db, LogHandler &log_handler) override;
 
@@ -52,12 +51,12 @@ public:
   int32_t max_trx_id() const;
 
 private:
-  std::vector<FieldMeta> fields_;  // 存储事务数据需要用到的字段元数据，所有表结构都需要带的
+  vector<FieldMeta> fields_;  // 存储事务数据需要用到的字段元数据，所有表结构都需要带的
 
-  std::atomic<int32_t> current_trx_id_{0};
+  atomic<int32_t> current_trx_id_{0};
 
   common::Mutex      lock_;
-  std::vector<Trx *> trxes_;
+  vector<Trx *> trxes_;
 };
 
 /**
@@ -105,11 +104,11 @@ private:
   void trx_fields(Table *table, Field &begin_xid_field, Field &end_xid_field) const;
 
 private:
-  static const int32_t MAX_TRX_ID = std::numeric_limits<int32_t>::max();
+  static const int32_t MAX_TRX_ID = numeric_limits<int32_t>::max();
 
 private:
-  // using OperationSet = std::unordered_set<Operation, OperationHasher, OperationEqualer>;
-  using OperationSet = std::vector<Operation>;
+  // using OperationSet = unordered_set<Operation, OperationHasher, OperationEqualer>;
+  using OperationSet = vector<Operation>;
 
   MvccTrxKit       &trx_kit_;
   MvccTrxLogHandler log_handler_;

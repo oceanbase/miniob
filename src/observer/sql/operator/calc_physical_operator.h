@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "sql/expr/tuple.h"
+#include "sql/expr/expression_tuple.h"
 #include "sql/operator/physical_operator.h"
 
 class CalcPhysicalOperator : public PhysicalOperator
@@ -59,8 +59,15 @@ public:
 
   const std::vector<std::unique_ptr<Expression>> &expressions() const { return expressions_; }
 
+  RC tuple_schema(TupleSchema &schema) const override
+  {
+    for (const std::unique_ptr<Expression> &expression : expressions_) {
+      schema.append_cell(expression->name());
+    }
+    return RC::SUCCESS;
+  }
 private:
-  std::vector<std::unique_ptr<Expression>> expressions_;
-  ExpressionTuple                          tuple_;
-  bool                                     emitted_ = false;
+  std::vector<std::unique_ptr<Expression>>     expressions_;
+  ExpressionTuple<std::unique_ptr<Expression>> tuple_;
+  bool                                         emitted_ = false;
 };

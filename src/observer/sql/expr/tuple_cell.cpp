@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/tuple_cell.h"
 #include "common/lang/string.h"
 
+using namespace std;
+
 TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, const char *alias)
 {
   if (table_name) {
@@ -40,3 +42,6 @@ TupleCellSpec::TupleCellSpec(const char *alias)
     alias_ = alias;
   }
 }
+
+TupleCellSpec::TupleCellSpec(const string &alias) : alias_(alias)
+{}

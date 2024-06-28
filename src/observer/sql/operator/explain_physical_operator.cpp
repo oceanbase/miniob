@@ -26,12 +26,8 @@ RC ExplainPhysicalOperator::open(Trx *)
 
 RC ExplainPhysicalOperator::close() { return RC::SUCCESS; }
 
-RC ExplainPhysicalOperator::next()
+void ExplainPhysicalOperator::generate_physical_plan()
 {
-  if (!physical_plan_.empty()) {
-    return RC::RECORD_EOF;
-  }
-
   stringstream ss;
   ss << "OPERATOR(NAME)\n";
 
@@ -47,12 +43,35 @@ RC ExplainPhysicalOperator::next()
   }
 
   physical_plan_ = ss.str();
+}
+
+RC ExplainPhysicalOperator::next()
+{
+  if (!physical_plan_.empty()) {
+    return RC::RECORD_EOF;
+  }
+  generate_physical_plan();
 
   vector<Value> cells;
   Value         cell;
   cell.set_string(physical_plan_.c_str());
   cells.emplace_back(cell);
   tuple_.set_cells(cells);
+  return RC::SUCCESS;
+}
+
+RC ExplainPhysicalOperator::next(Chunk &chunk)
+{
+  if (!physical_plan_.empty()) {
+    return RC::RECORD_EOF;
+  }
+  generate_physical_plan();
+
+  Value         cell;
+  cell.set_string(physical_plan_.c_str());
+  auto column = make_unique<Column>();
+  column->init(cell);
+  chunk.add_column(std::move(column), 0);
   return RC::SUCCESS;
 }
 

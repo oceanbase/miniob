@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/physical_operator.h"
+#include "sql/expr/expression_tuple.h"
 
 /**
  * @brief 选择/投影物理算子
@@ -23,12 +24,9 @@ See the Mulan PSL v2 for more details. */
 class ProjectPhysicalOperator : public PhysicalOperator
 {
 public:
-  ProjectPhysicalOperator() {}
+  ProjectPhysicalOperator(std::vector<std::unique_ptr<Expression>> &&expressions);
 
   virtual ~ProjectPhysicalOperator() = default;
-
-  void add_expressions(std::vector<std::unique_ptr<Expression>> &&expressions) {}
-  void add_projection(const Table *table, const FieldMeta *field);
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::PROJECT; }
 
@@ -40,6 +38,9 @@ public:
 
   Tuple *current_tuple() override;
 
+  RC tuple_schema(TupleSchema &schema) const override;
+
 private:
-  ProjectTuple tuple_;
+  std::vector<std::unique_ptr<Expression>>     expressions_;
+  ExpressionTuple<std::unique_ptr<Expression>> tuple_;
 };

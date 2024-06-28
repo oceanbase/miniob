@@ -13,18 +13,20 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <assert.h>
-#include <exception>
 #include <execinfo.h>
 #include <stdarg.h>
 #include <stdio.h>
 
 #include "common/lang/string.h"
+#include "common/lang/functional.h"
+#include "common/lang/iostream.h"
+#include "common/lang/new.h"
 #include "common/log/log.h"
 namespace common {
 
 Log *g_log = nullptr;
 
-Log::Log(const std::string &log_file_name, const LOG_LEVEL log_level, const LOG_LEVEL console_level)
+Log::Log(const string &log_file_name, const LOG_LEVEL log_level, const LOG_LEVEL console_level)
     : log_name_(log_file_name), log_level_(log_level), console_level_(console_level)
 {
   prefix_map_[LOG_LEVEL_PANIC] = "PANIC:";
@@ -95,9 +97,9 @@ int Log::output(const LOG_LEVEL level, const char *module, const char *prefix, c
     va_end(args);
 
     if (LOG_LEVEL_PANIC <= level && level <= console_level_) {
-      std::cout << msg << std::endl;
+      cout << msg << endl;
     } else if (default_set_.find(module) != default_set_.end()) {
-      std::cout << msg << std::endl;
+      cout << msg << endl;
     }
 
     if (LOG_LEVEL_PANIC <= level && level <= log_level_) {
@@ -122,11 +124,11 @@ int Log::output(const LOG_LEVEL level, const char *module, const char *prefix, c
       locked = false;
     }
 
-  } catch (std::exception &e) {
+  } catch (exception &e) {
     if (locked) {
       pthread_mutex_unlock(&lock_);
     }
-    std::cerr << e.what() << std::endl;
+    cerr << e.what() << endl;
     return LOG_STATUS_ERR;
   }
 
@@ -166,7 +168,7 @@ const char *Log::prefix_msg(LOG_LEVEL level)
   return empty_prefix;
 }
 
-void Log::set_default_module(const std::string &modules) { split_string(modules, ",", default_set_); }
+void Log::set_default_module(const string &modules) { split_string(modules, ",", default_set_); }
 
 int Log::set_rotate_type(LOG_ROTATE rotate_type)
 {
@@ -187,12 +189,12 @@ int Log::rotate_by_day(const int year, const int month, const int day)
 
   char date[16] = {0};
   snprintf(date, sizeof(date), "%04d%02d%02d", year, month, day);
-  std::string log_file_name = log_name_ + "." + date;
+  string log_file_name = log_name_ + "." + date;
 
   if (ofs_.is_open()) {
     ofs_.close();
   }
-  ofs_.open(log_file_name.c_str(), std::ios_base::out | std::ios_base::app);
+  ofs_.open(log_file_name.c_str(), ios_base::out | ios_base::app);
   if (ofs_.good()) {
     log_date_.year_ = year;
     log_date_.mon_  = month;
@@ -212,7 +214,7 @@ int Log::rename_old_logs()
   int max_log_index = 0;
 
   while (log_index < MAX_LOG_NUM) {
-    std::string log_name = log_name_ + "." + size_to_pad_str(log_index, 3);
+    string log_name = log_name_ + "." + size_to_pad_str(log_index, 3);
     int         result   = access(log_name.c_str(), R_OK);
     if (result) {
       break;
@@ -223,15 +225,15 @@ int Log::rename_old_logs()
   }
 
   if (log_index == MAX_LOG_NUM) {
-    std::string log_name_rm = log_name_ + "." + size_to_pad_str(log_index, 3);
+    string log_name_rm = log_name_ + "." + size_to_pad_str(log_index, 3);
     remove(log_name_rm.c_str());
   }
 
   log_index = max_log_index;
   while (log_index > 0) {
-    std::string log_name_old = log_name_ + "." + size_to_pad_str(log_index, 3);
+    string log_name_old = log_name_ + "." + size_to_pad_str(log_index, 3);
 
-    std::string log_name_new = log_name_ + "." + size_to_pad_str(log_index + 1, 3);
+    string log_name_new = log_name_ + "." + size_to_pad_str(log_index + 1, 3);
 
     int result = rename(log_name_old.c_str(), log_name_new.c_str());
     if (result) {
@@ -247,7 +249,7 @@ int Log::rotate_by_size()
 {
   if (log_line_ < 0) {
     // The first time open log file
-    ofs_.open(log_name_.c_str(), std::ios_base::out | std::ios_base::app);
+    ofs_.open(log_name_.c_str(), ios_base::out | ios_base::app);
     log_line_ = 0;
     return LOG_STATUS_OK;
   } else if (0 <= log_line_ && log_line_ < log_max_line_) {
@@ -267,13 +269,13 @@ int Log::rotate_by_size()
 
     char log_index_str[4] = {0};
     snprintf(log_index_str, sizeof(log_index_str), "%03d", 1);
-    std::string log_name_new = log_name_ + "." + log_index_str;
+    string log_name_new = log_name_ + "." + log_index_str;
     result                   = rename(log_name_.c_str(), log_name_new.c_str());
     if (result) {
-      std::cerr << "Failed to rename " << log_name_ << " to " << log_name_new << std::endl;
+      cerr << "Failed to rename " << log_name_ << " to " << log_name_new << endl;
     }
 
-    ofs_.open(log_name_.c_str(), std::ios_base::out | std::ios_base::app);
+    ofs_.open(log_name_.c_str(), ios_base::out | ios_base::app);
     if (ofs_.good()) {
       log_line_ = 0;
     } else {
@@ -301,7 +303,7 @@ int Log::rotate(const int year, const int month, const int day)
   return result;
 }
 
-void Log::set_context_getter(std::function<intptr_t()> context_getter)
+void Log::set_context_getter(function<intptr_t()> context_getter)
 {
   if (context_getter) {
     context_getter_ = context_getter;
@@ -323,11 +325,11 @@ LoggerFactory::~LoggerFactory()
 }
 
 int LoggerFactory::init(
-    const std::string &log_file, Log **logger, LOG_LEVEL log_level, LOG_LEVEL console_level, LOG_ROTATE rotate_type)
+    const string &log_file, Log **logger, LOG_LEVEL log_level, LOG_LEVEL console_level, LOG_ROTATE rotate_type)
 {
-  Log *log = new (std::nothrow) Log(log_file, log_level, console_level);
+  Log *log = new (nothrow) Log(log_file, log_level, console_level);
   if (log == nullptr) {
-    std::cout << "Error: fail to construct a log object!" << std::endl;
+    cout << "Error: fail to construct a log object!" << endl;
     return -1;
   }
   log->set_rotate_type(rotate_type);
@@ -338,7 +340,7 @@ int LoggerFactory::init(
 }
 
 int LoggerFactory::init_default(
-    const std::string &log_file, LOG_LEVEL log_level, LOG_LEVEL console_level, LOG_ROTATE rotate_type)
+    const string &log_file, LOG_LEVEL log_level, LOG_LEVEL console_level, LOG_ROTATE rotate_type)
 {
   if (g_log != nullptr) {
     LOG_INFO("Default logger has been initialized");

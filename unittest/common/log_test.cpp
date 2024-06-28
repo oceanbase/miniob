@@ -30,7 +30,7 @@ LogTest::~LogTest()
   // Auto-generated destructor stub
 }
 
-int LogTest::init(const std::string &logFile)
+int LogTest::init(const string &logFile)
 {
 
   LoggerFactory::init_default(logFile);

@@ -20,14 +20,13 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include <sys/time.h>
 
-#include <fstream>
-#include <functional>
-#include <iostream>
-#include <map>
-#include <set>
-#include <string>
-
 #include "common/defs.h"
+#include "common/lang/string.h"
+#include "common/lang/map.h"
+#include "common/lang/set.h"
+#include "common/lang/functional.h"
+#include "common/lang/iostream.h"
+#include "common/lang/fstream.h"
 
 namespace common {
 
@@ -59,11 +58,11 @@ typedef enum
 class Log
 {
 public:
-  Log(const std::string &log_name, const LOG_LEVEL log_level = LOG_LEVEL_INFO,
+  Log(const string &log_name, const LOG_LEVEL log_level = LOG_LEVEL_INFO,
       const LOG_LEVEL console_level = LOG_LEVEL_WARN);
   ~Log(void);
 
-  static int init(const std::string &log_file);
+  static int init(const string &log_file);
 
   /**
    * These functions won't output header information such as __FUNCTION__,
@@ -110,7 +109,7 @@ public:
    * if one module is default module,
    * it will output whatever output level is lower than log_level_ or not
    */
-  void set_default_module(const std::string &modules);
+  void set_default_module(const string &modules);
   bool check_output(const LOG_LEVEL log_level, const char *module);
 
   int rotate(const int year = 0, const int month = 0, const int day = 0);
@@ -120,7 +119,7 @@ public:
    * @details 比如设置一个获取当前session标识的函数，那么每次在打印日志时都会输出session信息。
    *          这个回调函数返回了一个intptr_t类型的数据，可能返回字符串更好，但是现在够用了。
    */
-  void     set_context_getter(std::function<intptr_t()> context_getter);
+  void     set_context_getter(function<intptr_t()> context_getter);
   intptr_t context_id();
 
 private:
@@ -135,8 +134,8 @@ private:
 
 private:
   pthread_mutex_t lock_;
-  std::ofstream   ofs_;
-  std::string     log_name_;
+  ofstream   ofs_;
+  string     log_name_;
   LOG_LEVEL       log_level_;
   LOG_LEVEL       console_level_;
 
@@ -151,13 +150,13 @@ private:
   int        log_max_line_;
   LOG_ROTATE rotate_type_;
 
-  typedef std::map<LOG_LEVEL, std::string> LogPrefixMap;
+  typedef map<LOG_LEVEL, string> LogPrefixMap;
   LogPrefixMap                             prefix_map_;
 
-  typedef std::set<std::string> DefaultSet;
+  typedef set<string> DefaultSet;
   DefaultSet                    default_set_;
 
-  std::function<intptr_t()> context_getter_;
+  function<intptr_t()> context_getter_;
 };
 
 class LoggerFactory
@@ -166,10 +165,10 @@ public:
   LoggerFactory();
   virtual ~LoggerFactory();
 
-  static int init(const std::string &log_file, Log **logger, LOG_LEVEL log_level = LOG_LEVEL_INFO,
+  static int init(const string &log_file, Log **logger, LOG_LEVEL log_level = LOG_LEVEL_INFO,
       LOG_LEVEL console_level = LOG_LEVEL_WARN, LOG_ROTATE rotate_type = LOG_ROTATE_BYDAY);
 
-  static int init_default(const std::string &log_file, LOG_LEVEL log_level = LOG_LEVEL_INFO,
+  static int init_default(const string &log_file, LOG_LEVEL log_level = LOG_LEVEL_INFO,
       LOG_LEVEL console_level = LOG_LEVEL_WARN, LOG_ROTATE rotate_type = LOG_ROTATE_BYDAY);
 };
 
@@ -290,7 +289,7 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
     char prefix[ONE_KILO] = {0};
     LOG_HEAD(prefix, log_level);
     if (LOG_LEVEL_PANIC <= console_level && console_level <= console_level_) {
-      std::cout << prefix_map_[console_level] << msg;
+      cout << prefix_map_[console_level] << msg;
     }
 
     if (LOG_LEVEL_PANIC <= log_level && log_level <= log_level_) {
@@ -303,11 +302,11 @@ int Log::out(const LOG_LEVEL console_level, const LOG_LEVEL log_level, T &msg)
       pthread_mutex_unlock(&lock_);
       locked = false;
     }
-  } catch (std::exception &e) {
+  } catch (exception &e) {
     if (locked) {
       pthread_mutex_unlock(&lock_);
     }
-    std::cerr << e.what() << std::endl;
+    cerr << e.what() << endl;
     return LOG_STATUS_ERR;
   }
 

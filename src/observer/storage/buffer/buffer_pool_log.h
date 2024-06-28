@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
+#include "common/lang/string.h"
 #include "common/types.h"
 #include "common/rc.h"
 #include "storage/clog/log_replayer.h"
@@ -45,9 +45,9 @@ public:
   Type    type() const { return type_; }
   int32_t type_id() const { return static_cast<int32_t>(type_); }
 
-  std::string to_string() const
+  string to_string() const
   {
-    std::string ret = std::to_string(type_id()) + ":";
+    string ret = std::to_string(type_id()) + ":";
     switch (type_) {
       case Type::ALLOCATE: return ret + "ALLOCATE";
       case Type::DEALLOCATE: return ret + "DEALLOCATE";
@@ -69,7 +69,7 @@ struct BufferPoolLogEntry
   int32_t operation_type;  /// operation type
   PageNum page_num;        /// page number
 
-  std::string to_string() const;
+  string to_string() const;
 };
 
 /**

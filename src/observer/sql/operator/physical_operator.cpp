@@ -26,11 +26,16 @@ std::string physical_operator_type_name(PhysicalOperatorType type)
     case PhysicalOperatorType::DELETE: return "DELETE";
     case PhysicalOperatorType::PROJECT: return "PROJECT";
     case PhysicalOperatorType::STRING_LIST: return "STRING_LIST";
+    case PhysicalOperatorType::HASH_GROUP_BY: return "HASH_GROUP_BY";
+    case PhysicalOperatorType::SCALAR_GROUP_BY: return "SCALAR_GROUP_BY";
+    case PhysicalOperatorType::AGGREGATE_VEC: return "AGGREGATE_VEC";
+    case PhysicalOperatorType::GROUP_BY_VEC: return "GROUP_BY_VEC";
+    case PhysicalOperatorType::PROJECT_VEC: return "PROJECT_VEC";
+    case PhysicalOperatorType::TABLE_SCAN_VEC: return "TABLE_SCAN_VEC";
+    case PhysicalOperatorType::EXPR_VEC: return "EXPR_VEC";
     default: return "UNKNOWN";
   }
 }
-
-PhysicalOperator::~PhysicalOperator() {}
 
 std::string PhysicalOperator::name() const { return physical_operator_type_name(type()); }
 

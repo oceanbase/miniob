@@ -21,6 +21,7 @@ OPTION(ENABLE_COVERAGE "Enable unittest coverage" OFF)
 OPTION(ENABLE_NOPIE "Enable no pie" OFF)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)
 OPTION(STATIC_STDLIB "Link std library static or dynamic, such as libgcc, libstdc++, libasan" OFF)
+OPTION(USE_SIMD "Use SIMD" OFF)
 
 MESSAGE(STATUS "HOME dir: $ENV{HOME}")
 #SET(ENV{变量名} 值)
@@ -42,11 +43,18 @@ ELSE()
 ENDIF(WIN32)
 
 # This is for clangd plugin for vscode
-SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -Wall -Werror")
+# mute sign-compare error in lex/yacc
+SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -Wall -Werror -Wno-error=sign-compare")
 IF (ENABLE_NOPIE)
     SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -no-pie")
     ADD_LINK_OPTIONS(-no-pie)
 ENDIF (ENABLE_NOPIE)
+
+# Requires support for avx2
+IF(USE_SIMD)
+    SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -mavx2")
+    ADD_DEFINITIONS(-DUSE_SIMD)
+ENDIF(USE_SIMD)
 
 IF(DEBUG)
     MESSAGE(STATUS "DEBUG has been set as TRUE ${DEBUG}")

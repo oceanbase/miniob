@@ -1,0 +1,61 @@
+-- echo initialization
+set execution_mode='chunk_iterator';
+CREATE TABLE aggregation_func(id int, num int, price float, addr char) storage format=pax;
+
+INSERT INTO aggregation_func VALUES (1, 18, 10.0, 'abc');
+INSERT INTO aggregation_func VALUES (2, 15, 20.0, 'abc');
+INSERT INTO aggregation_func VALUES (3, 12, 30.0, 'def');
+INSERT INTO aggregation_func VALUES (4, 15, 30.0, 'dei');
+INSERT INTO aggregation_func VALUES (4, 15, 31.11, 'cei');
+INSERT INTO aggregation_func VALUES (4, 13, 2.22, 'wei');
+
+
+
+-- echo 1. ungrouped aggregation
+
+-- sort SELECT sum(num) FROM aggregation_func;
+
+-- sort SELECT sum(num), sum(price) FROM aggregation_func;
+
+-- sort SELECT sum(num) FROM aggregation_func where id>1;
+
+-- sort SELECT sum(num) FROM aggregation_func where id<=3;
+
+-- sort SELECT sum(num) FROM aggregation_func where id>=2 and id<=3;
+
+-- echo 2. group by
+-- sort SELECT num, sum(price) FROM aggregation_func group by num;
+
+-- sort SELECT num, sum(price) FROM aggregation_func where id>=2 group by num;
+
+-- sort SELECT id, sum(price) FROM aggregation_func group by id;
+
+-- sort SELECT sum(price), id FROM aggregation_func group by id;
+
+-- sort SELECT id, num, sum(price) FROM aggregation_func group by id, num;
+
+-- sort SELECT id, sum(price), num FROM aggregation_func group by id, num;
+
+-- sort SELECT id, SUM(num + 1), price FROM aggregation_func GROUP BY id, price;
+
+-- sort SELECT id, sum(price+price), num FROM aggregation_func group by id, num;
+
+-- sort SELECT id+id-id, sum(num)+id+1 FROM aggregation_func group by id;
+
+-- sort SELECT id+1, sum(num)+sum(num) FROM aggregation_func group by id;
+
+-- sort SELECT id+id+1, sum(num)+sum(num) FROM aggregation_func group by id+id;
+
+-- sort SELECT (id+id)+(id+id), sum(num)+sum(num) FROM aggregation_func group by id+id;
+
+-- sort SELECT id+id, sum(num) + 1 + sum(num), price FROM aggregation_func group by id+id, price;
+
+-- sort SELECT id+num+id+num, sum(price+price) FROM aggregation_func group by id+num;
+
+-- sort SELECT (id+num)+(id+num), sum(price+price) FROM aggregation_func group by id+num;
+
+-- sort SELECT addr, sum(id+id) FROM aggregation_func group by addr;
+
+-- sort SELECT addr, sum(price+price) FROM aggregation_func group by addr;
+
+explain SELECT id, sum(price+price), num FROM aggregation_func group by id, num;

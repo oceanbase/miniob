@@ -17,7 +17,7 @@ namespace common {
 template <typename T>
 int SimpleQueue<T>::push(T &&value)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
+  lock_guard<mutex> lock(mutex_);
   queue_.push(std::move(value));
   return 0;
 }
@@ -25,7 +25,7 @@ int SimpleQueue<T>::push(T &&value)
 template <typename T>
 int SimpleQueue<T>::pop(T &value)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
+  lock_guard<mutex> lock(mutex_);
   if (queue_.empty()) {
     return -1;
   }

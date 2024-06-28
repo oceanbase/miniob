@@ -137,6 +137,100 @@ TEST(ArithmeticExpr, test_try_get_value)
   EXPECT_FLOAT_EQ(float_result.get_float(), -1.1);
 }
 
+TEST(ArithmeticExpr, get_column)
+{
+  // constant value
+  {
+    Value int_value1(1);
+    Value int_value2(2);
+    Value float_value1((float)1.1);
+    Value float_value2((float)2.2);
+    Chunk chunk;
+
+    Value int_result;
+    Value float_result;
+
+    unique_ptr<ValueExpr>   left_expr(new ValueExpr(int_value1));
+    unique_ptr<ValueExpr>   right_expr(new ValueExpr(int_value2));
+    ArithmeticExpr          int_expr(ArithmeticExpr::Type::ADD, std::move(left_expr), std::move(right_expr));
+    Column column;
+    ASSERT_EQ(int_expr.get_column(chunk, column), RC::SUCCESS);
+    ASSERT_EQ(column.count(), 1);
+    ASSERT_EQ(column.get_value(0).get_int(), 3);
+
+    left_expr.reset(new ValueExpr(int_value1));
+    right_expr.reset(new ValueExpr(int_value2));
+    int_expr.~ArithmeticExpr();
+    column.reset_data();
+    new (&int_expr)(ArithmeticExpr)(ArithmeticExpr::Type::MUL, std::move(left_expr), std::move(right_expr));
+    ASSERT_EQ(int_expr.get_column(chunk, column), RC::SUCCESS);
+    ASSERT_EQ(column.count(), 1);
+    ASSERT_EQ(column.get_value(0).get_int(), 2);
+
+    left_expr.reset(new ValueExpr(float_value1));
+    right_expr.reset(new ValueExpr(float_value2));
+    ArithmeticExpr float_expr(ArithmeticExpr::Type::ADD, std::move(left_expr), std::move(right_expr));
+    ASSERT_EQ(float_expr.get_column(chunk, column), RC::SUCCESS);
+    ASSERT_EQ(column.count(), 1);
+    EXPECT_FLOAT_EQ(column.get_value(0).get_float(), 3.3);
+  }
+
+  // column op constant value
+  {
+    int                     count       = 8;
+    const int               int_len     = sizeof(int);
+    std::unique_ptr<Column> column_left = std::make_unique<Column>(AttrType::INTS, int_len, count);
+    Value                   int_value(2);
+    unique_ptr<ValueExpr>   right_expr(new ValueExpr(int_value));
+    for (int i = 0; i < count; ++i) {
+      int left_value = i;
+      column_left->append_one((char *)&left_value);
+    }
+    Chunk chunk;
+    chunk.add_column(std::move(column_left), 0);
+    Column column_result;
+    FieldMeta               field_meta1("col1", AttrType::INTS, 0, int_len, true, 0);
+    Field                   field1(nullptr, &field_meta1);
+    auto                    left_expr = std::make_unique<FieldExpr>(field1);
+    ArithmeticExpr          expr(ArithmeticExpr::Type::ADD, std::move(left_expr), std::move(right_expr));
+    ASSERT_EQ(expr.get_column(chunk, column_result), RC::SUCCESS);
+    for (int i = 0; i < count; ++i) {
+      int expect_value = i + 2;
+      ASSERT_EQ(column_result.get_value(i).get_int(), expect_value);
+    }
+  }
+
+  // column op column
+  {
+    int                     count        = 8;
+    const int               int_len      = sizeof(int);
+    std::unique_ptr<Column> column_left  = std::make_unique<Column>(AttrType::INTS, int_len, count);
+    std::unique_ptr<Column> column_right = std::make_unique<Column>(AttrType::INTS, int_len, count);
+    for (int i = 0; i < count; ++i) {
+      int left_value  = i;
+      int right_value = count - i;
+      column_left->append_one((char *)&left_value);
+      column_right->append_one((char *)&right_value);
+    }
+    Chunk chunk;
+    chunk.add_column(std::move(column_left), 0);
+    chunk.add_column(std::move(column_right), 1);
+    Column column_result;
+    FieldMeta               field_meta1("col1", AttrType::INTS, 0, int_len, true, 0);
+    FieldMeta               field_meta2("col2", AttrType::INTS, 0, int_len, true, 1);
+    Field                   field1(nullptr, &field_meta1);
+    Field                   field2(nullptr, &field_meta2);
+    auto                    left_expr  = std::make_unique<FieldExpr>(field1);
+    auto                    right_expr = std::make_unique<FieldExpr>(field2);
+    ArithmeticExpr          expr(ArithmeticExpr::Type::ADD, std::move(left_expr), std::move(right_expr));
+    ASSERT_EQ(expr.get_column(chunk, column_result), RC::SUCCESS);
+    for (int i = 0; i < count; ++i) {
+      int expect_value = count;
+      ASSERT_EQ(column_result.get_value(i).get_int(), expect_value);
+    }
+  }
+}
+
 int main(int argc, char **argv)
 {
 

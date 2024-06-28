@@ -30,11 +30,20 @@ public:
 
   RC     open(Trx *trx) override;
   RC     next() override;
+  RC     next(Chunk &chunk) override;
   RC     close() override;
   Tuple *current_tuple() override;
 
+  RC tuple_schema(TupleSchema &schema) const override
+  {
+    schema.append_cell("Query Plan");
+    return RC::SUCCESS;
+  }
+  
 private:
   void to_string(std::ostream &os, PhysicalOperator *oper, int level, bool last_child, std::vector<bool> &ends);
+
+  void generate_physical_plan();
 
 private:
   std::string    physical_plan_;

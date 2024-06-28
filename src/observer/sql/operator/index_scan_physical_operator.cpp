@@ -68,8 +68,6 @@ RC IndexScanPhysicalOperator::next()
   RID rid;
   RC  rc = RC::SUCCESS;
 
-  record_page_handler_.cleanup();
-
   bool filter_result = false;
   while (RC::SUCCESS == (rc = index_scanner_->next_entry(&rid))) {
     rc = record_handler_->get_record(rid, current_record_);

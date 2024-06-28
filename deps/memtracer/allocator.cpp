@@ -8,8 +8,10 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#include "memtracer/allocator.h"
+#include <sys/mman.h>  // mmap/munmap
 #include <string.h>
+
+#include "memtracer/allocator.h"
 
 // `dlsym` calls `calloc` internally, so here use a dummy buffer
 // to avoid infinite loop when hook functions initialized.
@@ -157,6 +159,7 @@ mt_visible int posix_memalign(void **memptr, size_t alignment, size_t size)
   exit(-1);
 }
 
+#ifdef LINUX
 mt_visible int brk(void *addr)
 {
   MEMTRACER_LOG("brk not supported\n");
@@ -174,6 +177,23 @@ mt_visible long int syscall(long int __sysno, ...)
   MEMTRACER_LOG("syscall not supported\n");
   exit(-1);
 }
+#elif defined(__MACH__)
+mt_visible void    *brk(const void *addr)
+{
+  MEMTRACER_LOG("brk not supported\n");
+  exit(-1);
+}
+mt_visible void *sbrk(int increment)
+{
+  MEMTRACER_LOG("sbrk not supported\n");
+  exit(-1);
+}
+mt_visible int syscall(int __sysno, ...)
+{
+  MEMTRACER_LOG("syscall not supported\n");
+  exit(-1);
+}
+#endif
 
 mt_visible void *operator new(std::size_t size) { return malloc(size); }
 

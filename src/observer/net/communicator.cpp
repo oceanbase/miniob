@@ -21,8 +21,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/mutex.h"
 
-using namespace std;
-
 RC Communicator::init(int fd, unique_ptr<Session> session, const std::string &addr)
 {
   fd_      = fd;

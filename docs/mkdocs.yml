@@ -34,6 +34,8 @@ nav:
     - design/miniob-bplus-tree-concurrency.md
     - design/miniob-thread-model.md
     - design/miniob-mysql-protocol.md
+    - design/miniob-pax-storage.md
+    - design/miniob-aggregation-and-group-by.md
     - Doxy 代码文档: design/doxy/html/index.html
   - OceanBase 数据库大赛:
     - game/introduction.md

@@ -39,10 +39,7 @@ public:
   static RC create(CalcSqlNode &calc_sql, Stmt *&stmt)
   {
     CalcStmt *calc_stmt = new CalcStmt();
-    for (Expression *const expr : calc_sql.expressions) {
-      calc_stmt->expressions_.emplace_back(expr);
-    }
-    calc_sql.expressions.clear();
+    calc_stmt->expressions_ = std::move(calc_sql.expressions);
     stmt = calc_stmt;
     return RC::SUCCESS;
   }

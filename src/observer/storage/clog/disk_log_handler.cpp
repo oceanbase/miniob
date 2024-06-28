@@ -16,8 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/disk_log_handler.h"
 #include "storage/clog/log_file.h"
 #include "storage/clog/log_replayer.h"
+#include "common/lang/chrono.h"
 
-using namespace std;
 using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ RC DiskLogHandler::replay(LogReplayer &replayer, LSN start_lsn)
   return rc;
 }
 
-RC DiskLogHandler::iterate(std::function<RC(LogEntry&)> consumer, LSN start_lsn)
+RC DiskLogHandler::iterate(function<RC(LogEntry&)> consumer, LSN start_lsn)
 {
   vector<string> log_files;
   RC rc = file_manager_.list_files(log_files, start_lsn);

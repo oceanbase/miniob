@@ -12,12 +12,13 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Wangyunlai on 2021/5/13.
 //
 
-#include <algorithm>
 #include <limits.h>
 #include <string.h>
 
 #include "common/defs.h"
 #include "common/lang/string.h"
+#include "common/lang/span.h"
+#include "common/lang/algorithm.h"
 #include "common/log/log.h"
 #include "common/global_context.h"
 #include "storage/db/db.h"
@@ -28,7 +29,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/index.h"
 #include "storage/record/record_manager.h"
 #include "storage/table/table.h"
-#include "storage/table/table_meta.h"
 #include "storage/trx/trx.h"
 
 Table::~Table()
@@ -43,7 +43,7 @@ Table::~Table()
     data_buffer_pool_ = nullptr;
   }
 
-  for (std::vector<Index *>::iterator it = indexes_.begin(); it != indexes_.end(); ++it) {
+  for (vector<Index *>::iterator it = indexes_.begin(); it != indexes_.end(); ++it) {
     Index *index = *it;
     delete index;
   }
@@ -53,7 +53,7 @@ Table::~Table()
 }
 
 RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
-    span<const AttrInfoSqlNode> attributes)
+    span<const AttrInfoSqlNode> attributes, StorageFormat storage_format)
 {
   if (table_id < 0) {
     LOG_WARN("invalid table id. table_id=%d, table_name=%s", table_id, name);
@@ -88,14 +88,14 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   close(fd);
 
   // 创建文件
-  const std::vector<FieldMeta> *trx_fields = db->trx_kit().trx_fields();
-  if ((rc = table_meta_.init(table_id, name, trx_fields, attributes)) != RC::SUCCESS) {
+  const vector<FieldMeta> *trx_fields = db->trx_kit().trx_fields();
+  if ((rc = table_meta_.init(table_id, name, trx_fields, attributes, storage_format)) != RC::SUCCESS) {
     LOG_ERROR("Failed to init table meta. name:%s, ret:%d", name, rc);
     return rc;  // delete table file
   }
 
-  std::fstream fs;
-  fs.open(path, std::ios_base::out | std::ios_base::binary);
+  fstream fs;
+  fs.open(path, ios_base::out | ios_base::binary);
   if (!fs.is_open()) {
     LOG_ERROR("Failed to open file for write. file name=%s, errmsg=%s", path, strerror(errno));
     return RC::IOERR_OPEN;
@@ -105,10 +105,10 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   table_meta_.serialize(fs);
   fs.close();
 
-  db_ = db;
+  db_       = db;
   base_dir_ = base_dir;
 
-  std::string        data_file = table_data_file(base_dir, name);
+  string             data_file = table_data_file(base_dir, name);
   BufferPoolManager &bpm       = db->buffer_pool_manager();
   rc                           = bpm.create_file(data_file.c_str());
   if (rc != RC::SUCCESS) {
@@ -130,9 +130,9 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
 RC Table::open(Db *db, const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件
-  std::fstream fs;
-  std::string  meta_file_path = std::string(base_dir) + common::FILE_PATH_SPLIT_STR + meta_file;
-  fs.open(meta_file_path, std::ios_base::in | std::ios_base::binary);
+  fstream fs;
+  string  meta_file_path = string(base_dir) + common::FILE_PATH_SPLIT_STR + meta_file;
+  fs.open(meta_file_path, ios_base::in | ios_base::binary);
   if (!fs.is_open()) {
     LOG_ERROR("Failed to open meta file for read. file name=%s, errmsg=%s", meta_file_path.c_str(), strerror(errno));
     return RC::IOERR_OPEN;
@@ -144,7 +144,7 @@ RC Table::open(Db *db, const char *meta_file, const char *base_dir)
   }
   fs.close();
 
-  db_ = db;
+  db_       = db;
   base_dir_ = base_dir;
 
   // 加载数据文件
@@ -168,7 +168,7 @@ RC Table::open(Db *db, const char *meta_file, const char *base_dir)
     }
 
     BplusTreeIndex *index      = new BplusTreeIndex();
-    std::string     index_file = table_index_file(base_dir, name(), index_meta->name());
+    string          index_file = table_index_file(base_dir, name(), index_meta->name());
 
     rc = index->open(this, index_file.c_str(), *index_meta, *field_meta);
     if (rc != RC::SUCCESS) {
@@ -210,7 +210,7 @@ RC Table::insert_record(Record &record)
   return rc;
 }
 
-RC Table::visit_record(const RID &rid, std::function<bool(Record &)> visitor)
+RC Table::visit_record(const RID &rid, function<bool(Record &)> visitor)
 {
   return record_handler_->visit_record(rid, visitor);
 }
@@ -282,7 +282,7 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
     const FieldMeta *field    = table_meta_.field(i + normal_field_start_index);
     const Value     &value    = values[i];
     size_t           copy_len = field->len();
-    if (field->type() == CHARS) {
+    if (field->type() == AttrType::CHARS) {
       const size_t data_len = value.length();
       if (copy_len > data_len) {
         copy_len = data_len + 1;
@@ -297,18 +297,18 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
 
 RC Table::init_record_handler(const char *base_dir)
 {
-  std::string data_file = table_data_file(base_dir, table_meta_.name());
+  string data_file = table_data_file(base_dir, table_meta_.name());
 
   BufferPoolManager &bpm = db_->buffer_pool_manager();
-  RC rc = bpm.open_file(db_->log_handler(), data_file.c_str(), data_buffer_pool_);
+  RC                 rc  = bpm.open_file(db_->log_handler(), data_file.c_str(), data_buffer_pool_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to open disk buffer pool for file:%s. rc=%d:%s", data_file.c_str(), rc, strrc(rc));
     return rc;
   }
 
-  record_handler_ = new RecordFileHandler();
+  record_handler_ = new RecordFileHandler(table_meta_.storage_format());
 
-  rc = record_handler_->init(*data_buffer_pool_, db_->log_handler());
+  rc = record_handler_->init(*data_buffer_pool_, db_->log_handler(), &table_meta_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to init record handler. rc=%s", strrc(rc));
     data_buffer_pool_->close_file();
@@ -324,6 +324,15 @@ RC Table::init_record_handler(const char *base_dir)
 RC Table::get_record_scanner(RecordFileScanner &scanner, Trx *trx, ReadWriteMode mode)
 {
   RC rc = scanner.open_scan(this, *data_buffer_pool_, trx, db_->log_handler(), mode, nullptr);
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("failed to open scanner. rc=%s", strrc(rc));
+  }
+  return rc;
+}
+
+RC Table::get_chunk_scanner(ChunkFileScanner &scanner, Trx *trx, ReadWriteMode mode)
+{
+  RC rc = scanner.open_scan_chunk(this, *data_buffer_pool_, db_->log_handler(), mode);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("failed to open scanner. rc=%s", strrc(rc));
   }
@@ -348,7 +357,7 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
 
   // 创建索引相关数据
   BplusTreeIndex *index      = new BplusTreeIndex();
-  std::string     index_file = table_index_file(base_dir_.c_str(), name(), index_name);
+  string          index_file = table_index_file(base_dir_.c_str(), name(), index_name);
 
   rc = index->create(this, index_file.c_str(), new_index_meta, *field_meta);
   if (rc != RC::SUCCESS) {
@@ -398,9 +407,9 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
   /// 内存中有一份元数据，磁盘文件也有一份元数据。修改磁盘文件时，先创建一个临时文件，写入完成后再rename为正式文件
   /// 这样可以防止文件内容不完整
   // 创建元数据临时文件
-  std::string  tmp_file = table_meta_file(base_dir_.c_str(), name()) + ".tmp";
-  std::fstream fs;
-  fs.open(tmp_file, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+  string  tmp_file = table_meta_file(base_dir_.c_str(), name()) + ".tmp";
+  fstream fs;
+  fs.open(tmp_file, ios_base::out | ios_base::binary | ios_base::trunc);
   if (!fs.is_open()) {
     LOG_ERROR("Failed to open file for write. file name=%s, errmsg=%s", tmp_file.c_str(), strerror(errno));
     return RC::IOERR_OPEN;  // 创建索引中途出错，要做还原操作
@@ -412,7 +421,7 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
   fs.close();
 
   // 覆盖原始元数据文件
-  std::string meta_file = table_meta_file(base_dir_.c_str(), name());
+  string meta_file = table_meta_file(base_dir_.c_str(), name());
 
   int ret = rename(tmp_file.c_str(), meta_file.c_str());
   if (ret != 0) {
@@ -430,7 +439,7 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
 
 RC Table::delete_record(const RID &rid)
 {
-  RC rc = RC::SUCCESS;
+  RC     rc = RC::SUCCESS;
   Record record;
   rc = get_record(rid, record);
   if (OB_FAIL(rc)) {

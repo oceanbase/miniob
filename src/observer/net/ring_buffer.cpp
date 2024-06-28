@@ -12,12 +12,9 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/06/16.
 //
 
-#include <algorithm>
-
+#include "common/lang/algorithm.h"
 #include "common/log/log.h"
 #include "net/ring_buffer.h"
-
-using namespace std;
 
 const int32_t DEFAULT_BUFFER_SIZE = 16 * 1024;
 

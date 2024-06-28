@@ -14,9 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include "common/lang/string.h"
+#include "common/lang/memory.h"
 #include "sql/operator/physical_operator.h"
-#include <memory>
-#include <string>
 
 class SessionEvent;
 class Stmt;
@@ -28,26 +28,26 @@ class ParsedSqlNode;
 class SQLStageEvent
 {
 public:
-  SQLStageEvent(SessionEvent *event, const std::string &sql);
+  SQLStageEvent(SessionEvent *event, const string &sql);
   virtual ~SQLStageEvent() noexcept;
 
   SessionEvent *session_event() const { return session_event_; }
 
-  const std::string                       &sql() const { return sql_; }
-  const std::unique_ptr<ParsedSqlNode>    &sql_node() const { return sql_node_; }
-  Stmt                                    *stmt() const { return stmt_; }
-  std::unique_ptr<PhysicalOperator>       &physical_operator() { return operator_; }
-  const std::unique_ptr<PhysicalOperator> &physical_operator() const { return operator_; }
+  const string                       &sql() const { return sql_; }
+  const unique_ptr<ParsedSqlNode>    &sql_node() const { return sql_node_; }
+  Stmt                               *stmt() const { return stmt_; }
+  unique_ptr<PhysicalOperator>       &physical_operator() { return operator_; }
+  const unique_ptr<PhysicalOperator> &physical_operator() const { return operator_; }
 
   void set_sql(const char *sql) { sql_ = sql; }
-  void set_sql_node(std::unique_ptr<ParsedSqlNode> sql_node) { sql_node_ = std::move(sql_node); }
+  void set_sql_node(unique_ptr<ParsedSqlNode> sql_node) { sql_node_ = std::move(sql_node); }
   void set_stmt(Stmt *stmt) { stmt_ = stmt; }
-  void set_operator(std::unique_ptr<PhysicalOperator> oper) { operator_ = std::move(oper); }
+  void set_operator(unique_ptr<PhysicalOperator> oper) { operator_ = std::move(oper); }
 
 private:
-  SessionEvent                     *session_event_ = nullptr;
-  std::string                       sql_;             ///< 处理的SQL语句
-  std::unique_ptr<ParsedSqlNode>    sql_node_;        ///< 语法解析后的SQL命令
-  Stmt                             *stmt_ = nullptr;  ///< Resolver之后生成的数据结构
-  std::unique_ptr<PhysicalOperator> operator_;        ///< 生成的执行计划，也可能没有
+  SessionEvent                *session_event_ = nullptr;
+  string                       sql_;             ///< 处理的SQL语句
+  unique_ptr<ParsedSqlNode>    sql_node_;        ///< 语法解析后的SQL命令
+  Stmt                        *stmt_ = nullptr;  ///< Resolver之后生成的数据结构
+  unique_ptr<PhysicalOperator> operator_;        ///< 生成的执行计划，也可能没有
 };

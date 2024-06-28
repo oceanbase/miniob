@@ -14,12 +14,12 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <functional>
-#include <unordered_set>
+#include "common/lang/functional.h"
+#include "common/lang/unordered_set.h"
 
 namespace common {
 
-template <typename Key, typename Value, typename Hash = std::hash<Key>, typename Pred = std::equal_to<Key>>
+template <typename Key, typename Value, typename Hash = hash<Key>, typename Pred = equal_to<Key>>
 class LruCache
 {
 
@@ -134,7 +134,7 @@ public:
     value = nullptr;
   }
 
-  void foreach (std::function<bool(const Key &, const Value &)> func)
+  void foreach (function<bool(const Key &, const Value &)> func)
   {
     for (ListNode *node = lru_front_; node != nullptr; node = node->next_) {
       bool ret = func(node->key_, node->value_);
@@ -144,7 +144,7 @@ public:
     }
   }
 
-  void foreach_reverse(std::function<bool(const Key &, const Value &)> func)
+  void foreach_reverse(function<bool(const Key &, const Value &)> func)
   {
     for (ListNode *node = lru_tail_; node != nullptr; node = node->prev_) {
       bool ret = func(node->key_, node->value_);
@@ -217,7 +217,7 @@ private:
   }
 
 private:
-  using SearchType = std::unordered_set<ListNode *, PListNodeHasher, PListNodePredicator>;
+  using SearchType = unordered_set<ListNode *, PListNodeHasher, PListNodePredicator>;
   SearchType searcher_;
   ListNode  *lru_front_ = nullptr;
   ListNode  *lru_tail_  = nullptr;

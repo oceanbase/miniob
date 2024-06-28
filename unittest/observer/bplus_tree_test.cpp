@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include <filesystem>
 
 #include "common/log/log.h"
+#include "common/lang/memory.h"
+#include "common/lang/filesystem.h"
 #include "sql/parser/parse_defs.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/index/bplus_tree.h"
@@ -328,7 +330,7 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
   index_file_header.leaf_max_size     = 5;
   index_file_header.attr_length       = 4;
   index_file_header.key_length        = 4 + sizeof(RID);
-  index_file_header.attr_type         = INTS;
+  index_file_header.attr_type         = AttrType::INTS;
 
   VacuousLogHandler log_handler;
   BufferPoolManager bpm;
@@ -351,7 +353,7 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
   Frame frame;
 
   KeyComparator key_comparator;
-  key_comparator.init(INTS, 4);
+  key_comparator.init(AttrType::INTS, 4);
 
   LeafIndexNodeHandler leaf_node(mtr, index_file_header, &frame);
   leaf_node.init_empty();
@@ -409,7 +411,7 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
   index_file_header.leaf_max_size     = 5;
   index_file_header.attr_length       = 4;
   index_file_header.key_length        = 4 + sizeof(RID);
-  index_file_header.attr_type         = INTS;
+  index_file_header.attr_type         = AttrType::INTS;
 
   VacuousLogHandler log_handler;
   BufferPoolManager bpm;
@@ -433,7 +435,7 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
   Frame frame;
 
   KeyComparator key_comparator;
-  key_comparator.init(INTS, 4);
+  key_comparator.init(AttrType::INTS, 4);
 
   InternalIndexNodeHandler internal_node(mtr, index_file_header, &frame);
   internal_node.init_empty();
@@ -536,7 +538,7 @@ TEST(test_bplus_tree, test_chars)
   ASSERT_NE(nullptr, buffer_pool);
 
   BplusTreeHandler handler;
-  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, CHARS, 8, ORDER, ORDER));
+  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, AttrType::CHARS, 8, ORDER, ORDER));
 
   char keys[][9] = {"abcdefg", "12345678", "12345678", "abcdefg", "abcdefga"};
 
@@ -586,7 +588,7 @@ TEST(test_bplus_tree, test_scanner)
   ASSERT_NE(nullptr, buffer_pool);
 
   BplusTreeHandler handler;
-  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, INTS, sizeof(int), ORDER, ORDER));
+  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, AttrType::INTS, sizeof(int), ORDER, ORDER));
 
   int count = 0;
   RC  rc    = RC::SUCCESS;
@@ -811,7 +813,7 @@ TEST(test_bplus_tree, test_bplus_tree_insert)
   ASSERT_NE(nullptr, buffer_pool);
 
   BplusTreeHandler *handler = new BplusTreeHandler();
-  ASSERT_EQ(RC::SUCCESS, handler->create(log_handler, *buffer_pool, INTS, sizeof(int), ORDER, ORDER));
+  ASSERT_EQ(RC::SUCCESS, handler->create(log_handler, *buffer_pool, AttrType::INTS, sizeof(int), ORDER, ORDER));
 
   test_insert(handler);
 

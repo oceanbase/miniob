@@ -15,15 +15,15 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <stdint.h>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <atomic>
-#include <chrono>
-#include <thread>
 
 #include "common/queue/queue.h"
 #include "common/thread/runnable.h"
+#include "common/lang/mutex.h"
+#include "common/lang/atomic.h"
+#include "common/lang/memory.h"
+#include "common/lang/map.h"
+#include "common/lang/chrono.h"
+#include "common/lang/thread.h"
 
 namespace common {
 
@@ -66,7 +66,7 @@ public:
    * @param work_queue 任务队列
    */
   int init(const char *name, int core_pool_size, int max_pool_size, long keep_alive_time_ms,
-      std::unique_ptr<Queue<std::unique_ptr<Runnable>>> &&work_queue);
+      unique_ptr<Queue<unique_ptr<Runnable>>> &&work_queue);
 
   /**
    * @brief 提交一个任务，不一定可以立即执行
@@ -74,7 +74,7 @@ public:
    * @param task 任务
    * @return int 成功放入队列返回0
    */
-  int execute(std::unique_ptr<Runnable> &&task);
+  int execute(unique_ptr<Runnable> &&task);
 
   /**
    * @brief 提交一个任务，不一定可以立即执行
@@ -82,7 +82,7 @@ public:
    * @param callable 任务
    * @return int 成功放入队列返回0
    */
-  int execute(const std::function<void()> &callable);
+  int execute(const function<void()> &callable);
 
   /**
    * @brief 关闭线程池
@@ -158,28 +158,28 @@ private:
 
   struct ThreadData
   {
-    bool         core_thread = false;    /// 是否是核心线程
-    bool         idle        = false;    /// 是否空闲
-    bool         terminated  = false;    /// 是否已经退出
-    std::thread *thread_ptr  = nullptr;  /// 线程指针
+    bool    core_thread = false;    /// 是否是核心线程
+    bool    idle        = false;    /// 是否空闲
+    bool    terminated  = false;    /// 是否已经退出
+    thread *thread_ptr  = nullptr;  /// 线程指针
   };
 
 private:
   State state_ = State::NEW;  /// 线程池状态
 
-  int                       core_pool_size_ = 0;  /// 核心线程个数
-  int                       max_pool_size_  = 0;  /// 最大线程个数
-  std::chrono::milliseconds keep_alive_time_ms_;  /// 非核心线程空闲多久后退出
+  int                  core_pool_size_ = 0;  /// 核心线程个数
+  int                  max_pool_size_  = 0;  /// 最大线程个数
+  chrono::milliseconds keep_alive_time_ms_;  /// 非核心线程空闲多久后退出
 
-  std::unique_ptr<Queue<std::unique_ptr<Runnable>>> work_queue_;  /// 任务队列
+  unique_ptr<Queue<unique_ptr<Runnable>>> work_queue_;  /// 任务队列
 
-  mutable std::mutex                    lock_;     /// 保护线程池内部数据的锁
-  std::map<std::thread::id, ThreadData> threads_;  /// 线程列表
+  mutable mutex               lock_;     /// 保护线程池内部数据的锁
+  map<thread::id, ThreadData> threads_;  /// 线程列表
 
-  int                  largest_pool_size_ = 0;  /// 历史上达到的最大的线程个数
-  std::atomic<int64_t> task_count_        = 0;  /// 处理过的任务个数
-  std::atomic<int>     active_count_      = 0;  /// 活跃线程个数
-  std::string          pool_name_;              /// 线程池名称
+  int             largest_pool_size_ = 0;  /// 历史上达到的最大的线程个数
+  atomic<int64_t> task_count_        = 0;  /// 处理过的任务个数
+  atomic<int>     active_count_      = 0;  /// 活跃线程个数
+  string          pool_name_;              /// 线程池名称
 };
 
 }  // namespace common

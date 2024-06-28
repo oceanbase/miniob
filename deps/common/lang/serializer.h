@@ -14,9 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <vector>
-#include <span>
-#include <cstdint>
+#include <stdint.h>
+
+#include "common/lang/vector.h"
+#include "common/lang/span.h"
 
 namespace common {
 
@@ -27,7 +28,7 @@ namespace common {
 class Serializer final
 {
 public:
-  using BufferType = std::vector<char>;
+  using BufferType = vector<char>;
 
 public:
   Serializer()  = default;
@@ -37,9 +38,9 @@ public:
   Serializer &operator=(const Serializer &) = delete;
 
   /// @brief 写入指定长度的数据
-  int write(std::span<const char> data);
+  int write(span<const char> data);
   /// @brief 写入指定长度的数据
-  int write(const char *data, int size) { return write(std::span<const char>(data, size)); }
+  int write(const char *data, int size) { return write(span<const char>(data, size)); }
   /// @brief 当前写入了多少数据
   int64_t size() const { return buffer_.size(); }
 
@@ -61,7 +62,7 @@ private:
 class Deserializer final
 {
 public:
-  explicit Deserializer(std::span<const char> buffer) : buffer_(buffer) {}
+  explicit Deserializer(span<const char> buffer) : buffer_(buffer) {}
   Deserializer(const char *buffer, int size) : buffer_(buffer, size) {}
   ~Deserializer() = default;
 
@@ -69,9 +70,9 @@ public:
   Deserializer &operator=(const Deserializer &) = delete;
 
   /// @brief 读取指定大小的数据
-  int read(std::span<char> data);
+  int read(span<char> data);
   /// @brief 读取指定长度的数据
-  int read(char *data, int size) { return read(std::span<char>(data, size)); }
+  int read(char *data, int size) { return read(span<char>(data, size)); }
 
   /// @brief buffer的大小
   int64_t size() const { return buffer_.size(); }
@@ -85,8 +86,8 @@ public:
   int read_int64(int64_t &value);
 
 private:
-  std::span<const char> buffer_;        ///< 存放数据的buffer
-  int64_t               position_ = 0;  ///< 当前读取到的位置
+  span<const char> buffer_;        ///< 存放数据的buffer
+  int64_t          position_ = 0;  ///< 当前读取到的位置
 };
 
 }  // namespace common

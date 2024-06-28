@@ -14,12 +14,12 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
-#include <functional>
-#include <span>
-
 #include "common/rc.h"
 #include "common/types.h"
+#include "common/lang/functional.h"
+#include "common/lang/memory.h"
+#include "common/lang/span.h"
+#include "common/lang/vector.h"
 #include "storage/clog/log_module.h"
 
 /**
@@ -76,7 +76,7 @@ public:
    * @param consumer 消费者
    * @param start_lsn 从哪个LSN开始迭代
    */
-  virtual RC iterate(std::function<RC(LogEntry &)> consumer, LSN start_lsn) = 0;
+  virtual RC iterate(function<RC(LogEntry &)> consumer, LSN start_lsn) = 0;
 
   /**
    * @brief 写入一条日志
@@ -85,8 +85,8 @@ public:
    * @param data 日志数据
    * @note 子类不应该重新实现这个函数
    */
-  virtual RC append(LSN &lsn, LogModule::Id module, std::span<const char> data);
-  virtual RC append(LSN &lsn, LogModule::Id module, std::vector<char> &&data);
+  virtual RC append(LSN &lsn, LogModule::Id module, span<const char> data);
+  virtual RC append(LSN &lsn, LogModule::Id module, vector<char> &&data);
 
   /**
    * @brief 等待某个LSN的日志被刷新到磁盘
@@ -103,5 +103,5 @@ private:
    * @brief 写入一条日志
    * @details 子类应该重现实现这个函数
    */
-  virtual RC _append(LSN &lsn, LogModule module, std::vector<char> &&data) = 0;
+  virtual RC _append(LSN &lsn, LogModule module, vector<char> &&data) = 0;
 };

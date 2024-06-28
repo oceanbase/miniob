@@ -20,8 +20,6 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "sql/expr/tuple.h"
 
-using namespace std;
-
 PlainCommunicator::PlainCommunicator()
 {
   send_message_delimiter_.assign(1, '\0');
@@ -239,7 +237,42 @@ RC PlainCommunicator::write_result_internal(SessionEvent *event, bool &need_disc
   }
 
   rc = RC::SUCCESS;
+  if (event->session()->get_execution_mode() == ExecutionMode::CHUNK_ITERATOR
+      && event->session()->used_chunk_mode()) {
+    rc = write_chunk_result(sql_result);
+  } else {
+    rc = write_tuple_result(sql_result);
+  }
 
+  if (OB_FAIL(rc)) {
+    return rc;
+  }
+
+  if (cell_num == 0) {
+    // 除了select之外，其它的消息通常不会通过operator来返回结果，表头和行数据都是空的
+    // 这里针对这种情况做特殊处理，当表头和行数据都是空的时候，就返回处理的结果
+    // 可能是insert/delete等操作，不直接返回给客户端数据，这里把处理结果返回给客户端
+    RC rc_close = sql_result->close();
+    if (rc == RC::SUCCESS) {
+      rc = rc_close;
+    }
+    sql_result->set_return_code(rc);
+    return write_state(event, need_disconnect);
+  } else {
+    need_disconnect = false;
+  }
+
+  RC rc_close = sql_result->close();
+  if (OB_SUCC(rc)) {
+    rc = rc_close;
+  }
+
+  return rc;
+}
+
+RC PlainCommunicator::write_tuple_result(SqlResult *sql_result)
+{
+  RC rc = RC::SUCCESS;
   Tuple *tuple = nullptr;
   while (RC::SUCCESS == (rc = sql_result->next_tuple(tuple))) {
     assert(tuple != nullptr);
@@ -260,6 +293,7 @@ RC PlainCommunicator::write_result_internal(SessionEvent *event, bool &need_disc
       Value value;
       rc = tuple->cell_at(i, value);
       if (rc != RC::SUCCESS) {
+        LOG_WARN("failed to get tuple cell value. rc=%s", strrc(rc));
         sql_result->close();
         return rc;
       }
@@ -287,25 +321,53 @@ RC PlainCommunicator::write_result_internal(SessionEvent *event, bool &need_disc
   if (rc == RC::RECORD_EOF) {
     rc = RC::SUCCESS;
   }
+  return rc;
+}
 
-  if (cell_num == 0) {
-    // 除了select之外，其它的消息通常不会通过operator来返回结果，表头和行数据都是空的
-    // 这里针对这种情况做特殊处理，当表头和行数据都是空的时候，就返回处理的结果
-    // 可能是insert/delete等操作，不直接返回给客户端数据，这里把处理结果返回给客户端
-    RC rc_close = sql_result->close();
-    if (rc == RC::SUCCESS) {
-      rc = rc_close;
+RC PlainCommunicator::write_chunk_result(SqlResult *sql_result)
+{
+  RC rc = RC::SUCCESS;
+  Chunk chunk;
+  while (RC::SUCCESS == (rc = sql_result->next_chunk(chunk))) {
+    int col_num = chunk.column_num();
+    for (int row_idx = 0; row_idx < chunk.rows(); row_idx++) {
+      for (int col_idx = 0; col_idx < col_num; col_idx++) {
+        if (col_idx != 0) {
+          const char *delim = " | ";
+
+          rc = writer_->writen(delim, strlen(delim));
+          if (OB_FAIL(rc)) {
+            LOG_WARN("failed to send data to client. err=%s", strerror(errno));
+            sql_result->close();
+            return rc;
+          }
+        }
+
+        Value value = chunk.get_value(col_idx, row_idx);
+
+        string cell_str = value.to_string();
+
+        rc = writer_->writen(cell_str.data(), cell_str.size());
+        if (OB_FAIL(rc)) {
+          LOG_WARN("failed to send data to client. err=%s", strerror(errno));
+          sql_result->close();
+          return rc;
+        }
+      }
+      char newline = '\n';
+
+      rc = writer_->writen(&newline, 1);
+      if (OB_FAIL(rc)) {
+        LOG_WARN("failed to send data to client. err=%s", strerror(errno));
+        sql_result->close();
+        return rc;
+      }
     }
-    sql_result->set_return_code(rc);
-    return write_state(event, need_disconnect);
-  } else {
-    need_disconnect = false;
+    chunk.reset();
   }
 
-  RC rc_close = sql_result->close();
-  if (OB_SUCC(rc)) {
-    rc = rc_close;
+  if (rc == RC::RECORD_EOF) {
+    rc = RC::SUCCESS;
   }
-
   return rc;
 }

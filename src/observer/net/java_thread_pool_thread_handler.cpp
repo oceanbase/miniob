@@ -21,7 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/thread/runnable.h"
 #include "common/queue/simple_queue.h"
 
-using namespace std;
 using namespace common;
 
 /**

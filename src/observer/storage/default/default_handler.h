@@ -13,12 +13,11 @@ See the Mulan PSL v2 for more details. */
 //
 #pragma once
 
-#include <map>
-#include <span>
-#include <string>
-#include <memory>
-
 #include "storage/db/db.h"
+#include "common/lang/span.h"
+#include "common/lang/map.h"
+#include "common/lang/string.h"
+#include "common/lang/memory.h"
 
 class Trx;
 class TrxKit;
@@ -75,7 +74,7 @@ public:
    * @param relation_name 表名
    * @param attributes 属性信息
    */
-  RC create_table(const char *dbname, const char *relation_name, std::span<const AttrInfoSqlNode> attributes);
+  RC create_table(const char *dbname, const char *relation_name, span<const AttrInfoSqlNode> attributes);
 
   /**
    * @brief 删除指定数据库下的表
@@ -92,9 +91,9 @@ public:
   RC sync();
 
 private:
-  std::filesystem::path       base_dir_;          ///< 存储引擎的根目录
-  std::filesystem::path       db_dir_;            ///< 数据库文件的根目录
-  std::string                 trx_kit_name_;      ///< 事务模型的名称
-  std::string                 log_handler_name_;  ///< 日志处理器的名称
-  std::map<std::string, Db *> opened_dbs_;        ///< 打开的数据库
+  filesystem::path  base_dir_;          ///< 存储引擎的根目录
+  filesystem::path  db_dir_;            ///< 数据库文件的根目录
+  string            trx_kit_name_;      ///< 事务模型的名称
+  string            log_handler_name_;  ///< 日志处理器的名称
+  map<string, Db *> opened_dbs_;        ///< 打开的数据库
 };

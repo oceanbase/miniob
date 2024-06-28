@@ -12,15 +12,11 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/04/24.
 //
 
-#include <limits>
-#include <ranges>
-
 #include "storage/trx/mvcc_trx.h"
 #include "storage/db/db.h"
 #include "storage/field/field.h"
 #include "storage/trx/mvcc_trx_log.h"
-
-using namespace std;
+#include "common/lang/algorithm.h"
 
 MvccTrxKit::~MvccTrxKit()
 {
@@ -36,8 +32,9 @@ RC MvccTrxKit::init()
 {
   // 事务使用一些特殊的字段，放到每行记录中，表示行记录的可见性。
   fields_ = vector<FieldMeta>{
-      FieldMeta("__trx_xid_begin", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/),
-      FieldMeta("__trx_xid_end", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/)};
+      // field_id in trx fields is invisible.
+      FieldMeta("__trx_xid_begin", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -1/*field_id*/),
+      FieldMeta("__trx_xid_end", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -2/*field_id*/)};
 
   LOG_INFO("init mvcc trx kit done.");
   return RC::SUCCESS;
@@ -102,7 +99,7 @@ Trx *MvccTrxKit::find_trx(int32_t trx_id)
   return nullptr;
 }
 
-void MvccTrxKit::all_trxes(std::vector<Trx *> &trxes)
+void MvccTrxKit::all_trxes(vector<Trx *> &trxes)
 {
   lock_.lock();
   trxes = trxes_;

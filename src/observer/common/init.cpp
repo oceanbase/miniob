@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/conf/ini.h"
 #include "common/lang/string.h"
+#include "common/lang/iostream.h"
 #include "common/log/log.h"
 #include "common/os/path.h"
 #include "common/os/pidfile.h"
@@ -29,7 +30,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/default_handler.h"
 #include "storage/trx/trx.h"
 
-using namespace std;
 using namespace common;
 
 bool *&_get_init()

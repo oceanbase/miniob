@@ -28,14 +28,14 @@ int main()
   const char *programName = "test";
   writePidFile(programName);
 
-  std::string pidFile = getPidPath();
+  string pidFile = getPidPath();
 
   char  *p    = NULL;
   size_t size = 0;
   readFromFile(pidFile, p, size);
 
-  std::string temp(p);
-  long long   target = 0;
+  string    temp(p);
+  long long target = 0;
   str_to_val(temp, target);
 
   free(p);

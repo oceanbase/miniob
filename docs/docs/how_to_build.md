@@ -11,7 +11,7 @@ title: 如何编译
 MiniOB 需要使用：
 
 - cmake 版本 >= 3.13
-- gcc/clang gcc建议8.3以上，编译器需要支持c++20新标准
+- gcc/clang gcc 11 以上，clang 14以上，编译器需要支持c++20新标准
 - flex (2.5+), bison (3.7+) 用于生成词法语法分析代码
 
 ## 1. 环境初始化

@@ -14,8 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-
+#include "common/lang/string.h"
 #include "event/sql_debug.h"
 #include "sql/executor/sql_result.h"
 
@@ -35,15 +34,15 @@ public:
   Communicator *get_communicator() const;
   Session      *session() const;
 
-  void set_query(const std::string &query) { query_ = query; }
+  void set_query(const string &query) { query_ = query; }
 
-  const std::string &query() const { return query_; }
-  SqlResult         *sql_result() { return &sql_result_; }
-  SqlDebug          &sql_debug() { return sql_debug_; }
+  const string &query() const { return query_; }
+  SqlResult    *sql_result() { return &sql_result_; }
+  SqlDebug     &sql_debug() { return sql_debug_; }
 
 private:
   Communicator *communicator_ = nullptr;  ///< 与客户端通讯的对象
   SqlResult     sql_result_;              ///< SQL执行结果
   SqlDebug      sql_debug_;               ///< SQL调试信息
-  std::string   query_;                   ///< SQL语句
+  string        query_;                   ///< SQL语句
 };

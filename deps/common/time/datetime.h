@@ -12,8 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_TIME_DATETIME_H__
-#define __COMMON_TIME_DATETIME_H__
+#pragma once
 
 #include <math.h>
 #include <stdint.h>
@@ -24,6 +23,7 @@ See the Mulan PSL v2 for more details. */
 #include <iostream>
 
 #include "common/defs.h"
+#include "common/lang/string.h"
 
 namespace common {
 
@@ -95,10 +95,10 @@ struct DateTime
   }
 
   // Construct from the xml datetime format
-  DateTime(std::string &xml_time);
+  DateTime(string &xml_time);
 
   // check whether a string is valid with a xml datetime format
-  static bool is_valid_xml_datetime(const std::string &str);
+  static bool is_valid_xml_datetime(const string &str);
 
   // Load the referenced values with the year, month and day
   // portions of the date in a single operation
@@ -185,19 +185,19 @@ struct DateTime
   }
 
   // Return date and time as a string in XML Schema Date-Time format
-  std::string to_xml_date_time();
+  string to_xml_date_time();
 
   // Return time_t from XML schema date-time format.
-  time_t str_to_time_t(std::string &xml_str);
+  time_t str_to_time_t(string &xml_str);
 
   // Return xml time str from time_t.
-  std::string time_t_to_xml_str(time_t timet);
+  string time_t_to_xml_str(time_t timet);
 
   // Return time_t str from time_t.
-  std::string time_t_to_str(int timet);
+  string time_t_to_str(int timet);
 
   // Return time_t string from XML schema date-time format.
-  std::string str_to_time_t_str(std::string &xml_str);
+  string str_to_time_t_str(string &xml_str);
 
   // Helper method to convert a broken down time to a number of
   // milliseconds since midnight
@@ -253,41 +253,41 @@ struct DateTime
 
   // Return a human-friendly string representation of the timestamp,
   // expressed in terms of the local timezone
-  std::string to_string_local()
+  string to_string_local()
   {
     const time_t tt = to_time_t();
     // 'man asctime' specifies that buffer must be at least 26 bytes
     char      buffer[32];
     struct tm tm;
     asctime_r(localtime_r(&tt, &tm), &(buffer[0]));
-    std::string s(buffer);
+    string s(buffer);
     return s;
   }
 
   // Return a human-friendly string representation of the timestamp,
   // expressed in terms of Coordinated Universal Time (UTC)
-  std::string to_string_utc()
+  string to_string_utc()
   {
     const time_t tt = to_time_t();
     // 'man asctime' specifies that buffer must be at least 26 bytes
     char      buffer[32];
     struct tm tm;
     asctime_r(gmtime_r(&tt, &tm), &(buffer[0]));
-    std::string s(buffer);
+    string s(buffer);
     return s;
   }
 
   // add duration to this time
-  time_t add_duration(std::string xml_dur);
+  time_t add_duration(string xml_dur);
 
   // add duration to this time
-  void add_duration_date_time(std::string xml_dur);
+  void add_duration_date_time(string xml_dur);
 
   // add duration to this time
   int max_day_in_month_for(int year, int month);
 
   // parse the duration string and convert it to struct tm
-  void parse_duration(std::string dur_str, struct tm &tm_t);
+  void parse_duration(string dur_str, struct tm &tm_t);
 };
 
 inline bool operator==(const DateTime &lhs, const DateTime &rhs)
@@ -428,8 +428,7 @@ public:
     return msec;
   }
 
-  static std::string unique();
+  static string unique();
 };
 
 }  // namespace common
-#endif  //__COMMON_TIME_DATETIME_H__

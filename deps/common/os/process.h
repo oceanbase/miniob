@@ -14,6 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include "common/lang/string.h"
+
 namespace common {
 
 //! Get process Name
@@ -21,7 +23,7 @@ namespace common {
  * @param[in]   prog_full_name  process full name with full path
  * @return      process_name_   process name without directory path
  */
-std::string get_process_name(const char *prog_full_name);
+string get_process_name(const char *prog_full_name);
 //! Runs the service as a daemon
 /**
  * Backgrounds the calling service as a system daemon by detaching it from

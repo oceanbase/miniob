@@ -14,17 +14,17 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <functional>
-#include <span>
-
 #include "storage/table/table_meta.h"
 #include "common/types.h"
+#include "common/lang/span.h"
+#include "common/lang/functional.h"
 
 struct RID;
 class Record;
 class DiskBufferPool;
 class RecordFileHandler;
 class RecordFileScanner;
+class ChunkFileScanner;
 class ConditionFilter;
 class DefaultConditionFilter;
 class Index;
@@ -52,7 +52,7 @@ public:
    * @param attributes 字段
    */
   RC create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
-      std::span<const AttrInfoSqlNode> attributes);
+      span<const AttrInfoSqlNode> attributes, StorageFormat storage_format);
 
   /**
    * 打开一个表
@@ -87,6 +87,8 @@ public:
 
   RC get_record_scanner(RecordFileScanner &scanner, Trx *trx, ReadWriteMode mode);
 
+  RC get_chunk_scanner(ChunkFileScanner &scanner, Trx *trx, ReadWriteMode mode);
+
   RecordFileHandler *record_handler() const { return record_handler_; }
 
   /**
@@ -96,7 +98,7 @@ public:
    * @param visitor
    * @return RC
    */
-  RC visit_record(const RID &rid, std::function<bool(Record &)> visitor);
+  RC visit_record(const RID &rid, function<bool(Record &)> visitor);
 
 public:
   int32_t     table_id() const { return table_meta_.table_id(); }
@@ -120,10 +122,10 @@ public:
   Index *find_index_by_field(const char *field_name) const;
 
 private:
-  Db                  *db_ = nullptr;
-  std::string          base_dir_;
-  TableMeta            table_meta_;
-  DiskBufferPool      *data_buffer_pool_ = nullptr;  /// 数据文件关联的buffer pool
-  RecordFileHandler   *record_handler_   = nullptr;  /// 记录操作
-  std::vector<Index *> indexes_;
+  Db                *db_ = nullptr;
+  string             base_dir_;
+  TableMeta          table_meta_;
+  DiskBufferPool    *data_buffer_pool_ = nullptr;  /// 数据文件关联的buffer pool
+  RecordFileHandler *record_handler_   = nullptr;  /// 记录操作
+  vector<Index *>    indexes_;
 };

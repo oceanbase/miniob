@@ -14,9 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <queue>
-#include <mutex>
 #include "common/queue/queue.h"
+#include "common/lang/mutex.h"
+#include "common/lang/queue.h"
 
 namespace common {
 
@@ -46,8 +46,8 @@ public:
   int size() const override;
 
 private:
-  std::mutex             mutex_;
-  std::queue<value_type> queue_;
+  mutex             mutex_;
+  queue<value_type> queue_;
 };
 
 }  // namespace common

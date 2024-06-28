@@ -20,7 +20,7 @@ See the Mulan PSL v2 for more details. */
  * @brief 属性的类型
  *
  */
-enum AttrType
+enum class AttrType
 {
   UNDEFINED,
   CHARS,     ///< 字符串类型
@@ -36,7 +36,7 @@ AttrType    attr_type_from_string(const char *s);
  * @brief 属性的值
  *
  */
-class Value
+class Value final
 {
 public:
   Value() = default;
@@ -80,7 +80,7 @@ public:
   bool        get_boolean() const;
 
 private:
-  AttrType attr_type_ = UNDEFINED;
+  AttrType attr_type_ = AttrType::UNDEFINED;
   int      length_    = 0;
 
   union

@@ -26,12 +26,12 @@ public:
   virtual ~VacuousTrxKit() = default;
 
   RC                            init() override;
-  const std::vector<FieldMeta> *trx_fields() const override;
+  const vector<FieldMeta> *trx_fields() const override;
 
   Trx *create_trx(LogHandler &log_handler) override;
   Trx *create_trx(LogHandler &log_handler, int32_t trx_id) override;
   Trx *find_trx(int32_t trx_id) override;
-  void all_trxes(std::vector<Trx *> &trxes) override;
+  void all_trxes(vector<Trx *> &trxes) override;
 
   void destroy_trx(Trx *trx) override;
 

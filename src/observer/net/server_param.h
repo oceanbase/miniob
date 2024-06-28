@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "net/communicator.h"
-#include <string>
+#include "common/lang/string.h"
 
 /**
  * @brief 服务端启动参数
@@ -37,7 +37,7 @@ public:
 
   int port;  ///< 监听的端口号
 
-  std::string unix_socket_path;  ///< unix socket的路径
+  string unix_socket_path;  ///< unix socket的路径
 
   bool use_std_io = false;  ///< 是否使用标准输入输出作为通信条件
 
@@ -47,5 +47,5 @@ public:
 
   CommunicateProtocol protocol;  ///< 通讯协议，目前支持文本协议和mysql协议
 
-  std::string thread_handling;  ///< 线程池模型
+  string thread_handling;  ///< 线程池模型
 };

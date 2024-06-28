@@ -12,11 +12,10 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_MATH_REGEX_H__
-#define __COMMON_MATH_REGEX_H__
+#pragma once
+
 namespace common {
 
 int regex_match(const char *str_, const char *pat_);
 
 }  // namespace common
-#endif /* __COMMON_MATH_REGEX_H__ */

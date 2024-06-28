@@ -12,8 +12,8 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_MATH_MD5_H__
-#define __COMMON_MATH_MD5_H__
+#pragma once
+
 #include <stdio.h>
 namespace common {
 
@@ -68,4 +68,3 @@ void MD5Final(unsigned char[16], MD5_CTX *);
 #endif
 
 }  // namespace common
-#endif  //__COMMON_MATH_MD5_H__

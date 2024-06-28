@@ -38,11 +38,12 @@ See the Mulan PSL v2 for more details. */
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
 
+using namespace std;
 using namespace common;
 
 #ifdef USE_READLINE
-const std::string HISTORY_FILE            = std::string(getenv("HOME")) + "/.miniob.history";
-time_t            last_history_write_time = 0;
+const string HISTORY_FILE            = string(getenv("HOME")) + "/.miniob.history";
+time_t       last_history_write_time = 0;
 
 char *my_readline(const char *prompt)
 {

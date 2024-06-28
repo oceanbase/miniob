@@ -30,7 +30,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/disk_log_handler.h"
 #include "storage/clog/integrated_log_replayer.h"
 
-using namespace std;
 using namespace common;
 
 Db::~Db()
@@ -71,11 +70,11 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
   trx_kit_.reset(trx_kit);
 
   buffer_pool_manager_ = make_unique<BufferPoolManager>();
-  auto dblwr_buffer = make_unique<DiskDoubleWriteBuffer>(*buffer_pool_manager_);
+  auto dblwr_buffer    = make_unique<DiskDoubleWriteBuffer>(*buffer_pool_manager_);
 
-  const char *double_write_buffer_filename = "dblwr.db";
+  const char      *double_write_buffer_filename  = "dblwr.db";
   filesystem::path double_write_buffer_file_path = filesystem::path(dbpath) / double_write_buffer_filename;
-  rc = dblwr_buffer->open_file(double_write_buffer_file_path.c_str());
+  rc                                             = dblwr_buffer->open_file(double_write_buffer_file_path.c_str());
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to open double write buffer file. file=%s, rc=%s",
               double_write_buffer_file_path.c_str(), strrc(rc));
@@ -88,15 +87,15 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
     return rc;
   }
 
-  filesystem::path clog_path = filesystem::path(dbpath) / "clog";
-  LogHandler *tmp_log_handler = nullptr;
-  rc = LogHandler::create(log_handler_name, tmp_log_handler);
+  filesystem::path clog_path       = filesystem::path(dbpath) / "clog";
+  LogHandler      *tmp_log_handler = nullptr;
+  rc                               = LogHandler::create(log_handler_name, tmp_log_handler);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to create log handler: %s", log_handler_name);
     return rc;
   }
   log_handler_.reset(tmp_log_handler);
-  
+
   rc = log_handler_->init(clog_path.c_str());
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to init log handler. dbpath=%s, rc=%s", dbpath, strrc(rc));
@@ -137,7 +136,7 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
   return rc;
 }
 
-RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attributes)
+RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attributes, const StorageFormat storage_format)
 {
   RC rc = RC::SUCCESS;
   // check table_name
@@ -147,10 +146,10 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
   }
 
   // 文件路径可以移到Table模块
-  std::string table_file_path = table_meta_file(path_.c_str(), table_name);
-  Table      *table           = new Table();
-  int32_t     table_id        = next_table_id_++;
-  rc = table->create(this, table_id, table_file_path.c_str(), table_name, path_.c_str(), attributes);
+  string  table_file_path = table_meta_file(path_.c_str(), table_name);
+  Table  *table           = new Table();
+  int32_t table_id        = next_table_id_++;
+  rc = table->create(this, table_id, table_file_path.c_str(), table_name, path_.c_str(), attributes, storage_format);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;
@@ -243,7 +242,7 @@ RC Db::sync()
   }
 
   auto dblwr_buffer = static_cast<DiskDoubleWriteBuffer *>(buffer_pool_manager_->get_dblwr_buffer());
-  rc = dblwr_buffer->flush_page();
+  rc                = dblwr_buffer->flush_page();
   LOG_INFO("double write buffer flush pages ret=%s", strrc(rc));
 
   /*
@@ -358,7 +357,7 @@ RC Db::flush_meta()
     return RC::IOERR_WRITE;
   }
 
-  string buffer = to_string(check_point_lsn_);
+  string buffer = std::to_string(check_point_lsn_);
   int    n      = write(fd, buffer.c_str(), buffer.size());
   if (n < 0) {
     LOG_ERROR("Failed to write db meta file. db=%s, file=%s, errno=%s", 
@@ -388,7 +387,7 @@ RC Db::flush_meta()
 RC Db::init_dblwr_buffer()
 {
   auto dblwr_buffer = static_cast<DiskDoubleWriteBuffer *>(buffer_pool_manager_->get_dblwr_buffer());
-  RC rc = dblwr_buffer->recover();
+  RC   rc           = dblwr_buffer->recover();
   if (OB_FAIL(rc)) {
     LOG_ERROR("fail to recover in dblwr buffer");
     return rc;

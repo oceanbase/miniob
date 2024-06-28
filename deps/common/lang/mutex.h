@@ -24,12 +24,19 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include <string>
 #include <sys/types.h>
-#include <thread>
 #include <unordered_map>
 
+#include "common/lang/thread.h"
 #include "common/log/log.h"
 
-using namespace std;
+using std::call_once;
+using std::condition_variable;
+using std::lock_guard;
+using std::scoped_lock;
+using std::mutex;
+using std::once_flag;
+using std::shared_mutex;
+using std::unique_lock;
 
 namespace common {
 
@@ -43,7 +50,7 @@ public:
   static void tryLock(pthread_mutex_t *mutex, const long long threadId, const char *file, const int line);
   static void unlock(pthread_mutex_t *mutex, const long long threadId, const char *file, const int line);
 
-  static void toString(std::string &result);
+  static void toString(string &result);
 
   class LockID
   {
@@ -52,9 +59,9 @@ public:
     {}
     LockID() : mFile(), mThreadId(0), mLine(0) {}
 
-    std::string toString()
+    string toString()
     {
-      std::ostringstream oss;
+      ostringstream oss;
 
       oss << "threaId:" << mThreadId << ",file name:" << mFile << ",line:" << mLine;
 
@@ -62,14 +69,14 @@ public:
     }
 
   public:
-    std::string     mFile;
+    string          mFile;
     const long long mThreadId;
     int             mLine;
   };
 
   static void foundDeadLock(LockID &current, LockID &other, pthread_mutex_t *otherWaitMutex);
 
-  static bool deadlockCheck(LockID &current, std::set<pthread_mutex_t *> &ownMutexs, LockID &other, int recusiveNum);
+  static bool deadlockCheck(LockID &current, set<pthread_mutex_t *> &ownMutexs, LockID &other, int recusiveNum);
 
   static bool deadlockCheck(pthread_mutex_t *mutex, const long long threadId, const char *file, const int line);
 
@@ -80,13 +87,13 @@ public:
   static void setMaxBlockThreads(int blockNum) { mMaxBlockTids = blockNum; }
 
 public:
-  static std::set<pthread_mutex_t *> mEnableRecurisives;
+  static set<pthread_mutex_t *> mEnableRecurisives;
 
 protected:
-  static std::map<pthread_mutex_t *, LockID>              mLocks;
-  static std::map<pthread_mutex_t *, int>                 mWaitTimes;
-  static std::map<long long, pthread_mutex_t *>           mWaitLocks;
-  static std::map<long long, std::set<pthread_mutex_t *>> mOwnLocks;
+  static map<pthread_mutex_t *, LockID>         mLocks;
+  static map<pthread_mutex_t *, int>            mWaitTimes;
+  static map<long long, pthread_mutex_t *>      mWaitLocks;
+  static map<long long, set<pthread_mutex_t *>> mOwnLocks;
 
   static pthread_rwlock_t mMapMutex;
   static int              mMaxBlockTids;
@@ -253,7 +260,7 @@ public:
 
 private:
 #ifdef DEBUG
-  std::mutex lock_;
+  mutex lock_;
 #endif
 };
 
@@ -269,7 +276,7 @@ public:
 
 private:
 #ifdef CONCURRENCY
-  std::mutex lock_;
+  mutex lock_;
 #endif
 };
 
@@ -289,7 +296,7 @@ public:
 
 private:
 #ifdef CONCURRENCY
-  std::shared_mutex lock_;
+  shared_mutex lock_;
 #endif
 };
 
@@ -314,14 +321,14 @@ public:
 
 private:
 #ifdef CONCURRENCY
-  std::mutex              mutex_;
-  std::condition_variable shared_lock_cv_;
-  std::condition_variable exclusive_lock_cv_;
-  int                     shared_lock_count_    = 0;
-  int                     exclusive_lock_count_ = 0;
-  std::thread::id         recursive_owner_;
-  int                     recursive_count_ = 0;  // 表示当前线程加写锁加了多少次
-#endif                                           // CONCURRENCY
+  mutex              mutex_;
+  condition_variable shared_lock_cv_;
+  condition_variable exclusive_lock_cv_;
+  int                shared_lock_count_    = 0;
+  int                exclusive_lock_count_ = 0;
+  thread::id         recursive_owner_;
+  int                recursive_count_ = 0;  // 表示当前线程加写锁加了多少次
+#endif                                      // CONCURRENCY
 };
 
 }  // namespace common

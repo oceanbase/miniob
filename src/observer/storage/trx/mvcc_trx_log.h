@@ -14,11 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-#include <unordered_map>
-
 #include "common/rc.h"
 #include "common/types.h"
+#include "common/lang/string.h"
+#include "common/lang/unordered_map.h"
 #include "storage/record/record.h"
 #include "storage/clog/log_replayer.h"
 
@@ -52,7 +51,7 @@ public:
   Type    type() const { return type_; }
   int32_t index() const { return static_cast<int32_t>(type_); }
 
-  std::string to_string() const;
+  string to_string() const;
 
 private:
   Type type_;
@@ -69,7 +68,7 @@ struct MvccTrxLogHeader
 
   static const int32_t SIZE;  ///< 头部大小
 
-  std::string to_string() const;
+  string to_string() const;
 };
 
 /**
@@ -85,7 +84,7 @@ struct MvccTrxRecordLogEntry
 
   static const int32_t SIZE;  ///< 日志大小
 
-  std::string to_string() const;
+  string to_string() const;
 };
 
 /**
@@ -100,7 +99,7 @@ struct MvccTrxCommitLogEntry
 
   static const int32_t SIZE;
 
-  std::string to_string() const;
+  string to_string() const;
 };
 
 /**
@@ -161,5 +160,5 @@ private:
   LogHandler &log_handler_;  ///< 日志处理器
 
   ///< 事务ID到事务的映射。在重做结束后，如果还有未提交的事务，需要回滚。
-  std::unordered_map<int32_t, MvccTrx *> trx_map_;
+  unordered_map<int32_t, MvccTrx *> trx_map_;
 };

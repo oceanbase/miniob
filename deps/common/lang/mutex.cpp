@@ -12,15 +12,16 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
+#include "common/lang/thread.h"
 #include "common/lang/mutex.h"
 #include "common/log/log.h"
 namespace common {
 
-std::map<pthread_mutex_t *, LockTrace::LockID>   LockTrace::mLocks;
-std::map<pthread_mutex_t *, int>                 LockTrace::mWaitTimes;
-std::map<long long, pthread_mutex_t *>           LockTrace::mWaitLocks;
-std::map<long long, std::set<pthread_mutex_t *>> LockTrace::mOwnLocks;
-std::set<pthread_mutex_t *>                      LockTrace::mEnableRecurisives;
+map<pthread_mutex_t *, LockTrace::LockID>   LockTrace::mLocks;
+map<pthread_mutex_t *, int>                 LockTrace::mWaitTimes;
+map<long long, pthread_mutex_t *>           LockTrace::mWaitLocks;
+map<long long, set<pthread_mutex_t *>> LockTrace::mOwnLocks;
+set<pthread_mutex_t *>                      LockTrace::mEnableRecurisives;
 
 pthread_rwlock_t LockTrace::mMapMutex     = PTHREAD_RWLOCK_INITIALIZER;
 int              LockTrace::mMaxBlockTids = 8;
@@ -29,7 +30,7 @@ int              LockTrace::mMaxBlockTids = 8;
 
 void LockTrace::foundDeadLock(LockID &current, LockTrace::LockID &other, pthread_mutex_t *otherWaitMutex)
 {
-  std::map<pthread_mutex_t *, LockTrace::LockID>::iterator itLocks = mLocks.find(otherWaitMutex);
+  map<pthread_mutex_t *, LockTrace::LockID>::iterator itLocks = mLocks.find(otherWaitMutex);
   if (itLocks == mLocks.end()) {
     LOG_ERROR("Thread %ld own mutex %p and try to get mutex %s:%d, "
               "other thread %ld own mutex %s:%d and try to get %p",
@@ -62,13 +63,13 @@ void LockTrace::foundDeadLock(LockID &current, LockTrace::LockID &other, pthread
 }
 
 bool LockTrace::deadlockCheck(
-    LockID &current, std::set<pthread_mutex_t *> &ownMutexs, LockTrace::LockID &other, int recusiveNum)
+    LockID &current, set<pthread_mutex_t *> &ownMutexs, LockTrace::LockID &other, int recusiveNum)
 {
   if (recusiveNum >= mMaxBlockTids) {
     return false;
   }
 
-  std::map<long long, pthread_mutex_t *>::iterator otherIt = mWaitLocks.find(other.mThreadId);
+  map<long long, pthread_mutex_t *>::iterator otherIt = mWaitLocks.find(other.mThreadId);
   if (otherIt == mWaitLocks.end()) {
     return false;
   }
@@ -80,7 +81,7 @@ bool LockTrace::deadlockCheck(
     return true;
   }
 
-  std::map<pthread_mutex_t *, LockTrace::LockID>::iterator itLocks = mLocks.find(otherWaitMutex);
+  map<pthread_mutex_t *, LockTrace::LockID>::iterator itLocks = mLocks.find(otherWaitMutex);
   if (itLocks == mLocks.end()) {
     return false;
   }
@@ -93,7 +94,7 @@ bool LockTrace::deadlockCheck(pthread_mutex_t *mutex, const long long threadId, 
 {
   mWaitLocks[threadId] = mutex;
 
-  std::map<pthread_mutex_t *, LockTrace::LockID>::iterator itLocks = mLocks.find(mutex);
+  map<pthread_mutex_t *, LockTrace::LockID>::iterator itLocks = mLocks.find(mutex);
   if (itLocks == mLocks.end()) {
     return false;
   }
@@ -110,11 +111,11 @@ bool LockTrace::deadlockCheck(pthread_mutex_t *mutex, const long long threadId, 
     }
   }
 
-  std::map<long long, std::set<pthread_mutex_t *>>::iterator it = mOwnLocks.find(threadId);
+  map<long long, set<pthread_mutex_t *>>::iterator it = mOwnLocks.find(threadId);
   if (it == mOwnLocks.end()) {
     return false;
   }
-  std::set<pthread_mutex_t *> &ownMutexs = it->second;
+  set<pthread_mutex_t *> &ownMutexs = it->second;
   if (ownMutexs.empty() == true) {
     return false;
   }
@@ -125,9 +126,9 @@ bool LockTrace::deadlockCheck(pthread_mutex_t *mutex, const long long threadId, 
 
 bool LockTrace::checkLockTimes(pthread_mutex_t *mutex, const char *file, const int line)
 {
-  std::map<pthread_mutex_t *, int>::iterator it = mWaitTimes.find(mutex);
+  map<pthread_mutex_t *, int>::iterator it = mWaitTimes.find(mutex);
   if (it == mWaitTimes.end()) {
-    mWaitTimes.insert(std::pair<pthread_mutex_t *, int>(mutex, 1));
+    mWaitTimes.insert(pair<pthread_mutex_t *, int>(mutex, 1));
 
     return false;
   }
@@ -136,7 +137,7 @@ bool LockTrace::checkLockTimes(pthread_mutex_t *mutex, const char *file, const i
   mWaitTimes[mutex] = lockTimes + 1;
   if (lockTimes >= mMaxBlockTids) {
 
-    // std::string          lastLockId = lockId.toString();
+    // string          lastLockId = lockId.toString();
     LockTrace::LockID &lockId = mLocks[mutex];
     LOG_WARN("mutex %p has been already lock %d times, this time %s:%d, first "
              "time:%ld:%s:%d",
@@ -170,15 +171,15 @@ void LockTrace::insertLock(pthread_mutex_t *mutex, const long long threadId, con
 {
   LockID lockID(threadId, file, line);
 
-  mLocks.insert(std::pair<pthread_mutex_t *, LockID>(mutex, lockID));
+  mLocks.insert(pair<pthread_mutex_t *, LockID>(mutex, lockID));
 
   mWaitLocks.erase(threadId);
 
   // add entry to mOwnLocks
-  std::set<pthread_mutex_t *> &ownLockSet = mOwnLocks[threadId];
+  set<pthread_mutex_t *> &ownLockSet = mOwnLocks[threadId];
   ownLockSet.insert(mutex);
 
-  std::map<pthread_mutex_t *, int>::iterator itTimes = mWaitTimes.find(mutex);
+  map<pthread_mutex_t *, int>::iterator itTimes = mWaitTimes.find(mutex);
   if (itTimes == mWaitTimes.end()) {
     LOG_ERROR("No entry of %p:%s:%d in mWaitTimes", mutex, file, line);
 
@@ -213,19 +214,19 @@ void LockTrace::unlock(pthread_mutex_t *mutex, long long threadId, const char *f
 
   mLocks.erase(mutex);
 
-  std::set<pthread_mutex_t *> &ownLockSet = mOwnLocks[threadId];
+  set<pthread_mutex_t *> &ownLockSet = mOwnLocks[threadId];
   ownLockSet.erase(mutex);
 
   pthread_rwlock_unlock(&mMapMutex);
 }
 
-void LockTrace::toString(std::string &result)
+void LockTrace::toString(string &result)
 {
 
   const int TEMP_PAIR_LEN = 24;
   // pthread_mutex_lock(&mMapMutex);
   result = " mLocks:\n";
-  for (std::map<pthread_mutex_t *, LockID>::iterator it = mLocks.begin(); it != mLocks.end(); it++) {
+  for (map<pthread_mutex_t *, LockID>::iterator it = mLocks.begin(); it != mLocks.end(); it++) {
     result += it->second.toString();
 
     char pointerBuf[TEMP_PAIR_LEN] = {0};
@@ -235,14 +236,14 @@ void LockTrace::toString(std::string &result)
   }
 
   result += "mWaitTimes:\n";
-  for (std::map<pthread_mutex_t *, int>::iterator it = mWaitTimes.begin(); it != mWaitTimes.end(); it++) {
+  for (map<pthread_mutex_t *, int>::iterator it = mWaitTimes.begin(); it != mWaitTimes.end(); it++) {
     char pointerBuf[TEMP_PAIR_LEN] = {0};
     snprintf(pointerBuf, TEMP_PAIR_LEN, ",mutex:%p, times:%d\n", it->first, it->second);
     result += pointerBuf;
   }
 
   result += "mWaitLocks:\n";
-  for (std::map<long long, pthread_mutex_t *>::iterator it = mWaitLocks.begin(); it != mWaitLocks.end(); it++) {
+  for (map<long long, pthread_mutex_t *>::iterator it = mWaitLocks.begin(); it != mWaitLocks.end(); it++) {
     char pointerBuf[TEMP_PAIR_LEN] = {0};
     snprintf(pointerBuf,
         TEMP_PAIR_LEN,

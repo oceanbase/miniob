@@ -13,13 +13,14 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <fcntl.h>
-#include <charconv>
+
+#include "common/lang/string_view.h"
+#include "common/lang/charconv.h"
 #include "common/log/log.h"
 #include "storage/clog/log_file.h"
 #include "storage/clog/log_entry.h"
 #include "common/io/io.h"
 
-using namespace std;
 using namespace common;
 
 RC LogFileReader::open(const char *filename)
@@ -47,7 +48,7 @@ RC LogFileReader::close()
   return RC::SUCCESS;
 }
 
-RC LogFileReader::iterate(std::function<RC(LogEntry &)> callback, LSN start_lsn /*=0*/)
+RC LogFileReader::iterate(function<RC(LogEntry &)> callback, LSN start_lsn /*=0*/)
 {
   RC rc = skip_to(start_lsn);
   if (OB_FAIL(rc)) {
@@ -278,7 +279,7 @@ RC LogFileManager::init(const char *directory, int max_entry_number_per_file)
   return RC::SUCCESS;
 }
 
-RC LogFileManager::get_lsn_from_filename(const std::string &filename, LSN &lsn)
+RC LogFileManager::get_lsn_from_filename(const string &filename, LSN &lsn)
 {
   if (!filename.starts_with(file_prefix_) || !filename.ends_with(file_suffix_)) {
     return RC::INVALID_ARGUMENT;
@@ -295,7 +296,7 @@ RC LogFileManager::get_lsn_from_filename(const std::string &filename, LSN &lsn)
   return RC::SUCCESS;
 }
 
-RC LogFileManager::list_files(std::vector<std::string> &files, LSN start_lsn)
+RC LogFileManager::list_files(vector<string> &files, LSN start_lsn)
 {
   files.clear();
 
@@ -332,7 +333,7 @@ RC LogFileManager::next_file(LogFileWriter &file_writer)
     lsn = log_files_.rbegin()->first + max_entry_number_per_file_;
   }
 
-  string filename = file_prefix_ + to_string(lsn) + file_suffix_;
+  string filename = file_prefix_ + std::to_string(lsn) + file_suffix_;
   filesystem::path file_path = directory_ / filename;
   log_files_.emplace(lsn, file_path);
 

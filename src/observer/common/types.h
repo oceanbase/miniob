@@ -40,5 +40,27 @@ enum class ReadWriteMode
   READ_WRITE
 };
 
+/**
+ * @brief 存储格式
+ * @details 当前仅支持行存格式（ROW_FORMAT）以及 PAX 存储格式(PAX_FORMAT)。
+ */
+enum class StorageFormat
+{
+  UNKNOWN_FORMAT = 0,
+  ROW_FORMAT,
+  PAX_FORMAT
+};
+
+/**
+ * @brief 执行引擎模式
+ * @details 当前支持按行处理（TUPLE_ITERATOR）以及按批处理(CHUNK_ITERATOR)两种模式。
+ */
+enum class ExecutionMode
+{
+  UNKNOWN_MODE = 0,
+  TUPLE_ITERATOR,
+  CHUNK_ITERATOR
+};
+
 /// page的CRC校验和
 using CheckSum = unsigned int;

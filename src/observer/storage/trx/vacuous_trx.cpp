@@ -14,8 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/trx/vacuous_trx.h"
 
-using namespace std;
-
 RC VacuousTrxKit::init() { return RC::SUCCESS; }
 
 const vector<FieldMeta> *VacuousTrxKit::trx_fields() const { return nullptr; }
@@ -28,7 +26,7 @@ void VacuousTrxKit::destroy_trx(Trx *trx) { delete trx; }
 
 Trx *VacuousTrxKit::find_trx(int32_t /* trx_id */) { return nullptr; }
 
-void VacuousTrxKit::all_trxes(std::vector<Trx *> &trxes) { return; }
+void VacuousTrxKit::all_trxes(vector<Trx *> &trxes) { return; }
 
 LogReplayer *VacuousTrxKit::create_log_replayer(Db &, LogHandler &) { return new VacuousTrxLogReplayer; }
 

@@ -14,8 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/mm/mem_pool.h"
 #include "gtest/gtest.h"
-#include <iostream>
-#include <list>
+#include "common/lang/list.h"
+#include "common/lang/iostream.h"
 
 using namespace common;
 
@@ -25,7 +25,7 @@ TEST(test_mem_pool_item, test_mem_pool_item_basic)
 
   const int item_num_per_pool = 128;
   mem_pool_item.init(32, true, 1, item_num_per_pool);
-  std::list<void *> used_list;
+  list<void *> used_list;
 
   int alloc_num = 1000;
 
@@ -34,7 +34,7 @@ TEST(test_mem_pool_item, test_mem_pool_item_basic)
     used_list.push_back(item);
   }
 
-  std::cout << mem_pool_item.to_string() << std::endl;
+  cout << mem_pool_item.to_string() << endl;
 
   int pool_size = ((alloc_num + item_num_per_pool - 1) / item_num_per_pool) * item_num_per_pool;
   ASSERT_EQ(alloc_num, mem_pool_item.get_used_num());
@@ -52,7 +52,7 @@ TEST(test_mem_pool_item, test_mem_pool_item_basic)
     mem_pool_item.free(check);
   }
 
-  std::cout << mem_pool_item.to_string() << std::endl;
+  cout << mem_pool_item.to_string() << endl;
   ASSERT_EQ(used_list.size(), mem_pool_item.get_used_num());
   ASSERT_EQ(pool_size, mem_pool_item.get_size());
 }

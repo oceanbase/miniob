@@ -38,7 +38,7 @@ DefaultConditionFilter::~DefaultConditionFilter() {}
 
 RC DefaultConditionFilter::init(const ConDesc &left, const ConDesc &right, AttrType attr_type, CompOp comp_op)
 {
-  if (attr_type < CHARS || attr_type > FLOATS) {
+  if (attr_type < AttrType::CHARS || attr_type > AttrType::FLOATS) {
     LOG_ERROR("Invalid condition with unsupported attribute type: %d", attr_type);
     return RC::INVALID_ARGUMENT;
   }
@@ -61,8 +61,8 @@ RC DefaultConditionFilter::init(Table &table, const ConditionSqlNode &condition)
   ConDesc          left;
   ConDesc          right;
 
-  AttrType type_left  = UNDEFINED;
-  AttrType type_right = UNDEFINED;
+  AttrType type_left  = AttrType::UNDEFINED;
+  AttrType type_right = AttrType::UNDEFINED;
 
   if (1 == condition.left_is_attr) {
     left.is_attr                = true;

@@ -12,13 +12,11 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai.wyl on 2024/02/21
 //
 
-#include <filesystem>
-
 #include "gtest/gtest.h"
 #include "common/lang/serializer.h"
+#include "common/lang/filesystem.h"
 #include "common/log/log.h"
 
-using namespace std;
 using namespace common;
 
 TEST(Serializer, serializer)
@@ -34,7 +32,7 @@ TEST(Serializer, serializer)
   serializer.write_int64(b0);
   serializer.write_int32(c0);
   serializer.write_int64(d0);
-  serializer.write(std::span<const char>(str, sizeof(str)));
+  serializer.write(span<const char>(str, sizeof(str)));
 
   Deserializer deserializer(serializer.data());
   int32_t      a;
@@ -47,7 +45,7 @@ TEST(Serializer, serializer)
   deserializer.read_int64(d);
 
   char str2[sizeof(str)];
-  deserializer.read(std::span<char>(str2, sizeof(str2)));
+  deserializer.read(span<char>(str2, sizeof(str2)));
 
   ASSERT_EQ(a, a0);
   ASSERT_EQ(b, b0);
@@ -56,7 +54,7 @@ TEST(Serializer, serializer)
   ASSERT_EQ(0, memcmp(str, str2, sizeof(str)));
 
   char str3[sizeof(str)];
-  int  ret = deserializer.read(std::span<char>(str3, sizeof(str3)));
+  int  ret = deserializer.read(span<char>(str3, sizeof(str3)));
   ASSERT_NE(ret, 0);
 }
 

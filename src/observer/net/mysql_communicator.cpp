@@ -23,8 +23,6 @@ See the Mulan PSL v2 for more details. */
 #include "net/mysql_communicator.h"
 #include "sql/operator/string_list_physical_operator.h"
 
-using namespace std;
-
 /**
  * @brief MySQL协议相关实现
  * @defgroup MySQLProtocol
@@ -313,7 +311,7 @@ public:
    * @param[in] capabilities MySQL协议中的capability标志
    * @param[out] net_packet 编码后的网络包
    */
-  virtual RC encode(uint32_t capabilities, std::vector<char> &net_packet) const = 0;
+  virtual RC encode(uint32_t capabilities, vector<char> &net_packet) const = 0;
 };
 
 /**
@@ -345,7 +343,7 @@ struct HandshakeV10 : public BasePacket
   /**
    * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase_packets_protocol_handshake_v10.html
    */
-  virtual RC encode(uint32_t capabilities, std::vector<char> &net_packet) const override
+  virtual RC encode(uint32_t capabilities, vector<char> &net_packet) const override
   {
     net_packet.resize(100);
 
@@ -387,7 +385,7 @@ struct OkPacket : public BasePacket
   int32_t     last_insert_id = 0;
   int16_t     status_flags   = 0x22;
   int16_t     warnings       = 0;
-  std::string info;  // human readable status information
+  string      info;  // human readable status information
 
   OkPacket(int8_t sequence = 0) : BasePacket(sequence) {}
   virtual ~OkPacket() = default;
@@ -395,7 +393,7 @@ struct OkPacket : public BasePacket
   /**
    * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_ok_packet.html
    */
-  RC encode(uint32_t capabilities, std::vector<char> &net_packet) const override
+  RC encode(uint32_t capabilities, vector<char> &net_packet) const override
   {
     net_packet.resize(100);
     char *buf = net_packet.data();
@@ -442,7 +440,7 @@ struct EofPacket : public BasePacket
   EofPacket(int8_t sequence = 0) : BasePacket(sequence) {}
   virtual ~EofPacket() = default;
 
-  RC encode(uint32_t capabilities, std::vector<char> &net_packet) const override
+  RC encode(uint32_t capabilities, vector<char> &net_packet) const override
   {
     net_packet.resize(10);
     char *buf = net_packet.data();
@@ -479,13 +477,13 @@ struct ErrPacket : public BasePacket
   int8_t      header              = 0xFF;
   int16_t     error_code          = 0;
   char        sql_state_marker[1] = {'#'};
-  std::string sql_state{"HY000"};
-  std::string error_message;
+  string sql_state{"HY000"};
+  string error_message;
 
   ErrPacket(int8_t sequence = 0) : BasePacket(sequence) {}
   virtual ~ErrPacket() = default;
 
-  virtual RC encode(uint32_t capabilities, std::vector<char> &net_packet) const override
+  virtual RC encode(uint32_t capabilities, vector<char> &net_packet) const override
   {
     net_packet.resize(1000);
     char *buf = net_packet.data();
@@ -524,7 +522,7 @@ struct QueryPacket
 {
   PacketHeader packet_header;
   int8_t       command;  // 0x03: COM_QUERY
-  std::string  query;    // the text of the SQL query to execute
+  string  query;    // the text of the SQL query to execute
 };
 
 /**
@@ -532,7 +530,7 @@ struct QueryPacket
  * @details packet_header is not included in net_packet
  * [MySQL Protocol COM_QUERY](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query.html)
  */
-RC decode_query_packet(std::vector<char> &net_packet, QueryPacket &query_packet)
+RC decode_query_packet(vector<char> &net_packet, QueryPacket &query_packet)
 {
   // query field is a null terminated string
   query_packet.query.assign(net_packet.data() + 1, net_packet.size() - 1);
@@ -558,7 +556,7 @@ RC create_version_comment_sql_result(SqlResult *sql_result)
 
   StringListPhysicalOperator *oper = new StringListPhysicalOperator();
   oper->append(version_comments);
-  sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
+  sql_result->set_operator(unique_ptr<PhysicalOperator>(oper));
   return RC::SUCCESS;
 }
 
@@ -569,7 +567,7 @@ RC create_version_comment_sql_result(SqlResult *sql_result)
  * @param session 当前的会话
  * @param addr 对端地址
  */
-RC MysqlCommunicator::init(int fd, unique_ptr<Session> session, const std::string &addr)
+RC MysqlCommunicator::init(int fd, unique_ptr<Session> session, const string &addr)
 {
   // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_connection_phase.html
   // 按照协议描述，服务端在连接建立后需要先向客户端发送握手信息
@@ -633,7 +631,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
             sizeof(packet_header), packet_header.sequence_id, packet_header.payload_length, fd_);
   sequence_id_ = packet_header.sequence_id + 1;
 
-  std::vector<char> buf(packet_header.payload_length);
+  vector<char> buf(packet_header.payload_length);
   ret = common::readn(fd_, buf.data(), packet_header.payload_length);
   if (ret != 0) {
     LOG_WARN("failed to read packet payload. length=%d, addr=%s, error=%s", 
@@ -676,7 +674,7 @@ RC MysqlCommunicator::read_event(SessionEvent *&event)
     }
 
     LOG_TRACE("query command: %s", query_packet.query.c_str());
-    if (query_packet.query.find("select @@version_comment") != std::string::npos) {
+    if (query_packet.query.find("select @@version_comment") != string::npos) {
       bool need_disconnect;
       return handle_version_comment(need_disconnect);
     }
@@ -702,7 +700,7 @@ RC MysqlCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
 
   const int          buf_size     = 2048;
   char              *buf          = new char[buf_size];
-  const std::string &state_string = sql_result->state_string();
+  const string &state_string = sql_result->state_string();
   if (state_string.empty()) {
     const char *result = strrc(sql_result->return_code());
     snprintf(buf, buf_size, "%s", result);
@@ -782,7 +780,7 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
       }
     }
 
-    rc = send_result_rows(sql_result, cell_num == 0, need_disconnect);
+    rc = send_result_rows(event, sql_result, cell_num == 0, need_disconnect);
   }
 
   RC close_rc = sql_result->close();
@@ -795,7 +793,7 @@ RC MysqlCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
 
 RC MysqlCommunicator::send_packet(const BasePacket &packet)
 {
-  std::vector<char> net_packet;
+  vector<char> net_packet;
 
   RC rc = packet.encode(client_capabilities_flag_, net_packet);
   if (rc != RC::SUCCESS) {
@@ -832,7 +830,7 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
     return rc;
   }
 
-  std::vector<char> net_packet;
+  vector<char> net_packet;
   net_packet.resize(1024);
   char *buf = net_packet.data();
   int   pos = 0;
@@ -942,15 +940,44 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
  * @param no_column_def 为了特殊处理没有返回值的语句，比如insert/delete，需要做特殊处理。
  *                      这种语句只需要返回一个ok packet即可
  */
-RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool no_column_def, bool &need_disconnect)
+RC MysqlCommunicator::send_result_rows(SessionEvent *event, SqlResult *sql_result, bool no_column_def, bool &need_disconnect)
 {
   RC rc = RC::SUCCESS;
 
-  std::vector<char> packet;
+  vector<char> packet;
   packet.resize(4 * 1024 * 1024);  // TODO warning: length cannot be fix
 
   int    affected_rows = 0;
+  if (event->session()->get_execution_mode() == ExecutionMode::CHUNK_ITERATOR
+      && event->session()->used_chunk_mode()) {
+    rc = write_chunk_result(sql_result, packet, affected_rows, need_disconnect);
+  } else {
+    rc = write_tuple_result(sql_result, packet, affected_rows, need_disconnect);
+  }
+
+  // 所有行发送完成后，发送一个EOF或OK包
+  if ((client_capabilities_flag_ & CLIENT_DEPRECATE_EOF) || no_column_def) {
+    LOG_TRACE("client has CLIENT_DEPRECATE_EOF or has empty column, send ok packet");
+    OkPacket ok_packet;
+    ok_packet.packet_header.sequence_id = sequence_id_++;
+    ok_packet.affected_rows             = affected_rows;
+    rc                                  = send_packet(ok_packet);
+  } else {
+    LOG_TRACE("send eof packet to client");
+    EofPacket eof_packet;
+    eof_packet.packet_header.sequence_id = sequence_id_++;
+    rc                                   = send_packet(eof_packet);
+  }
+
+  LOG_TRACE("send rows to client done");
+  need_disconnect = false;
+  return rc;
+}
+
+RC MysqlCommunicator::write_tuple_result(SqlResult *sql_result, vector<char> &packet, int &affected_rows, bool &need_disconnect)
+{
   Tuple *tuple         = nullptr;
+  RC rc = RC::SUCCESS;
   while (RC::SUCCESS == (rc = sql_result->next_tuple(tuple))) {
     assert(tuple != nullptr);
 
@@ -990,22 +1017,42 @@ RC MysqlCommunicator::send_result_rows(SqlResult *sql_result, bool no_column_def
       return rc;
     }
   }
+  return rc;
+}
+RC MysqlCommunicator::write_chunk_result(SqlResult *sql_result, vector<char> &packet, int &affected_rows, bool &need_disconnect)
+{
+  Chunk chunk;
+  RC rc = RC::SUCCESS;
+  while (RC::SUCCESS == (rc = sql_result->next_chunk(chunk))) {
+    int column_num = chunk.column_num();
+    if (column_num == 0) {
+      continue;
+    }
+    for (int i = 0; i < chunk.rows(); i++) {
+      affected_rows++;
+      // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset.html
+      // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset_row.html
+      // note: if some field is null, send a 0xFB
+      char *buf = packet.data();
+      int   pos = 0;
 
-  // 所有行发送完成后，发送一个EOF或OK包
-  if ((client_capabilities_flag_ & CLIENT_DEPRECATE_EOF) || no_column_def) {
-    LOG_TRACE("client has CLIENT_DEPRECATE_EOF or has empty column, send ok packet");
-    OkPacket ok_packet;
-    ok_packet.packet_header.sequence_id = sequence_id_++;
-    ok_packet.affected_rows             = affected_rows;
-    rc                                  = send_packet(ok_packet);
-  } else {
-    LOG_TRACE("send eof packet to client");
-    EofPacket eof_packet;
-    eof_packet.packet_header.sequence_id = sequence_id_++;
-    rc                                   = send_packet(eof_packet);
+      pos += 3;
+      pos += store_int1(buf + pos, sequence_id_++);
+
+      for (int col_idx = 0; col_idx < column_num; col_idx++) {
+        Value value = chunk.get_value(col_idx, i);
+        pos += store_lenenc_string(buf + pos, value.to_string().c_str());
+      }
+
+      int payload_length = pos - 4;
+      store_int3(buf, payload_length);
+      rc = writer_->writen(buf, pos);
+      if (OB_FAIL(rc)) {
+        LOG_WARN("failed to send row packet to client. addr=%s, error=%s", addr(), strerror(errno));
+        need_disconnect = true;
+        return rc;
+      }
+    }
   }
-
-  LOG_TRACE("send rows to client done");
-  need_disconnect = false;
   return rc;
 }

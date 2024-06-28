@@ -14,14 +14,13 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <atomic>
-#include <mutex>
 #include <pthread.h>
-#include <set>
 #include <string.h>
-#include <string>
 
 #include "common/lang/mutex.h"
+#include "common/lang/string.h"
+#include "common/lang/atomic.h"
+#include "common/lang/unordered_map.h"
 #include "common/log/log.h"
 #include "common/types.h"
 #include "storage/buffer/page.h"
@@ -44,7 +43,7 @@ public:
   void set_buffer_pool_id(int buffer_pool_id) { buffer_pool_id_ = buffer_pool_id; }
   void set_page_num(PageNum page_num) { page_num_ = page_num; }
 
-  std::string to_string() const;
+  string to_string() const;
 
 private:
   int     buffer_pool_id_ = -1;
@@ -167,24 +166,24 @@ public:
   void read_unlatch();
   void read_unlatch(intptr_t xid);
 
-  std::string to_string() const;
+  string to_string() const;
 
 private:
   friend class BufferPool;
 
-  bool             dirty_ = false;
-  std::atomic<int> pin_count_{0};
-  unsigned long    acc_time_ = 0;
-  FrameId          frame_id_;
-  Page             page_;
+  bool          dirty_ = false;
+  atomic<int>   pin_count_{0};
+  unsigned long acc_time_ = 0;
+  FrameId       frame_id_;
+  Page          page_;
 
   /// 在非并发编译时，加锁解锁动作将什么都不做
   common::RecursiveSharedMutex lock_;
 
   /// 使用一些手段来做测试，提前检测出头疼的死锁问题
   /// 如果编译时没有增加调试选项，这些代码什么都不做
-  common::DebugMutex                debug_lock_;
-  intptr_t                          write_locker_          = 0;
-  int                               write_recursive_count_ = 0;
-  std::unordered_map<intptr_t, int> read_lockers_;
+  common::DebugMutex           debug_lock_;
+  intptr_t                     write_locker_          = 0;
+  int                          write_recursive_count_ = 0;
+  unordered_map<intptr_t, int> read_lockers_;
 };

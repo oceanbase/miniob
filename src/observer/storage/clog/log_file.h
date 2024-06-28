@@ -14,14 +14,13 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-#include <fstream>
-#include <filesystem>
-#include <functional>
-#include <map>
-
 #include "common/rc.h"
 #include "common/types.h"
+#include "common/lang/map.h"
+#include "common/lang/functional.h"
+#include "common/lang/filesystem.h"
+#include "common/lang/fstream.h"
+#include "common/lang/string.h"
 
 class LogEntry;
 
@@ -39,7 +38,7 @@ public:
   RC open(const char *filename);
   RC close();
 
-  RC iterate(std::function<RC(LogEntry &)> callback, LSN start_lsn = 0);
+  RC iterate(function<RC(LogEntry &)> callback, LSN start_lsn = 0);
 
 private:
   /**
@@ -50,8 +49,8 @@ private:
   RC skip_to(LSN start_lsn);
 
 private:
-  int         fd_ = -1;
-  std::string filename_;
+  int    fd_ = -1;
+  string filename_;
 };
 
 /**
@@ -87,15 +86,15 @@ public:
    */
   bool full() const;
 
-  std::string to_string() const;
+  string to_string() const;
 
   const char *filename() const { return filename_.c_str(); }
 
 private:
-  std::string filename_;       /// 日志文件名
-  int         fd_       = -1;  /// 日志文件描述符
-  int         last_lsn_ = 0;   /// 写入的最后一条日志LSN
-  int         end_lsn_  = 0;   /// 当前日志文件中允许写入的最大的LSN，包括这条日志
+  string filename_;       /// 日志文件名
+  int    fd_       = -1;  /// 日志文件描述符
+  int    last_lsn_ = 0;   /// 写入的最后一条日志LSN
+  int    end_lsn_  = 0;   /// 当前日志文件中允许写入的最大的LSN，包括这条日志
 };
 
 /**
@@ -124,7 +123,7 @@ public:
    * @param files 满足条件的所有日志文件名
    * @param start_lsn 想要查找的日志的最小LSN
    */
-  RC list_files(std::vector<std::string> &files, LSN start_lsn);
+  RC list_files(vector<string> &files, LSN start_lsn);
 
   /**
    * @brief 获取最新的一个日志文件名
@@ -143,14 +142,14 @@ private:
    * @brief 从文件名称中获取LSN
    * @details 如果日志文件名不符合要求，就返回失败
    */
-  static RC get_lsn_from_filename(const std::string &filename, LSN &lsn);
+  static RC get_lsn_from_filename(const string &filename, LSN &lsn);
 
 private:
   static constexpr const char *file_prefix_ = "clog_";
   static constexpr const char *file_suffix_ = ".log";
 
-  std::filesystem::path directory_;                  /// 日志文件存放的目录
-  int                   max_entry_number_per_file_;  /// 一个文件最大允许存放多少条日志
+  filesystem::path directory_;                  /// 日志文件存放的目录
+  int              max_entry_number_per_file_;  /// 一个文件最大允许存放多少条日志
 
-  std::map<LSN, std::filesystem::path> log_files_;  /// 日志文件名和第一个LSN的映射
+  map<LSN, filesystem::path> log_files_;  /// 日志文件名和第一个LSN的映射
 };

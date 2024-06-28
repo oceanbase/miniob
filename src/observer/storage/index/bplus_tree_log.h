@@ -15,13 +15,13 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <stddef.h>
-#include <string>
-#include <vector>
-#include <span>
-#include <memory>
 
 #include "common/types.h"
 #include "common/rc.h"
+#include "common/lang/span.h"
+#include "common/lang/memory.h"
+#include "common/lang/vector.h"
+#include "common/lang/string.h"
 #include "storage/index/latch_memo.h"
 #include "storage/clog/log_replayer.h"
 // #include "storage/index/bplus_tree_log_entry.h"
@@ -88,7 +88,7 @@ public:
    * @param items 插入的元素
    * @param item_num 元素个数
    */
-  RC node_insert_items(IndexNodeHandler &node_handler, int index, std::span<const char> items, int item_num);
+  RC node_insert_items(IndexNodeHandler &node_handler, int index, span<const char> items, int item_num);
   /**
    * @brief 在某个页面中删除一些元素
    * @param node_handler 页面处理器。同时也包含了页面编号、页帧
@@ -97,7 +97,7 @@ public:
    * @param item_num 元素个数
    * @details 会在内存中记录一些数据帮助回滚操作
    */
-  RC node_remove_items(IndexNodeHandler &node_handler, int index, std::span<const char> items, int item_num);
+  RC node_remove_items(IndexNodeHandler &node_handler, int index, span<const char> items, int item_num);
 
   /**
    * @brief 初始化一个空的叶子节点
@@ -116,12 +116,12 @@ public:
    * @brief 创建一个新的根节点
    */
   RC internal_create_new_root(
-      IndexNodeHandler &node_handler, PageNum first_page_num, std::span<const char> key, PageNum page_num);
+      IndexNodeHandler &node_handler, PageNum first_page_num, span<const char> key, PageNum page_num);
   /**
    * @brief 更新某个内部页面上，更新指定位置的键值
    */
   RC internal_update_key(
-      IndexNodeHandler &node_handler, int index, std::span<const char> key, std::span<const char> old_key);
+      IndexNodeHandler &node_handler, int index, span<const char> key, span<const char> old_key);
 
   /**
    * @brief 修改某个页面的父节点编号
@@ -144,19 +144,19 @@ public:
   /**
    * @brief 日志记录转字符串
    */
-  static std::string log_entry_to_string(const LogEntry &entry);
+  static string log_entry_to_string(const LogEntry &entry);
 
 private:
   RC __redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler, common::Deserializer &redo_buffer);
 
 protected:
-  RC append_log_entry(std::unique_ptr<bplus_tree::LogEntryHandler> entry);
+  RC append_log_entry(unique_ptr<bplus_tree::LogEntryHandler> entry);
 
 private:
   LogHandler &log_handler_;
   int32_t     buffer_pool_id_ = -1;  /// 关联的缓冲池ID
 
-  std::vector<std::unique_ptr<bplus_tree::LogEntryHandler>> entries_;  /// 当前记录了的日志
+  vector<unique_ptr<bplus_tree::LogEntryHandler>> entries_;  /// 当前记录了的日志
 
   bool need_log_ = true;  /// 是否需要记录日志。在回滚或重做过程中，不需要记录日志。
 };

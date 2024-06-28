@@ -14,13 +14,12 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
-#include <deque>
-#include <atomic>
-
 #include "common/rc.h"
 #include "common/types.h"
 #include "common/lang/mutex.h"
+#include "common/lang/vector.h"
+#include "common/lang/deque.h"
+#include "common/lang/atomic.h"
 #include "storage/clog/log_module.h"
 #include "storage/clog/log_entry.h"
 
@@ -45,7 +44,7 @@ public:
    * @brief 在缓冲区中追加一条日志
    */
   RC append(LSN &lsn, LogModule::Id module_id, vector<char> &&data);
-  RC append(LSN &lsn, LogModule module, std::vector<char> &&data);
+  RC append(LSN &lsn, LogModule module, vector<char> &&data);
 
   /**
    * @brief 刷新缓冲区中的日志到磁盘
@@ -69,12 +68,12 @@ public:
   LSN flushed_lsn() const { return flushed_lsn_.load(); }
 
 private:
-  std::mutex           mutex_;  /// 当前数据结构一定会在多线程中访问，所以强制使用有效的锁，而不是有条件生效的common::Mutex
-  std::deque<LogEntry> entries_;  /// 日志缓冲区
-  std::atomic<int64_t> bytes_;    /// 当前缓冲区中的日志数据大小
+  mutex           mutex_;  /// 当前数据结构一定会在多线程中访问，所以强制使用有效的锁，而不是有条件生效的common::Mutex
+  deque<LogEntry> entries_;  /// 日志缓冲区
+  atomic<int64_t> bytes_;    /// 当前缓冲区中的日志数据大小
 
-  std::atomic<LSN> current_lsn_{0};
-  std::atomic<LSN> flushed_lsn_{0};
+  atomic<LSN> current_lsn_{0};
+  atomic<LSN> flushed_lsn_{0};
 
   int32_t max_bytes_ = 4 * 1024 * 1024;  /// 缓冲区最大字节数
 };

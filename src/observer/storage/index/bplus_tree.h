@@ -17,12 +17,12 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <functional>
-#include <memory>
-#include <sstream>
 #include <string.h>
 
 #include "common/lang/comparator.h"
+#include "common/lang/memory.h"
+#include "common/lang/sstream.h"
+#include "common/lang/functional.h"
 #include "common/log/log.h"
 #include "sql/parser/parse_defs.h"
 #include "storage/buffer/disk_buffer_pool.h"
@@ -67,13 +67,13 @@ public:
   int operator()(const char *v1, const char *v2) const
   {
     switch (attr_type_) {
-      case INTS: {
+      case AttrType::INTS: {
         return common::compare_int((void *)v1, (void *)v2);
       } break;
-      case FLOATS: {
+      case AttrType::FLOATS: {
         return common::compare_float((void *)v1, (void *)v2);
       }
-      case CHARS: {
+      case AttrType::CHARS: {
         return common::compare_string((void *)v1, attr_length_, (void *)v2, attr_length_);
       }
       default: {
@@ -131,7 +131,7 @@ public:
 
   int attr_length() const { return attr_length_; }
 
-  std::string operator()(const char *v) const
+  string operator()(const char *v) const
   {
     Value value(attr_type_, const_cast<char *>(v), attr_length_);
     return value.to_string();
@@ -153,9 +153,9 @@ public:
 
   const AttrPrinter &attr_printer() const { return attr_printer_; }
 
-  std::string operator()(const char *v) const
+  string operator()(const char *v) const
   {
-    std::stringstream ss;
+    stringstream ss;
     ss << "{key:" << attr_printer_(v) << ",";
 
     const RID *rid = (const RID *)(v + attr_printer_.attr_length());
@@ -187,13 +187,13 @@ struct IndexFileHeader
   int32_t  key_length;         ///< attr length + sizeof(RID)
   AttrType attr_type;          ///< 键值的类型
 
-  const std::string to_string() const
+  const string to_string() const
   {
-    std::stringstream ss;
+    stringstream ss;
 
     ss << "attr_length:" << attr_length << ","
        << "key_length:" << key_length << ","
-       << "attr_type:" << attr_type << ","
+       << "attr_type:" << attr_type_to_string(attr_type) << ","
        << "root_page:" << root_page << ","
        << "internal_max_size:" << internal_max_size << ","
        << "leaf_max_size:" << leaf_max_size << ";";
@@ -313,7 +313,7 @@ public:
 
   Frame *frame() const { return frame_; }
 
-  friend std::string to_string(const IndexNodeHandler &handler);
+  friend string to_string(const IndexNodeHandler &handler);
 
   RC recover_insert_items(int index, const char *items, int num);
   RC recover_remove_items(int index, int num);
@@ -371,7 +371,7 @@ public:
 
   bool validate(const KeyComparator &comparator, DiskBufferPool *bp) const;
 
-  friend std::string to_string(const LeafIndexNodeHandler &handler, const KeyPrinter &printer);
+  friend string to_string(const LeafIndexNodeHandler &handler, const KeyPrinter &printer);
 
 protected:
   char *__item_at(int index) const override;
@@ -431,7 +431,7 @@ public:
 
   bool validate(const KeyComparator &comparator, DiskBufferPool *bp) const;
 
-  friend std::string to_string(const InternalIndexNodeHandler &handler, const KeyPrinter &printer);
+  friend string to_string(const InternalIndexNodeHandler &handler, const KeyPrinter &printer);
 
 private:
   RC insert_items(int index, const char *items, int num);
@@ -507,7 +507,7 @@ public:
    * @param key_len user_key的长度
    * @param rid  返回值，记录记录所在的页面号和slot
    */
-  RC get_entry(const char *user_key, int key_len, std::list<RID> &rids);
+  RC get_entry(const char *user_key, int key_len, list<RID> &rids);
 
   RC sync();
 
@@ -573,7 +573,7 @@ protected:
    * @param[out] frame 返回找到的叶子节点
    */
   RC find_leaf_internal(BplusTreeMiniTransaction &mtr, BplusTreeOperationType op,
-      const std::function<PageNum(InternalIndexNodeHandler &)> &child_page_getter, Frame *&frame);
+      const function<PageNum(InternalIndexNodeHandler &)> &child_page_getter, Frame *&frame);
 
   /**
    * @brief 使用crabing protocol 获取页面
@@ -640,7 +640,7 @@ protected:
   RC adjust_root(BplusTreeMiniTransaction &mtr, Frame *root_frame);
 
 private:
-  common::MemPoolItem::unique_ptr make_key(const char *user_key, const RID &rid);
+  common::MemPoolItem::item_unique_ptr make_key(const char *user_key, const RID &rid);
 
 protected:
   LogHandler     *log_handler_      = nullptr;  /// 日志处理器
@@ -655,7 +655,7 @@ protected:
   KeyComparator key_comparator_;
   KeyPrinter    key_printer_;
 
-  std::unique_ptr<common::MemPoolItem> mem_pool_item_;
+  unique_ptr<common::MemPoolItem> mem_pool_item_;
 
 private:
   friend class BplusTreeScanner;
@@ -724,7 +724,7 @@ private:
   /// 起始位置和终止位置都是有效的数据
   Frame *current_frame_ = nullptr;
 
-  common::MemPoolItem::unique_ptr right_key_;
-  int                             iter_index_    = -1;
-  bool                            first_emitted_ = false;
+  common::MemPoolItem::item_unique_ptr right_key_;
+  int                                  iter_index_    = -1;
+  bool                                 first_emitted_ = false;
 };

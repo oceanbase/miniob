@@ -22,7 +22,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/math/crc.h"
 
-using namespace std;
 using namespace common;
 
 struct DoubleWritePage

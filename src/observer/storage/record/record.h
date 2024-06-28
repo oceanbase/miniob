@@ -14,14 +14,14 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <limits>
-#include <sstream>
 #include <stddef.h>
-#include <vector>
 
 #include "common/log/log.h"
 #include "common/rc.h"
 #include "common/types.h"
+#include "common/lang/vector.h"
+#include "common/lang/sstream.h"
+#include "common/lang/limits.h"
 #include "storage/field/field_meta.h"
 #include "storage/index/index_meta.h"
 
@@ -39,9 +39,9 @@ struct RID
   RID() = default;
   RID(const PageNum _page_num, const SlotNum _slot_num) : page_num(_page_num), slot_num(_slot_num) {}
 
-  const std::string to_string() const
+  const string to_string() const
   {
-    std::stringstream ss;
+    stringstream ss;
     ss << "PageNum:" << page_num << ", SlotNum:" << slot_num;
     return ss.str();
   }
@@ -77,7 +77,7 @@ struct RID
    */
   static RID *max()
   {
-    static RID rid{std::numeric_limits<PageNum>::max(), std::numeric_limits<SlotNum>::max()};
+    static RID rid{numeric_limits<PageNum>::max(), numeric_limits<SlotNum>::max()};
     return &rid;
   }
 };
@@ -135,7 +135,7 @@ public:
       new (this) Record(other);
       return *this;
     }
-
+    this->rid_ = other.rid_;
     memcpy(data_, other.data_, other.len_);
     return *this;
   }
@@ -199,7 +199,34 @@ public:
     return RC::SUCCESS;
   }
 
-  char       *data() { return this->data_; }
+  RC new_record(int len)
+  {
+    ASSERT(len!= 0, "the len of data should not be 0");
+    char *tmp = (char *)malloc(len);
+    if (nullptr == tmp) {
+      LOG_WARN("failed to allocate memory. size=%d", len);
+      return RC::NOMEM;
+    }
+    set_data_owner(tmp, len);
+    return RC::SUCCESS;
+  }
+
+  RC set_field(int field_offset, int field_len, char *data)
+  {
+    if (!owner_) {
+      LOG_ERROR("cannot set field when record does not own the memory");
+      return RC::INTERNAL;
+    }
+    if (field_offset + field_len > len_) {
+      LOG_ERROR("invalid offset or length. offset=%d, length=%d, total length=%d", field_offset, field_len, len_);
+      return RC::INVALID_ARGUMENT;
+    }
+
+    memcpy(data_ + field_offset, data, field_len);
+    return RC::SUCCESS;
+  }
+
+  char *      data() { return this->data_; }
   const char *data() const { return this->data_; }
   int         len() const { return this->len_; }
 
@@ -209,7 +236,7 @@ public:
     this->rid_.page_num = page_num;
     this->rid_.slot_num = slot_num;
   }
-  RID       &rid() { return rid_; }
+  RID &      rid() { return rid_; }
   const RID &rid() const { return rid_; }
 
 private:

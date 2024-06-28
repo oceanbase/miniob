@@ -14,15 +14,16 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/time/datetime.h"
 
-#include "pthread.h"
-#include "stdio.h"
-#include "string.h"
-#include <iomanip>
-#include <sstream>
-#include <string>
+#include <pthread.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "common/lang/iomanip.h"
+#include "common/lang/sstream.h"
+#include "common/lang/string.h"
 namespace common {
 
-DateTime::DateTime(std::string &xml_str)
+DateTime::DateTime(string &xml_str)
 {
   tm tmp;
   sscanf(xml_str.c_str(),
@@ -37,7 +38,7 @@ DateTime::DateTime(std::string &xml_str)
   m_time = make_hms(tmp.tm_hour, tmp.tm_min, tmp.tm_sec, 0);
 }
 
-time_t DateTime::str_to_time_t(std::string &xml_str)
+time_t DateTime::str_to_time_t(string &xml_str)
 {
   tm tmp;
   sscanf(xml_str.c_str(),
@@ -53,17 +54,17 @@ time_t DateTime::str_to_time_t(std::string &xml_str)
   return to_time_t();
 }
 
-std::string DateTime::time_t_to_str(int timet)
+string DateTime::time_t_to_str(int timet)
 {
-  std::ostringstream oss;
-  oss << std::dec << std::setw(10) << timet;
+  ostringstream oss;
+  oss << std::dec << setw(10) << timet;
   return oss.str();
 }
 
-std::string DateTime::time_t_to_xml_str(time_t timet)
+string DateTime::time_t_to_xml_str(time_t timet)
 {
-  std::string        ret_val;
-  std::ostringstream oss;
+  string        ret_val;
+  ostringstream oss;
   struct tm          tmbuf;
   tm                *tm_info = gmtime_r(&timet, &tmbuf);
   oss << tm_info->tm_year + 1900 << "-";
@@ -86,10 +87,10 @@ std::string DateTime::time_t_to_xml_str(time_t timet)
   return ret_val;
 }
 
-std::string DateTime::str_to_time_t_str(std::string &xml_str)
+string DateTime::str_to_time_t_str(string &xml_str)
 {
   tm                 tmp;
-  std::ostringstream oss;
+  ostringstream oss;
   sscanf(xml_str.c_str(),
       "%04d-%02d-%02dT%02d:%02d:%02dZ",
       &tmp.tm_year,
@@ -101,7 +102,7 @@ std::string DateTime::str_to_time_t_str(std::string &xml_str)
   m_date           = julian_date(tmp.tm_year, tmp.tm_mon, tmp.tm_mday);
   m_time           = make_hms(tmp.tm_hour, tmp.tm_min, tmp.tm_sec, 0);
   time_t timestamp = to_time_t();
-  oss << std::dec << std::setw(10) << timestamp;
+  oss << std::dec << setw(10) << timestamp;
   return oss.str();
 }
 
@@ -121,12 +122,12 @@ DateTime DateTime::now()
 }
 
 //! Return date and time as a string in Xml Schema date-time format
-std::string DateTime::to_xml_date_time()
+string DateTime::to_xml_date_time()
 {
 
-  std::string        ret_val;
+  string        ret_val;
   tm                 tm_info;
-  std::ostringstream oss;
+  ostringstream oss;
 
   tm_info = to_tm();
   oss << tm_info.tm_year + 1900 << "-";
@@ -149,13 +150,13 @@ std::string DateTime::to_xml_date_time()
   return ret_val;
 }
 
-time_t DateTime::add_duration(std::string xml_duration)
+time_t DateTime::add_duration(string xml_duration)
 {
   add_duration_date_time(xml_duration);
   return to_time_t();
 }
 
-void DateTime::add_duration_date_time(std::string xml_duration)
+void DateTime::add_duration_date_time(string xml_duration)
 {
   // start datetime values
   int s_year, s_month, s_day;
@@ -249,9 +250,9 @@ int DateTime::max_day_in_month_for(int yr, int month)
   }
 }
 
-void DateTime::parse_duration(std::string dur_str, struct tm &tm_t)
+void DateTime::parse_duration(string dur_str, struct tm &tm_t)
 {
-  std::string::size_type index = 0;
+  string::size_type index = 0;
   bzero(&tm_t, sizeof(tm_t));
   if (dur_str[index] != 'P') {
     return;
@@ -266,7 +267,7 @@ void DateTime::parse_duration(std::string dur_str, struct tm &tm_t)
       sign = -1;
       index++;
     }
-    std::string sY = dur_str.substr(index, ind_y);
+    string sY = dur_str.substr(index, ind_y);
     sscanf(sY.c_str(), "%d", &tm_t.tm_year);
     tm_t.tm_year *= sign;
     index = ind_y + 1;
@@ -342,7 +343,7 @@ void DateTime::parse_duration(std::string dur_str, struct tm &tm_t)
 // generate OBJ_ID_TIMESTMP_DIGITS types unique timestamp string
 // caller doesn't need get any lock
 #define OBJ_ID_TIMESTMP_DIGITS 14
-std::string Now::unique()
+string Now::unique()
 {
   struct timeval  tv;
   uint64_t        temp;
@@ -371,12 +372,12 @@ std::string Now::unique()
   // further refine below code, the common time unique function
   //      should not cover OBJ_ID_TIMESTMP_DIGITS, which is only
   //      related with the object id.
-  std::ostringstream oss;
-  oss << std::hex << std::setw(OBJ_ID_TIMESTMP_DIGITS) << std::setfill('0') << temp;
+  ostringstream oss;
+  oss << std::hex << setw(OBJ_ID_TIMESTMP_DIGITS) << setfill('0') << temp;
   return oss.str();
 }
 
-bool DateTime::is_valid_xml_datetime(const std::string &str)
+bool DateTime::is_valid_xml_datetime(const string &str)
 {
   // check length. 20 is the length of a xml date
   if (str.length() != 20)
