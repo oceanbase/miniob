@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 
 #include "sql/expr/expression.h"
+#include "sql/expr/tuple.h"
 #include "gtest/gtest.h"
 
 using namespace std;
@@ -179,11 +180,11 @@ TEST(ArithmeticExpr, get_column)
   {
     int                     count       = 8;
     const int               int_len     = sizeof(int);
-    std::unique_ptr<Column> column_left = std::make_unique<Column>(AttrType::INTS, int_len, count);
-    Value                   int_value(2);
-    unique_ptr<ValueExpr>   right_expr(new ValueExpr(int_value));
+    std::unique_ptr<Column> column_left = std::make_unique<Column>(AttrType::FLOATS, int_len, count);
+    Value                   float_value(2.0f);
+    unique_ptr<ValueExpr>   right_expr(new ValueExpr(float_value));
     for (int i = 0; i < count; ++i) {
-      int left_value = i;
+      float left_value = i;
       column_left->append_one((char *)&left_value);
     }
     Chunk chunk;
@@ -192,11 +193,11 @@ TEST(ArithmeticExpr, get_column)
     FieldMeta               field_meta1("col1", AttrType::INTS, 0, int_len, true, 0);
     Field                   field1(nullptr, &field_meta1);
     auto                    left_expr = std::make_unique<FieldExpr>(field1);
-    ArithmeticExpr          expr(ArithmeticExpr::Type::ADD, std::move(left_expr), std::move(right_expr));
+    ArithmeticExpr          expr(ArithmeticExpr::Type::DIV, std::move(left_expr), std::move(right_expr));
     ASSERT_EQ(expr.get_column(chunk, column_result), RC::SUCCESS);
     for (int i = 0; i < count; ++i) {
-      int expect_value = i + 2;
-      ASSERT_EQ(column_result.get_value(i).get_int(), expect_value);
+      float expect_value = static_cast<float>(i) / 2.0f;
+      ASSERT_EQ(column_result.get_value(i).get_float(), expect_value);
     }
   }
 
@@ -208,7 +209,7 @@ TEST(ArithmeticExpr, get_column)
     std::unique_ptr<Column> column_right = std::make_unique<Column>(AttrType::INTS, int_len, count);
     for (int i = 0; i < count; ++i) {
       int left_value  = i;
-      int right_value = count - i;
+      int right_value = i;
       column_left->append_one((char *)&left_value);
       column_right->append_one((char *)&right_value);
     }
@@ -222,13 +223,88 @@ TEST(ArithmeticExpr, get_column)
     Field                   field2(nullptr, &field_meta2);
     auto                    left_expr  = std::make_unique<FieldExpr>(field1);
     auto                    right_expr = std::make_unique<FieldExpr>(field2);
-    ArithmeticExpr          expr(ArithmeticExpr::Type::ADD, std::move(left_expr), std::move(right_expr));
+    ArithmeticExpr          expr(ArithmeticExpr::Type::SUB, std::move(left_expr), std::move(right_expr));
     ASSERT_EQ(expr.get_column(chunk, column_result), RC::SUCCESS);
     for (int i = 0; i < count; ++i) {
-      int expect_value = count;
+      const int expect_value = 0;
       ASSERT_EQ(column_result.get_value(i).get_int(), expect_value);
     }
   }
+}
+
+TEST(ValueExpr, value_expr_test)
+{
+  ValueExpr value_expr1(Value(1));
+  ValueExpr value_expr2(Value(2));
+  Value result;
+  value_expr1.get_value(result);
+  ASSERT_EQ(result.get_int(), 1);
+  ASSERT_EQ(value_expr1.equal(value_expr2), false);
+  ASSERT_EQ(value_expr1.equal(value_expr1), true);
+}
+
+TEST(CastExpr, cast_expr_test)
+{
+  Value int_value1(1);
+  unique_ptr<Expression> value_expr1 = make_unique<ValueExpr>(int_value1);
+  CastExpr cast_expr(std::move(value_expr1), AttrType::INTS);
+  RowTuple tuple;
+  Value result;
+  cast_expr.get_value(tuple, result);
+  ASSERT_EQ(result.get_int(), 1);
+  result.set_int(0);
+  cast_expr.try_get_value(result);
+  ASSERT_EQ(result.get_int(), 1);
+}
+
+
+TEST(ComparisonExpr, comparison_expr_test)
+{
+  {
+    Value int_value1(1);
+    Value int_value2(2);
+    bool bool_res = false;
+    Value bool_value;
+
+    unique_ptr<Expression> left_expr(new ValueExpr(int_value1));
+    unique_ptr<Expression> right_expr(new ValueExpr(int_value2));
+    ComparisonExpr         expr_eq(CompOp::EQUAL_TO, std::move(left_expr), std::move(right_expr));
+    ASSERT_EQ(AttrType::BOOLEANS, expr_eq.value_type());
+    ASSERT_EQ(expr_eq.compare_value(int_value1, int_value2, bool_res), RC::SUCCESS);
+    ASSERT_EQ(bool_res, false);
+    ASSERT_EQ(expr_eq.compare_value(int_value1, int_value1, bool_res), RC::SUCCESS);
+    ASSERT_EQ(bool_res, true);
+    ASSERT_EQ(expr_eq.try_get_value(bool_value), RC::SUCCESS);
+    ASSERT_EQ(bool_value.get_boolean(), false);
+  }
+}
+
+TEST(AggregateExpr, aggregate_expr_test)
+{
+  Value int_value(1);
+  unique_ptr<Expression> value_expr(new ValueExpr(int_value));
+  AggregateExpr aggregate_expr(AggregateExpr::Type::SUM, std::move(value_expr));
+  aggregate_expr.equal(aggregate_expr);
+  auto aggregator = aggregate_expr.create_aggregator();
+  for (int i = 0; i < 100; i++) {
+    aggregator->accumulate(Value(i));
+  }
+  Value result;
+  aggregator->evaluate(result);
+  ASSERT_EQ(result.get_int(), 4950);
+  AggregateExpr::Type aggr_type;
+  ASSERT_EQ(RC::SUCCESS, AggregateExpr::type_from_string("sum", aggr_type));
+  ASSERT_EQ(aggr_type, AggregateExpr::Type::SUM);
+  ASSERT_EQ(RC::SUCCESS, AggregateExpr::type_from_string("count", aggr_type));
+  ASSERT_EQ(aggr_type, AggregateExpr::Type::COUNT);
+  ASSERT_EQ(RC::SUCCESS, AggregateExpr::type_from_string("avg", aggr_type));
+  ASSERT_EQ(aggr_type, AggregateExpr::Type::AVG);
+  ASSERT_EQ(RC::SUCCESS, AggregateExpr::type_from_string("max", aggr_type));
+  ASSERT_EQ(aggr_type, AggregateExpr::Type::MAX);
+  ASSERT_EQ(RC::SUCCESS, AggregateExpr::type_from_string("min", aggr_type));
+  ASSERT_EQ(aggr_type, AggregateExpr::Type::MIN);
+  ASSERT_EQ(RC::INVALID_ARGUMENT, AggregateExpr::type_from_string("invalid type", aggr_type));
+
 }
 
 int main(int argc, char **argv)
