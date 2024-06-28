@@ -119,7 +119,7 @@ public:
   {
     RC rc = RC::SUCCESS;
 
-    const int this_cell_num = this->cell_num();
+    const int this_cell_num  = this->cell_num();
     const int other_cell_num = other.cell_num();
     if (this_cell_num < other_cell_num) {
       result = -1;
@@ -194,7 +194,7 @@ public:
       return RC::INVALID_ARGUMENT;
     }
 
-    FieldExpr       *field_expr = speces_[index];
+    FieldExpr *      field_expr = speces_[index];
     const FieldMeta *field_meta = field_expr->field().meta();
     cell.set_type(field_meta->type());
     cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
@@ -204,7 +204,7 @@ public:
   RC spec_at(int index, TupleCellSpec &spec) const override
   {
     const Field &field = speces_[index]->field();
-    spec = TupleCellSpec(table_->name(), field.field_name());
+    spec               = TupleCellSpec(table_->name(), field.field_name());
     return RC::SUCCESS;
   }
 
@@ -218,7 +218,7 @@ public:
 
     for (size_t i = 0; i < speces_.size(); ++i) {
       const FieldExpr *field_expr = speces_[i];
-      const Field     &field      = field_expr->field();
+      const Field &    field      = field_expr->field();
       if (0 == strcmp(field_name, field.field_name())) {
         return cell_at(i, cell);
       }
@@ -243,8 +243,8 @@ public:
   const Record &record() const { return *record_; }
 
 private:
-  Record                  *record_ = nullptr;
-  const Table             *table_  = nullptr;
+  Record *                 record_ = nullptr;
+  const Table *            table_  = nullptr;
   std::vector<FieldExpr *> speces_;
 };
 
@@ -257,16 +257,19 @@ private:
 class ProjectTuple : public Tuple
 {
 public:
-  ProjectTuple() = default;
+  ProjectTuple()          = default;
   virtual ~ProjectTuple() = default;
 
-  void set_expressions(std::vector<std::unique_ptr<Expression>> &&expressions) { expressions_ = std::move(expressions); }
+  void set_expressions(std::vector<std::unique_ptr<Expression>> &&expressions)
+  {
+    expressions_ = std::move(expressions);
+  }
 
   auto get_expressions() const -> const std::vector<std::unique_ptr<Expression>> & { return expressions_; }
 
   void set_tuple(Tuple *tuple) { this->tuple_ = tuple; }
 
-  int  cell_num() const override { return static_cast<int>(expressions_.size()); }
+  int cell_num() const override { return static_cast<int>(expressions_.size()); }
 
   RC cell_at(int index, Value &cell) const override
   {
@@ -301,7 +304,7 @@ public:
 #endif
 private:
   std::vector<std::unique_ptr<Expression>> expressions_;
-  Tuple                       *tuple_ = nullptr;
+  Tuple *                                  tuple_ = nullptr;
 };
 
 /**
@@ -340,8 +343,8 @@ public:
     return RC::SUCCESS;
   }
 
-  virtual RC find_cell(const TupleCellSpec &spec, Value &cell) const override 
-  { 
+  virtual RC find_cell(const TupleCellSpec &spec, Value &cell) const override
+  {
     ASSERT(cells_.size() == specs_.size(), "cells_.size()=%d, specs_.size()=%d", cells_.size(), specs_.size());
 
     const int size = static_cast<int>(specs_.size());
@@ -359,7 +362,7 @@ public:
     const int cell_num = tuple.cell_num();
     for (int i = 0; i < cell_num; i++) {
       Value cell;
-      RC rc = tuple.cell_at(i, cell);
+      RC    rc = tuple.cell_at(i, cell);
       if (OB_FAIL(rc)) {
         return rc;
       }
@@ -377,7 +380,7 @@ public:
   }
 
 private:
-  std::vector<Value> cells_;
+  std::vector<Value>         cells_;
   std::vector<TupleCellSpec> specs_;
 };
 

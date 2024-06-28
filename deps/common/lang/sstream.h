@@ -14,6 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/exception.h"
 
-using std::stringstream;
 using std::istringstream;
 using std::ostringstream;
+using std::stringstream;

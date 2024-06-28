@@ -120,8 +120,7 @@ public:
   /**
    * @brief 更新某个内部页面上，更新指定位置的键值
    */
-  RC internal_update_key(
-      IndexNodeHandler &node_handler, int index, span<const char> key, span<const char> old_key);
+  RC internal_update_key(IndexNodeHandler &node_handler, int index, span<const char> key, span<const char> old_key);
 
   /**
    * @brief 修改某个页面的父节点编号
@@ -178,7 +177,7 @@ public:
   BplusTreeMiniTransaction(BplusTreeHandler &tree_handler, RC *operation_result = nullptr);
   ~BplusTreeMiniTransaction();
 
-  LatchMemo       &latch_memo() { return latch_memo_; }
+  LatchMemo &      latch_memo() { return latch_memo_; }
   BplusTreeLogger &logger() { return logger_; }
 
   RC commit();
@@ -186,7 +185,7 @@ public:
 
 private:
   BplusTreeHandler &tree_handler_;
-  RC               *operation_result_ = nullptr;
+  RC *              operation_result_ = nullptr;
   LatchMemo         latch_memo_;
   BplusTreeLogger   logger_;
 };

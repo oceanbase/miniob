@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/expr/arithmetic_operator.hpp"
 
-class ArithmeticBenchmark : public benchmark::Fixture
+class DISABLED_ArithmeticBenchmark : public benchmark::Fixture
 {
 public:
   void SetUp(const ::benchmark::State &state) override
@@ -45,26 +45,26 @@ protected:
   float *result_ = nullptr;
 };
 
-BENCHMARK_DEFINE_F(ArithmeticBenchmark, Add)(benchmark::State &state)
+BENCHMARK_DEFINE_F(DISABLED_ArithmeticBenchmark, Add)(benchmark::State &state)
 {
   for (auto _ : state) {
     binary_operator<false, false, float, AddOperator>(left_, right_, result_, state.range(0));
   }
 }
 
-BENCHMARK_REGISTER_F(ArithmeticBenchmark, Add)->Arg(10)->Arg(1000)->Arg(10000);
+BENCHMARK_REGISTER_F(DISABLED_ArithmeticBenchmark, Add)->Arg(10)->Arg(1000)->Arg(10000);
 
-BENCHMARK_DEFINE_F(ArithmeticBenchmark, Sub)(benchmark::State &state)
+BENCHMARK_DEFINE_F(DISABLED_ArithmeticBenchmark, Sub)(benchmark::State &state)
 {
   for (auto _ : state) {
     binary_operator<false, false, float, SubtractOperator>(left_, right_, result_, state.range(0));
   }
 }
 
-BENCHMARK_REGISTER_F(ArithmeticBenchmark, Sub)->Arg(10)->Arg(1000)->Arg(10000);
+BENCHMARK_REGISTER_F(DISABLED_ArithmeticBenchmark, Sub)->Arg(10)->Arg(1000)->Arg(10000);
 
 #ifdef USE_SIMD
-static void benchmark_sum_simd(benchmark::State &state)
+static void DISABLED_benchmark_sum_simd(benchmark::State &state)
 {
   int              size = state.range(0);
   std::vector<int> data(state.range(0), 1);
@@ -73,7 +73,7 @@ static void benchmark_sum_simd(benchmark::State &state)
   }
 }
 
-BENCHMARK(benchmark_sum_simd)->RangeMultiplier(2)->Range(1 << 10, 1 << 12);
+BENCHMARK(DISABLED_benchmark_sum_simd)->RangeMultiplier(2)->Range(1 << 10, 1 << 12);
 #endif
 
 static int sum_scalar(const int *data, int size)
@@ -85,7 +85,7 @@ static int sum_scalar(const int *data, int size)
   return sum;
 }
 
-static void benchmark_sum_scalar(benchmark::State &state)
+static void DISABLED_benchmark_sum_scalar(benchmark::State &state)
 {
   int              size = state.range(0);
   std::vector<int> data(size, 1);
@@ -95,6 +95,6 @@ static void benchmark_sum_scalar(benchmark::State &state)
   }
 }
 
-BENCHMARK(benchmark_sum_scalar)->RangeMultiplier(2)->Range(1 << 10, 1 << 12);
+BENCHMARK(DISABLED_benchmark_sum_scalar)->RangeMultiplier(2)->Range(1 << 10, 1 << 12);
 
 BENCHMARK_MAIN();

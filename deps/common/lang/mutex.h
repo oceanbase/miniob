@@ -32,9 +32,9 @@ See the Mulan PSL v2 for more details. */
 using std::call_once;
 using std::condition_variable;
 using std::lock_guard;
-using std::scoped_lock;
 using std::mutex;
 using std::once_flag;
+using std::scoped_lock;
 using std::shared_mutex;
 using std::unique_lock;
 

@@ -66,6 +66,7 @@ public:
     }
     return RC::SUCCESS;
   }
+
 private:
   std::vector<std::unique_ptr<Expression>>     expressions_;
   ExpressionTuple<std::unique_ptr<Expression>> tuple_;

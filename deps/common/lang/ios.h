@@ -12,5 +12,5 @@ See the Mulan PSL v2 for more details. */
 
 #include <ios>
 
-using std::ios_base;
 using std::ios;
+using std::ios_base;

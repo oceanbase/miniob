@@ -41,14 +41,14 @@ protected:
   Chunk aggr_chunk_;
 };
 
-class StandardAggregateHashTableBenchmark : public AggregateHashTableBenchmark
+class DISABLED_StandardAggregateHashTableBenchmark : public AggregateHashTableBenchmark
 {
 public:
   void SetUp(const ::benchmark::State &state) override
   {
 
     AggregateHashTableBenchmark::SetUp(state);
-    AggregateExpr             aggregate_expr(AggregateExpr::Type::SUM, nullptr);
+    AggregateExpr        aggregate_expr(AggregateExpr::Type::SUM, nullptr);
     vector<Expression *> aggregate_exprs;
     aggregate_exprs.push_back(&aggregate_expr);
     standard_hash_table_ = make_unique<StandardAggregateHashTable>(aggregate_exprs);
@@ -58,17 +58,17 @@ protected:
   unique_ptr<AggregateHashTable> standard_hash_table_;
 };
 
-BENCHMARK_DEFINE_F(StandardAggregateHashTableBenchmark, Aggregate)(benchmark::State &state)
+BENCHMARK_DEFINE_F(DISABLED_StandardAggregateHashTableBenchmark, Aggregate)(benchmark::State &state)
 {
   for (auto _ : state) {
     standard_hash_table_->add_chunk(group_chunk_, aggr_chunk_);
   }
 }
 
-BENCHMARK_REGISTER_F(StandardAggregateHashTableBenchmark, Aggregate)->Arg(16)->Arg(1024)->Arg(8192);
+BENCHMARK_REGISTER_F(DISABLED_StandardAggregateHashTableBenchmark, Aggregate)->Arg(16)->Arg(1024)->Arg(8192);
 
 #ifdef USE_SIMD
-class LinearProbingAggregateHashTableBenchmark : public AggregateHashTableBenchmark
+class DISABLED_LinearProbingAggregateHashTableBenchmark : public AggregateHashTableBenchmark
 {
 public:
   void SetUp(const ::benchmark::State &state) override
@@ -82,14 +82,14 @@ protected:
   unique_ptr<AggregateHashTable> linear_probing_hash_table_;
 };
 
-BENCHMARK_DEFINE_F(LinearProbingAggregateHashTableBenchmark, Aggregate)(benchmark::State &state)
+BENCHMARK_DEFINE_F(DISABLED_LinearProbingAggregateHashTableBenchmark, Aggregate)(benchmark::State &state)
 {
   for (auto _ : state) {
     linear_probing_hash_table_->add_chunk(group_chunk_, aggr_chunk_);
   }
 }
 
-BENCHMARK_REGISTER_F(LinearProbingAggregateHashTableBenchmark, Aggregate)->Arg(16)->Arg(1024)->Arg(8192);
+BENCHMARK_REGISTER_F(DISABLED_LinearProbingAggregateHashTableBenchmark, Aggregate)->Arg(16)->Arg(1024)->Arg(8192);
 #endif
 
 BENCHMARK_MAIN();

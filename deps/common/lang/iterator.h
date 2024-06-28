@@ -13,5 +13,5 @@ See the Mulan PSL v2 for more details. */
 #include <iterator>
 
 using std::advance;
-using std::random_access_iterator_tag;
 using std::distance;
+using std::random_access_iterator_tag;

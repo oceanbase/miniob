@@ -20,8 +20,9 @@ See the Mulan PSL v2 for more details. */
 /**
  * @brief Group By Hash 方式物理算子
  * @ingroup PhysicalOperator
- * @details 通过 hash 的方式进行 group by 操作。当聚合函数存在 group by 表达式时，默认采用这个物理算子（当前也只有这个物理算子）。
- * NOTE: 当前并没有使用hash方式实现，而是每次使用线性查找的方式。
+ * @details 通过 hash 的方式进行 group by 操作。当聚合函数存在 group by
+ * 表达式时，默认采用这个物理算子（当前也只有这个物理算子）。 NOTE:
+ * 当前并没有使用hash方式实现，而是每次使用线性查找的方式。
  */
 class HashGroupByPhysicalOperator : public GroupByPhysicalOperator
 {

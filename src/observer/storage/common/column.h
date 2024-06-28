@@ -70,7 +70,7 @@ public:
 
   /**
    * @brief 引用另一个 Column
-  */
+   */
   void reference(const Column &column);
 
   void set_column_type(Type column_type) { column_type_ = column_type; }
@@ -93,9 +93,9 @@ private:
   /// 是否拥有内存
   bool own_ = true;
   /// 列属性类型
-  AttrType attr_type_   = AttrType::UNDEFINED;
+  AttrType attr_type_ = AttrType::UNDEFINED;
   /// 列属性类型长度（目前只支持定长）
-  int      attr_len_    = -1;
+  int attr_len_ = -1;
   /// 列类型
-  Type     column_type_ = Type::NORMAL_COLUMN;
+  Type column_type_ = Type::NORMAL_COLUMN;
 };

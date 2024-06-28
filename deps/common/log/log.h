@@ -134,8 +134,8 @@ private:
 
 private:
   pthread_mutex_t lock_;
-  ofstream   ofs_;
-  string     log_name_;
+  ofstream        ofs_;
+  string          log_name_;
   LOG_LEVEL       log_level_;
   LOG_LEVEL       console_level_;
 
@@ -151,10 +151,10 @@ private:
   LOG_ROTATE rotate_type_;
 
   typedef map<LOG_LEVEL, string> LogPrefixMap;
-  LogPrefixMap                             prefix_map_;
+  LogPrefixMap                   prefix_map_;
 
   typedef set<string> DefaultSet;
-  DefaultSet                    default_set_;
+  DefaultSet          default_set_;
 
   function<intptr_t()> context_getter_;
 };

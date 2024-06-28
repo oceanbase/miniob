@@ -123,13 +123,12 @@ public:
   virtual RC eval(Chunk &chunk, std::vector<uint8_t> &select) { return RC::UNIMPLENMENT; }
 
 protected:
-   
   /**
    * @brief 表达式在下层算子返回的 chunk 中的位置
    * @details 当 pos_ = -1 时表示下层算子没有在返回的 chunk 中计算出该表达式的计算结果，
    * 当 pos_ >= 0时表示在下层算子中已经计算出该表达式的值（比如聚合表达式），且该表达式对应的结果位于
    * chunk 中 下标为 pos_ 的列中。
-  */
+   */
   int pos_ = -1;
 
 private:
@@ -189,7 +188,7 @@ public:
 
   virtual ~FieldExpr() = default;
 
-  bool equal(const Expression &other) const;
+  bool equal(const Expression &other) const override;
 
   ExprType type() const override { return ExprType::FIELD; }
   AttrType value_type() const override { return field_.attr_type(); }
@@ -222,7 +221,7 @@ public:
 
   virtual ~ValueExpr() = default;
 
-  bool equal(const Expression &other) const;
+  bool equal(const Expression &other) const override;
 
   RC get_value(const Tuple &tuple, Value &value) const override;
   RC get_column(Chunk &chunk, Column &column) override;
@@ -369,11 +368,11 @@ public:
   ArithmeticExpr(Type type, std::unique_ptr<Expression> left, std::unique_ptr<Expression> right);
   virtual ~ArithmeticExpr() = default;
 
-  bool     equal(const Expression &other) const;
+  bool     equal(const Expression &other) const override;
   ExprType type() const override { return ExprType::ARITHMETIC; }
 
   AttrType value_type() const override;
-  int      value_length() const
+  int      value_length() const override
   {
     if (!right_) {
       return left_->value_length();
@@ -443,7 +442,7 @@ public:
   AggregateExpr(Type type, std::unique_ptr<Expression> child);
   virtual ~AggregateExpr() = default;
 
-  bool equal(const Expression &other) const;
+  bool equal(const Expression &other) const override;
 
   ExprType type() const override { return ExprType::AGGREGATION; }
 
@@ -452,7 +451,7 @@ public:
 
   RC get_value(const Tuple &tuple, Value &value) const override;
 
-  RC get_column(Chunk &chunk, Column &column);
+  RC get_column(Chunk &chunk, Column &column) override;
 
   Type aggregate_type() const { return aggregate_type_; }
 

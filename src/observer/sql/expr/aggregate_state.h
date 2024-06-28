@@ -11,6 +11,6 @@ See the Mulan PSL v2 for more details. */
 template <class T>
 struct SumState
 {
-  T           value;
- void update(const T *values, int size);
+  T    value;
+  void update(const T *values, int size);
 };

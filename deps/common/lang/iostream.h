@@ -16,9 +16,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/ios.h"
 #include "common/lang/new.h"
 
+using std::cerr;
 using std::cin;
 using std::cout;
-using std::cerr;
 using std::endl;
-using std::ostream;
 using std::istream;
+using std::ostream;

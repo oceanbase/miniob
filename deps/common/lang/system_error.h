@@ -12,5 +12,5 @@ See the Mulan PSL v2 for more details. */
 
 #include <system_error>
 
-using std::error_code;
 using std::errc;
+using std::error_code;

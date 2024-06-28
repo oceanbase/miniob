@@ -12,6 +12,6 @@ See the Mulan PSL v2 for more details. */
 
 #include <functional>
 
-using std::function;
 using std::equal_to;
+using std::function;
 using std::hash;

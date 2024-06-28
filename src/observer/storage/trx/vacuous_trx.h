@@ -25,7 +25,7 @@ public:
   VacuousTrxKit()          = default;
   virtual ~VacuousTrxKit() = default;
 
-  RC                            init() override;
+  RC                       init() override;
   const vector<FieldMeta> *trx_fields() const override;
 
   Trx *create_trx(LogHandler &log_handler) override;

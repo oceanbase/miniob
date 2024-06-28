@@ -143,7 +143,7 @@ string get_type_name(const T &val);
 template <class T>
 bool str_to_val(const string &str, T &val, ios_base &(*radix)(ios_base &)/* = std::dec */)
 {
-  bool               success = true;
+  bool          success = true;
   istringstream is(str);
   if (!(is >> radix >> val)) {
     val     = 0;

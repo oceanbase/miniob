@@ -16,6 +16,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/ios.h"
 #include "common/lang/exception.h"
 
-using std::ofstream;
-using std::ifstream;
 using std::fstream;
+using std::ifstream;
+using std::ofstream;

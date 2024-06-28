@@ -28,7 +28,7 @@ public:
   MvccTrxKit() = default;
   virtual ~MvccTrxKit();
 
-  RC                            init() override;
+  RC                       init() override;
   const vector<FieldMeta> *trx_fields() const override;
 
   Trx *create_trx(LogHandler &log_handler) override;
@@ -55,7 +55,7 @@ private:
 
   atomic<int32_t> current_trx_id_{0};
 
-  common::Mutex      lock_;
+  common::Mutex lock_;
   vector<Trx *> trxes_;
 };
 
@@ -110,7 +110,7 @@ private:
   // using OperationSet = unordered_set<Operation, OperationHasher, OperationEqualer>;
   using OperationSet = vector<Operation>;
 
-  MvccTrxKit       &trx_kit_;
+  MvccTrxKit &      trx_kit_;
   MvccTrxLogHandler log_handler_;
   int32_t           trx_id_     = -1;
   bool              started_    = false;

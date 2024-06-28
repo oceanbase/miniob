@@ -39,7 +39,7 @@ public:
     schema.append_cell("Query Plan");
     return RC::SUCCESS;
   }
-  
+
 private:
   void to_string(std::ostream &os, PhysicalOperator *oper, int level, bool last_child, std::vector<bool> &ends);
 

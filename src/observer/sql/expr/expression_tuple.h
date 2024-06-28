@@ -48,7 +48,7 @@ public:
     }
 
     const ExprPointerType &expression = expressions_[index];
-    spec = TupleCellSpec(expression->name());
+    spec                              = TupleCellSpec(expression->name());
     return RC::SUCCESS;
   }
 
@@ -87,5 +87,5 @@ private:
 
 private:
   const std::vector<ExprPointerType> &expressions_;
-  const Tuple                        *child_tuple_ = nullptr;
+  const Tuple *                       child_tuple_ = nullptr;
 };

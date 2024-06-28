@@ -77,9 +77,9 @@ public:
   virtual PhysicalOperatorType type() const = 0;
 
   virtual RC open(Trx *trx) = 0;
-  virtual RC next() {return RC::UNIMPLENMENT; }
-  virtual RC next(Chunk & chunk) {return RC::UNIMPLENMENT; }
-  virtual RC close()        = 0;
+  virtual RC next() { return RC::UNIMPLENMENT; }
+  virtual RC next(Chunk &chunk) { return RC::UNIMPLENMENT; }
+  virtual RC close() = 0;
 
   virtual Tuple *current_tuple() { return nullptr; }
 

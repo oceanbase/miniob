@@ -293,15 +293,15 @@ protected:
   RC flush_page_internal(Frame &frame);
 
 private:
-  BufferPoolManager   &bp_manager_;     /// BufferPool 管理器
-  BPFrameManager      &frame_manager_;  /// Frame 管理器
-  DoubleWriteBuffer   &dblwr_manager_;  /// Double Write Buffer 管理器
+  BufferPoolManager &  bp_manager_;     /// BufferPool 管理器
+  BPFrameManager &     frame_manager_;  /// Frame 管理器
+  DoubleWriteBuffer &  dblwr_manager_;  /// Double Write Buffer 管理器
   BufferPoolLogHandler log_handler_;    /// BufferPool 日志处理器
 
   int file_desc_ = -1;  /// 文件描述符
   /// 由于在最开始打开文件时，没有正确的buffer pool id不能加载header frame，所以单独从文件中读取此标识
   int32_t       buffer_pool_id_ = -1;
-  Frame        *hdr_frame_      = nullptr;  /// 文件头页面
+  Frame *       hdr_frame_      = nullptr;  /// 文件头页面
   BPFileHeader *file_header_    = nullptr;  /// 文件头
   set<PageNum>  disposed_pages_;            /// 已经释放的页面
 
@@ -332,7 +332,7 @@ public:
 
   RC flush_page(Frame &frame);
 
-  BPFrameManager    &get_frame_manager() { return frame_manager_; }
+  BPFrameManager &   get_frame_manager() { return frame_manager_; }
   DoubleWriteBuffer *get_dblwr_buffer() { return dblwr_buffer_.get(); }
 
   /**
@@ -351,5 +351,5 @@ private:
   common::Mutex                            lock_;
   unordered_map<string, DiskBufferPool *>  buffer_pools_;
   unordered_map<int32_t, DiskBufferPool *> id_to_buffer_pools_;
-  atomic<int32_t> next_buffer_pool_id_{1};  // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
+  atomic<int32_t>                          next_buffer_pool_id_{1};  // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
 };

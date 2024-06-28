@@ -23,7 +23,7 @@ public:
   virtual ~Aggregator() = default;
 
   virtual RC accumulate(const Value &value) = 0;
-  virtual RC evaluate(Value &result) = 0;
+  virtual RC evaluate(Value &result)        = 0;
 
 protected:
   Value value_;

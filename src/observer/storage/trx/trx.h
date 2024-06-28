@@ -63,7 +63,7 @@ public:
 
   Type    type() const { return type_; }
   int32_t table_id() const { return table_->table_id(); }
-  Table  *table() const { return table_; }
+  Table * table() const { return table_; }
   PageNum page_num() const { return page_num_; }
   SlotNum slot_num() const { return slot_num_; }
 
@@ -71,7 +71,7 @@ private:
   ///< 操作的哪张表。这里直接使用表其实并不准确，因为表中的索引也可能有日志
   Type type_;
 
-  Table  *table_ = nullptr;
+  Table * table_ = nullptr;
   PageNum page_num_;  // TODO use RID instead of page num and slot num
   SlotNum slot_num_;
 };
@@ -113,7 +113,7 @@ public:
   TrxKit()          = default;
   virtual ~TrxKit() = default;
 
-  virtual RC                            init()             = 0;
+  virtual RC                       init()             = 0;
   virtual const vector<FieldMeta> *trx_fields() const = 0;
 
   virtual Trx *create_trx(LogHandler &log_handler) = 0;
@@ -123,7 +123,7 @@ public:
    */
   virtual Trx *create_trx(LogHandler &log_handler, int32_t trx_id) = 0;
   virtual Trx *find_trx(int32_t trx_id)                            = 0;
-  virtual void all_trxes(vector<Trx *> &trxes)                = 0;
+  virtual void all_trxes(vector<Trx *> &trxes)                     = 0;
 
   virtual void destroy_trx(Trx *trx) = 0;
 

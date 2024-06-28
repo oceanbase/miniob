@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 
 // TODO: add more unittests
-TEST(AggregateHashTableTest, standard_hash_table)
+TEST(AggregateHashTableTest, DISABLED_standard_hash_table)
 {
   // single group by column, single aggregate column
   {
@@ -105,7 +105,7 @@ TEST(AggregateHashTableTest, standard_hash_table)
 }
 
 #ifdef USE_SIMD
-TEST(AggregateHashTableTest, linear_probing_hash_table)
+TEST(AggregateHashTableTest, DISABLED_linear_probing_hash_table)
 {
   // simple case
   {

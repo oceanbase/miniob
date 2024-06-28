@@ -88,10 +88,10 @@ struct ConditionSqlNode
 
 struct SelectSqlNode
 {
-  std::vector<std::unique_ptr<Expression>> expressions; ///< 查询的表达式
-  std::vector<std::string>                 relations;   ///< 查询的表
-  std::vector<ConditionSqlNode>            conditions;  ///< 查询条件，使用AND串联起来多个条件
-  std::vector<std::unique_ptr<Expression>> group_by;    ///< group by clause
+  std::vector<std::unique_ptr<Expression>> expressions;  ///< 查询的表达式
+  std::vector<std::string>                 relations;    ///< 查询的表
+  std::vector<ConditionSqlNode>            conditions;   ///< 查询条件，使用AND串联起来多个条件
+  std::vector<std::unique_ptr<Expression>> group_by;     ///< group by clause
 };
 
 /**
@@ -155,9 +155,9 @@ struct AttrInfoSqlNode
  */
 struct CreateTableSqlNode
 {
-  std::string                  relation_name;  ///< Relation name
-  std::vector<AttrInfoSqlNode> attr_infos;     ///< attributes
-  std::string                storage_format;   ///< storage format
+  std::string                  relation_name;   ///< Relation name
+  std::vector<AttrInfoSqlNode> attr_infos;      ///< attributes
+  std::string                  storage_format;  ///< storage format
 };
 
 /**

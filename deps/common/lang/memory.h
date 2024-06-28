@@ -12,5 +12,5 @@ See the Mulan PSL v2 for more details. */
 
 #include <memory>
 
-using std::unique_ptr;
 using std::make_unique;
+using std::unique_ptr;

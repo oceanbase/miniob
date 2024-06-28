@@ -12,6 +12,6 @@ See the Mulan PSL v2 for more details. */
 
 #include <algorithm>
 
-using std::transform;
-using std::min;
 using std::max;
+using std::min;
+using std::transform;

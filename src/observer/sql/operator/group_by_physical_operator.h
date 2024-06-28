@@ -46,10 +46,10 @@ protected:
   /// @brief 聚合一条记录
   /// @param aggregator_list 需要执行聚合运算的列表
   /// @param tuple 执行聚合运算的一条记录
-  RC   aggregate(AggregatorList &aggregator_list, const Tuple &tuple);
+  RC aggregate(AggregatorList &aggregator_list, const Tuple &tuple);
 
   /// @brief 所有tuple聚合结束后，运算最终结果
-  RC   evaluate(GroupValueType &group_value);
+  RC evaluate(GroupValueType &group_value);
 
 protected:
   std::vector<Expression *> aggregate_expressions_;  /// 聚合表达式

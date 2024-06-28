@@ -87,14 +87,14 @@ public:
   virtual string to_string() = 0;
 
   const string get_name() const { return name; }
-  bool              is_dynamic() const { return dynamic; }
-  int               get_size() const { return size; }
+  bool         is_dynamic() const { return dynamic; }
+  int          get_size() const { return size; }
 
 protected:
   pthread_mutex_t mutex;
   int             size;
   bool            dynamic;
-  string     name;
+  string          name;
 };
 
 /**
@@ -160,7 +160,7 @@ protected:
   list<T *> pools;
   set<T *>  used;
   list<T *> frees;
-  int            item_num_per_pool;
+  int       item_num_per_pool;
 };
 
 template <class T>
@@ -352,7 +352,7 @@ public:
    * Alloc one frame from memory Pool
    * @return
    */
-  void      *alloc();
+  void *          alloc();
   item_unique_ptr alloc_unique_ptr();
 
   /**
@@ -389,10 +389,10 @@ public:
   }
 
   const string get_name() const { return name; }
-  bool              is_dynamic() const { return dynamic; }
-  int               get_size() const { return size; }
-  int               get_item_size() const { return item_size; }
-  int               get_item_num_per_pool() const { return item_num_per_pool; }
+  bool         is_dynamic() const { return dynamic; }
+  int          get_size() const { return size; }
+  int          get_item_size() const { return item_size; }
+  int          get_item_num_per_pool() const { return item_num_per_pool; }
 
   int get_used_num()
   {
@@ -404,7 +404,7 @@ public:
 
 protected:
   pthread_mutex_t mutex;
-  string     name;
+  string          name;
   bool            dynamic;
   int             size;
   int             item_size;
