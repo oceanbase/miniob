@@ -87,5 +87,5 @@ private:
 
 private:
   const std::vector<ExprPointerType> &expressions_;
-  const Tuple *                       child_tuple_ = nullptr;
+  const Tuple                        *child_tuple_ = nullptr;
 };

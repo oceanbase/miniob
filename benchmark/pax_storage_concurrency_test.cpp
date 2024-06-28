@@ -272,10 +272,10 @@ public:
 
 protected:
   BufferPoolManager  bpm_{512};
-  DiskBufferPool *   buffer_pool_ = nullptr;
+  DiskBufferPool    *buffer_pool_ = nullptr;
   RecordFileHandler *handler_     = nullptr;
   VacuousLogHandler  log_handler_;
-  TableMeta *        table_meta_ = nullptr;
+  TableMeta         *table_meta_ = nullptr;
   ;
 };
 

@@ -42,7 +42,7 @@ public:
   void operator=(Session &) = delete;
 
   const char *get_current_db_name() const;
-  Db *        get_current_db() const;
+  Db         *get_current_db() const;
 
   /**
    * @brief 设置当前会话关联的数据库
@@ -100,8 +100,8 @@ public:
   static Session *current_session();
 
 private:
-  Db *          db_              = nullptr;
-  Trx *         trx_             = nullptr;
+  Db           *db_              = nullptr;
+  Trx          *trx_             = nullptr;
   SessionEvent *current_request_ = nullptr;  ///< 当前正在处理的请求
 
   bool trx_multi_operation_mode_ = false;  ///< 当前事务的模式，是否多语句模式. 单语句模式自动提交

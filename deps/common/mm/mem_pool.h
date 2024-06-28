@@ -352,7 +352,7 @@ public:
    * Alloc one frame from memory Pool
    * @return
    */
-  void *          alloc();
+  void           *alloc();
   item_unique_ptr alloc_unique_ptr();
 
   /**

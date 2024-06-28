@@ -37,7 +37,7 @@ public:
 
   StmtType type() const override { return StmtType::CREATE_TABLE; }
 
-  const std::string &                 table_name() const { return table_name_; }
+  const std::string                  &table_name() const { return table_name_; }
   const std::vector<AttrInfoSqlNode> &attr_infos() const { return attr_infos_; }
   const StorageFormat                 storage_format() const { return storage_format_; }
 

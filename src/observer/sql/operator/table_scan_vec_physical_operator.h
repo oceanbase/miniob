@@ -42,7 +42,7 @@ private:
   RC filter(Chunk &chunk);
 
 private:
-  Table *                                  table_ = nullptr;
+  Table                                   *table_ = nullptr;
   ReadWriteMode                            mode_  = ReadWriteMode::READ_WRITE;
   ChunkFileScanner                         chunk_scanner_;
   Chunk                                    all_columns_;

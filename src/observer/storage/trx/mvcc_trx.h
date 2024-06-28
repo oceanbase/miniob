@@ -110,7 +110,7 @@ private:
   // using OperationSet = unordered_set<Operation, OperationHasher, OperationEqualer>;
   using OperationSet = vector<Operation>;
 
-  MvccTrxKit &      trx_kit_;
+  MvccTrxKit       &trx_kit_;
   MvccTrxLogHandler log_handler_;
   int32_t           trx_id_     = -1;
   bool              started_    = false;

@@ -230,7 +230,7 @@ public:
 
 protected:
   BufferPoolManager  bpm_{512};
-  DiskBufferPool *   buffer_pool_ = nullptr;
+  DiskBufferPool    *buffer_pool_ = nullptr;
   RecordFileHandler *handler_;
   VacuousLogHandler  log_handler_;
 };

@@ -126,7 +126,7 @@ public:
   RC update_record(Frame *frame, const RID &rid, const char *record);
 
 private:
-  LogHandler *  log_handler_    = nullptr;
+  LogHandler   *log_handler_    = nullptr;
   int32_t       buffer_pool_id_ = -1;
   int32_t       record_size_    = -1;
   StorageFormat storage_format_ = StorageFormat::ROW_FORMAT;

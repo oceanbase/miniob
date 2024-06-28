@@ -47,11 +47,11 @@ private:
   RC filter(RowTuple &tuple, bool &result);
 
 private:
-  Trx *              trx_            = nullptr;
-  Table *            table_          = nullptr;
-  Index *            index_          = nullptr;
+  Trx               *trx_            = nullptr;
+  Table             *table_          = nullptr;
+  Index             *index_          = nullptr;
   ReadWriteMode      mode_           = ReadWriteMode::READ_WRITE;
-  IndexScanner *     index_scanner_  = nullptr;
+  IndexScanner      *index_scanner_  = nullptr;
   RecordFileHandler *record_handler_ = nullptr;
 
   Record   current_record_;

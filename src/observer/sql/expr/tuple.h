@@ -194,7 +194,7 @@ public:
       return RC::INVALID_ARGUMENT;
     }
 
-    FieldExpr *      field_expr = speces_[index];
+    FieldExpr       *field_expr = speces_[index];
     const FieldMeta *field_meta = field_expr->field().meta();
     cell.set_type(field_meta->type());
     cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
@@ -218,7 +218,7 @@ public:
 
     for (size_t i = 0; i < speces_.size(); ++i) {
       const FieldExpr *field_expr = speces_[i];
-      const Field &    field      = field_expr->field();
+      const Field     &field      = field_expr->field();
       if (0 == strcmp(field_name, field.field_name())) {
         return cell_at(i, cell);
       }
@@ -243,8 +243,8 @@ public:
   const Record &record() const { return *record_; }
 
 private:
-  Record *                 record_ = nullptr;
-  const Table *            table_  = nullptr;
+  Record                  *record_ = nullptr;
+  const Table             *table_  = nullptr;
   std::vector<FieldExpr *> speces_;
 };
 
@@ -304,7 +304,7 @@ public:
 #endif
 private:
   std::vector<std::unique_ptr<Expression>> expressions_;
-  Tuple *                                  tuple_ = nullptr;
+  Tuple                                   *tuple_ = nullptr;
 };
 
 /**

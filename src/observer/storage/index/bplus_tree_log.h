@@ -177,7 +177,7 @@ public:
   BplusTreeMiniTransaction(BplusTreeHandler &tree_handler, RC *operation_result = nullptr);
   ~BplusTreeMiniTransaction();
 
-  LatchMemo &      latch_memo() { return latch_memo_; }
+  LatchMemo       &latch_memo() { return latch_memo_; }
   BplusTreeLogger &logger() { return logger_; }
 
   RC commit();
@@ -185,7 +185,7 @@ public:
 
 private:
   BplusTreeHandler &tree_handler_;
-  RC *              operation_result_ = nullptr;
+  RC               *operation_result_ = nullptr;
   LatchMemo         latch_memo_;
   BplusTreeLogger   logger_;
 };

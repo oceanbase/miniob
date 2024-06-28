@@ -63,7 +63,7 @@ public:
 
   Type    type() const { return type_; }
   int32_t table_id() const { return table_->table_id(); }
-  Table * table() const { return table_; }
+  Table  *table() const { return table_; }
   PageNum page_num() const { return page_num_; }
   SlotNum slot_num() const { return slot_num_; }
 
@@ -71,7 +71,7 @@ private:
   ///< 操作的哪张表。这里直接使用表其实并不准确，因为表中的索引也可能有日志
   Type type_;
 
-  Table * table_ = nullptr;
+  Table  *table_ = nullptr;
   PageNum page_num_;  // TODO use RID instead of page num and slot num
   SlotNum slot_num_;
 };

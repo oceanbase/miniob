@@ -226,7 +226,7 @@ public:
     return RC::SUCCESS;
   }
 
-  char *      data() { return this->data_; }
+  char       *data() { return this->data_; }
   const char *data() const { return this->data_; }
   int         len() const { return this->len_; }
 
@@ -236,7 +236,7 @@ public:
     this->rid_.page_num = page_num;
     this->rid_.slot_num = slot_num;
   }
-  RID &      rid() { return rid_; }
+  RID       &rid() { return rid_; }
   const RID &rid() const { return rid_; }
 
 private:

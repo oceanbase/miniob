@@ -53,7 +53,7 @@ public:
 
   LogEntry &operator=(LogEntry &&other);
 
-  LogEntry(const LogEntry &) = delete;
+  LogEntry(const LogEntry &)            = delete;
   LogEntry &operator=(const LogEntry &) = delete;
 
 public:
@@ -71,7 +71,7 @@ public:
   RC init(LSN lsn, LogModule module, vector<char> &&data);
 
   const LogHeader &header() const { return header_; }
-  const char *     data() const { return data_.data(); }
+  const char      *data() const { return data_.data(); }
   int32_t          payload_size() const { return header_.size; }
   int32_t          total_size() const { return LogHeader::SIZE + header_.size; }
 
