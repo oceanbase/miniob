@@ -71,5 +71,4 @@ private:
   Chunk                     chunk_;
   Chunk                     output_chunk_;
   AggregateValues           aggr_values_;
-  bool                      outputed_ = false;
 };

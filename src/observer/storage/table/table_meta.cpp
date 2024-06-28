@@ -31,6 +31,7 @@ TableMeta::TableMeta(const TableMeta &other)
       name_(other.name_),
       fields_(other.fields_),
       indexes_(other.indexes_),
+      storage_format_(other.storage_format_),
       record_size_(other.record_size_)
 {}
 
@@ -167,7 +168,6 @@ int TableMeta::record_size() const { return record_size_; }
 
 int TableMeta::serialize(std::ostream &ss) const
 {
-
   Json::Value table_value;
   table_value[FIELD_TABLE_ID]   = table_id_;
   table_value[FIELD_TABLE_NAME] = name_;
