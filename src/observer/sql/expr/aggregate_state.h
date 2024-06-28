@@ -9,8 +9,10 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 template <class T>
-struct SumState
+class SumState
 {
+public:
+  SumState() : value(0) {}
   T    value;
   void update(const T *values, int size);
 };
