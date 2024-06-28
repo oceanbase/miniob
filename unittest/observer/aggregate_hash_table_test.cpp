@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
-// TODO: add more unittests
 TEST(AggregateHashTableTest, DISABLED_standard_hash_table)
 {
   // single group by column, single aggregate column

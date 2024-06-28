@@ -31,7 +31,7 @@ public:
   RC next(Chunk &chunk) override;
   RC close() override;
 
-  RC tuple_schema(TupleSchema &schema) const;
+  RC tuple_schema(TupleSchema &schema) const override;
 
   std::vector<std::unique_ptr<Expression>> &expressions() { return expressions_; }
 
