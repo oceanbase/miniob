@@ -85,7 +85,9 @@ group by 实现采用了基于哈希的分组方式，主要涉及到以下几�
 
 需通过 `unittest/observer/parser_test.cpp` 和 `test/case/test/vectorized-aggregation-and-group-by.test`。
 
-注意：训练营中的测试采用对MiniOB/MySQL 输入相同的测试 SQL（MiniOB 中建表语句包含 storage format 选项，MySQL 中不包含），对比 MiniOB 执行结果与 MySQL 执行结果的方式进行。训练营中的测试 case 相比 `test/case/test/vectorized-aggregation-and-group-by.test` 更加多样（包含一些随机生成的 SQL），但不存在更加复杂的 SQL（不需要实现除 `sum` 之外的聚合函数）。
+注意1：训练营中的测试采用对MiniOB/MySQL 输入相同的测试 SQL（MiniOB 中建表语句包含 storage format 选项，MySQL 中不包含），对比 MiniOB 执行结果与 MySQL 执行结果的方式进行。训练营中的测试 case 相比 `test/case/test/vectorized-aggregation-and-group-by.test` 更加多样（包含一些随机生成的 SQL），但不存在更加复杂的 SQL（不需要实现除 `sum` 之外的聚合函数）。
+
+注意2：如果需要运行 `parser_test` 请移除`DISABLED_` 前缀。
 
 ## 实现 SIMD 指令优化的 aggregation 和 group by
 
@@ -127,6 +129,8 @@ group by 实现采用了基于哈希的分组方式，主要涉及到以下几�
 ### 测试
 
 需要通过 `arithmetic_operator_test` 和 `aggregate_hash_table_test` 单元测试以及 `arithmetic_operator_performance_test` 和 `aggregate_hash_table_performance_test` 性能测试。
+
+注意：如果需要运行 `arithmetic_operator_test`、`aggregate_hash_table_test`、`arithmetic_operator_performance_test`、`aggregate_hash_table_performance_test` ，请移除`DISABLED_` 前缀。
 
 ### 参考资料
 

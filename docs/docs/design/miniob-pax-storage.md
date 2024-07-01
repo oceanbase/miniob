@@ -126,3 +126,5 @@ create table t(a int,b int) storage format=pax;
 
 通过 `unittest/pax_storage_test.cpp` 中所有测试用例，通过`benchmark/pax_storage_concurrency_test.cpp` 性能测试。
 
+注意：如果需要运行 `pax_storage_test` 、`pax_storage_concurrency_test`，请移除`DISABLED_` 前缀。
+
