@@ -247,7 +247,7 @@ RC ComparisonExpr::compare_column(const Column &left, const Column &right, std::
   if (left_const && right_const) {
     compare_result<T, true, true>((T *)left.data(), (T *)right.data(), left.count(), result, comp_);
   } else if (left_const && !right_const) {
-    compare_result<T, true, false>((T *)left.data(), (T *)right.data(), left.count(), result, comp_);
+    compare_result<T, true, false>((T *)left.data(), (T *)right.data(), right.count(), result, comp_);
   } else if (!left_const && right_const) {
     compare_result<T, false, true>((T *)left.data(), (T *)right.data(), left.count(), result, comp_);
   } else {
