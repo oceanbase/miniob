@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/rc.h"
-#include <string>
+#include "common/lang/string.h"
 
 class TableMeta;
 class FieldMeta;
@@ -41,13 +41,13 @@ public:
   const char *name() const;
   const char *field() const;
 
-  void desc(std::ostream &os) const;
+  void desc(ostream &os) const;
 
 public:
   void      to_json(Json::Value &json_value) const;
   static RC from_json(const TableMeta &table, const Json::Value &json_value, IndexMeta &index);
 
 protected:
-  std::string name_;   // index's name
-  std::string field_;  // field's name
+  string name_;   // index's name
+  string field_;  // field's name
 };

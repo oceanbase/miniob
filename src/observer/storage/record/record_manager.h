@@ -14,11 +14,10 @@ See the Mulan PSL v2 for more details. */
 //
 #pragma once
 
-#include <limits>
-#include <sstream>
-
 #include "common/lang/bitmap.h"
+#include "common/lang/sstream.h"
 #include "storage/buffer/disk_buffer_pool.h"
+#include "storage/common/chunk.h"
 #include "storage/record/record.h"
 #include "storage/record/record_log.h"
 #include "common/types.h"
@@ -66,13 +65,15 @@ class Table;
  */
 struct PageHeader
 {
-  int32_t record_num;           ///< 当前页面记录的个数
-  int32_t record_real_size;     ///< 每条记录的实际大小
-  int32_t record_size;          ///< 每条记录占用实际空间大小(可能对齐)
-  int32_t record_capacity;      ///< 最大记录个数
-  int32_t first_record_offset;  ///< 第一条记录的偏移量
+  int32_t record_num;        ///< 当前页面记录的个数
+  int32_t column_num;        ///< 当前页面记录所包含的列数
+  int32_t record_real_size;  ///< 每条记录的实际大小
+  int32_t record_size;       ///< 每条记录占用实际空间大小(可能对齐)
+  int32_t record_capacity;   ///< 最大记录个数
+  int32_t col_idx_offset;    ///< 列索引偏移量
+  int32_t data_offset;       ///< 第一条记录的偏移量
 
-  std::string to_string() const;
+  string to_string() const;
 };
 
 /**
@@ -91,7 +92,7 @@ public:
    * @param record_page_handler 负责某个页面上记录增删改查的对象
    * @param start_slot_num      从哪个记录开始扫描，默认是0
    */
-  void init(RecordPageHandler &record_page_handler, SlotNum start_slot_num = 0);
+  void init(RecordPageHandler *record_page_handler, SlotNum start_slot_num = 0);
 
   /**
    * @brief 判断是否有下一个记录
@@ -120,18 +121,13 @@ private:
 /**
  * @brief 负责处理一个页面中各种操作，比如插入记录、删除记录或者查找记录
  * @ingroup RecordManager
- * @details 当前定长记录模式下每个页面的组织大概是这样的：
- * @code
- * | PageHeader | record allocate bitmap |
- * |------------|------------------------|
- * | record1 | record2 | ..... | recordN |
- * @endcode
  */
 class RecordPageHandler
 {
 public:
-  RecordPageHandler() = default;
-  ~RecordPageHandler();
+  RecordPageHandler(StorageFormat storage_format) : storage_format_(storage_format) {}
+  virtual ~RecordPageHandler();
+  static RecordPageHandler *create(StorageFormat format);
 
   /**
    * @brief 初始化
@@ -156,8 +152,21 @@ public:
    * @param buffer_pool 关联某个文件时，都通过buffer pool来做读写文件
    * @param page_num    当前处理哪个页面
    * @param record_size 每个记录的大小
+   * @param table_meta  表的元数据
    */
-  RC init_empty_page(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, int record_size);
+  RC init_empty_page(
+      DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, int record_size, TableMeta *table_meta);
+
+  /**
+   * @brief 对一个新的页面做初始化，初始化关于该页面记录信息的页头PageHeader，该函数用于日志回放时。
+   * @param buffer_pool 关联某个文件时，都通过buffer pool来做读写文件
+   * @param page_num    当前处理哪个页面
+   * @param record_size 每个记录的大小
+   * @param col_num  表中包含的列数
+   * @param col_idx_data 列索引数据
+   */
+  RC init_empty_page(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, int record_size,
+      int col_num, const char *col_idx_data);
 
   /**
    * @brief 操作结束后做的清理工作，比如释放页面、解锁
@@ -170,7 +179,7 @@ public:
    * @param data 要插入的记录
    * @param rid  如果插入成功，通过这个参数返回插入的位置
    */
-  RC insert_record(const char *data, RID *rid);
+  virtual RC insert_record(const char *data, RID *rid) { return RC::UNIMPLENMENT; }
 
   /**
    * @brief 数据库恢复时，在指定位置插入数据
@@ -178,28 +187,36 @@ public:
    * @param data 要插入的数据行
    * @param rid  插入的位置
    */
-  RC recover_insert_record(const char *data, const RID &rid);
+  virtual RC recover_insert_record(const char *data, const RID &rid) { return RC::UNIMPLENMENT; }
 
   /**
    * @brief 删除指定的记录
    *
    * @param rid 要删除的记录标识
    */
-  RC delete_record(const RID *rid);
+  virtual RC delete_record(const RID *rid) { return RC::UNIMPLENMENT; }
 
   /**
    * @brief
    *
    */
-  RC update_record(const RID &rid, const char *data);
+  virtual RC update_record(const RID &rid, const char *data) { return RC::UNIMPLENMENT; }
 
   /**
    * @brief 获取指定位置的记录数据
    *
    * @param rid 指定的位置
-   * @param inplace_record 返回指定的数据。这里不会将数据复制出来，而是使用指针，所以调用者必须保证数据使用期间受到保护
+   * @param record 获取到的记录结果
    */
-  RC get_record(const RID &rid, Record &inplace_record);
+  virtual RC get_record(const RID &rid, Record &record) { return RC::UNIMPLENMENT; }
+
+  /**
+   * @brief 获取整个页面中指定列的所有记录。
+   *
+   * @param chunk 由 chunk.column(i).col_id() 指定列。
+   * 只需由 PaxRecordPageHandler 实现。
+   */
+  virtual RC get_chunk(Chunk &chunk) { return RC::UNIMPLENMENT; }
 
   /**
    * @brief 返回该记录页的页号
@@ -220,8 +237,7 @@ protected:
    */
   void fix_record_capacity()
   {
-    int32_t last_record_offset =
-        page_header_->first_record_offset + page_header_->record_capacity * page_header_->record_size;
+    int32_t last_record_offset = page_header_->data_offset + page_header_->record_capacity * page_header_->record_size;
     while (last_record_offset > BP_PAGE_DATA_SIZE) {
       page_header_->record_capacity -= 1;
       last_record_offset -= page_header_->record_size;
@@ -235,7 +251,7 @@ protected:
    */
   char *get_record_data(SlotNum slot_num)
   {
-    return frame_->data() + page_header_->first_record_offset + (page_header_->record_size * slot_num);
+    return frame_->data() + page_header_->data_offset + (page_header_->record_size * slot_num);
   }
 
 protected:
@@ -245,11 +261,94 @@ protected:
   ReadWriteMode rw_mode_     = ReadWriteMode::READ_WRITE;  ///< 当前的操作是否都是只读的
   PageHeader   *page_header_ = nullptr;                    ///< 当前页面上页面头
   char         *bitmap_      = nullptr;  ///< 当前页面上record分配状态信息bitmap内存起始位置
+  StorageFormat storage_format_;
 
-private:
+protected:
   friend class RecordPageIterator;
 };
 
+/**
+ * @brief 负责处理行存页面中各种操作
+ * @ingroup RecordManager
+ * @details 行存格式实现，当前定长记录模式下每个页面的组织大概是这样的：
+ * @code
+ * | PageHeader | record allocate bitmap |
+ * |------------|------------------------|
+ * | record1 | record2 | ..... | recordN |
+ * @endcode
+ */
+class RowRecordPageHandler : public RecordPageHandler
+{
+public:
+  RowRecordPageHandler() : RecordPageHandler(StorageFormat::ROW_FORMAT) {}
+
+  virtual RC insert_record(const char *data, RID *rid) override;
+
+  virtual RC recover_insert_record(const char *data, const RID &rid) override;
+
+  virtual RC delete_record(const RID *rid) override;
+
+  virtual RC update_record(const RID &rid, const char *data) override;
+
+  /**
+   * @brief 获取指定位置的记录数据
+   *
+   * @param rid 指定的位置
+   * @param record 返回指定的数据。这里不会将数据复制出来，而是使用指针，所以调用者必须保证数据使用期间受到保护
+   */
+  virtual RC get_record(const RID &rid, Record &record) override;
+};
+
+/**
+ * @brief 负责处理 PAX 存储格式的页面中各种操作
+ * @ingroup RecordManager
+ * @details PAX 格式实现，当前定长记录模式下每个页面的组织大概是这样的：
+ * @code
+ * | PageHeader | record allocate bitmap | column index  |
+ * |------------|------------------------| ------------- |
+ * | column1 | column2 | ..................... | columnN |
+ * @endcode
+ * 更多细节可参考：docs/design/miniob-pax-storage.md
+ */
+class PaxRecordPageHandler : public RecordPageHandler
+{
+public:
+  PaxRecordPageHandler() : RecordPageHandler(StorageFormat::PAX_FORMAT) {}
+
+  /**
+   * @brief 插入一条记录
+   *
+   * @param data 要插入的记录
+   * @param rid  如果插入成功，通过这个参数返回插入的位置
+   * 注意：需要将record 按列拆分，在 Page 内按 PAX 格式存储。
+   */
+  virtual RC insert_record(const char *data, RID *rid) override;
+
+  virtual RC delete_record(const RID *rid) override;
+
+  /**
+   * @brief 获取指定位置的记录数据
+   *
+   * @param rid 指定的位置
+   * @param record 返回指定的数据。
+   * 注意：需要将列数据组装成 Record 并返回。
+   */
+  virtual RC get_record(const RID &rid, Record &record) override;
+
+  /**
+   * @brief 以 Chunk 格式获取整个页面中指定列的所有记录。
+   *
+   * @param chunk 由 chunk.column(i).col_id() 指定列。
+   */
+  virtual RC get_chunk(Chunk &chunk) override;
+
+private:
+  // get the field data by `slot_num` and `column id`
+  char *get_field_data(SlotNum slot_num, int col_id);
+
+  // get the field length by `column id`, all columns are fixed length.
+  int get_field_len(int col_id);
+};
 /**
  * @brief 管理整个文件中记录的增删改查
  * @ingroup RecordManager
@@ -258,7 +357,7 @@ private:
 class RecordFileHandler
 {
 public:
-  RecordFileHandler() = default;
+  RecordFileHandler(StorageFormat storage_format) : storage_format_(storage_format){};
   ~RecordFileHandler();
 
   /**
@@ -266,7 +365,7 @@ public:
    *
    * @param buffer_pool 当前操作的是哪个文件
    */
-  RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler);
+  RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler, TableMeta *table_meta);
 
   /**
    * @brief 关闭，做一些资源清理的工作
@@ -300,7 +399,7 @@ public:
 
   RC get_record(const RID &rid, Record &record);
 
-  RC visit_record(const RID &rid, std::function<bool(Record &)> updater);
+  RC visit_record(const RID &rid, function<bool(Record &)> updater);
 
 private:
   /**
@@ -309,10 +408,12 @@ private:
   RC init_free_pages();
 
 private:
-  DiskBufferPool             *disk_buffer_pool_ = nullptr;
-  LogHandler                 *log_handler_      = nullptr;  ///< 记录日志的处理器
-  std::unordered_set<PageNum> free_pages_;                  ///< 没有填充满的页面集合
-  common::Mutex               lock_;  ///< 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
+  DiskBufferPool        *disk_buffer_pool_ = nullptr;
+  LogHandler            *log_handler_      = nullptr;  ///< 记录日志的处理器
+  unordered_set<PageNum> free_pages_;                  ///< 没有填充满的页面集合
+  common::Mutex          lock_;  ///< 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
+  StorageFormat          storage_format_;
+  TableMeta             *table_meta_;
 };
 
 /**
@@ -372,9 +473,44 @@ private:
   LogHandler     *log_handler_      = nullptr;
   ReadWriteMode   rw_mode_ = ReadWriteMode::READ_WRITE;  ///< 遍历出来的数据，是否可能对它做修改
 
-  BufferPoolIterator bp_iterator_;                 ///< 遍历buffer pool的所有页面
-  ConditionFilter   *condition_filter_ = nullptr;  ///< 过滤record
-  RecordPageHandler  record_page_handler_;         ///< 处理文件某页面的记录
-  RecordPageIterator record_page_iterator_;        ///< 遍历某个页面上的所有record
-  Record             next_record_;                 ///< 获取的记录放在这里缓存起来
+  BufferPoolIterator bp_iterator_;                    ///< 遍历buffer pool的所有页面
+  ConditionFilter   *condition_filter_    = nullptr;  ///< 过滤record
+  RecordPageHandler *record_page_handler_ = nullptr;  ///< 处理文件某页面的记录
+  RecordPageIterator record_page_iterator_;           ///< 遍历某个页面上的所有record
+  Record             next_record_;                    ///< 获取的记录放在这里缓存起来
+};
+
+/**
+ * @brief 遍历某个文件中所有记录，每次返回一个 Chunk
+ * @ingroup RecordManager
+ * @details 遍历所有的页面，每次以 Chunk 格式返回一个页面内的所有数据
+ */
+class ChunkFileScanner
+{
+public:
+  ChunkFileScanner() = default;
+  ~ChunkFileScanner();
+
+  // TODO: not support filter and transaction
+  RC open_scan_chunk(Table *table, DiskBufferPool &buffer_pool, LogHandler &log_handler, ReadWriteMode mode);
+
+  /**
+   * @brief 关闭一个文件扫描，释放相应的资源
+   */
+  RC close_scan();
+
+  /**
+   * @brief 每次调用获取一个页面中的所有记录。
+   */
+  RC next_chunk(Chunk &chunk);
+
+private:
+  Table *table_ = nullptr;  ///< 当前遍历的是哪张表。
+
+  DiskBufferPool *disk_buffer_pool_ = nullptr;  ///< 当前访问的文件
+  LogHandler     *log_handler_      = nullptr;
+  ReadWriteMode   rw_mode_ = ReadWriteMode::READ_WRITE;  ///< 遍历出来的数据，是否可能对它做修改
+
+  BufferPoolIterator bp_iterator_;                    ///< 遍历buffer pool的所有页面
+  RecordPageHandler *record_page_handler_ = nullptr;  ///< 处理文件某页面的记录
 };

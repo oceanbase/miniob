@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/io/io.h"
 #include "common/lang/mutex.h"
+#include "common/lang/algorithm.h"
 #include "common/log/log.h"
 #include "common/math/crc.h"
 #include "storage/buffer/disk_buffer_pool.h"
@@ -23,7 +24,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 
 using namespace common;
-using namespace std;
 
 static const int MEM_POOL_ITEM_NUM = 20;
 

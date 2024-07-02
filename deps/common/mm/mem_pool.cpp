@@ -57,7 +57,7 @@ void MemPoolItem::cleanup()
   frees.clear();
   this->size = 0;
 
-  for (std::list<void *>::iterator iter = pools.begin(); iter != pools.end(); iter++) {
+  for (list<void *>::iterator iter = pools.begin(); iter != pools.end(); iter++) {
     void *pool = *iter;
 
     ::free(pool);
@@ -126,11 +126,11 @@ void *MemPoolItem::alloc()
   return buffer;
 }
 
-MemPoolItem::unique_ptr MemPoolItem::alloc_unique_ptr()
+MemPoolItem::item_unique_ptr MemPoolItem::alloc_unique_ptr()
 {
   void *item    = this->alloc();
   auto  deleter = [this](void *p) { this->free(p); };
-  return MemPoolItem::unique_ptr(item, deleter);
+  return MemPoolItem::item_unique_ptr(item, deleter);
 }
 
 void MemPoolItem::free(void *buf)

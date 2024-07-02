@@ -14,10 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <deque>
-#include <vector>
-
 #include "common/rc.h"
+#include "common/lang/deque.h"
+#include "common/lang/vector.h"
 #include "storage/buffer/page.h"
 
 class Frame;
@@ -85,7 +84,7 @@ private:
   void release_item(LatchMemoItem &item);
 
 private:
-  DiskBufferPool           *buffer_pool_ = nullptr;
-  std::deque<LatchMemoItem> items_;
-  std::vector<PageNum>      disposed_pages_;  /// 等待释放的页面
+  DiskBufferPool      *buffer_pool_ = nullptr;
+  deque<LatchMemoItem> items_;
+  vector<PageNum>      disposed_pages_;  /// 等待释放的页面
 };

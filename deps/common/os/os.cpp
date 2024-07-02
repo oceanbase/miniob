@@ -13,15 +13,15 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <execinfo.h>
-#include <thread>
 
 #include "common/defs.h"
 #include "common/log/log.h"
 #include "common/os/os.h"
+#include "common/lang/thread.h"
 
 namespace common {
 // Don't care windows
-uint32_t getCpuNum() { return std::thread::hardware_concurrency(); }
+uint32_t getCpuNum() { return thread::hardware_concurrency(); }
 
 #define MAX_STACK_SIZE 32
 

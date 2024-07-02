@@ -39,15 +39,18 @@ public:
   StmtType type() const override { return StmtType::SELECT; }
 
 public:
-  static RC create(Db *db, const SelectSqlNode &select_sql, Stmt *&stmt);
+  static RC create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt);
 
 public:
   const std::vector<Table *> &tables() const { return tables_; }
-  const std::vector<Field>   &query_fields() const { return query_fields_; }
   FilterStmt                 *filter_stmt() const { return filter_stmt_; }
 
+  std::vector<std::unique_ptr<Expression>> &query_expressions() { return query_expressions_; }
+  std::vector<std::unique_ptr<Expression>> &group_by() { return group_by_; }
+
 private:
-  std::vector<Field>   query_fields_;
-  std::vector<Table *> tables_;
-  FilterStmt          *filter_stmt_ = nullptr;
+  std::vector<std::unique_ptr<Expression>> query_expressions_;
+  std::vector<Table *>                     tables_;
+  FilterStmt                              *filter_stmt_ = nullptr;
+  std::vector<std::unique_ptr<Expression>> group_by_;
 };

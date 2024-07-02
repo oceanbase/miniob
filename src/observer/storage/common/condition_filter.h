@@ -61,7 +61,7 @@ public:
 private:
   ConDesc  left_;
   ConDesc  right_;
-  AttrType attr_type_ = UNDEFINED;
+  AttrType attr_type_ = AttrType::UNDEFINED;
   CompOp   comp_op_   = NO_OP;
 };
 

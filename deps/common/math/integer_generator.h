@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <random>
+#include "common/lang/random.h"
 
 namespace common {
 
@@ -32,8 +32,8 @@ public:
   int max() const { return distrib_.max(); }
 
 private:
-  std::random_device              rd_;
-  std::uniform_int_distribution<> distrib_;
+  random_device              rd_;
+  uniform_int_distribution<> distrib_;
 };
 
 }  // namespace common

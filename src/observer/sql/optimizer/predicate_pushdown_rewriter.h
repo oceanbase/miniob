@@ -33,4 +33,5 @@ public:
 private:
   RC get_exprs_can_pushdown(
       std::unique_ptr<Expression> &expr, std::vector<std::unique_ptr<Expression>> &pushdown_exprs);
+  bool is_empty_predicate(std::unique_ptr<Expression> &expr);
 };

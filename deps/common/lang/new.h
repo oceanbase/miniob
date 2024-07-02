@@ -8,20 +8,10 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Longda on 2010
-//
-
 #pragma once
 
-#include <string>
-namespace common {
+#include <new>
 
-class SelectDir
-{
-public:
-  virtual std::string select() { return std::string(""); };
-  virtual void        setBaseDir(std::string baseDir){};
-};
+#include "common/lang/exception.h"
 
-}  // namespace common
+using std::nothrow;

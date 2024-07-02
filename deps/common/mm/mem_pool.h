@@ -14,15 +14,14 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <functional>
-#include <list>
-#include <memory>
-#include <queue>
-#include <set>
 #include <sstream>
-#include <string>
 
 #include "common/lang/mutex.h"
+#include "common/lang/string.h"
+#include "common/lang/set.h"
+#include "common/lang/list.h"
+#include "common/lang/memory.h"
+#include "common/lang/sstream.h"
 #include "common/log/log.h"
 #include "common/os/os.h"
 
@@ -85,17 +84,17 @@ public:
    * Print the MemPool status
    * @return
    */
-  virtual std::string to_string() = 0;
+  virtual string to_string() = 0;
 
-  const std::string get_name() const { return name; }
-  bool              is_dynamic() const { return dynamic; }
-  int               get_size() const { return size; }
+  const string get_name() const { return name; }
+  bool         is_dynamic() const { return dynamic; }
+  int          get_size() const { return size; }
 
 protected:
   pthread_mutex_t mutex;
   int             size;
   bool            dynamic;
-  std::string     name;
+  string          name;
 };
 
 /**
@@ -145,7 +144,7 @@ public:
    * Print the MemPool status
    * @return
    */
-  std::string to_string();
+  string to_string();
 
   int get_item_num_per_pool() const { return item_num_per_pool; }
 
@@ -158,10 +157,10 @@ public:
   }
 
 protected:
-  std::list<T *> pools;
-  std::set<T *>  used;
-  std::list<T *> frees;
-  int            item_num_per_pool;
+  list<T *> pools;
+  set<T *>  used;
+  list<T *> frees;
+  int       item_num_per_pool;
 };
 
 template <class T>
@@ -208,7 +207,7 @@ void MemPoolSimple<T>::cleanup()
   frees.clear();
   this->size = 0;
 
-  for (typename std::list<T *>::iterator iter = pools.begin(); iter != pools.end(); iter++) {
+  for (typename list<T *>::iterator iter = pools.begin(); iter != pools.end(); iter++) {
     T *pool = *iter;
 
     delete[] pool;
@@ -294,9 +293,9 @@ void MemPoolSimple<T>::free(T *buf)
 }
 
 template <class T>
-std::string MemPoolSimple<T>::to_string()
+string MemPoolSimple<T>::to_string()
 {
-  std::stringstream ss;
+  stringstream ss;
 
   ss << "name:" << this->name << ","
      << "dyanmic:" << this->dynamic << ","
@@ -310,7 +309,7 @@ std::string MemPoolSimple<T>::to_string()
 class MemPoolItem
 {
 public:
-  using unique_ptr = std::unique_ptr<void, std::function<void(void *const)>>;
+  using item_unique_ptr = unique_ptr<void, function<void(void *const)>>;
 
 public:
   MemPoolItem(const char *tag) : name(tag)
@@ -353,8 +352,8 @@ public:
    * Alloc one frame from memory Pool
    * @return
    */
-  void      *alloc();
-  unique_ptr alloc_unique_ptr();
+  void           *alloc();
+  item_unique_ptr alloc_unique_ptr();
 
   /**
    * Free one item, the resouce will return to memory Pool
@@ -375,10 +374,10 @@ public:
     return it != used.end();
   }
 
-  std::string to_string()
+  string to_string()
   {
 
-    std::stringstream ss;
+    stringstream ss;
 
     ss << "name:" << this->name << ","
        << "dyanmic:" << this->dynamic << ","
@@ -389,11 +388,11 @@ public:
     return ss.str();
   }
 
-  const std::string get_name() const { return name; }
-  bool              is_dynamic() const { return dynamic; }
-  int               get_size() const { return size; }
-  int               get_item_size() const { return item_size; }
-  int               get_item_num_per_pool() const { return item_num_per_pool; }
+  const string get_name() const { return name; }
+  bool         is_dynamic() const { return dynamic; }
+  int          get_size() const { return size; }
+  int          get_item_size() const { return item_size; }
+  int          get_item_num_per_pool() const { return item_num_per_pool; }
 
   int get_used_num()
   {
@@ -405,15 +404,15 @@ public:
 
 protected:
   pthread_mutex_t mutex;
-  std::string     name;
+  string          name;
   bool            dynamic;
   int             size;
   int             item_size;
   int             item_num_per_pool;
 
-  std::list<void *> pools;
-  std::set<void *>  used;
-  std::list<void *> frees;
+  list<void *> pools;
+  set<void *>  used;
+  list<void *> frees;
 };
 
 }  // namespace common

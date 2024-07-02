@@ -23,13 +23,13 @@ See the Mulan PSL v2 for more details. */
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-#include <unordered_map>
 #include <optional>
-#include <memory>
 
 #include "common/lang/bitmap.h"
 #include "common/lang/lru_cache.h"
 #include "common/lang/mutex.h"
+#include "common/lang/memory.h"
+#include "common/lang/unordered_map.h"
 #include "common/mm/mem_pool.h"
 #include "common/rc.h"
 #include "common/types.h"
@@ -73,7 +73,7 @@ struct BPFileHeader
    */
   static const int MAX_PAGE_NUM = (BP_PAGE_DATA_SIZE - sizeof(page_count) - sizeof(allocated_pages)) * 8;
 
-  std::string to_string() const;
+  string to_string() const;
 };
 
 /**
@@ -105,9 +105,9 @@ public:
    * @brief 列出所有指定文件的页面
    *
    * @param buffer_pool_id buffer Pool标识
-   * @return std::list<Frame *> 页帧列表
+   * @return list<Frame *> 页帧列表
    */
-  std::list<Frame *> find_list(int buffer_pool_id);
+  list<Frame *> find_list(int buffer_pool_id);
 
   /**
    * @brief 分配一个新的页面
@@ -131,7 +131,7 @@ public:
    * @param purger 需要在释放frame之前，对页面做些什么操作。当前是刷新脏数据到磁盘
    * @return 返回本次清理了多少个页面
    */
-  int purge_frames(int count, std::function<RC(Frame *frame)> purger);
+  int purge_frames(int count, function<RC(Frame *frame)> purger);
 
   size_t frame_num() const { return frames_.count(); }
 
@@ -154,7 +154,7 @@ private:
   using FrameLruCache  = common::LruCache<FrameId, Frame *, BPFrameIdHasher>;
   using FrameAllocator = common::MemPoolSimple<Frame>;
 
-  std::mutex     lock_;
+  mutex          lock_;
   FrameLruCache  frames_;
   FrameAllocator allocator_;
 };
@@ -300,12 +300,12 @@ private:
 
   int file_desc_ = -1;  /// 文件描述符
   /// 由于在最开始打开文件时，没有正确的buffer pool id不能加载header frame，所以单独从文件中读取此标识
-  int32_t           buffer_pool_id_ = -1;
-  Frame            *hdr_frame_      = nullptr;  /// 文件头页面
-  BPFileHeader     *file_header_    = nullptr;  /// 文件头
-  std::set<PageNum> disposed_pages_;            /// 已经释放的页面
+  int32_t       buffer_pool_id_ = -1;
+  Frame        *hdr_frame_      = nullptr;  /// 文件头页面
+  BPFileHeader *file_header_    = nullptr;  /// 文件头
+  set<PageNum>  disposed_pages_;            /// 已经释放的页面
 
-  std::string file_name_;  /// 文件名
+  string file_name_;  /// 文件名
 
   common::Mutex lock_;
   common::Mutex wr_lock_;
@@ -324,7 +324,7 @@ public:
   BufferPoolManager(int memory_size = 0);
   ~BufferPoolManager();
 
-  RC init(std::unique_ptr<DoubleWriteBuffer> dblwr_buffer);
+  RC init(unique_ptr<DoubleWriteBuffer> dblwr_buffer);
 
   RC create_file(const char *file_name);
   RC open_file(LogHandler &log_handler, const char *file_name, DiskBufferPool *&bp);
@@ -346,10 +346,10 @@ public:
 private:
   BPFrameManager frame_manager_{"BufPool"};
 
-  std::unique_ptr<DoubleWriteBuffer> dblwr_buffer_;
+  unique_ptr<DoubleWriteBuffer> dblwr_buffer_;
 
-  common::Mutex                                     lock_;
-  std::unordered_map<std::string, DiskBufferPool *> buffer_pools_;
-  std::unordered_map<int32_t, DiskBufferPool *>     id_to_buffer_pools_;
-  std::atomic<int32_t>                              next_buffer_pool_id_{1};  // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
+  common::Mutex                            lock_;
+  unordered_map<string, DiskBufferPool *>  buffer_pools_;
+  unordered_map<int32_t, DiskBufferPool *> id_to_buffer_pools_;
+  atomic<int32_t>                          next_buffer_pool_id_{1};  // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
 };

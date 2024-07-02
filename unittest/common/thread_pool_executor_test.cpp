@@ -12,16 +12,14 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2024/01/11.
 //
 
-#include <memory>
-#include <atomic>
-
 #include "gtest/gtest.h"
+#include "common/lang/memory.h"
+#include "common/lang/atomic.h"
 #include "common/queue/queue.h"
 #include "common/queue/simple_queue.h"
 #include "common/thread/runnable.h"
 #include "common/thread/thread_pool_executor.h"
 
-using namespace std;
 using namespace common;
 
 class TestRunnable : public Runnable

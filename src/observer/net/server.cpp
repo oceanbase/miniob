@@ -42,7 +42,6 @@ See the Mulan PSL v2 for more details. */
 #include "net/thread_handler.h"
 #include "net/sql_task_handler.h"
 
-using namespace std;
 using namespace common;
 
 ServerParam::ServerParam()
@@ -96,9 +95,9 @@ void NetServer::accept(int fd)
     ::close(client_fd);
     return;
   }
-  std::stringstream address;
+  stringstream address;
   address << ip_addr << ":" << addr.sin_port;
-  std::string addr_str = address.str();
+  string addr_str = address.str();
 
   ret = set_non_block(client_fd);
   if (ret < 0) {

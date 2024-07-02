@@ -15,10 +15,13 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <stdint.h>
-#include <string>
+
 #include "common/types.h"
 #include "common/rc.h"
+#include "common/lang/span.h"
+#include "common/lang/string.h"
 #include "storage/clog/log_replayer.h"
+#include "sql/parser/parse_defs.h"
 
 struct RID;
 class LogHandler;
@@ -49,7 +52,7 @@ public:
   Type    type() const { return type_; }
   int32_t type_id() const { return static_cast<int32_t>(type_); }
 
-  std::string to_string() const;
+  string to_string() const;
 
 private:
   Type type_;
@@ -60,6 +63,8 @@ struct RecordLogHeader
   int32_t buffer_pool_id;
   int32_t operation_type;
   PageNum page_num;
+  int32_t storage_format;
+  int32_t column_num;
   union
   {
     SlotNum slot_num;
@@ -68,7 +73,7 @@ struct RecordLogHeader
 
   char data[0];
 
-  std::string to_string() const;
+  string to_string() const;
 
   static const int32_t SIZE;
 };
@@ -79,7 +84,7 @@ public:
   RecordLogHandler()  = default;
   ~RecordLogHandler() = default;
 
-  RC init(LogHandler &log_handler, int32_t buffer_pool_id, int32_t record_size);
+  RC init(LogHandler &log_handler, int32_t buffer_pool_id, int32_t record_size, StorageFormat storage_format);
 
   /**
    * @brief 初始化一个新的页面
@@ -92,8 +97,9 @@ public:
    * 或者页面在访问时会出现异常。
    * @param frame 页帧
    * @param page_num 页面编号
+   * @param data 页面数据目前主要是 `column index`
    */
-  RC init_new_page(Frame *frame, PageNum page_num);
+  RC init_new_page(Frame *frame, PageNum page_num, span<const char> data);
 
   /**
    * @brief 插入一条记录
@@ -120,9 +126,10 @@ public:
   RC update_record(Frame *frame, const RID &rid, const char *record);
 
 private:
-  LogHandler *log_handler_    = nullptr;
-  int32_t     buffer_pool_id_ = -1;
-  int32_t     record_size_    = -1;
+  LogHandler   *log_handler_    = nullptr;
+  int32_t       buffer_pool_id_ = -1;
+  int32_t       record_size_    = -1;
+  StorageFormat storage_format_ = StorageFormat::ROW_FORMAT;
 };
 
 /**

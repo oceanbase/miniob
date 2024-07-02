@@ -38,15 +38,23 @@ class Trx;
 enum class PhysicalOperatorType
 {
   TABLE_SCAN,
+  TABLE_SCAN_VEC,
   INDEX_SCAN,
   NESTED_LOOP_JOIN,
   EXPLAIN,
   PREDICATE,
+  PREDICATE_VEC,
   PROJECT,
+  PROJECT_VEC,
   CALC,
   STRING_LIST,
   DELETE,
   INSERT,
+  SCALAR_GROUP_BY,
+  HASH_GROUP_BY,
+  GROUP_BY_VEC,
+  AGGREGATE_VEC,
+  EXPR_VEC,
 };
 
 /**
@@ -58,7 +66,7 @@ class PhysicalOperator
 public:
   PhysicalOperator() = default;
 
-  virtual ~PhysicalOperator();
+  virtual ~PhysicalOperator() = default;
 
   /**
    * 这两个函数是为了打印时使用的，比如在explain中
@@ -69,10 +77,13 @@ public:
   virtual PhysicalOperatorType type() const = 0;
 
   virtual RC open(Trx *trx) = 0;
-  virtual RC next()         = 0;
-  virtual RC close()        = 0;
+  virtual RC next() { return RC::UNIMPLENMENT; }
+  virtual RC next(Chunk &chunk) { return RC::UNIMPLENMENT; }
+  virtual RC close() = 0;
 
-  virtual Tuple *current_tuple() = 0;
+  virtual Tuple *current_tuple() { return nullptr; }
+
+  virtual RC tuple_schema(TupleSchema &schema) const { return RC::UNIMPLENMENT; }
 
   void add_child(std::unique_ptr<PhysicalOperator> oper) { children_.emplace_back(std::move(oper)); }
 

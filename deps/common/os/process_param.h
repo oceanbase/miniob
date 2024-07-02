@@ -14,8 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "common/lang/string.h"
+#include "common/lang/vector.h"
+
 namespace common {
 
 class ProcessParam
@@ -26,31 +27,31 @@ public:
 
   virtual ~ProcessParam() {}
 
-  void init_default(std::string &process_name);
+  void init_default(string &process_name);
 
-  const std::string &get_std_out() const { return std_out_; }
+  const string &get_std_out() const { return std_out_; }
 
-  void set_std_out(const std::string &std_out) { ProcessParam::std_out_ = std_out; }
+  void set_std_out(const string &std_out) { ProcessParam::std_out_ = std_out; }
 
-  const std::string &get_std_err() const { return std_err_; }
+  const string &get_std_err() const { return std_err_; }
 
-  void set_std_err(const std::string &std_err) { ProcessParam::std_err_ = std_err; }
+  void set_std_err(const string &std_err) { ProcessParam::std_err_ = std_err; }
 
-  const std::string &get_conf() const { return conf; }
+  const string &get_conf() const { return conf; }
 
-  void set_conf(const std::string &conf) { ProcessParam::conf = conf; }
+  void set_conf(const string &conf) { ProcessParam::conf = conf; }
 
-  const std::string &get_process_name() const { return process_name_; }
+  const string &get_process_name() const { return process_name_; }
 
-  void set_process_name(const std::string &processName) { ProcessParam::process_name_ = processName; }
+  void set_process_name(const string &processName) { ProcessParam::process_name_ = processName; }
 
   bool is_demon() const { return demon; }
 
   void set_demon(bool demon) { ProcessParam::demon = demon; }
 
-  const std::vector<std::string> &get_args() const { return args; }
+  const vector<string> &get_args() const { return args; }
 
-  void set_args(const std::vector<std::string> &args) { ProcessParam::args = args; }
+  void set_args(const vector<string> &args) { ProcessParam::args = args; }
 
   void set_server_port(int port) { server_port_ = port; }
 
@@ -58,11 +59,11 @@ public:
 
   void set_unix_socket_path(const char *unix_socket_path) { unix_socket_path_ = unix_socket_path; }
 
-  const std::string &get_unix_socket_path() const { return unix_socket_path_; }
+  const string &get_unix_socket_path() const { return unix_socket_path_; }
 
   void set_protocol(const char *protocol) { protocol_ = protocol; }
 
-  const std::string &get_protocol() const { return protocol_; }
+  const string &get_protocol() const { return protocol_; }
 
   void set_trx_kit_name(const char *kit_name)
   {
@@ -70,7 +71,7 @@ public:
       trx_kit_name_ = kit_name;
     }
   }
-  const std::string &trx_kit_name() const { return trx_kit_name_; }
+  const string &trx_kit_name() const { return trx_kit_name_; }
 
   void set_thread_handling_name(const char *thread_handling_name)
   {
@@ -79,29 +80,29 @@ public:
     }
   }
 
-  const std::string &thread_handling_name() const { return thread_handling_name_; }
+  const string &thread_handling_name() const { return thread_handling_name_; }
 
   void set_buffer_pool_memory_size(int bytes) { buffer_pool_memory_size_ = bytes; }
 
   int buffer_pool_memory_size() const { return buffer_pool_memory_size_; }
 
-  void               set_durability_mode(const char *mode) { durability_mode_ = mode; }
-  const std::string &durability_mode() const { return durability_mode_; }
+  void          set_durability_mode(const char *mode) { durability_mode_ = mode; }
+  const string &durability_mode() const { return durability_mode_; }
 
 private:
-  std::string              std_out_;           // The output file
-  std::string              std_err_;           // The err output file
-  std::string              conf;               // The configuration file
-  std::string              process_name_;      // The process name
-  bool                     demon = false;      // whether demon or not
-  std::vector<std::string> args;               // arguments
-  int                      server_port_ = -1;  // server port(if valid, will overwrite the port in the config file)
-  std::string              unix_socket_path_;
-  std::string              protocol_;
-  std::string              trx_kit_name_;
-  std::string              thread_handling_name_;
-  int                      buffer_pool_memory_size_ = -1;
-  std::string              durability_mode_;
+  string         std_out_;           // The output file
+  string         std_err_;           // The err output file
+  string         conf;               // The configuration file
+  string         process_name_;      // The process name
+  bool           demon = false;      // whether demon or not
+  vector<string> args;               // arguments
+  int            server_port_ = -1;  // server port(if valid, will overwrite the port in the config file)
+  string         unix_socket_path_;
+  string         protocol_;
+  string         trx_kit_name_;
+  string         thread_handling_name_;
+  int            buffer_pool_memory_size_ = -1;
+  string         durability_mode_;
 };
 
 ProcessParam *&the_process_param();

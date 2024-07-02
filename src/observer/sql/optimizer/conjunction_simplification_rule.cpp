@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 
 RC try_to_get_bool_constant(std::unique_ptr<Expression> &expr, bool &constant_value)
 {
-  if (expr->type() == ExprType::VALUE && expr->value_type() == BOOLEANS) {
+  if (expr->type() == ExprType::VALUE && expr->value_type() == AttrType::BOOLEANS) {
     auto value_expr = static_cast<ValueExpr *>(expr.get());
     constant_value  = value_expr->get_value().get_boolean();
     return RC::SUCCESS;

@@ -12,11 +12,10 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai on 2024/01/31
 //
 
-#include <mutex>
 #include "storage/clog/log_buffer.h"
 #include "storage/clog/log_file.h"
+#include "common/lang/chrono.h"
 
-using namespace std;
 using namespace common;
 
 RC LogEntryBuffer::init(LSN lsn, int32_t max_bytes /*= 0*/)

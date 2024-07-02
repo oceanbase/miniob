@@ -14,13 +14,12 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <thread>
-#include <memory>
-#include <deque>
-#include <vector>
-
 #include "common/types.h"
 #include "common/rc.h"
+#include "common/lang/vector.h"
+#include "common/lang/deque.h"
+#include "common/lang/memory.h"
+#include "common/lang/thread.h"
 #include "storage/clog/log_module.h"
 #include "storage/clog/log_file.h"
 #include "storage/clog/log_buffer.h"
@@ -89,7 +88,7 @@ public:
    * @param consumer 消费者
    * @param start_lsn 从哪个位置开始迭代
    */
-  RC iterate(std::function<RC(LogEntry &)> consumer, LSN start_lsn) override;
+  RC iterate(function<RC(LogEntry &)> consumer, LSN start_lsn) override;
 
   /**
    * @brief 等待指定的日志刷盘
@@ -111,7 +110,7 @@ private:
    * @param[in] module  日志模块
    * @param[in] data    日志数据。具体的数据由各个模块自己定义
    */
-  RC _append(LSN &lsn, LogModule module, std::vector<char> &&data) override;
+  RC _append(LSN &lsn, LogModule module, vector<char> &&data) override;
 
 private:
   /**
@@ -120,11 +119,11 @@ private:
   void thread_func();
 
 private:
-  std::unique_ptr<std::thread> thread_;          /// 刷新日志的线程
-  std::atomic_bool             running_{false};  /// 是否还要继续运行
+  unique_ptr<thread> thread_;          /// 刷新日志的线程
+  atomic_bool        running_{false};  /// 是否还要继续运行
 
   LogFileManager file_manager_;  /// 管理所有的日志文件
   LogEntryBuffer entry_buffer_;  /// 缓存日志
 
-  std::string path_;  /// 日志文件存放的目录
+  string path_;  /// 日志文件存放的目录
 };

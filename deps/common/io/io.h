@@ -14,10 +14,11 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
 #include <vector>
 
 #include "common/defs.h"
+#include "common/lang/string.h"
+#include "common/lang/vector.h"
 
 namespace common {
 
@@ -26,14 +27,14 @@ namespace common {
  * if success, store file continent to data
  * if fail, return -1 and don't change data
  */
-int readFromFile(const std::string &fileName, char *&data, size_t &fileSize);
+int readFromFile(const string &fileName, char *&data, size_t &fileSize);
 
-int writeToFile(const std::string &fileName, const char *data, uint32_t dataSize, const char *openMode);
+int writeToFile(const string &fileName, const char *data, uint32_t dataSize, const char *openMode);
 
 /**
  * return the line number which line.strip() isn't empty
  */
-int getFileLines(const std::string &fileName, uint64_t &lineNum);
+int getFileLines(const string &fileName, uint64_t &lineNum);
 
 /** Get file list from the dir
  * don't care ".", "..", ".****" hidden files
@@ -45,12 +46,11 @@ int getFileLines(const std::string &fileName, uint64_t &lineNum);
  * @param[in]   resursion  if this has been set, it will search subdirs
  * @return  0   if success, error code otherwise
  */
-int getFileList(
-    std::vector<std::string> &fileList, const std::string &path, const std::string &pattern, bool recursive);
-int getFileNum(uint64_t &fileNum, const std::string &path, const std::string &pattern, bool recursive);
-int getDirList(std::vector<std::string> &dirList, const std::string &path, const std::string &pattern);
+int getFileList(vector<string> &fileList, const string &path, const string &pattern, bool recursive);
+int getFileNum(uint64_t &fileNum, const string &path, const string &pattern, bool recursive);
+int getDirList(vector<string> &dirList, const string &path, const string &pattern);
 
-int touch(const std::string &fileName);
+int touch(const string &fileName);
 
 /**
  * get file size

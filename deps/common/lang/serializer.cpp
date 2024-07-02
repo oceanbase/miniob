@@ -16,8 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/serializer.h"
 
-using namespace std;
-
 namespace common {
 int Serializer::write(span<const char> data)
 {

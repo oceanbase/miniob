@@ -40,6 +40,7 @@ enum class LogicalOperatorType
   INSERT,      ///< 插入
   DELETE,      ///< 删除，删除可能会有子查询
   EXPLAIN,     ///< 查看执行计划
+  GROUP_BY,    ///< 分组
 };
 
 /**
@@ -54,9 +55,10 @@ public:
 
   virtual LogicalOperatorType type() const = 0;
 
-  void                                           add_child(std::unique_ptr<LogicalOperator> oper);
-  std::vector<std::unique_ptr<LogicalOperator>> &children() { return children_; }
-  std::vector<std::unique_ptr<Expression>>      &expressions() { return expressions_; }
+  void        add_child(std::unique_ptr<LogicalOperator> oper);
+  auto        children() -> std::vector<std::unique_ptr<LogicalOperator>>        &{ return children_; }
+  auto        expressions() -> std::vector<std::unique_ptr<Expression>>        &{ return expressions_; }
+  static bool can_generate_vectorized_operator(const LogicalOperatorType &type);
 
 protected:
   std::vector<std::unique_ptr<LogicalOperator>> children_;  ///< 子算子

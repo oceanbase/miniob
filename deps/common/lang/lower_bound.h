@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <iterator>
+#include "common/lang/iterator.h"
 
 namespace common {
 /**
@@ -34,12 +34,12 @@ ForwardIterator lower_bound(
 {
   bool            found = false;
   ForwardIterator iter;
-  const auto      count      = std::distance(first, last);
+  const auto      count      = distance(first, last);
   auto            last_count = count;
   while (last_count > 0) {
     iter      = first;
     auto step = last_count / 2;
-    std::advance(iter, step);
+    advance(iter, step);
     int result = comp(*iter, val);
     if (0 == result) {
       first = iter;
@@ -91,7 +91,7 @@ template <typename T, typename Distance = ptrdiff_t>
 class BinaryIterator
 {
 public:
-  using iterator_category = std::random_access_iterator_tag;
+  using iterator_category = random_access_iterator_tag;
   using value_type        = T;
   using difference_type   = Distance;
   using pointer           = value_type *;

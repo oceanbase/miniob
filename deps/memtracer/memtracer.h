@@ -11,10 +11,11 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <cstdlib>
-#include <atomic>
-#include <thread>
-#include <mutex>
+
 #include "memtracer/common.h"
+#include "common/lang/thread.h"
+#include "common/lang/atomic.h"
+#include "common/lang/mutex.h"
 
 namespace memtracer {
 
@@ -52,14 +53,14 @@ public:
 
   void set_memory_limit(size_t memory_limit)
   {
-    std::call_once(memory_limit_once_, [&]() { memory_limit_ = memory_limit; });
+    call_once(memory_limit_once_, [&]() { memory_limit_ = memory_limit; });
   }
 
   void alloc(size_t size);
 
   void free(size_t size);
 
-  inline void init_hook_funcs() { std::call_once(init_hook_funcs_once_, init_hook_funcs_impl); }
+  inline void init_hook_funcs() { call_once(init_hook_funcs_once_, init_hook_funcs_impl); }
 
 private:
   static void init_hook_funcs_impl();
@@ -71,14 +72,14 @@ private:
   static void stat();
 
 private:
-  bool                is_stop_ = false;
-  std::atomic<size_t> allocated_memory_{};
-  std::atomic<size_t> alloc_cnt_{};
-  std::atomic<size_t> free_cnt_{};
-  std::once_flag      init_hook_funcs_once_;
-  std::once_flag      memory_limit_once_;
-  size_t              memory_limit_      = UINT64_MAX;
-  size_t              print_interval_ms_ = 0;
-  std::thread         t_;
+  bool           is_stop_ = false;
+  atomic<size_t> allocated_memory_{};
+  atomic<size_t> alloc_cnt_{};
+  atomic<size_t> free_cnt_{};
+  once_flag      init_hook_funcs_once_;
+  once_flag      memory_limit_once_;
+  size_t         memory_limit_      = UINT64_MAX;
+  size_t         print_interval_ms_ = 0;
+  thread         t_;
 };
 }  // namespace memtracer

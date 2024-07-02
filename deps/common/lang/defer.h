@@ -14,14 +14,14 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <functional>
+#include "common/lang/functional.h"
 
 namespace common {
 
 class DeferHelper
 {
 public:
-  DeferHelper(const std::function<void()> defer) : defer_(std::move(defer)) {}
+  DeferHelper(const function<void()> defer) : defer_(std::move(defer)) {}
 
   ~DeferHelper()
   {
@@ -31,7 +31,7 @@ public:
   }
 
 private:
-  const std::function<void()> defer_;
+  const function<void()> defer_;
 };
 
 }  // namespace common

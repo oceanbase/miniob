@@ -14,10 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-#include <memory>
-
 #include "common/rc.h"
+#include "common/lang/string.h"
+#include "common/lang/memory.h"
 
 struct ConnectionContext;
 class SessionEvent;
@@ -47,7 +46,7 @@ public:
   /**
    * @brief 接收到一个新的连接时，进行初始化
    */
-  virtual RC init(int fd, std::unique_ptr<Session> session, const std::string &addr);
+  virtual RC init(int fd, unique_ptr<Session> session, const string &addr);
 
   /**
    * @brief 监听到有新的数据到达，调用此函数进行接收消息
@@ -81,10 +80,10 @@ public:
   int fd() const { return fd_; }
 
 protected:
-  std::unique_ptr<Session> session_;
-  std::string              addr_;
-  BufferedWriter          *writer_ = nullptr;
-  int                      fd_     = -1;
+  unique_ptr<Session> session_;
+  string              addr_;
+  BufferedWriter     *writer_ = nullptr;
+  int                 fd_     = -1;
 };
 
 /**

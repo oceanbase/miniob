@@ -49,7 +49,7 @@ RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bo
     return rc;
   }
 
-  if (!predicate_expr) {
+  if (!predicate_expr || is_empty_predicate(predicate_expr)) {
     // 所有的表达式都下推到了下层算子
     // 这个predicate operator其实就可以不要了。但是这里没办法删除，弄一个空的表达式吧
     LOG_TRACE("all expressions of predicate operator were pushdown to table get operator, then make a fake one");
@@ -63,6 +63,23 @@ RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bo
     table_get_oper->set_predicates(std::move(pushdown_exprs));
   }
   return rc;
+}
+
+bool PredicatePushdownRewriter::is_empty_predicate(std::unique_ptr<Expression> &expr)
+{
+  bool bool_ret = false;
+  if (!expr) {
+    return true;
+  }
+
+  if (expr->type() == ExprType::CONJUNCTION) {
+    ConjunctionExpr *conjunction_expr = static_cast<ConjunctionExpr *>(expr.get());
+    if (conjunction_expr->children().empty()) {
+      bool_ret = true;
+    }
+  }
+
+  return bool_ret;
 }
 
 /**
@@ -79,6 +96,8 @@ RC PredicatePushdownRewriter::get_exprs_can_pushdown(
     ConjunctionExpr *conjunction_expr = static_cast<ConjunctionExpr *>(expr.get());
     // 或 操作的比较，太复杂，现在不考虑
     if (conjunction_expr->conjunction_type() == ConjunctionExpr::Type::OR) {
+      LOG_WARN("unsupported or operation");
+      rc = RC::UNIMPLENMENT;
       return rc;
     }
 
@@ -101,12 +120,6 @@ RC PredicatePushdownRewriter::get_exprs_can_pushdown(
   } else if (expr->type() == ExprType::COMPARISON) {
     // 如果是比较操作，并且比较的左边或右边是表某个列值，那么就下推下去
     auto   comparison_expr = static_cast<ComparisonExpr *>(expr.get());
-    CompOp comp            = comparison_expr->comp();
-    if (comp != EQUAL_TO) {
-      // 简单处理，仅取等值比较。当然还可以取一些范围比较，还有 like % 等操作
-      // 其它的还有 is null 等
-      return rc;
-    }
 
     std::unique_ptr<Expression> &left_expr  = comparison_expr->left();
     std::unique_ptr<Expression> &right_expr = comparison_expr->right();

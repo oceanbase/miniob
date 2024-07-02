@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #pragma once
-#include <sys/mman.h>  // mmap/munmap
+//#include <sys/mman.h>  // mmap/munmap
 
 #include "memtracer/common.h"
 #include "memtracer/memtracer.h"
@@ -48,14 +48,21 @@ mt_visible void  operator delete(void *ptr, std::size_t size) noexcept;
 mt_visible void  operator delete[](void *ptr, std::size_t size) noexcept;
 
 // unsupported libc functions, for simpler memory tracking.
-extern "C" mt_visible char    *realpath(const char *fname, char *resolved_name);
-extern "C" mt_visible void    *memalign(size_t alignment, size_t size);
-extern "C" mt_visible void    *valloc(size_t size);
-extern "C" mt_visible void    *pvalloc(size_t size);
-extern "C" mt_visible int      posix_memalign(void **memptr, size_t alignment, size_t size);
+extern "C" mt_visible char *realpath(const char *fname, char *resolved_name);
+extern "C" mt_visible void *memalign(size_t alignment, size_t size);
+extern "C" mt_visible void *valloc(size_t size);
+extern "C" mt_visible void *pvalloc(size_t size);
+extern "C" mt_visible int   posix_memalign(void **memptr, size_t alignment, size_t size);
+
+#ifdef LINUX
 extern "C" mt_visible int      brk(void *addr);
 extern "C" mt_visible void    *sbrk(intptr_t increment);
 extern "C" mt_visible long int syscall(long int __sysno, ...);
+#elif defined(__MACH__)
+extern "C" mt_visible void *brk(const void *addr);
+extern "C" mt_visible void *sbrk(int increment);
+extern "C" mt_visible int   syscall(int __sysno, ...);
+#endif
 
 // forword libc interface
 #if defined(__GLIBC__) && defined(__linux__)

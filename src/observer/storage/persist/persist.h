@@ -18,11 +18,11 @@ See the Mulan PSL v2 for more details. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include "common/rc.h"
+#include "common/lang/string.h"
 
 class PersistHandler
 {
@@ -61,6 +61,6 @@ public:
   RC seek(uint64_t offset);
 
 private:
-  std::string file_name_;
-  int         file_desc_ = -1;
+  string file_name_;
+  int    file_desc_ = -1;
 };

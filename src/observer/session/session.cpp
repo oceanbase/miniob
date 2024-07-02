@@ -44,7 +44,7 @@ const char *Session::get_current_db_name() const
 
 Db *Session::get_current_db() const { return db_; }
 
-void Session::set_current_db(const std::string &dbname)
+void Session::set_current_db(const string &dbname)
 {
   DefaultHandler &handler = *GCTX.handler_;
   Db             *db      = handler.find_db(dbname.c_str());

@@ -15,7 +15,6 @@ See the Mulan PSL v2 for more details. */
 #include "session_stage.h"
 
 #include <string.h>
-#include <string>
 
 #include "common/conf/ini.h"
 #include "common/lang/mutex.h"
@@ -35,7 +34,7 @@ SessionStage::~SessionStage() {}
 // TODO remove me
 void SessionStage::handle_request(SessionEvent *sev)
 {
-  std::string sql = sev->query();
+  string sql = sev->query();
   if (common::is_blank(sql.c_str())) {
     return;
   }
@@ -58,7 +57,7 @@ void SessionStage::handle_request(SessionEvent *sev)
 
 void SessionStage::handle_request2(SessionEvent *event)
 {
-  const std::string &sql = event->query();
+  const string &sql = event->query();
   if (common::is_blank(sql.c_str())) {
     return;
   }

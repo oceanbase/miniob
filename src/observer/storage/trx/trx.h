@@ -14,12 +14,11 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <mutex>
 #include <stddef.h>
-#include <unordered_set>
 #include <utility>
 
 #include "common/rc.h"
+#include "common/lang/mutex.h"
 #include "sql/parser/parse.h"
 #include "storage/field/field_meta.h"
 #include "storage/record/record_manager.h"
@@ -114,8 +113,8 @@ public:
   TrxKit()          = default;
   virtual ~TrxKit() = default;
 
-  virtual RC                            init()             = 0;
-  virtual const std::vector<FieldMeta> *trx_fields() const = 0;
+  virtual RC                       init()             = 0;
+  virtual const vector<FieldMeta> *trx_fields() const = 0;
 
   virtual Trx *create_trx(LogHandler &log_handler) = 0;
 
@@ -124,7 +123,7 @@ public:
    */
   virtual Trx *create_trx(LogHandler &log_handler, int32_t trx_id) = 0;
   virtual Trx *find_trx(int32_t trx_id)                            = 0;
-  virtual void all_trxes(std::vector<Trx *> &trxes)                = 0;
+  virtual void all_trxes(vector<Trx *> &trxes)                     = 0;
 
   virtual void destroy_trx(Trx *trx) = 0;
 

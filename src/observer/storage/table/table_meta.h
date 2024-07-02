@@ -20,6 +20,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/serializable.h"
 #include "common/rc.h"
+#include "common/types.h"
 #include "storage/field/field_meta.h"
 #include "storage/index/index_meta.h"
 
@@ -30,27 +31,28 @@ See the Mulan PSL v2 for more details. */
 class TableMeta : public common::Serializable
 {
 public:
-  TableMeta()  = default;
-  ~TableMeta() = default;
+  TableMeta()          = default;
+  virtual ~TableMeta() = default;
 
   TableMeta(const TableMeta &other);
 
   void swap(TableMeta &other) noexcept;
 
   RC init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields,
-      std::span<const AttrInfoSqlNode> attributes);
+      std::span<const AttrInfoSqlNode> attributes, StorageFormat storage_format);
 
   RC add_index(const IndexMeta &index);
 
 public:
-  int32_t          table_id() const { return table_id_; }
-  const char      *name() const;
-  const FieldMeta *trx_field() const;
-  const FieldMeta *field(int index) const;
-  const FieldMeta *field(const char *name) const;
-  const FieldMeta *find_field_by_offset(int offset) const;
-  auto             field_metas() const -> const std::vector<FieldMeta>             *{ return &fields_; }
-  auto             trx_fields() const -> std::span<const FieldMeta>;
+  int32_t             table_id() const { return table_id_; }
+  const char         *name() const;
+  const FieldMeta    *trx_field() const;
+  const FieldMeta    *field(int index) const;
+  const FieldMeta    *field(const char *name) const;
+  const FieldMeta    *find_field_by_offset(int offset) const;
+  auto                field_metas() const -> const std::vector<FieldMeta>                *{ return &fields_; }
+  auto                trx_fields() const -> std::span<const FieldMeta>;
+  const StorageFormat storage_format() const { return storage_format_; }
 
   int field_num() const;  // sys field included
   int sys_field_num() const;
@@ -75,6 +77,7 @@ protected:
   std::vector<FieldMeta> trx_fields_;
   std::vector<FieldMeta> fields_;  // 包含sys_fields
   std::vector<IndexMeta> indexes_;
+  StorageFormat          storage_format_;
 
   int record_size_ = 0;
 };

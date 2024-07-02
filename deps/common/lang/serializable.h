@@ -12,10 +12,10 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2010
 //
 
-#ifndef __COMMON_LANG_SERIALIZABLE_H__
-#define __COMMON_LANG_SERIALIZABLE_H__
+#pragma once
 
-#include <string>
+#include "common/lang/string.h"
+#include "common/lang/iostream.h"
 namespace common {
 
 /**
@@ -49,7 +49,7 @@ public:
    * @param[in] bufferLen, buffer length
    * @return,              used buffer length -- success, -1 means failed
    */
-  virtual int serialize(std::ostream &os) const = 0;
+  virtual int serialize(ostream &os) const = 0;
 
   /*
    * deserialize bytes to this object
@@ -57,7 +57,7 @@ public:
    * @param[in] bufferLen   buffer lenght
    * @return                used buffer length -- success , -1 --failed
    */
-  virtual int deserialize(std::istream &is) = 0;
+  virtual int deserialize(istream &is) = 0;
 
   /**
    * get serialize size
@@ -68,8 +68,7 @@ public:
   /**
    * this function will generalize one output string
    */
-  virtual void to_string(std::string &output) const = 0;
+  virtual void to_string(string &output) const = 0;
 };
 
 }  // namespace common
-#endif /* __COMMON_LANG_SERIALIZABLE_H__ */

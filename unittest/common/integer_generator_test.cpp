@@ -15,7 +15,6 @@ See the Mulan PSL v2 for more details. */
 #include "gtest/gtest.h"
 #include "common/math/integer_generator.h"
 
-using namespace std;
 using namespace common;
 
 TEST(IntegerGenerator, test)

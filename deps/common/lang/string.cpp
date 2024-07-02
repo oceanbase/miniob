@@ -18,14 +18,12 @@ See the Mulan PSL v2 for more details. */
 #include <errno.h>
 #include <string.h>
 
-#include <algorithm>
-#include <fstream>
 #include <iomanip>
-#include <iostream>
-#include <memory>
-#include <string>
 
 #include "common/log/log.h"
+#include "common/lang/algorithm.h"
+#include "common/lang/iomanip.h"
+
 namespace common {
 
 char *strip(char *str_)
@@ -46,7 +44,7 @@ char *strip(char *str_)
   return head;
 }
 
-void strip(std::string &str)
+void strip(string &str)
 {
   size_t head = 0;
 
@@ -63,29 +61,29 @@ void strip(std::string &str)
 }
 
 // Translation functions with templates are defined in the header file
-std::string size_to_pad_str(int size, int pad)
+string size_to_pad_str(int size, int pad)
 {
-  std::ostringstream ss;
-  ss << std::setw(pad) << std::setfill('0') << size;
+  ostringstream ss;
+  ss << setw(pad) << setfill('0') << size;
   return ss.str();
 }
 
-std::string &str_to_upper(std::string &s)
+string &str_to_upper(string &s)
 {
-  std::transform(s.begin(), s.end(), s.begin(), (int (*)(int)) & std::toupper);
+  transform(s.begin(), s.end(), s.begin(), (int (*)(int)) & toupper);
   return s;
 }
 
-std::string &str_to_lower(std::string &s)
+string &str_to_lower(string &s)
 {
-  std::transform(s.begin(), s.end(), s.begin(), (int (*)(int)) & std::tolower);
+  transform(s.begin(), s.end(), s.begin(), (int (*)(int)) & tolower);
   return s;
 }
 
-void split_string(const std::string &str, std::string delim, std::set<std::string> &results)
+void split_string(const string &str, string delim, set<string> &results)
 {
-  int         cut_at;
-  std::string tmp_str(str);
+  int    cut_at;
+  string tmp_str(str);
   while ((cut_at = tmp_str.find_first_of(delim)) != (signed)tmp_str.npos) {
     if (cut_at > 0) {
       results.insert(tmp_str.substr(0, cut_at));
@@ -98,10 +96,10 @@ void split_string(const std::string &str, std::string delim, std::set<std::strin
   }
 }
 
-void split_string(const std::string &str, std::string delim, std::vector<std::string> &results)
+void split_string(const string &str, string delim, vector<string> &results)
 {
-  int         cut_at;
-  std::string tmp_str(str);
+  int    cut_at;
+  string tmp_str(str);
   while ((cut_at = tmp_str.find_first_of(delim)) != (signed)tmp_str.npos) {
     if (cut_at > 0) {
       results.push_back(tmp_str.substr(0, cut_at));
@@ -114,7 +112,7 @@ void split_string(const std::string &str, std::string delim, std::vector<std::st
   }
 }
 
-void split_string(char *str, char dim, std::vector<char *> &results, bool keep_null)
+void split_string(char *str, char dim, vector<char *> &results, bool keep_null)
 {
   char *p = str;
   char *l = p;
@@ -132,10 +130,9 @@ void split_string(char *str, char dim, std::vector<char *> &results, bool keep_n
   return;
 }
 
-void merge_string(std::string &str, std::string delim, std::vector<std::string> &source, size_t result_len)
+void merge_string(string &str, string delim, vector<string> &source, size_t result_len)
 {
-
-  std::ostringstream ss;
+  ostringstream ss;
   if (source.empty()) {
     str = ss.str();
     return;
@@ -157,7 +154,7 @@ void merge_string(std::string &str, std::string delim, std::vector<std::string> 
   return;
 }
 
-void replace(std::string &str, const std::string &old, const std::string &new_str)
+void replace(string &str, const string &old, const string &new_str)
 {
   if (old.compare(new_str) == 0) {
     return;
@@ -171,12 +168,12 @@ void replace(std::string &str, const std::string &old, const std::string &new_st
     return;
   }
 
-  std::string result;
+  string result;
 
   size_t index;
   size_t last_index = 0;
 
-  while ((index = str.find(old, last_index)) != std::string::npos) {
+  while ((index = str.find(old, last_index)) != string::npos) {
     result += str.substr(last_index, index - last_index);
     result += new_str;
     last_index = index + old.length();
@@ -270,7 +267,7 @@ char *substr(const char *s, int n1, int n2)
  * @param v
  * @return
  */
-std::string double_to_str(double v)
+string double_to_str(double v)
 {
   char buf[256];
   snprintf(buf, sizeof(buf), "%.2f", v);
@@ -282,6 +279,6 @@ std::string double_to_str(double v)
     len--;
   }
 
-  return std::string(buf, len);
+  return string(buf, len);
 }
 }  // namespace common

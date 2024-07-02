@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #ifndef CTESTLOG_H_
 #define CTESTLOG_H_
 
-#include <string>
+#include "common/lang/string.h"
 
 /*
  *
@@ -26,7 +26,7 @@ public:
   LogTest();
   virtual ~LogTest();
 
-  int init(const std::string &logFile = "test.log");
+  int init(const string &logFile = "test.log");
 
   void *log_loop(void *param);
 };

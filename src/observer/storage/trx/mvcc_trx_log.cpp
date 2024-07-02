@@ -21,7 +21,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "storage/table/table.h"
 
-using namespace std;
 using namespace common;
 
 string MvccTrxLogOperation::to_string() const

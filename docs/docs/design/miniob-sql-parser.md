@@ -121,7 +121,7 @@ create_table_stmt:    /*create table 语句的语法解析树*/
 
 将会生成词法分析代码 lex_sql.h 和 lex_sql.cpp，语法分析代码 yacc_sql.hpp 和 yacc_sql.cpp。
 
-注意：flex 使用 2.5.35 版本测试通过，bison使用**3.7**版本测试通过(请不要使用旧版本，比如macos自带的bision）。
+注意：flex 使用 2.5.35 版本测试通过，bison使用**3.7**版本测试通过（请不要使用旧版本，比如macos自带的bision）。
 
 注意：当前没有把lex_sql.l和yacc_sql.y加入CMakefile.txt中，所以修改这两个文件后，需要手动生成c代码，然后再执行编译。
 

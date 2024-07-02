@@ -20,7 +20,6 @@ See the Mulan PSL v2 for more details. */
 #include <algorithm>
 #include <numeric>
 #include <sstream>
-#include <stdexcept>
 
 namespace common {
 

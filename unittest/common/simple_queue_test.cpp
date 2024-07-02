@@ -12,11 +12,10 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2024/01/11.
 //
 
-#include <memory>
 #include "gtest/gtest.h"
+#include "common/lang/memory.h"
 #include "common/queue/simple_queue.h"
 
-using namespace std;
 using namespace common;
 
 TEST(SimpleQueue, test)

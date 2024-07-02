@@ -15,20 +15,20 @@ See the Mulan PSL v2 for more details. */
  *      Author: Longda Feng
  */
 
-#include <iostream>
 #include <netinet/in.h>
 #include <unistd.h>
 
 #include "common/ini_setting.h"
 #include "common/init.h"
+#include "common/lang/iostream.h"
 #include "common/lang/string.h"
+#include "common/lang/map.h"
 #include "common/os/process.h"
 #include "common/os/signal.h"
 #include "common/log/log.h"
 #include "net/server.h"
 #include "net/server_param.h"
 
-using namespace std;
 using namespace common;
 
 #define NET "NET"
@@ -37,7 +37,7 @@ static Server *g_server = nullptr;
 
 void usage()
 {
-  cout << "Useage " << endl;
+  cout << "Usage " << endl;
   cout << "-p: server port. if not specified, the item in the config file will be used" << endl;
   cout << "-f: path of config file." << endl;
   cout << "-s: use unix socket and the argument is socket address" << endl;
@@ -82,7 +82,7 @@ void parse_parameter(int argc, char **argv)
 
 Server *init_server()
 {
-  std::map<std::string, std::string> net_section = get_properties()->get(NET);
+  map<string, string> net_section = get_properties()->get(NET);
 
   ProcessParam *process_param = the_process_param();
 
@@ -90,15 +90,15 @@ Server *init_server()
   long max_connection_num = MAX_CONNECTION_NUM_DEFAULT;
   int  port               = PORT_DEFAULT;
 
-  std::map<std::string, std::string>::iterator it = net_section.find(CLIENT_ADDRESS);
+  map<string, string>::iterator it = net_section.find(CLIENT_ADDRESS);
   if (it != net_section.end()) {
-    std::string str = it->second;
+    string str = it->second;
     str_to_val(str, listen_addr);
   }
 
   it = net_section.find(MAX_CONNECTION_NUM);
   if (it != net_section.end()) {
-    std::string str = it->second;
+    string str = it->second;
     str_to_val(str, max_connection_num);
   }
 
@@ -108,7 +108,7 @@ Server *init_server()
   } else {
     it = net_section.find(PORT);
     if (it != net_section.end()) {
-      std::string str = it->second;
+      string str = it->second;
       str_to_val(str, port);
     }
   }
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
 
   rc = init(the_process_param());
   if (rc != STATUS_SUCCESS) {
-    std::cerr << "Shutdown due to failed to init!" << endl;
+    cerr << "Shutdown due to failed to init!" << endl;
     cleanup();
     return rc;
   }

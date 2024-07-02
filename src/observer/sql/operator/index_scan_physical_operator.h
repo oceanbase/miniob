@@ -54,9 +54,8 @@ private:
   IndexScanner      *index_scanner_  = nullptr;
   RecordFileHandler *record_handler_ = nullptr;
 
-  RecordPageHandler record_page_handler_;
-  Record            current_record_;
-  RowTuple          tuple_;
+  Record   current_record_;
+  RowTuple tuple_;
 
   Value left_value_;
   Value right_value_;

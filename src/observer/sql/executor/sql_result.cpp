@@ -69,8 +69,15 @@ RC SqlResult::next_tuple(Tuple *&tuple)
   return rc;
 }
 
+RC SqlResult::next_chunk(Chunk &chunk)
+{
+  RC rc = operator_->next(chunk);
+  return rc;
+}
+
 void SqlResult::set_operator(std::unique_ptr<PhysicalOperator> oper)
 {
   ASSERT(operator_ == nullptr, "current operator is not null. Result is not closed?");
   operator_ = std::move(oper);
+  operator_->tuple_schema(tuple_schema_);
 }

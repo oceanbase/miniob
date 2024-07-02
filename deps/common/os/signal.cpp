@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/os/signal.h"
 #include "common/log/log.h"
 #include "pthread.h"
+#include "common/lang/iostream.h"
+
 namespace common {
 
 void set_signal_handler(int sig, sighandler_t func)
@@ -26,7 +28,7 @@ void set_signal_handler(int sig, sighandler_t func)
 
   int rc = sigaction(sig, &newsa, &oldsa);
   if (rc) {
-    std::cerr << "Failed to set signal " << sig << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
+    cerr << "Failed to set signal " << sig << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << endl;
   }
 }
 

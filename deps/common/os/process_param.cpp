@@ -24,7 +24,7 @@ ProcessParam *&the_process_param()
   return process_cfg;
 }
 
-void ProcessParam::init_default(std::string &process_name)
+void ProcessParam::init_default(string &process_name)
 {
   assert(process_name.empty() == false);
   this->process_name_ = process_name;

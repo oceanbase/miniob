@@ -16,8 +16,6 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "session/thread_data.h"
 
-using namespace std;
-
 FrameId::FrameId(int buffer_pool_id, PageNum page_num) : buffer_pool_id_(buffer_pool_id), page_num_(page_num) {}
 
 bool FrameId::equal_to(const FrameId &other) const
@@ -120,7 +118,7 @@ void Frame::read_latch() { read_latch(get_default_debug_xid()); }
 void Frame::read_latch(intptr_t xid)
 {
   {
-    std::scoped_lock debug_lock(debug_lock_);
+    scoped_lock debug_lock(debug_lock_);
     ASSERT(pin_count_ > 0,
         "frame lock. read lock failed while pin count is invalid."
         "this=%p, pin=%d, frameId=%s, xid=%lx, lbt=%s",
@@ -149,7 +147,7 @@ bool Frame::try_read_latch()
 {
   intptr_t xid = get_default_debug_xid();
   {
-    std::scoped_lock debug_lock(debug_lock_);
+    scoped_lock debug_lock(debug_lock_);
     ASSERT(pin_count_ > 0,
         "frame try lock. read lock failed while pin count is invalid."
         "this=%p, pin=%d, frameId=%s, xid=%lx, lbt=%s",
@@ -181,7 +179,7 @@ void Frame::read_unlatch() { read_unlatch(get_default_debug_xid()); }
 void Frame::read_unlatch(intptr_t xid)
 {
   {
-    std::scoped_lock debug_lock(debug_lock_);
+    scoped_lock debug_lock(debug_lock_);
     ASSERT(pin_count_.load() > 0,
         "frame lock. read unlock failed while pin count is invalid."
         "this=%p, pin=%d, frameId=%s, xid=%lx, lbt=%s",
@@ -210,7 +208,7 @@ void Frame::read_unlatch(intptr_t xid)
 
 void Frame::pin()
 {
-  std::scoped_lock debug_lock(debug_lock_);
+  scoped_lock debug_lock(debug_lock_);
 
   [[maybe_unused]] intptr_t xid       = get_default_debug_xid();
   [[maybe_unused]] int      pin_count = ++pin_count_;
@@ -230,7 +228,7 @@ int Frame::unpin()
       "this=%p, pin=%d, frameId=%s, xid=%lx, lbt=%s",
       this, pin_count_.load(), frame_id_.to_string().c_str(), xid, lbt());
 
-  std::scoped_lock debug_lock(debug_lock_);
+  scoped_lock debug_lock(debug_lock_);
 
   int pin_count = --pin_count_;
   TRACE("after frame unpin. "

@@ -48,7 +48,6 @@ RC TableScanPhysicalOperator::next()
       break;
     } else {
       sql_debug("a tuple is filtered: %s", tuple_.to_string().c_str());
-      rc = RC::RECORD_EOF;
     }
   }
   return rc;

@@ -32,14 +32,14 @@ public:
   RC stop() override { return RC::SUCCESS; }
   RC await_termination() override { return RC::SUCCESS; }
   RC replay(LogReplayer &replayer, LSN start_lsn) override { return RC::SUCCESS; }
-  RC iterate(std::function<RC(LogEntry &)> consumer, LSN start_lsn) override { return RC::SUCCESS; }
+  RC iterate(function<RC(LogEntry &)> consumer, LSN start_lsn) override { return RC::SUCCESS; }
 
   RC wait_lsn(LSN lsn) override { return RC::SUCCESS; }
 
   LSN current_lsn() const override { return 0; }
 
 private:
-  RC _append(LSN &lsn, LogModule module, std::vector<char> &&) override
+  RC _append(LSN &lsn, LogModule module, vector<char> &&) override
   {
     lsn = 0;
     return RC::SUCCESS;

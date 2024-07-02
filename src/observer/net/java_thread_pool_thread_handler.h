@@ -14,11 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <map>
-
 #include "net/thread_handler.h"
 #include "net/sql_task_handler.h"
 #include "common/thread/thread_pool_executor.h"
+#include "common/lang/mutex.h"
 
 struct EventCallbackAg;
 
@@ -62,10 +61,10 @@ public:
   void event_loop_thread();
 
 private:
-  std::mutex                                  lock_;
-  struct event_base                          *event_base_ = nullptr;  /// libevent 的event_base
-  common::ThreadPoolExecutor                  executor_;              /// 线程池
-  std::map<Communicator *, EventCallbackAg *> event_map_;             /// 每个连接与它关联的数据
+  mutex                                  lock_;
+  struct event_base                     *event_base_ = nullptr;  /// libevent 的event_base
+  common::ThreadPoolExecutor             executor_;              /// 线程池
+  map<Communicator *, EventCallbackAg *> event_map_;             /// 每个连接与它关联的数据
 
   SqlTaskHandler sql_task_handler_;  /// SQL请求处理器
 };

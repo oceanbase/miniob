@@ -18,12 +18,12 @@ See the Mulan PSL v2 for more details. */
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include <string>
-
 #include "common/io/io.h"
 #include "common/log/log.h"
 #include "common/os/path.h"
 #include "common/os/process.h"
+#include "common/lang/iostream.h"
+
 namespace common {
 
 #ifdef __MACH__
@@ -35,9 +35,9 @@ namespace common {
 
 #define RWRR (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 
-std::string get_process_name(const char *prog_name)
+string get_process_name(const char *prog_name)
 {
-  std::string process_name;
+  string process_name;
 
   int buf_len = strlen(prog_name);
 
@@ -45,7 +45,7 @@ std::string get_process_name(const char *prog_name)
 
   char *buf = new char[buf_len + 1];
   if (buf == NULL) {
-    std::cerr << "Failed to alloc memory for program name." << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << std::endl;
+    cerr << "Failed to alloc memory for program name." << SYS_OUTPUT_FILE_POS << SYS_OUTPUT_ERROR << endl;
     return "";
   }
   snprintf(buf, buf_len + 1, "%s", prog_name);  // 第二个参数需为buf_len + 1
@@ -72,7 +72,7 @@ int daemonize_service(bool close_std_streams)
 #endif
   // Here after the fork; the parent is dead and setsid() is called
   if (rc != 0) {
-    std::cerr << "Error: unable to daemonize: " << strerror(errno) << "\n";
+    cerr << "Error: unable to daemonize: " << strerror(errno) << "\n";
   }
   return rc;
 }
@@ -82,7 +82,7 @@ int daemonize_service(const char *std_out_file, const char *std_err_file)
   int rc = daemonize_service(false);
 
   if (rc != 0) {
-    std::cerr << "Error: \n";
+    cerr << "Error: \n";
     return rc;
   }
 
@@ -106,7 +106,7 @@ void sys_log_redirect(const char *std_out_file, const char *std_err_file)
   struct timeval tv;
   rc = gettimeofday(&tv, NULL);
   if (rc != 0) {
-    std::cerr << "Fail to get current time" << std::endl;
+    cerr << "Fail to get current time" << endl;
     tv.tv_sec = 0;
   }
 
@@ -114,7 +114,7 @@ void sys_log_redirect(const char *std_out_file, const char *std_err_file)
   // Always use append-write. And if not exist, create it.
   std_err_flag = std_out_flag = O_CREAT | O_APPEND | O_WRONLY;
 
-  std::string err_file = getAboslutPath(std_err_file);
+  string err_file = getAboslutPath(std_err_file);
 
   // CWE367: A check occurs on a file's attributes before the file is
   // used in a privileged operation, but things may have changed
@@ -134,9 +134,9 @@ void sys_log_redirect(const char *std_out_file, const char *std_err_file)
     close(errfd);
   }
   setvbuf(stderr, NULL, _IONBF, 0);  // Make sure stderr is not buffering
-  std::cerr << "Process " << getpid() << " built error output at " << tv.tv_sec << std::endl;
+  cerr << "Process " << getpid() << " built error output at " << tv.tv_sec << endl;
 
-  std::string outFile = getAboslutPath(std_out_file);
+  string outFile = getAboslutPath(std_out_file);
 
   // Redirect stdout to outFile.c_str()
   // rc = stat(outFile.c_str(), &st);
@@ -152,7 +152,7 @@ void sys_log_redirect(const char *std_out_file, const char *std_err_file)
     close(outfd);
   }
   setvbuf(stdout, NULL, _IONBF, 0);  // Make sure stdout not buffering
-  std::cout << "Process " << getpid() << " built standard output at " << tv.tv_sec << std::endl;
+  cout << "Process " << getpid() << " built standard output at " << tv.tv_sec << endl;
 
   return;
 }

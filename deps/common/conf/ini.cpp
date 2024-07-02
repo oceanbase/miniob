@@ -19,28 +19,30 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/conf/ini.h"
 #include "common/defs.h"
+#include "common/lang/iostream.h"
 #include "common/lang/string.h"
+#include "common/lang/utility.h"
+#include "common/lang/fstream.h"
 #include "common/log/log.h"
 
 namespace common {
 
-const std::string                        Ini::DEFAULT_SECTION = std::string("");
-const std::map<std::string, std::string> Ini::empty_map_;
+const string              Ini::DEFAULT_SECTION = string("");
+const map<string, string> Ini::empty_map_;
 
 Ini::Ini() {}
 
 Ini::~Ini() {}
 
-void Ini::insert_session(const std::string &session_name)
+void Ini::insert_session(const string &session_name)
 {
-  std::map<std::string, std::string>                         session_map;
-  std::pair<std::string, std::map<std::string, std::string>> entry =
-      std::pair<std::string, std::map<std::string, std::string>>(session_name, session_map);
+  map<string, string>               session_map;
+  pair<string, map<string, string>> entry = pair<string, map<string, string>>(session_name, session_map);
 
   sections_.insert(entry);
 }
 
-std::map<std::string, std::string> *Ini::switch_session(const std::string &session_name)
+map<string, string> *Ini::switch_session(const string &session_name)
 {
   SessionsMap::iterator it = sections_.find(session_name);
   if (it != sections_.end()) {
@@ -58,7 +60,7 @@ std::map<std::string, std::string> *Ini::switch_session(const std::string &sessi
   return nullptr;
 }
 
-const std::map<std::string, std::string> &Ini::get(const std::string &section)
+const map<string, string> &Ini::get(const string &section)
 {
   SessionsMap::iterator it = sections_.find(section);
   if (it == sections_.end()) {
@@ -68,11 +70,11 @@ const std::map<std::string, std::string> &Ini::get(const std::string &section)
   return it->second;
 }
 
-std::string Ini::get(const std::string &key, const std::string &defaultValue, const std::string &section)
+string Ini::get(const string &key, const string &defaultValue, const string &section)
 {
-  std::map<std::string, std::string> section_map = get(section);
+  map<string, string> section_map = get(section);
 
-  std::map<std::string, std::string>::iterator it = section_map.find(key);
+  map<string, string>::iterator it = section_map.find(key);
   if (it == section_map.end()) {
     return defaultValue;
   }
@@ -80,51 +82,51 @@ std::string Ini::get(const std::string &key, const std::string &defaultValue, co
   return it->second;
 }
 
-int Ini::put(const std::string &key, const std::string &value, const std::string &section)
+int Ini::put(const string &key, const string &value, const string &section)
 {
-  std::map<std::string, std::string> *section_map = switch_session(section);
+  map<string, string> *section_map = switch_session(section);
 
-  section_map->insert(std::pair<std::string, std::string>(key, value));
+  section_map->insert(pair<string, string>(key, value));
 
   return 0;
 }
 
-int Ini::insert_entry(std::map<std::string, std::string> *session_map, const std::string &line)
+int Ini::insert_entry(map<string, string> *session_map, const string &line)
 {
   if (session_map == nullptr) {
-    std::cerr << __FILE__ << __FUNCTION__ << " session map is null" << std::endl;
+    cerr << __FILE__ << __FUNCTION__ << " session map is null" << endl;
     return -1;
   }
   size_t equal_pos = line.find_first_of('=');
-  if (equal_pos == std::string::npos) {
-    std::cerr << __FILE__ << __FUNCTION__ << "Invalid configuration line " << line << std::endl;
+  if (equal_pos == string::npos) {
+    cerr << __FILE__ << __FUNCTION__ << "Invalid configuration line " << line << endl;
     return -1;
   }
 
-  std::string key   = line.substr(0, equal_pos);
-  std::string value = line.substr(equal_pos + 1);
+  string key   = line.substr(0, equal_pos);
+  string value = line.substr(equal_pos + 1);
 
   strip(key);
   strip(value);
 
-  session_map->insert(std::pair<std::string, std::string>(key, value));
+  session_map->insert(pair<string, string>(key, value));
 
   return 0;
 }
 
-int Ini::load(const std::string &file_name)
+int Ini::load(const string &file_name)
 {
-  std::ifstream ifs;
+  ifstream ifs;
 
   try {
 
     bool continue_last_line = false;
 
-    std::map<std::string, std::string> *current_session = switch_session(DEFAULT_SECTION);
+    map<string, string> *current_session = switch_session(DEFAULT_SECTION);
 
     char line[MAX_CFG_LINE_LEN];
 
-    std::string line_entry;
+    string line_entry;
 
     ifs.open(file_name.c_str());
     while (ifs.good()) {
@@ -148,7 +150,7 @@ int Ini::load(const std::string &file_name)
       if (read_buf[0] == CFG_SESSION_START_TAG && read_buf[strlen(read_buf) - 1] == CFG_SESSION_END_TAG) {
 
         read_buf[strlen(read_buf) - 1] = '\0';
-        std::string session_name       = std::string(read_buf + 1);
+        string session_name            = string(read_buf + 1);
 
         current_session = switch_session(session_name);
 
@@ -177,19 +179,19 @@ int Ini::load(const std::string &file_name)
     ifs.close();
 
     file_names_.insert(file_name);
-    std::cout << "Successfully load " << file_name << std::endl;
+    cout << "Successfully load " << file_name << endl;
   } catch (...) {
     if (ifs.is_open()) {
       ifs.close();
     }
-    std::cerr << "Failed to load " << file_name << SYS_OUTPUT_ERROR << std::endl;
+    cerr << "Failed to load " << file_name << SYS_OUTPUT_ERROR << endl;
     return -1;
   }
 
   return 0;
 }
 
-void Ini::to_string(std::string &output_str)
+void Ini::to_string(string &output_str)
 {
   output_str.clear();
 
@@ -201,10 +203,9 @@ void Ini::to_string(std::string &output_str)
     output_str += CFG_SESSION_END_TAG;
     output_str += "\n";
 
-    std::map<std::string, std::string> &section_map = it->second;
+    map<string, string> &section_map = it->second;
 
-    for (std::map<std::string, std::string>::iterator sub_it = section_map.begin(); sub_it != section_map.end();
-         sub_it++) {
+    for (map<string, string>::iterator sub_it = section_map.begin(); sub_it != section_map.end(); sub_it++) {
       output_str += sub_it->first;
       output_str += "=";
       output_str += sub_it->second;

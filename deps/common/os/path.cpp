@@ -16,22 +16,23 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include <sys/stat.h>
 
-#include <vector>
-
 #include "common/defs.h"
 #include "common/log/log.h"
 #include "common/os/path.h"
+#include "common/lang/string.h"
+#include "common/lang/vector.h"
+
 namespace common {
 
-std::string getFileName(const std::string &fullPath)
+string getFileName(const string &fullPath)
 {
-  std::string szRt;
+  string szRt;
   size_t      pos;
   try {
     pos = fullPath.rfind(FILE_PATH_SPLIT);
-    if (pos != std::string::npos && pos < fullPath.size() - 1) {
+    if (pos != string::npos && pos < fullPath.size() - 1) {
       szRt = fullPath.substr(pos + 1, fullPath.size() - pos - 1);
-    } else if (pos == std::string::npos) {
+    } else if (pos == string::npos) {
       szRt = fullPath;
     } else {
       szRt = "";
@@ -41,7 +42,7 @@ std::string getFileName(const std::string &fullPath)
   return szRt;
 }
 
-void getFileName(const char *path, std::string &fileName)
+void getFileName(const char *path, string &fileName)
 {
   // Don't care the last character as FILE_PATH_SPLIT
   const char *endPos = strrchr(path, FILE_PATH_SPLIT);
@@ -59,15 +60,15 @@ void getFileName(const char *path, std::string &fileName)
   return;
 }
 
-std::string getDirName(const std::string &fullPath)
+string getDirName(const string &fullPath)
 {
-  std::string szRt;
+  string szRt;
   size_t      pos;
   try {
     pos = fullPath.rfind(FILE_PATH_SPLIT);
-    if (pos != std::string::npos && pos > 0) {
+    if (pos != string::npos && pos > 0) {
       szRt = fullPath.substr(0, pos);
-    } else if (pos == std::string::npos) {
+    } else if (pos == string::npos) {
       szRt = fullPath;
     } else {
       // pos == 0
@@ -77,7 +78,7 @@ std::string getDirName(const std::string &fullPath)
   } catch (...) {}
   return szRt;
 }
-void getDirName(const char *path, std::string &parent)
+void getDirName(const char *path, string &parent)
 {
   // Don't care the last character as FILE_PATH_SPLIT
   const char *endPos = strrchr(path, FILE_PATH_SPLIT);
@@ -95,15 +96,15 @@ void getDirName(const char *path, std::string &parent)
   return;
 }
 
-std::string getFilePath(const std::string &fullPath)
+string getFilePath(const string &fullPath)
 {
-  std::string szRt;
+  string szRt;
   size_t      pos;
   try {
     pos = fullPath.rfind("/");
-    if (pos != std::string::npos) {
+    if (pos != string::npos) {
       szRt = fullPath.substr(0, pos);
-    } else if (pos == std::string::npos) {
+    } else if (pos == string::npos) {
       szRt = fullPath;
     } else {
       szRt = "";
@@ -113,9 +114,9 @@ std::string getFilePath(const std::string &fullPath)
   return szRt;
 }
 
-std::string getAboslutPath(const char *path)
+string getAboslutPath(const char *path)
 {
-  std::string aPath(path);
+  string aPath(path);
   if (path[0] != '/') {
     const int MAX_SIZE = 256;
     char      current_absolute_path[MAX_SIZE];
@@ -132,7 +133,7 @@ bool is_directory(const char *path)
   return (0 == stat(path, &st)) && (st.st_mode & S_IFDIR);
 }
 
-bool check_directory(std::string &path)
+bool check_directory(string &path)
 {
   while (!path.empty() && path.back() == '/')
     path.erase(path.size() - 1, 1);
@@ -166,7 +167,7 @@ bool check_directory(std::string &path)
   return true;
 }
 
-int list_file(const char *path, const char *filter_pattern, std::vector<std::string> &files)
+int list_file(const char *path, const char *filter_pattern, vector<string> &files)
 {
   regex_t reg;
   if (filter_pattern) {

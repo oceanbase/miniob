@@ -30,7 +30,7 @@ TEST(BplusTreeLogEntry, init_header_page_log_entry)
   file_header.leaf_max_size     = 200;
   file_header.attr_length       = 20;
   file_header.key_length        = 30;
-  file_header.attr_type         = INTS;
+  file_header.attr_type         = AttrType::INTS;
 
   Frame frame;
   frame.set_page_num(100);

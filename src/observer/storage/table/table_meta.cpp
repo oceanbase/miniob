@@ -12,19 +12,17 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Wangyunlai on 2021/5/12.
 //
 
-#include <algorithm>
-
 #include "common/lang/string.h"
+#include "common/lang/algorithm.h"
 #include "common/log/log.h"
 #include "common/global_context.h"
 #include "storage/table/table_meta.h"
 #include "storage/trx/trx.h"
 #include "json/json.h"
 
-using namespace std;
-
 static const Json::StaticString FIELD_TABLE_ID("table_id");
 static const Json::StaticString FIELD_TABLE_NAME("table_name");
+static const Json::StaticString FIELD_STORAGE_FORMAT("storage_format");
 static const Json::StaticString FIELD_FIELDS("fields");
 static const Json::StaticString FIELD_INDEXES("indexes");
 
@@ -33,6 +31,7 @@ TableMeta::TableMeta(const TableMeta &other)
       name_(other.name_),
       fields_(other.fields_),
       indexes_(other.indexes_),
+      storage_format_(other.storage_format_),
       record_size_(other.record_size_)
 {}
 
@@ -45,7 +44,7 @@ void TableMeta::swap(TableMeta &other) noexcept
 }
 
 RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields,
-                   span<const AttrInfoSqlNode> attributes)
+                   span<const AttrInfoSqlNode> attributes, StorageFormat storage_format)
 {
   if (common::is_blank(name)) {
     LOG_ERROR("Name cannot be empty");
@@ -66,10 +65,9 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
     trx_fields_ = *trx_fields;
 
     fields_.resize(attributes.size() + trx_fields->size());
-
     for (size_t i = 0; i < trx_fields->size(); i++) {
       const FieldMeta &field_meta = (*trx_fields)[i];
-      fields_[i] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false /*visible*/);
+      fields_[i] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false /*visible*/, field_meta.field_id());
       field_offset += field_meta.len();
     }
 
@@ -80,9 +78,9 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
 
   for (size_t i = 0; i < attributes.size(); i++) {
     const AttrInfoSqlNode &attr_info = attributes[i];
-
+    // `i` is the col_id of fields[i]
     rc = fields_[i + trx_field_num].init(
-      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/);
+      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/, i);
     if (OB_FAIL(rc)) {
       LOG_ERROR("Failed to init field meta. table name=%s, field name: %s", name, attr_info.name.c_str());
       return rc;
@@ -95,6 +93,7 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
 
   table_id_ = table_id;
   name_     = name;
+  storage_format_ = storage_format;
   LOG_INFO("Sussessfully initialized table meta. table id=%d, name=%s", table_id, name);
   return RC::SUCCESS;
 }
@@ -169,10 +168,10 @@ int TableMeta::record_size() const { return record_size_; }
 
 int TableMeta::serialize(std::ostream &ss) const
 {
-
   Json::Value table_value;
   table_value[FIELD_TABLE_ID]   = table_id_;
   table_value[FIELD_TABLE_NAME] = name_;
+  table_value[FIELD_STORAGE_FORMAT] = static_cast<int>(storage_format_);
 
   Json::Value fields_value;
   for (const FieldMeta &field : fields_) {
@@ -236,6 +235,14 @@ int TableMeta::deserialize(std::istream &is)
     return -1;
   }
 
+  const Json::Value &storage_format_value = table_value[FIELD_STORAGE_FORMAT];
+  if (!table_id_value.isInt()) {
+    LOG_ERROR("Invalid storage format. json value=%s", storage_format_value.toStyledString().c_str());
+    return -1;
+  }
+
+  int32_t storage_format = storage_format_value.asInt();
+
   RC  rc        = RC::SUCCESS;
   int field_num = fields_value.size();
 
@@ -255,6 +262,7 @@ int TableMeta::deserialize(std::istream &is)
   std::sort(fields.begin(), fields.end(), comparator);
 
   table_id_ = table_id;
+  storage_format_ = static_cast<StorageFormat>(storage_format);
   name_.swap(table_name);
   fields_.swap(fields);
   record_size_ = fields_.back().offset() + fields_.back().len() - fields_.begin()->offset();

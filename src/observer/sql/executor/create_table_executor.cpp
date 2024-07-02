@@ -32,7 +32,7 @@ RC CreateTableExecutor::execute(SQLStageEvent *sql_event)
   CreateTableStmt *create_table_stmt = static_cast<CreateTableStmt *>(stmt);
 
   const char *table_name = create_table_stmt->table_name().c_str();
-  RC rc = session->get_current_db()->create_table(table_name, create_table_stmt->attr_infos());
+  RC rc = session->get_current_db()->create_table(table_name, create_table_stmt->attr_infos(), create_table_stmt->storage_format());
 
   return rc;
 }

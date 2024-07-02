@@ -51,9 +51,9 @@ TEST(RecordPageHandler, test_record_page_handler)
   rc           = bp->allocate_page(&frame);
   ASSERT_EQ(rc, RC::SUCCESS);
 
-  const int         record_size = 8;
-  RecordPageHandler record_page_handle;
-  rc = record_page_handle.init_empty_page(*bp, log_handler, frame->page_num(), record_size);
+  const int          record_size        = 8;
+  RecordPageHandler *record_page_handle = new RowRecordPageHandler();
+  rc = record_page_handle->init_empty_page(*bp, log_handler, frame->page_num(), record_size, nullptr);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   RecordPageIterator iterator;
@@ -72,7 +72,7 @@ TEST(RecordPageHandler, test_record_page_handler)
   RID  rid;
   rid.page_num = 100;
   rid.slot_num = 100;
-  rc           = record_page_handle.insert_record(buf, &rid);
+  rc           = record_page_handle->insert_record(buf, &rid);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;
@@ -87,7 +87,7 @@ TEST(RecordPageHandler, test_record_page_handler)
   for (int i = 0; i < 10; i++) {
     rid.page_num = i;
     rid.slot_num = i;
-    rc           = record_page_handle.insert_record(buf, &rid);
+    rc           = record_page_handle->insert_record(buf, &rid);
     ASSERT_EQ(rc, RC::SUCCESS);
   }
 
@@ -103,7 +103,7 @@ TEST(RecordPageHandler, test_record_page_handler)
   for (int i = 0; i < 5; i++) {
     rid.page_num = i * 2;
     rid.slot_num = i * 2;
-    rc           = record_page_handle.delete_record(&rid);
+    rc           = record_page_handle->delete_record(&rid);
     ASSERT_EQ(rc, RC::SUCCESS);
   }
 
@@ -116,9 +116,10 @@ TEST(RecordPageHandler, test_record_page_handler)
   }
   ASSERT_EQ(count, 6);
 
-  record_page_handle.cleanup();
+  record_page_handle->cleanup();
   bpm->close_file(record_manager_file);
   delete bpm;
+  delete record_page_handle;
 }
 
 TEST(RecordFileScanner, test_record_file_iterator)
@@ -137,8 +138,8 @@ TEST(RecordFileScanner, test_record_file_iterator)
   rc = bpm->open_file(log_handler, record_manager_file, bp);
   ASSERT_EQ(rc, RC::SUCCESS);
 
-  RecordFileHandler file_handler;
-  rc = file_handler.init(*bp, log_handler);
+  RecordFileHandler file_handler(StorageFormat::ROW_FORMAT);
+  rc = file_handler.init(*bp, log_handler, nullptr);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   VacuousTrx        trx;
@@ -150,7 +151,6 @@ TEST(RecordFileScanner, test_record_file_iterator)
   int    count = 0;
   Record record;
   while (OB_SUCC(rc = file_scanner.next(record))) {
-    ASSERT_EQ(rc, RC::SUCCESS);
     count++;
   }
   if (rc == RC::RECORD_EOF) {
@@ -175,7 +175,6 @@ TEST(RecordFileScanner, test_record_file_iterator)
 
   count = 0;
   while (OB_SUCC(rc = file_scanner.next(record))) {
-    ASSERT_EQ(rc, RC::SUCCESS);
     count++;
   }
   ASSERT_EQ(RC::RECORD_EOF, rc);
@@ -194,7 +193,6 @@ TEST(RecordFileScanner, test_record_file_iterator)
 
   count = 0;
   while (OB_SUCC(rc = file_scanner.next(record))) {
-    ASSERT_EQ(rc, RC::SUCCESS);
     count++;
   }
   ASSERT_EQ(RC::RECORD_EOF, rc);
@@ -235,8 +233,8 @@ TEST(RecordManager, durability)
   ASSERT_EQ(bpm.open_file(log_handler, record_manager_file.c_str(), buffer_pool), RC::SUCCESS);
   ASSERT_NE(buffer_pool, nullptr);
 
-  RecordFileHandler record_file_handler;
-  ASSERT_EQ(record_file_handler.init(*buffer_pool, log_handler), RC::SUCCESS);
+  RecordFileHandler record_file_handler(StorageFormat::ROW_FORMAT);
+  ASSERT_EQ(record_file_handler.init(*buffer_pool, log_handler, nullptr), RC::SUCCESS);
 
   const int  record_size              = 100;
   const char record_data[record_size] = "hello, world!";
@@ -344,8 +342,8 @@ TEST(RecordManager, durability)
   ASSERT_EQ(log_handler2.replay(log_replayer2, 0), RC::SUCCESS);
   ASSERT_EQ(log_handler2.start(), RC::SUCCESS);
 
-  RecordFileHandler record_file_handler2;
-  ASSERT_EQ(record_file_handler2.init(*buffer_pool2, log_handler2), RC::SUCCESS);
+  RecordFileHandler record_file_handler2(StorageFormat::ROW_FORMAT);
+  ASSERT_EQ(record_file_handler2.init(*buffer_pool2, log_handler2, nullptr), RC::SUCCESS);
   for (const auto &[rid, record] : record_map) {
     Record record_data;
     ASSERT_EQ(record_file_handler2.get_record(rid, record_data), RC::SUCCESS);

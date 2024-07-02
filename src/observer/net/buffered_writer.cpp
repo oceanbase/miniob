@@ -18,8 +18,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "net/buffered_writer.h"
 
-using namespace std;
-
 BufferedWriter::BufferedWriter(int fd) : fd_(fd), buffer_() {}
 
 BufferedWriter::BufferedWriter(int fd, int32_t size) : fd_(fd), buffer_(size) {}

@@ -14,9 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <unordered_map>
-
 #include "common/lang/mutex.h"
+#include "common/lang/unordered_map.h"
 #include "common/types.h"
 #include "common/rc.h"
 #include "storage/buffer/page.h"
@@ -148,7 +147,7 @@ private:
   BufferPoolManager      &bp_manager_;
   DoubleWriteBufferHeader header_;
 
-  std::unordered_map<DoubleWritePageKey, DoubleWritePage *, DoubleWritePageKeyHash> dblwr_pages_;
+  unordered_map<DoubleWritePageKey, DoubleWritePage *, DoubleWritePageKeyHash> dblwr_pages_;
 };
 
 class VacuousDoubleWriteBuffer : public DoubleWriteBuffer
