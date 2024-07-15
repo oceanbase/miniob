@@ -420,7 +420,7 @@ RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
   ASSERT(rw_mode_ != ReadWriteMode::READ_ONLY, "cannot insert record into page while the page is readonly");
 
   if (page_header_->record_num == page_header_->record_capacity) {
-    LOG_WARN("Page is full, page_num %d:%d.", disk_buffer_pool_->file_desc(), frame_->page_num());
+    LOG_WARN("PAX Page is full, page_num %d:%d.", disk_buffer_pool_->file_desc(), frame_->page_num());
     return RC::RECORD_NOMEM;
   }
 
@@ -438,9 +438,9 @@ RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
   // Convert to column storage
   for (int col_id = 0; col_id < page_header_->column_num; col_id++) {
     int col_len = get_field_len(col_id);
-    char* field_data = get_field_data(rid->slot_num, col_id);
+    char* field_data = get_field_data(index, col_id);
     memcpy(field_data, data, col_len);
-    data += col_len * page_header_->record_capacity;
+    data += col_len;
   }
 
   frame_->mark_dirty();
@@ -480,25 +480,25 @@ RC PaxRecordPageHandler::delete_record(const RID *rid)
 RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
 {
   if (rid.slot_num >= page_header_->record_capacity) {
-    LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
+    LOG_ERROR("PAX Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
               rid.slot_num, frame_->to_string().c_str(), page_header_->to_string().c_str());
     return RC::RECORD_INVALID_RID;
   }
 
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
   if (!bitmap.get_bit(rid.slot_num)) {
-    LOG_ERROR("Invalid slot_num:%d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
+    LOG_ERROR("PAX Invalid slot_num:%d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
     return RC::RECORD_NOT_EXIST;
   }
 
-  char* data = (char*)malloc(page_header_->record_size);
+  char* data = (char*)malloc(page_header_->record_real_size + 1);
   char* data_head = data;
 
   for (int col_id = 0; col_id < page_header_->column_num; col_id++) {
     int col_len = get_field_len(col_id);
     char* field_data = get_field_data(rid.slot_num, col_id);
     memcpy(data, field_data, col_len);
-    data += col_len * page_header_->record_capacity;
+    data += col_len;
   }
 
   record.set_rid(rid);
