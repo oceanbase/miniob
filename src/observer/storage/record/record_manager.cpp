@@ -518,10 +518,10 @@ RC PaxRecordPageHandler::get_chunk(Chunk &chunk)
       return RC::RECORD_NOT_EXIST;
     }
     int index = bitmap.next_setted_bit(0);
-    for(int i = 0; i < page_header_->record_num; i++){
+    while(index < page_header_->record_capacity){
       char* column_data = get_field_data(index, real_col_id);
       chunk.column(col_id).append_one(column_data);
-      index = bitmap.next_setted_bit(index+1);
+      index = bitmap.next_setted_bit(index + 1);
     }
   }
   return RC::SUCCESS;
