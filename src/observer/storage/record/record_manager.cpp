@@ -480,14 +480,14 @@ RC PaxRecordPageHandler::delete_record(const RID *rid)
 RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
 {
   if (rid.slot_num >= page_header_->record_capacity) {
-    LOG_ERROR("PAX Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
+    LOG_ERROR("[get record] Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
               rid.slot_num, frame_->to_string().c_str(), page_header_->to_string().c_str());
     return RC::RECORD_INVALID_RID;
   }
 
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
   if (!bitmap.get_bit(rid.slot_num)) {
-    LOG_ERROR("PAX Invalid slot_num:%d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
+    LOG_ERROR("[get record] Invalid slot_num:%d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
     return RC::RECORD_NOT_EXIST;
   }
 
@@ -514,11 +514,11 @@ RC PaxRecordPageHandler::get_chunk(Chunk &chunk)
   for(int col_id = 0; col_id < column_size; col_id++){
     int real_col_id = chunk.column_ids(col_id);
     if (real_col_id >= page_header_->column_num){
-      LOG_ERROR("Invalid column num:%d, column is empty, page_num %d.", real_col_id, frame_->page_num());
+      LOG_ERROR("[getchunk] Invalid column num:%d, column is empty, page_num %d.", real_col_id, frame_->page_num());
       return RC::RECORD_NOT_EXIST;
     }
     int index = bitmap.next_setted_bit(0);
-    while(index < page_header_->record_capacity){
+    while(index != -1){
       char* column_data = get_field_data(index, real_col_id);
       chunk.column(col_id).append_one(column_data);
       index = bitmap.next_setted_bit(index + 1);
