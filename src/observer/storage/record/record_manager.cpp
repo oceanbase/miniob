@@ -517,7 +517,7 @@ RC PaxRecordPageHandler::get_chunk(Chunk &chunk)
       LOG_ERROR("Invalid column num:%d, column is empty, page_num %d.", real_col_id, frame_->page_num());
       return RC::RECORD_NOT_EXIST;
     }
-    int index = bitmap.next_unsetted_bit(0);
+    int index = bitmap.next_setted_bit(0);
     for(int i = 0; i < page_header_->record_num; i++){
       // majia : can optimize
       char* column_data = get_field_data(index, real_col_id);
