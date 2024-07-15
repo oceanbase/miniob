@@ -510,20 +510,20 @@ RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
 RC PaxRecordPageHandler::get_chunk(Chunk &chunk)
 {
   int column_size = chunk.column_num();
-  for(int column_num = 0; column_num < column_size; column_num++){
-    int real_col_id = chunk.column_ids(column_num);
-    if (real_col_id > page_header_->column_num - 1){
+  Bitmap bitmap(bitmap_, page_header_->record_capacity);
+  for(int col_id = 0; col_id < column_size; col_id++){
+    int real_col_id = chunk.column_ids(col_id);
+    if (real_col_id >= page_header_->column_num){
       LOG_ERROR("Invalid column num:%d, column is empty, page_num %d.", real_col_id, frame_->page_num());
       return RC::RECORD_NOT_EXIST;
     }
-    // majia : can optimize
-    char* column_data = get_field_data(0, real_col_id);
-    // 1.replace
-    chunk.column(column_num).append(column_data, page_header_->record_num);
-    // 2.create
-    // Column* col = (Column*)malloc(sizeof(Column));
-    // col.append(column_data, page_header_.record_num);
-    // chunk.add_column(col,real_col_id);
+    int index = bitmap.next_unsetted_bit(0);
+    for(int i = 0; i < page_header_->record_num; i++){
+      // majia : can optimize
+      char* column_data = get_field_data(index, real_col_id);
+      chunk.column(col_id).append_one(column_data);
+      index = bitmap.next_setted_bit(index);
+    }
   }
   return RC::SUCCESS;
 }
