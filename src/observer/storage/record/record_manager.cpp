@@ -486,10 +486,10 @@ RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
   }
 
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
-  // if (!bitmap.get_bit(rid.slot_num)) {
-  //   LOG_ERROR("[get record] Invalid slot_num:%d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
-  //   return RC::RECORD_NOT_EXIST;
-  // }
+  if (!bitmap.get_bit(rid.slot_num)) {
+    LOG_ERROR("[get record] Invalid slot_num:%d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
+    return RC::RECORD_NOT_EXIST;
+  }
 
   char* data = (char*)malloc(page_header_->record_real_size + 1);
   char* data_head = data;
