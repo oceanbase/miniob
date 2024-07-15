@@ -36,7 +36,7 @@ using namespace common;
 class PaxRecordFileScannerWithParam : public testing::TestWithParam<int>
 {};
 
-TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
+TEST_P(PaxRecordFileScannerWithParam, test_file_iterator)
 {
   int               record_insert_num = GetParam();
   VacuousLogHandler log_handler;
@@ -176,7 +176,7 @@ TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
 class PaxPageHandlerTestWithParam : public testing::TestWithParam<int>
 {};
 
-TEST_P(PaxPageHandlerTestWithParam, DISABLED_PaxPageHandler)
+TEST_P(PaxPageHandlerTestWithParam, PaxPageHandler)
 {
   int               record_num = GetParam();
   VacuousLogHandler log_handler;

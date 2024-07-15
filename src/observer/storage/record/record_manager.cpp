@@ -491,18 +491,19 @@ RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
     return RC::RECORD_NOT_EXIST;
   }
 
-  char* data = (char*)malloc(page_header_->record_real_size + 1);
-  char* data_head = data;
+  char* data_head = (char*)malloc(page_header_->record_real_size + 1);
+  char* data_ptr = data_head;
 
   for (int col_id = 0; col_id < page_header_->column_num; col_id++) {
     int col_len = get_field_len(col_id);
     char* field_data = get_field_data(rid.slot_num, col_id);
-    memcpy(data, field_data, col_len);
-    data += col_len;
+    memcpy(data_ptr, field_data, col_len);
+    data_ptr += col_len;
   }
 
   record.set_rid(rid);
-  record.set_data(data_head, page_header_->record_real_size);
+  record.copy_data(data_head, page_header_->record_real_size);
+  free(data_head);
   return RC::SUCCESS;
 }
 
