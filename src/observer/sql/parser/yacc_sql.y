@@ -531,6 +531,21 @@ expression:
       $$ = new StarExpr();
     }
     // your code here
+    | "sum" expression {
+      $$ = create_aggregate_expression("sum", $2, sql_string, &@$);
+    }
+    | "avg" expression {
+      $$ = create_aggregate_expression("avg", $2, sql_string, &@$);
+    }
+    | "min" expression {
+      $$ = create_aggregate_expression("min", $2, sql_string, &@$);
+    }
+    | "max" expression {
+      $$ = create_aggregate_expression("max", $2, sql_string, &@$);
+    }
+    | "count" expression {
+      $$ = create_aggregate_expression("count", $2, sql_string, &@$);
+    }
     ;
 
 rel_attr:
@@ -658,9 +673,9 @@ comp_op:
 
 // your code here
 group_by:
-    /* empty */
+    GROUP BY expression_list
     {
-      $$ = nullptr;
+      $$ = $3;
     }
     ;
 load_data_stmt:
