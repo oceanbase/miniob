@@ -540,7 +540,6 @@ expression:
     // your code here
     | aggregate_function {
       $$ = $1;
-      // create_aggregate_expression("SUM", $3, sql_string, &@$);
     }
 
 aggregate_function:
