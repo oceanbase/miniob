@@ -673,9 +673,13 @@ comp_op:
 
 // your code here
 group_by:
-    GROUP BY expression_list
+    /* empty */
     {
-      $$ = $3;
+      $$ = nullptr;
+    }
+    | GROUP BY expression_list
+    {
+        $$ = $3;
     }
     ;
 load_data_stmt:

@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #include <memory>
-#include <string>
+#include <string> 
 #include <vector>
 
 #include "sql/expr/expression.h"
@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
-TEST(ParserTest, DISABLED_aggregation_test)
+TEST(ParserTest, aggregation_test)
 {
   ParsedSqlResult result;
   {
@@ -31,7 +31,7 @@ TEST(ParserTest, DISABLED_aggregation_test)
   }
 }
 
-TEST(ParserTest, DISABLED_group_by_test)
+TEST(ParserTest, group_by_test)
 {
   ParsedSqlResult result;
   {
