@@ -416,8 +416,52 @@ bool RecordPageHandler::is_full() const { return page_header_->record_num >= pag
 
 RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
 {
-  // your code here
-  exit(-1);
+  // Ensure the page is not read-only
+    ASSERT(rw_mode_ != ReadWriteMode::READ_ONLY, 
+         "Cannot insert record into page while the page is readonly");
+
+    // Check if the page is full
+    if (page_header_->record_num == page_header_->record_capacity) {
+        LOG_WARN("Page is full, page_num %d:%d.", disk_buffer_pool_->file_desc(), frame_->page_num());
+        return RC::RECORD_NOMEM;
+    }
+
+    // Find an empty slot
+    Bitmap bitmap(bitmap_, page_header_->record_capacity);
+    int index = bitmap.next_unsetted_bit(0);
+    auto col_num = page_header_->column_num;
+
+    // Increment the record number and set the bitmap
+    page_header_->record_num++;
+    bitmap.set_bit(index);
+
+    // Insert the record into the log
+    RC rc = log_handler_.insert_record(frame_, RID(get_page_num(), index), data);
+    if (OB_FAIL(rc)) {
+        LOG_ERROR("Failed to insert record. page_num %d:%d. rc=%s", disk_buffer_pool_->file_desc(), frame_->page_num(), strrc(rc));
+        // Ignoring errors for now
+    }
+
+    // Copy data into the record fields
+    int offset = 0;
+    for (int i = 0; i < col_num; ++i) {
+        char *record_data = get_field_data(index, i);
+        int data_len = get_field_len(i);
+        memcpy(record_data, data + offset, data_len);
+        offset += data_len;
+    }
+
+    // Mark the frame as dirty
+    frame_->mark_dirty();
+
+    // Set the RID if provided
+    if (rid) {
+        rid->page_num = get_page_num();
+        rid->slot_num = index;
+    }
+
+    // LOG_TRACE("Insert record. rid page_num=%d, slot num=%d", get_page_num(), index);
+    return RC::SUCCESS;
 }
 
 RC PaxRecordPageHandler::delete_record(const RID *rid)
@@ -446,15 +490,65 @@ RC PaxRecordPageHandler::delete_record(const RID *rid)
 
 RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
 {
-  // your code here
-  exit(-1);
+  // Check if the slot number is valid
+  if (rid.slot_num >= page_header_->record_capacity) {
+    LOG_ERROR("Invalid slot_num %d, exceeds page's record capacity, frame=%s, page_header=%s",
+              rid.slot_num, frame_->to_string().c_str(), page_header_->to_string().c_str());
+    return RC::RECORD_INVALID_RID;
+  }
+
+  // Check if the slot is occupied
+  Bitmap bitmap(bitmap_, page_header_->record_capacity);
+  if (!bitmap.get_bit(rid.slot_num)) {
+    LOG_ERROR("Invalid slot_num:%d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
+    return RC::RECORD_NOT_EXIST;
+  }
+
+  // Retrieve record data
+  int column_count = page_header_->column_num;
+  record.set_rid(rid);
+  int record_real_size = page_header_->record_real_size;
+  char* data = static_cast<char*>(malloc(record_real_size));
+
+  if (data == nullptr) {
+    LOG_ERROR("Memory allocation failed for record data.");
+    return RC::NOMEM;
+  }
+
+  int offset = 0;
+  for (int i = 0; i < column_count; ++i) {
+    int field_length = get_field_len(i);
+    memcpy(data + offset, get_field_data(rid.slot_num, i), field_length);
+    offset += field_length;
+  }
+
+  record.set_data_owner(data, record_real_size);
+  return RC::SUCCESS;
 }
 
 // TODO: specify the column_ids that chunk needed. currenly we get all columns
 RC PaxRecordPageHandler::get_chunk(Chunk &chunk)
 {
-  // your code here
-  exit(-1);
+  int column_count = chunk.column_num();
+  vector<int> record_indices;
+  Bitmap bitmap(bitmap_, page_header_->record_capacity);
+
+  // 鏀堕泦鎵€鏈夎缃殑浣嶇储寮?
+  int position = 0;
+  while ((position = bitmap.next_setted_bit(position)) != -1) {
+    record_indices.push_back(position);
+    position += 1;
+  }
+  
+  // 濉厖姣忎竴鍒楃殑璁板綍
+  for (int col_idx = 0; col_idx < column_count; ++col_idx) {
+    auto column_pointer = chunk.column_ptr(col_idx);
+    auto column_id = chunk.column_ids(col_idx);
+    for (int record_index : record_indices) {
+      column_pointer->append_one(get_field_data(record_index, column_id));
+    }
+  }
+  return RC::SUCCESS;
 }
 
 char *PaxRecordPageHandler::get_field_data(SlotNum slot_num, int col_id)
