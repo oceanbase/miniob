@@ -11,7 +11,7 @@
         {
             "label": "build_debug",
             "type": "shell",
-            "command": "bash build.sh debug",
+            "command": "bash build.sh debug 2> build.log",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

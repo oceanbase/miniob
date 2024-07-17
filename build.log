@@ -1,0 +1,251 @@
+Install deps/common/conf/ini.h to /usr/local/common/include/deps/common/conf
+Install deps/common/defs.h to /usr/local/common/include/deps/common
+Install deps/common/io/io.h to /usr/local/common/include/deps/common/io
+Install deps/common/lang/algorithm.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/atomic.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/bitmap.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/charconv.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/chrono.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/comparator.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/defer.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/deque.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/exception.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/filesystem.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/fstream.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/functional.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/iomanip.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/ios.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/iostream.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/iterator.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/limits.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/list.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/lower_bound.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/lru_cache.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/map.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/memory.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/mutex.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/new.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/queue.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/random.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/serializable.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/serializer.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/set.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/span.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/sstream.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/stdexcept.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/string.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/string_view.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/system_error.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/thread.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/unordered_map.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/unordered_set.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/utility.h to /usr/local/common/include/deps/common/lang
+Install deps/common/lang/vector.h to /usr/local/common/include/deps/common/lang
+Install deps/common/log/log.h to /usr/local/common/include/deps/common/log
+Install deps/common/math/crc.h to /usr/local/common/include/deps/common/math
+Install deps/common/math/integer_generator.h to /usr/local/common/include/deps/common/math
+Install deps/common/math/md5.h to /usr/local/common/include/deps/common/math
+Install deps/common/math/random_generator.h to /usr/local/common/include/deps/common/math
+Install deps/common/math/regex.h to /usr/local/common/include/deps/common/math
+Install deps/common/math/simd_util.h to /usr/local/common/include/deps/common/math
+Install deps/common/metrics/console_reporter.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/histogram_snapshot.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/log_reporter.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/metric.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/metrics.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/metrics_registry.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/reporter.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/reservoir.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/sampler.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/snapshot.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/timer_snapshot.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/metrics/uniform_reservoir.h to /usr/local/common/include/deps/common/metrics
+Install deps/common/mm/debug_new.h to /usr/local/common/include/deps/common/mm
+Install deps/common/mm/mem_pool.h to /usr/local/common/include/deps/common/mm
+Install deps/common/os/os.h to /usr/local/common/include/deps/common/os
+Install deps/common/os/path.h to /usr/local/common/include/deps/common/os
+Install deps/common/os/pidfile.h to /usr/local/common/include/deps/common/os
+Install deps/common/os/process.h to /usr/local/common/include/deps/common/os
+Install deps/common/os/process_param.h to /usr/local/common/include/deps/common/os
+Install deps/common/os/signal.h to /usr/local/common/include/deps/common/os
+Install deps/common/queue/queue.h to /usr/local/common/include/deps/common/queue
+Install deps/common/queue/simple_queue.h to /usr/local/common/include/deps/common/queue
+Install deps/common/thread/runnable.h to /usr/local/common/include/deps/common/thread
+Install deps/common/thread/thread_pool_executor.h to /usr/local/common/include/deps/common/thread
+Install deps/common/thread/thread_util.h to /usr/local/common/include/deps/common/thread
+Install deps/common/time/datetime.h to /usr/local/common/include/deps/common/time
+Install deps/common/time/timeout_info.h to /usr/local/common/include/deps/common/time
+Begin to build obclient
+obclient use readline
+Use /workspace/miniob/src/obclient/client.cpp
+MAIN SRC: /workspace/miniob/src/observer/main.cpp
+Use /workspace/miniob/src/observer/common/global_context.cpp
+Use /workspace/miniob/src/observer/common/init.cpp
+Use /workspace/miniob/src/observer/common/rc.cpp
+Use /workspace/miniob/src/observer/event/session_event.cpp
+Use /workspace/miniob/src/observer/event/sql_debug.cpp
+Use /workspace/miniob/src/observer/event/sql_event.cpp
+Use /workspace/miniob/src/observer/net/buffered_writer.cpp
+Use /workspace/miniob/src/observer/net/cli_communicator.cpp
+Use /workspace/miniob/src/observer/net/communicator.cpp
+Use /workspace/miniob/src/observer/net/java_thread_pool_thread_handler.cpp
+Use /workspace/miniob/src/observer/net/mysql_communicator.cpp
+Use /workspace/miniob/src/observer/net/one_thread_per_connection_thread_handler.cpp
+Use /workspace/miniob/src/observer/net/plain_communicator.cpp
+Use /workspace/miniob/src/observer/net/ring_buffer.cpp
+Use /workspace/miniob/src/observer/net/server.cpp
+Use /workspace/miniob/src/observer/net/sql_task_handler.cpp
+Use /workspace/miniob/src/observer/net/thread_handler.cpp
+Use /workspace/miniob/src/observer/session/session.cpp
+Use /workspace/miniob/src/observer/session/session_stage.cpp
+Use /workspace/miniob/src/observer/session/thread_data.cpp
+Use /workspace/miniob/src/observer/sql/executor/command_executor.cpp
+Use /workspace/miniob/src/observer/sql/executor/create_index_executor.cpp
+Use /workspace/miniob/src/observer/sql/executor/create_table_executor.cpp
+Use /workspace/miniob/src/observer/sql/executor/desc_table_executor.cpp
+Use /workspace/miniob/src/observer/sql/executor/execute_stage.cpp
+Use /workspace/miniob/src/observer/sql/executor/load_data_executor.cpp
+Use /workspace/miniob/src/observer/sql/executor/set_variable_executor.cpp
+Use /workspace/miniob/src/observer/sql/executor/sql_result.cpp
+Use /workspace/miniob/src/observer/sql/expr/aggregate_hash_table.cpp
+Use /workspace/miniob/src/observer/sql/expr/aggregate_state.cpp
+Use /workspace/miniob/src/observer/sql/expr/aggregator.cpp
+Use /workspace/miniob/src/observer/sql/expr/composite_tuple.cpp
+Use /workspace/miniob/src/observer/sql/expr/expression.cpp
+Use /workspace/miniob/src/observer/sql/expr/expression_iterator.cpp
+Use /workspace/miniob/src/observer/sql/expr/tuple_cell.cpp
+Use /workspace/miniob/src/observer/sql/operator/aggregate_vec_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/delete_logical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/delete_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/explain_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/expr_vec_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/group_by_logical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/group_by_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/group_by_vec_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/hash_group_by_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/index_scan_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/insert_logical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/insert_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/join_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/logical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/predicate_logical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/predicate_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/project_logical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/project_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/project_vec_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/scalar_group_by_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/table_get_logical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/table_scan_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/operator/table_scan_vec_physical_operator.cpp
+Use /workspace/miniob/src/observer/sql/optimizer/comparison_simplification_rule.cpp
+Use /workspace/miniob/src/observer/sql/optimizer/conjunction_simplification_rule.cpp
+Use /workspace/miniob/src/observer/sql/optimizer/expression_rewriter.cpp
+Use /workspace/miniob/src/observer/sql/optimizer/logical_plan_generator.cpp
+Use /workspace/miniob/src/observer/sql/optimizer/optimize_stage.cpp
+Use /workspace/miniob/src/observer/sql/optimizer/physical_plan_generator.cpp
+Use /workspace/miniob/src/observer/sql/optimizer/predicate_pushdown_rewriter.cpp
+Use /workspace/miniob/src/observer/sql/optimizer/predicate_rewrite.cpp
+Use /workspace/miniob/src/observer/sql/optimizer/rewriter.cpp
+Use /workspace/miniob/src/observer/sql/parser/expression_binder.cpp
+Use /workspace/miniob/src/observer/sql/parser/lex_sql.cpp
+Use /workspace/miniob/src/observer/sql/parser/parse.cpp
+Use /workspace/miniob/src/observer/sql/parser/parse_stage.cpp
+Use /workspace/miniob/src/observer/sql/parser/resolve_stage.cpp
+Use /workspace/miniob/src/observer/sql/parser/value.cpp
+Use /workspace/miniob/src/observer/sql/parser/yacc_sql.cpp
+Use /workspace/miniob/src/observer/sql/plan_cache/plan_cache_stage.cpp
+Use /workspace/miniob/src/observer/sql/query_cache/query_cache_stage.cpp
+Use /workspace/miniob/src/observer/sql/stmt/create_index_stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/create_table_stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/delete_stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/desc_table_stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/explain_stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/filter_stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/insert_stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/load_data_stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/select_stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/stmt.cpp
+Use /workspace/miniob/src/observer/sql/stmt/update_stmt.cpp
+Use /workspace/miniob/src/observer/storage/buffer/buffer_pool_log.cpp
+Use /workspace/miniob/src/observer/storage/buffer/disk_buffer_pool.cpp
+Use /workspace/miniob/src/observer/storage/buffer/double_write_buffer.cpp
+Use /workspace/miniob/src/observer/storage/buffer/frame.cpp
+Use /workspace/miniob/src/observer/storage/clog/disk_log_handler.cpp
+Use /workspace/miniob/src/observer/storage/clog/integrated_log_replayer.cpp
+Use /workspace/miniob/src/observer/storage/clog/log_buffer.cpp
+Use /workspace/miniob/src/observer/storage/clog/log_entry.cpp
+Use /workspace/miniob/src/observer/storage/clog/log_file.cpp
+Use /workspace/miniob/src/observer/storage/clog/log_handler.cpp
+Use /workspace/miniob/src/observer/storage/common/chunk.cpp
+Use /workspace/miniob/src/observer/storage/common/column.cpp
+Use /workspace/miniob/src/observer/storage/common/condition_filter.cpp
+Use /workspace/miniob/src/observer/storage/common/meta_util.cpp
+Use /workspace/miniob/src/observer/storage/db/db.cpp
+Use /workspace/miniob/src/observer/storage/default/default_handler.cpp
+Use /workspace/miniob/src/observer/storage/field/field.cpp
+Use /workspace/miniob/src/observer/storage/field/field_meta.cpp
+Use /workspace/miniob/src/observer/storage/index/bplus_tree.cpp
+Use /workspace/miniob/src/observer/storage/index/bplus_tree_index.cpp
+Use /workspace/miniob/src/observer/storage/index/bplus_tree_log.cpp
+Use /workspace/miniob/src/observer/storage/index/bplus_tree_log_entry.cpp
+Use /workspace/miniob/src/observer/storage/index/index.cpp
+Use /workspace/miniob/src/observer/storage/index/index_meta.cpp
+Use /workspace/miniob/src/observer/storage/index/latch_memo.cpp
+Use /workspace/miniob/src/observer/storage/persist/persist.cpp
+Use /workspace/miniob/src/observer/storage/record/record_log.cpp
+Use /workspace/miniob/src/observer/storage/record/record_manager.cpp
+Use /workspace/miniob/src/observer/storage/table/table.cpp
+Use /workspace/miniob/src/observer/storage/table/table_meta.cpp
+Use /workspace/miniob/src/observer/storage/trx/mvcc_trx.cpp
+Use /workspace/miniob/src/observer/storage/trx/mvcc_trx_log.cpp
+Use /workspace/miniob/src/observer/storage/trx/trx.cpp
+Use /workspace/miniob/src/observer/storage/trx/vacuous_trx.cpp
+Binary directory:/workspace/miniob/build_debug/bin
+Archive directory:/workspace/miniob/build_debug/lib
+observer_static use readline
+Build client_performance_test according to /workspace/miniob/test/perf/client_performance_test.cpp
+ -Wall -Werror -Wno-error=sign-compare  -O0 -g -DDEBUG  -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope
+Build bitmap_test according to /workspace/miniob/unittest/common/bitmap_test.cpp
+Build integer_generator_test according to /workspace/miniob/unittest/common/integer_generator_test.cpp
+Build log_test according to /workspace/miniob/unittest/common/log_test.cpp
+Build lower_bound_test according to /workspace/miniob/unittest/common/lower_bound_test.cpp
+Build md5_test according to /workspace/miniob/unittest/common/md5_test.cpp
+Build mem_pool_test according to /workspace/miniob/unittest/common/mem_pool_test.cpp
+Build pidfile_test according to /workspace/miniob/unittest/common/pidfile_test.cpp
+Build serializer_test according to /workspace/miniob/unittest/common/serializer_test.cpp
+Build simple_queue_test according to /workspace/miniob/unittest/common/simple_queue_test.cpp
+Build thread_pool_executor_test according to /workspace/miniob/unittest/common/thread_pool_executor_test.cpp
+Build memtracer_test according to /workspace/miniob/unittest/memtracer/memtracer_test.cpp
+Build aggregate_hash_table_test according to /workspace/miniob/unittest/observer/aggregate_hash_table_test.cpp
+Build arithmetic_operator_test according to /workspace/miniob/unittest/observer/arithmetic_operator_test.cpp
+Build bp_manager_test according to /workspace/miniob/unittest/observer/bp_manager_test.cpp
+Build bplus_tree_log_entry_test according to /workspace/miniob/unittest/observer/bplus_tree_log_entry_test.cpp
+Build bplus_tree_log_test according to /workspace/miniob/unittest/observer/bplus_tree_log_test.cpp
+Build bplus_tree_test according to /workspace/miniob/unittest/observer/bplus_tree_test.cpp
+Build buffer_pool_log_test according to /workspace/miniob/unittest/observer/buffer_pool_log_test.cpp
+Build chunk_test according to /workspace/miniob/unittest/observer/chunk_test.cpp
+Build composite_tuple_test according to /workspace/miniob/unittest/observer/composite_tuple_test.cpp
+Build disk_buffer_pool_test according to /workspace/miniob/unittest/observer/disk_buffer_pool_test.cpp
+Build disk_log_handler_test according to /workspace/miniob/unittest/observer/disk_log_handler_test.cpp
+Build double_write_buffer_test according to /workspace/miniob/unittest/observer/double_write_buffer_test.cpp
+Build expression_test according to /workspace/miniob/unittest/observer/expression_test.cpp
+Build log_buffer_test according to /workspace/miniob/unittest/observer/log_buffer_test.cpp
+Build log_entry_test according to /workspace/miniob/unittest/observer/log_entry_test.cpp
+Build log_file_test according to /workspace/miniob/unittest/observer/log_file_test.cpp
+Build mvcc_trx_log_test according to /workspace/miniob/unittest/observer/mvcc_trx_log_test.cpp
+Build parser_test according to /workspace/miniob/unittest/observer/parser_test.cpp
+Build pax_storage_test according to /workspace/miniob/unittest/observer/pax_storage_test.cpp
+Build persist_test according to /workspace/miniob/unittest/observer/persist_test.cpp
+Build record_manager_test according to /workspace/miniob/unittest/observer/record_manager_test.cpp
+Build ring_buffer_test according to /workspace/miniob/unittest/observer/ring_buffer_test.cpp
+/workspace/miniob/src/observer/sql/expr/aggregate_hash_table.cpp: In member function ‘virtual RC StandardAggregateHashTable::add_chunk(Chunk&, Chunk&)’:
+/workspace/miniob/src/observer/sql/expr/aggregate_hash_table.cpp:26:24: warning: comparison of integer expressions of different signedness: ‘size_t’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+   26 |   for (size_t i = 0; i < rows; i++){
+      |                      ~~^~~~~~
+/workspace/miniob/src/observer/sql/expr/aggregate_hash_table.cpp:30:26: warning: comparison of integer expressions of different signedness: ‘size_t’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+   30 |     for (size_t j = 0; j < groups_chunk.column_num(); j++) {
+      |                        ~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/miniob/src/observer/sql/expr/aggregate_hash_table.cpp:35:26: warning: comparison of integer expressions of different signedness: ‘size_t’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+   35 |     for (size_t j = 0; j < aggrs_chunk.column_num(); j++) {
+      |                        ~~^~~~~~~~~~~~~~~~~~~~~~~~~~
