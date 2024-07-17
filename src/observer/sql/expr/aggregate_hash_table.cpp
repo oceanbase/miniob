@@ -76,8 +76,6 @@ RC StandardAggregateHashTable::Scanner::next(Chunk &output_chunk)
   if (it_ == end_) {
     return RC::RECORD_EOF;
   }
-  volatile int c = output_chunk.column_num();
-  volatile int r = output_chunk.rows();
   while (it_ != end_ && output_chunk.rows() <= output_chunk.capacity()) {
     auto &group_by_values = it_->first;
     auto &aggrs           = it_->second;
@@ -91,12 +89,7 @@ RC StandardAggregateHashTable::Scanner::next(Chunk &output_chunk)
     }
     it_++;
   }
-  r = output_chunk.rows();
-  r = r + c;
   if (it_ == end_) {
-    return RC::SUCCESS;
-  }
-  else if(r > output_chunk.rows()){
     return RC::SUCCESS;
   }
 
