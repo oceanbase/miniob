@@ -1,0 +1,65 @@
+name: publish miniob docker image
+
+on:
+  push:
+    tags:
+      - "docker-*"
+
+env:
+  tagName: ${{ github.ref_name }}
+
+jobs:
+  publish-miniob-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+      
+      - name: Log in to Docker hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Log in to Quay io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_IO_USERNAME }}
+          password: ${{ secrets.QUAY_IO_PASSWORD }}
+
+      - name: Log in to Ghcr io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set Version variables
+        id: set_version_vars
+        run: echo "version=$(echo $tagName | grep -P '(\d*\.\d*)' --only-matching)" >> $GITHUB_OUTPUT
+
+      - name: Build and push miniob w/o cache
+        uses: docker/build-push-action@v6
+        with:
+          context: ./
+          platforms: linux/amd64,linux/arm64
+          file: ./docker/Dockerfile
+          push: true
+          tags: |
+            ${{ vars.DOCKER_PUSH_BASE }}/miniob:${{ steps.set_version_vars.outputs.version }}
+            quay.io/${{ vars.QUAY_IO_PUSH_BASE }}/miniob:${{ steps.set_version_vars.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/miniob:${{ steps.set_version_vars.outputs.version }}
+            ${{ vars.DOCKER_PUSH_BASE }}/miniob:latest
+            quay.io/${{ vars.QUAY_IO_PUSH_BASE }}/miniob:latest
+            ghcr.io/${{ github.repository_owner }}/miniob:latest
+      
