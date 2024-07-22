@@ -2,7 +2,7 @@
 # use docker build: docker build -t miniob .
 # use docker compose: docker compose up -d --build
 # make sure docker has been installed
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
 # ENV LANG=en_US.UTF-8
 # locale
