@@ -12,6 +12,15 @@ MiniOB 依赖的第三方组件比较多，搭建开发环境比较繁琐，建�
 我们提供了原始的Dockerfile，也有已经打包好的镜像，可以选择自己喜欢的方式。
 自行构建参考[本文档](./how_to_dev_in_docker_container_by_vscode.md)。
 
+- 拉取镜像
+
+```bash
+# 下面的命令三选一即可
+docker pull oceanbase/miniob         # pull from docker hub
+docker pull ghcr.io/oceanbase/miniob && docker tag ghcr.io/oceanbase/miniob oceanbase/miniob # pull from github
+docker pull quay.io/oceanbase/miniob && docker tag quay.io/oceanbase/miniob oceanbase/miniob # pull from github # pull from quay.io
+```
+
 - 使用docker hub 镜像运行
 
 ```bash
