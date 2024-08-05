@@ -8,29 +8,20 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Wangyunlai on 2024/05/29.
-//
-
-#include "sql/expr/aggregator.h"
+#include "common/lang/comparator.h"
 #include "common/log/log.h"
+#include "common/type/char_type.h"
+#include "common/value.h"
 
-RC SumAggregator::accumulate(const Value &value)
+int CharType::compare(const Value &left, const Value &right) const
 {
-  if (value_.attr_type() == AttrType::UNDEFINED) {
-    value_ = value;
-    return RC::SUCCESS;
-  }
-  
-  ASSERT(value.attr_type() == value_.attr_type(), "type mismatch. value type: %s, value_.type: %s", 
-        attr_type_to_string(value.attr_type()), attr_type_to_string(value_.attr_type()));
-  
-  Value::add(value, value_, value_);
-  return RC::SUCCESS;
+  ASSERT(left.attr_type() == AttrType::CHARS && right.attr_type() == AttrType::CHARS, "invalid type");
+  return common::compare_string(
+      (void *)left.value_.pointer_value_, left.length_, (void *)right.value_.pointer_value_, right.length_);
 }
 
-RC SumAggregator::evaluate(Value& result)
+RC CharType::set_value_from_str(Value &val, const string &data) const
 {
-  result = value_;
+  val.set_string(data.c_str());
   return RC::SUCCESS;
 }

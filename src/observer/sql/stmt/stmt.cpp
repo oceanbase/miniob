@@ -112,5 +112,5 @@ RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
       LOG_INFO("Command::type %d doesn't need to create statement.", sql_node.flag);
     } break;
   }
-  return RC::UNIMPLENMENT;
+  return RC::UNIMPLEMENTED;
 }

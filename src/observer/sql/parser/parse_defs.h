@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 #include <memory>
 
-#include "sql/parser/value.h"
+#include "common/value.h"
 
 class Expression;
 

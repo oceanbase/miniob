@@ -74,7 +74,7 @@ RC LogicalPlanGenerator::create(Stmt *stmt, unique_ptr<LogicalOperator> &logical
       rc = create_plan(explain_stmt, logical_operator);
     } break;
     default: {
-      rc = RC::UNIMPLENMENT;
+      rc = RC::UNIMPLEMENTED;
     }
   }
   return rc;

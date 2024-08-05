@@ -35,7 +35,7 @@ RC OptimizeStage::handle_request(SQLStageEvent *sql_event)
 
   RC rc = create_logical_plan(sql_event, logical_operator);
   if (rc != RC::SUCCESS) {
-    if (rc != RC::UNIMPLENMENT) {
+    if (rc != RC::UNIMPLEMENTED) {
       LOG_WARN("failed to create logical plan. rc=%s", strrc(rc));
     }
     return rc;
@@ -113,7 +113,7 @@ RC OptimizeStage::create_logical_plan(SQLStageEvent *sql_event, unique_ptr<Logic
 {
   Stmt *stmt = sql_event->stmt();
   if (nullptr == stmt) {
-    return RC::UNIMPLENMENT;
+    return RC::UNIMPLEMENTED;
   }
 
   return logical_plan_generator_.create(stmt, logical_operator);

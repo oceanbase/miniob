@@ -18,6 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 #include <string>
 
+#define private public
+#include "common/value.h"
+#undef private
 #include "gtest/gtest.h"
 #include "storage/db/db.h"
 #include "storage/table/table.h"

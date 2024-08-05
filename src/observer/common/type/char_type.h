@@ -8,30 +8,19 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Wangyunlai on 2024/05/29.
-//
-
 #pragma once
 
-#include "common/value.h"
 #include "common/rc.h"
+#include "common/type/data_type.h"
 
-class Aggregator
+class CharType : public DataType
 {
 public:
-  virtual ~Aggregator() = default;
+  CharType() : DataType(AttrType::CHARS) {}
 
-  virtual RC accumulate(const Value &value) = 0;
-  virtual RC evaluate(Value &result)        = 0;
+  virtual ~CharType() = default;
 
-protected:
-  Value value_;
-};
+  int compare(const Value &left, const Value &right) const override;
 
-class SumAggregator : public Aggregator
-{
-public:
-  RC accumulate(const Value &value) override;
-  RC evaluate(Value &result) override;
+  RC set_value_from_str(Value &val, const string &data) const override;
 };

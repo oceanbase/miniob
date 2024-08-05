@@ -77,13 +77,13 @@ public:
   virtual PhysicalOperatorType type() const = 0;
 
   virtual RC open(Trx *trx) = 0;
-  virtual RC next() { return RC::UNIMPLENMENT; }
-  virtual RC next(Chunk &chunk) { return RC::UNIMPLENMENT; }
+  virtual RC next() { return RC::UNIMPLEMENTED; }
+  virtual RC next(Chunk &chunk) { return RC::UNIMPLEMENTED; }
   virtual RC close() = 0;
 
   virtual Tuple *current_tuple() { return nullptr; }
 
-  virtual RC tuple_schema(TupleSchema &schema) const { return RC::UNIMPLENMENT; }
+  virtual RC tuple_schema(TupleSchema &schema) const { return RC::UNIMPLEMENTED; }
 
   void add_child(std::unique_ptr<PhysicalOperator> oper) { children_.emplace_back(std::move(oper)); }
 

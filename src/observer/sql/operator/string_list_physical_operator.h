@@ -74,8 +74,7 @@ public:
     std::vector<Value> cells;
     for (const std::string &s : string_list) {
 
-      Value value;
-      value.set_string(s.c_str());
+      Value value(s.c_str());
       cells.push_back(value);
     }
     tuple_.set_cells(cells);
