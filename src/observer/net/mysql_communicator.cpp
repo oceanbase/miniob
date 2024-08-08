@@ -414,8 +414,6 @@ struct OkPacket : public BasePacket
 
     if (capabilities & CLIENT_SESSION_TRACK) {
       pos += store_lenenc_string(buf + pos, info.c_str());
-    } else {
-      pos += store_fix_length_string(buf + pos, info.c_str(), info.length());
     }
 
     int32_t payload_length = pos - 4;
