@@ -178,11 +178,12 @@ RC LogicalPlanGenerator::create_plan(FilterStmt *filter_stmt, unique_ptr<Logical
             return rc;
           }
           left = make_unique<ValueExpr>(left_val);
-
+        } else {
+          left = std::move(cast_expr);
         }
       } else if (right_to_left_cost < left_to_right_cost && right_to_left_cost != INT32_MAX) {
         ExprType right_type = right->type();
-        auto cast_expr                              = make_unique<CastExpr>(std::move(right), left->value_type());
+        auto cast_expr = make_unique<CastExpr>(std::move(right), left->value_type());
         if (right_type == ExprType::VALUE) {
           Value right_val;
           if (OB_FAIL(rc = cast_expr->try_get_value(right_val)))
@@ -191,6 +192,8 @@ RC LogicalPlanGenerator::create_plan(FilterStmt *filter_stmt, unique_ptr<Logical
             return rc;
           }
           right = make_unique<ValueExpr>(right_val);
+        } else {
+          right = std::move(cast_expr);
         }
 
       } else {

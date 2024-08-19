@@ -27,5 +27,6 @@ public:
   RC set_value_from_str(Value &val, const string &data) const override;
 
   int cast_cost(AttrType type) override;
+
   RC  to_string(const Value &val, string &result) const override;
 };
