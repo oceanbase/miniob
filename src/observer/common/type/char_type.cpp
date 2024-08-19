@@ -25,3 +25,27 @@ RC CharType::set_value_from_str(Value &val, const string &data) const
   val.set_string(data.c_str());
   return RC::SUCCESS;
 }
+
+RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
+{
+  switch (type) {
+    default: return RC::UNIMPLEMENTED;
+  }
+  return RC::SUCCESS;
+}
+
+int CharType::cast_cost(AttrType type)
+{
+  if (type == AttrType::CHARS) {
+    return 0;
+  }
+  return INT32_MAX;
+}
+
+RC CharType::to_string(const Value &val, string &result) const
+{
+  stringstream ss;
+  ss << val.value_.pointer_value_;
+  result = ss.str();
+  return RC::SUCCESS;
+}

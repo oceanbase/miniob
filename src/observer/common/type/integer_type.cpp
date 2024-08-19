@@ -65,3 +65,11 @@ RC IntegerType::set_value_from_str(Value &val, const string &data) const
   }
   return rc;
 }
+
+RC IntegerType::to_string(const Value &val, string &result) const
+{
+  stringstream ss;
+  ss << val.value_.int_value_;
+  result = ss.str();
+  return RC::SUCCESS;
+}

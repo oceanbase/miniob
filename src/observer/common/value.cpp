@@ -220,25 +220,13 @@ const char *Value::data() const
 
 string Value::to_string() const
 {
-  stringstream os;
-  switch (attr_type_) {
-    case AttrType::INTS: {
-      os << value_.int_value_;
-    } break;
-    case AttrType::FLOATS: {
-      os << common::double_to_str(value_.float_value_);
-    } break;
-    case AttrType::BOOLEANS: {
-      os << value_.bool_value_;
-    } break;
-    case AttrType::CHARS: {
-      os << value_.pointer_value_;
-    } break;
-    default: {
-      LOG_WARN("unsupported attr type: %d", attr_type_);
-    } break;
+  string res;
+  RC     rc = DataType::type_instance(this->attr_type_)->to_string(*this, res);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to convert value to string. type=%s", attr_type_to_string(this->attr_type_));
+    return "";
   }
-  return os.str();
+  return res;
 }
 
 int Value::compare(const Value &other) const { return DataType::type_instance(this->attr_type_)->compare(*this, other); }

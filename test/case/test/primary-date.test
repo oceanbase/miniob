@@ -23,10 +23,10 @@ DELETE FROM date_table WHERE u_date>'2012-2-29';
 -- sort SELECT * FROM date_table;
 
 -- echo 4. check invalid date data
-SELECT * FROM date_table WHERE u_date='2017-2-29';
-SELECT * FROM date_table WHERE u_date='2017-21-29';
-SELECT * FROM date_table WHERE u_date='2017-12-32';
-SELECT * FROM date_table WHERE u_date='2017-11-31';
+--sort SELECT * FROM date_table WHERE u_date='2017-2-29';
+--sort SELECT * FROM date_table WHERE u_date='2017-21-29';
+--sort SELECT * FROM date_table WHERE u_date='2017-12-32';
+--sort SELECT * FROM date_table WHERE u_date='2017-11-31';
 
 INSERT INTO date_table VALUES (10,'2017-2-29');
 INSERT INTO date_table VALUES (11,'2017-21-29');

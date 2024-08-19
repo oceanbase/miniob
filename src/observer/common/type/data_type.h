@@ -47,6 +47,17 @@ public:
   virtual RC divide(const Value &left, const Value &right, Value &result) const { return RC::UNSUPPORTED; }
   virtual RC negative(const Value &val, Value &result) const { return RC::UNSUPPORTED; }
 
+  virtual RC cast_to(const Value &val, AttrType type, Value &result) const { return RC::UNSUPPORTED; }
+
+  virtual RC to_string(const Value &val, string &result) const { return RC::UNSUPPORTED; }
+
+  virtual int cast_cost(AttrType type) {
+    if (type == attr_type_) {
+      return 0;
+    }
+    return INT32_MAX;
+  }
+
   virtual RC set_value_from_str(Value &val, const string &data) const { return RC::UNSUPPORTED; }
 
 protected:
