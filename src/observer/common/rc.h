@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 #define DEFINE_RCS                       \
   DEFINE_RC(SUCCESS)                     \
   DEFINE_RC(INVALID_ARGUMENT)            \
-  DEFINE_RC(UNIMPLENMENT)                \
+  DEFINE_RC(UNIMPLEMENTED)               \
   DEFINE_RC(SQL_SYNTAX)                  \
   DEFINE_RC(INTERNAL)                    \
   DEFINE_RC(NOMEM)                       \
@@ -75,7 +75,8 @@ See the Mulan PSL v2 for more details. */
   DEFINE_RC(VARIABLE_NOT_VALID)          \
   DEFINE_RC(LOGBUF_FULL)                 \
   DEFINE_RC(LOG_FILE_FULL)               \
-  DEFINE_RC(LOG_ENTRY_INVALID)
+  DEFINE_RC(LOG_ENTRY_INVALID)           \
+  DEFINE_RC(UNSUPPORTED)
 
 enum class RC
 {

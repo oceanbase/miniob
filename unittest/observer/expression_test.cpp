@@ -252,7 +252,7 @@ TEST(CastExpr, cast_expr_test)
   Value                  result;
   cast_expr.get_value(tuple, result);
   ASSERT_EQ(result.get_int(), 1);
-  result.set_int(0);
+  result.reset();
   cast_expr.try_get_value(result);
   ASSERT_EQ(result.get_int(), 1);
 }

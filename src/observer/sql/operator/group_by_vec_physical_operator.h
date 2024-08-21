@@ -27,9 +27,9 @@ public:
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::GROUP_BY_VEC; }
 
-  RC open(Trx *trx) override { return RC::UNIMPLENMENT; }
-  RC next(Chunk &chunk) override { return RC::UNIMPLENMENT; }
-  RC close() override { return RC::UNIMPLENMENT; }
+  RC open(Trx *trx) override { return RC::UNIMPLEMENTED; }
+  RC next(Chunk &chunk) override { return RC::UNIMPLEMENTED; }
+  RC close() override { return RC::UNIMPLEMENTED; }
 
 private:
 };

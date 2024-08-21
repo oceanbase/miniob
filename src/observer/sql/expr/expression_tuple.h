@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 
 #include "sql/expr/tuple.h"
-#include "sql/parser/value.h"
+#include "common/value.h"
 #include "common/rc.h"
 
 template <typename ExprPointerType>

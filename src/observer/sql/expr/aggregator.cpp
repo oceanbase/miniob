@@ -25,18 +25,7 @@ RC SumAggregator::accumulate(const Value &value)
   ASSERT(value.attr_type() == value_.attr_type(), "type mismatch. value type: %s, value_.type: %s", 
         attr_type_to_string(value.attr_type()), attr_type_to_string(value_.attr_type()));
   
-  switch (value.attr_type())
-  {
-    case AttrType::INTS: {
-      value_.set_int(value.get_int() + value_.get_int());
-    } break;
-    case AttrType::FLOATS: {
-      value_.set_float(value.get_float() + value_.get_float());
-    } break;
-    default: {
-      return RC::INTERNAL;
-    }
-  }
+  Value::add(value, value_, value_);
   return RC::SUCCESS;
 }
 

@@ -53,8 +53,7 @@ RC ExplainPhysicalOperator::next()
   generate_physical_plan();
 
   vector<Value> cells;
-  Value         cell;
-  cell.set_string(physical_plan_.c_str());
+  Value         cell(physical_plan_.c_str());
   cells.emplace_back(cell);
   tuple_.set_cells(cells);
   return RC::SUCCESS;
@@ -67,8 +66,7 @@ RC ExplainPhysicalOperator::next(Chunk &chunk)
   }
   generate_physical_plan();
 
-  Value         cell;
-  cell.set_string(physical_plan_.c_str());
+  Value         cell(physical_plan_.c_str());
   auto column = make_unique<Column>();
   column->init(cell);
   chunk.add_column(std::move(column), 0);

@@ -47,7 +47,7 @@ RC ResolveStage::handle_request(SQLStageEvent *sql_event)
   Stmt          *stmt     = nullptr;
 
   rc = Stmt::create_stmt(db, *sql_node, stmt);
-  if (rc != RC::SUCCESS && rc != RC::UNIMPLENMENT) {
+  if (rc != RC::SUCCESS && rc != RC::UNIMPLEMENTED) {
     LOG_WARN("failed to create stmt. rc=%d:%s", rc, strrc(rc));
     sql_result->set_return_code(rc);
     return rc;

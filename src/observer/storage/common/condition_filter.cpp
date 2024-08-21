@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "condition_filter.h"
 #include "common/log/log.h"
-#include "sql/parser/value.h"
+#include "common/value.h"
 #include "storage/record/record_manager.h"
 #include "storage/table/table.h"
 #include <math.h>
@@ -38,7 +38,7 @@ DefaultConditionFilter::~DefaultConditionFilter() {}
 
 RC DefaultConditionFilter::init(const ConDesc &left, const ConDesc &right, AttrType attr_type, CompOp comp_op)
 {
-  if (attr_type < AttrType::CHARS || attr_type > AttrType::FLOATS) {
+  if (attr_type <= AttrType::UNDEFINED || attr_type >= AttrType::MAXTYPE) {
     LOG_ERROR("Invalid condition with unsupported attribute type: %d", attr_type);
     return RC::INVALID_ARGUMENT;
   }

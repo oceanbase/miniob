@@ -97,7 +97,7 @@ RC PredicatePushdownRewriter::get_exprs_can_pushdown(
     // 或 操作的比较，太复杂，现在不考虑
     if (conjunction_expr->conjunction_type() == ConjunctionExpr::Type::OR) {
       LOG_WARN("unsupported or operation");
-      rc = RC::UNIMPLENMENT;
+      rc = RC::UNIMPLEMENTED;
       return rc;
     }
 

@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 #include <string>
 
-#include "sql/parser/value.h"
+#include "common/value.h"
 #include "storage/field/field.h"
 #include "sql/expr/aggregator.h"
 #include "storage/common/chunk.h"
@@ -81,12 +81,12 @@ public:
    * @brief 在没有实际运行的情况下，也就是无法获取tuple的情况下，尝试获取表达式的值
    * @details 有些表达式的值是固定的，比如ValueExpr，这种情况下可以直接获取值
    */
-  virtual RC try_get_value(Value &value) const { return RC::UNIMPLENMENT; }
+  virtual RC try_get_value(Value &value) const { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief 从 `chunk` 中获取表达式的计算结果 `column`
    */
-  virtual RC get_column(Chunk &chunk, Column &column) { return RC::UNIMPLENMENT; }
+  virtual RC get_column(Chunk &chunk, Column &column) { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief 表达式的类型
@@ -120,7 +120,7 @@ public:
   /**
    * @brief 用于 ComparisonExpr 获得比较结果 `select`。
    */
-  virtual RC eval(Chunk &chunk, std::vector<uint8_t> &select) { return RC::UNIMPLENMENT; }
+  virtual RC eval(Chunk &chunk, std::vector<uint8_t> &select) { return RC::UNIMPLEMENTED; }
 
 protected:
   /**
@@ -145,7 +145,7 @@ public:
   ExprType type() const override { return ExprType::STAR; }
   AttrType value_type() const override { return AttrType::UNDEFINED; }
 
-  RC get_value(const Tuple &tuple, Value &value) const override { return RC::UNIMPLENMENT; }  // 不需要实现
+  RC get_value(const Tuple &tuple, Value &value) const override { return RC::UNIMPLEMENTED; }  // 不需要实现
 
   const char *table_name() const { return table_name_.c_str(); }
 

@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "sql/expr/tuple_cell.h"
 #include "sql/parser/parse.h"
-#include "sql/parser/value.h"
+#include "common/value.h"
 #include "storage/record/record.h"
 
 class Table;

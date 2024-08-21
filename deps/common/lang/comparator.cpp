@@ -53,15 +53,15 @@ int compare_string(void *arg1, int arg1_max_length, void *arg2, int arg2_max_len
   int         maxlen = min(arg1_max_length, arg2_max_length);
   int         result = strncmp(s1, s2, maxlen);
   if (0 != result) {
-    return result;
+    return result < 0 ? -1 : 1;
   }
 
   if (arg1_max_length > maxlen) {
-    return s1[maxlen] - 0;
+    return 1;
   }
 
   if (arg2_max_length > maxlen) {
-    return 0 - s2[maxlen];
+    return -1;
   }
   return 0;
 }

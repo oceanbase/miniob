@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/field/field.h"
 #include "common/log/log.h"
-#include "sql/parser/value.h"
+#include "common/value.h"
 #include "storage/record/record.h"
 
 void Field::set_int(Record &record, int value)

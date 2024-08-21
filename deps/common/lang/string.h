@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <cxxabi.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <cstdlib>
 #include <string>

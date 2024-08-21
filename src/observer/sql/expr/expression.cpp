@@ -84,38 +84,30 @@ RC CastExpr::cast(const Value &value, Value &cast_value) const
     cast_value = value;
     return rc;
   }
-
-  switch (cast_type_) {
-    case AttrType::BOOLEANS: {
-      bool val = value.get_boolean();
-      cast_value.set_boolean(val);
-    } break;
-    default: {
-      rc = RC::INTERNAL;
-      LOG_WARN("unsupported convert from type %d to %d", child_->value_type(), cast_type_);
-    }
-  }
+  rc = Value::cast_to(value, cast_type_, cast_value);
   return rc;
 }
 
-RC CastExpr::get_value(const Tuple &tuple, Value &cell) const
+RC CastExpr::get_value(const Tuple &tuple, Value &result) const
 {
-  RC rc = child_->get_value(tuple, cell);
+  Value value;
+  RC rc = child_->get_value(tuple, value);
   if (rc != RC::SUCCESS) {
     return rc;
   }
 
-  return cast(cell, cell);
+  return cast(value, result);
 }
 
-RC CastExpr::try_get_value(Value &value) const
+RC CastExpr::try_get_value(Value &result) const
 {
+  Value value;
   RC rc = child_->try_get_value(value);
   if (rc != RC::SUCCESS) {
     return rc;
   }
 
-  return cast(value, value);
+  return cast(value, result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -328,58 +320,27 @@ RC ArithmeticExpr::calc_value(const Value &left_value, const Value &right_value,
   RC rc = RC::SUCCESS;
 
   const AttrType target_type = value_type();
+  value.set_type(target_type);
 
   switch (arithmetic_type_) {
     case Type::ADD: {
-      if (target_type == AttrType::INTS) {
-        value.set_int(left_value.get_int() + right_value.get_int());
-      } else {
-        value.set_float(left_value.get_float() + right_value.get_float());
-      }
+      Value::add(left_value, right_value, value);
     } break;
 
     case Type::SUB: {
-      if (target_type == AttrType::INTS) {
-        value.set_int(left_value.get_int() - right_value.get_int());
-      } else {
-        value.set_float(left_value.get_float() - right_value.get_float());
-      }
+      Value::subtract(left_value, right_value, value);
     } break;
 
     case Type::MUL: {
-      if (target_type == AttrType::INTS) {
-        value.set_int(left_value.get_int() * right_value.get_int());
-      } else {
-        value.set_float(left_value.get_float() * right_value.get_float());
-      }
+      Value::multiply(left_value, right_value, value);
     } break;
 
     case Type::DIV: {
-      if (target_type == AttrType::INTS) {
-        if (right_value.get_int() == 0) {
-          // NOTE:
-          // 设置为整数最大值是不正确的。通常的做法是设置为NULL，但是当前的miniob没有NULL概念，所以这里设置为整数最大值。
-          value.set_int(numeric_limits<int>::max());
-        } else {
-          value.set_int(left_value.get_int() / right_value.get_int());
-        }
-      } else {
-        if (right_value.get_float() > -EPSILON && right_value.get_float() < EPSILON) {
-          // NOTE:
-          // 设置为浮点数最大值是不正确的。通常的做法是设置为NULL，但是当前的miniob没有NULL概念，所以这里设置为浮点数最大值。
-          value.set_float(numeric_limits<float>::max());
-        } else {
-          value.set_float(left_value.get_float() / right_value.get_float());
-        }
-      }
+      Value::divide(left_value, right_value, value);
     } break;
 
     case Type::NEGATIVE: {
-      if (target_type == AttrType::INTS) {
-        value.set_int(-left_value.get_int());
-      } else {
-        value.set_float(-left_value.get_float());
-      }
+      Value::negative(left_value, value);
     } break;
 
     default: {
@@ -404,7 +365,7 @@ RC ArithmeticExpr::execute_calc(
         binary_operator<LEFT_CONSTANT, RIGHT_CONSTANT, float, AddOperator>(
             (float *)left.data(), (float *)right.data(), (float *)result.data(), result.capacity());
       } else {
-        rc = RC::UNIMPLENMENT;
+        rc = RC::UNIMPLEMENTED;
       }
     } break;
     case Type::SUB:
@@ -415,7 +376,7 @@ RC ArithmeticExpr::execute_calc(
         binary_operator<LEFT_CONSTANT, RIGHT_CONSTANT, float, SubtractOperator>(
             (float *)left.data(), (float *)right.data(), (float *)result.data(), result.capacity());
       } else {
-        rc = RC::UNIMPLENMENT;
+        rc = RC::UNIMPLEMENTED;
       }
       break;
     case Type::MUL:
@@ -426,7 +387,7 @@ RC ArithmeticExpr::execute_calc(
         binary_operator<LEFT_CONSTANT, RIGHT_CONSTANT, float, MultiplyOperator>(
             (float *)left.data(), (float *)right.data(), (float *)result.data(), result.capacity());
       } else {
-        rc = RC::UNIMPLENMENT;
+        rc = RC::UNIMPLEMENTED;
       }
       break;
     case Type::DIV:
@@ -437,7 +398,7 @@ RC ArithmeticExpr::execute_calc(
         binary_operator<LEFT_CONSTANT, RIGHT_CONSTANT, float, DivideOperator>(
             (float *)left.data(), (float *)right.data(), (float *)result.data(), result.capacity());
       } else {
-        rc = RC::UNIMPLENMENT;
+        rc = RC::UNIMPLEMENTED;
       }
       break;
     case Type::NEGATIVE:
@@ -447,10 +408,10 @@ RC ArithmeticExpr::execute_calc(
         unary_operator<LEFT_CONSTANT, float, NegateOperator>(
             (float *)left.data(), (float *)result.data(), result.capacity());
       } else {
-        rc = RC::UNIMPLENMENT;
+        rc = RC::UNIMPLEMENTED;
       }
       break;
-    default: rc = RC::UNIMPLENMENT; break;
+    default: rc = RC::UNIMPLEMENTED; break;
   }
   if (rc == RC::SUCCESS) {
     result.set_count(result.capacity());

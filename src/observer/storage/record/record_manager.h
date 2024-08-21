@@ -179,7 +179,7 @@ public:
    * @param data 要插入的记录
    * @param rid  如果插入成功，通过这个参数返回插入的位置
    */
-  virtual RC insert_record(const char *data, RID *rid) { return RC::UNIMPLENMENT; }
+  virtual RC insert_record(const char *data, RID *rid) { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief 数据库恢复时，在指定位置插入数据
@@ -187,20 +187,20 @@ public:
    * @param data 要插入的数据行
    * @param rid  插入的位置
    */
-  virtual RC recover_insert_record(const char *data, const RID &rid) { return RC::UNIMPLENMENT; }
+  virtual RC recover_insert_record(const char *data, const RID &rid) { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief 删除指定的记录
    *
    * @param rid 要删除的记录标识
    */
-  virtual RC delete_record(const RID *rid) { return RC::UNIMPLENMENT; }
+  virtual RC delete_record(const RID *rid) { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief
    *
    */
-  virtual RC update_record(const RID &rid, const char *data) { return RC::UNIMPLENMENT; }
+  virtual RC update_record(const RID &rid, const char *data) { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief 获取指定位置的记录数据
@@ -208,7 +208,7 @@ public:
    * @param rid 指定的位置
    * @param record 获取到的记录结果
    */
-  virtual RC get_record(const RID &rid, Record &record) { return RC::UNIMPLENMENT; }
+  virtual RC get_record(const RID &rid, Record &record) { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief 获取整个页面中指定列的所有记录。
@@ -216,7 +216,7 @@ public:
    * @param chunk 由 chunk.column(i).col_id() 指定列。
    * 只需由 PaxRecordPageHandler 实现。
    */
-  virtual RC get_chunk(Chunk &chunk) { return RC::UNIMPLENMENT; }
+  virtual RC get_chunk(Chunk &chunk) { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief 返回该记录页的页号
