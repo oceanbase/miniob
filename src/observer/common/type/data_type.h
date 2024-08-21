@@ -18,6 +18,10 @@ See the Mulan PSL v2 for more details. */
 
 class Value;
 
+/**
+ * @brief 定义了数据类型相关的操作，比如比较运算、算术运算等
+ * @defgroup 数据类型
+ */
 class DataType
 {
 public:
@@ -41,10 +45,29 @@ public:
    */
   virtual int compare(const Value &left, const Value &right) const { return INT32_MAX; }
 
+  /**
+   * @brief 计算 left + right，并将结果保存到 result 中
+   */
   virtual RC add(const Value &left, const Value &right, Value &result) const { return RC::UNSUPPORTED; }
+
+  /**
+   * @brief 计算 left - right，并将结果保存到 result 中
+   */
   virtual RC subtract(const Value &left, const Value &right, Value &result) const { return RC::UNSUPPORTED; }
+
+  /**
+   * @brief 计算 left * right，并将结果保存到 result 中
+   */
   virtual RC multiply(const Value &left, const Value &right, Value &result) const { return RC::UNSUPPORTED; }
+
+  /**
+   * @brief 计算 left / right，并将结果保存到 result 中
+   */
   virtual RC divide(const Value &left, const Value &right, Value &result) const { return RC::UNSUPPORTED; }
+
+  /**
+   * @brief 计算 -val，并将结果保存到 result 中
+   */
   virtual RC negative(const Value &val, Value &result) const { return RC::UNSUPPORTED; }
 
   /**

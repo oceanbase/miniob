@@ -12,6 +12,10 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/type/data_type.h"
 
+/**
+ * @brief 整型类型
+ * @ingroup DataType
+ */
 class IntegerType : public DataType
 {
 public:

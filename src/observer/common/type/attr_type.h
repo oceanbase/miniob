@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief 属性的类型
- *
+ * @details AttrType 枚举列出了属性的各种数据类型。
  */
 enum class AttrType
 {

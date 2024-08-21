@@ -12,6 +12,10 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/type/data_type.h"
 
+/**
+ * @brief 浮点型数据类型
+ * @ingroup DataType
+ */
 class FloatType : public DataType
 {
 public:

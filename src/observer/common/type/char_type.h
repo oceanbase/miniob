@@ -13,6 +13,10 @@ See the Mulan PSL v2 for more details. */
 #include "common/rc.h"
 #include "common/type/data_type.h"
 
+/**
+ * @brief 固定长度的字符串类型
+ * @ingroup DataType
+ */
 class CharType : public DataType
 {
 public:
