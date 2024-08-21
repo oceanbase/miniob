@@ -21,7 +21,10 @@ See the Mulan PSL v2 for more details. */
 
 /**
  * @brief 属性的值
- *
+ * @ingroup DataType
+ * @details 与DataType，就是数据类型，配套完成各种算术运算、比较、类型转换等操作。这里同时记录了数据的值与类型。
+ * 当需要对值做运算时，建议使用类似 Value::add 的操作而不是 DataType::add。在进行运算前，应该设置好结果的类型，
+ * 比如进行两个INT类型的除法运算时，结果类型应该设置为FLOAT。
  */
 class Value final
 {
