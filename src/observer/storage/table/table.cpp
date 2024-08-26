@@ -270,14 +270,16 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
   char *record_data = (char *)malloc(record_size);
   memset(record_data, 0, record_size);
 
-  for (int i = 0; i < value_num; i++) {
+  for (int i = 0; i < value_num && OB_SUCC(rc); i++) {
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
     const Value &    value = values[i];
     if (field->type() != value.attr_type()) {
       Value real_value;
       rc = Value::cast_to(value, field->type(), real_value);
       if (OB_FAIL(rc)) {
-        return rc;
+        LOG_WARN("failed to cast value. table name:%s,field name:%s,value:%s ",
+            table_meta_.name(), field->name(), value.to_string().c_str());
+        break;
       }
       rc = set_value_to_record(record_data, real_value, field);
     } else {
@@ -285,6 +287,8 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
     }
   }
   if (OB_FAIL(rc)) {
+    LOG_WARN("failed to make record. table name:%s", table_meta_.name());
+    free(record_data);
     return rc;
   }
 
