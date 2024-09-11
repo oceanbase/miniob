@@ -195,7 +195,7 @@ docker run -d --name fortest --privileged -v $PWD/miniob:/root/miniob oceanbase/
 
 > **没有看到 miniob 目录？**
 >
-> 这可能是因为文档没有及时更新。请尝试以下方法：
+> 请尝试以下方法：
 >
 > 在 Docker Desktop 中查看对应容器的 Log，如果提示 `REPO_ADDR` 未设置，请重新启动一个容器，并加上`-e REPO_ADDR=<your_repo_addr>` 参数，如`docker run -d --name fortest2 --privileged -v $PWD/miniob:/root/miniob -e REPO_ADDR=https://github.com/oceanbase/miniob.git oceanbase/miniob`。
 >
