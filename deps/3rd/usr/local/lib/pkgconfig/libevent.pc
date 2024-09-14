@@ -1,0 +1,16 @@
+#libevent pkg-config source file
+
+prefix=/workspace/miniob/deps/3rd/usr/local
+exec_prefix=/workspace/miniob/deps/3rd/usr/local
+libdir=/workspace/miniob/deps/3rd/usr/local/lib
+includedir=/workspace/miniob/deps/3rd/usr/local/include
+
+Name: libevent
+Description: libevent is an asynchronous notification event loop library
+Version: 2.1.12
+Requires:
+Conflicts:
+Libs: -L${libdir} -levent
+Libs.private: 
+Cflags: -I${includedir}
+
