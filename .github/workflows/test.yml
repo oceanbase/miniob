@@ -115,7 +115,7 @@ jobs:
         shell: bash
         run: |
           sudo bash build.sh init
-          bash build.sh release -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF -DCONCURRENCY=ON
+          bash build.sh release -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF -DCONCURRENCY=ON -DWITH_MEMTRACER=ON
 
       - name: memtracer-performance-test
         shell: bash
