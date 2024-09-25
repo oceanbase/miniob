@@ -22,7 +22,15 @@ MiniOB 需要使用：
 bash build.sh init
 ```
 
-脚本将自动拉取依赖库(可以参考 .gitmodules) 然后编译安装到miniob源码目录的 `deps/3rd/usr/local` 下
+脚本将自动拉取依赖库(可以参考 .gitmodules) 然后编译安装到miniob源码目录的 `deps/3rd/usr/local` 下。
+
+如果你想将第三方依赖安装到其它目录，比如 `/usr/local` 下，可以这样做：
+
+```bash
+THIRD_PARTY_INSTALL_PREFIX=/usr/local bash build.sh init
+```
+
+> 注意：安装到系统目录可能需要一些特殊权限，可能需要使用 `sudo` 来执行命令。
 
 > 如果使用 GitPod 开发，可以跳过这步，会自动执行。
 
