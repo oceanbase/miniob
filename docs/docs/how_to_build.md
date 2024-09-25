@@ -22,13 +22,7 @@ MiniOB 需要使用：
 bash build.sh init
 ```
 
-脚本将自动拉取依赖库(可以参考 .gitmodules) 然后编译安装到系统目录。
-
-如果执行用户不是root，需要在命令前加上 `sudo`：
-
-```bash
-sudo bash build.sh init
-```
+脚本将自动拉取依赖库(可以参考 .gitmodules) 然后编译安装到miniob源码目录的 `deps/3rd/usr/local` 下
 
 > 如果使用 GitPod 开发，可以跳过这步，会自动执行。
 
