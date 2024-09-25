@@ -32,7 +32,7 @@ THIRD_PARTY_INSTALL_PREFIX=/usr/local bash build.sh init
 
 > 注意：安装到系统目录可能需要一些特殊权限，可能需要使用 `sudo` 来执行命令。
 
-> 如果使用 GitPod 开发，可以跳过这步，会自动执行。
+> 如果使用 GitPod、GitHub Devcontainer 或 miniob docker 容器开发，可以跳过这步，会自动执行。
 
 ## 2. 编译
 
