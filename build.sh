@@ -20,11 +20,17 @@ function usage
   echo "./build.sh -h"
   echo "./build.sh init # install dependence"
   echo "./build.sh clean"
+  echo "./build.sh make"      #添加常用命令
+  echo "./build.sh unittest"
+  echo "./build.sh test [TestCases] [TestOptions]"
+  echo "./build.sh dif SingleTestCaseName [DiffOptions]"
   echo "./build.sh [BuildType] [--make [MakeOptions]]"
   echo ""
   echo "OPTIONS:"
   echo "BuildType => debug(default), release"
   echo "MakeOptions => Options to make command, default: -j N"
+  echo "DiffOptions => Options to diff command, e.g. -u|-c|-y"  # -u: unified, -c: context, -y: side by side
+  echo "TestOptions => Options to 。/test/case/miniob_test.py" 
 
   echo ""
   echo "Examples:"
@@ -33,6 +39,14 @@ function usage
   echo ""
   echo "# Build by debug mode and make with -j24."
   echo "./build.sh debug --make -j24"
+  echo ""
+  echo "./build.sh make"
+  echo ""
+  echo "./build.sh test"
+  echo "./build.sh unittest"
+  echo "./build.sh test primary-drop-table,basic"
+  echo ""
+  echo "./build.sh diff primary-drop-table -u"
 }
 
 function parse_args
@@ -62,6 +76,22 @@ function try_make
   fi
 }
 
+function clang_format
+{
+  if [[ $MAKE != false ]]
+  then
+    $MAKE format
+  fi
+}
+
+function check_clang_tidy
+{
+  if [[ $MAKE != false ]]
+  then
+    $MAKE check-clang-tidy
+  fi
+}
+
 # create build directory and cd it.
 function prepare_build_dir
 {
@@ -78,6 +108,7 @@ function do_init
 
   # build libevent
   cd ${TOPDIR}/deps/3rd/libevent && \
+    git checkout release-2.1.12-stable && \  #不知道干了什么
     mkdir -p build && \
     cd build && \
     ${CMAKE_COMMAND} .. -DEVENT__DISABLE_OPENSSL=ON -DEVENT__LIBRARY_TYPE=BOTH && \
@@ -152,6 +183,37 @@ function build
   esac
 }
 
+function do_test
+{
+  # test component
+  # pushd build/bin
+  # for exe in $(pwd)/*_test; do
+  #   if [ $exe != $(pwd)/"client_performance_test" ] && [ $exe != $(pwd)/"clog_test" ]; then
+  #     $exe
+  #   fi
+  # done
+  # popd
+  set -x
+  if [[ $# > 1 ]]; then
+    python3 ./test/case/miniob_test.py --test-cases=${@:2}
+  else
+    # all cases
+    python3 ./test/case/miniob_test.py
+  fi
+}
+
+function do_diff
+{
+  # usage:
+  # ./diff_single_case.sh basic    # default format
+  # ./diff_single_case.sh basic -u # unified format
+  # ./diff_single_case.sh basic -c # context format
+  # ./diff_single_case.sh basic -y # two column format
+  # [How to Use diff --color to Change the Color of the Output](https://phoenixnap.com/kb/diff-color)
+  set -x
+  diff ${@:3} --color -i ./test/case/result/$2.result /tmp/miniob/result_output/$2.result.tmp
+}
+
 function main
 {
   case "$1" in
@@ -164,9 +226,30 @@ function main
     clean)
       do_clean
       ;;
+    test)
+      cd ./src/observer/sql/parser && bash gen_parser.sh && cd ../../../../
+      echo "gen parser finish"
+      do_test "$@"
+      ;;
+    diff)
+      do_diff "$@"
+      ;;
+    unittest)
+      do_unittest
+      ;;
+    make)
+      cd ./src/observer/sql/parser && bash gen_parser.sh && cd ../../../../
+      echo "gen parser finish"
+      cd ./build && make -j8 && cd ../
+      echo "make finish"
+      ;;
     *)
       parse_args
+      cd ./src/observer/sql/parser && bash gen_parser.sh && cd ../../../../
+      echo "gen parser finish"
       build
+      # clang_format # clang-format: maybe you need: sudo ln -s /usr/bin/python3 /usr/bin/python
+      # check_clang_tidy
       try_make
       ;;
   esac

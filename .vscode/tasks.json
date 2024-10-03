@@ -6,27 +6,134 @@
         {
             "label": "init",
             "type": "shell",
-            "command": "sudo -E env PATH=$PATH bash ${workspaceFolder}/build.sh init"
+            "command": "sudo -E env PATH=$PATH bash ${workspaceFolder}/build.sh init",
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+            },
         },
         {
             "label": "build_debug",
             "type": "shell",
-            "command": "bash build.sh debug",
+            "command": "bash ${workspaceFolder}/build.sh debug",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "presentation": {
+                "focus": true,
+            },
         },
         {
             "label": "build_release",
             "type": "shell",
-            "command": "bash build.sh release"
+            "command": "bash ${workspaceFolder}/build.sh release",
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+            },
         },
         {
             "label": "gen_parser",
             "type": "shell",
-            "command": "cd ${workspaceFolder}/src/observer/sql/parser && bash gen_parser.sh"
+            "command": "cd ${workspaceFolder}/src/observer/sql/parser && bash gen_parser.sh",
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+            },
+        },
+        {
+            "label": "make",
+            "type": "shell",
+            "command": "bash ${workspaceFolder}/build.sh make",
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+            },
+        },
+        {
+            "label": "test all cases",
+            "type": "shell",
+            "command": "bash ${workspaceFolder}/build.sh test",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+            },
+        },
+        {
+            "label": "test single case",
+            "type": "shell",
+            "command": "bash ${workspaceFolder}/build.sh test ${input:single_test_case}",
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+            },
+        },
+        {
+            "label": "test some cases",
+            "type": "shell",
+            "command": "bash ${workspaceFolder}/build.sh test ${input:test_some_cases}",
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+            },
+        },
+        {
+            "label": "diff single case",
+            "type": "shell",
+            "command": "bash ${workspaceFolder}/build.sh diff ${input:single_test_case} -u",
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+            },
+        },
+        {
+            "label": "unittest",
+            "type": "shell",
+            "command": "bash ${workspaceFolder}/build.sh unittest",
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+            },
+        },
+    ],
+    "inputs": [
+        {
+            "type": "pickString",
+            "id": "single_test_case",
+            "description": "Please pick one case",
+            "options": [
+                "basic",
+                "primary-aggregation-func",
+                "primary-complex-sub-query",
+                "primary-date",
+                "primary-drop-table",
+                "primary-expression",
+                "primary-group-by",
+                "primary-insert",
+                "primary-join-tables",
+                "primary-multi-index",
+                "primary-null",
+                "primary-order-by",
+                "primary-select-meta",
+                "primary-select-tables",
+                "primary-simple-sub-query",
+                "primary-text",
+                "primary-unique",
+                "primary-update",
+            ],
+            "default": "basic"
+        },
+        {
+            "type": "promptString",
+            "id": "test_some_cases",
+            "description": "Please enter some test cases with separated by commas",
+            "default": "basic,primary-select-meta"
         }
     ]
 }
