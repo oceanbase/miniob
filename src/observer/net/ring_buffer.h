@@ -14,6 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#ifdef __MUSL__
+#include <cstdint>
+#endif
+
 #include "common/rc.h"
 #include "common/lang/vector.h"
 

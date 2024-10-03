@@ -111,6 +111,17 @@ function do_init
   cd $current_dir
 }
 
+function do_musl_init
+{
+  git submodule add https://github.com/ronchaine/libexecinfo deps/3rd/libexecinfo || return
+  current_dir=$PWD
+
+  MAKE_COMMAND="make --silent"
+  cd ${TOPDIR}/deps/3rd/libexecinfo && \
+    make install && \
+    make clean && rm ${TOPDIR}/deps/3rd/libexecinfo/libexecinfo.so.*
+}
+
 function prepare_build_dir
 {
   TYPE=$1
@@ -160,6 +171,9 @@ function main
       ;;
     init)
       do_init
+      ;;
+    musl)
+      do_musl_init
       ;;
     clean)
       do_clean
