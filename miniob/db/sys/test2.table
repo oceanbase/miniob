@@ -1,0 +1,17 @@
+{
+	"fields" : 
+	[
+		{
+			"FIELD_id" : 0,
+			"len" : 4,
+			"name" : "t2",
+			"offset" : 0,
+			"type" : "ints",
+			"visible" : true
+		}
+	],
+	"indexes" : null,
+	"storage_format" : 1,
+	"table_id" : 1,
+	"table_name" : "test2"
+}

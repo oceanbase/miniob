@@ -44,9 +44,9 @@ RC DefaultHandler::init(const char *base_dir, const char *trx_kit_name, const ch
     return RC::INTERNAL;
   }
 
-  base_dir_ = base_dir;
-  db_dir_   = db_dir;
-  trx_kit_name_ = trx_kit_name;
+  base_dir_         = base_dir;
+  db_dir_           = db_dir;
+  trx_kit_name_     = trx_kit_name;
   log_handler_name_ = log_handler_name;
 
   const char *sys_db = "sys";
@@ -143,7 +143,14 @@ RC DefaultHandler::create_table(const char *dbname, const char *relation_name, s
   return db->create_table(relation_name, attributes);
 }
 
-RC DefaultHandler::drop_table(const char *dbname, const char *relation_name) { return RC::UNIMPLEMENTED; }
+RC DefaultHandler::drop_table(const char *dbname, const char *relation_name)
+{
+  Db *db = find_db(dbname);
+  if (db == nullptr) {
+    return RC::SCHEMA_DB_NOT_OPENED;
+  }
+  return db->drop_table(relation_name);
+}
 
 Db *DefaultHandler::find_db(const char *dbname) const
 {

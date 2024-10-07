@@ -64,7 +64,7 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
     LOG_WARN("Name cannot be empty");
     return RC::INVALID_ARGUMENT;
   }
-  LOG_INFO("Begin to create table %s:%s", base_dir, name);
+  LOG_INFO("Begin to create able %s:%s", base_dir, name);
 
   if (attributes.size() == 0) {
     LOG_WARN("Invalid arguments. table_name=%s, attribute_count=%d", name, attributes.size());
@@ -127,6 +127,48 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   return rc;
 }
 
+// 为什么要先刷新所有的脏页
+// TODO:从哪里分析的可以这么删除
+RC Table::destroy(const char *dir)
+{
+  RC rc = sync();  // 刷新所有脏页
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to sync table %s. rc=%d:%s", name(), rc, strrc(rc));
+    return rc;
+  }
+  // 1.destroy indexes
+  const int index_num = table_meta_.index_num();
+  for (int i = 0; i < index_num; i++) {
+    ((BplusTreeIndex *)indexes_[i])->close();
+    const IndexMeta *index_meta = table_meta_.index(i);
+    if (index_meta != nullptr) {
+      std::string index_file = table_index_file(dir, name(), index_meta->name());
+      if (unlink(index_file.c_str()) != 0) {
+        LOG_ERROR("Failed to delete index file. file name=%s, errmsg=%s", index_file.c_str(), strerror(errno));
+        return RC::GENERIC_ERROR;
+      }
+    }
+  }
+
+  // 2.destroy record_handler
+  if (record_handler_ != nullptr) {
+    record_handler_->close();
+    delete record_handler_;
+    record_handler_ = nullptr;
+  }
+  // 3.destroy buffer_pool and data file
+  std ::string       data_file = table_data_file(dir, name());
+  BufferPoolManager &bpm       = db_->buffer_pool_manager();
+  rc                           = bpm.remove_file(data_file.c_str());  // TODO: remove_file
+
+  // 4.destroy table_meta file
+  std::string meta_file = table_meta_file(dir, name());
+  if (unlink(meta_file.c_str()) != 0) {
+    LOG_ERROR("Failed to delete meta file. file name=%s, errmsg=%s", meta_file.c_str(), strerror(errno));
+    return RC::GENERIC_ERROR;
+  }
+  return rc;
+}
 RC Table::open(Db *db, const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件
@@ -272,7 +314,7 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
 
   for (int i = 0; i < value_num && OB_SUCC(rc); i++) {
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
-    const Value &    value = values[i];
+    const Value     &value = values[i];
     if (field->type() != value.attr_type()) {
       Value real_value;
       rc = Value::cast_to(value, field->type(), real_value);

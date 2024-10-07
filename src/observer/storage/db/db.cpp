@@ -160,6 +160,25 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
   LOG_INFO("Create table success. table name=%s, table_id:%d", table_name, table_id);
   return RC::SUCCESS;
 }
+RC Db::drop_table(const char *table_name)
+{
+  auto it = opened_tables_.find(table_name);
+  if (it == opened_tables_.end()) {
+    LOG_WARN("table %s not exist",table_name);
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+  Table *table = it->second;
+
+  RC rc = table->destroy(path_.c_str());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to drop table %s.", table_name);
+    return rc;
+  }
+
+  opened_tables_.erase(it);
+  delete table;
+  return RC::SUCCESS;
+}
 
 Table *Db::find_table(const char *table_name) const
 {

@@ -6,7 +6,7 @@
         {
             "label": "init",
             "type": "shell",
-            "command": "sudo -E env PATH=$PATH bash ${workspaceFolder}/build.sh init",
+            "command": "env PATH=$PATH bash ${workspaceFolder}/build.sh init",
             "problemMatcher": [],
             "presentation": {
                 "focus": true,
@@ -100,6 +100,16 @@
             "presentation": {
                 "focus": true,
             },
+        },
+        {
+            "label": "Run observer",
+            "type": "shell",
+            "command": "/root/miniob/build/bin/observer -s/root/miniob-test.sock -f /root/miniob/etc/observer.ini"
+        },
+        {
+            "label": "Run obclient",
+            "type": "shell",
+            "command": "/root/miniob/build/bin/obclient -s/root/miniob-test.sock"
         },
     ],
     "inputs": [
