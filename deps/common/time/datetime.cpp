@@ -349,7 +349,26 @@ string Now::unique()
   uint64_t        temp;
   static uint64_t last_unique = 0;
 #if defined(LINUX)
-  static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
+  #if defined(__MUSL__)
+    #define MUTEX_INITIALIZER(__mutex, __type)          \
+      do {                                              \
+        static pthread_mutexattr_t  __attr;             \
+        static pthread_mutexattr_t *__p_attr = nullptr; \
+        if (nullptr == __p_attr) {                      \
+          __p_attr = &__attr;                           \
+          pthread_mutexattr_init(__p_attr);             \
+          pthread_mutexattr_settype(__p_attr, __type);  \
+          pthread_mutex_init(&__mutex, __p_attr);       \
+        }                                               \
+      } while (0)
+
+    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    MUTEX_INITIALIZER(mutex, PTHREAD_MUTEX_ERRORCHECK);
+
+    #undef MUTEX_INITIALIZER
+  #else
+    static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
+  #endif
 #elif defined(__MACH__)
   static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
 #endif
