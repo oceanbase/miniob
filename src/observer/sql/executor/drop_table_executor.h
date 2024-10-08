@@ -9,30 +9,29 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Wangyunlai on 2023/03/07.
+// Created by Floyd on 2024/10/07.
 //
 
 #pragma once
 
-#include "common/types.h"
-#include <stdint.h>
+#ifndef DROP_TABLE_EXECUTOR_H_
+#define DROP_TABLE_EXECUTOR_H_
 
-using TrxID = int32_t;
+#include "common/rc.h"
 
-static constexpr PageNum BP_INVALID_PAGE_NUM = -1;
-
-static constexpr PageNum BP_HEADER_PAGE = 0;
-
-static constexpr const int BP_PAGE_SIZE      = (1 << 13); /* 8kb */
-static constexpr const int BP_PAGE_DATA_SIZE = (BP_PAGE_SIZE - sizeof(PageNum) - sizeof(LSN) - sizeof(CheckSum));
+class SQLStageEvent;
 
 /**
- * @brief 表示一个页面，可能放在内存或磁盘上
- * @ingroup BufferPool
- */
-struct Page
+** @brief 删除表的执行器
+** @ingroup Executor
+*/
+class DropTableExecutor
 {
-  LSN      lsn;
-  CheckSum check_sum;
-  char     data[BP_PAGE_DATA_SIZE];
+public:
+    DropTableExecutor() = default;
+    virtual ~DropTableExecutor() = default;
+
+    RC execute(SQLStageEvent *sql_event);
 };
+
+#endif // DROP_TABLE_EXECUTOR_H_

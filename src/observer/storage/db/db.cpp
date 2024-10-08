@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 
 #include <fcntl.h>
+#include <string>
 #include <sys/stat.h>
 #include <vector>
 #include <filesystem>
@@ -158,6 +159,30 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
 
   opened_tables_[table_name] = table;
   LOG_INFO("Create table success. table name=%s, table_id:%d", table_name, table_id);
+  return RC::SUCCESS;
+}
+
+RC Db::drop_table(const char *table_name)
+{
+  RC rc = RC::SUCCESS;
+  // check table_name
+  if (opened_tables_.count(table_name) == 0) {
+    LOG_WARN("%s has not been opened before.", table_name);
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+
+  // 文件路径可以移到Table模块
+  string  table_file_path = table_meta_file(path_.c_str(), table_name);
+  Table  *table           = opened_tables_[table_name];
+  auto table_id = table->table_id();
+  rc = table->drop(this, table_file_path.c_str(), table_name, path_.c_str());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to drop table %s.", table_name);
+    return rc;
+  }
+
+  opened_tables_.erase(table_name);
+  LOG_INFO("Drop table success. table name=%s, table_id:%d", table_name, table_id);
   return RC::SUCCESS;
 }
 
