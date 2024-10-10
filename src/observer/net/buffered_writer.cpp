@@ -13,7 +13,11 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <algorithm>
+#ifdef __MUSL__
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 #include <unistd.h>
 
 #include "net/buffered_writer.h"

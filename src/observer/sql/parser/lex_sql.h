@@ -3,6 +3,7 @@
 #define yyIN_HEADER 1
 
 #line 6 "lex_sql.h"
+#line 2 "lex_sql.l"
 /*
 这里的代码会被复制到lex_sql.cpp的最开始位置
 定义yy_size_t的原因是因为flex生成的代码，会使用yy_size_t与其他类型的数字
@@ -26,7 +27,10 @@ do {                                                         \
 }                                                            \
 while (0);
 
-#line 30 "lex_sql.h"
+
+
+
+#line 34 "lex_sql.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -396,154 +400,9 @@ extern int yylex \
 #undef YY_DECL
 #endif
 
-#ifndef yy_create_buffer_ALREADY_DEFINED
-#undef yy_create_buffer
-#endif
-#ifndef yy_delete_buffer_ALREADY_DEFINED
-#undef yy_delete_buffer
-#endif
-#ifndef yy_scan_buffer_ALREADY_DEFINED
-#undef yy_scan_buffer
-#endif
-#ifndef yy_scan_string_ALREADY_DEFINED
-#undef yy_scan_string
-#endif
-#ifndef yy_scan_bytes_ALREADY_DEFINED
-#undef yy_scan_bytes
-#endif
-#ifndef yy_init_buffer_ALREADY_DEFINED
-#undef yy_init_buffer
-#endif
-#ifndef yy_flush_buffer_ALREADY_DEFINED
-#undef yy_flush_buffer
-#endif
-#ifndef yy_load_buffer_state_ALREADY_DEFINED
-#undef yy_load_buffer_state
-#endif
-#ifndef yy_switch_to_buffer_ALREADY_DEFINED
-#undef yy_switch_to_buffer
-#endif
-#ifndef yypush_buffer_state_ALREADY_DEFINED
-#undef yypush_buffer_state
-#endif
-#ifndef yypop_buffer_state_ALREADY_DEFINED
-#undef yypop_buffer_state
-#endif
-#ifndef yyensure_buffer_stack_ALREADY_DEFINED
-#undef yyensure_buffer_stack
-#endif
-#ifndef yylex_ALREADY_DEFINED
-#undef yylex
-#endif
-#ifndef yyrestart_ALREADY_DEFINED
-#undef yyrestart
-#endif
-#ifndef yylex_init_ALREADY_DEFINED
-#undef yylex_init
-#endif
-#ifndef yylex_init_extra_ALREADY_DEFINED
-#undef yylex_init_extra
-#endif
-#ifndef yylex_destroy_ALREADY_DEFINED
-#undef yylex_destroy
-#endif
-#ifndef yyget_debug_ALREADY_DEFINED
-#undef yyget_debug
-#endif
-#ifndef yyset_debug_ALREADY_DEFINED
-#undef yyset_debug
-#endif
-#ifndef yyget_extra_ALREADY_DEFINED
-#undef yyget_extra
-#endif
-#ifndef yyset_extra_ALREADY_DEFINED
-#undef yyset_extra
-#endif
-#ifndef yyget_in_ALREADY_DEFINED
-#undef yyget_in
-#endif
-#ifndef yyset_in_ALREADY_DEFINED
-#undef yyset_in
-#endif
-#ifndef yyget_out_ALREADY_DEFINED
-#undef yyget_out
-#endif
-#ifndef yyset_out_ALREADY_DEFINED
-#undef yyset_out
-#endif
-#ifndef yyget_leng_ALREADY_DEFINED
-#undef yyget_leng
-#endif
-#ifndef yyget_text_ALREADY_DEFINED
-#undef yyget_text
-#endif
-#ifndef yyget_lineno_ALREADY_DEFINED
-#undef yyget_lineno
-#endif
-#ifndef yyset_lineno_ALREADY_DEFINED
-#undef yyset_lineno
-#endif
-#ifndef yyget_column_ALREADY_DEFINED
-#undef yyget_column
-#endif
-#ifndef yyset_column_ALREADY_DEFINED
-#undef yyset_column
-#endif
-#ifndef yywrap_ALREADY_DEFINED
-#undef yywrap
-#endif
-#ifndef yyget_lval_ALREADY_DEFINED
-#undef yyget_lval
-#endif
-#ifndef yyset_lval_ALREADY_DEFINED
-#undef yyset_lval
-#endif
-#ifndef yyget_lloc_ALREADY_DEFINED
-#undef yyget_lloc
-#endif
-#ifndef yyset_lloc_ALREADY_DEFINED
-#undef yyset_lloc
-#endif
-#ifndef yyalloc_ALREADY_DEFINED
-#undef yyalloc
-#endif
-#ifndef yyrealloc_ALREADY_DEFINED
-#undef yyrealloc
-#endif
-#ifndef yyfree_ALREADY_DEFINED
-#undef yyfree
-#endif
-#ifndef yytext_ALREADY_DEFINED
-#undef yytext
-#endif
-#ifndef yyleng_ALREADY_DEFINED
-#undef yyleng
-#endif
-#ifndef yyin_ALREADY_DEFINED
-#undef yyin
-#endif
-#ifndef yyout_ALREADY_DEFINED
-#undef yyout
-#endif
-#ifndef yy_flex_debug_ALREADY_DEFINED
-#undef yy_flex_debug
-#endif
-#ifndef yylineno_ALREADY_DEFINED
-#undef yylineno
-#endif
-#ifndef yytables_fload_ALREADY_DEFINED
-#undef yytables_fload
-#endif
-#ifndef yytables_destroy_ALREADY_DEFINED
-#undef yytables_destroy
-#endif
-#ifndef yyTABLES_NAME_ALREADY_DEFINED
-#undef yyTABLES_NAME
-#endif
-
-#line 147 "lex_sql.l"
+#line 142 "lex_sql.l"
 
 
-#line 548 "lex_sql.h"
+#line 371 "lex_sql.h"
 #undef yyIN_HEADER
 #endif /* yyHEADER_H */

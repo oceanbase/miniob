@@ -8,30 +8,31 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Floyd on 2024/10/07.
-//
-
 #pragma once
-
-#ifndef DROP_TABLE_EXECUTOR_H_
-#define DROP_TABLE_EXECUTOR_H_
+#ifndef DATE_TYPE_H_
+#define DATE_TYPE_H_
 
 #include "common/rc.h"
-
-class SQLStageEvent;
+#include "common/type/data_type.h"
 
 /**
-** @brief 删除表的执行器
-** @ingroup Executor
-*/
-class DropTableExecutor
+ * @brief 日期类型
+ * @ingroup DataType
+ */
+class DateType : public DataType
 {
 public:
-    DropTableExecutor() = default;
-    virtual ~DropTableExecutor() = default;
+    DateType() : DataType(AttrType::DATES) {}
 
-    RC execute(SQLStageEvent *sql_event);
+    virtual ~DateType() = default;
+
+    int compare(const Value &left, const Value &right) const override;
+
+    RC cast_to(const Value &val, AttrType type, Value &result) const override;
+
+    int cast_cost(AttrType type) override;
+
+    RC to_string(const Value &val, string &result) const override;
 };
 
-#endif // DROP_TABLE_EXECUTOR_H_
+#endif // DATE_TYPE_H_

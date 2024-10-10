@@ -1,8 +1,23 @@
-// zzw
+/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
+miniob is licensed under Mulan PSL v2.
+You can use this software according to the terms and conditions of the Mulan PSL v2.
+You may obtain a copy of Mulan PSL v2 at:
+         http://license.coscl.org.cn/MulanPSL2
+THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+See the Mulan PSL v2 for more details. */
+
+//
+// Created by Floyd on 2024/10/07.
+//
+
 #pragma once
 
+#ifndef DROP_TABLE_STMT_H_
+#define DROP_TABLE_STMT_H_
+
 #include <string>
-#include <vector>
 
 #include "sql/stmt/stmt.h"
 
@@ -15,20 +30,17 @@ class Db;
 class DropTableStmt : public Stmt
 {
 public:
-  DropTableStmt(
-    
-  // table_name 要删除的表名
-  const std::string &table_name): table_name_(table_name){}
-  virtual ~DropTableStmt() = default;
+    DropTableStmt(const std::string &table_name) : table_name_{table_name} {}
+    virtual ~DropTableStmt() = default;
 
-  // 获得此s语句的类型(sql_node.flag 表示SQL语句的类型)
-  StmtType type() const override { return StmtType::DROP_TABLE; }
+    StmtType type() const override { return StmtType::DROP_TABLE; }
 
-  const std::string& table_name() const { return table_name_; }
+    const std::string &table_name() const { return table_name_; }
 
-  // static不依赖于实体
-  // 用于根据语法解析树sql结点 DropTableSqlNode 创建一个 Stmt 对象
-  static RC create(Db *db, const DropTableSqlNode &drop_table, Stmt *&stmt);
+    static RC create(Db *db, const DropTableSqlNode &drop_table, Stmt *&stmt);
+
 private:
-  std::string                  table_name_; // Stmt 将 table_name 解析为具体对象
+    std::string table_name_;
 };
+
+#endif // DROP_TABLE_STMT_H_

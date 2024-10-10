@@ -23,7 +23,7 @@ static constexpr PageNum BP_INVALID_PAGE_NUM = -1;
 
 static constexpr PageNum BP_HEADER_PAGE = 0;
 
-static constexpr const int BP_PAGE_SIZE      = (1 << 13);
+static constexpr const int BP_PAGE_SIZE      = (1 << 13); /* 8kb */
 static constexpr const int BP_PAGE_DATA_SIZE = (BP_PAGE_SIZE - sizeof(PageNum) - sizeof(LSN) - sizeof(CheckSum));
 
 /**

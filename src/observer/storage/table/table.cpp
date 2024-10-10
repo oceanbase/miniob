@@ -12,8 +12,11 @@ See the Mulan PSL v2 for more details. */
 // Created by Meiyi & Wangyunlai on 2021/5/13.
 //
 
+#include <cerrno>
+#include <cstdio>
 #include <limits.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "common/defs.h"
 #include "common/lang/string.h"
@@ -127,6 +130,90 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   return rc;
 }
 
+/**
+ * Here we do two things:
+ * 1. Close record handler.
+ * 2. Remove index and index files.
+ * 3. Remove data file.
+ * 4. Remove meta data file.
+ */
+RC Table::drop(Db *db, const char *path, const char *name, const char *base_dir)
+{
+  if (common::is_blank(name)) {
+    LOG_WARN("Name cannot be empty");
+    return RC::INVALID_ARGUMENT;
+  }
+
+  RC rc = RC::SUCCESS;
+
+  LOG_INFO("Begin to drop table %s:%s", base_dir, name);
+
+  // 1. Free record handler
+  if (record_handler_ != nullptr) {
+    record_handler_->close();
+    delete record_handler_;
+    record_handler_ = nullptr;
+  }
+  if (data_buffer_pool_ != nullptr) {
+    data_buffer_pool_->close_file();
+    data_buffer_pool_ = nullptr;
+  }
+
+  // 2. Remove index and index files.
+  const int index_num = table_meta_.index_num();
+  for (int i = 0; i < index_num; i++) {
+    const IndexMeta *index_meta = table_meta_.index(i);
+    string          index_file = table_index_file(base_dir, this->name(), index_meta->name());
+    if(::unlink(index_file.c_str()) < 0) {
+      if (ENOENT == errno) {
+        LOG_ERROR("Failed to remove index file, it has not been created. %s, EEXIST, %s", path, strerror(errno));
+        return RC::SCHEMA_TABLE_NOT_EXIST;
+      }
+      LOG_ERROR("Remove index file failed. filename=%s, errmsg=%d:%s", path, errno, strerror(errno));
+      return RC::IOERR_OPEN;
+    }
+  }
+  for (Index *ix : indexes_) {
+    delete ix;
+    ix = nullptr;
+  }
+  indexes_.clear();
+
+  // 3. Remove data file
+  string             data_file = table_data_file(base_dir, name);
+  /*
+  BufferPoolManager &bpm       = db->buffer_pool_manager();
+  rc                           = bpm.close_file(data_file.c_str());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to close disk buffer pool of data file. file name=%s", data_file.c_str());
+    return rc;
+  }
+  */
+
+  /* NOTE: I do not implement BufferPoolManager::remove_file() */
+  if(::unlink(data_file.c_str()) < 0) {
+    if (ENOENT == errno) {
+      LOG_ERROR("Failed to remove table data file, it has not been created. %s, EEXIST, %s", path, strerror(errno));
+      return RC::SCHEMA_TABLE_NOT_EXIST;
+    }
+    LOG_ERROR("Remove table file failed. filename=%s, errmsg=%d:%s", path, errno, strerror(errno));
+    return RC::IOERR_OPEN;
+  }
+
+  // 4. Remove meta data file
+  if (::unlink(path) < 0) {
+    if (ENOENT == errno) {
+      LOG_ERROR("Failed to remove table file, it has not been created. %s, EEXIST, %s", path, strerror(errno));
+      return RC::SCHEMA_TABLE_NOT_EXIST;
+    }
+    LOG_ERROR("Remove table file failed. filename=%s, errmsg=%d:%s", path, errno, strerror(errno));
+    return RC::IOERR_OPEN;
+  }
+
+  LOG_INFO("Successfully drop table %s:%s", base_dir, name);
+  return rc;
+}
+
 RC Table::open(Db *db, const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件
@@ -185,38 +272,6 @@ RC Table::open(Db *db, const char *meta_file, const char *base_dir)
   return rc;
 }
 
-
-RC Table::drop(const char* path){
-  
-  // 删除元数据文件
-  // "miniob/db/sys/U.table"
-  if (::remove(path) != 0) { // 尝试删除文件
-    LOG_ERROR("Fail to delete table, filename = %s, errmsg = %s",path,strerror(errno));
-    return RC::INTERNAL;
-  }
-
-  // 删除数据文件
-  // base_dir_ 和 table_meta_ 均在table的属性中
-  string            data_file  = table_data_file(base_dir_.c_str(), table_meta_.name()); 
-  BufferPoolManager &bpm       = db_->buffer_pool_manager();
-  RC rc                        = bpm.remove_file(data_file.c_str());
-  data_buffer_pool_ = nullptr;
-
-  // 删除索引文件 idx 通过new申请，指向实际的索引文件
-  for(auto& idx: indexes_){
-    idx->destory();
-    delete idx;
-    idx = nullptr; 
-  }
-
-  // record_handler_
-  if(record_handler_ != nullptr){
-    delete record_handler_;
-    record_handler_ = nullptr;
-  }
-
-  return rc;
-}
 
 // Table: 调用记录管理器 record_handler_ 插入新纪录
 RC Table::insert_record(Record &record)

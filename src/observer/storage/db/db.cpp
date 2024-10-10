@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 
 #include <fcntl.h>
+#include <string>
 #include <sys/stat.h>
 #include <vector>
 #include <filesystem>
@@ -164,41 +165,25 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
 RC Db::drop_table(const char *table_name)
 {
   RC rc = RC::SUCCESS;
-
-  // 判断表是否不存在
-  // unordered_map<string, Table *> opened_tables_;        ///< 当前所有打开的表
+  // check table_name
   if (opened_tables_.count(table_name) == 0) {
-    LOG_WARN("%s table is not exist.", table_name);
+    LOG_WARN("%s has not been opened before.", table_name);
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
 
-  // 表文件路径 = 数据库文件目录 / 表名
+  // 文件路径可以移到Table模块
   string  table_file_path = table_meta_file(path_.c_str(), table_name);
-  
-  // 找到真实的表元数据文件     "miniob/db/sys/User.table"
-  Table  *table           = find_table(table_name);
-
-  // 当前路径下无对应的磁盘表文件
-  if(table == nullptr){
-    LOG_WARN("Failed to find table %s.", table_name);
-  }
-
-  rc = table->drop(table_file_path.c_str());
-
+  Table  *table           = opened_tables_[table_name];
+  auto table_id = table->table_id();
+  rc = table->drop(this, table_file_path.c_str(), table_name, path_.c_str());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to drop table %s.", table_name);
     return rc;
   }
 
-  // 删除指针
-  delete table;
-  // table = nullptr;
-
-  // std::unordered_map<std::string, Table *> Db::opened_tables_
-  // 根据表名找到表文件的指针
   opened_tables_.erase(table_name);
-
-  LOG_INFO("Drop table success. table name=%s", table_name);
+  delete table;
+  LOG_INFO("Drop table success. table name=%s, table_id:%d", table_name, table_id);
   return RC::SUCCESS;
 }
 
