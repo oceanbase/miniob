@@ -182,6 +182,7 @@ RC Db::drop_table(const char *table_name)
   }
 
   opened_tables_.erase(table_name);
+  delete table;
   LOG_INFO("Drop table success. table name=%s, table_id:%d", table_name, table_id);
   return RC::SUCCESS;
 }

@@ -149,8 +149,15 @@ RC Table::drop(Db *db, const char *path, const char *name, const char *base_dir)
   LOG_INFO("Begin to drop table %s:%s", base_dir, name);
 
   // 1. Free record handler
-  record_handler_->close();
-  delete record_handler_;
+  if (record_handler_ != nullptr) {
+    record_handler_->close();
+    delete record_handler_;
+    record_handler_ = nullptr;
+  }
+  if (data_buffer_pool_ != nullptr) {
+    data_buffer_pool_->close_file();
+    data_buffer_pool_ = nullptr;
+  }
 
   // 2. Remove index and index files.
   const int index_num = table_meta_.index_num();
@@ -166,16 +173,22 @@ RC Table::drop(Db *db, const char *path, const char *name, const char *base_dir)
       return RC::IOERR_OPEN;
     }
   }
+  for (Index *ix : indexes_) {
+    delete ix;
+    ix = nullptr;
+  }
   indexes_.clear();
 
   // 3. Remove data file
   string             data_file = table_data_file(base_dir, name);
+  /*
   BufferPoolManager &bpm       = db->buffer_pool_manager();
   rc                           = bpm.close_file(data_file.c_str());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to close disk buffer pool of data file. file name=%s", data_file.c_str());
     return rc;
   }
+  */
 
   /* NOTE: I do not implement BufferPoolManager::remove_file() */
   if(::unlink(data_file.c_str()) < 0) {
