@@ -86,7 +86,16 @@ RC MinAggregator::evaluate(Value& result)
 /* zzw - avg */
 RC AvgAggregator::accumulate(const Value &value)
 {
-  if (value_.attr_type() == AttrType::UNDEFINED) {
+  // 仅支持 int 和 float 计算平均值
+  ASSERT(value.attr_type() == AttrType::FLOATS || value.attr_type() == AttrType::INTS, "AVG operating should be float or int, false type %s", 
+        attr_type_to_string(value.attr_type()));
+  
+
+  if(num_ == 0){
+    // 第一次计算，均把结果类型设为float
+    value_.set_type(AttrType::FLOATS);
+  }
+  else if (value_.attr_type() == AttrType::UNDEFINED) {
     value_ = value;
     return RC::SUCCESS;
   }
@@ -111,7 +120,7 @@ RC AvgAggregator::evaluate(Value& result)
 /* zzw - count */
 RC CountAggregator::accumulate(const Value &value)
 {
-  // 不能声明value与value_类型一致，无论什么类型，value_始终
+  // 不能声明value与value_类型一致，无论什么类型，value_均为int
   /* 核心步骤 */
   /* 内部的 num_ 记录当前是第几个value */
   /* !!!! 后期定义 null 后，需要改动逻辑 */

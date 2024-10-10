@@ -27,7 +27,6 @@ public:
   RC add(const Value &left, const Value &right, Value &result) const override;
   RC max(const Value &left, const Value &right, Value &result) const override;
   RC min(const Value &left, const Value &right, Value &result) const override;
-  RC avg(const Value &left, const int num, const Value &right, Value &result) const override;
   RC count(const int num, Value &result) const override;
   RC subtract(const Value &left, const Value &right, Value &result) const override;
   RC multiply(const Value &left, const Value &right, Value &result) const override;

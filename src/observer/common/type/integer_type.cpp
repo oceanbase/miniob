@@ -44,13 +44,6 @@ RC IntegerType::min(const Value &left, const Value &right, Value &result) const{
   return RC::SUCCESS;
 }
 
-// left 新值 int运算得到float
-RC IntegerType::avg(const Value &left, const int num,  const Value &right, Value &result) const{
-  float totalSum = right.get_float()*num + left.get_float();
-  result.set_float(totalSum / (num + 1));
-  return RC::SUCCESS;
-}
-
 RC IntegerType::count(const int num, Value &result) const{
   result.set_int(num);
   return RC::SUCCESS;
