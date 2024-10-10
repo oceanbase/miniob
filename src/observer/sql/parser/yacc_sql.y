@@ -732,6 +732,7 @@ load_data_stmt:
       $$->load_data.relation_name = $7;
       $$->load_data.file_name = tmp_file_name;
       free($7);
+      
       free(tmp_file_name);
     }
     ;
