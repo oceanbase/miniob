@@ -90,7 +90,6 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         STRING_T
         DATE_T
         FLOAT_T
-        DATE_T
         HELP
         EXIT
         DOT //QUOTE
