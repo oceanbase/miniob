@@ -712,11 +712,14 @@ comp_op:
     | NE { $$ = NOT_EQUAL; }
     ;
 
-// your code here
+//  select * from T where xxx group by T.id
 group_by:
     /* empty */
     {
       $$ = nullptr;
+    }|GROUP BY expression_list
+    {
+        $$ = $3;
     }
     ;
 load_data_stmt:

@@ -108,7 +108,7 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
   }
 
   unique_ptr<LogicalOperator> predicate_oper;
-
+  // where 过滤条件
   RC rc = create_plan(select_stmt->filter_stmt(), predicate_oper);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to create predicate logical plan. rc=%s", strrc(rc));
@@ -122,7 +122,7 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
 
     last_oper = &predicate_oper;
   }
-
+  // 创建 group by 条件 
   unique_ptr<LogicalOperator> group_by_oper;
   rc = create_group_by_plan(select_stmt, group_by_oper);
   if (OB_FAIL(rc)) {
@@ -280,9 +280,9 @@ RC LogicalPlanGenerator::create_plan(ExplainStmt *explain_stmt, unique_ptr<Logic
 
 RC LogicalPlanGenerator::create_group_by_plan(SelectStmt *select_stmt, unique_ptr<LogicalOperator> &logical_operator)
 {
-  vector<unique_ptr<Expression>> &group_by_expressions = select_stmt->group_by();
+  vector<unique_ptr<Expression>> &group_by_expressions = select_stmt->group_by(); // 字段名
   vector<Expression *> aggregate_expressions;
-  vector<unique_ptr<Expression>> &query_expressions = select_stmt->query_expressions();
+  vector<unique_ptr<Expression>> &query_expressions = select_stmt->query_expressions();  // select 紧跟内容
   function<RC(std::unique_ptr<Expression>&)> collector = [&](unique_ptr<Expression> &expr) -> RC {
     RC rc = RC::SUCCESS;
     if (expr->type() == ExprType::AGGREGATION) {

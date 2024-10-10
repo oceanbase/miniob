@@ -41,7 +41,7 @@ RC HashGroupByPhysicalOperator::open(Trx *trx)
 
   ValueListTuple group_by_evaluated_tuple;
 
-  while (OB_SUCC(rc = child.next())) {
+  while (OB_SUCC(rc = child.next())) {    // 获得的子元组已经经过过滤条件过滤，直接根据其更新结果即可
     Tuple *child_tuple = child.current_tuple();
     if (nullptr == child_tuple) {
       LOG_WARN("failed to get tuple from child operator. rc=%s", strrc(rc));
@@ -50,18 +50,18 @@ RC HashGroupByPhysicalOperator::open(Trx *trx)
 
     // 找到对应的group
     GroupType *found_group = nullptr;
-    rc                     = find_group(*child_tuple, found_group);
+    rc                     = find_group(*child_tuple, found_group); // 根据group by规则找到所属分组，找不到则新创一个组
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to find group. rc=%s", strrc(rc));
       return rc;
     }
 
-    // 计算需要做聚合的值
-    group_value_expression_tuple.set_tuple(child_tuple);
+    // 计算需要做聚合的元组（做一个转化，便于计算聚合元组）
+    group_value_expression_tuple.set_tuple(child_tuple);  
 
     // 计算聚合值
-    GroupValueType &group_value = get<1>(*found_group);
-    rc = aggregate(get<0>(group_value), group_value_expression_tuple);
+    GroupValueType &group_value = get<1>(*found_group);                 // 为 从特定分组读取聚合器 做准备
+    rc = aggregate(get<0>(group_value), group_value_expression_tuple);  // 每一个分组设置一组聚合器；每一个聚合器保存一个该分组该聚合的结果
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to aggregate values. rc=%s", strrc(rc));
       return rc;
@@ -77,9 +77,9 @@ RC HashGroupByPhysicalOperator::open(Trx *trx)
     return rc;
   }
 
-  // 得到最终聚合后的值
+  // 对于每一组，得到最终聚合后的值
   for (GroupType &group : groups_) {
-    GroupValueType &group_value = get<1>(group);
+    GroupValueType &group_value = get<1>(group);  // 每一个而分组有自己的聚合器链表，每一个聚合器记录该分组该聚合的值
     rc = evaluate(group_value);
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to evaluate group value. rc=%s", strrc(rc));

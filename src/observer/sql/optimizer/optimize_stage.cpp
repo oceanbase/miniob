@@ -34,6 +34,7 @@ RC OptimizeStage::handle_request(SQLStageEvent *sql_event)
   unique_ptr<LogicalOperator> logical_operator;
 
   RC rc = create_logical_plan(sql_event, logical_operator);
+  
   if (rc != RC::SUCCESS) {
     if (rc != RC::UNIMPLEMENTED) {
       LOG_WARN("failed to create logical plan. rc=%s", strrc(rc));

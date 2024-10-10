@@ -407,7 +407,7 @@ RC ExpressionBinder::bind_aggregate_expression(
   if (nullptr == expr) {
     return RC::SUCCESS;
   }
-
+  // 获得聚集函数的类型
   auto unbound_aggregate_expr = static_cast<UnboundAggregateExpr *>(expr.get());
   const char *aggregate_name = unbound_aggregate_expr->aggregate_name();
   AggregateExpr::Type aggregate_type;
@@ -421,7 +421,7 @@ RC ExpressionBinder::bind_aggregate_expression(
   vector<unique_ptr<Expression>> child_bound_expressions;
 
   if (child_expr->type() == ExprType::STAR && aggregate_type == AggregateExpr::Type::COUNT) {
-    ValueExpr *value_expr = new ValueExpr(Value(1));
+    ValueExpr *value_expr = new ValueExpr(Value(1));  // count(*)  -->  count(1) 
     child_expr.reset(value_expr);
   } else {
     rc = bind_expression(child_expr, child_bound_expressions);
@@ -433,7 +433,7 @@ RC ExpressionBinder::bind_aggregate_expression(
       LOG_WARN("invalid children number of aggregate expression: %d", child_bound_expressions.size());
       return RC::INVALID_ARGUMENT;
     }
-
+    // 子表达式：聚集函数内部的字段名
     if (child_bound_expressions[0].get() != child_expr.get()) {
       child_expr.reset(child_bound_expressions[0].release());
     }

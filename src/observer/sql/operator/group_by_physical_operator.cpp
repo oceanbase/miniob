@@ -76,8 +76,8 @@ RC GroupByPhysicalOperator::evaluate(GroupValueType &group_value)
   RC rc = RC::SUCCESS;
 
   vector<TupleCellSpec> aggregator_names;
-  for (Expression *expr : aggregate_expressions_) {
-    aggregator_names.emplace_back(expr->name());
+  for (Expression *expr : aggregate_expressions_) { // 遍历该分组的聚合函数链表 
+    aggregator_names.emplace_back(expr->name());    // 聚合函数名称
   }
 
   AggregatorList &aggregators           = get<0>(group_value);

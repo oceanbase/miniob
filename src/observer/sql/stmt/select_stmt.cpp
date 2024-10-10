@@ -40,7 +40,8 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
 
   BinderContext binder_context;
 
-  // collect tables in `from` statement
+  // collect tables in `from` statement  (relations)
+  // 将所有目标表 转化为 实际的表对象
   vector<Table *>                tables;
   unordered_map<string, Table *> table_map;
   for (size_t i = 0; i < select_sql.relations.size(); i++) {
@@ -61,11 +62,11 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
     table_map.insert({table_name, table});
   }
 
-  // collect query fields in `select` statement
+  // collect query fields in `select` statement  (expressions)
   vector<unique_ptr<Expression>> bound_expressions;
   ExpressionBinder expression_binder(binder_context);
   
-  for (unique_ptr<Expression> &expression : select_sql.expressions) {
+  for (unique_ptr<Expression> &expression : select_sql.expressions) { // 
     RC rc = expression_binder.bind_expression(expression, bound_expressions);
     if (OB_FAIL(rc)) {
       LOG_INFO("bind expression failed. rc=%s", strrc(rc));
@@ -75,6 +76,7 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
 
   vector<unique_ptr<Expression>> group_by_expressions;
   for (unique_ptr<Expression> &expression : select_sql.group_by) {
+    // group by 内部的字段名
     RC rc = expression_binder.bind_expression(expression, group_by_expressions);
     if (OB_FAIL(rc)) {
       LOG_INFO("bind expression failed. rc=%s", strrc(rc));
@@ -87,7 +89,7 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
     default_table = tables[0];
   }
 
-  // create filter statement in `where` statement
+  // create filter statement in `where` statement ()
   FilterStmt *filter_stmt = nullptr;
   RC          rc          = FilterStmt::create(db,
       default_table,

@@ -19,14 +19,14 @@ insert into t_group_by_2 values(3, 40);
 insert into t_group_by_2 values(4, 20);
 
 -- echo 3. primary group by
--- sort select id, avg(score) from t_group_by group by id;
+-- sort select id, avg(score) from t_group_by group by id;       // passed
 
--- sort select name, min(id), max(score) from t_group_by group by name;
+-- sort select name, min(id), max(score) from t_group_by group by name;       // passed
 
--- sort select id, name, avg(score) from t_group_by group by id, name;
+-- sort select id, name, avg(score) from t_group_by group by id, name;       // passed
 
 -- echo 4. with where condition
--- sort select id, avg(score) from t_group_by where id>2 group by id;
+-- sort select id, avg(score) from t_group_by where id>2 group by id;       // passed
 
 -- sort select name, count(id), max(score) from t_group_by where name > 'a' and id>=0 group by name;
 
