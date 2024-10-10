@@ -42,7 +42,7 @@ void GroupByPhysicalOperator::create_aggregator_list(AggregatorList &aggregator_
     aggregator_list.emplace_back(aggregate_expr->create_aggregator());
   });
 }
-
+// AggregatorList: 聚合器列表    tuple：新拉取上来的元组，准备更新原有的结果
 RC GroupByPhysicalOperator::aggregate(AggregatorList &aggregator_list, const Tuple &tuple)
 {
   ASSERT(static_cast<int>(aggregator_list.size()) == tuple.cell_num(), 
@@ -53,14 +53,14 @@ RC GroupByPhysicalOperator::aggregate(AggregatorList &aggregator_list, const Tup
   Value     value;
   const int size = static_cast<int>(aggregator_list.size());
   for (int i = 0; i < size; i++) {
-    Aggregator *aggregator = aggregator_list[i].get();
-
+    Aggregator *aggregator = aggregator_list[i].get();  // 遍历每一个聚合器，如一个表达式有多个聚合器 max(id),sum(id)
+    // 从当前元组提取出值
     rc = tuple.cell_at(i, value);
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to get value from expression. rc=%s", strrc(rc));
       return rc;
     }
-
+    // 执行对应的aggregator操作（SUM / MAX ...）
     rc = aggregator->accumulate(value);
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to accumulate value. rc=%s", strrc(rc));

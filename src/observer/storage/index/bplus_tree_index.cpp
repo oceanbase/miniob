@@ -44,6 +44,16 @@ RC BplusTreeIndex::create(Table *table, const char *file_name, const IndexMeta &
   return RC::SUCCESS;
 }
 
+RC BplusTreeIndex::destory(){
+  if (inited_) {
+    LOG_INFO("Begin to destory index, index:%s, field:%s", index_meta_.name(), index_meta_.field());
+    index_handler_.remove();
+    inited_ = false;
+  }
+  LOG_INFO("Successfully remove index.");
+  return RC::SUCCESS;
+}
+
 RC BplusTreeIndex::open(Table *table, const char *file_name, const IndexMeta &index_meta, const FieldMeta &field_meta)
 {
   if (inited_) {
@@ -82,6 +92,7 @@ RC BplusTreeIndex::close()
 
 RC BplusTreeIndex::insert_entry(const char *record, const RID *rid)
 {
+  // record + field_meta_.offset() 为实际数据位置
   return index_handler_.insert_entry(record + field_meta_.offset(), rid);
 }
 

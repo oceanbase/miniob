@@ -228,7 +228,7 @@ char *LeafIndexNodeHandler::value_at(int index)
 int LeafIndexNodeHandler::lookup(const KeyComparator &comparator, const char *key, bool *found /* = nullptr */) const
 {
   const int                    size = this->size();
-  common::BinaryIterator<char> iter_begin(item_size(), __key_at(0));
+  common::BinaryIterator<char> iter_begin(item_size(), __key_at(0));  // 叶子节点（本帧）中第一个键的指针
   common::BinaryIterator<char> iter_end(item_size(), __key_at(size));
   common::BinaryIterator<char> iter = lower_bound(iter_begin, iter_end, key, comparator, found);
   return iter - iter_begin;
@@ -774,6 +774,17 @@ bool InternalIndexNodeHandler::validate(const KeyComparator &comparator, DiskBuf
 
 /////////////////////////////////////////////////////////////////////////////////
 
+RC BplusTreeHandler::remove()
+{
+  if (disk_buffer_pool_ != nullptr) {
+    disk_buffer_pool_->remove_file_index();
+  }
+
+  disk_buffer_pool_ = nullptr;
+  return RC::SUCCESS;
+}
+
+
 RC BplusTreeHandler::sync()
 {
   if (header_dirty_) {
@@ -1277,7 +1288,7 @@ RC BplusTreeHandler::insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, 
     return RC::SUCCESS;
   }
 
-  Frame *new_frame = nullptr;
+  Frame *new_frame = nullptr; // 分裂新结点
   RC     rc        = split<LeafIndexNodeHandler>(mtr, frame, new_frame);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to split leaf node. rc=%d:%s", rc, strrc(rc));
@@ -1290,11 +1301,12 @@ RC BplusTreeHandler::insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, 
   leaf_node.set_next_page(new_frame->page_num());
 
   if (insert_position < leaf_node.size()) {
+    // 新插入数据范围属于旧结点
     leaf_node.insert(insert_position, key, (const char *)rid);
   } else {
     new_index_node.insert(insert_position - leaf_node.size(), key, (const char *)rid);
   }
-
+  // 递归进行
   return insert_entry_into_parent(mtr, frame, new_frame, new_index_node.key_at(0));
 }
 
@@ -1389,7 +1401,7 @@ RC BplusTreeHandler::insert_entry_into_parent(BplusTreeMiniTransaction &mtr, Fra
         // 虽然这里是递归调用，但是通常B+ Tree 的层高比较低（3层已经可以容纳很多数据），所以没有栈溢出风险。
         // Q: 在查找叶子节点时，我们都会尝试将没必要的锁提前释放掉，在这里插入数据时，是在向上遍历节点，
         //    理论上来说，我们可以释放更低层级节点的锁，但是并没有这么做，为什么？
-        rc = insert_entry_into_parent(mtr, parent_frame, new_parent_frame, new_node.key_at(0));
+        rc = insert_entry_into_parent(mtr, parent_frame, new_parent_frame, new_node.key_at(0)); 
       }
     }
   }
@@ -1496,7 +1508,7 @@ MemPoolItem::item_unique_ptr BplusTreeHandler::make_key(const char *user_key, co
   memcpy(static_cast<char *>(key.get()) + file_header_.attr_length, &rid, sizeof(rid));
   return key;
 }
-
+// user_key：待创建索引的记录的key（某个属性的值）  rid：待创建索引的记录的rid
 RC BplusTreeHandler::insert_entry(const char *user_key, const RID *rid)
 {
   if (user_key == nullptr || rid == nullptr) {
@@ -1527,7 +1539,7 @@ RC BplusTreeHandler::insert_entry(const char *user_key, const RID *rid)
   }
 
   Frame *frame = nullptr;
-
+  // key应该处在的叶子节点位置 frame
   rc = find_leaf(mtr, BplusTreeOperationType::INSERT, key, frame);
   if (OB_FAIL(rc)) {
     LOG_WARN("Failed to find leaf %s. rc=%d:%s", rid->to_string().c_str(), rc, strrc(rc));

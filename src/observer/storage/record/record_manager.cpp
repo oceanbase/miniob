@@ -289,14 +289,18 @@ RC RowRecordPageHandler::insert_record(const char *data, RID *rid)
   }
 
   // assert index < page_header_->record_capacity
+  // 获取可插入位置的指针
   char *record_data = get_record_data(index);
+
+  // 在 record_data 位置插入数据 data，数据大小为 record_real_size
   memcpy(record_data, data, page_header_->record_real_size);
 
+  // 此内存中的帧被标记为脏
   frame_->mark_dirty();
 
   if (rid) {
-    rid->page_num = get_page_num();
-    rid->slot_num = index;
+    rid->page_num = get_page_num();  // 返回该记录页的页号
+    rid->slot_num = index;  // 新插入记录在此页的槽位
   }
 
   // LOG_TRACE("Insert record. rid page_num=%d, slot num=%d", get_page_num(), index);
@@ -353,7 +357,7 @@ RC RowRecordPageHandler::delete_record(const RID *rid)
 RC RowRecordPageHandler::update_record(const RID &rid, const char *data)
 {
   ASSERT(rw_mode_ != ReadWriteMode::READ_ONLY, "cannot delete record from page while the page is readonly");
-
+  // 待修改的数据超过当前页面，非法
   if (rid.slot_num >= page_header_->record_capacity) {
     LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
               rid.slot_num, frame_->to_string().c_str(), page_header_->to_string().c_str());
@@ -361,13 +365,17 @@ RC RowRecordPageHandler::update_record(const RID &rid, const char *data)
   }
 
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
+  // 获取待修改的记录 rid 对应的位置状态
   if (bitmap.get_bit(rid.slot_num)) {
+    // 为1，说明可以修改
+    // 标记脏
     frame_->mark_dirty();
-
+    // 获得数据
     char *record_data = get_record_data(rid.slot_num);
     if (record_data == data) {
       // nothing to do
     } else {
+      // 直接覆盖，不合理！！！！！！！！！！！！！
       memcpy(record_data, data, page_header_->record_real_size);
     }
 
@@ -380,6 +388,7 @@ RC RowRecordPageHandler::update_record(const RID &rid, const char *data)
 
     return RC::SUCCESS;
   } else {
+    // 为0，说明不允许修改
     LOG_DEBUG("Invalid slot_num %d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
     return RC::RECORD_NOT_EXIST;
   }
@@ -538,11 +547,13 @@ RC RecordFileHandler::init_free_pages()
   LOG_INFO("record file handler init free pages done. free page num=%d, rc=%s", free_pages_.size(), strrc(rc));
   return rc;
 }
-
+// 记录管理器：插入新纪录  RecordFileHandler：管理整个页面的操作，但具体由 RecordPageHandler 负责
 RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
 {
   RC ret = RC::SUCCESS;
 
+  // 负责处理一个页面中各种操作
+  // 此处的 record_page_handler 会根据 storage_format_ 初始化为不同的子类 如 Row_Record_page_handler
   unique_ptr<RecordPageHandler> record_page_handler(RecordPageHandler::create(storage_format_));
   bool                          page_found       = false;
   PageNum                       current_page_num = 0;
@@ -550,29 +561,40 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
   // 当前要访问free_pages对象，所以需要加锁。在非并发编译模式下，不需要考虑这个锁
   lock_.lock();
 
-  // 找到没有填满的页面
+  // 找到没有填满的page
   while (!free_pages_.empty()) {
+    
+    // 找到空闲页面
     current_page_num = *free_pages_.begin();
-
+    // disk_buffer_pool_ -> 对应文件  current_page_num -> 对应页面 读写模式
     ret = record_page_handler->init(*disk_buffer_pool_, *log_handler_, current_page_num, ReadWriteMode::READ_WRITE);
+    
     if (OB_FAIL(ret)) {
       lock_.unlock();
       LOG_WARN("failed to init record page handler. page num=%d, rc=%d:%s", current_page_num, ret, strrc(ret));
       return ret;
     }
 
+    // 此页未满，可以直接在此页插入数据
     if (!record_page_handler->is_full()) {
       page_found = true;
       break;
     }
+
     record_page_handler->cleanup();
+    // 将此页标记为满，并清空此页的record_page_handler，在下一轮循环继续遍历可能的空闲页面
     free_pages_.erase(free_pages_.begin());
   }
+
   lock_.unlock();  // 如果找到了一个有效的页面，那么此时已经拿到了页面的写锁
 
   // 找不到就分配一个新的页面
   if (!page_found) {
+
+    // Frame 指向内存的一个帧，对应磁盘文件的一个页
     Frame *frame = nullptr;
+
+    // 在指定文件（BP内部有存）中分配一个新的页面，并将其放入缓冲区（内存），返回页面指针
     if ((ret = disk_buffer_pool_->allocate_page(&frame)) != RC::SUCCESS) {
       LOG_ERROR("Failed to allocate page while inserting record. ret:%d", ret);
       return ret;
@@ -580,8 +602,10 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
 
     current_page_num = frame->page_num();
 
+    // 初始化关于该页面记录信息的页头PageHeade
     ret = record_page_handler->init_empty_page(
         *disk_buffer_pool_, *log_handler_, current_page_num, record_size, table_meta_);
+
     if (OB_FAIL(ret)) {
       frame->unpin();
       LOG_ERROR("Failed to init empty page. ret:%d", ret);
@@ -602,6 +626,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
   }
 
   // 找到空闲位置
+  // 照应上文：record_page_handler 负责具体页面的插入记录操作
   return record_page_handler->insert_record(data, rid);
 }
 
@@ -641,6 +666,9 @@ RC RecordFileHandler::delete_record(const RID *rid)
     // 因为这里已经释放了页面锁，并发时，其它线程可能又把该页面填满了，那就不应该再放入 free_pages_
     // 中。但是这里可以不关心，因为在查找空闲页面时，会自动过滤掉已经满的页面
     lock_.lock();
+    // free_pages_是集合，不用担心重复问题
+    // 当前页面 rid->page_num 清除一条记录，必然成为空闲页面
+    // free_pages_属于RecordFileHandler，表示RecordFileHandler管理的文件有哪些空页
     free_pages_.insert(rid->page_num);
     LOG_TRACE("add free page %d to free page list", rid->page_num);
     lock_.unlock();

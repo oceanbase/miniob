@@ -224,6 +224,12 @@ DiskBufferPool::~DiskBufferPool()
   LOG_INFO("disk buffer pool exit");
 }
 
+RC DiskBufferPool:: remove_file_index(){
+  // 调用之前删除数据文件时定义的删除方法
+  bp_manager_.remove_file(file_name_.c_str());
+  return RC::SUCCESS;
+}
+
 RC DiskBufferPool::open_file(const char *file_name)
 {
   int fd = open(file_name, O_RDWR);
@@ -862,6 +868,17 @@ RC BufferPoolManager::open_file(LogHandler &log_handler, const char *_file_name,
   _bp = bp;
   return RC::SUCCESS;
 }
+
+RC BufferPoolManager::remove_file(const char *file_name){
+  //若文件在内存中，先从内存抹去
+  close_file(file_name);
+  if (::remove(file_name) != 0) { // 尝试删除文件
+    LOG_ERROR("Fail to delete file, filename = %s, errmsg = %s",file_name,strerror(errno));
+    return RC::INTERNAL;
+  }
+  return RC::SUCCESS;
+}
+
 
 RC BufferPoolManager::close_file(const char *_file_name)
 {

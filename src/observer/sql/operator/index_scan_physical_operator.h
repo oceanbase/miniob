@@ -57,10 +57,10 @@ private:
   Record   current_record_;
   RowTuple tuple_;
 
-  Value left_value_;
-  Value right_value_;
-  bool  left_inclusive_  = false;
-  bool  right_inclusive_ = false;
+  Value left_value_;    // 左边界值
+  Value right_value_;   // 右边界值
+  bool  left_inclusive_  = false; // 左闭？
+  bool  right_inclusive_ = false; // 右闭?
 
   std::vector<std::unique_ptr<Expression>> predicates_;
 };

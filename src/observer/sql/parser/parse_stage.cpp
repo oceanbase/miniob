@@ -37,6 +37,8 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
   ParsedSqlResult parsed_sql_result;
 
   parse(sql.c_str(), &parsed_sql_result);
+
+  // 直接返回客户端
   if (parsed_sql_result.sql_nodes().empty()) {
     sql_result->set_return_code(RC::SUCCESS);
     sql_result->set_state_string("");
@@ -47,7 +49,10 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
     LOG_WARN("got multi sql commands but only 1 will be handled");
   }
 
+  // sql_node -> 语法解析树的根节点
   std::unique_ptr<ParsedSqlNode> sql_node = std::move(parsed_sql_result.sql_nodes().front());
+
+  // 直接返回客户端
   if (sql_node->flag == SCF_ERROR) {
     // set error information to event
     rc = RC::SQL_SYNTAX;

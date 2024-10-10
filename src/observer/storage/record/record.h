@@ -175,11 +175,14 @@ public:
     this->data_ = data;
     this->len_  = len;
   }
+
+  // 向本记录添加数据
   void set_data_owner(char *data, int len)
   {
     ASSERT(len != 0, "the len of data should not be 0");
-    this->~Record();
+    this->~Record();  // 重新初始化一个对象
 
+    // 向本记录添加数据
     this->data_  = data;
     this->len_   = len;
     this->owner_ = true;

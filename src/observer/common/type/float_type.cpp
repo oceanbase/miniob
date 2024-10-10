@@ -30,6 +30,24 @@ RC FloatType::add(const Value &left, const Value &right, Value &result) const
   result.set_float(left.get_float() + right.get_float());
   return RC::SUCCESS;
 }
+
+RC FloatType::max(const Value &left, const Value &right, Value &result) const{
+  result.set_float((left.get_float() > right.get_float())? left.get_float():right.get_float());
+  return RC::SUCCESS;
+}
+
+RC FloatType::min(const Value &left, const Value &right, Value &result) const{
+  result.set_float((left.get_float() < right.get_float())? left.get_float():right.get_float());
+  return RC::SUCCESS;
+}
+
+// left 新值
+RC FloatType::avg(const Value &left, const int num,  const Value &right, Value &result) const{
+  float totalSum = right.get_float() * num + left.get_float();
+  result.set_float(totalSum / (num + 1));
+  return RC::SUCCESS;
+}
+
 RC FloatType::subtract(const Value &left, const Value &right, Value &result) const
 {
   result.set_float(left.get_float() - right.get_float());

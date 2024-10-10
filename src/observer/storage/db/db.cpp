@@ -161,6 +161,47 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
   return RC::SUCCESS;
 }
 
+RC Db::drop_table(const char *table_name)
+{
+  RC rc = RC::SUCCESS;
+
+  // 判断表是否不存在
+  // unordered_map<string, Table *> opened_tables_;        ///< 当前所有打开的表
+  if (opened_tables_.count(table_name) == 0) {
+    LOG_WARN("%s table is not exist.", table_name);
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+
+  // 表文件路径 = 数据库文件目录 / 表名
+  string  table_file_path = table_meta_file(path_.c_str(), table_name);
+  
+  // 找到真实的表元数据文件     "miniob/db/sys/User.table"
+  Table  *table           = find_table(table_name);
+
+  // 当前路径下无对应的磁盘表文件
+  if(table == nullptr){
+    LOG_WARN("Failed to find table %s.", table_name);
+  }
+
+  rc = table->drop(table_file_path.c_str());
+
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to drop table %s.", table_name);
+    return rc;
+  }
+
+  // 删除指针
+  delete table;
+  // table = nullptr;
+
+  // std::unordered_map<std::string, Table *> Db::opened_tables_
+  // 根据表名找到表文件的指针
+  opened_tables_.erase(table_name);
+
+  LOG_INFO("Drop table success. table name=%s", table_name);
+  return RC::SUCCESS;
+}
+
 Table *Db::find_table(const char *table_name) const
 {
   unordered_map<string, Table *>::const_iterator iter = opened_tables_.find(table_name);

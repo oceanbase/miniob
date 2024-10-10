@@ -14,7 +14,7 @@
             "internalConsoleOptions": "openOnSessionStart",
             "osx": {
                 "MIMode": "lldb",
-                "externalConsole":true
+                "externalConsole":false
             }
         },
         {

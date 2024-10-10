@@ -143,6 +143,7 @@ public:
   Trx()          = default;
   virtual ~Trx() = default;
 
+  // 事务功能之一：插入一条数据 record 到表 table
   virtual RC insert_record(Table *table, Record &record)                    = 0;
   virtual RC delete_record(Table *table, Record &record)                    = 0;
   virtual RC visit_record(Table *table, Record &record, ReadWriteMode mode) = 0;

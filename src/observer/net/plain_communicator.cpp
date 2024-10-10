@@ -190,6 +190,7 @@ RC PlainCommunicator::write_result_internal(SessionEvent *event, bool &need_disc
     return write_state(event, need_disconnect);
   }
 
+  // DML等语句的执行入口
   rc = sql_result->open();
   if (OB_FAIL(rc)) {
     sql_result->close();

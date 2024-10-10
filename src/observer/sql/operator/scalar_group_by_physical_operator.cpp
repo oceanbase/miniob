@@ -25,9 +25,10 @@ ScalarGroupByPhysicalOperator::ScalarGroupByPhysicalOperator(vector<Expression *
 {}
 
 RC ScalarGroupByPhysicalOperator::open(Trx *trx)
-{
+{ 
+  // 仅能有一个子操作符，如 max(id)，子操作符即 FieldType 的 FiledExpr 的id
   ASSERT(children_.size() == 1, "group by operator only support one child, but got %d", children_.size());
-
+  
   PhysicalOperator &child = *children_[0];
   RC                rc    = child.open(trx);
   if (OB_FAIL(rc)) {
@@ -40,16 +41,15 @@ RC ScalarGroupByPhysicalOperator::open(Trx *trx)
   ValueListTuple group_by_evaluated_tuple;
 
   while (OB_SUCC(rc = child.next())) {
-    Tuple *child_tuple = child.current_tuple();
+    Tuple *child_tuple = child.current_tuple(); 
     if (nullptr == child_tuple) {
       LOG_WARN("failed to get tuple from child operator. rc=%s", strrc(rc));
       return RC::INTERNAL;
     }
 
-    // 计算需要做聚合的值
+    // 计算需要做聚合的值  this.child_tuple_ = child_tuple
     group_value_expression_tuple.set_tuple(child_tuple);
 
-    // 计算聚合值
     if (group_value_ == nullptr) {
       AggregatorList aggregator_list;
       create_aggregator_list(aggregator_list);
@@ -65,8 +65,10 @@ RC ScalarGroupByPhysicalOperator::open(Trx *trx)
       composite_tuple.add_tuple(make_unique<ValueListTuple>(std::move(child_tuple_to_value)));
       group_value_ = make_unique<GroupValueType>(std::move(aggregator_list), std::move(composite_tuple));
     }
-    
+
+    // 对当前拉上来的 元组值group_value_expression_tuple 执行聚合操作更新原有结果 (核心)
     rc = aggregate(get<0>(*group_value_), group_value_expression_tuple);
+    
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to aggregate values. rc=%s", strrc(rc));
       return rc;
@@ -82,7 +84,7 @@ RC ScalarGroupByPhysicalOperator::open(Trx *trx)
     return rc;
   }
 
-  // 得到最终聚合后的值
+  // 得到最终聚合后的值（不是核心操作）
   if (group_value_) {
     rc = evaluate(*group_value_);
   }

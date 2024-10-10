@@ -221,6 +221,7 @@ public:
    */
   RC dispose_page(PageNum page_num);
 
+  RC remove_file_index();
   /**
    * @brief 释放指定文件关联的页的内存
    * 如果已经脏， 则刷到磁盘，除了pinned page
@@ -329,8 +330,9 @@ public:
   RC create_file(const char *file_name);
   RC open_file(LogHandler &log_handler, const char *file_name, DiskBufferPool *&bp);
   RC close_file(const char *file_name);
-
+  RC remove_file(const char *file_name);
   RC flush_page(Frame &frame);
+
 
   BPFrameManager    &get_frame_manager() { return frame_manager_; }
   DoubleWriteBuffer *get_dblwr_buffer() { return dblwr_buffer_.get(); }

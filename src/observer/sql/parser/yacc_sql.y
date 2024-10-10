@@ -88,6 +88,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         TRX_ROLLBACK
         INT_T
         STRING_T
+        DATE_T
         FLOAT_T
         HELP
         EXIT
@@ -111,6 +112,11 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         LE
         GE
         NE
+        MAX
+        MIN
+        SUM
+        AVG
+        COUNT
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -272,6 +278,7 @@ desc_table_stmt:
     ;
 
 create_index_stmt:    /*create index 语句的语法解析树*/
+/*   CREATE INDEX idx ON U LBRACE id RBRACE   */
     CREATE INDEX ID ON ID LBRACE ID RBRACE
     {
       $$ = new ParsedSqlNode(SCF_CREATE_INDEX);
@@ -296,6 +303,8 @@ drop_index_stmt:      /*drop index 语句的语法解析树*/
     }
     ;
 create_table_stmt:    /*create table 语句的语法解析树*/
+/* CREATE TABLE 表名 LBRACE id int, name varchar RBRACE */
+/* COMMA attr_def attr_def_list  , id int */
     CREATE TABLE ID LBRACE attr_def attr_def_list RBRACE storage_format
     {
       $$ = new ParsedSqlNode(SCF_CREATE_TABLE);
@@ -336,6 +345,7 @@ attr_def_list:
     ;
     
 attr_def:
+// id int
     ID type LBRACE number RBRACE 
     {
       $$ = new AttrInfoSqlNode;
@@ -356,10 +366,11 @@ attr_def:
 number:
     NUMBER {$$ = $1;}
     ;
-type:
-    INT_T      { $$ = static_cast<int>(AttrType::INTS); }
-    | STRING_T { $$ = static_cast<int>(AttrType::CHARS); }
-    | FLOAT_T  { $$ = static_cast<int>(AttrType::FLOATS); }
+type:  
+    INT_T      { $$ = static_cast<int>(AttrType::INTS); }  
+    | STRING_T { $$ = static_cast<int>(AttrType::CHARS); }  
+    | FLOAT_T  { $$ = static_cast<int>(AttrType::FLOATS); }  
+    | DATE_T   { $$ = static_cast<int>(AttrType::DATES); }  
     ;
 insert_stmt:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 
@@ -367,10 +378,10 @@ insert_stmt:        /*insert   语句的语法解析树*/
       $$ = new ParsedSqlNode(SCF_INSERT);
       $$->insertion.relation_name = $3;
       if ($7 != nullptr) {
-        $$->insertion.values.swap(*$7);
+        $$->insertion.values.swap(*$7); // 将超出1部分的属性先放入
         delete $7;
       }
-      $$->insertion.values.emplace_back(*$6);
+      $$->insertion.values.emplace_back(*$6);  //将第1个部分的属性放入
       std::reverse($$->insertion.values.begin(), $$->insertion.values.end());
       delete $6;
       free($3);
@@ -530,7 +541,52 @@ expression:
     | '*' {
       $$ = new StarExpr();
     }
-    // your code here
+    | MAX LBRACE expression RBRACE{
+      if($3 -> type() != ExprType::UNBOUND_FIELD){
+        delete $3;
+        yyerror (&yylloc, sql_string, sql_result, scanner, YY_("syntax error: can only support MAX(FIELD)")); 
+        YYERROR; 
+      }else{
+        $$ = create_aggregate_expression("MAX", $3, sql_string, &@$);
+      }
+    }  
+    /*
+    UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
+                                           Expression *child,
+                                           const char *sql_string,
+                                           YYLTYPE *llocp)
+    */
+    | SUM LBRACE expression RBRACE{
+      if($3 -> type() != ExprType::UNBOUND_FIELD){
+        delete $3;
+        yyerror (&yylloc, sql_string, sql_result, scanner, YY_("syntax error: can only support SUM(FIELD)")); 
+        YYERROR; 
+      }else{
+        $$ = create_aggregate_expression("SUM", $3, sql_string, &@$);  
+      }
+    }  
+    | MIN LBRACE expression RBRACE{
+      if($3 -> type() != ExprType::UNBOUND_FIELD){
+        delete $3;
+        yyerror (&yylloc, sql_string, sql_result, scanner, YY_("syntax error: can only support MIN(FIELD)")); 
+        YYERROR; 
+      }else{
+        $$ = create_aggregate_expression("MIN", $3, sql_string, &@$);  
+      }
+    }  
+    | AVG LBRACE expression RBRACE{
+      if($3 -> type() != ExprType::UNBOUND_FIELD){
+        delete $3;
+        yyerror (&yylloc, sql_string, sql_result, scanner, YY_("syntax error: can only support AVG(FIELD)")); 
+        YYERROR; 
+      }else{
+        $$ = create_aggregate_expression("AVG", $3, sql_string, &@$);    
+      }
+    }  
+    | COUNT LBRACE expression RBRACE{
+      // count(*) 可以支持
+      $$ = create_aggregate_expression("COUNT", $3, sql_string, &@$);    
+    }  
     ;
 
 rel_attr:

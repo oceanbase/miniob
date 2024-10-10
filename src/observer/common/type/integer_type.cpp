@@ -34,6 +34,28 @@ RC IntegerType::add(const Value &left, const Value &right, Value &result) const
   return RC::SUCCESS;
 }
 
+RC IntegerType::max(const Value &left, const Value &right, Value &result) const{
+  result.set_int((left.get_int() > right.get_int())? left.get_int():right.get_int());
+  return RC::SUCCESS;
+}
+
+RC IntegerType::min(const Value &left, const Value &right, Value &result) const{
+  result.set_int((left.get_int() < right.get_int())? left.get_int():right.get_int());
+  return RC::SUCCESS;
+}
+
+// left 新值 int运算得到float
+RC IntegerType::avg(const Value &left, const int num,  const Value &right, Value &result) const{
+  float totalSum = right.get_float()*num + left.get_float();
+  result.set_float(totalSum / (num + 1));
+  return RC::SUCCESS;
+}
+
+RC IntegerType::count(const int num, Value &result) const{
+  result.set_int(num);
+  return RC::SUCCESS;
+}
+
 RC IntegerType::subtract(const Value &left, const Value &right, Value &result) const
 {
   result.set_int(left.get_int() - right.get_int());

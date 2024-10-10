@@ -185,9 +185,44 @@ RC Table::open(Db *db, const char *meta_file, const char *base_dir)
   return rc;
 }
 
+
+RC Table::drop(const char* path){
+  
+  // 删除元数据文件
+  // "miniob/db/sys/U.table"
+  if (::remove(path) != 0) { // 尝试删除文件
+    LOG_ERROR("Fail to delete table, filename = %s, errmsg = %s",path,strerror(errno));
+    return RC::INTERNAL;
+  }
+
+  // 删除数据文件
+  // base_dir_ 和 table_meta_ 均在table的属性中
+  string            data_file  = table_data_file(base_dir_.c_str(), table_meta_.name()); 
+  BufferPoolManager &bpm       = db_->buffer_pool_manager();
+  RC rc                        = bpm.remove_file(data_file.c_str());
+  data_buffer_pool_ = nullptr;
+
+  // 删除索引文件 idx 通过new申请，指向实际的索引文件
+  for(auto& idx: indexes_){
+    idx->destory();
+    delete idx;
+    idx = nullptr; 
+  }
+
+  // record_handler_
+  if(record_handler_ != nullptr){
+    delete record_handler_;
+    record_handler_ = nullptr;
+  }
+
+  return rc;
+}
+
+// Table: 调用记录管理器 record_handler_ 插入新纪录
 RC Table::insert_record(Record &record)
 {
   RC rc = RC::SUCCESS;
+  // 调用记录管理器 record_handler_ 插入新纪录
   rc    = record_handler_->insert_record(record.data(), table_meta_.record_size(), &record.rid());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Insert record failed. table name=%s, rc=%s", table_meta_.name(), strrc(rc));
@@ -255,24 +290,32 @@ const char *Table::name() const { return table_meta_.name(); }
 
 const TableMeta &Table::table_meta() const { return table_meta_; }
 
+// 创建一条记录
 RC Table::make_record(int value_num, const Value *values, Record &record)
 {
   RC rc = RC::SUCCESS;
   // 检查字段类型是否一致
+  // 请求的记录属性数 + 系统固有属性数 是否等于 全部的真正属性数
   if (value_num + table_meta_.sys_field_num() != table_meta_.field_num()) {
     LOG_WARN("Input values don't match the table's schema, table name:%s", table_meta_.name());
     return RC::SCHEMA_FIELD_MISSING;
   }
 
   const int normal_field_start_index = table_meta_.sys_field_num();
+
   // 复制所有字段的值
   int   record_size = table_meta_.record_size();
   char *record_data = (char *)malloc(record_size);
   memset(record_data, 0, record_size);
 
+  // 对于每一条新属性
   for (int i = 0; i < value_num && OB_SUCC(rc); i++) {
+    // 获取非sys属性的 字段元数据
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
+    // 获取新字段的值
     const Value &    value = values[i];
+
+    // 新字段与原设定类型不一致，先尝试转换
     if (field->type() != value.attr_type()) {
       Value real_value;
       rc = Value::cast_to(value, field->type(), real_value);
@@ -281,8 +324,11 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
             table_meta_.name(), field->name(), value.to_string().c_str());
         break;
       }
+      // 向记录 record_data 添加一个新字段 field，值为 real_value
       rc = set_value_to_record(record_data, real_value, field);
-    } else {
+    } 
+    else {
+      // 类型匹配，直接添加
       rc = set_value_to_record(record_data, value, field);
     }
   }
@@ -361,18 +407,20 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
   }
 
   IndexMeta new_index_meta;
-
+  // 创建名为 index_name 的以属性 field_meta 为目标的单索引
   RC rc = new_index_meta.init(index_name, *field_meta);
+
   if (rc != RC::SUCCESS) {
     LOG_INFO("Failed to init IndexMeta in table:%s, index_name:%s, field_name:%s", 
              name(), index_name, field_meta->name());
     return rc;
   }
 
-  // 创建索引相关数据
+  // 顶层封装的 B+ 树索引
   BplusTreeIndex *index      = new BplusTreeIndex();
+  // 
   string          index_file = table_index_file(base_dir_.c_str(), name(), index_name);
-
+  // table, 索引文件路径，索引信息，索引属性
   rc = index->create(this, index_file.c_str(), new_index_meta, *field_meta);
   if (rc != RC::SUCCESS) {
     delete index;
@@ -391,6 +439,8 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
 
   Record record;
   while (OB_SUCC(rc = scanner.next(record))) {
+    // 从 顶层封装的 B+ 树索引 插入新记录(为此表 现有的所有记录都创建索引)
+    // 向IndexHandle对应的索引中插入一个索引项
     rc = index->insert_entry(record.data(), &record.rid());
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to insert record into index while creating index. table=%s, index=%s, rc=%s",
@@ -428,6 +478,7 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
     LOG_ERROR("Failed to open file for write. file name=%s, errmsg=%s", tmp_file.c_str(), strerror(errno));
     return RC::IOERR_OPEN;  // 创建索引中途出错，要做还原操作
   }
+  // 将新的表元数据写入临时文件 .tmp
   if (new_table_meta.serialize(fs) < 0) {
     LOG_ERROR("Failed to dump new table meta to file: %s. sys err=%d:%s", tmp_file.c_str(), errno, strerror(errno));
     return RC::IOERR_WRITE;
@@ -436,7 +487,7 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
 
   // 覆盖原始元数据文件
   string meta_file = table_meta_file(base_dir_.c_str(), name());
-
+  // 将tmp_file (临时文件的路径）重命名为meta_file（磁盘文件真实路径）
   int ret = rename(tmp_file.c_str(), meta_file.c_str());
   if (ret != 0) {
     LOG_ERROR("Failed to rename tmp meta file (%s) to normal meta file (%s) while creating index (%s) on table (%s). "
@@ -444,7 +495,7 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
               tmp_file.c_str(), meta_file.c_str(), index_name, name(), errno, strerror(errno));
     return RC::IOERR_WRITE;
   }
-
+  // 同步更新table元数据
   table_meta_.swap(new_table_meta);
 
   LOG_INFO("Successfully added a new index (%s) on the table (%s)", index_name, name());

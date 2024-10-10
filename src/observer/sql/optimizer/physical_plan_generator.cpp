@@ -123,17 +123,17 @@ RC PhysicalPlanGenerator::create_vec(LogicalOperator &logical_operator, unique_p
 
 RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, unique_ptr<PhysicalOperator> &oper)
 {
-  vector<unique_ptr<Expression>> &predicates = table_get_oper.predicates();
+  vector<unique_ptr<Expression>> &predicates = table_get_oper.predicates();   // 过滤条件
   // 看看是否有可以用于索引查找的表达式
-  Table *table = table_get_oper.table();
+  Table *table = table_get_oper.table();  
 
   Index     *index      = nullptr;
   ValueExpr *value_expr = nullptr;
-  for (auto &expr : predicates) {
-    if (expr->type() == ExprType::COMPARISON) {
+  for (auto &expr : predicates) {   // 遍历所有过滤条件
+    if (expr->type() == ExprType::COMPARISON) {   // 仅能实现等值判断
       auto comparison_expr = static_cast<ComparisonExpr *>(expr.get());
       // 简单处理，就找等值查询
-      if (comparison_expr->comp() != EQUAL_TO) {
+      if (comparison_expr->comp() != EQUAL_TO) {  // 仅能实现等值判断
         continue;
       }
 
@@ -143,7 +143,7 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
       if (left_expr->type() != ExprType::VALUE && right_expr->type() != ExprType::VALUE) {
         continue;
       }
-
+      // 断言：左右两边只能有一个是字段名，一个是值
       FieldExpr *field_expr = nullptr;
       if (left_expr->type() == ExprType::FIELD) {
         ASSERT(right_expr->type() == ExprType::VALUE, "right expr should be a value expr while left is field expr");
@@ -160,14 +160,14 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
       }
 
       const Field &field = field_expr->field();
-      index              = table->find_index_by_field(field.field_name());
+      index              = table->find_index_by_field(field.field_name());  // !!!!查看是否有可用的索引
       if (nullptr != index) {
         break;
       }
     }
   }
 
-  if (index != nullptr) {
+  if (index != nullptr) { //有索引可用
     ASSERT(value_expr != nullptr, "got an index but value expr is null ?");
 
     const Value               &value           = value_expr->get_value();
@@ -180,12 +180,12 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
         true /*right_inclusive*/);
 
     index_scan_oper->set_predicates(std::move(predicates));
-    oper = unique_ptr<PhysicalOperator>(index_scan_oper);
+    oper = unique_ptr<PhysicalOperator>(index_scan_oper); //  索引查找物理算子加入算子集
     LOG_TRACE("use index scan");
-  } else {
+  } else {  // 没有索引，进行表扫描
     auto table_scan_oper = new TableScanPhysicalOperator(table, table_get_oper.read_write_mode());
     table_scan_oper->set_predicates(std::move(predicates));
-    oper = unique_ptr<PhysicalOperator>(table_scan_oper);
+    oper = unique_ptr<PhysicalOperator>(table_scan_oper); //  遍历查找物理算子加入算子集
     LOG_TRACE("use table scan");
   }
 

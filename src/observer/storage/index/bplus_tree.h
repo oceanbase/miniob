@@ -67,7 +67,7 @@ public:
   int operator()(const char *v1, const char *v2) const
   {
     // TODO: optimized the comparison
-    Value left;
+    Value left; // 属性的值
     left.set_type(attr_type_);
     left.set_data(v1, attr_length_);
     Value right;
@@ -161,9 +161,9 @@ private:
 };
 
 /**
- * @brief the meta information of bplus tree
+ * @brief 元信息
  * @ingroup BPlusTree
- * @details this is the first page of bplus tree.
+ * @details B+树的第一页
  * only one field can be supported, can you extend it to multi-fields?
  */
 struct IndexFileHeader
@@ -472,7 +472,7 @@ public:
    */
   RC open(LogHandler &log_handler, BufferPoolManager &bpm, const char *file_name);
   RC open(LogHandler &log_handler, DiskBufferPool &buffer_pool);
-
+  RC remove();
   /**
    * 关闭句柄indexHandle对应的索引文件
    */

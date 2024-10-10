@@ -53,6 +53,27 @@ public:
   virtual RC add(const Value &left, const Value &right, Value &result) const { return RC::UNSUPPORTED; }
 
   /**
+   * @brief 将 left 和 right 的较大者保存到 result 中
+   */
+  virtual RC max(const Value &left, const Value &right, Value &result) const { return RC::UNSUPPORTED; }
+
+  /**
+   * @brief 将 left 和 right 的较小者保存到 result 中
+   */
+  virtual RC min(const Value &left, const Value &right, Value &result) const { return RC::UNSUPPORTED; }
+
+  /**
+   * @brief left 表示新值，right表示旧的平均值，result存储新的平均值
+   */
+  virtual RC avg(const Value &left, const int num, const Value &right, Value &result) const { return RC::UNSUPPORTED; }
+
+  
+  /**
+   * @brief num 表示需要直接覆盖的值 覆盖到result
+   */
+  virtual RC count(const int num, Value &result) const { return RC::UNSUPPORTED; }
+
+  /**
    * @brief 计算 left - right，并将结果保存到 result 中
    */
   virtual RC subtract(const Value &left, const Value &right, Value &result) const { return RC::UNSUPPORTED; }

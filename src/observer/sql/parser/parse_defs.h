@@ -86,7 +86,7 @@ struct ConditionSqlNode
  * 甚至可以包含复杂的表达式。
  */
 
-struct SelectSqlNode
+struct SelectSqlNode 
 {
   std::vector<std::unique_ptr<Expression>> expressions;  ///< 查询的表达式
   std::vector<std::string>                 relations;    ///< 查询的表
