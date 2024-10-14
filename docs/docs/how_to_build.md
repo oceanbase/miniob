@@ -18,6 +18,10 @@ MiniOB 需要使用：
 
 如果是第一次在这个环境上编译miniob，需要安装一些miniob的依赖库，执行下面的命令即可安装：
 
+> 重要提示：如果使用Windows系统，请先配置 git autocrlf 为 false。
+> 执行：`git config --global core.autocrlf false`
+> 防止脚本换行符被修改。
+
 ```bash
 bash build.sh init
 ```
@@ -131,6 +135,23 @@ sudo bash build.sh init
 ```
 
 则不会因为找不到cmake而报错。
+
+### 2. build.sh: line 2: $'\r': command not found
+在执行build.sh脚本时，遇到下面的错误
+![crlf error](images/miniob-build-crlf.png)
+
+通常是使用Windows电脑下载源码，然后在docker或虚拟机中运行build.sh脚本运行时出现这个错误。
+
+***解决方法：***
+
+执行下面的脚本，设置git不要切换换行符。
+```bash
+git config --global core.autocrlf false
+```
+然后删除源码重新下载(clone)。
+
+***问题原因：***
+在Windows上git clone源码后，文本文件（包括build.sh）换行符被修改为 '\r\n'（CRLF），这个换行符在Linux上不能识别，Linux的换行符是'\n'(LF)。
 
 **更多信息：**
 
