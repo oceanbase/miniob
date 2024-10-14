@@ -81,7 +81,7 @@ git clone https://`your-github-username`:`github_pat_your-github-token`@github.c
 比如：
 
 ```bash
-git clone git clone https://hnwyllmm:github_pat_token@github.com/hnwyllmm/miniob-2023
+git clone https://hnwyllmm:github_pat_token@github.com/hnwyllmm/miniob-2023
 ```
 
 一个clone成功的例子
