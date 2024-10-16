@@ -103,7 +103,8 @@ public:
    */
   virtual RC to_string(const Value &val, string &result) const { return RC::UNSUPPORTED; }
 
-  /**
+  /**data_type.h
+   * 需要在各种数据类型中定义转换规则
    * @brief 计算从 type 到 attr_type 的隐式转换的 cost，如果无法转换，返回 INT32_MAX
    */
   virtual int cast_cost(AttrType type)

@@ -29,8 +29,6 @@ while (0);
 #include<string.h>
 #include<stdio.h>
 
-bool pre_token = 1;  // 0表示前面不是 左括号、逗号、比较符、where等会引起当前的 - 被视为负号； 默认为负号
-
 /**
  * flex 代码包含三个部分，使用 %% 分隔
  * 第一个部分的代码是C代码，flex会原样复制到目标文件中
@@ -82,91 +80,84 @@ QUOTE            [\'\"]
 {WHITE_SAPCE}                                                          
 \n;
 
-"-"                                     {
-                                            if(pre_token == 0) {  
-                                                yylval->string = strdup(yytext); 
-                                                return yytext[0];
-                                            }
-                                            else {
-                                            }
-                                        }
 
-[\-]?{DIGIT}+                           {
-                                            pre_token = 0;              
+
+{DIGIT}+                           {            
                                             yylval->number=atoi(yytext);
                                             RETURN_TOKEN(NUMBER);
                                         }
 
-[\-]?{DIGIT}+{DOT}{DIGIT}+              {
-                                            pre_token = 0;
+{DIGIT}+{DOT}{DIGIT}+              {
                                             yylval->floats=(float)(atof(yytext)); 
                                             RETURN_TOKEN(FLOAT);
                                         }
 
-";"                                     pre_token = 0;  RETURN_TOKEN(SEMICOLON);
-MAX                                     pre_token = 0;  RETURN_TOKEN(MAX);
-SUM                                     pre_token = 0;  RETURN_TOKEN(SUM);
-MIN                                     pre_token = 0;  RETURN_TOKEN(MIN);
-AVG                                     pre_token = 0;  RETURN_TOKEN(AVG);
-COUNT                                   pre_token = 0;  RETURN_TOKEN(COUNT);
-{DOT}                                   pre_token = 0;  RETURN_TOKEN(DOT);
-EXIT                                    pre_token = 0;  RETURN_TOKEN(EXIT);
-HELP                                    pre_token = 0;  RETURN_TOKEN(HELP);
-DESC                                    pre_token = 0;  RETURN_TOKEN(DESC);
-CREATE                                  pre_token = 0;  RETURN_TOKEN(CREATE);
-DROP                                    pre_token = 0;  RETURN_TOKEN(DROP);
-TABLE                                   pre_token = 0;  RETURN_TOKEN(TABLE);
-TABLES                                  pre_token = 0;  RETURN_TOKEN(TABLES);
-INDEX                                   pre_token = 0;  RETURN_TOKEN(INDEX);
-ON                                      pre_token = 0;  RETURN_TOKEN(ON);
-SHOW                                    pre_token = 0;  RETURN_TOKEN(SHOW);
-SYNC                                    pre_token = 0;  RETURN_TOKEN(SYNC);
-SELECT                                  pre_token = 0;  RETURN_TOKEN(SELECT);
-CALC                                    pre_token = 0;  RETURN_TOKEN(CALC);
-FROM                                    pre_token = 0;  RETURN_TOKEN(FROM);
-WHERE                                   pre_token = 0;  RETURN_TOKEN(WHERE);
-AND                                     pre_token = 0;  RETURN_TOKEN(AND);
-INSERT                                  pre_token = 0;  RETURN_TOKEN(INSERT);
-INTO                                    pre_token = 0;  RETURN_TOKEN(INTO);
-VALUES                                  pre_token = 0;  RETURN_TOKEN(VALUES);
-DELETE                                  pre_token = 0;  RETURN_TOKEN(DELETE);
-UPDATE                                  pre_token = 0;  RETURN_TOKEN(UPDATE);
-SET                                     pre_token = 0;  RETURN_TOKEN(SET);
-BEGIN                                   pre_token = 0;  RETURN_TOKEN(TRX_BEGIN);
-COMMIT                                  pre_token = 0;  RETURN_TOKEN(TRX_COMMIT);
-ROLLBACK                                pre_token = 0;  RETURN_TOKEN(TRX_ROLLBACK);
-INT                                     pre_token = 0;  RETURN_TOKEN(INT_T);
-CHAR                                    pre_token = 0;  RETURN_TOKEN(STRING_T);
-FLOAT                                   pre_token = 0;  RETURN_TOKEN(FLOAT_T);
-DATE                                    pre_token = 0;  RETURN_TOKEN(DATE_T);
-LOAD                                    pre_token = 0;  RETURN_TOKEN(LOAD);
-DATA                                    pre_token = 0;  RETURN_TOKEN(DATA);
-INFILE                                  pre_token = 0;  RETURN_TOKEN(INFILE);
-EXPLAIN                                 pre_token = 0;  RETURN_TOKEN(EXPLAIN);
-GROUP                                   pre_token = 0;  RETURN_TOKEN(GROUP);
-BY                                      pre_token = 0;  RETURN_TOKEN(BY);
-STORAGE                                 pre_token = 0;  RETURN_TOKEN(STORAGE);
-FORMAT                                  pre_token = 0;  RETURN_TOKEN(FORMAT);
-{ID}                                    pre_token = 0;  yylval->string=strdup(yytext); RETURN_TOKEN(ID);
-"("                                     pre_token = 1;  RETURN_TOKEN(LBRACE);
-")"                                     pre_token = 0;  RETURN_TOKEN(RBRACE);
 
-","                                     pre_token = 1;  RETURN_TOKEN(COMMA);
-"="                                     pre_token = 1;  RETURN_TOKEN(EQ);
-"<="                                    pre_token = 1;  RETURN_TOKEN(LE);
-"<>"                                    pre_token = 1;  RETURN_TOKEN(NE);
-"!="                                    pre_token = 1;  RETURN_TOKEN(NE);
-"<"                                     pre_token = 1;  RETURN_TOKEN(LT);
-">="                                    pre_token = 1;  RETURN_TOKEN(GE);
-">"                                     pre_token = 1;  RETURN_TOKEN(GT);
+";"                                     RETURN_TOKEN(SEMICOLON);
+MAX                                     RETURN_TOKEN(MAX);
+SUM                                     RETURN_TOKEN(SUM);
+MIN                                     RETURN_TOKEN(MIN);
+AVG                                     RETURN_TOKEN(AVG);
+COUNT                                   RETURN_TOKEN(COUNT);
+{DOT}                                   RETURN_TOKEN(DOT);
+EXIT                                    RETURN_TOKEN(EXIT);
+HELP                                    RETURN_TOKEN(HELP);
+DESC                                    RETURN_TOKEN(DESC);
+CREATE                                  RETURN_TOKEN(CREATE);
+DROP                                    RETURN_TOKEN(DROP);
+TABLE                                   RETURN_TOKEN(TABLE);
+TABLES                                  RETURN_TOKEN(TABLES);
+INDEX                                   RETURN_TOKEN(INDEX);
+ON                                      RETURN_TOKEN(ON);
+SHOW                                    RETURN_TOKEN(SHOW);
+SYNC                                    RETURN_TOKEN(SYNC);
+SELECT                                  RETURN_TOKEN(SELECT);
+CALC                                    RETURN_TOKEN(CALC);
+FROM                                    RETURN_TOKEN(FROM);
+WHERE                                   RETURN_TOKEN(WHERE);
+AND                                     RETURN_TOKEN(AND);
+INSERT                                  RETURN_TOKEN(INSERT);
+INTO                                    RETURN_TOKEN(INTO);
+VALUES                                  RETURN_TOKEN(VALUES);
+DELETE                                  RETURN_TOKEN(DELETE);
+UPDATE                                  RETURN_TOKEN(UPDATE);
+SET                                     RETURN_TOKEN(SET);
+BEGIN                                   RETURN_TOKEN(TRX_BEGIN);
+COMMIT                                  RETURN_TOKEN(TRX_COMMIT);
+ROLLBACK                                RETURN_TOKEN(TRX_ROLLBACK);
+INT                                     RETURN_TOKEN(INT_T);
+CHAR                                    RETURN_TOKEN(STRING_T);
+FLOAT                                   RETURN_TOKEN(FLOAT_T);
+DATE                                    RETURN_TOKEN(DATE_T);
+LOAD                                    RETURN_TOKEN(LOAD);
+DATA                                    RETURN_TOKEN(DATA);
+INFILE                                  RETURN_TOKEN(INFILE);
+EXPLAIN                                 RETURN_TOKEN(EXPLAIN);
+GROUP                                   RETURN_TOKEN(GROUP);
+BY                                      RETURN_TOKEN(BY);
+STORAGE                                 RETURN_TOKEN(STORAGE);
+FORMAT                                  RETURN_TOKEN(FORMAT);
+{ID}                                    yylval->string=strdup(yytext); RETURN_TOKEN(ID);
+"("                                     RETURN_TOKEN(LBRACE);
+")"                                     RETURN_TOKEN(RBRACE);
+
+","                                     RETURN_TOKEN(COMMA);
+"="                                     RETURN_TOKEN(EQ);
+"<="                                    RETURN_TOKEN(LE);
+"<>"                                    RETURN_TOKEN(NE);
+"!="                                    RETURN_TOKEN(NE);
+"<"                                     RETURN_TOKEN(LT);
+">="                                    RETURN_TOKEN(GE);
+">"                                     RETURN_TOKEN(GT);
 
 "+" |
+'-' |
 "*" |
-"/"                                     {pre_token = 0;   return yytext[0]; }
-\"[^"]*\"                               pre_token = 0;  yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
-'[^']*\'                                pre_token = 0;  yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
+"/"                                     { return yytext[0]; }
+\"[^"]*\"                               yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
+'[^']*\'                                yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
 
-.                                       pre_token = 0;  LOG_DEBUG("Unknown character [%c]",yytext[0]); return yytext[0];
+.                                       LOG_DEBUG("Unknown character [%c]",yytext[0]); return yytext[0];
 
 %%
 

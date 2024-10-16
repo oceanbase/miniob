@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 #include "common/lang/limits.h"
 #include "common/value.h"
-
+// -1 表示 left < right 0 表示 left = right 1 表示 left > right INT32_MAX 表示未实现的比较
 int FloatType::compare(const Value &left, const Value &right) const
 {
   ASSERT(left.attr_type() == AttrType::FLOATS, "left type is not integer");
@@ -100,4 +100,44 @@ RC FloatType::to_string(const Value &val, string &result) const
   ss << common::double_to_str(val.value_.float_value_);
   result = ss.str();
   return RC::SUCCESS;
+}
+
+/**
+ * @brief 浮点数暂时仅支持转换到 INTS  BOOLEANS FLOATS
+ */
+int FloatType::cast_cost(AttrType type){     // 浮点 => 其他类型的转换衡量
+  if(type == AttrType::MAXTYPE || type == AttrType::UNDEFINED || type == AttrType::DATES || type == AttrType::CHARS){
+      return INT32_MAX;
+  }
+  return 0;
+} 
+
+/**
+ * 自定义转换逻辑
+ * 将 val（自己的类型） 转换为 type 类型，并将结果保存到 result 中
+ */
+RC FloatType::cast_to(const Value &val, AttrType type, Value &result) const {
+    if(val.attr_type() != AttrType::FLOATS){
+      LOG_WARN("The type be to cast %s is not matching for the current type %s", val.attr_type(), AttrType::FLOATS);
+      return RC::UNSUPPORTED; 
+    }
+    if(type == AttrType::BOOLEANS){
+        result.set_type(AttrType::BOOLEANS);
+        result.set_boolean(val.get_float() != 0.0f);
+        return RC::SUCCESS;
+    }
+    else if(type == AttrType::FLOATS){
+        result.set_type(AttrType::FLOATS);
+        result.set_float(val.get_float());
+        return RC::SUCCESS;
+    }
+    else if(type == AttrType::INTS){        // 注意：浮点数与整数比较默认不发生转换，此处逻辑可能以偏概全，但应该没有其他地方需要涉及浮点与整数的转换
+        result.set_type(AttrType::FLOATS);
+        result.set_float(val.get_float());
+        return RC::SUCCESS;
+    }
+    else{
+      LOG_WARN("can not cast %s to %s", val.attr_type(), type);
+      return RC::UNSUPPORTED; 
+    }
 }

@@ -13,6 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/type/integer_type.h"
 #include "common/value.h"
+#include "integer_type.h"
 
 int IntegerType::compare(const Value &left, const Value &right) const
 {
@@ -89,4 +90,41 @@ RC IntegerType::to_string(const Value &val, string &result) const
   ss << val.value_.int_value_;
   result = ss.str();
   return RC::SUCCESS;
+}
+
+/**
+ * @brief 整数暂时仅支持转换到 boolean floats ints
+ */
+int IntegerType::cast_cost(AttrType type){
+  if(type == AttrType::MAXTYPE || type == AttrType::UNDEFINED || type == AttrType::DATES || type == AttrType::CHARS){
+    return INT32_MAX;
+  }
+  return 0;
+}
+
+
+RC IntegerType::cast_to(const Value &val, AttrType type, Value &result) const {
+ if(val.attr_type() != AttrType::INTS){
+      LOG_WARN("The type be to cast %s is not matching for the current type %s", val.attr_type(), AttrType::INTS);
+      return RC::UNSUPPORTED; 
+    }
+    if(type == AttrType::BOOLEANS){
+        result.set_type(AttrType::BOOLEANS);
+        result.set_boolean(val.get_int() != 0);
+        return RC::SUCCESS;
+    }
+    else if(type == AttrType::FLOATS){
+        result.set_type(AttrType::FLOATS);
+        result.set_float(float(val.get_int()));
+        return RC::SUCCESS;
+    }
+    else if(type == AttrType::INTS){
+        result.set_type(AttrType::INTS);
+        result.set_float(val.get_int());
+        return RC::SUCCESS;
+    }
+    else{
+      LOG_WARN("can not cast %s to %s", val.attr_type(), type);
+      return RC::UNSUPPORTED; 
+    }
 }

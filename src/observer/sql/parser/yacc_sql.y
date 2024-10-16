@@ -508,8 +508,13 @@ expression_list:
       $$->emplace($$->begin(), $1);
     }
     ;
+
 expression:
-    expression '+' expression {
+    '-' expression %prec UMINUS {
+      ValueExpr* vepr = new ValueExpr(Value((int)0));
+      $$ = create_arithmetic_expression(ArithmeticExpr::Type::SUB, vepr, $2, sql_string, &@$);
+    }
+    | expression '+' expression {
       $$ = create_arithmetic_expression(ArithmeticExpr::Type::ADD, $1, $3, sql_string, &@$);
     }
     | expression '-' expression {
@@ -524,9 +529,6 @@ expression:
     | LBRACE expression RBRACE {
       $$ = $2;
       $$->set_name(token_name(sql_string, &@$));
-    }
-    | '-' expression %prec UMINUS {
-      $$ = create_arithmetic_expression(ArithmeticExpr::Type::NEGATIVE, $2, nullptr, sql_string, &@$);
     }
     | value {
       $$ = new ValueExpr(*$1);
@@ -655,64 +657,6 @@ condition_list: // 返回 std::vector<ConditionSqlNode>
     }
     ;
 condition:    // 返回 ConditionSqlNode
-    // rel_attr comp_op value  // id > 3
-    // {
-    //   $$ = new ConditionSqlNode;
-    //   $$->left_is_value = 0;
-    //   $$->right_is_value = 1;
-    //   $$->left_is_attr = 1;
-    //   $$->left_attr = *$1;
-    //   $$->right_is_attr = 0;
-    //   $$->right_value = *$3;
-    //   $$->comp = $2;
-
-    //   delete $1;
-    //   delete $3;
-    // }
-    // | value comp_op value   // 1 > 2
-    // {
-    //   $$ = new ConditionSqlNode;
-    //   $$->left_is_value = 1;
-    //   $$->right_is_value = 1;
-    //   $$->left_is_attr = 0;
-    //   $$->left_value = *$1;
-    //   $$->right_is_attr = 0;
-    //   $$->right_value = *$3;
-    //   $$->comp = $2;
-
-    //   delete $1;
-    //   delete $3;
-    // }
-    // | rel_attr comp_op rel_attr  // id > age
-    // {
-    //   $$ = new ConditionSqlNode;
-    //   $$->left_is_value = 0;
-    //   $$->right_is_value = 0;
-    //   $$->left_is_attr = 1;
-    //   $$->left_attr = *$1;
-    //   $$->right_is_attr = 1;
-    //   $$->right_attr = *$3;
-    //   $$->comp = $2;
-
-    //   delete $1;
-    //   delete $3;
-    // }
-    // | value comp_op rel_attr  // 3 > id
-    // {
-    //   $$ = new ConditionSqlNode;
-    //   $$->left_is_value = 1;
-    //   $$->right_is_value = 0;
-    //   $$->left_is_attr = 0;
-    //   $$->left_value = *$1;
-    //   $$->right_is_attr = 1;
-    //   $$->right_attr = *$3;
-    //   $$->comp = $2;
-
-    //   delete $1;
-    //   delete $3;
-    // }
-    //  where -(col2*(-1)+1)+(col4+2)*(col1+col3*2) > (4+col2)*col3/2
-    // |
      expression comp_op expression
     {     
           $$ = new ConditionSqlNode;

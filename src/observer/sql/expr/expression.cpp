@@ -80,7 +80,7 @@ CastExpr::~CastExpr() {}
 RC CastExpr::cast(const Value &value, Value &cast_value) const
 {
   RC rc = RC::SUCCESS;
-  if (this->value_type() == value.attr_type()) {
+  if (this->value_type() == value.attr_type()) {  // this->value_type() 想要转换的类型
     cast_value = value;
     return rc;
   }
@@ -118,7 +118,7 @@ ComparisonExpr::ComparisonExpr(CompOp comp, unique_ptr<Expression> left, unique_
 
 
 ComparisonExpr::~ComparisonExpr() {}
-
+// 在此处处理过滤逻辑
 RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &result) const
 {
   RC  rc         = RC::SUCCESS;
@@ -177,7 +177,7 @@ RC ComparisonExpr::get_value(const Tuple &tuple, Value &value) const
 {
   Value left_value;
   Value right_value;
-
+  // 获得元组value对应的值（若当前表达式为常数，则返回常数）
   RC rc = left_->get_value(tuple, left_value);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to get value of left expression. rc=%s", strrc(rc));

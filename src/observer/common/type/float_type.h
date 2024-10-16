@@ -34,4 +34,7 @@ public:
   RC negative(const Value &val, Value &result) const override;
   RC set_value_from_str(Value &val, const string &data) const override;
   RC to_string(const Value &val, string &result) const override;
+
+  int cast_cost(AttrType type) override;  // 浮点 => 其他类型的转换衡量
+  RC cast_to(const Value &val, AttrType type, Value &result) const override; // 将 val 转换为 type 类型，并将结果保存到 result 中
 };
