@@ -178,6 +178,9 @@ public:
     table_ = table;
     // fix:join当中会多次调用右表的open,open当中会调用set_scheme，从而导致tuple当中会存储
     // 很多无意义的field和value，因此需要先clear掉
+     for (FieldExpr *spec : speces_) {
+      delete spec;
+    }
     this->speces_.clear();
     this->speces_.reserve(fields->size());
     for (const FieldMeta &field : *fields) {
@@ -267,7 +270,9 @@ public:
 
   auto get_expressions() const -> const std::vector<std::unique_ptr<Expression>> & { return expressions_; }
 
-  void set_tuple(Tuple *tuple) { this->tuple_ = tuple; }
+  void set_tuple(Tuple *tuple) {
+     this->tuple_ = tuple;
+  }
 
   int cell_num() const override { return static_cast<int>(expressions_.size()); }
 

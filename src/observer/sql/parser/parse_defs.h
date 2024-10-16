@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 #include <vector>
 #include <memory>
-
+// #include "sql/expr/expression.h"
 #include "common/value.h"
 
 class Expression;
@@ -62,17 +62,26 @@ enum CompOp
  * 左边和右边理论上都可以是任意的数据，比如是字段（属性，列），也可以是数值常量。
  * 这个结构中记录的仅仅支持字段和值。
  */
+class ArithmeticExpr;
 struct ConditionSqlNode
 {
-  int left_is_attr;              ///< TRUE if left-hand side is an attribute
-                                 ///< 1时，操作符左边是属性名，0时，是属性值
+  ArithmeticExpr* left_arith_exper;   ///< 左算数式
+  ArithmeticExpr* right_arith_exper;  ///< 右算数式
+    
   Value          left_value;     ///< left-hand side value if left_is_attr = FALSE
   RelAttrSqlNode left_attr;      ///< left-hand side attribute
+
   CompOp         comp;           ///< comparison operator
-  int            right_is_attr;  ///< TRUE if right-hand side is an attribute
-                                 ///< 1时，操作符右边是属性名，0时，是属性值
+
   RelAttrSqlNode right_attr;     ///< right-hand side attribute if right_is_attr = TRUE 右边的属性
   Value          right_value;    ///< right-hand side value if right_is_attr = FALSE
+
+  int            left_is_value;  ///< 可能为 属性名 / 属性值 / 算数比较表达式
+  int            right_is_value;
+  int left_is_attr;              ///< TRUE if left-hand side is an attribute
+                                 ///< 1时，操作符左边是属性名，0时，是属性值
+  int            right_is_attr;  ///< TRUE if right-hand side is an attribute
+                                 ///< 1时，操作符右边是属性名，0时，是属性值
 };
 
 /**
@@ -249,6 +258,7 @@ struct ErrorSqlNode
   int         line;
   int         column;
 };
+
 
 /**
  * @brief 表示一个SQL语句的类型

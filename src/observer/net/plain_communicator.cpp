@@ -236,13 +236,13 @@ RC PlainCommunicator::write_result_internal(SessionEvent *event, bool &need_disc
       return rc;
     }
   }
-
+ 
   rc = RC::SUCCESS;
   if (event->session()->get_execution_mode() == ExecutionMode::CHUNK_ITERATOR
       && event->session()->used_chunk_mode()) {
     rc = write_chunk_result(sql_result);
   } else {
-    rc = write_tuple_result(sql_result);
+    rc = write_tuple_result(sql_result);   // 过滤算子执行
   }
 
   if (OB_FAIL(rc)) {

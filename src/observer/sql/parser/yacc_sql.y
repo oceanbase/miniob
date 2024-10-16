@@ -116,7 +116,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         MIN
         SUM
         AVG
-        COUNT
+        COUNT  
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -403,8 +403,9 @@ value_list:
       delete $2;
     }
     ;
-value:
-    NUMBER {
+value: // 9
+    NUMBER
+    {
       $$ = new Value((int)$1);
       @$ = @1;
     }
@@ -541,6 +542,7 @@ expression:
     | '*' {
       $$ = new StarExpr();
     }
+    // select max(id) from T
     | MAX LBRACE expression RBRACE{
       if($3 -> type() != ExprType::UNBOUND_FIELD){
         delete $3;
@@ -636,7 +638,7 @@ where:
       $$ = $2;  
     }
     ;
-condition_list:
+condition_list: // 返回 std::vector<ConditionSqlNode>
     /* empty */
     {
       $$ = nullptr;
@@ -652,54 +654,120 @@ condition_list:
       delete $1;
     }
     ;
-condition:
-    rel_attr comp_op value
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 1;
-      $$->left_attr = *$1;
-      $$->right_is_attr = 0;
-      $$->right_value = *$3;
-      $$->comp = $2;
+condition:    // 返回 ConditionSqlNode
+    // rel_attr comp_op value  // id > 3
+    // {
+    //   $$ = new ConditionSqlNode;
+    //   $$->left_is_value = 0;
+    //   $$->right_is_value = 1;
+    //   $$->left_is_attr = 1;
+    //   $$->left_attr = *$1;
+    //   $$->right_is_attr = 0;
+    //   $$->right_value = *$3;
+    //   $$->comp = $2;
 
-      delete $1;
-      delete $3;
-    }
-    | value comp_op value 
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 0;
-      $$->left_value = *$1;
-      $$->right_is_attr = 0;
-      $$->right_value = *$3;
-      $$->comp = $2;
+    //   delete $1;
+    //   delete $3;
+    // }
+    // | value comp_op value   // 1 > 2
+    // {
+    //   $$ = new ConditionSqlNode;
+    //   $$->left_is_value = 1;
+    //   $$->right_is_value = 1;
+    //   $$->left_is_attr = 0;
+    //   $$->left_value = *$1;
+    //   $$->right_is_attr = 0;
+    //   $$->right_value = *$3;
+    //   $$->comp = $2;
 
-      delete $1;
-      delete $3;
-    }
-    | rel_attr comp_op rel_attr
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 1;
-      $$->left_attr = *$1;
-      $$->right_is_attr = 1;
-      $$->right_attr = *$3;
-      $$->comp = $2;
+    //   delete $1;
+    //   delete $3;
+    // }
+    // | rel_attr comp_op rel_attr  // id > age
+    // {
+    //   $$ = new ConditionSqlNode;
+    //   $$->left_is_value = 0;
+    //   $$->right_is_value = 0;
+    //   $$->left_is_attr = 1;
+    //   $$->left_attr = *$1;
+    //   $$->right_is_attr = 1;
+    //   $$->right_attr = *$3;
+    //   $$->comp = $2;
 
-      delete $1;
-      delete $3;
-    }
-    | value comp_op rel_attr
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 0;
-      $$->left_value = *$1;
-      $$->right_is_attr = 1;
-      $$->right_attr = *$3;
-      $$->comp = $2;
+    //   delete $1;
+    //   delete $3;
+    // }
+    // | value comp_op rel_attr  // 3 > id
+    // {
+    //   $$ = new ConditionSqlNode;
+    //   $$->left_is_value = 1;
+    //   $$->right_is_value = 0;
+    //   $$->left_is_attr = 0;
+    //   $$->left_value = *$1;
+    //   $$->right_is_attr = 1;
+    //   $$->right_attr = *$3;
+    //   $$->comp = $2;
 
-      delete $1;
-      delete $3;
+    //   delete $1;
+    //   delete $3;
+    // }
+    //  where -(col2*(-1)+1)+(col4+2)*(col1+col3*2) > (4+col2)*col3/2
+    // |
+     expression comp_op expression
+    {     
+          $$ = new ConditionSqlNode;
+          // 说明是 () op () 型的算数表达式,$1类型为 ArithmeticExpr*
+          
+          if($1->type() == ExprType::ARITHMETIC){
+              ArithmeticExpr* a1 = static_cast<ArithmeticExpr*> ($1);
+              $$ -> left_arith_exper = a1;
+              $$ -> left_is_value = 0;
+              $$ -> left_is_attr = 0;
+          }else if($1->type() == ExprType::VALUE){
+              ValueExpr* ve = static_cast<ValueExpr*>($1);
+              $$->left_is_value = 1;
+              $$->left_is_attr  = 0;
+              $$->left_value = ve->get_value();
+              delete $1;
+          }else if($1->type() == ExprType::UNBOUND_FIELD){
+              UnboundFieldExpr* ufe = static_cast<UnboundFieldExpr*>($1);
+              RelAttrSqlNode *node = new RelAttrSqlNode();
+              node->relation_name = ufe->table_name();
+              node->attribute_name = ufe->field_name();
+
+              $$->left_is_value = 0;
+              $$->left_is_attr  = 1;
+              $$->left_attr = *node;
+              delete $1;
+          }
+
+          if($3->type() == ExprType::ARITHMETIC){
+              ArithmeticExpr* a2 = static_cast<ArithmeticExpr*> ($3);
+              $$ -> right_arith_exper = a2;
+              $$ -> right_is_value = 0;
+              $$ -> right_is_attr = 0;
+          }
+          else if($3->type() == ExprType::VALUE){
+              ValueExpr* ve = static_cast<ValueExpr*>($3);
+              $$->right_is_value = 1;
+              $$->right_is_attr  = 0;
+              $$->right_value = ve->get_value();
+
+              delete $3;
+          }
+          else if($3->type() == ExprType::UNBOUND_FIELD){
+              UnboundFieldExpr* ufe = static_cast<UnboundFieldExpr*>($3);
+              RelAttrSqlNode *node = new RelAttrSqlNode();
+              node->relation_name = ufe->table_name();
+              node->attribute_name = ufe->field_name();
+
+              $$->right_is_value = 0;
+              $$->right_is_attr  = 1;
+              $$->right_attr = *node;
+              delete $3;
+          }
+          
+          $$->comp = $2;
     }
     ;
 
