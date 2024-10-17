@@ -45,9 +45,6 @@ nav:
     - game/miniob_topics.md
     - game/github-introduction.md
     - game/gitee-instructions.md
-    - game/miniob-test-comment-date.md
-    - game/miniob-date-implementation.md
-    - game/miniob-drop-table-implementation.md
   - 数据库实现简明教程:
     - lectures/copyright.md
     - lectures/lecture-1.md
