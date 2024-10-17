@@ -120,7 +120,7 @@ extra:
 markdown_extensions:
   - toc:
       permalink: true
-	  - pymdownx.arithmatex:
+  - pymdownx.arithmatex:
       generic: true
       block_tag: 'pre'
 
