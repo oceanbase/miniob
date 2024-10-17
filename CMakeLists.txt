@@ -22,6 +22,7 @@ OPTION(ENABLE_NOPIE "Enable no pie" OFF)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)
 OPTION(STATIC_STDLIB "Link std library static or dynamic, such as libgcc, libstdc++, libasan" OFF)
 OPTION(USE_SIMD "Use SIMD" OFF)
+OPTION(USE_MUSL_LIBC "Use musl libc" OFF)
 
 MESSAGE(STATUS "HOME dir: $ENV{HOME}")
 #SET(ENV{变量名} 值)
@@ -79,6 +80,15 @@ MESSAGE(STATUS "CMAKE_CXX_COMPILER_ID is " ${CMAKE_CXX_COMPILER_ID})
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${STATIC_STDLIB})
     ADD_LINK_OPTIONS(-static-libgcc -static-libstdc++)
 ENDIF()
+
+IF(USE_MUSL_LIBC)
+    ADD_DEFINITIONS(-D__MUSL__)
+    MESSAGE(STATUS "musl libc use pthread in default")
+    SET(CMAKE_THREAD_LIBS_INIT "-lpthread")
+
+    MESSAGE(AUTHOR_WARNING "Sanitizer and musl libc not support each other for now")
+    SET(ENABLE_ASAN OFF)
+ENDIF(USE_MUSL_LIBC)
 
 IF (ENABLE_ASAN)
     MESSAGE(STATUS "Instrumenting with Address Sanitizer")

@@ -26,7 +26,7 @@ See the Mulan PSL v2 for more details. */
 
 namespace common {
 
-#ifdef __MACH__
+#if defined(__MACH__) or defined(__MUSL__)
 #include <libgen.h>
 #endif
 
