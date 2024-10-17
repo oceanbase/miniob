@@ -134,7 +134,7 @@ SELECT * FROM TAB_VEC ORDER BY L2_DISTANCE(B, '[1,2,3]') LIMIT 1;
 ### 题目六：ann-benchmarks
 
 [ann-benchmarks](https://github.com/erikbern/ann-benchmarks) 是一个用于评估近似最近邻（Approximate Nearest Neighbor, ANN）搜索算法性能的工具和框架。我们使用 ann-benchmarks 来测试 MiniOB 向量搜索相关功能。
-本地运行 ann-benchmarks 测试的步骤如下：
+本地运行支持 MiniOB 的 ann-benchmarks 测试的步骤如下：
 
 赛题测试程序中运行的 ann-benchmarks 只针对 `fashion-mnist-784-euclidean` 数据集进行测试，`--runs` 参数为1，测试使用的 python 脚本与 [ann-benchmarks](https://github.com/nautaa/ann-benchmarks/tree/miniob_ann) 完全相同，指定向量索引参数 `probes = 5, lists = 245`。
 测试程序不对性能做过多的限制，满足如下要求即为通过：
@@ -147,7 +147,7 @@ SELECT * FROM TAB_VEC ORDER BY L2_DISTANCE(B, '[1,2,3]') LIMIT 1;
 
 #### 在 MiniOB 上运行 ann-benchmark
 
-1. 下载 ann-benchmarks 代码 
+1. 下载 ann-benchmarks 代码
 ```
 git clone https://github.com/nautaa/ann-benchmarks.git -b miniob_ann
 ```
@@ -201,6 +201,9 @@ SELECT * FROM TAB_VEC ORDER BY L2_DISTANCE(B, '[1,2,3]') LIMIT 1;
 
 ## 参考资料
 [向量数据库](https://en.wikipedia.org/wiki/Vector_database)
+
 [pgvector](https://github.com/pgvector/pgvector)
+
 [ivfflat 原理介绍](https://www.timescale.com/blog/nearest-neighbor-indexes-what-are-ivfflat-indexes-in-pgvector-and-how-do-they-work/)
-[ann-benchmarks](https://github.com/nautaa/ann-benchmarks.git)
+
+[支持 MiniOB 的 ann-benchmarks fork 仓库](https://github.com/nautaa/ann-benchmarks/tree/miniob_ann)
