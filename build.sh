@@ -111,6 +111,18 @@ function do_init
   cd $current_dir
 }
 
+function do_musl_init
+{
+  git clone https://github.com/ronchaine/libexecinfo deps/3rd/libexecinfo || return
+  current_dir=$PWD
+
+  MAKE_COMMAND="make --silent"
+  cd ${TOPDIR}/deps/3rd/libexecinfo && \
+    ${MAKE_COMMAND} install && \
+    ${MAKE_COMMAND} clean && rm ${TOPDIR}/deps/3rd/libexecinfo/libexecinfo.so.* && \
+    cd ${current_dir}
+}
+
 function prepare_build_dir
 {
   TYPE=$1
@@ -160,6 +172,9 @@ function main
       ;;
     init)
       do_init
+      ;;
+    musl)
+      do_musl_init
       ;;
     clean)
       do_clean
