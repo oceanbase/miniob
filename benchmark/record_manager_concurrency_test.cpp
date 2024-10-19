@@ -151,7 +151,7 @@ public:
 
     for (int32_t record_value : record_values) {
       record.int_fields[0]   = record_value;
-      [[maybe_unused]] RC rc = handler_->insert_record(reinterpret_cast<const char *>(&record), sizeof(record), &rid);
+      [[maybe_unused]] RC rc = handler_->insert_record(reinterpret_cast<const char *>(&record), sizeof(record), &rid, nullptr);
       ASSERT(rc == RC::SUCCESS, "failed to insert record into record file. record value=%" PRIu32, record_value);
       rids.push_back(rid);
     }
@@ -173,7 +173,7 @@ public:
     TestRecord record;
     record.int_fields[0] = value;
 
-    RC rc = handler_->insert_record(reinterpret_cast<const char *>(&record), sizeof(record), &rid);
+    RC rc = handler_->insert_record(reinterpret_cast<const char *>(&record), sizeof(record), &rid, nullptr);
     switch (rc) {
       case RC::SUCCESS: {
         stat.insert_success_count++;

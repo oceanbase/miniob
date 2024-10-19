@@ -67,7 +67,7 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
     fields_.resize(attributes.size() + trx_fields->size());
     for (size_t i = 0; i < trx_fields->size(); i++) {
       const FieldMeta &field_meta = (*trx_fields)[i];
-      fields_[i] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false /*visible*/, field_meta.field_id());
+      fields_[i] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false /*visible*/, field_meta.field_id(), field_meta.nullable());
       field_offset += field_meta.len();
     }
 
@@ -80,7 +80,7 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
     const AttrInfoSqlNode &attr_info = attributes[i];
     // `i` is the col_id of fields[i]
     rc = fields_[i + trx_field_num].init(
-      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/, i);
+      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/, i, attr_info.nullable);
     if (OB_FAIL(rc)) {
       LOG_ERROR("Failed to init field meta. table name=%s, field name: %s", name, attr_info.name.c_str());
       return rc;
@@ -89,7 +89,7 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
     field_offset += attr_info.length;
   }
 
-  record_size_ = field_offset;
+  record_size_ = field_offset + (attributes.size() / 8 + (attributes.size() % 8 != 0 ? 1 : 0));    // 除了系统字段、自定义字段，还包括 isNullBitmap大小
 
   table_id_ = table_id;
   name_     = name;
@@ -166,7 +166,7 @@ int TableMeta::index_num() const { return indexes_.size(); }
 
 int TableMeta::record_size() const { return record_size_; }
 
-int TableMeta::serialize(std::ostream &ss) const
+int TableMeta::serialize(std::ostream &ss) const      // 持久化
 {
   Json::Value table_value;
   table_value[FIELD_TABLE_ID]   = table_id_;
@@ -201,7 +201,7 @@ int TableMeta::serialize(std::ostream &ss) const
   return ret;
 }
 
-int TableMeta::deserialize(std::istream &is)
+int TableMeta::deserialize(std::istream &is)          // 反持久化
 {
   Json::Value             table_value;
   Json::CharReaderBuilder builder;

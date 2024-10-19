@@ -33,6 +33,6 @@ insert into exp_table VALUES (3, 3, 4 , 5.0, 4.0);
 create table exp_table2(id int, col1 int);
 insert into exp_table2 VALUES (1, 1);
 insert into exp_table2 VALUES (2, 3);
--- select exp_table.id,3*exp_table2.col1/(exp_table.col2+2) from exp_table,exp_table2 where 3*exp_table2.col1/(exp_table.col2+2)>1;        // nok~ 结果错误（多表查询不行？）
+-- select exp_table.id,3*exp_table2.col1/(exp_table.col2+2) from exp_table,exp_table2 where 3*exp_table2.col1/(exp_table.col2+2)>1;        // nok~ 除0错误
 
 

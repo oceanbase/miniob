@@ -275,7 +275,7 @@ RC RecordLogReplayer::replay_insert(DiskBufferPool &buffer_pool, const RecordLog
 
   const char *record = log_header.data;
   RID         rid(log_header.page_num, log_header.slot_num);
-  rc = record_page_handler->insert_record(record, &rid);
+  rc = record_page_handler->insert_record(nullptr, record, &rid);
   if (OB_FAIL(rc)) {
     LOG_WARN("fail to recover insert record. page num=%d, slot num=%d, rc=%s", 
              log_header.page_num, log_header.slot_num, strrc(rc));

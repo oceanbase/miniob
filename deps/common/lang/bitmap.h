@@ -33,9 +33,12 @@ public:
   int next_unsetted_bit(int start);
   int next_setted_bit(int start);
 
+  int getSize(){return size_;}
+  char* getBitmap(){return bitmap_;}
+
 private:
-  char *bitmap_;
-  int   size_;
+  char *bitmap_;    // 比特标记图
+  int   size_;      // 比特数
 };
 
 }  // namespace common

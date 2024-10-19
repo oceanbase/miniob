@@ -122,6 +122,7 @@ void val_to_str(const T &val, string &str, ios_base &(*radix)(ios_base &) = std:
  */
 string double_to_str(double v);
 
+
 bool is_blank(const char *s);
 
 /**

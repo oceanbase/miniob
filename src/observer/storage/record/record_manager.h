@@ -69,6 +69,7 @@ struct PageHeader
   int32_t column_num;        ///< 当前页面记录所包含的列数
   int32_t record_real_size;  ///< 每条记录的实际大小
   int32_t record_size;       ///< 每条记录占用实际空间大小(可能对齐)
+  int32_t isNullBitmap_size; ///< 是否为空字段大小
   int32_t record_capacity;   ///< 最大记录个数
   int32_t col_idx_offset;    ///< 列索引偏移量
   int32_t data_offset;       ///< 第一条记录的偏移量
@@ -179,7 +180,7 @@ public:
    * @param data 要插入的记录
    * @param rid  如果插入成功，通过这个参数返回插入的位置
    */
-  virtual RC insert_record(const char *data, RID *rid) { return RC::UNIMPLEMENTED; }
+  virtual RC insert_record(Bitmap* isNullBitMap, const char *data, RID *rid) { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief 数据库恢复时，在指定位置插入数据
@@ -237,21 +238,21 @@ protected:
    */
   void fix_record_capacity()
   {
-    int32_t last_record_offset = page_header_->data_offset + page_header_->record_capacity * page_header_->record_size;
+    int32_t last_record_offset = page_header_->data_offset + page_header_->record_capacity * (page_header_->record_size + page_header_->isNullBitmap_size);
     while (last_record_offset > BP_PAGE_DATA_SIZE) {
       page_header_->record_capacity -= 1;
-      last_record_offset -= page_header_->record_size;
+      last_record_offset -= (page_header_->record_size + page_header_->isNullBitmap_size);
     }
   }
 
   /**
-   * @brief 获取指定槽位的记录数据
+   * @brief 获取指定槽位的 bitmap + 记录数据
    *
    * @param 指定的记录槽位
    */
   char *get_record_data(SlotNum slot_num)
   {
-    return frame_->data() + page_header_->data_offset + (page_header_->record_size * slot_num);
+    return frame_->data() + page_header_->data_offset + ((page_header_->record_size + page_header_->isNullBitmap_size) * slot_num);
   }
 
 protected:
@@ -282,7 +283,7 @@ class RowRecordPageHandler : public RecordPageHandler
 public:
   RowRecordPageHandler() : RecordPageHandler(StorageFormat::ROW_FORMAT) {}
 
-  virtual RC insert_record(const char *data, RID *rid) override;
+  virtual RC insert_record(Bitmap* isNullBitMap, const char *data, RID *rid) override;
 
   virtual RC recover_insert_record(const char *data, const RID &rid) override;
 
@@ -322,7 +323,7 @@ public:
    * @param rid  如果插入成功，通过这个参数返回插入的位置
    * 注意：需要将record 按列拆分，在 Page 内按 PAX 格式存储。
    */
-  virtual RC insert_record(const char *data, RID *rid) override;
+  virtual RC insert_record(Bitmap* isNullBitMap, const char *data, RID *rid) override;
 
   virtual RC delete_record(const RID *rid) override;
 
@@ -386,7 +387,7 @@ public:
    * @param record_size 记录大小
    * @param rid         返回该记录的标识符
    */
-  RC insert_record(const char *data, int record_size, RID *rid);
+  RC insert_record(const char *data, int record_size, RID *rid, Bitmap* isNullBitMap);
 
   /**
    * @brief 数据库恢复时，在指定文件指定位置插入数据

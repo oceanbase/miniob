@@ -1,71 +1,71 @@
 -- echo initialization
-CREATE TABLE null_table(id int, num int nullable, price float not null, birthday date nullable);
-CREATE TABLE null_table2(id int, num int nullable, price float not null, birthday date nullable);
-CREATE INDEX index_num on null_table(num);
+CREATE TABLE null_table(id int, num int nullable, price float not null, birthday date nullable);        // ok
+CREATE TABLE null_table2(id int, num int nullable, price float not null, birthday date nullable);       // ok
+CREATE INDEX index_num on null_table(num);      // ok
 
--- echo 1. insert
-INSERT INTO null_table VALUES (1, 18, 10.0, '2020-01-01');
-INSERT INTO null_table VALUES (2, null, 20.0, '2010-01-11');
-INSERT INTO null_table VALUES (3, 12, 30.0, null);
-INSERT INTO null_table VALUES (4, 15, 30.0, '2021-01-31');
-INSERT INTO null_table2 VALUES (1, 18, 30.0, '2021-01-31');
-INSERT INTO null_table2 VALUES (2, null, 40.0, null);
+-- echo 1. insert  
+INSERT INTO null_table VALUES (1, 18, 10.0, '2020-01-01');      // ok
+INSERT INTO null_table VALUES (2, null, 20.0, '2010-01-11');    // ok
+INSERT INTO null_table VALUES (3, 12, 30.0, null);              // ok
+INSERT INTO null_table VALUES (4, 15, 30.0, '2021-01-31');      // ok
+INSERT INTO null_table2 VALUES (1, 18, 30.0, '2021-01-31');     // ok
+INSERT INTO null_table2 VALUES (2, null, 40.0, null);           // ok
 
-INSERT INTO null_table VALUES (5, 15, null, '2021-01-31');
-INSERT INTO null_table VALUES (null, 15, 30.0, '2021-01-31');
+INSERT INTO null_table VALUES (5, 15, null, '2021-01-31');      // ok 注意，应该返回failure
+INSERT INTO null_table VALUES (null, 15, 30.0, '2021-01-31');   // ok 注意，应该返回failure
 
 -- echo 2. SELECT
--- sort SELECT * FROM null_table;
+SELECT * FROM null_table;          // ok
 
 -- echo 3. SELECT WITH CONSTANT
--- sort SELECT * FROM null_table where 1 is null;
--- sort SELECT * FROM null_table where 1 is not null;
--- sort SELECT * FROM null_table where null=1;
--- sort SELECT * FROM null_table where 1=null;
--- sort SELECT * FROM null_table where 1<>null;
--- sort SELECT * FROM null_table where 1<null;
--- sort SELECT * FROM null_table where 1>null;
+SELECT * FROM null_table where 1 is null;       // nok, 还没搞这块语法解析
+SELECT * FROM null_table where 1 is not null;   // nok, 还没搞这块语法解析
+SELECT * FROM null_table where null=1;
+SELECT * FROM null_table where 1=null;
+SELECT * FROM null_table where 1<>null;
+SELECT * FROM null_table where 1<null;
+SELECT * FROM null_table where 1>null;
 
--- sort SELECT * FROM null_table where null is null;
--- sort SELECT * FROM null_table where null is not null;
--- sort SELECT * FROM null_table WHERE null=null;
--- sort SELECT * FROM null_table WHERE null<>null;
--- sort SELECT * FROM null_table WHERE null>null;
--- sort SELECT * FROM null_table WHERE null<null;
+SELECT * FROM null_table where null is null;
+SELECT * FROM null_table where null is not null;
+SELECT * FROM null_table WHERE null=null;
+SELECT * FROM null_table WHERE null<>null;
+SELECT * FROM null_table WHERE null>null;
+SELECT * FROM null_table WHERE null<null;
 
--- sort SELECT * FROM null_table where 'a' is null;
--- sort SELECT * FROM null_table where 'a' is not null;
--- sort SELECT * FROM null_table WHERE null='a';
--- sort SELECT * FROM null_table WHERE 'a'=null;
--- sort SELECT * FROM null_table WHERE 'a'<>null;
--- sort SELECT * FROM null_table WHERE 'a'>null;
--- sort SELECT * FROM null_table WHERE 'a'<null;
+SELECT * FROM null_table where 'a' is null;
+SELECT * FROM null_table where 'a' is not null;
+SELECT * FROM null_table WHERE null='a';
+SELECT * FROM null_table WHERE 'a'=null;
+SELECT * FROM null_table WHERE 'a'<>null;
+SELECT * FROM null_table WHERE 'a'>null;
+SELECT * FROM null_table WHERE 'a'<null;
 
--- sort SELECT * FROM null_table where '2021-01-31' is null;
--- sort SELECT * FROM null_table where '2021-01-31' is not null;
--- sort SELECT * FROM null_table WHERE null='2021-01-31';
--- sort SELECT * FROM null_table WHERE '2021-01-31'=null;
--- sort SELECT * FROM null_table WHERE '2021-01-31'>null;
--- sort SELECT * FROM null_table WHERE '2021-01-31'<null;
+SELECT * FROM null_table where '2021-01-31' is null;
+SELECT * FROM null_table where '2021-01-31' is not null;
+SELECT * FROM null_table WHERE null='2021-01-31';
+SELECT * FROM null_table WHERE '2021-01-31'=null;
+SELECT * FROM null_table WHERE '2021-01-31'>null;
+SELECT * FROM null_table WHERE '2021-01-31'<null;
 
 -- echo 4. SELECT WITH COLUMN
--- sort SELECT * FROM null_table where birthday is not null;
--- sort SELECT * FROM null_table where birthday is null;
--- sort SELECT * FROM null_table where birthday = null;
--- sort SELECT * FROM null_table where null = birthday;
--- sort SELECT * FROM null_table where birthday <> null;
--- sort SELECT * FROM null_table where birthday > null;
--- sort SELECT * FROM null_table where birthday < null;
+SELECT * FROM null_table where birthday is not null;
+SELECT * FROM null_table where birthday is null;
+SELECT * FROM null_table where birthday = null;
+SELECT * FROM null_table where null = birthday;
+SELECT * FROM null_table where birthday <> null;
+SELECT * FROM null_table where birthday > null;
+SELECT * FROM null_table where birthday < null;
 
--- sort SELECT * FROM null_table where num is not null;
--- sort SELECT * FROM null_table where num is null;
--- sort SELECT * FROM null_table where num = null;
--- sort SELECT * FROM null_table where null = num;
--- sort SELECT * FROM null_table where num <> null;
--- sort SELECT * FROM null_table where num > null;
--- sort SELECT * FROM null_table where num < null;
+SELECT * FROM null_table where num is not null;
+SELECT * FROM null_table where num is null;
+SELECT * FROM null_table where num = null;
+SELECT * FROM null_table where null = num;
+SELECT * FROM null_table where num <> null;
+SELECT * FROM null_table where num > null;
+SELECT * FROM null_table where num < null;
 
--- sort SELECT null_table.num,null_table2.num,null_table.birthday FROM null_table,null_table2 where null_table.num=null_table2.num;
+SELECT null_table.num,null_table2.num,null_table.birthday FROM null_table,null_table2 where null_table.num=null_table2.num;
 
 -- echo 5. aggregation
 SELECT count(*) FROM null_table;

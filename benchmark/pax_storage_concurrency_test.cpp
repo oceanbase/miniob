@@ -186,7 +186,7 @@ public:
     TestRecord record;
     memcpy(&record.fields[0], &value, sizeof(value));
 
-    RC rc = handler_->insert_record(reinterpret_cast<const char *>(&record), sizeof(record), &rid);
+    RC rc = handler_->insert_record(reinterpret_cast<const char *>(&record), sizeof(record), &rid, nullptr);
     switch (rc) {
       case RC::SUCCESS: {
         stat.insert_success_count++;

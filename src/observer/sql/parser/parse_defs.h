@@ -119,7 +119,7 @@ struct CalcSqlNode
  */
 struct InsertSqlNode
 {
-  std::string        relation_name;  ///< Relation to insert into
+  std::string        relation_name;  ///< 表名
   std::vector<Value> values;         ///< 要插入的值
 };
 
@@ -152,9 +152,10 @@ struct UpdateSqlNode
  */
 struct AttrInfoSqlNode
 {
-  AttrType    type;    ///< Type of attribute
-  std::string name;    ///< Attribute name
-  size_t      length;  ///< Length of attribute
+  AttrType    type;       ///< Type of attribute
+  std::string name;       ///< Attribute name
+  size_t      length;     ///< Length of attribute
+  bool        nullable = false;   // whether can be null, default is false
 };
 
 /**

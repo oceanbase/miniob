@@ -12,6 +12,7 @@
 #include "sql/parser/yacc_sql.hpp"
 #include "sql/parser/lex_sql.h"
 #include "sql/expr/expression.h"
+#include "common/null.h"
 
 using namespace std;
 
@@ -90,6 +91,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         STRING_T
         DATE_T
         FLOAT_T
+        BOOL_T
         HELP
         EXIT
         DOT //QUOTE
@@ -117,6 +119,9 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         SUM
         AVG
         COUNT  
+        NULLABLE
+        NOTNULL
+        NULL_
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -136,12 +141,14 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   char *                                     string;
   int                                        number;
   float                                      floats;
+  bool                                       boolean;
 }
 
 %token <number> NUMBER
 %token <floats> FLOAT
 %token <string> ID
 %token <string> SSS
+%token <boolean> BOOLEAN
 //非终结符
 
 /** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义的成员变量名称 **/
@@ -303,8 +310,7 @@ drop_index_stmt:      /*drop index 语句的语法解析树*/
     }
     ;
 create_table_stmt:    /*create table 语句的语法解析树*/
-/* CREATE TABLE 表名 LBRACE id int, name varchar RBRACE */
-/* COMMA attr_def attr_def_list  , id int */
+/*  create table t1 (id int not null, age int not null, address nullable);  */
     CREATE TABLE ID LBRACE attr_def attr_def_list RBRACE storage_format
     {
       $$ = new ParsedSqlNode(SCF_CREATE_TABLE);
@@ -345,13 +351,53 @@ attr_def_list:
     ;
     
 attr_def:
+// id int(3) not null
+// id int nullable
 // id int
-    ID type LBRACE number RBRACE 
+// number 为数据宽度
+    ID type LBRACE number RBRACE NOTNULL{
+      $$ = new AttrInfoSqlNode;
+      $$->type = (AttrType)$2;
+      $$->name = $1;
+      $$->length = $4;
+      $$->nullable = false;
+      free($1);
+    }
+    |
+    ID type LBRACE number RBRACE NULLABLE{
+      $$ = new AttrInfoSqlNode;
+      $$->type = (AttrType)$2;
+      $$->name = $1;
+      $$->length = $4;
+      $$->nullable = true;
+      free($1);
+    }
+    |
+    ID type NOTNULL{
+      $$ = new AttrInfoSqlNode;
+      $$->type = (AttrType)$2;
+      $$->name = $1;
+      $$->length = 4;     // default length is 4 bytes
+      $$->nullable = false;
+      free($1);
+    }
+    |
+    ID type NULLABLE{
+      $$ = new AttrInfoSqlNode;
+      $$->type = (AttrType)$2;
+      $$->name = $1;
+      $$->length = 4;     // default length is 4 bytes
+      $$->nullable = true;
+      free($1);
+    }
+    |
+    ID type LBRACE number RBRACE    
     {
       $$ = new AttrInfoSqlNode;
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = $4;
+      $$->nullable = false;
       free($1);
     }
     | ID type
@@ -360,6 +406,7 @@ attr_def:
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = 4;
+      $$->nullable = false;
       free($1);
     }
     ;
@@ -370,7 +417,8 @@ type:
     INT_T      { $$ = static_cast<int>(AttrType::INTS); }
     | STRING_T { $$ = static_cast<int>(AttrType::CHARS); }
     | FLOAT_T  { $$ = static_cast<int>(AttrType::FLOATS); }
-    | DATE_T  { $$ = static_cast<int>(AttrType::DATES); }
+    | DATE_T   { $$ = static_cast<int>(AttrType::DATES); }
+    | BOOL_T   { $$ = static_cast<int>(AttrType::BOOLEANS);}
     ;
 insert_stmt:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 
@@ -404,7 +452,16 @@ value_list:
     }
     ;
 value: // 9
-    NUMBER
+    NULL_{
+      Null nul = Null();
+      $$ = new Value(nul);
+      @$ = @1;
+    }
+    |BOOLEAN {
+      $$ = new Value((bool)$1);
+      @$ = @1;
+    }
+    |NUMBER
     {
       $$ = new Value((int)$1);
       @$ = @1;

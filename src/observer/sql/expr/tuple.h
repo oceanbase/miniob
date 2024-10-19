@@ -23,7 +23,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/tuple_cell.h"
 #include "sql/parser/parse.h"
 #include "common/value.h"
+#include "common/lang/bitmap.h"
 #include "storage/record/record.h"
+#include "common/null.h"
 
 class Table;
 
@@ -99,10 +101,10 @@ public:
   virtual std::string to_string() const
   {
     std::string str;
-    const int   cell_num = this->cell_num();
+    const int   cell_num = this->cell_num();  // 字段数
     for (int i = 0; i < cell_num - 1; i++) {
       Value cell;
-      cell_at(i, cell);
+      cell_at(i, cell); 
       str += cell.to_string();
       str += ", ";
     }
@@ -110,7 +112,14 @@ public:
     if (cell_num > 0) {
       Value cell;
       cell_at(cell_num - 1, cell);
-      str += cell.to_string();
+
+      if(cell.attr_type() == AttrType::NULLS){  // 是 null
+        str += "NULL";
+        return str;
+      }
+      else{
+        str += cell.to_string();
+      }
     }
     return str;
   }
@@ -199,6 +208,13 @@ public:
 
     FieldExpr       *field_expr = speces_[index];
     const FieldMeta *field_meta = field_expr->field().meta();
+
+    // 如果该字段值为空，则标记为 NULL 类型并返回
+    if(record_->getIsNullBitMap()->get_bit(field_meta->field_id())){
+        cell.set_type(AttrType::NULLS);
+        return RC::SUCCESS;
+    }
+
     cell.set_type(field_meta->type());
     cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
     return RC::SUCCESS;

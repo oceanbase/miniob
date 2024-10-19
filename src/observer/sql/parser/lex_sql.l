@@ -81,6 +81,15 @@ QUOTE            [\'\"]
 \n;
 
 
+TRUE                               {        LOG_DEBUG("true********");
+                                            yylval->boolean= (bool)(1);
+                                            RETURN_TOKEN(BOOLEAN);
+                                        }
+
+FALSE                              {        LOG_DEBUG("false********");
+                                            yylval->boolean= (bool)(0);
+                                            RETURN_TOKEN(BOOLEAN);
+                                      }
 
 {DIGIT}+                           {            
                                             yylval->number=atoi(yytext);
@@ -94,6 +103,9 @@ QUOTE            [\'\"]
 
 
 ";"                                     RETURN_TOKEN(SEMICOLON);
+NOT\ NULL                               RETURN_TOKEN(NOTNULL);
+NULL                                    LOG_DEBUG("NULL *********");  RETURN_TOKEN(NULL_);
+NULLABLE                                RETURN_TOKEN(NULLABLE);
 MAX                                     RETURN_TOKEN(MAX);
 SUM                                     RETURN_TOKEN(SUM);
 MIN                                     RETURN_TOKEN(MIN);
@@ -125,6 +137,7 @@ SET                                     RETURN_TOKEN(SET);
 BEGIN                                   RETURN_TOKEN(TRX_BEGIN);
 COMMIT                                  RETURN_TOKEN(TRX_COMMIT);
 ROLLBACK                                RETURN_TOKEN(TRX_ROLLBACK);
+BOOL                                    LOG_DEBUG("******bool");  RETURN_TOKEN(BOOL_T);
 INT                                     RETURN_TOKEN(INT_T);
 CHAR                                    RETURN_TOKEN(STRING_T);
 FLOAT                                   RETURN_TOKEN(FLOAT_T);

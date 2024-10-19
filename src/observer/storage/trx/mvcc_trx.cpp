@@ -33,8 +33,8 @@ RC MvccTrxKit::init()
   // 事务使用一些特殊的字段，放到每行记录中，表示行记录的可见性。
   fields_ = vector<FieldMeta>{
       // field_id in trx fields is invisible.
-      FieldMeta("__trx_xid_begin", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -1/*field_id*/),
-      FieldMeta("__trx_xid_end", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -2/*field_id*/)};
+      FieldMeta("__trx_xid_begin", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -1/*field_id*/, false),
+      FieldMeta("__trx_xid_end", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -2/*field_id*/, false)};
 
   LOG_INFO("init mvcc trx kit done.");
   return RC::SUCCESS;

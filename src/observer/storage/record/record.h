@@ -22,8 +22,11 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/vector.h"
 #include "common/lang/sstream.h"
 #include "common/lang/limits.h"
+#include "common/lang/bitmap.h"
 #include "storage/field/field_meta.h"
 #include "storage/index/index_meta.h"
+
+using namespace common;
 
 class Field;
 
@@ -115,6 +118,7 @@ public:
     data_  = other.data_;
     len_   = other.len_;
     owner_ = other.owner_;
+    isNullBitMap_ = other.getIsNullBitMap();
 
     if (other.owner_) {
       char *tmp = (char *)malloc(other.len_);
@@ -136,6 +140,7 @@ public:
       return *this;
     }
     this->rid_ = other.rid_;
+    this->isNullBitMap_ = other.getIsNullBitMap();
     memcpy(data_, other.data_, other.len_);
     return *this;
   }
@@ -150,12 +155,14 @@ public:
       other.data_  = nullptr;
       other.len_   = 0;
       this->owner_ = false;
+      this->isNullBitMap_ = other.getIsNullBitMap();
     } else {
       data_        = other.data_;
       len_         = other.len_;
       other.data_  = nullptr;
       other.len_   = 0;
       this->owner_ = true;
+      this->isNullBitMap_ = other.getIsNullBitMap();
     }
   }
 
@@ -177,7 +184,7 @@ public:
   }
 
   // 向本记录添加数据
-  void set_data_owner(char *data, int len)
+  void set_data_owner(char *data, int len, Bitmap* isNullBitMap)
   {
     ASSERT(len != 0, "the len of data should not be 0");
     this->~Record();  // 重新初始化一个对象
@@ -186,9 +193,10 @@ public:
     this->data_  = data;
     this->len_   = len;
     this->owner_ = true;
+    this->isNullBitMap_ = isNullBitMap;
   }
 
-  RC copy_data(const char *data, int len)
+  RC copy_data(const char *data, int len, Bitmap* isNullBitMap)
   {
     ASSERT(len!= 0, "the len of data should not be 0");
     char *tmp = (char *)malloc(len);
@@ -198,7 +206,7 @@ public:
     }
 
     memcpy(tmp, data, len);
-    set_data_owner(tmp, len);
+    set_data_owner(tmp, len, isNullBitMap);
     return RC::SUCCESS;
   }
 
@@ -210,7 +218,7 @@ public:
       LOG_WARN("failed to allocate memory. size=%d", len);
       return RC::NOMEM;
     }
-    set_data_owner(tmp, len);
+    set_data_owner(tmp, len, nullptr);
     return RC::SUCCESS;
   }
 
@@ -242,10 +250,26 @@ public:
   RID       &rid() { return rid_; }
   const RID &rid() const { return rid_; }
 
+  Bitmap* getIsNullBitMap(){
+    return this->isNullBitMap_;
+  }
+
+  Bitmap* getIsNullBitMap() const{
+    return this->isNullBitMap_;
+  }
+
+  void setIsNullBitMap(Bitmap* isNullBitMap){
+    this->isNullBitMap_ = isNullBitMap;
+  }
+
 private:
   RID rid_;
 
   char *data_  = nullptr;
   int   len_   = 0;      /// 如果不是record自己来管理内存，这个字段可能是无效的
   bool  owner_ = false;  /// 表示当前是否由record来管理内存
+  Bitmap* isNullBitMap_ = nullptr;   // field_id -> bool ，标记字段值是否为null
 };
+
+
+

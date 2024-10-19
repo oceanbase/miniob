@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/condition_filter.h"
 #include "storage/trx/trx.h"
 #include "storage/clog/log_handler.h"
+#include "common/lang/bitmap.h"
 
 using namespace common;
 
@@ -44,11 +45,11 @@ int align8(int size) { return (size + 7) & ~7; }
  * @param fixed_size  除 PAGE_HEADER 外，页面中其余固定长度占用，目前为PAX存储格式中的
  *                    列偏移索引大小（column index）。
  */
-int page_record_capacity(int page_size, int record_size, int fixed_size)
+int page_record_capacity(int isNullBitmap_size, int page_size, int record_size, int fixed_size)
 {
   // (record_capacity * record_size) + record_capacity/8 + 1 <= (page_size - fix_size)
   // ==> record_capacity = ((page_size - fix_size) - 1) / (record_size + 0.125)
-  return (int)((page_size - PAGE_HEADER_SIZE - fixed_size - 1) / (record_size + 0.125));
+  return (int)((page_size - PAGE_HEADER_SIZE - fixed_size - 1) / (record_size + isNullBitmap_size + 0.125));
 }
 
 /**
@@ -176,15 +177,17 @@ RC RecordPageHandler::init_empty_page(
   }
   page_header_->record_num       = 0;
   page_header_->column_num       = column_num;
+  page_header_->isNullBitmap_size= table_meta->field_num()/8 + (table_meta->field_num()%8 == 0)? 0:1;
   page_header_->record_real_size = record_size;
   page_header_->record_size      = align8(record_size);
   page_header_->record_capacity  = page_record_capacity(
+      page_header_->isNullBitmap_size,
       BP_PAGE_DATA_SIZE, page_header_->record_size, column_num * sizeof(int) /* other fixed size*/);
   page_header_->col_idx_offset = align8(PAGE_HEADER_SIZE + page_bitmap_size(page_header_->record_capacity));
   page_header_->data_offset    = align8(PAGE_HEADER_SIZE + page_bitmap_size(page_header_->record_capacity)) +
                               column_num * sizeof(int) /* column index*/;
   this->fix_record_capacity();
-  ASSERT(page_header_->data_offset + page_header_->record_capacity * page_header_->record_size 
+  ASSERT(page_header_->data_offset + page_header_->record_capacity * (page_header_->record_size + page_header_->isNullBitmap_size) 
               <= BP_PAGE_DATA_SIZE, 
          "Record overflow the page size");
 
@@ -227,12 +230,12 @@ RC RecordPageHandler::init_empty_page(DiskBufferPool &buffer_pool, LogHandler &l
   page_header_->record_real_size = record_size;
   page_header_->record_size      = align8(record_size);
   page_header_->record_capacity =
-      page_record_capacity(BP_PAGE_DATA_SIZE, page_header_->record_size, page_header_->column_num * sizeof(int));
+      page_record_capacity((column_num/8 + (column_num%8 == 0)?0:1), BP_PAGE_DATA_SIZE, page_header_->record_size, page_header_->column_num * sizeof(int));
   page_header_->col_idx_offset = align8(PAGE_HEADER_SIZE + page_bitmap_size(page_header_->record_capacity));
   page_header_->data_offset    = align8(PAGE_HEADER_SIZE + page_bitmap_size(page_header_->record_capacity)) +
                               column_num * sizeof(int) /* column index*/;
   this->fix_record_capacity();
-  ASSERT(page_header_->data_offset + page_header_->record_capacity * page_header_->record_size 
+  ASSERT(page_header_->data_offset + page_header_->record_capacity * (page_header_->record_size + page_header_->isNullBitmap_size)
               <= BP_PAGE_DATA_SIZE, 
          "Record overflow the page size");
 
@@ -266,7 +269,7 @@ RC RecordPageHandler::cleanup()
   return RC::SUCCESS;
 }
 
-RC RowRecordPageHandler::insert_record(const char *data, RID *rid)
+RC RowRecordPageHandler::insert_record(Bitmap* isNullBitMap, const char *data, RID *rid)
 {
   ASSERT(rw_mode_ != ReadWriteMode::READ_ONLY, 
          "cannot insert record into page while the page is readonly");
@@ -292,8 +295,11 @@ RC RowRecordPageHandler::insert_record(const char *data, RID *rid)
   // 获取可插入位置的指针
   char *record_data = get_record_data(index);
 
+  // 在 record_data 前首先插入isNullBitMap
+  memcpy(record_data, isNullBitMap->getBitmap(), page_header_->isNullBitmap_size);
+
   // 在 record_data 位置插入数据 data，数据大小为 record_real_size
-  memcpy(record_data, data, page_header_->record_real_size);
+  memcpy(record_data + (isNullBitMap->getSize()/8 + (isNullBitMap->getSize()%8==0?0:1)), data, page_header_->record_real_size);
 
   // 此内存中的帧被标记为脏
   frame_->mark_dirty();
@@ -409,7 +415,11 @@ RC RowRecordPageHandler::get_record(const RID &rid, Record &record)
   }
 
   record.set_rid(rid);
-  record.set_data(get_record_data(rid.slot_num), page_header_->record_real_size);
+  // 得到 bitmap + 数据部分
+  char* isNullBitmap_recordData = get_record_data(rid.slot_num);
+  Bitmap* isNullBitmap = new Bitmap(isNullBitmap_recordData, page_header_->isNullBitmap_size);
+  record.setIsNullBitMap(isNullBitmap);
+  record.set_data(isNullBitmap_recordData + page_header_->isNullBitmap_size, page_header_->record_real_size);
   return RC::SUCCESS;
 }
 
@@ -423,7 +433,7 @@ PageNum RecordPageHandler::get_page_num() const
 
 bool RecordPageHandler::is_full() const { return page_header_->record_num >= page_header_->record_capacity; }
 
-RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
+RC PaxRecordPageHandler::insert_record(Bitmap* isNullBitMap, const char *data, RID *rid)
 {
   // your code here
   exit(-1);
@@ -548,7 +558,7 @@ RC RecordFileHandler::init_free_pages()
   return rc;
 }
 // 记录管理器：插入新纪录  RecordFileHandler：管理整个页面的操作，但具体由 RecordPageHandler 负责
-RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
+RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid, Bitmap* isNullBitMap)
 {
   RC ret = RC::SUCCESS;
 
@@ -602,7 +612,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
 
     current_page_num = frame->page_num();
 
-    // 初始化关于该页面记录信息的页头PageHeade
+    // 初始化关于该页面记录信息的页头PageHeade   bitmap的大小从table_meta_中获取
     ret = record_page_handler->init_empty_page(
         *disk_buffer_pool_, *log_handler_, current_page_num, record_size, table_meta_);
 
@@ -627,7 +637,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
 
   // 找到空闲位置
   // 照应上文：record_page_handler 负责具体页面的插入记录操作
-  return record_page_handler->insert_record(data, rid);
+  return record_page_handler->insert_record(isNullBitMap, data, rid);
 }
 
 RC RecordFileHandler::recover_insert_record(const char *data, int record_size, const RID &rid)
@@ -693,7 +703,7 @@ RC RecordFileHandler::get_record(const RID &rid, Record &record)
     return rc;
   }
 
-  record.copy_data(inplace_record.data(), inplace_record.len());
+  record.copy_data(inplace_record.data(), inplace_record.len(), inplace_record.getIsNullBitMap());
   record.set_rid(rid);
   return rc;
 }
@@ -718,7 +728,7 @@ RC RecordFileHandler::visit_record(const RID &rid, function<bool(Record &)> upda
   // 需要将数据复制出来再修改，否则update_record调用失败但是实际上数据却更新成功了，
   // 会导致数据库状态不正确
   Record record;
-  record.copy_data(inplace_record.data(), inplace_record.len());
+  record.copy_data(inplace_record.data(), inplace_record.len(), inplace_record.getIsNullBitMap());
   record.set_rid(rid);
 
   bool updated = updater(record);
@@ -789,7 +799,7 @@ RC RecordFileScanner::fetch_next_record()
     }
 
     record_page_iterator_.init(record_page_handler_);
-    rc = fetch_next_record_in_page();
+    rc = fetch_next_record_in_page();                 ///<  ****************
     if (rc == RC::SUCCESS || rc != RC::RECORD_EOF) {
       // 有有效记录：RC::SUCCESS
       // 或者出现了错误，rc != (RC::SUCCESS or RC::RECORD_EOF)
@@ -868,7 +878,8 @@ RC RecordFileScanner::next(Record &record)
     return rc;
   }
 
-  record = next_record_;
+
+  record = next_record_;  // 好好的吗
   return RC::SUCCESS;
 }
 

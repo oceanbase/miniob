@@ -72,7 +72,7 @@ TEST(RecordPageHandler, test_record_page_handler)
   RID  rid;
   rid.page_num = 100;
   rid.slot_num = 100;
-  rc           = record_page_handle->insert_record(buf, &rid);
+  rc           = record_page_handle->insert_record(nullptr,buf, &rid);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;
@@ -87,7 +87,7 @@ TEST(RecordPageHandler, test_record_page_handler)
   for (int i = 0; i < 10; i++) {
     rid.page_num = i;
     rid.slot_num = i;
-    rc           = record_page_handle->insert_record(buf, &rid);
+    rc           = record_page_handle->insert_record(nullptr, buf, &rid);
     ASSERT_EQ(rc, RC::SUCCESS);
   }
 
@@ -164,7 +164,7 @@ TEST(RecordFileScanner, test_record_file_iterator)
   std::vector<RID> rids;
   for (int i = 0; i < record_insert_num; i++) {
     RID rid;
-    rc = file_handler.insert_record(record_data, sizeof(record_data), &rid);
+    rc = file_handler.insert_record(record_data, sizeof(record_data), &rid, nullptr);
     ASSERT_EQ(rc, RC::SUCCESS);
     rids.push_back(rid);
   }
@@ -244,7 +244,7 @@ TEST(RecordManager, durability)
   mutex                               record_map_lock;
   for (int i = 0; i < insert_record_num; i++) {
     RID rid;
-    ASSERT_EQ(record_file_handler.insert_record(record_data, record_size, &rid), RC::SUCCESS);
+    ASSERT_EQ(record_file_handler.insert_record(record_data, record_size, &rid, nullptr), RC::SUCCESS);
     record_map.emplace(rid, string(record_data, record_size));
   }
 
@@ -265,7 +265,7 @@ TEST(RecordManager, durability)
             case 0: {  // insert
               RID rid;
               record_map_lock.lock();
-              ASSERT_EQ(record_file_handler.insert_record(record_data, record_size, &rid), RC::SUCCESS);
+              ASSERT_EQ(record_file_handler.insert_record(record_data, record_size, &rid, nullptr), RC::SUCCESS);
               record_map.emplace(rid, string(record_data));
               record_map_lock.unlock();
               break;

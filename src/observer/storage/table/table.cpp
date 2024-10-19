@@ -33,6 +33,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/table/table.h"
 #include "storage/trx/trx.h"
+#include "common/lang/bitmap.h"
 
 Table::~Table()
 {
@@ -278,7 +279,7 @@ RC Table::insert_record(Record &record)
 {
   RC rc = RC::SUCCESS;
   // 调用记录管理器 record_handler_ 插入新纪录
-  rc    = record_handler_->insert_record(record.data(), table_meta_.record_size(), &record.rid());
+  rc    = record_handler_->insert_record(record.data(), table_meta_.record_size(), &record.rid(), record.getIsNullBitMap());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Insert record failed. table name=%s, rc=%s", table_meta_.name(), strrc(rc));
     return rc;
@@ -356,12 +357,17 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
     return RC::SCHEMA_FIELD_MISSING;
   }
 
-  const int normal_field_start_index = table_meta_.sys_field_num();
+  const int normal_field_start_index = table_meta_.sys_field_num();   // 排除sys_field字段域
 
-  // 复制所有字段的值
+  // 为数据部分申请空间（不包括 nullbitmap）
   int   record_size = table_meta_.record_size();
   char *record_data = (char *)malloc(record_size);
   memset(record_data, 0, record_size);
+
+  int fieldsNum = normal_field_start_index + value_num;    // 记录所有field的数量，将sysField也考虑在内
+  char* bitmapData = new char[fieldsNum / 8 + (fieldsNum % 8 != 0 ? 1 : 0)];  
+  memset(bitmapData, 0, fieldsNum / 8 + (fieldsNum % 8 != 0 ? 1 : 0));    // 初始时，字段值均不为null
+  Bitmap* isNullBitMap = new Bitmap(bitmapData, fieldsNum); // value_num 表示比特位数
 
   // 对于每一条新属性
   for (int i = 0; i < value_num && OB_SUCC(rc); i++) {
@@ -370,18 +376,34 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
     // 获取新字段的值
     const Value &    value = values[i];
 
+    // The process to null
+    // 如果新插入的 value 类型为 null, 但该字段不允许为null，则报错
+    if(!field->nullable() && value.attr_type() == AttrType::NULLS){
+      LOG_WARN("set null value to a not null field is invaild");
+      rc = RC::INTERNAL;
+      break;
+    }
+
+    // 如果允许插入 null 值，且 value 为null，则
+    if(value.attr_type() == AttrType::NULLS){
+      // 仅将对应的bitmap标记为 1，其余不变
+      isNullBitMap->set_bit(field->field_id());
+      continue;
+    }
+
     // 新字段与原设定类型不一致，先尝试转换
-    if (field->type() != value.attr_type()) {
+    if (value.attr_type() != AttrType::NULLS && field->type() != value.attr_type()) {
       Value real_value;
       rc = Value::cast_to(value, field->type(), real_value);
       if (OB_FAIL(rc)) {
+        rc = RC::INTERNAL;
         LOG_WARN("failed to cast value. table name:%s,field name:%s,value:%s ",
             table_meta_.name(), field->name(), value.to_string().c_str());
         break;
       }
       // 向记录 record_data 添加一个新字段 field，值为 real_value
       rc = set_value_to_record(record_data, real_value, field);
-    } 
+    }
     else {
       // 类型匹配，直接添加
       rc = set_value_to_record(record_data, value, field);
@@ -393,7 +415,7 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
     return rc;
   }
 
-  record.set_data_owner(record_data, record_size);
+  record.set_data_owner(record_data, record_size, isNullBitMap);
   return RC::SUCCESS;
 }
 

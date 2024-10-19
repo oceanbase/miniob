@@ -190,7 +190,7 @@ TEST(ArithmeticExpr, get_column)
     Chunk chunk;
     chunk.add_column(std::move(column_left), 0);
     Column         column_result;
-    FieldMeta      field_meta1("col1", AttrType::INTS, 0, int_len, true, 0);
+    FieldMeta      field_meta1("col1", AttrType::INTS, 0, int_len, true, 0, false);
     Field          field1(nullptr, &field_meta1);
     auto           left_expr = std::make_unique<FieldExpr>(field1);
     ArithmeticExpr expr(ArithmeticExpr::Type::DIV, std::move(left_expr), std::move(right_expr));
@@ -217,8 +217,8 @@ TEST(ArithmeticExpr, get_column)
     chunk.add_column(std::move(column_left), 0);
     chunk.add_column(std::move(column_right), 1);
     Column         column_result;
-    FieldMeta      field_meta1("col1", AttrType::INTS, 0, int_len, true, 0);
-    FieldMeta      field_meta2("col2", AttrType::INTS, 0, int_len, true, 1);
+    FieldMeta      field_meta1("col1", AttrType::INTS, 0, int_len, true, 0, false);
+    FieldMeta      field_meta2("col2", AttrType::INTS, 0, int_len, true, 1, false);
     Field          field1(nullptr, &field_meta1);
     Field          field2(nullptr, &field_meta2);
     auto           left_expr  = std::make_unique<FieldExpr>(field1);
@@ -279,7 +279,7 @@ TEST(ComparisonExpr, comparison_expr_test)
   {
     const int               int_len = sizeof(int);
     Value                   int_value(1);
-    FieldMeta               field_meta("col1", AttrType::INTS, 0, int_len, true, 0);
+    FieldMeta               field_meta("col1", AttrType::INTS, 0, int_len, true, 0, false);
     Field                   field(nullptr, &field_meta);
     unique_ptr<Expression>  right_expr  = std::make_unique<FieldExpr>(field);
     int                     count       = 1024;

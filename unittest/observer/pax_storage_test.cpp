@@ -92,7 +92,7 @@ TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
   ASSERT_EQ(rc, RC::SUCCESS);
   Chunk     chunk;
   FieldMeta fm;
-  fm.init("col1", AttrType::INTS, 0, 4, true, 0);
+  fm.init("col1", AttrType::INTS, 0, 4, true, 0, false);
   auto col1 = std::make_unique<Column>(fm, 2048);
   chunk.add_column(std::move(col1), 0);
   count = 0;
@@ -108,7 +108,7 @@ TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
   std::vector<RID> rids;
   for (int i = 0; i < record_insert_num; i++) {
     RID rid;
-    rc = file_handler.insert_record(record_data, sizeof(record_data), &rid);
+    rc = file_handler.insert_record(record_data, sizeof(record_data), &rid, nullptr);
     ASSERT_EQ(rc, RC::SUCCESS);
     rids.push_back(rid);
   }
@@ -239,7 +239,7 @@ TEST_P(PaxPageHandlerTestWithParam, DISABLED_PaxPageHandler)
     float float_val = i + float_base;
     memcpy(buf, &int_val, sizeof(int));
     memcpy(buf + 4, &float_val, sizeof(float));
-    rc = record_page_handle->insert_record(buf, &rid);
+    rc = record_page_handle->insert_record(nullptr, buf, &rid);
     ASSERT_EQ(rc, RC::SUCCESS);
   }
 
@@ -259,10 +259,10 @@ TEST_P(PaxPageHandlerTestWithParam, DISABLED_PaxPageHandler)
 
   Chunk     chunk1;
   FieldMeta fm1, fm2, fm3, fm4;
-  fm1.init("col1", AttrType::INTS, 0, 4, true, 0);
-  fm2.init("col2", AttrType::FLOATS, 4, 4, true, 1);
-  fm3.init("col3", AttrType::CHARS, 8, 4, true, 2);
-  fm4.init("col4", AttrType::CHARS, 12, 7, true, 3);
+  fm1.init("col1", AttrType::INTS, 0, 4, true, 0, false);
+  fm2.init("col2", AttrType::FLOATS, 4, 4, true, 1, false);
+  fm3.init("col3", AttrType::CHARS, 8, 4, true, 2, false);
+  fm4.init("col4", AttrType::CHARS, 12, 7, true, 3, false);
   auto col_1 = std::make_unique<Column>(fm1, 2048);
   chunk1.add_column(std::move(col_1), 0);
   auto col_2 = std::make_unique<Column>(fm2, 2048);
@@ -285,7 +285,7 @@ TEST_P(PaxPageHandlerTestWithParam, DISABLED_PaxPageHandler)
 
   Chunk     chunk2;
   FieldMeta fm2_1;
-  fm2_1.init("col2", AttrType::FLOATS, 4, 4, true, 1);
+  fm2_1.init("col2", AttrType::FLOATS, 4, 4, true, 1, false);
   auto col_2_1 = std::make_unique<Column>(fm2_1, 2048);
   chunk2.add_column(std::move(col_2_1), 1);
   rc = record_page_handle->get_chunk(chunk2);

@@ -20,6 +20,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/log/log.h"
 #include "common/type/attr_type.h"
+#include "common/null.h"
+
+Value::Value(Null val) { set_null(val); }
 
 Value::Value(int val) { set_int(val); }
 
@@ -136,6 +139,14 @@ void Value::set_data(char *data, int length)
   }
 }
 
+void Value::set_null(Null val)
+{
+  reset();
+  attr_type_        = AttrType::NULLS;
+  value_.int_value_ = -1;
+  length_           = sizeof(val);
+}
+
 void Value::set_int(int val)
 {
   reset();
@@ -243,6 +254,11 @@ const char *Value::data() const
 string Value::to_string() const
 {
   string res;
+
+  if(this->attr_type_ == AttrType::NULLS){
+    return "NULL"; 
+  }
+  
   RC     rc = DataType::type_instance(this->attr_type_)->to_string(*this, res);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to convert value to string. type=%s", attr_type_to_string(this->attr_type_));
