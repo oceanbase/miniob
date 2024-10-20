@@ -451,7 +451,21 @@ value_list:
       delete $2;
     }
     ;
-value: // 9
+value: 
+    '-' value{
+      if($2->attr_type() == AttrType::INTS){
+        $$ = new Value(-1 * int($2->get_int()));
+      }
+      else if($2->attr_type() == AttrType::FLOATS){
+        $$ = new Value(-1.0f * float($2->get_float()));
+      }
+      else{
+        yyerror (&yylloc, sql_string, sql_result, scanner, YY_("Cannot use negative operator to not number or not float one")); 
+        YYERROR; 
+      }
+      delete $2;
+    }
+    |
     NULL_{
       Null nul = Null();
       $$ = new Value(nul);

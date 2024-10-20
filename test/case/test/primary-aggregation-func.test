@@ -7,7 +7,7 @@ INSERT INTO aggregation_func VALUES (3, 12, 30.0, 'def', '2021-01-21');
 INSERT INTO aggregation_func VALUES (4, 15, 30.0, 'dei', '2021-01-31');
 
 -- echo 1. count
-SELECT count(*) FROM aggregation_func;
+SELECT count(*) FROM aggregation_func;  /// null 不在计算范围内
 
 SELECT count(num) FROM aggregation_func;
 

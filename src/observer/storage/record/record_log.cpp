@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/lang/sstream.h"
 #include "common/lang/defer.h"
+#include "common/lang/bitmap.h"
 #include "storage/clog/log_handler.h"
 #include "storage/record/record.h"
 #include "storage/buffer/disk_buffer_pool.h"
@@ -109,9 +110,9 @@ RC RecordLogHandler::init_new_page(Frame *frame, PageNum page_num, span<const ch
   return rc;
 }
 
-RC RecordLogHandler::insert_record(Frame *frame, const RID &rid, const char *record)
+RC RecordLogHandler::insert_record(Frame *frame, const RID &rid, const char *record, Bitmap* isNullBitmap)
 {
-  const int        log_payload_size = RecordLogHeader::SIZE + record_size_;
+  const int        log_payload_size = RecordLogHeader::SIZE + record_size_ - isNullBitmap->getSize();   /// record_size_ 包含了 isNullBitmap
   vector<char>     log_payload(log_payload_size);
   RecordLogHeader *header = reinterpret_cast<RecordLogHeader *>(log_payload.data());
   header->buffer_pool_id  = buffer_pool_id_;
@@ -119,7 +120,8 @@ RC RecordLogHandler::insert_record(Frame *frame, const RID &rid, const char *rec
   header->page_num        = rid.page_num;
   header->slot_num        = rid.slot_num;
   header->storage_format  = static_cast<int>(storage_format_);
-  memcpy(log_payload.data() + RecordLogHeader::SIZE, record, record_size_);
+
+  memcpy(log_payload.data() + RecordLogHeader::SIZE, record, record_size_ - isNullBitmap->getSize());
 
   LSN lsn = 0;
   RC  rc  = log_handler_->append(lsn, LogModule::Id::RECORD_MANAGER, std::move(log_payload));
@@ -129,9 +131,10 @@ RC RecordLogHandler::insert_record(Frame *frame, const RID &rid, const char *rec
   return rc;
 }
 
+// 也得改，增加isNullBitmap域，减去其大小
 RC RecordLogHandler::update_record(Frame *frame, const RID &rid, const char *record)
 {
-  const int        log_payload_size = RecordLogHeader::SIZE + record_size_;
+  const int        log_payload_size = RecordLogHeader::SIZE + record_size_;   // 改
   vector<char>     log_payload(log_payload_size);
   RecordLogHeader *header = reinterpret_cast<RecordLogHeader *>(log_payload.data());
   header->buffer_pool_id  = buffer_pool_id_;
@@ -139,7 +142,7 @@ RC RecordLogHandler::update_record(Frame *frame, const RID &rid, const char *rec
   header->page_num        = rid.page_num;
   header->slot_num        = rid.slot_num;
   header->storage_format  = static_cast<int>(storage_format_);
-  memcpy(log_payload.data() + RecordLogHeader::SIZE, record, record_size_);
+  memcpy(log_payload.data() + RecordLogHeader::SIZE, record, record_size_);  // 改
 
   LSN lsn = 0;
   RC  rc  = log_handler_->append(lsn, LogModule::Id::RECORD_MANAGER, std::move(log_payload));

@@ -164,7 +164,7 @@ FORMAT                                  RETURN_TOKEN(FORMAT);
 ">"                                     RETURN_TOKEN(GT);
 
 "+" |
-'-' |
+"-" |
 "*" |
 "/"                                     { return yytext[0]; }
 \"[^"]*\"                               yylval->string = strdup(yytext); RETURN_TOKEN(SSS);

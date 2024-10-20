@@ -285,7 +285,7 @@ RC RowRecordPageHandler::insert_record(Bitmap* isNullBitMap, const char *data, R
   bitmap.set_bit(index);
   page_header_->record_num++;
 
-  RC rc = log_handler_.insert_record(frame_, RID(get_page_num(), index), data);
+  RC rc = log_handler_.insert_record(frame_, RID(get_page_num(), index), data, isNullBitMap);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to insert record. page_num %d:%d. rc=%s", disk_buffer_pool_->file_desc(), frame_->page_num(), strrc(rc));
     // return rc; // ignore errors

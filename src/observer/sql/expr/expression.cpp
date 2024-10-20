@@ -76,7 +76,7 @@ CastExpr::CastExpr(unique_ptr<Expression> child, AttrType cast_type) : child_(st
 {}
 
 CastExpr::~CastExpr() {}
-
+// cast_value <- value
 RC CastExpr::cast(const Value &value, Value &cast_value) const
 {
   RC rc = RC::SUCCESS;
@@ -118,10 +118,16 @@ ComparisonExpr::ComparisonExpr(CompOp comp, unique_ptr<Expression> left, unique_
 
 
 ComparisonExpr::~ComparisonExpr() {}
-// 在此处处理过滤逻辑
+// 在此处处理过滤逻辑, all comparision with null is false
 RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &result) const
 {
   RC  rc         = RC::SUCCESS;
+
+  if(left.attr_type() == AttrType::NULLS || right.attr_type() == AttrType::NULLS){
+    result = false;
+    return rc;
+  }
+
   int cmp_result = left.compare(right);
   result         = false;
   switch (comp_) {
@@ -177,7 +183,7 @@ RC ComparisonExpr::get_value(const Tuple &tuple, Value &value) const
 {
   Value left_value;
   Value right_value;
-  // 获得元组value对应的值（若当前表达式为常数，则返回常数）
+  // 获得元组value  经过左子表达式计算后  对应的值（若当前表达式为常数，则返回常数）
   RC rc = left_->get_value(tuple, left_value);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to get value of left expression. rc=%s", strrc(rc));
@@ -319,6 +325,24 @@ AttrType ArithmeticExpr::value_type() const
 RC ArithmeticExpr::calc_value(const Value &left_value, const Value &right_value, Value &value) const
 {
   RC rc = RC::SUCCESS;
+
+  // 表达式一方存在 null，结果为null
+  if(left_value.attr_type() == AttrType::NULLS || right_value.attr_type() == AttrType::NULLS){
+    value.set_type(AttrType::NULLS);
+    return RC::SUCCESS;
+  }
+
+  // 除零错误 
+  if(right_value.attr_type() == AttrType::INTS && right_value.get_int() == 0){
+    value.set_type(AttrType::NULLS);
+    return RC::SUCCESS;
+  }
+
+  // 除零错误 
+  if(right_value.attr_type() == AttrType::FLOATS && right_value.get_float() == 0.0f){
+    value.set_type(AttrType::NULLS);
+    return RC::SUCCESS;
+  }
 
   const AttrType target_type = value_type();
   value.set_type(target_type);

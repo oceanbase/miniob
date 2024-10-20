@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/types.h"
 #include "common/rc.h"
 #include "common/lang/span.h"
+#include "common/lang/bitmap.h"
 #include "common/lang/string.h"
 #include "storage/clog/log_replayer.h"
 #include "sql/parser/parse_defs.h"
@@ -106,8 +107,9 @@ public:
    * @param frame 页帧
    * @param rid 记录的位置
    * @param record 记录的内容
+   * @param isNullBitmap 由于record_size_包含了bitmap域，所以需额外参数减去
    */
-  RC insert_record(Frame *frame, const RID &rid, const char *record);
+  RC insert_record(Frame *frame, const RID &rid, const char *record, common::Bitmap* isNullBitmap);
 
   /**
    * @brief 删除一条记录

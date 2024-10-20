@@ -30,7 +30,7 @@ RC ScalarGroupByPhysicalOperator::open(Trx *trx)
   ASSERT(children_.size() == 1, "group by operator only support one child, but got %d", children_.size());
   
   PhysicalOperator &child = *children_[0];
-  RC                rc    = child.open(trx);
+  RC                rc    = child.open(trx);  // 扫表
   if (OB_FAIL(rc)) {
     LOG_INFO("failed to open child operator. rc=%s", strrc(rc));
     return rc;
