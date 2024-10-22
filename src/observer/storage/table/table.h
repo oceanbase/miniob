@@ -54,6 +54,11 @@ public:
   RC create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
       span<const AttrInfoSqlNode> attributes, StorageFormat storage_format);
 
+  /*
+   * 删除一个表，会回收Table内存
+   */
+  static RC drop(Table *table);
+
   /**
    * 打开一个表
    * @param meta_file 保存表元数据的文件完整路径
@@ -84,6 +89,11 @@ public:
 
   // TODO refactor
   RC create_index(Trx *trx, const FieldMeta *field_meta, const char *index_name);
+
+  /*
+   * 删除index,不会释放内存
+   */
+  static RC drop_index(Table *table, Index *idx);
 
   RC get_record_scanner(RecordFileScanner &scanner, Trx *trx, ReadWriteMode mode);
 

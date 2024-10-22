@@ -127,6 +127,23 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   return rc;
 }
 
+RC Table::drop(Table *table) {
+  string base_dir = table->base_dir_;
+  string name     = table->name();
+  string path     = table_meta_file(base_dir.c_str(), name.c_str());
+
+  for (vector<Index *>::iterator it = table->indexes_.begin(); it != table->indexes_.end(); ++it) {
+    Index *index = *it;
+    drop_index(table, index);
+  }
+  delete table;
+  ::remove(path.c_str());
+  ::remove((path + ".tmp").c_str());
+  string data_file = table_data_file(base_dir.c_str(), name.c_str());
+  ::remove(data_file.c_str());
+  return RC::SUCCESS;
+}
+
 RC Table::open(Db *db, const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件
@@ -449,6 +466,13 @@ RC Table::create_index(Trx *trx, const FieldMeta *field_meta, const char *index_
 
   LOG_INFO("Successfully added a new index (%s) on the table (%s)", index_name, name());
   return rc;
+}
+
+RC Table::drop_index(Table *table, Index *idx)
+{
+  string index_file = table_index_file(table->base_dir_.c_str(), table->name(), idx->index_meta().name());
+  ::remove(index_file.c_str());
+  return RC::SUCCESS;
 }
 
 RC Table::delete_record(const RID &rid)
