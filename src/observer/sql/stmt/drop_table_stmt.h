@@ -19,7 +19,7 @@ public:
 
   StmtType type() const override { return StmtType::DROP_TABLE; }
 
-  const std::string                  &table_name() const { return table_name_; }
+  const std::string    &table_name() const { return table_name_; }
 
   //TODO:
   static RC            create(Db *db, const DropTableSqlNode &create_table, Stmt *&stmt);
