@@ -42,3 +42,11 @@ id
 1
 
 ```
+
+在训练营中，需要手动修改 `session.h` 文件中的代码来开启调试/关闭调试。
+```c++
+// 将 Session::sql_debug_ 设置为 false，关闭调试
+bool sql_debug_ = false;
+// 将 Session::sql_debug_ 设置为 true，开启调试
+bool sql_debug_ = true;
+```

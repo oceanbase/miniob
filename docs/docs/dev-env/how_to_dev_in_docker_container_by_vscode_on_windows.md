@@ -41,6 +41,16 @@ title: 在windows上通过docker配置环境并利用vscode调试代码（手把
 docker run --privileged -d --name=miniobtest oceanbase/miniob
 ```
 
+注意：如果这里遇到网络问题（例如：timeout 相关提示），请尝试用其他镜像源拉取镜像。
+![docker pull timeout](images/docker_pull_timeout.png)
+```bash
+# 下面的命令三选一即可
+docker pull oceanbase/miniob         # pull from docker hub
+docker pull ghcr.io/oceanbase/miniob && docker tag ghcr.io/oceanbase/miniob oceanbase/miniob # pull from github
+docker pull quay.io/oceanbase/miniob && docker tag quay.io/oceanbase/miniob oceanbase/miniob # pull from github # pull from quay.io
+```
+
+
 其中 --name=miniobtest  这个“miniobtest”是自己容器的名字 可以自己改 
 这个代码大概理解成从远程oceanbase/miniob拉取适合miniob的配置好的环境
 
