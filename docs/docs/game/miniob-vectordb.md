@@ -145,6 +145,7 @@ SELECT * FROM TAB_VEC ORDER BY L2_DISTANCE(B, '[1,2,3]') LIMIT 1;
 
 赛题测试程序中运行的 ann-benchmarks 只针对 `fashion-mnist-784-euclidean` 数据集进行测试，`--runs` 参数为1，测试使用的 python 脚本与 [ann-benchmarks](https://github.com/nautaa/ann-benchmarks/tree/miniob_ann) 完全相同，指定向量索引参数 `probes = 5, lists = 245`。
 测试程序不对性能做过多的限制，满足如下要求即为通过：
+
 1. 要求在 10 分钟内完成 ann-benchmarks 的整个运行（即包括：插入数据，创建索引，ANN 查询，不包括下载数据集的时间）。
 2. 要求 ANN 查询的每秒查询数（QPS）达到 100 qps
 3. 要求 ANN 查询的召回率（recall）达到 0.90
