@@ -28,11 +28,14 @@ title: MiniOB 向量数据库
 
 本次赛题，需要选手在 MiniOB 的基础上实现向量数据库的基本功能，向量数据库的功能被拆解为如下几个题目。
 
+注意：在实现向量数据库相关题目时，不限制向量检索算法的实现方式，可以基于开源的第三方库实现，也可以自行实现。
+
 ### 题目一：向量类型基础功能
 * 向量类型
   * 语法：`vector(size)`，其中，size 表示向量的维度（必须指定）
   * 最大支持维度为 16000（在基础功能中只需要支持最大 1000 维向量即可）
   * 向量类型中的浮点数最多保留两位小数，并且去掉多余的0
+  * 向量类型中每个元素都是数值类型（包括int 和 float 类型）。
 * 支持创建包含向量类型的表：
 ```sql
 CREATE TABLE items (id int, embedding vector(3));
@@ -45,7 +48,7 @@ INSERT INTO items VALUES (1, '[1,2,3]');
 ```sql
 select embedding + '[1.5,2.3,3.3]', embedding - '[1,2,3]', '[1,2,3]' - embedding from items where embedding > '[0,0,0]';
 ```
-其中，算术运算为逐个元素运算，如 `[1,2,3] + [1,1,1] = [2,3,4]`；比较运算为逐个元素的字典序比较，如`[1,2,3]<[1,2,4], [2,1,2]>[1,2,2]`
+其中，算术运算为逐个元素运算，如 `[1,2,3] + [1,1,1] = [2,3,4], [1,2,3] - [1,1,1]=[0,1,2], [1,2] * [1,3] = [1,6]`；比较运算为逐个元素的字典序比较。即两个向量比较时，从左到右逐个数值进行比较，如果某个位置的数值不同，则根据该位置的数值大小比较结果作为向量的比较结果，举例：`[1,2,3]<[1,2,4], [2,1,2]>[1,2,2]`
 
 * 支持距离表达式计算：
   * l2_distance
@@ -89,7 +92,7 @@ IVF-Flat 是一种常见的高效近似最近邻（Approximate Nearest Neighbor�
 以图像搜索为例的 IVF-Flat 向量索引工作流程如下：
 1. 首先使用 K-Means 算法将所有图像的特征向量分成 1000 个簇。每个簇表示一部分相似的图片。例如，簇 1 可能包含大部分是风景图像的向量，簇 2 可能包含大部分是人物图像的向量，以此类推。对于每个簇，向量索引都维护一个倒排文件索引，存储属于这个簇的所有图像的索引。
 比如，簇 1 对应的倒排文件索引可能包括 [image_23, image_45, image_78...]，这些是属于簇 1 的图像的索引。
-1. 查询过程：用户指定一张新图像进行搜索。首先，将这张图片通过同样的特征提取模型转换成一个高维向量。然后，通过计算这个向量与1000个质心的距离，找到离它最近的几个质心（假设是前5个）。在这几个质心对应的簇中，你进一步进行精确的向量搜索，找到最相似的图像。
+2. 查询过程：用户指定一张新图像进行搜索。首先，将这张图片通过同样的特征提取模型转换成一个高维向量。然后，通过计算这个向量与1000个质心的距离，找到离它最近的几个质心（假设是前5个）。在这几个质心对应的簇中，你进一步进行精确的向量搜索，找到最相似的图像。
 
 
 向量索引语法：
@@ -98,7 +101,7 @@ CREATE VECTOR INDEX vector_idx
 ON items (embedding) 
 WITH (distance=l2_distance, type=ivfflat, lists=245, probes=5);
 ```
-其中 embedding 是向量索引列，必须指定是 vector 类型，`VECTOR INDEX` 必须搭配使用。vector_idx 是向量索引名，`WITH` 后面为创建向量索引的基本参数, 括号内部是一个表达式列表 其中的 distance 表示距离算法，必须是 `inner_product`，`l2_distance`，`cosine_distance` 其中的一种，type 为索引算法类型，当前只支持 ivfflat。distance 和 type 必须指定。注意：所有的关键字都是大小写不敏感的。
+其中 embedding 是向量索引列，必须指定是 vector 类型，`VECTOR INDEX` 必须搭配使用。vector_idx 是向量索引名，`WITH` 后面为创建向量索引的基本参数, 括号内部是一个表达式列表 其中的 `distance` 表示距离算法，必须是 `inner_product`，`l2_distance`，`cosine_distance` 其中的一种，`type` 为索引算法类型，当前只支持 ivfflat。`lists` 为 ivfflat 索引构建期间创建的簇的数量。`probes` 为一个向量检索时参数，用于确定查询期间要查询的簇的数量。注意：所有的关键字都是大小写不敏感的。
 
 邻近向量检索语法：
 ```sql
@@ -112,6 +115,7 @@ select column_name1,column_name2, ... from table_name order by vector_distance_f
 * 要求limit子句必须是一个整数常量表达式
 
 本题目中只需要支持：
+
 1. 创建 Ivf-Flat 向量索引（本题目不考察 ANN 查询）。
 2. 当查询为邻近向量检索且命中向量索引时，需要将 order by + limit 的查询计划改写为通过向量索引进行检索的查询计划。
 
@@ -142,6 +146,7 @@ SELECT * FROM TAB_VEC ORDER BY L2_DISTANCE(B, '[1,2,3]') LIMIT 1;
 
 赛题测试程序中运行的 ann-benchmarks 只针对 `fashion-mnist-784-euclidean` 数据集进行测试，`--runs` 参数为1，测试使用的 python 脚本与 [ann-benchmarks](https://github.com/nautaa/ann-benchmarks/tree/miniob_ann) 完全相同，指定向量索引参数 `probes = 5, lists = 245`。
 测试程序不对性能做过多的限制，满足如下要求即为通过：
+
 1. 要求在 10 分钟内完成 ann-benchmarks 的整个运行（即包括：插入数据，创建索引，ANN 查询，不包括下载数据集的时间）。
 2. 要求 ANN 查询的每秒查询数（QPS）达到 100 qps
 3. 要求 ANN 查询的召回率（recall）达到 0.90
@@ -151,27 +156,27 @@ SELECT * FROM TAB_VEC ORDER BY L2_DISTANCE(B, '[1,2,3]') LIMIT 1;
 
 #### 在 MiniOB 上运行 ann-benchmark
 
-1. 下载 ann-benchmarks 代码
+* 下载 ann-benchmarks 代码
 ```
 git clone https://github.com/nautaa/ann-benchmarks.git -b miniob_ann
 ```
-2. 安装所需 python 依赖
+* 安装所需 python 依赖
 ```
 cd ann-benchmarks/
 pip install -r requirements.txt
 ```
-3. 以 mysql 通讯协议且监听 unix socket 的方式启动 miniob.
+* 以 mysql 通讯协议且监听 unix socket 的方式启动 miniob.
 ```bash
 # 示例命令
 /root/miniob/build_release/bin/observer -s /tmp/miniob.sock -P mysql 
 ```
-4. 运行 ann-benchmark.
+* 运行 ann-benchmark.
 注意：需要将 `algorithms/miniob/config.yml` 中的 `arg_groups: [{unix_socket: "/tmp/miniob.sock"}]` 修改为 miniob 实际使用的 unix socket 文件地址
 ```bash
 # 示例命令
 python3 run.py --dataset fashion-mnist-784-euclidean --docker-tag ann-benchmarks-miniob --local --timeout 100 --runs 1
 ```
-5. 生成运行结果.
+* 生成运行结果.
 ```bash
 # 示例命令
 python3 plot.py --dataset fashion-mnist-784-euclidean

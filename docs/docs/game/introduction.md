@@ -12,7 +12,7 @@ title: OceanBase 数据库大赛
 ## 训练营
 [OceanBase 训练营](https://open.oceanbase.com/train)是大赛测试使用的平台，同时也可以用于日常训练测试。
 
-训练营是一个自动化黑盒测试平台。同学们可以按照题目的描述要求，基于MiniOB实现相应的SQL功能，然后将自己的代码提交至训练营做测试验证，最终得到测试结果。
+训练营是一个自动化黑盒测试平台。同学们可以按照题目的描述要求，基于MiniOB实现相应的SQL功能，然后将自己的代码提交至训练营做测试验证，最终得到测试结果。训练营中 MiniOB 题目的测试环境为 Ubuntu 22.04, 编译器 为 gcc 11.4, CPU 为 Intel x86_64(Intel(R) Xeon(R) Platinum 8369B CPU)。
 
 在开始参加大赛或者训练营之前，需要创建自己的代码仓库，这里有一个github的使用说明：[大赛手把手入门教程](./github-introduction.md)
 

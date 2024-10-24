@@ -14,7 +14,7 @@ nav:
     - 运行: how_to_run.md
     - 开发环境:
       - dev-env/introduction.md
-      - dev-env/dev_by_gitpod.md
+      - dev-env/dev_by_online.md
       - dev-env/how-to-dev-using-docker.md
       - dev-env/how_to_dev_in_docker_container_by_vscode.md
       - dev-env/how_to_dev_in_docker_container_by_vscode_on_windows.md
