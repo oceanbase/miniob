@@ -1,6 +1,6 @@
 -- echo initialization
-CREATE TABLE null_table(id int, num int nullable, price float not null, birthday date nullable);
-CREATE TABLE null_table2(id int, num int nullable, price float not null, birthday date nullable);
+CREATE TABLE null_table(id int, num int null, price float not null, birthday date null);
+CREATE TABLE null_table2(id int, num int null, price float not null, birthday date null);
 CREATE INDEX index_num on null_table(num);
 
 -- echo 1. insert
@@ -74,7 +74,7 @@ SELECT count(birthday) FROM null_table;
 SELECT avg(num) FROM null_table;
 
 -- echo 6. aggregation with null columns
-CREATE TABLE null_table3(id int, num int nullable);
+CREATE TABLE null_table3(id int, num int null);
 INSERT INTO null_table3 VALUES (1, null);
 INSERT INTO null_table3 VALUES (2, null);
 SELECT count(num) FROM null_table3;

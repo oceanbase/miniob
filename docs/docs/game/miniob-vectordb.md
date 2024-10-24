@@ -28,11 +28,14 @@ title: MiniOB 向量数据库
 
 本次赛题，需要选手在 MiniOB 的基础上实现向量数据库的基本功能，向量数据库的功能被拆解为如下几个题目。
 
+注意：在实现向量数据库相关题目时，不限制向量检索算法的实现方式，可以基于开源的第三方库实现，也可以自行实现。
+
 ### 题目一：向量类型基础功能
 * 向量类型
   * 语法：`vector(size)`，其中，size 表示向量的维度（必须指定）
   * 最大支持维度为 16000（在基础功能中只需要支持最大 1000 维向量即可）
   * 向量类型中的浮点数最多保留两位小数，并且去掉多余的0
+  * 向量类型中每个元素都是数值类型（包括int 和 float 类型）。
 * 支持创建包含向量类型的表：
 ```sql
 CREATE TABLE items (id int, embedding vector(3));
@@ -45,7 +48,7 @@ INSERT INTO items VALUES (1, '[1,2,3]');
 ```sql
 select embedding + '[1.5,2.3,3.3]', embedding - '[1,2,3]', '[1,2,3]' - embedding from items where embedding > '[0,0,0]';
 ```
-其中，算术运算为逐个元素运算，如 `[1,2,3] + [1,1,1] = [2,3,4]`；比较运算为逐个元素的字典序比较，如`[1,2,3]<[1,2,4], [2,1,2]>[1,2,2]`
+其中，算术运算为逐个元素运算，如 `[1,2,3] + [1,1,1] = [2,3,4], [1,2,3] - [1,1,1]=[0,1,2], [1,2] * [1,3] = [1,6]`；比较运算为逐个元素的字典序比较。即两个向量比较时，从左到右逐个数值进行比较，如果某个位置的数值不同，则根据该位置的数值大小比较结果作为向量的比较结果，举例：`[1,2,3]<[1,2,4], [2,1,2]>[1,2,2]`
 
 * 支持距离表达式计算：
   * l2_distance
@@ -98,7 +101,7 @@ CREATE VECTOR INDEX vector_idx
 ON items (embedding) 
 WITH (distance=l2_distance, type=ivfflat, lists=245, probes=5);
 ```
-其中 embedding 是向量索引列，必须指定是 vector 类型，`VECTOR INDEX` 必须搭配使用。vector_idx 是向量索引名，`WITH` 后面为创建向量索引的基本参数, 括号内部是一个表达式列表 其中的 distance 表示距离算法，必须是 `inner_product`，`l2_distance`，`cosine_distance` 其中的一种，type 为索引算法类型，当前只支持 ivfflat。distance 和 type 必须指定。注意：所有的关键字都是大小写不敏感的。
+其中 embedding 是向量索引列，必须指定是 vector 类型，`VECTOR INDEX` 必须搭配使用。vector_idx 是向量索引名，`WITH` 后面为创建向量索引的基本参数, 括号内部是一个表达式列表 其中的 `distance` 表示距离算法，必须是 `inner_product`，`l2_distance`，`cosine_distance` 其中的一种，`type` 为索引算法类型，当前只支持 ivfflat。`lists` 为 ivfflat 索引构建期间创建的簇的数量。`probes` 为一个向量检索时参数，用于确定查询期间要查询的簇的数量。注意：所有的关键字都是大小写不敏感的。
 
 邻近向量检索语法：
 ```sql
