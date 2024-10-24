@@ -1,6 +1,6 @@
 -- echo initialization
-CREATE TABLE null_table(id int, num int null, price float not null, birthday date null);
-CREATE TABLE null_table2(id int, num int null, price float not null, birthday date null);
+CREATE TABLE null_table(id int not null, num int null, price float not null, birthday date null);
+CREATE TABLE null_table2(id int not null, num int null, price float not null, birthday date null);
 CREATE INDEX index_num on null_table(num);
 
 -- echo 1. insert
