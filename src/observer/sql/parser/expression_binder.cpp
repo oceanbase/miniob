@@ -58,7 +58,7 @@ RC ExpressionBinder::bind_expression(unique_ptr<Expression> &expr, vector<unique
 
     case ExprType::UNBOUND_FIELD: {
       return bind_unbound_field_expression(expr, bound_expressions);
-    } break;
+    } break;         
 
     case ExprType::UNBOUND_AGGREGATION: {
       return bind_aggregate_expression(expr, bound_expressions);

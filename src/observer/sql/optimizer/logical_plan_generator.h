@@ -27,6 +27,7 @@ class InsertStmt;
 class DeleteStmt;
 class ExplainStmt;
 class LogicalOperator;
+class OrderStmt;
 
 class LogicalPlanGenerator
 {
@@ -43,7 +44,7 @@ private:
   RC create_plan(InsertStmt *insert_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_plan(DeleteStmt *delete_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_plan(ExplainStmt *explain_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
-
+  RC create_plan(OrderStmt *order_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_group_by_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
 
   int implicit_cast_cost(AttrType from, AttrType to);

@@ -39,15 +39,17 @@ RC PredicatePhysicalOperator::next()
   PhysicalOperator *oper = children_.front().get();
 
   while (RC::SUCCESS == (rc = oper->next())) {
-    Tuple *tuple = oper->current_tuple();
-    if (nullptr == tuple) {
+
+    Tuple *curTuple = oper->current_tuple();  // 当前扫上来的记录
+    if (nullptr == curTuple) {
       rc = RC::INTERNAL;
       LOG_WARN("failed to get tuple from operator");
       break;
     }
 
-    Value value;
-    rc = expression_->get_value(*tuple, value);
+
+    Value value;    
+    rc = expression_->get_value(*curTuple, value);
     if (rc != RC::SUCCESS) {
       return rc;
     }

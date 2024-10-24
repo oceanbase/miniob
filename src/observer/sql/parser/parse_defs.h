@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 
 class Expression;
+class UnboundFieldExpr;
 
 /**
  * @defgroup SQLParser SQL Parser
@@ -33,6 +34,18 @@ class Expression;
  * Rel -> Relation
  * Attr -> Attribute
  */
+
+/**
+ * @brief orderby 
+ * @ingroup SQLParser
+ * @details 描述一个orderby信息
+ */
+struct OrderSqlNode
+{
+  bool inc_order;   // 是否为升序
+  Expression *unbound_field_expr_;  // 排序属性 
+};
+
 struct RelAttrSqlNode
 {
   std::string relation_name;   ///< relation name (may be NULL) 表名
@@ -78,7 +91,7 @@ struct ConditionSqlNode
 
   int            left_is_value;  ///< 可能为 属性名 / 属性值 / 算数比较表达式
   int            right_is_value;
-  int left_is_attr;              ///< TRUE if left-hand side is an attribute
+  int            left_is_attr;   ///< TRUE if left-hand side is an attribute
                                  ///< 1时，操作符左边是属性名，0时，是属性值
   int            right_is_attr;  ///< TRUE if right-hand side is an attribute
                                  ///< 1时，操作符右边是属性名，0时，是属性值
@@ -101,6 +114,7 @@ struct SelectSqlNode
   std::vector<std::string>                 relations;    ///< 查询的表
   std::vector<ConditionSqlNode>            conditions;   ///< 查询条件，使用AND串联起来多个条件
   std::vector<std::unique_ptr<Expression>> group_by;     ///< group by clause
+  std::vector<OrderSqlNode> order_sql_nodes;  
 };
 
 /**
@@ -260,7 +274,6 @@ struct ErrorSqlNode
   int         column;
 };
 
-
 /**
  * @brief 表示一个SQL语句的类型
  * @ingroup SQLParser
@@ -288,7 +301,7 @@ enum SqlCommandFlag
   SCF_HELP,
   SCF_EXIT,
   SCF_EXPLAIN,
-  SCF_SET_VARIABLE,  ///< 设置变量
+  SCF_SET_VARIABLE  ///< 设置变量
 };
 /**
  * @brief 表示一个SQL语句

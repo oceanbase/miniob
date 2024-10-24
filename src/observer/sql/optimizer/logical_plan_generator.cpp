@@ -23,6 +23,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/join_logical_operator.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/predicate_logical_operator.h"
+#include "sql/operator/order_logical_operator.h"
 #include "sql/operator/project_logical_operator.h"
 #include "sql/operator/table_get_logical_operator.h"
 #include "sql/operator/group_by_logical_operator.h"
@@ -33,6 +34,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/filter_stmt.h"
 #include "sql/stmt/insert_stmt.h"
 #include "sql/stmt/select_stmt.h"
+#include "sql/stmt/order_stmt.h"
 #include "sql/stmt/stmt.h"
 
 #include "sql/expr/expression_iterator.h"
@@ -134,10 +136,24 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
     if (*last_oper) {
       group_by_oper->add_child(std::move(*last_oper));
     }
-
     last_oper = &group_by_oper;
   }
 
+// 先排序
+  unique_ptr<LogicalOperator> order_oper;
+  rc = create_plan(select_stmt->order_stmt(), order_oper);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to create order logical plan. rc=%s", strrc(rc));
+    return rc;
+  }
+  if (order_oper) {
+    if (*last_oper) {
+      order_oper->add_child(std::move(*last_oper));
+    }
+    last_oper = &order_oper;
+  }
+
+//再投影
   auto project_oper = make_unique<ProjectLogicalOperator>(std::move(select_stmt->query_expressions()));
   if (*last_oper) {
     project_oper->add_child(std::move(*last_oper));
@@ -355,4 +371,15 @@ RC LogicalPlanGenerator::create_group_by_plan(SelectStmt *select_stmt, unique_pt
                                                            std::move(aggregate_expressions));
   logical_operator = std::move(group_by_oper);
   return RC::SUCCESS;
+}
+
+
+RC LogicalPlanGenerator::create_plan(OrderStmt *order_stmt, unique_ptr<LogicalOperator> &logical_operator)
+{
+  RC                                  rc = RC::SUCCESS;
+  vector<OrderUnit *>        order_units = order_stmt->order_units();   // 获取所有的排序字段
+  unique_ptr<OrderLogicalOperator> order_oper;
+  order_oper->setOrderUnits(order_units);
+  logical_operator = std::move(order_oper);
+  return rc;
 }
