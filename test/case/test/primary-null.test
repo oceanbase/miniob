@@ -74,7 +74,7 @@ SELECT count(birthday) FROM null_table;
 SELECT avg(num) FROM null_table;
 
 -- echo 6. aggregation with null columns
-CREATE TABLE null_table3(id int, num int null);
+CREATE TABLE null_table3(id int not null, num int null);
 INSERT INTO null_table3 VALUES (1, null);
 INSERT INTO null_table3 VALUES (2, null);
 SELECT count(num) FROM null_table3;
