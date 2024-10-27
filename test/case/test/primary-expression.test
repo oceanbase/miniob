@@ -26,7 +26,7 @@ select * from exp_table where 5/4*8 < (4+col2)*col3/2;    // ok~
 select id,-(col2*(-1)+1)+(col4+2)*(col1+col3*2),(4+col2)*col3/2 from exp_table where -(col2*(-1)+1)+(col4+2)*(col1+col3*2) > (4+col2)*col3/2;            // ok~
 select id,col1,col2,col3,col4,6-(col2*(1+col1))+(col4+2)/(1+col1*4+col3*2) from exp_table where 6-(col2*(1+col1))+(col4+2)/(1+col1*4+col3*2) > 5;        // ok~ 
 select id,col1,col2,col3,col4,3*col1/(col2+2) from exp_table where 3*col1/(col2+2) > 1;   // ok~
-select id,3*col1/(col2+2) from exp_table where 3*col1/(col2+2)+1/0 > 1;   // ok~
+select id,3*col1/(col2+2) from exp_table where 3*col1/(col2+2)+1/ca > 1;   // ok~
 select * from exp_table where 1/0 = 1/0;     // ok~
 
 echo 2. expression about many tables

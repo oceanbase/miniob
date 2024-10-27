@@ -278,7 +278,7 @@ RC PlainCommunicator::write_tuple_result(SqlResult *sql_result)
   while (RC::SUCCESS == (rc = sql_result->next_tuple(tuple))) {
     assert(tuple != nullptr);
 
-    int cell_num = tuple->cell_num();
+    int cell_num = tuple->cell_num();  
     for (int i = 0; i < cell_num; i++) {
       if (i != 0) {
         const char *delim = " | ";

@@ -19,25 +19,25 @@ insert into t_order_by_2 values(3, 40);
 insert into t_order_by_2 values(4, 20);
 
 -- echo 3. primary order by
--- sort select * from t_order_by order by id;
+select * from t_order_by order by id;           // ~OK
+ 
+select * from t_order_by order by id asc;       // ~OK
 
--- sort select * from t_order_by order by id asc;
+select * from t_order_by order by id desc;      // ~OK
 
--- sort select * from t_order_by order by id desc;
+select * from t_order_by order by score desc;   // ~OK
 
--- sort select * from t_order_by order by score desc;
-
--- sort select * from t_order_by order by name desc;
+select * from t_order_by order by name desc;    // ~OK
 
 -- echo 4. order by more than one fields
-select * from t_order_by order by id, score, name;
+select * from t_order_by order by id, score, name;      // ~OK
 
-select * from t_order_by order by id desc, score asc, name desc;
+select * from t_order_by order by id desc, score asc, name desc;      // ~OK
 
 -- echo 5. order by associate with where condition
-select * from t_order_by where id=3 and name>='a' order by score desc, name;
+select * from t_order_by where id=3 and name>='a' order by score desc, name;      // ~OK
 
 -- echo 6. multi-table order by
-select * from t_order_by,t_order_by_2 order by t_order_by.id,t_order_by.score,t_order_by.name,t_order_by_2.id,t_order_by_2.age;
+select * from t_order_by,t_order_by_2 order by t_order_by.id,t_order_by.score,t_order_by.name,t_order_by_2.id,t_order_by_2.age;      // ~OK
 
-select * from t_order_by, t_order_by_2 where t_order_by.id=t_order_by_2.id order by t_order_by.score desc, t_order_by_2.age asc, t_order_by.id asc, t_order_by.name;
+select * from t_order_by, t_order_by_2 where t_order_by.id=t_order_by_2.id order by t_order_by.score desc, t_order_by_2.age asc, t_order_by.id asc, t_order_by.name;      // ~OK

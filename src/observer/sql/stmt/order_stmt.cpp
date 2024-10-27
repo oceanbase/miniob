@@ -9,6 +9,11 @@ RC OrderStmt::create(Db *db, Table *default_table, std::unordered_map<std::strin
   
   RC rc = RC::SUCCESS;
   stmt  = nullptr;
+
+  if(ordernum == 0){
+    return rc;
+  }
+
   
   // 为每一个排序属性创建 OrderUnit 对象，并放入 OrderStmt 的 order_units_之中
   OrderStmt* order_stmt = new OrderStmt();
@@ -28,7 +33,7 @@ RC OrderStmt::create(Db *db, Table *default_table, std::unordered_map<std::strin
   return rc;
 }
 
-RC create_order_unit(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
+RC OrderStmt::create_order_unit(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
                      const OrderSqlNode& orderSqlNode, OrderUnit*& order_unit, ExpressionBinder& expression_binder){
 
     std::unique_ptr<Expression> tmp = std::unique_ptr<Expression>(orderSqlNode.unbound_field_expr_);

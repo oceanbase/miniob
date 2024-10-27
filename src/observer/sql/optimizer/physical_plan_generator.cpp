@@ -483,8 +483,9 @@ RC PhysicalPlanGenerator::create_plan(OrderLogicalOperator &order_oper, unique_p
       return rc;
     }
   }
-
+  // 指针初始化
   auto order_physical_oper = make_unique<OrderPhysicalOperator>();
+  order_physical_oper->setOrderUnits(order_oper.getOrderUnits());
   if (child_phy_oper) {
     order_physical_oper->add_child(std::move(child_phy_oper));
   }

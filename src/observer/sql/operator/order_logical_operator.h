@@ -22,8 +22,15 @@ public:
 
   std::vector<std::unique_ptr<Expression>>       &expressions() { return expressions_; }
   const std::vector<std::unique_ptr<Expression>> &expressions() const { return expressions_; }
-  void setOrderUnits(vector<OrderUnit*>& order_units){ order_units_ = order_units; };
+  
+  void setOrderUnits(const std::vector<OrderUnit*>& order_units){ 
+    order_units_ = order_units;
+  };
+
+  std::vector<OrderUnit*>& getOrderUnits(){ 
+    return order_units_;
+  };
 
 private:
-  vector<OrderUnit*> order_units_;
+  std::vector<OrderUnit*>order_units_;
 };

@@ -30,6 +30,10 @@ public:
 
   void addSortTarget(vector<Value>& values, int idx);
 
+  void setOrderUnits(vector<OrderUnit*>& order_units){
+    order_units_ = order_units;
+  }
+
 private:
   vector<OrderUnit*> order_units_;  // 排序规则的算子单元
   vector<Tuple*> scanned_tuples_;   // 扫描出的所有元组

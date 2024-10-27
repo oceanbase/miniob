@@ -57,7 +57,7 @@ RC ProjectPhysicalOperator::close()
 }
 Tuple *ProjectPhysicalOperator::current_tuple()
 {
-  tuple_.set_tuple(children_[0]->current_tuple());
+  tuple_.set_tuple(children_[0]->current_tuple());    // joinTuple
   return &tuple_;
 }
 

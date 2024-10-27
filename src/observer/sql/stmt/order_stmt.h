@@ -40,11 +40,11 @@ private:
 class OrderStmt
 {
 public:
-  OrderStmt() = default;
-  virtual ~OrderStmt();
+  OrderStmt(){};
+  ~OrderStmt(){}
 
 public:
-  const std::vector<OrderUnit *> &order_units() const { return order_units_; }
+  const std::vector<OrderUnit*> &order_units() const { return order_units_; }
 
 public:
   static RC create(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables, const OrderSqlNode *orders, int ordernum, OrderStmt *&stmt, ExpressionBinder& expression_binder);
@@ -52,5 +52,5 @@ public:
   static RC create_order_unit(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables, const OrderSqlNode& orderSqlNode, OrderUnit*& order_unit, ExpressionBinder& expression_binder);
 
 private:
-  std::vector<OrderUnit *> order_units_; 
+  std::vector<OrderUnit*> order_units_; 
 };

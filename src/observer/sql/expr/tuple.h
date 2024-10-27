@@ -29,6 +29,14 @@ See the Mulan PSL v2 for more details. */
 
 class Table;
 
+enum TupleType{
+  DEFAULT_TUPLE,
+  ROW_TUPLE,
+  PROJECT_TUPLE,
+  VALUELIST_TUPLE,
+  JOINED_TUPLE
+};
+
 /**
  * @defgroup Tuple
  * @brief Tuple 元组，表示一行数据，当前返回客户端时使用
@@ -73,6 +81,8 @@ class Tuple
 public:
   Tuple()          = default;
   virtual ~Tuple() = default;
+
+  virtual TupleType getType(){ return TupleType::DEFAULT_TUPLE; }
 
   /**
    * @brief 获取元组中的Cell的个数
@@ -180,6 +190,8 @@ public:
     speces_.clear();
   }
 
+  TupleType getType(){ return TupleType::ROW_TUPLE; }
+
   void set_record(Record *record) { this->record_ = record; }
 
   void set_schema(const Table *table, const std::vector<FieldMeta> *fields)
@@ -261,6 +273,10 @@ public:
 
   const Record &record() const { return *record_; }
 
+  Record* getRecord(){
+    return record_;
+  }
+
 private:
   Record                  *record_ = nullptr;
   const Table             *table_  = nullptr;
@@ -268,7 +284,7 @@ private:
 };
 
 /**
- * @brief 从一行数据中，选择部分字段组成的元组，也就是投影操作
+ * @brief 从一行数据中，选择部分字段组成的元组，也就是投影操作 -- NO Use, 一旦使用需要改 OrderPhysicalOperator
  * @ingroup Tuple
  * @details 一般在select语句中使用。
  * 投影也可以是很复杂的操作，比如某些字段需要做类型转换、重命名、表达式运算、函数计算等。
@@ -278,6 +294,8 @@ class ProjectTuple : public Tuple
 public:
   ProjectTuple()          = default;
   virtual ~ProjectTuple() = default;
+
+  TupleType getType(){ return TupleType::PROJECT_TUPLE; }
 
   void set_expressions(std::vector<std::unique_ptr<Expression>> &&expressions)
   {
@@ -323,13 +341,14 @@ public:
     return RC::SUCCESS;
   }
 #endif
+
 private:
   std::vector<std::unique_ptr<Expression>> expressions_;
   Tuple                                   *tuple_ = nullptr;
 };
 
 /**
- * @brief 一些常量值组成的Tuple
+ * @brief 一些常量值组成的Tuple（用于 orderby 向上传递）
  * @ingroup Tuple
  * TODO 使用单独文件
  */
@@ -338,6 +357,8 @@ class ValueListTuple : public Tuple
 public:
   ValueListTuple()          = default;
   virtual ~ValueListTuple() = default;
+
+  TupleType getType(){ return TupleType::VALUELIST_TUPLE; }
 
   void set_names(const std::vector<TupleCellSpec> &specs) { specs_ = specs; }
   void set_cells(const std::vector<Value> &cells) { cells_ = cells; }
@@ -416,6 +437,8 @@ class JoinedTuple : public Tuple
 public:
   JoinedTuple()          = default;
   virtual ~JoinedTuple() = default;
+
+  TupleType getType(){ return TupleType::JOINED_TUPLE; }
 
   void set_left(Tuple *left) { left_ = left; }
   void set_right(Tuple *right) { right_ = right; }

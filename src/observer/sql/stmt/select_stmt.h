@@ -54,5 +54,5 @@ private:
   std::vector<Table *>                     tables_;
   FilterStmt                              *filter_stmt_ = nullptr;
   std::vector<std::unique_ptr<Expression>> group_by_;
-  OrderStmt                               *orders_by_;
+  OrderStmt                               *orders_by_ = nullptr;
 };

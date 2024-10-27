@@ -139,7 +139,8 @@ RC CountAggregator::accumulate(const Value &value)
   }
   
   this->num_++;
-  Value::count(this->num_, value_);
+  Value::count(this->num_, value_); 
+  LOG_INFO("%s", value_.to_string().data());
   return RC::SUCCESS;
 }
 

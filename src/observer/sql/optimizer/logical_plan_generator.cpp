@@ -109,8 +109,8 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
     }
   }
 
+// 过滤
   unique_ptr<LogicalOperator> predicate_oper;
-  // where 过滤条件
   RC rc = create_plan(select_stmt->filter_stmt(), predicate_oper);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to create predicate logical plan. rc=%s", strrc(rc));
@@ -124,7 +124,8 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
 
     last_oper = &predicate_oper;
   }
-  // 创建 group by 条件 
+
+// group by  
   unique_ptr<LogicalOperator> group_by_oper;
   rc = create_group_by_plan(select_stmt, group_by_oper);
   if (OB_FAIL(rc)) {
@@ -139,21 +140,33 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
     last_oper = &group_by_oper;
   }
 
-// 先排序
+
+
+
+// other LogicalOperater
+// ....
+
+
+
+// 排序
+// !!!!!!!!! 请务必将 OrderLogicalOperator 放在倒数第二层 
   unique_ptr<LogicalOperator> order_oper;
-  rc = create_plan(select_stmt->order_stmt(), order_oper);
-  if (OB_FAIL(rc)) {
-    LOG_WARN("failed to create order logical plan. rc=%s", strrc(rc));
-    return rc;
-  }
-  if (order_oper) {
-    if (*last_oper) {
-      order_oper->add_child(std::move(*last_oper));
+  if(select_stmt->order_stmt() != nullptr){
+    rc = create_plan(select_stmt->order_stmt(), order_oper);
+    if (OB_FAIL(rc)) {
+      LOG_WARN("failed to create order logical plan. rc=%s", strrc(rc));
+      return rc;
     }
-    last_oper = &order_oper;
+    if (order_oper) {
+      if (*last_oper) {
+        order_oper->add_child(std::move(*last_oper));
+      }
+      last_oper = &order_oper;
+    }
   }
 
-//再投影
+
+//投影
   auto project_oper = make_unique<ProjectLogicalOperator>(std::move(select_stmt->query_expressions()));
   if (*last_oper) {
     project_oper->add_child(std::move(*last_oper));
@@ -376,9 +389,9 @@ RC LogicalPlanGenerator::create_group_by_plan(SelectStmt *select_stmt, unique_pt
 
 RC LogicalPlanGenerator::create_plan(OrderStmt *order_stmt, unique_ptr<LogicalOperator> &logical_operator)
 {
-  RC                                  rc = RC::SUCCESS;
-  vector<OrderUnit *>        order_units = order_stmt->order_units();   // 获取所有的排序字段
-  unique_ptr<OrderLogicalOperator> order_oper;
+  RC                                     rc = RC::SUCCESS;
+  const std::vector<OrderUnit*>&    order_units = order_stmt->order_units();   // 获取所有的排序字段
+  auto order_oper = make_unique<OrderLogicalOperator>();  // 指针初始化
   order_oper->setOrderUnits(order_units);
   logical_operator = std::move(order_oper);
   return rc;
