@@ -63,7 +63,11 @@ jobs:
     steps:
     - name: Init environment
       shell: bash
-      run: brew install bison && bison --version
+      run: |
+        brew install bison
+        echo 'export PATH="/opt/homebrew/opt/bison/bin:$PATH"' >> ~/.bash_profile
+        source ~/.bash_profile
+        bison --version
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
