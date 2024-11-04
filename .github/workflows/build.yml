@@ -65,9 +65,6 @@ jobs:
       shell: bash
       run: |
         brew install bison
-        echo 'export PATH="/opt/homebrew/opt/bison/bin:$PATH"' >> ~/.bash_profile
-        source ~/.bash_profile
-        bison --version
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
@@ -76,5 +73,6 @@ jobs:
       shell: bash
       run: |
         export ASAN_OPTIONS=detect_container_overflow=0
+        export PATH="/opt/homebrew/opt/bison/bin:$PATH"
         sudo bash build.sh init
         bash build.sh release --make -j4
