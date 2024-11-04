@@ -61,6 +61,10 @@ jobs:
     runs-on: macos-latest
 
     steps:
+    - name: Init environment
+      shell: bash
+      run: brew install bison && bison --version
+
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
         
