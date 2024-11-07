@@ -147,22 +147,19 @@ function do_clean
   find . -maxdepth 1 -type d -name 'build_*' | xargs rm -rf
 }
 
-function build
-{
-  set -- "${BUILD_ARGS[@]}"
-  case "x$1" in
-    xrelease)
-      do_build "$@" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDEBUG=OFF
-      ;;
-    xdebug)
-      do_build "$@" -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON
-      ;;
-    *)
-      BUILD_ARGS=(debug "${BUILD_ARGS[@]}")
-      build
-      ;;
-  esac
+function build {
+  # 默认参数是 debug
+  if [ -z "${BUILD_ARGS[0]}" ]; then
+    set -- "debug"  # 如果没有参数，则设置默认值
+  else
+    set -- "${BUILD_ARGS[@]}"  # 否则使用 BUILD_ARGS 的第一个参数
+  fi
+  local build_type_lower=$(echo "$1" | tr '[:upper:]' '[:lower:]')  # 转换为小写
+  echo "Build type: $build_type_lower"  # 输出构建类型
+
+  do_build "$build_type_lower" -DCMAKE_BUILD_TYPE="$build_type_lower"  # 调用 do_build
 }
+
 
 function main
 {
