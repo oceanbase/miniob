@@ -100,4 +100,4 @@ MiniOB 采用 [木兰宽松许可证，第2版](https://license.coscl.org.cn/Mul
 - [OceanBase 社区交流群 33254054](https://h5.dingtalk.com/circle/healthCheckin.html?corpId=dingd88359ef5e4c49ef87cda005313eea7a&1fe0ca69-72d=16c86a07-83c&cbdbhh=qwertyuiop&origin=1)
 - [OceanBase 大赛官方交流群 35326455](https://qr.dingtalk.com/action/joingroup?code=v1,k1,g61jI0RwHQA8UMocuTbys2cyM7vck2c6jNE87vdxz9o=&_dt_no_comment=1&origin=11)
 - [OceanBase 官方论坛](https://ask.oceanbase.com/)
-- MiniOB 开发者微信群(添加 hnwyllmm_126 为好友，备注 MiniOB，邀请入群)
+- MiniOB 开发者微信群(添加 OBCE888 为好友，备注 MiniOB SIG，邀请入群)
