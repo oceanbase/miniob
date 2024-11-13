@@ -349,7 +349,7 @@ int LoggerFactory::init_default(
 
   return init(log_file, &g_log, log_level, console_level, rotate_type);
 }
-
+#define LBT_SYMBOLS
 const char *lbt()
 {
   constexpr int buffer_size = 100;

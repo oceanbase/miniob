@@ -262,6 +262,6 @@ string Frame::to_string() const
 {
   stringstream ss;
   ss << "frame id:" << frame_id().to_string() << ", dirty=" << dirty() << ", pin=" << pin_count()
-     << ", lsn=" << lsn() << ", this=" << this;
+     << ", lsn=" << lsn();
   return ss.str();
 }
