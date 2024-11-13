@@ -157,7 +157,7 @@ function build {
   local build_type_lower=$(echo "$1" | tr '[:upper:]' '[:lower:]')  # 转换为小写
   echo "Build type: $build_type_lower"  # 输出构建类型
 
-  do_build "$build_type_lower" -DCMAKE_BUILD_TYPE="$build_type_lower"  # 调用 do_build
+  do_build $@ -DCMAKE_BUILD_TYPE="$build_type_lower" # 调用 do_build
 }
 
 
