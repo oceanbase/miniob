@@ -21,7 +21,7 @@ RUN apt-get install -y openssh-server
 # init miniob dependencies
 RUN git clone https://github.com/oceanbase/miniob /tmp/miniob \
     && cd /tmp/miniob \
-    && bash build.sh init \
+    && THIRD_PARTY_INSTALL_PREFIX=/usr/local bash build.sh init \
     && rm -rf /tmp/miniob
 
 RUN mkdir /var/run/sshd
