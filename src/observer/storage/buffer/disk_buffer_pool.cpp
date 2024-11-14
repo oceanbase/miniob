@@ -115,6 +115,7 @@ Frame *BPFrameManager::get_internal(const FrameId &frame_id)
   (void)frames_.get(frame_id, frame);
   if (frame != nullptr) {
     frame->pin();
+    LOG_DEBUG("got a frame. frame=%s", frame->to_string().c_str());
   }
   return frame;
 }
@@ -138,6 +139,7 @@ Frame *BPFrameManager::alloc(int buffer_pool_id, PageNum page_num)
     frame->set_page_num(page_num);
     frame->pin();
     frames_.put(frame_id, frame);
+    LOG_DEBUG("allocate a new frame. frame=%s", frame->to_string().c_str());
   }
   return frame;
 }
@@ -372,6 +374,7 @@ RC DiskBufferPool::allocate_page(Frame **frame)
 
         hdr_frame_->set_lsn(lsn);
 
+        LOG_DEBUG("allocate a new page without extend buffer pool. page num=%d, buffer pool=%d", i, id());
         lock_.unlock();
         return get_this_page(i, frame);
       }
@@ -401,8 +404,8 @@ RC DiskBufferPool::allocate_page(Frame **frame)
     return rc;
   }
 
-  LOG_INFO("allocate new page. file=%s, pageNum=%d, pin=%d",
-           file_name_.c_str(), page_num, allocated_frame->pin_count());
+  LOG_INFO("allocate new page by extending bufferpool. buffer_pool_id=%d, pageNum=%d, pin=%d",
+           id(), page_num, allocated_frame->pin_count());
 
   file_header_->allocated_pages++;
   file_header_->page_count++;
@@ -705,7 +708,7 @@ RC DiskBufferPool::allocate_frame(PageNum page_num, Frame **buffer)
     Frame *frame = frame_manager_.alloc(id(), page_num);
     if (frame != nullptr) {
       *buffer = frame;
-      LOG_DEBUG("allocate frame %p, page num %d", frame, page_num);
+      LOG_DEBUG("allocate frame %p, page num %d, frame=%s", frame, page_num, frame->to_string().c_str());
       return RC::SUCCESS;
     }
 

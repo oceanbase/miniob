@@ -33,7 +33,7 @@ BplusTreeLogger::BplusTreeLogger(LogHandler &log_handler, int32_t buffer_pool_id
     : log_handler_(log_handler), buffer_pool_id_(buffer_pool_id)
 {}
 
-BplusTreeLogger::~BplusTreeLogger() { commit(); }
+BplusTreeLogger::~BplusTreeLogger() {}
 
 RC BplusTreeLogger::init_header_page(Frame *frame, const IndexFileHeader &header)
 {
