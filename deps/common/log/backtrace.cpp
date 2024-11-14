@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include <stdint.h>
 #include <stdio.h>
 #include <execinfo.h>
+#include <inttypes.h>
 #include "common/lang/vector.h"
 
 namespace common {
@@ -63,7 +64,7 @@ int ProcMap::parse_file(const char *file_name)
 
   while (fgets(line, sizeof(line), fp) != nullptr) {
     
-    int ret = sscanf(line, "%lx-%lx %4s %lx %lx:%lx %ld %255s", 
+    int ret = sscanf(line, "%" PRIx64 "-%" PRIx64 " %4s %" PRIx64 " %" PRIx64 ":%" PRIx64 "%" PRIu64 "%255s",
                      &start, &end, perms, &offset, &major, &minor, &inode, path);
     if (ret < 8 || perms[2] != 'x') {
       continue;
