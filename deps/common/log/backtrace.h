@@ -20,4 +20,4 @@ int backtrace_init();
 
 const char *lbt();
 
-} // namespace common
+}  // namespace common
