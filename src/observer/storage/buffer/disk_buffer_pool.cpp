@@ -375,6 +375,7 @@ RC DiskBufferPool::allocate_page(Frame **frame)
         hdr_frame_->set_lsn(lsn);
 
         LOG_DEBUG("allocate a new page without extend buffer pool. page num=%d, buffer pool=%d", i, id());
+
         lock_.unlock();
         return get_this_page(i, frame);
       }

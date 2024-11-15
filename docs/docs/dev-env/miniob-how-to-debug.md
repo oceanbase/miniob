@@ -52,9 +52,9 @@ Table::scan_record
 Table::create_index
 ```
 
-### 打印日志调试
+## 打印日志调试
 
-miniob提供的日志接口
+### miniob提供的日志接口
 
 ```c++
 deps/common/log/log.h:
@@ -81,7 +81,40 @@ LOG_FILE_LEVEL=5
 LOG_CONSOLE_LEVEL=1
 ```
 
-### gdb调试
+### 在日志中输出调用栈
+
+`lbt` 函数可以获取当前调用栈，可以在日志中输出调用栈，方便定位问题。
+
+比如
+```c++
+LOG_DEBUG("debug lock %p, lbt=%s", &lock_, lbt());
+```
+
+可能得到下面的日志
+
+```
+unlock@mutex.cpp:273] >> debug unlock 0xffffa40fe8c0, lbt=0x4589c 0x5517f8 0x5329e0 0x166308 0x162c2c 0x210438 0x204ee0 0x2373b0 0x2373d0 0x203efc 0x203d88 0x223f6c 0x242fc8 0x274810 0x32bd58 0xca028 0x2dbcf8 0x2da614 0xbbf30 0x2cb908 0x2d4408 0x2d43dc 0x2d435c 0x2d431c 0x2d42d4 0x2d4270 0x2d4244 0x2d4224 0xd31fc 0x7d5c8 0xe5edc
+```
+
+可以用`addr2line`工具来解析地址，比如
+
+```bash
+addr2line -pCfe ./bin/observer 0x4589c 0x5517f8 0x5329e0 0x166308 0x162c2c 0x210438 0x204ee0 0x2373b0 0x2373d0 0x203efc 0x203d88 0x223f6c 0x242fc8 0x274810 0x32bd58 0xca028 0x2dbcf8 0x2da614 0xbbf30 0x2cb908 0x2d4408 0x2d43dc 0x2d435c 0x2d431c 0x2d42d4 0x2d4270 0x2d4244 0x2d4224 0xd31fc 0x7d5c8 0xe5edc
+?? ??:0
+common::lbt() at /root/miniob/deps/common/log/backtrace.cpp:118
+common::DebugMutex::unlock() at /root/miniob/deps/common/lang/mutex.cpp:273 (discriminator 25)
+Frame::write_unlatch(long) at /root/miniob/src/observer/storage/buffer/frame.cpp:113
+Frame::write_unlatch() at /root/miniob/src/observer/storage/buffer/frame.cpp:88
+RecordPageHandler::cleanup() at /root/miniob/src/observer/storage/record/record_manager.cpp:262
+RecordPageHandler::~RecordPageHandler() at /root/miniob/src/observer/storage/record/record_manager.cpp:96
+RowRecordPageHandler::~RowRecordPageHandler() at /root/miniob/src/observer/storage/record/record_manager.h:280
+RowRecordPageHandler::~RowRecordPageHandler() at /root/miniob/src/observer/storage/record/record_manager.h:280
+...
+```
+
+> 注意：./bin/observer 是你的可执行文件路径，这里是一个示例，实际路径可能不同。
+
+## gdb调试
 
 调试工具有很多种，但是它们的关键点都是类似的，比如关联到进程、运行时查看变量值、单步运行、跟踪变量等。GDB是在Linux环境中常用的调试工具。其它环境上也有类似的工具，比如LLDB，或者Windows可能使用Visual Studio直接启动调试。Java的调试工具是jdb。
 

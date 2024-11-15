@@ -13,7 +13,6 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <assert.h>
-#include <execinfo.h>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -22,6 +21,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/iostream.h"
 #include "common/lang/new.h"
 #include "common/log/log.h"
+#include "common/log/backtrace.h"
+
 namespace common {
 
 Log *g_log = nullptr;
@@ -347,40 +348,8 @@ int LoggerFactory::init_default(
     return 0;
   }
 
+  backtrace_init();
   return init(log_file, &g_log, log_level, console_level, rotate_type);
-}
-
-const char *lbt()
-{
-  constexpr int buffer_size = 100;
-  void         *buffer[buffer_size];
-
-  constexpr int     bt_buffer_size = 8192;
-  thread_local char backtrace_buffer[bt_buffer_size];
-
-  int size = backtrace(buffer, buffer_size);
-
-  char **symbol_array = nullptr;
-#ifdef LBT_SYMBOLS
-  /* 有些环境下，使用addr2line 无法根据地址输出符号 */
-  symbol_array = backtrace_symbols(buffer, size);
-#endif  // LBT_SYMBOLS
-
-  int offset = 0;
-  for (int i = 0; i < size && offset < bt_buffer_size - 1; i++) {
-    const char *format = (0 == i) ? "0x%lx" : " 0x%lx";
-    offset += snprintf(
-        backtrace_buffer + offset, sizeof(backtrace_buffer) - offset, format, reinterpret_cast<intptr_t>(buffer[i]));
-
-    if (symbol_array != nullptr) {
-      offset += snprintf(backtrace_buffer + offset, sizeof(backtrace_buffer) - offset, " %s", symbol_array[i]);
-    }
-  }
-
-  if (symbol_array != nullptr) {
-    free(symbol_array);
-  }
-  return backtrace_buffer;
 }
 
 }  // namespace common
