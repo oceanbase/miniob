@@ -1,10 +1,3 @@
-github:
-  prebuilds:
-    master: false
-    branches: false
-tasks:
-  - name: install dependencies
-    init: |
-      sudo apt install cmake flex bison texinfo libreadline-dev -y
-      sudo bash build.sh init
-      echo -e "\033[32m\nDependency installed successfully\033[0m"
+coreDump:
+  enabled: true
+image: oceanbase/miniob:latest
