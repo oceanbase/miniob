@@ -255,7 +255,7 @@ drop_table_stmt:    /*drop table 语句的语法解析树*/
     DROP TABLE ID {
       $$ = new ParsedSqlNode(SCF_DROP_TABLE);
       $$->drop_table.relation_name = $3;
-      free($3);
+      //free($3);
     };
 
 show_tables_stmt:
@@ -268,7 +268,7 @@ desc_table_stmt:
     DESC ID  {
       $$ = new ParsedSqlNode(SCF_DESC_TABLE);
       $$->desc_table.relation_name = $2;
-      free($2);
+      //free($2);
     }
     ;
 
@@ -280,9 +280,9 @@ create_index_stmt:    /*create index 语句的语法解析树*/
       create_index.index_name = $3;
       create_index.relation_name = $5;
       create_index.attribute_name = $7;
-      free($3);
-      free($5);
-      free($7);
+      //free($3);
+      //free($5);
+      //free($7);
     }
     ;
 
@@ -292,8 +292,8 @@ drop_index_stmt:      /*drop index 语句的语法解析树*/
       $$ = new ParsedSqlNode(SCF_DROP_INDEX);
       $$->drop_index.index_name = $3;
       $$->drop_index.relation_name = $5;
-      free($3);
-      free($5);
+      //free($3);
+      //free($5);
     }
     ;
 create_table_stmt:    /*create table 语句的语法解析树*/
@@ -302,7 +302,7 @@ create_table_stmt:    /*create table 语句的语法解析树*/
       $$ = new ParsedSqlNode(SCF_CREATE_TABLE);
       CreateTableSqlNode &create_table = $$->create_table;
       create_table.relation_name = $3;
-      free($3);
+      //free($3);
 
       std::vector<AttrInfoSqlNode> *src_attrs = $6;
 
@@ -315,7 +315,7 @@ create_table_stmt:    /*create table 语句的语法解析树*/
       delete $5;
       if ($8 != nullptr) {
         create_table.storage_format = $8;
-        free($8);
+        //free($8);
       }
     }
     ;
@@ -343,7 +343,7 @@ attr_def:
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = $4;
-      free($1);
+      //free($1);
     }
     | ID type
     {
@@ -351,7 +351,7 @@ attr_def:
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = 4;
-      free($1);
+      //free($1);
     }
     ;
 number:
@@ -375,7 +375,7 @@ insert_stmt:        /*insert   语句的语法解析树*/
       $$->insertion.values.emplace_back(*$6);
       std::reverse($$->insertion.values.begin(), $$->insertion.values.end());
       delete $6;
-      free($3);
+      //free($3);
     }
     ;
 
@@ -407,7 +407,7 @@ value:
       char *tmp = common::substr($1,1,strlen($1)-2);
       $$ = new Value(tmp);
       free(tmp);
-      free($1);
+      //free($1);
     }
     ;
 storage_format:
@@ -430,7 +430,7 @@ delete_stmt:    /*  delete 语句的语法解析树*/
         $$->deletion.conditions.swap(*$4);
         delete $4;
       }
-      free($3);
+      //free($3);
     }
     ;
 update_stmt:      /*  update 语句的语法解析树*/
@@ -444,8 +444,8 @@ update_stmt:      /*  update 语句的语法解析树*/
         $$->update.conditions.swap(*$7);
         delete $7;
       }
-      free($2);
-      free($4);
+      //free($2);
+      //free($4);
     }
     ;
 select_stmt:        /*  select 语句的语法解析树*/
@@ -539,14 +539,14 @@ rel_attr:
     ID {
       $$ = new RelAttrSqlNode;
       $$->attribute_name = $1;
-      free($1);
+      //free($1);
     }
     | ID DOT ID {
       $$ = new RelAttrSqlNode;
       $$->relation_name  = $1;
       $$->attribute_name = $3;
-      free($1);
-      free($3);
+      //free($1);
+      //free($3);
     }
     ;
 
@@ -559,7 +559,7 @@ rel_list:
     relation {
       $$ = new std::vector<std::string>();
       $$->push_back($1);
-      free($1);
+      //free($1);
     }
     | relation COMMA rel_list {
       if ($3 != nullptr) {
@@ -569,7 +569,7 @@ rel_list:
       }
 
       $$->insert($$->begin(), $1);
-      free($1);
+      //free($1);
     }
     ;
 
@@ -673,7 +673,7 @@ load_data_stmt:
       $$ = new ParsedSqlNode(SCF_LOAD_DATA);
       $$->load_data.relation_name = $7;
       $$->load_data.file_name = tmp_file_name;
-      free($7);
+      //free($7);
       free(tmp_file_name);
     }
     ;
@@ -692,7 +692,7 @@ set_variable_stmt:
       $$ = new ParsedSqlNode(SCF_SET_VARIABLE);
       $$->set_variable.name  = $2;
       $$->set_variable.value = *$4;
-      free($2);
+      //free($2);
       delete $4;
     }
     ;
@@ -703,6 +703,7 @@ opt_semicolon: /*empty*/
 %%
 //_____________________________________________________________________
 extern void scan_string(const char *str, yyscan_t scanner);
+extern void free_allocated_strings();
 
 int sql_parse(const char *s, ParsedSqlResult *sql_result) {
   yyscan_t scanner;
@@ -710,5 +711,6 @@ int sql_parse(const char *s, ParsedSqlResult *sql_result) {
   scan_string(s, scanner);
   int result = yyparse(s, sql_result, scanner);
   yylex_destroy(scanner);
+  free_allocated_strings();
   return result;
 }
