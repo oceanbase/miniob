@@ -24,7 +24,9 @@ RUN apt-get update \
 
 RUN apt-get install -y openssh-server
 
-RUN git clone https://github.com/oceanbase/miniob /tmp/miniob  \
+# Try cloning from GitHub, if it fails, use cnpmjs.org mirror
+RUN git clone https://github.com/oceanbase/miniob /tmp/miniob || \
+    git clone https://githubfast.com/oceanbase/miniob /tmp/miniob \
     && cd /tmp/miniob \
     && THIRD_PARTY_INSTALL_PREFIX=/usr/local bash build.sh init \
     && mkdir -p /root/docker/bin \
