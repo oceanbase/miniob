@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <execinfo.h>
 #include <inttypes.h>
 #include "common/lang/vector.h"
+#include <cstdlib>
 
 namespace common {
 
