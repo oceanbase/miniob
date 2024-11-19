@@ -46,7 +46,7 @@ mt_visible void *calloc(size_t nelem, size_t size)
     return calloc_buffer;
   }
   size_t alloc_size = nelem * size;
-  void * ptr        = malloc(alloc_size);
+  void  *ptr        = malloc(alloc_size);
   if (ptr == NULL) [[unlikely]] {
     return NULL;
   }
@@ -109,7 +109,7 @@ mt_visible int munmap(void *addr, size_t length)
 mt_visible char *strdup(const char *s) MT_THROW
 {
   size_t len = strlen(s);
-  char * p   = (char *)malloc(len + 1);
+  char  *p   = (char *)malloc(len + 1);
   if (p == NULL) {
     return NULL;
   }
@@ -120,9 +120,9 @@ mt_visible char *strdup(const char *s) MT_THROW
 
 mt_visible char *strndup(const char *s, size_t n) MT_THROW
 {
-  const char * end = (const char *)memchr(s, 0, n);
+  const char  *end = (const char *)memchr(s, 0, n);
   const size_t m   = (end != NULL ? (size_t)(end - s) : n);
-  char *       t   = (char *)malloc(m + 1);
+  char        *t   = (char *)malloc(m + 1);
   if (t == NULL)
     return NULL;
   memcpy(t, s, m);
@@ -178,7 +178,7 @@ mt_visible long int syscall(long int __sysno, ...)
   exit(-1);
 }
 #elif defined(__MACH__)
-mt_visible void    *brk(const void *addr)
+mt_visible void *brk(const void *addr)
 {
   MEMTRACER_LOG("brk not supported\n");
   exit(-1);
