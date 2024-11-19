@@ -94,8 +94,8 @@ public:
 
   virtual string to_string() const
   {
-    string str;
-    const int   cell_num = this->cell_num();
+    string    str;
+    const int cell_num = this->cell_num();
     for (int i = 0; i < cell_num - 1; i++) {
       Value cell;
       cell_at(i, cell);
@@ -242,8 +242,8 @@ public:
   const Record &record() const { return *record_; }
 
 private:
-  Record                  *record_ = nullptr;
-  const Table             *table_  = nullptr;
+  Record             *record_ = nullptr;
+  const Table        *table_  = nullptr;
   vector<FieldExpr *> speces_;
 };
 
@@ -259,10 +259,7 @@ public:
   ProjectTuple()          = default;
   virtual ~ProjectTuple() = default;
 
-  void set_expressions(vector<unique_ptr<Expression>> &&expressions)
-  {
-    expressions_ = std::move(expressions);
-  }
+  void set_expressions(vector<unique_ptr<Expression>> &&expressions) { expressions_ = std::move(expressions); }
 
   auto get_expressions() const -> const vector<unique_ptr<Expression>> & { return expressions_; }
 
@@ -303,7 +300,7 @@ public:
 #endif
 private:
   vector<unique_ptr<Expression>> expressions_;
-  Tuple                                   *tuple_ = nullptr;
+  Tuple                         *tuple_ = nullptr;
 };
 
 /**

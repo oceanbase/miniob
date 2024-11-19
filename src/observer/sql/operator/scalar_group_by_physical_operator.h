@@ -36,5 +36,5 @@ public:
 
 private:
   unique_ptr<GroupValueType> group_value_;
-  bool                            emitted_ = false;  /// 标识是否已经输出过
+  bool                       emitted_ = false;  /// 标识是否已经输出过
 };

@@ -69,12 +69,12 @@ public:
   void desc(ostream &os) const;
 
 protected:
-  int32_t                table_id_ = -1;
+  int32_t           table_id_ = -1;
   string            name_;
   vector<FieldMeta> trx_fields_;
   vector<FieldMeta> fields_;  // 包含sys_fields
   vector<IndexMeta> indexes_;
-  StorageFormat          storage_format_;
+  StorageFormat     storage_format_;
 
   int record_size_ = 0;
 };

@@ -32,6 +32,6 @@ public:
   static RC create(Db *db, const LoadDataSqlNode &load_data, Stmt *&stmt);
 
 private:
-  Table      *table_ = nullptr;
+  Table *table_ = nullptr;
   string filename_;
 };

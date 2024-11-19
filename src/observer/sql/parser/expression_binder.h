@@ -45,16 +45,12 @@ public:
   RC bind_expression(unique_ptr<Expression> &expr, vector<unique_ptr<Expression>> &bound_expressions);
 
 private:
-  RC bind_star_expression(
-      unique_ptr<Expression> &star_expr, vector<unique_ptr<Expression>> &bound_expressions);
+  RC bind_star_expression(unique_ptr<Expression> &star_expr, vector<unique_ptr<Expression>> &bound_expressions);
   RC bind_unbound_field_expression(
       unique_ptr<Expression> &unbound_field_expr, vector<unique_ptr<Expression>> &bound_expressions);
-  RC bind_field_expression(
-      unique_ptr<Expression> &field_expr, vector<unique_ptr<Expression>> &bound_expressions);
-  RC bind_value_expression(
-      unique_ptr<Expression> &value_expr, vector<unique_ptr<Expression>> &bound_expressions);
-  RC bind_cast_expression(
-      unique_ptr<Expression> &cast_expr, vector<unique_ptr<Expression>> &bound_expressions);
+  RC bind_field_expression(unique_ptr<Expression> &field_expr, vector<unique_ptr<Expression>> &bound_expressions);
+  RC bind_value_expression(unique_ptr<Expression> &value_expr, vector<unique_ptr<Expression>> &bound_expressions);
+  RC bind_cast_expression(unique_ptr<Expression> &cast_expr, vector<unique_ptr<Expression>> &bound_expressions);
   RC bind_comparison_expression(
       unique_ptr<Expression> &comparison_expr, vector<unique_ptr<Expression>> &bound_expressions);
   RC bind_conjunction_expression(

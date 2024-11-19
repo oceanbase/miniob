@@ -89,7 +89,7 @@ struct SelectSqlNode
 {
   vector<unique_ptr<Expression>> expressions;  ///< 查询的表达式
   vector<string>                 relations;    ///< 查询的表
-  vector<ConditionSqlNode>            conditions;   ///< 查询条件，使用AND串联起来多个条件
+  vector<ConditionSqlNode>       conditions;   ///< 查询条件，使用AND串联起来多个条件
   vector<unique_ptr<Expression>> group_by;     ///< group by clause
 };
 
@@ -131,7 +131,7 @@ struct UpdateSqlNode
 {
   string                   relation_name;   ///< Relation to update
   string                   attribute_name;  ///< 更新的字段，仅支持一个字段
-  Value                         value;           ///< 更新的值，仅支持一个字段
+  Value                    value;           ///< 更新的值，仅支持一个字段
   vector<ConditionSqlNode> conditions;
 };
 
@@ -142,9 +142,9 @@ struct UpdateSqlNode
  */
 struct AttrInfoSqlNode
 {
-  AttrType    type;    ///< Type of attribute
-  string name;    ///< Attribute name
-  size_t      length;  ///< Length of attribute
+  AttrType type;    ///< Type of attribute
+  string   name;    ///< Attribute name
+  size_t   length;  ///< Length of attribute
 };
 
 /**
@@ -220,7 +220,7 @@ struct LoadDataSqlNode
 struct SetVariableSqlNode
 {
   string name;
-  Value       value;
+  Value  value;
 };
 
 class ParsedSqlNode;
@@ -245,8 +245,8 @@ struct ExplainSqlNode
 struct ErrorSqlNode
 {
   string error_msg;
-  int         line;
-  int         column;
+  int    line;
+  int    column;
 };
 
 /**

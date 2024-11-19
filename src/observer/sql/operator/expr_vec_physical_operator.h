@@ -31,6 +31,6 @@ public:
 
 private:
   vector<Expression *> expressions_;  /// 表达式
-  Chunk                     chunk_;
-  Chunk                     evaled_chunk_;
+  Chunk                chunk_;
+  Chunk                evaled_chunk_;
 };

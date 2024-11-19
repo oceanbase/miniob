@@ -266,7 +266,7 @@ private:
 
 private:
   unique_ptr<Expression> child_;      ///< 从这个表达式转换
-  AttrType                    cast_type_;  ///< 想要转换成这个类型
+  AttrType               cast_type_;  ///< 想要转换成这个类型
 };
 
 /**
@@ -309,7 +309,7 @@ public:
   RC compare_column(const Column &left, const Column &right, vector<uint8_t> &result) const;
 
 private:
-  CompOp                      comp_;
+  CompOp                 comp_;
   unique_ptr<Expression> left_;
   unique_ptr<Expression> right_;
 };
@@ -342,7 +342,7 @@ public:
   vector<unique_ptr<Expression>> &children() { return children_; }
 
 private:
-  Type                                     conjunction_type_;
+  Type                           conjunction_type_;
   vector<unique_ptr<Expression>> children_;
 };
 
@@ -399,7 +399,7 @@ private:
   RC execute_calc(const Column &left, const Column &right, Column &result, Type type, AttrType attr_type) const;
 
 private:
-  Type                        arithmetic_type_;
+  Type                   arithmetic_type_;
   unique_ptr<Expression> left_;
   unique_ptr<Expression> right_;
 };
@@ -464,6 +464,6 @@ public:
   static RC type_from_string(const char *type_str, Type &type);
 
 private:
-  Type                        aggregate_type_;
+  Type                   aggregate_type_;
   unique_ptr<Expression> child_;
 };

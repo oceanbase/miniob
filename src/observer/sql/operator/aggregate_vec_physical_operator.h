@@ -68,7 +68,7 @@ private:
   };
   vector<Expression *> aggregate_expressions_;  /// 聚合表达式
   vector<Expression *> value_expressions_;
-  Chunk                     chunk_;
-  Chunk                     output_chunk_;
-  AggregateValues           aggr_values_;
+  Chunk                chunk_;
+  Chunk                output_chunk_;
+  AggregateValues      aggr_values_;
 };

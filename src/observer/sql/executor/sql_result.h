@@ -43,7 +43,7 @@ public:
   bool               has_operator() const { return operator_ != nullptr; }
   const TupleSchema &tuple_schema() const { return tuple_schema_; }
   RC                 return_code() const { return return_code_; }
-  const string &state_string() const { return state_string_; }
+  const string      &state_string() const { return state_string_; }
 
   RC open();
   RC close();
@@ -51,9 +51,9 @@ public:
   RC next_chunk(Chunk &chunk);
 
 private:
-  Session                          *session_ = nullptr;  ///< 当前所属会话
+  Session                     *session_ = nullptr;  ///< 当前所属会话
   unique_ptr<PhysicalOperator> operator_;           ///< 执行计划
-  TupleSchema                       tuple_schema_;       ///< 返回的表头信息。可能有也可能没有
-  RC                                return_code_ = RC::SUCCESS;
+  TupleSchema                  tuple_schema_;       ///< 返回的表头信息。可能有也可能没有
+  RC                           return_code_ = RC::SUCCESS;
   string                       state_string_;
 };

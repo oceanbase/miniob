@@ -70,8 +70,8 @@ public:
       return nullptr;
     }
 
-    const StringList  &string_list = *iterator_;
-    vector<Value> cells;
+    const StringList &string_list = *iterator_;
+    vector<Value>     cells;
     for (const string &s : string_list) {
 
       Value value(s.c_str());

@@ -29,11 +29,11 @@ public:
 
   LogicalOperatorType type() const override { return LogicalOperatorType::INSERT; }
 
-  Table                    *table() const { return table_; }
+  Table               *table() const { return table_; }
   const vector<Value> &values() const { return values_; }
   vector<Value>       &values() { return values_; }
 
 private:
-  Table             *table_ = nullptr;
+  Table        *table_ = nullptr;
   vector<Value> values_;
 };

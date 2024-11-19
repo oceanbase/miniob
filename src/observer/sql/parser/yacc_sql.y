@@ -127,15 +127,15 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   vector<ConditionSqlNode> *            condition_list;
   vector<RelAttrSqlNode> *              rel_attr_list;
   vector<string> *                 relation_list;
-  char *                                     string;
+  char *                                     cstring;
   int                                        number;
   float                                      floats;
 }
 
 %token <number> NUMBER
 %token <floats> FLOAT
-%token <string> ID
-%token <string> SSS
+%token <cstring> ID
+%token <cstring> SSS
 //非终结符
 
 /** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义的成员变量名称 **/
@@ -143,7 +143,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <condition>           condition
 %type <value>               value
 %type <number>              number
-%type <string>              relation
+%type <cstring>             relation
 %type <comp>                comp_op
 %type <rel_attr>            rel_attr
 %type <attr_infos>          attr_def_list
@@ -151,7 +151,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <value_list>          value_list
 %type <condition_list>      where
 %type <condition_list>      condition_list
-%type <string>              storage_format
+%type <cstring>             storage_format
 %type <relation_list>       rel_list
 %type <expression>          expression
 %type <expression_list>     expression_list

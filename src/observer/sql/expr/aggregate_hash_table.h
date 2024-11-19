@@ -96,7 +96,7 @@ public:
 
 private:
   /// group by values -> aggregate values
-  StandardHashTable                aggr_values_;
+  StandardHashTable           aggr_values_;
   vector<AggregateExpr::Type> aggr_types_;
 };
 
@@ -162,10 +162,10 @@ private:
   static const int EMPTY_KEY;
   static const int DEFAULT_CAPACITY;
 
-  vector<int>    keys_;
-  vector<V>      values_;
+  vector<int>         keys_;
+  vector<V>           values_;
   int                 size_     = 0;
   int                 capacity_ = 0;
   AggregateExpr::Type aggregate_type_;
 };
-#endif // USE_SIMD
+#endif  // USE_SIMD

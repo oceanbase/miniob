@@ -46,6 +46,6 @@ private:
   void generate_physical_plan();
 
 private:
-  string    physical_plan_;
+  string         physical_plan_;
   ValueListTuple tuple_;
 };

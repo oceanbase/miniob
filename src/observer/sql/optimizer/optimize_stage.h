@@ -71,8 +71,8 @@ private:
    * 而物理计划描述怎么做，比如如何从某张表按照什么条件获取什么数据，是否使用索引，使用哪个索引等。
    * @param physical_operator 生成的物理计划。通常是一个多叉树的形状，这里就拿着根节点就可以了。
    */
-  RC generate_physical_plan(unique_ptr<LogicalOperator> &logical_operator,
-      unique_ptr<PhysicalOperator> &physical_operator, Session *session);
+  RC generate_physical_plan(
+      unique_ptr<LogicalOperator> &logical_operator, unique_ptr<PhysicalOperator> &physical_operator, Session *session);
 
 private:
   LogicalPlanGenerator  logical_plan_generator_;   ///< 根据SQL生成逻辑计划

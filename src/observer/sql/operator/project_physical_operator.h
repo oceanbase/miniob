@@ -41,6 +41,6 @@ public:
   RC tuple_schema(TupleSchema &schema) const override;
 
 private:
-  vector<unique_ptr<Expression>>     expressions_;
+  vector<unique_ptr<Expression>>          expressions_;
   ExpressionTuple<unique_ptr<Expression>> tuple_;
 };
