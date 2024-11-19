@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <stddef.h>
 #include <vector>
 
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "storage/field/field_meta.h"
 #include "storage/index/index_meta.h"
 #include "storage/record/record_manager.h"

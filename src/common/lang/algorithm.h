@@ -10,8 +10,9 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <functional>
+#include <algorithm>
 
-using std::equal_to;
-using std::function;
-using std::hash;
+using std::max;
+using std::min;
+using std::transform;
+using std::swap;

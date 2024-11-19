@@ -20,8 +20,7 @@ See the Mulan PSL v2 for more details. */
 class GroupByVecPhysicalOperator : public PhysicalOperator
 {
 public:
-  GroupByVecPhysicalOperator(
-      std::vector<std::unique_ptr<Expression>> &&group_by_exprs, std::vector<Expression *> &&expressions){};
+  GroupByVecPhysicalOperator(vector<unique_ptr<Expression>> &&group_by_exprs, vector<Expression *> &&expressions){};
 
   virtual ~GroupByVecPhysicalOperator() = default;
 

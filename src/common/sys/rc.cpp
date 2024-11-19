@@ -9,20 +9,27 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 //
-// Created by Longda on 2021/4/20.
+// Created by Wangyunlai on 2021/5/14.
 //
 
-#pragma once
+#include "common/sys/rc.h"
 
-#include "common/metrics/reporter.h"
-
-namespace common {
-
-class LogReporter : public Reporter
+const char *strrc(RC rc)
 {
-public:
-  void report(const std::string &tag, Metric *metric);
-};
+#define DEFINE_RC(name) \
+  case RC::name: {      \
+    return #name;       \
+  } break;
 
-LogReporter *get_log_reporter();
-}  // namespace common
+  switch (rc) {
+    DEFINE_RCS;
+    default: {
+      return "unknown";
+    }
+  }
+#undef DEFINE_RC
+}
+
+bool OB_SUCC(RC rc) { return rc == RC::SUCCESS; }
+
+bool OB_FAIL(RC rc) { return rc != RC::SUCCESS; }

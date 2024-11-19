@@ -51,11 +51,11 @@ RC StandardAggregateHashTable::Scanner::next(Chunk &output_chunk)
 
 size_t StandardAggregateHashTable::VectorHash::operator()(const vector<Value> &vec) const
 {
-  size_t hash = 0;
+  size_t hash_val = 0;
   for (const auto &elem : vec) {
-    hash ^= std::hash<string>()(elem.to_string());
+    hash_val ^= hash<string>()(elem.to_string());
   }
-  return hash;
+  return hash_val;
 }
 
 bool StandardAggregateHashTable::VectorEqual::operator()(const vector<Value> &lhs, const vector<Value> &rhs) const
@@ -180,8 +180,8 @@ template <typename V>
 void LinearProbingAggregateHashTable<V>::resize()
 {
   capacity_ *= 2;
-  std::vector<int> new_keys(capacity_);
-  std::vector<V>   new_values(capacity_);
+  vector<int> new_keys(capacity_);
+  vector<V>   new_values(capacity_);
 
   for (size_t i = 0; i < keys_.size(); i++) {
     auto &key   = keys_[i];

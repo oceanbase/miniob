@@ -14,9 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/default/default_handler.h"
 
-#include <string>
-#include <filesystem>
-
 #include "common/lang/string.h"
 #include "common/log/log.h"
 #include "common/os/path.h"

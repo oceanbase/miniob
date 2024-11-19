@@ -11,8 +11,6 @@ See the Mulan PSL v2 for more details. */
 // Created by wangyunlai.wyl on 2021/5/18.
 //
 
-#include <filesystem>
-
 #include "storage/common/meta_util.h"
 
 using namespace std;

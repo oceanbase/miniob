@@ -14,9 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
-
-#include "common/rc.h"
+#include "common/lang/memory.h"
+#include "common/sys/rc.h"
 #include "sql/expr/expression.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/optimizer/rewrite_rule.h"
@@ -27,11 +26,11 @@ public:
   ExpressionRewriter();
   virtual ~ExpressionRewriter() = default;
 
-  RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) override;
+  RC rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made) override;
 
 private:
-  RC rewrite_expression(std::unique_ptr<Expression> &expr, bool &change_made);
+  RC rewrite_expression(unique_ptr<Expression> &expr, bool &change_made);
 
 private:
-  std::vector<std::unique_ptr<ExpressionRewriteRule>> expr_rewrite_rules_;
+  vector<unique_ptr<ExpressionRewriteRule>> expr_rewrite_rules_;
 };

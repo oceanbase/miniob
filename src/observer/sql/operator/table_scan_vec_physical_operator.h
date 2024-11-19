@@ -10,7 +10,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "sql/operator/physical_operator.h"
 #include "storage/record/record_manager.h"
 #include "common/types.h"
@@ -28,7 +28,7 @@ public:
 
   virtual ~TableScanVecPhysicalOperator() = default;
 
-  std::string param() const override;
+  string param() const override;
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::TABLE_SCAN_VEC; }
 
@@ -36,17 +36,17 @@ public:
   RC next(Chunk &chunk) override;
   RC close() override;
 
-  void set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs);
+  void set_predicates(vector<unique_ptr<Expression>> &&exprs);
 
 private:
   RC filter(Chunk &chunk);
 
 private:
-  Table                                   *table_ = nullptr;
-  ReadWriteMode                            mode_  = ReadWriteMode::READ_WRITE;
-  ChunkFileScanner                         chunk_scanner_;
-  Chunk                                    all_columns_;
-  Chunk                                    filterd_columns_;
-  std::vector<uint8_t>                     select_;
-  std::vector<std::unique_ptr<Expression>> predicates_;
+  Table                         *table_ = nullptr;
+  ReadWriteMode                  mode_  = ReadWriteMode::READ_WRITE;
+  ChunkFileScanner               chunk_scanner_;
+  Chunk                          all_columns_;
+  Chunk                          filterd_columns_;
+  vector<uint8_t>                select_;
+  vector<unique_ptr<Expression>> predicates_;
 };

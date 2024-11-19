@@ -13,7 +13,6 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <string.h>
-#include <string>
 
 #include "query_cache_stage.h"
 

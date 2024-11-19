@@ -14,9 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <vector>
-
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "sql/expr/expression.h"
 #include "sql/stmt/stmt.h"
 
@@ -45,8 +43,8 @@ public:
   }
 
 public:
-  std::vector<std::unique_ptr<Expression>> &expressions() { return expressions_; }
+  vector<unique_ptr<Expression>> &expressions() { return expressions_; }
 
 private:
-  std::vector<std::unique_ptr<Expression>> expressions_;
+  vector<unique_ptr<Expression>> expressions_;
 };

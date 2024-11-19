@@ -15,9 +15,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/predicate_rewrite.h"
 #include "sql/operator/logical_operator.h"
 
-RC PredicateRewriteRule::rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made)
+RC PredicateRewriteRule::rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made)
 {
-  std::vector<std::unique_ptr<LogicalOperator>> &child_opers = oper->children();
+  vector<unique_ptr<LogicalOperator>> &child_opers = oper->children();
   if (child_opers.size() != 1) {
     return RC::SUCCESS;
   }
@@ -27,12 +27,12 @@ RC PredicateRewriteRule::rewrite(std::unique_ptr<LogicalOperator> &oper, bool &c
     return RC::SUCCESS;
   }
 
-  std::vector<std::unique_ptr<Expression>> &expressions = child_oper->expressions();
+  vector<unique_ptr<Expression>> &expressions = child_oper->expressions();
   if (expressions.size() != 1) {
     return RC::SUCCESS;
   }
 
-  std::unique_ptr<Expression> &expr = expressions.front();
+  unique_ptr<Expression> &expr = expressions.front();
   if (expr->type() != ExprType::VALUE) {
     return RC::SUCCESS;
   }
@@ -43,7 +43,7 @@ RC PredicateRewriteRule::rewrite(std::unique_ptr<LogicalOperator> &oper, bool &c
   auto value_expr = static_cast<ValueExpr *>(expr.get());
   bool bool_value = value_expr->get_value().get_boolean();
   if (true == bool_value) {
-    std::vector<std::unique_ptr<LogicalOperator>> grand_child_opers;
+    vector<unique_ptr<LogicalOperator>> grand_child_opers;
     grand_child_opers.swap(child_oper->children());
     child_opers.clear();
     for (auto &grand_child_oper : grand_child_opers) {

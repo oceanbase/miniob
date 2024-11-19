@@ -14,8 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-
 #include "sql/stmt/stmt.h"
 
 class Table;
@@ -35,5 +33,5 @@ public:
 
 private:
   Table      *table_ = nullptr;
-  std::string filename_;
+  string filename_;
 };

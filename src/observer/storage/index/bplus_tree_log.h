@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <stddef.h>
 
 #include "common/types.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "common/lang/span.h"
 #include "common/lang/memory.h"
 #include "common/lang/vector.h"

@@ -8,8 +8,6 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#include <type_traits>
-
 #include "sql/expr/aggregate_state.h"
 
 #ifdef USE_SIMD
@@ -19,9 +17,9 @@ template <typename T>
 void SumState<T>::update(const T *values, int size)
 {
 #ifdef USE_SIMD
-  if constexpr (std::is_same<T, float>::value) {
+  if constexpr (is_same<T, float>::value) {
     value += mm256_sum_ps(values, size);
-  } else if constexpr (std::is_same<T, int>::value) {
+  } else if constexpr (is_same<T, int>::value) {
     value += mm256_sum_epi32(values, size);
   }
 #else

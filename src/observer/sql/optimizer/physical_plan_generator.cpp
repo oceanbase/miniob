@@ -12,8 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2022/12/14.
 //
 
-#include <utility>
-
 #include "common/log/log.h"
 #include "sql/expr/expression.h"
 #include "sql/operator/aggregate_vec_physical_operator.h"
@@ -325,7 +323,7 @@ RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper)
 {
   RC rc = RC::SUCCESS;
 
@@ -334,7 +332,7 @@ RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, std::un
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(GroupByLogicalOperator &logical_oper, std::unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(GroupByLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper)
 {
   RC rc = RC::SUCCESS;
 
@@ -424,7 +422,7 @@ RC PhysicalPlanGenerator::create_vec_plan(ProjectLogicalOperator &project_oper, 
   auto project_operator = make_unique<ProjectVecPhysicalOperator>(std::move(project_oper.expressions()));
 
   if (child_phy_oper != nullptr) {
-    std::vector<Expression *> expressions;
+    vector<Expression *> expressions;
     for (auto &expr : project_operator->expressions()) {
       expressions.push_back(expr.get());
     }

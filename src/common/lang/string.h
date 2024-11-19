@@ -31,6 +31,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/set.h"
 
 using std::string;
+using std::to_string;
+using std::stol;
+using std::stof;
 
 namespace common {
 

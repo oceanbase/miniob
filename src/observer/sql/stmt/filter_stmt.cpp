@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/filter_stmt.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "storage/db/db.h"
 #include "storage/table/table.h"
 
@@ -27,7 +27,7 @@ FilterStmt::~FilterStmt()
   filter_units_.clear();
 }
 
-RC FilterStmt::create(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
+RC FilterStmt::create(Db *db, Table *default_table, unordered_map<string, Table *> *tables,
     const ConditionSqlNode *conditions, int condition_num, FilterStmt *&stmt)
 {
   RC rc = RC::SUCCESS;
@@ -50,7 +50,7 @@ RC FilterStmt::create(Db *db, Table *default_table, std::unordered_map<std::stri
   return rc;
 }
 
-RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
+RC get_table_and_field(Db *db, Table *default_table, unordered_map<string, Table *> *tables,
     const RelAttrSqlNode &attr, Table *&table, const FieldMeta *&field)
 {
   if (common::is_blank(attr.relation_name.c_str())) {
@@ -78,7 +78,7 @@ RC get_table_and_field(Db *db, Table *default_table, std::unordered_map<std::str
   return RC::SUCCESS;
 }
 
-RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_map<std::string, Table *> *tables,
+RC FilterStmt::create_filter_unit(Db *db, Table *default_table, unordered_map<string, Table *> *tables,
     const ConditionSqlNode &condition, FilterUnit *&filter_unit)
 {
   RC rc = RC::SUCCESS;

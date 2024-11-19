@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/table_get_logical_operator.h"
 
-RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made)
+RC PredicatePushdownRewriter::rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made)
 {
   RC rc = RC::SUCCESS;
   if (oper->type() != LogicalOperatorType::PREDICATE) {
@@ -29,20 +29,20 @@ RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bo
     return rc;
   }
 
-  std::unique_ptr<LogicalOperator> &child_oper = oper->children().front();
+  unique_ptr<LogicalOperator> &child_oper = oper->children().front();
   if (child_oper->type() != LogicalOperatorType::TABLE_GET) {
     return rc;
   }
 
   auto table_get_oper = static_cast<TableGetLogicalOperator *>(child_oper.get());
 
-  std::vector<std::unique_ptr<Expression>> &predicate_oper_exprs = oper->expressions();
+  vector<unique_ptr<Expression>> &predicate_oper_exprs = oper->expressions();
   if (predicate_oper_exprs.size() != 1) {
     return rc;
   }
 
-  std::unique_ptr<Expression>             &predicate_expr = predicate_oper_exprs.front();
-  std::vector<std::unique_ptr<Expression>> pushdown_exprs;
+  unique_ptr<Expression>             &predicate_expr = predicate_oper_exprs.front();
+  vector<unique_ptr<Expression>> pushdown_exprs;
   rc = get_exprs_can_pushdown(predicate_expr, pushdown_exprs);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to get exprs can pushdown. rc=%s", strrc(rc));
@@ -55,7 +55,7 @@ RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bo
     LOG_TRACE("all expressions of predicate operator were pushdown to table get operator, then make a fake one");
 
     Value value((bool)true);
-    predicate_expr = std::unique_ptr<Expression>(new ValueExpr(value));
+    predicate_expr = unique_ptr<Expression>(new ValueExpr(value));
   }
 
   if (!pushdown_exprs.empty()) {
@@ -65,7 +65,7 @@ RC PredicatePushdownRewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bo
   return rc;
 }
 
-bool PredicatePushdownRewriter::is_empty_predicate(std::unique_ptr<Expression> &expr)
+bool PredicatePushdownRewriter::is_empty_predicate(unique_ptr<Expression> &expr)
 {
   bool bool_ret = false;
   if (!expr) {
@@ -89,7 +89,7 @@ bool PredicatePushdownRewriter::is_empty_predicate(std::unique_ptr<Expression> &
  *                       pushdown_exprs 只会增加，不要做清理操作
  */
 RC PredicatePushdownRewriter::get_exprs_can_pushdown(
-    std::unique_ptr<Expression> &expr, std::vector<std::unique_ptr<Expression>> &pushdown_exprs)
+    unique_ptr<Expression> &expr, vector<unique_ptr<Expression>> &pushdown_exprs)
 {
   RC rc = RC::SUCCESS;
   if (expr->type() == ExprType::CONJUNCTION) {
@@ -101,7 +101,7 @@ RC PredicatePushdownRewriter::get_exprs_can_pushdown(
       return rc;
     }
 
-    std::vector<std::unique_ptr<Expression>> &child_exprs = conjunction_expr->children();
+    vector<unique_ptr<Expression>> &child_exprs = conjunction_expr->children();
     for (auto iter = child_exprs.begin(); iter != child_exprs.end();) {
       // 对每个子表达式，判断是否可以下放到table get 算子
       // 如果可以的话，就从当前孩子节点中删除他
@@ -121,8 +121,8 @@ RC PredicatePushdownRewriter::get_exprs_can_pushdown(
     // 如果是比较操作，并且比较的左边或右边是表某个列值，那么就下推下去
     auto   comparison_expr = static_cast<ComparisonExpr *>(expr.get());
 
-    std::unique_ptr<Expression> &left_expr  = comparison_expr->left();
-    std::unique_ptr<Expression> &right_expr = comparison_expr->right();
+    unique_ptr<Expression> &left_expr  = comparison_expr->left();
+    unique_ptr<Expression> &right_expr = comparison_expr->right();
     // 比较操作的左右两边只要有一个是取列字段值的并且另一边也是取字段值或常量，就pushdown
     if (left_expr->type() != ExprType::FIELD && right_expr->type() != ExprType::FIELD) {
       return rc;

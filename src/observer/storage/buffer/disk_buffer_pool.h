@@ -31,7 +31,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "common/lang/unordered_map.h"
 #include "common/mm/mem_pool.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "common/types.h"
 #include "storage/buffer/frame.h"
 #include "storage/buffer/page.h"
