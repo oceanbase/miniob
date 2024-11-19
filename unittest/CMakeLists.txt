@@ -5,8 +5,6 @@ find_package(GTest CONFIG REQUIRED)
 
 include(GoogleTest)
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
-
 ADD_SUBDIRECTORY(common)
 IF (WITH_MEMTRACER)
     ADD_SUBDIRECTORY(memtracer)
