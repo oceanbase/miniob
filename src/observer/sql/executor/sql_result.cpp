@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/executor/sql_result.h"
 #include "common/log/log.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "session/session.h"
 #include "storage/trx/trx.h"
 
@@ -75,7 +75,7 @@ RC SqlResult::next_chunk(Chunk &chunk)
   return rc;
 }
 
-void SqlResult::set_operator(std::unique_ptr<PhysicalOperator> oper)
+void SqlResult::set_operator(unique_ptr<PhysicalOperator> oper)
 {
   ASSERT(operator_ == nullptr, "current operator is not null. Result is not closed?");
   operator_ = std::move(oper);

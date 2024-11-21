@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "common/lang/string.h"
 
 class PersistHandler

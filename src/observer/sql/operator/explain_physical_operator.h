@@ -41,11 +41,11 @@ public:
   }
 
 private:
-  void to_string(std::ostream &os, PhysicalOperator *oper, int level, bool last_child, std::vector<bool> &ends);
+  void to_string(ostream &os, PhysicalOperator *oper, int level, bool last_child, vector<bool> &ends);
 
   void generate_physical_plan();
 
 private:
-  std::string    physical_plan_;
+  string         physical_plan_;
   ValueListTuple tuple_;
 };

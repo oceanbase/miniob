@@ -43,7 +43,7 @@ void TableMeta::swap(TableMeta &other) noexcept
   std::swap(record_size_, other.record_size_);
 }
 
-RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields,
+RC TableMeta::init(int32_t table_id, const char *name, const vector<FieldMeta> *trx_fields,
                    span<const AttrInfoSqlNode> attributes, StorageFormat storage_format)
 {
   if (common::is_blank(name)) {
@@ -166,7 +166,7 @@ int TableMeta::index_num() const { return indexes_.size(); }
 
 int TableMeta::record_size() const { return record_size_; }
 
-int TableMeta::serialize(std::ostream &ss) const
+int TableMeta::serialize(ostream &ss) const
 {
   Json::Value table_value;
   table_value[FIELD_TABLE_ID]   = table_id_;
@@ -193,7 +193,7 @@ int TableMeta::serialize(std::ostream &ss) const
   Json::StreamWriterBuilder builder;
   Json::StreamWriter       *writer = builder.newStreamWriter();
 
-  std::streampos old_pos = ss.tellp();
+  streampos old_pos = ss.tellp();
   writer->write(table_value, &ss);
   int ret = (int)(ss.tellp() - old_pos);
 
@@ -201,13 +201,13 @@ int TableMeta::serialize(std::ostream &ss) const
   return ret;
 }
 
-int TableMeta::deserialize(std::istream &is)
+int TableMeta::deserialize(istream &is)
 {
   Json::Value             table_value;
   Json::CharReaderBuilder builder;
-  std::string             errors;
+  string             errors;
 
-  std::streampos old_pos = is.tellg();
+  streampos old_pos = is.tellg();
   if (!Json::parseFromStream(builder, is, &table_value, &errors)) {
     LOG_ERROR("Failed to deserialize table meta. error=%s", errors.c_str());
     return -1;
@@ -227,7 +227,7 @@ int TableMeta::deserialize(std::istream &is)
     return -1;
   }
 
-  std::string table_name = table_name_value.asString();
+  string table_name = table_name_value.asString();
 
   const Json::Value &fields_value = table_value[FIELD_FIELDS];
   if (!fields_value.isArray() || fields_value.size() <= 0) {
@@ -246,7 +246,7 @@ int TableMeta::deserialize(std::istream &is)
   RC  rc        = RC::SUCCESS;
   int field_num = fields_value.size();
 
-  std::vector<FieldMeta> fields(field_num);
+  vector<FieldMeta> fields(field_num);
   for (int i = 0; i < field_num; i++) {
     FieldMeta &field = fields[i];
 
@@ -259,7 +259,7 @@ int TableMeta::deserialize(std::istream &is)
   }
 
   auto comparator = [](const FieldMeta &f1, const FieldMeta &f2) { return f1.offset() < f2.offset(); };
-  std::sort(fields.begin(), fields.end(), comparator);
+  sort(fields.begin(), fields.end(), comparator);
 
   table_id_ = table_id;
   storage_format_ = static_cast<StorageFormat>(storage_format);
@@ -280,7 +280,7 @@ int TableMeta::deserialize(std::istream &is)
       return -1;
     }
     const int              index_num = indexes_value.size();
-    std::vector<IndexMeta> indexes(index_num);
+    vector<IndexMeta> indexes(index_num);
     for (int i = 0; i < index_num; i++) {
       IndexMeta &index = indexes[i];
 
@@ -299,21 +299,21 @@ int TableMeta::deserialize(std::istream &is)
 
 int TableMeta::get_serial_size() const { return -1; }
 
-void TableMeta::to_string(std::string &output) const {}
+void TableMeta::to_string(string &output) const {}
 
-void TableMeta::desc(std::ostream &os) const
+void TableMeta::desc(ostream &os) const
 {
-  os << name_ << '(' << std::endl;
+  os << name_ << '(' << endl;
   for (const auto &field : fields_) {
     os << '\t';
     field.desc(os);
-    os << std::endl;
+    os << endl;
   }
 
   for (const auto &index : indexes_) {
     os << '\t';
     index.desc(os);
-    os << std::endl;
+    os << endl;
   }
-  os << ')' << std::endl;
+  os << ')' << endl;
 }

@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "event/session_event.h"
 #include "event/sql_event.h"
 #include "sql/executor/sql_result.h"
@@ -52,7 +52,7 @@ public:
     schema.append_cell("Commands");
 
     sql_result->set_tuple_schema(schema);
-    sql_result->set_operator(std::unique_ptr<PhysicalOperator>(oper));
+    sql_result->set_operator(unique_ptr<PhysicalOperator>(oper));
 
     return RC::SUCCESS;
   }

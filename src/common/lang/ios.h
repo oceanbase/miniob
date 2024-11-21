@@ -8,21 +8,11 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Longda on 2021/4/20.
-//
-
 #pragma once
 
-#include "common/metrics/reporter.h"
+#include <ios>
 
-namespace common {
-
-class LogReporter : public Reporter
-{
-public:
-  void report(const std::string &tag, Metric *metric);
-};
-
-LogReporter *get_log_reporter();
-}  // namespace common
+using std::ios;
+using std::ios_base;
+using std::streamoff;
+using std::streampos;

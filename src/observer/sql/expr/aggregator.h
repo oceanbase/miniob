@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/value.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 
 class Aggregator
 {

@@ -8,23 +8,9 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Longda on 2021/4/20.
-//
+#pragma once
 
-#ifndef __COMMON_METRICS_CONSOLE_REPORTER_H__
-#define __COMMON_METRICS_CONSOLE_REPORTER_H__
+#include <algorithm>
+#include <ranges>
 
-#include "common/metrics/reporter.h"
-
-namespace common {
-
-class ConsoleReporter : public Reporter
-{
-public:
-  void report(const std::string &tag, Metric *metric);
-};
-
-ConsoleReporter *get_console_reporter();
-}  // namespace common
-#endif  //__COMMON_METRICS_CONSOLE_REPORTER_H__
+namespace ranges = std::ranges;

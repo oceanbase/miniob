@@ -8,22 +8,11 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Longda on 2021/4/19.
-//
+#pragma once
 
-#ifndef __COMMON_METRICS_REPORTER_H__
-#define __COMMON_METRICS_REPORTER_H__
+#include <algorithm>
 
-#include "common/metrics/metric.h"
-#include <string>
-
-namespace common {
-
-class Reporter
-{
-public:
-  virtual void report(const std::string &tag, Metric *metric) = 0;
-};
-}  // namespace common
-#endif  //__COMMON_METRICS_REPORTER_H__
+using std::max;
+using std::min;
+using std::swap;
+using std::transform;

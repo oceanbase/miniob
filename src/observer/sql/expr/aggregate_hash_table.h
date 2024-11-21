@@ -8,12 +8,12 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#include <vector>
-#include <iostream>
-#include <unordered_map>
+#pragma once
 
+#include "common/lang/vector.h"
+#include "common/lang/unordered_map.h"
 #include "common/math/simd_util.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "sql/expr/expression.h"
 
 /**
@@ -54,16 +54,16 @@ class StandardAggregateHashTable : public AggregateHashTable
 private:
   struct VectorHash
   {
-    std::size_t operator()(const std::vector<Value> &vec) const;
+    size_t operator()(const vector<Value> &vec) const;
   };
 
   struct VectorEqual
   {
-    bool operator()(const std::vector<Value> &lhs, const std::vector<Value> &rhs) const;
+    bool operator()(const vector<Value> &lhs, const vector<Value> &rhs) const;
   };
 
 public:
-  using StandardHashTable = std::unordered_map<std::vector<Value>, std::vector<Value>, VectorHash, VectorEqual>;
+  using StandardHashTable = unordered_map<vector<Value>, vector<Value>, VectorHash, VectorEqual>;
   class Scanner : public AggregateHashTable::Scanner
   {
   public:
@@ -78,7 +78,7 @@ public:
     StandardHashTable::iterator end_;
     StandardHashTable::iterator it_;
   };
-  StandardAggregateHashTable(const std::vector<Expression *> aggregations)
+  StandardAggregateHashTable(const vector<Expression *> aggregations)
   {
     for (auto &expr : aggregations) {
       ASSERT(expr->type() == ExprType::AGGREGATION, "expect aggregate expression");
@@ -96,8 +96,8 @@ public:
 
 private:
   /// group by values -> aggregate values
-  StandardHashTable                aggr_values_;
-  std::vector<AggregateExpr::Type> aggr_types_;
+  StandardHashTable           aggr_values_;
+  vector<AggregateExpr::Type> aggr_types_;
 };
 
 /**
@@ -162,10 +162,10 @@ private:
   static const int EMPTY_KEY;
   static const int DEFAULT_CAPACITY;
 
-  std::vector<int>    keys_;
-  std::vector<V>      values_;
+  vector<int>         keys_;
+  vector<V>           values_;
   int                 size_     = 0;
   int                 capacity_ = 0;
   AggregateExpr::Type aggregate_type_;
 };
-#endif
+#endif  // USE_SIMD

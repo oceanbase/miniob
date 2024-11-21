@@ -61,7 +61,7 @@ void MemTracer::init()
   // init memory limit
   const char *memory_limit_str = std::getenv("MT_MEMORY_LIMIT");
   if (memory_limit_str != nullptr) {
-    char *             end;
+    char              *end;
     unsigned long long value = std::strtoull(memory_limit_str, &end, 10);
     if (end != memory_limit_str && *end == '\0') {
       MT.set_memory_limit(static_cast<size_t>(value));
@@ -73,7 +73,7 @@ void MemTracer::init()
   // init print_interval
   const char *print_interval_ms_str = std::getenv("MT_PRINT_INTERVAL_MS");
   if (print_interval_ms_str != nullptr) {
-    char *             end;
+    char              *end;
     unsigned long long value = std::strtoull(print_interval_ms_str, &end, 10);
     if (end != print_interval_ms_str && *end == '\0') {
       MT.set_print_interval(static_cast<size_t>(value));
@@ -148,7 +148,7 @@ void MemTracer::init_hook_funcs_impl()
 void MemTracer::stat()
 {
   const size_t print_interval_ms = MT.print_interval();
-  const size_t sleep_interval = 100;  // 100 ms
+  const size_t sleep_interval    = 100;  // 100 ms
   while (!MT.is_stop()) {
     if (REACH_TIME_INTERVAL(print_interval_ms)) {
       // TODO: optimize the output format

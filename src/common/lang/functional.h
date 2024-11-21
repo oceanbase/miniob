@@ -8,27 +8,12 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Longda on 2021/4/20.
-//
-
 #pragma once
 
-#include "common/metrics/histogram_snapshot.h"
+#include <functional>
 
-namespace common {
-class TimerSnapshot : public HistogramSnapShot
-{
-public:
-  TimerSnapshot();
-  virtual ~TimerSnapshot();
-
-  double get_tps();
-  void   set_tps(double tps);
-
-  std::string to_string();
-
-protected:
-  double tps = 1.0;
-};
-}  // namespace common
+using std::equal_to;
+using std::function;
+using std::hash;
+// using std::bind; // conflict with socket::bind
+using std::ref;

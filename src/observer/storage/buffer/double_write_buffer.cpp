@@ -13,9 +13,6 @@ See the Mulan PSL v2 for more details. */
 //
 #include <fcntl.h>
 
-#include <mutex>
-#include <algorithm>
-
 #include "storage/buffer/double_write_buffer.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "common/io/io.h"
@@ -109,7 +106,7 @@ RC DiskDoubleWriteBuffer::add_page(DiskBufferPool *bp, PageNum page_num, Page &p
 
   int64_t          page_cnt   = dblwr_pages_.size();
   DoubleWritePage *dblwr_page = new DoubleWritePage(bp->id(), page_num, page_cnt, page);
-  dblwr_pages_.insert(std::pair<DoubleWritePageKey, DoubleWritePage *>(key, dblwr_page));
+  dblwr_pages_.insert(pair<DoubleWritePageKey, DoubleWritePage *>(key, dblwr_page));
   LOG_TRACE("insert page into double write buffer. buffer_pool_id:%d,page_num:%d,lsn=%d, dwb size:%d",
             bp->id(), page_num, page.lsn, static_cast<int>(dblwr_pages_.size()));
 

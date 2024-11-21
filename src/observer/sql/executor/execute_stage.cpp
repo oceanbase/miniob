@@ -12,9 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by Longda on 2021/4/13.
 //
 
-#include <sstream>
-#include <string>
-
 #include "sql/executor/execute_stage.h"
 
 #include "common/log/log.h"
@@ -26,7 +23,6 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/stmt.h"
 #include "storage/default/default_handler.h"
 
-using namespace std;
 using namespace common;
 
 RC ExecuteStage::handle_request(SQLStageEvent *sql_event)

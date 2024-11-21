@@ -197,7 +197,7 @@ RC ComparisonExpr::get_value(const Tuple &tuple, Value &value) const
   return rc;
 }
 
-RC ComparisonExpr::eval(Chunk &chunk, std::vector<uint8_t> &select)
+RC ComparisonExpr::eval(Chunk &chunk, vector<uint8_t> &select)
 {
   RC     rc = RC::SUCCESS;
   Column left_column;
@@ -230,7 +230,7 @@ RC ComparisonExpr::eval(Chunk &chunk, std::vector<uint8_t> &select)
 }
 
 template <typename T>
-RC ComparisonExpr::compare_column(const Column &left, const Column &right, std::vector<uint8_t> &result) const
+RC ComparisonExpr::compare_column(const Column &left, const Column &right, vector<uint8_t> &result) const
 {
   RC rc = RC::SUCCESS;
 
@@ -467,7 +467,7 @@ RC ArithmeticExpr::calc_column(const Column &left_column, const Column &right_co
   RC rc = RC::SUCCESS;
 
   const AttrType target_type = value_type();
-  column.init(target_type, left_column.attr_len(), std::max(left_column.count(), right_column.count()));
+  column.init(target_type, left_column.attr_len(), max(left_column.count(), right_column.count()));
   bool left_const  = left_column.column_type() == Column::Type::CONSTANT_COLUMN;
   bool right_const = right_column.column_type() == Column::Type::CONSTANT_COLUMN;
   if (left_const && right_const) {

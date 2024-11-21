@@ -15,8 +15,8 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/optimizer/rewrite_rule.h"
-#include <memory>
-#include <vector>
+#include "common/lang/memory.h"
+#include "common/lang/vector.h"
 
 class LogicalOperator;
 
@@ -44,8 +44,8 @@ public:
    * @param oper 逻辑计划
    * @param change_made 当前是否有重写发生
    */
-  RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made);
+  RC rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made);
 
 private:
-  std::vector<std::unique_ptr<RewriteRule>> rewrite_rules_;
+  vector<unique_ptr<RewriteRule>> rewrite_rules_;
 };

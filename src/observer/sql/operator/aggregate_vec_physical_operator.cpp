@@ -8,14 +8,13 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#include <algorithm>
 #include "common/log/log.h"
+#include "common/lang/ranges.h"
 #include "sql/operator/aggregate_vec_physical_operator.h"
 #include "sql/expr/aggregate_state.h"
 #include "sql/expr/expression_tuple.h"
 #include "sql/expr/composite_tuple.h"
 
-using namespace std;
 using namespace common;
 
 AggregateVecPhysicalOperator::AggregateVecPhysicalOperator(vector<Expression *> &&expressions)

@@ -14,10 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
-#include <vector>
-
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "sql/stmt/stmt.h"
 #include "storage/field/field.h"
 
@@ -42,15 +39,15 @@ public:
   static RC create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt);
 
 public:
-  const std::vector<Table *> &tables() const { return tables_; }
-  FilterStmt                 *filter_stmt() const { return filter_stmt_; }
+  const vector<Table *> &tables() const { return tables_; }
+  FilterStmt            *filter_stmt() const { return filter_stmt_; }
 
-  std::vector<std::unique_ptr<Expression>> &query_expressions() { return query_expressions_; }
-  std::vector<std::unique_ptr<Expression>> &group_by() { return group_by_; }
+  vector<unique_ptr<Expression>> &query_expressions() { return query_expressions_; }
+  vector<unique_ptr<Expression>> &group_by() { return group_by_; }
 
 private:
-  std::vector<std::unique_ptr<Expression>> query_expressions_;
-  std::vector<Table *>                     tables_;
-  FilterStmt                              *filter_stmt_ = nullptr;
-  std::vector<std::unique_ptr<Expression>> group_by_;
+  vector<unique_ptr<Expression>> query_expressions_;
+  vector<Table *>                tables_;
+  FilterStmt                    *filter_stmt_ = nullptr;
+  vector<unique_ptr<Expression>> group_by_;
 };

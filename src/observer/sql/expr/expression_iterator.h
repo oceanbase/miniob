@@ -14,15 +14,14 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <functional>
-#include <memory>
-
-#include "common/rc.h"
+#include "common/sys/rc.h"
+#include "common/lang/functional.h"
+#include "common/lang/memory.h"
 
 class Expression;
 
 class ExpressionIterator
 {
 public:
-  static RC iterate_child_expr(Expression &expr, std::function<RC(std::unique_ptr<Expression> &)> callback);
+  static RC iterate_child_expr(Expression &expr, function<RC(unique_ptr<Expression> &)> callback);
 };

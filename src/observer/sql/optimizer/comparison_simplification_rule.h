@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "sql/optimizer/rewrite_rule.h"
 
 class LogicalOperator;
@@ -31,7 +31,7 @@ public:
   ComparisonSimplificationRule()          = default;
   virtual ~ComparisonSimplificationRule() = default;
 
-  RC rewrite(std::unique_ptr<Expression> &expr, bool &change_made) override;
+  RC rewrite(unique_ptr<Expression> &expr, bool &change_made) override;
 
 private:
 };

@@ -14,17 +14,16 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <vector>
-
+#include "common/lang/vector.h"
 #include "sql/expr/tuple.h"
 #include "common/value.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 
 template <typename ExprPointerType>
 class ExpressionTuple : public Tuple
 {
 public:
-  ExpressionTuple(const std::vector<ExprPointerType> &expressions) : expressions_(expressions) {}
+  ExpressionTuple(const vector<ExprPointerType> &expressions) : expressions_(expressions) {}
   virtual ~ExpressionTuple() = default;
 
   void set_tuple(const Tuple *tuple) { child_tuple_ = tuple; }
@@ -86,6 +85,6 @@ private:
   }
 
 private:
-  const std::vector<ExprPointerType> &expressions_;
-  const Tuple                        *child_tuple_ = nullptr;
+  const vector<ExprPointerType> &expressions_;
+  const Tuple                   *child_tuple_ = nullptr;
 };

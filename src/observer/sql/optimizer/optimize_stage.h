@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "session/session.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/physical_operator.h"
@@ -47,7 +47,7 @@ private:
    * @param sql_event   包含SQL信息的事件
    * @param logical_operator  生成的逻辑计划
    */
-  RC create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_logical_plan(SQLStageEvent *sql_event, unique_ptr<LogicalOperator> &logical_operator);
 
   /**
    * @brief 重写逻辑计划
@@ -55,14 +55,14 @@ private:
    * 规则改写也是一个递归的过程。
    * @param logical_operator 要改写的逻辑计划
    */
-  RC rewrite(std::unique_ptr<LogicalOperator> &logical_operator);
+  RC rewrite(unique_ptr<LogicalOperator> &logical_operator);
 
   /**
    * @brief 优化逻辑计划
    * @details 当前什么都没做。可以增加每个逻辑计划的代价模型，然后根据代价模型进行优化。
    * @param logical_operator 需要优化的逻辑计划
    */
-  RC optimize(std::unique_ptr<LogicalOperator> &logical_operator);
+  RC optimize(unique_ptr<LogicalOperator> &logical_operator);
 
   /**
    * @brief 根据逻辑计划生成物理计划
@@ -71,8 +71,8 @@ private:
    * 而物理计划描述怎么做，比如如何从某张表按照什么条件获取什么数据，是否使用索引，使用哪个索引等。
    * @param physical_operator 生成的物理计划。通常是一个多叉树的形状，这里就拿着根节点就可以了。
    */
-  RC generate_physical_plan(std::unique_ptr<LogicalOperator> &logical_operator,
-      std::unique_ptr<PhysicalOperator> &physical_operator, Session *session);
+  RC generate_physical_plan(
+      unique_ptr<LogicalOperator> &logical_operator, unique_ptr<PhysicalOperator> &physical_operator, Session *session);
 
 private:
   LogicalPlanGenerator  logical_plan_generator_;   ///< 根据SQL生成逻辑计划

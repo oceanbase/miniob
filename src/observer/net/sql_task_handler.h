@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "session/session_stage.h"
 #include "sql/executor/execute_stage.h"
 #include "sql/optimizer/optimize_stage.h"

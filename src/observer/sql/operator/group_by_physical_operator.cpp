@@ -11,9 +11,9 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by WangYunlai on 2024/06/11.
 //
-#include <algorithm>
 
 #include "common/log/log.h"
+#include "common/lang/ranges.h"
 #include "sql/operator/group_by_physical_operator.h"
 #include "sql/expr/expression_tuple.h"
 #include "sql/expr/composite_tuple.h"
@@ -37,7 +37,7 @@ void GroupByPhysicalOperator::create_aggregator_list(AggregatorList &aggregator_
 {
   aggregator_list.clear();
   aggregator_list.reserve(aggregate_expressions_.size());
-  ranges::for_each(aggregate_expressions_, [&aggregator_list](Expression *expr) {
+  std::ranges::for_each(aggregate_expressions_, [&aggregator_list](Expression *expr) {
     auto *aggregate_expr = static_cast<AggregateExpr *>(expr);
     aggregator_list.emplace_back(aggregate_expr->create_aggregator());
   });

@@ -27,5 +27,5 @@ public:
   PredicateRewriteRule()          = default;
   virtual ~PredicateRewriteRule() = default;
 
-  RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) override;
+  RC rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made) override;
 };

@@ -42,9 +42,9 @@ public:
   RC  spec_at(int index, TupleCellSpec &spec) const override;
   RC  find_cell(const TupleCellSpec &spec, Value &cell) const override;
 
-  void   add_tuple(std::unique_ptr<Tuple> tuple);
+  void   add_tuple(unique_ptr<Tuple> tuple);
   Tuple &tuple_at(size_t index);
 
 private:
-  std::vector<std::unique_ptr<Tuple>> tuples_;
+  vector<unique_ptr<Tuple>> tuples_;
 };

@@ -14,9 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
-
-#include "common/rc.h"
+#include "common/sys/rc.h"
+#include "common/lang/memory.h"
 
 class LogicalOperator;
 class Expression;
@@ -30,7 +29,7 @@ class RewriteRule
 public:
   virtual ~RewriteRule() = default;
 
-  virtual RC rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made) = 0;
+  virtual RC rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made) = 0;
 };
 
 /**
@@ -42,5 +41,5 @@ class ExpressionRewriteRule
 public:
   virtual ~ExpressionRewriteRule() = default;
 
-  virtual RC rewrite(std::unique_ptr<Expression> &expr, bool &change_made) = 0;
+  virtual RC rewrite(unique_ptr<Expression> &expr, bool &change_made) = 0;
 };

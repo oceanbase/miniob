@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/mutex.h"
 #include "common/lang/unordered_map.h"
 #include "common/types.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "storage/buffer/page.h"
 
 class DiskBufferPool;
@@ -66,7 +66,7 @@ struct DoubleWritePageKeyHash
 {
   size_t operator()(const DoubleWritePageKey &key) const
   {
-    return std::hash<int32_t>()(key.buffer_pool_id) ^ std::hash<PageNum>()(key.page_num);
+    return hash<int32_t>()(key.buffer_pool_id) ^ hash<PageNum>()(key.page_num);
   }
 };
 

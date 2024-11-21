@@ -27,8 +27,7 @@ See the Mulan PSL v2 for more details. */
 class HashGroupByPhysicalOperator : public GroupByPhysicalOperator
 {
 public:
-  HashGroupByPhysicalOperator(
-      std::vector<std::unique_ptr<Expression>> &&group_by_exprs, std::vector<Expression *> &&expressions);
+  HashGroupByPhysicalOperator(vector<unique_ptr<Expression>> &&group_by_exprs, vector<Expression *> &&expressions);
 
   virtual ~HashGroupByPhysicalOperator() = default;
 
@@ -44,19 +43,19 @@ private:
   using AggregatorList = GroupByPhysicalOperator::AggregatorList;
   using GroupValueType = GroupByPhysicalOperator::GroupValueType;
   /// 聚合出来的一组数据
-  using GroupType = std::tuple<ValueListTuple, GroupValueType>;
+  using GroupType = tuple<ValueListTuple, GroupValueType>;
 
 private:
   RC find_group(const Tuple &child_tuple, GroupType *&found_group);
 
 private:
-  std::vector<std::unique_ptr<Expression>> group_by_exprs_;
+  vector<unique_ptr<Expression>> group_by_exprs_;
 
   /// 一组一条数据
   /// pair的first是group by 的值列表，second是计算出来的表达式值列表
   /// TODO 改成hash/unordered_map
-  std::vector<GroupType> groups_;
+  vector<GroupType> groups_;
 
-  std::vector<GroupType>::iterator current_group_;
-  bool                             first_emited_ = false;  /// 第一条数据是否已经输出
+  vector<GroupType>::iterator current_group_;
+  bool                        first_emited_ = false;  /// 第一条数据是否已经输出
 };

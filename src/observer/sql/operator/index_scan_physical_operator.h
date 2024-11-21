@@ -32,7 +32,7 @@ public:
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::INDEX_SCAN; }
 
-  std::string param() const override;
+  string param() const override;
 
   RC open(Trx *trx) override;
   RC next() override;
@@ -40,7 +40,7 @@ public:
 
   Tuple *current_tuple() override;
 
-  void set_predicates(std::vector<std::unique_ptr<Expression>> &&exprs);
+  void set_predicates(vector<unique_ptr<Expression>> &&exprs);
 
 private:
   // 与TableScanPhysicalOperator代码相同，可以优化
@@ -62,5 +62,5 @@ private:
   bool  left_inclusive_  = false;
   bool  right_inclusive_ = false;
 
-  std::vector<std::unique_ptr<Expression>> predicates_;
+  vector<unique_ptr<Expression>> predicates_;
 };

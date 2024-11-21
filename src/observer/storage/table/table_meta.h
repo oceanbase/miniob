@@ -14,13 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <span>
-
 #include "common/lang/serializable.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "common/types.h"
+#include "common/lang/span.h"
 #include "storage/field/field_meta.h"
 #include "storage/index/index_meta.h"
 
@@ -38,8 +35,8 @@ public:
 
   void swap(TableMeta &other) noexcept;
 
-  RC init(int32_t table_id, const char *name, const std::vector<FieldMeta> *trx_fields,
-      std::span<const AttrInfoSqlNode> attributes, StorageFormat storage_format);
+  RC init(int32_t table_id, const char *name, const vector<FieldMeta> *trx_fields,
+      span<const AttrInfoSqlNode> attributes, StorageFormat storage_format);
 
   RC add_index(const IndexMeta &index);
 
@@ -50,8 +47,8 @@ public:
   const FieldMeta    *field(int index) const;
   const FieldMeta    *field(const char *name) const;
   const FieldMeta    *find_field_by_offset(int offset) const;
-  auto                field_metas() const -> const std::vector<FieldMeta>                *{ return &fields_; }
-  auto                trx_fields() const -> std::span<const FieldMeta>;
+  auto                field_metas() const -> const vector<FieldMeta>                *{ return &fields_; }
+  auto                trx_fields() const -> span<const FieldMeta>;
   const StorageFormat storage_format() const { return storage_format_; }
 
   int field_num() const;  // sys field included
@@ -65,19 +62,19 @@ public:
   int record_size() const;
 
 public:
-  int  serialize(std::ostream &os) const override;
-  int  deserialize(std::istream &is) override;
+  int  serialize(ostream &os) const override;
+  int  deserialize(istream &is) override;
   int  get_serial_size() const override;
-  void to_string(std::string &output) const override;
-  void desc(std::ostream &os) const;
+  void to_string(string &output) const override;
+  void desc(ostream &os) const;
 
 protected:
-  int32_t                table_id_ = -1;
-  std::string            name_;
-  std::vector<FieldMeta> trx_fields_;
-  std::vector<FieldMeta> fields_;  // 包含sys_fields
-  std::vector<IndexMeta> indexes_;
-  StorageFormat          storage_format_;
+  int32_t           table_id_ = -1;
+  string            name_;
+  vector<FieldMeta> trx_fields_;
+  vector<FieldMeta> fields_;  // 包含sys_fields
+  vector<IndexMeta> indexes_;
+  StorageFormat     storage_format_;
 
   int record_size_ = 0;
 };

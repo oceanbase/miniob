@@ -14,8 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <string>
-
 #include "sql/stmt/stmt.h"
 
 class Table;
@@ -34,6 +32,6 @@ public:
   static RC create(Db *db, const LoadDataSqlNode &load_data, Stmt *&stmt);
 
 private:
-  Table      *table_ = nullptr;
-  std::string filename_;
+  Table *table_ = nullptr;
+  string filename_;
 };
