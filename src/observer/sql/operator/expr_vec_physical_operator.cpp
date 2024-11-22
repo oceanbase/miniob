@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-ExprVecPhysicalOperator::ExprVecPhysicalOperator(std::vector<Expression *> &&expressions)
+ExprVecPhysicalOperator::ExprVecPhysicalOperator(vector<Expression *> &&expressions)
 {
   expressions_ = std::move(expressions);
 }
@@ -44,7 +44,7 @@ RC ExprVecPhysicalOperator::next(Chunk &chunk)
   evaled_chunk_.reset();
   if (OB_SUCC(rc = child.next(chunk_))) {
     for (size_t i = 0; i < expressions_.size(); i++) {
-      auto column = std::make_unique<Column>();
+      auto column = make_unique<Column>();
       expressions_[i]->get_column(chunk_, *column);
       evaled_chunk_.add_column(std::move(column), i);
     }

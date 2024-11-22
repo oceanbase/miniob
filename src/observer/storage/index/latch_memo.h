@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "common/lang/deque.h"
 #include "common/lang/vector.h"
 #include "storage/buffer/page.h"

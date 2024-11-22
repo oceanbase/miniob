@@ -236,7 +236,7 @@ int Value::get_int() const
   switch (attr_type_) {
     case AttrType::CHARS: {
       try {
-        return (int)(std::stol(value_.pointer_value_));
+        return (int)(stol(value_.pointer_value_));
       } catch (exception const &ex) {
         LOG_TRACE("failed to convert string to number. s=%s, ex=%s", value_.pointer_value_, ex.what());
         return 0;
@@ -264,7 +264,7 @@ float Value::get_float() const
   switch (attr_type_) {
     case AttrType::CHARS: {
       try {
-        return std::stof(value_.pointer_value_);
+        return stof(value_.pointer_value_);
       } catch (exception const &ex) {
         LOG_TRACE("failed to convert string to float. s=%s, ex=%s", value_.pointer_value_, ex.what());
         return 0.0;
@@ -294,12 +294,12 @@ bool Value::get_boolean() const
   switch (attr_type_) {
     case AttrType::CHARS: {
       try {
-        float val = std::stof(value_.pointer_value_);
+        float val = stof(value_.pointer_value_);
         if (val >= EPSILON || val <= -EPSILON) {
           return true;
         }
 
-        int int_val = std::stol(value_.pointer_value_);
+        int int_val = stol(value_.pointer_value_);
         if (int_val != 0) {
           return true;
         }

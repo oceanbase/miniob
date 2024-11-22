@@ -12,7 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/06/16.
 //
 
-#include <algorithm>
 #ifdef __MUSL__
 #include <errno.h>
 #else

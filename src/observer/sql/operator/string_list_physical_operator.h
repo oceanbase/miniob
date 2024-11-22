@@ -14,8 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include "common/lang/initializer_list.h"
 #include "sql/operator/physical_operator.h"
-#include <vector>
 
 /**
  * @brief 字符串列表物理算子
@@ -35,7 +35,7 @@ public:
     strings_.emplace_back(begin, end);
   }
 
-  void append(std::initializer_list<std::string> init) { strings_.emplace_back(init); }
+  void append(initializer_list<string> init) { strings_.emplace_back(init); }
 
   template <typename T>
   void append(const T &v)
@@ -70,9 +70,9 @@ public:
       return nullptr;
     }
 
-    const StringList  &string_list = *iterator_;
-    std::vector<Value> cells;
-    for (const std::string &s : string_list) {
+    const StringList &string_list = *iterator_;
+    vector<Value>     cells;
+    for (const string &s : string_list) {
 
       Value value(s.c_str());
       cells.push_back(value);
@@ -82,8 +82,8 @@ public:
   }
 
 private:
-  using StringList     = std::vector<std::string>;
-  using StringListList = std::vector<StringList>;
+  using StringList     = vector<string>;
+  using StringListList = vector<StringList>;
   StringListList           strings_;
   StringListList::iterator iterator_;
   bool                     started_ = false;

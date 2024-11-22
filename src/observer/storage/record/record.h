@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <stddef.h>
 
 #include "common/log/log.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "common/types.h"
 #include "common/lang/vector.h"
 #include "common/lang/sstream.h"
@@ -86,7 +86,7 @@ struct RIDHash
 {
   size_t operator()(const RID &rid) const noexcept
   {
-    return std::hash<PageNum>()(rid.page_num) ^ std::hash<SlotNum>()(rid.slot_num);
+    return hash<PageNum>()(rid.page_num) ^ hash<SlotNum>()(rid.slot_num);
   }
 };
 

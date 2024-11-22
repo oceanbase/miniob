@@ -8,10 +8,28 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#pragma once
+//
+// Created by Wangyunlai on 2021/5/14.
+//
 
-#include <functional>
+#include "common/sys/rc.h"
 
-using std::equal_to;
-using std::function;
-using std::hash;
+const char *strrc(RC rc)
+{
+#define DEFINE_RC(name) \
+  case RC::name: {      \
+    return #name;       \
+  } break;
+
+  switch (rc) {
+    DEFINE_RCS;
+    default: {
+      return "unknown";
+    }
+  }
+#undef DEFINE_RC
+}
+
+bool OB_SUCC(RC rc) { return rc == RC::SUCCESS; }
+
+bool OB_FAIL(RC rc) { return rc != RC::SUCCESS; }

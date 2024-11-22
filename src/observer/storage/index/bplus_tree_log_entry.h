@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/types.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "common/lang/span.h"
 #include "common/lang/string.h"
 #include "storage/index/bplus_tree.h"

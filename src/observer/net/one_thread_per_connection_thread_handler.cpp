@@ -41,7 +41,7 @@ public:
 
   RC start()
   {
-    thread_ = new thread(std::ref(*this));
+    thread_ = new thread(ref(*this));
     return RC::SUCCESS;
   }
 

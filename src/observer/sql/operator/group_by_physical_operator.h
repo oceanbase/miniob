@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include "common/lang/tuple.h"
 #include "sql/operator/physical_operator.h"
 #include "sql/expr/composite_tuple.h"
 
@@ -24,11 +25,11 @@ See the Mulan PSL v2 for more details. */
 class GroupByPhysicalOperator : public PhysicalOperator
 {
 public:
-  GroupByPhysicalOperator(std::vector<Expression *> &&expressions);
+  GroupByPhysicalOperator(vector<Expression *> &&expressions);
   virtual ~GroupByPhysicalOperator() = default;
 
 protected:
-  using AggregatorList = std::vector<std::unique_ptr<Aggregator>>;
+  using AggregatorList = vector<unique_ptr<Aggregator>>;
   /**
    * @brief 聚合出来的一组数据
    * @details
@@ -38,7 +39,7 @@ protected:
    * select a, b, sum(a) from t group by a;
    * 我们需要知道b的值是什么，虽然它不确定。
    */
-  using GroupValueType = std::tuple<AggregatorList, CompositeTuple>;
+  using GroupValueType = tuple<AggregatorList, CompositeTuple>;
 
 protected:
   void create_aggregator_list(AggregatorList &aggregator_list);
@@ -52,6 +53,6 @@ protected:
   RC evaluate(GroupValueType &group_value);
 
 protected:
-  std::vector<Expression *> aggregate_expressions_;  /// 聚合表达式
-  std::vector<Expression *> value_expressions_;      /// 计算聚合时的表达式
+  vector<Expression *> aggregate_expressions_;  /// 聚合表达式
+  vector<Expression *> value_expressions_;      /// 计算聚合时的表达式
 };

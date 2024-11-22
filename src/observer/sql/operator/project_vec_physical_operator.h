@@ -21,7 +21,7 @@ class ProjectVecPhysicalOperator : public PhysicalOperator
 {
 public:
   ProjectVecPhysicalOperator() {}
-  ProjectVecPhysicalOperator(std::vector<std::unique_ptr<Expression>> &&expressions);
+  ProjectVecPhysicalOperator(vector<unique_ptr<Expression>> &&expressions);
 
   virtual ~ProjectVecPhysicalOperator() = default;
 
@@ -33,9 +33,9 @@ public:
 
   RC tuple_schema(TupleSchema &schema) const override;
 
-  std::vector<std::unique_ptr<Expression>> &expressions() { return expressions_; }
+  vector<unique_ptr<Expression>> &expressions() { return expressions_; }
 
 private:
-  std::vector<std::unique_ptr<Expression>> expressions_;
-  Chunk                                    chunk_;
+  vector<unique_ptr<Expression>> expressions_;
+  Chunk                          chunk_;
 };

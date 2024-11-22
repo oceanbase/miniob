@@ -16,8 +16,6 @@ See the Mulan PSL v2 for more details. */
 
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <vector>
-#include <filesystem>
 
 #include "common/lang/string.h"
 #include "common/log/log.h"
@@ -358,7 +356,7 @@ RC Db::flush_meta()
     return RC::IOERR_WRITE;
   }
 
-  string buffer = std::to_string(check_point_lsn_);
+  string buffer = to_string(check_point_lsn_);
   int    n      = write(fd, buffer.c_str(), buffer.size());
   if (n < 0) {
     LOG_ERROR("Failed to write db meta file. db=%s, file=%s, errno=%s", 

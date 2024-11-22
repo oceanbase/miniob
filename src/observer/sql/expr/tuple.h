@@ -14,10 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
-#include <string>
-#include <vector>
-
 #include "common/log/log.h"
 #include "sql/expr/expression.h"
 #include "sql/expr/tuple_cell.h"
@@ -59,7 +55,7 @@ public:
   const TupleCellSpec &cell_at(int i) const { return cells_[i]; }
 
 private:
-  std::vector<TupleCellSpec> cells_;
+  vector<TupleCellSpec> cells_;
 };
 
 /**
@@ -96,10 +92,10 @@ public:
    */
   virtual RC find_cell(const TupleCellSpec &spec, Value &cell) const = 0;
 
-  virtual std::string to_string() const
+  virtual string to_string() const
   {
-    std::string str;
-    const int   cell_num = this->cell_num();
+    string    str;
+    const int cell_num = this->cell_num();
     for (int i = 0; i < cell_num - 1; i++) {
       Value cell;
       cell_at(i, cell);
@@ -173,7 +169,7 @@ public:
 
   void set_record(Record *record) { this->record_ = record; }
 
-  void set_schema(const Table *table, const std::vector<FieldMeta> *fields)
+  void set_schema(const Table *table, const vector<FieldMeta> *fields)
   {
     table_ = table;
     // fix:join当中会多次调用右表的open,open当中会调用set_scheme，从而导致tuple当中会存储
@@ -246,9 +242,9 @@ public:
   const Record &record() const { return *record_; }
 
 private:
-  Record                  *record_ = nullptr;
-  const Table             *table_  = nullptr;
-  std::vector<FieldExpr *> speces_;
+  Record             *record_ = nullptr;
+  const Table        *table_  = nullptr;
+  vector<FieldExpr *> speces_;
 };
 
 /**
@@ -263,12 +259,9 @@ public:
   ProjectTuple()          = default;
   virtual ~ProjectTuple() = default;
 
-  void set_expressions(std::vector<std::unique_ptr<Expression>> &&expressions)
-  {
-    expressions_ = std::move(expressions);
-  }
+  void set_expressions(vector<unique_ptr<Expression>> &&expressions) { expressions_ = std::move(expressions); }
 
-  auto get_expressions() const -> const std::vector<std::unique_ptr<Expression>> & { return expressions_; }
+  auto get_expressions() const -> const vector<unique_ptr<Expression>> & { return expressions_; }
 
   void set_tuple(Tuple *tuple) { this->tuple_ = tuple; }
 
@@ -306,8 +299,8 @@ public:
   }
 #endif
 private:
-  std::vector<std::unique_ptr<Expression>> expressions_;
-  Tuple                                   *tuple_ = nullptr;
+  vector<unique_ptr<Expression>> expressions_;
+  Tuple                         *tuple_ = nullptr;
 };
 
 /**
@@ -321,8 +314,8 @@ public:
   ValueListTuple()          = default;
   virtual ~ValueListTuple() = default;
 
-  void set_names(const std::vector<TupleCellSpec> &specs) { specs_ = specs; }
-  void set_cells(const std::vector<Value> &cells) { cells_ = cells; }
+  void set_names(const vector<TupleCellSpec> &specs) { specs_ = specs; }
+  void set_cells(const vector<Value> &cells) { cells_ = cells; }
 
   virtual int cell_num() const override { return static_cast<int>(cells_.size()); }
 
@@ -383,8 +376,8 @@ public:
   }
 
 private:
-  std::vector<Value>         cells_;
-  std::vector<TupleCellSpec> specs_;
+  vector<Value>         cells_;
+  vector<TupleCellSpec> specs_;
 };
 
 /**

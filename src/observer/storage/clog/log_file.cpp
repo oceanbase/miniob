@@ -331,7 +331,7 @@ RC LogFileManager::next_file(LogFileWriter &file_writer)
     lsn = log_files_.rbegin()->first + max_entry_number_per_file_;
   }
 
-  string filename = file_prefix_ + std::to_string(lsn) + file_suffix_;
+  string filename = file_prefix_ + to_string(lsn) + file_suffix_;
   filesystem::path file_path = directory_ / filename;
   log_files_.emplace(lsn, file_path);
 

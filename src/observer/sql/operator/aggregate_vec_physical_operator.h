@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 class AggregateVecPhysicalOperator : public PhysicalOperator
 {
 public:
-  AggregateVecPhysicalOperator(std::vector<Expression *> &&expressions);
+  AggregateVecPhysicalOperator(vector<Expression *> &&expressions);
 
   virtual ~AggregateVecPhysicalOperator() = default;
 
@@ -64,11 +64,11 @@ private:
     }
 
   private:
-    std::vector<void *> data_;
+    vector<void *> data_;
   };
-  std::vector<Expression *> aggregate_expressions_;  /// 聚合表达式
-  std::vector<Expression *> value_expressions_;
-  Chunk                     chunk_;
-  Chunk                     output_chunk_;
-  AggregateValues           aggr_values_;
+  vector<Expression *> aggregate_expressions_;  /// 聚合表达式
+  vector<Expression *> value_expressions_;
+  Chunk                chunk_;
+  Chunk                output_chunk_;
+  AggregateValues      aggr_values_;
 };

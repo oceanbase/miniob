@@ -20,7 +20,7 @@ See the Mulan PSL v2 for more details. */
 class CalcPhysicalOperator : public PhysicalOperator
 {
 public:
-  CalcPhysicalOperator(std::vector<std::unique_ptr<Expression>> &&expressions)
+  CalcPhysicalOperator(vector<unique_ptr<Expression>> &&expressions)
       : expressions_(std::move(expressions)), tuple_(expressions_)
   {}
 
@@ -28,8 +28,8 @@ public:
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::CALC; }
 
-  std::string name() const override { return "CALC"; }
-  std::string param() const override { return ""; }
+  string name() const override { return "CALC"; }
+  string param() const override { return ""; }
 
   RC open(Trx *trx) override { return RC::SUCCESS; }
   RC next() override
@@ -57,18 +57,18 @@ public:
 
   Tuple *current_tuple() override { return &tuple_; }
 
-  const std::vector<std::unique_ptr<Expression>> &expressions() const { return expressions_; }
+  const vector<unique_ptr<Expression>> &expressions() const { return expressions_; }
 
   RC tuple_schema(TupleSchema &schema) const override
   {
-    for (const std::unique_ptr<Expression> &expression : expressions_) {
+    for (const unique_ptr<Expression> &expression : expressions_) {
       schema.append_cell(expression->name());
     }
     return RC::SUCCESS;
   }
 
 private:
-  std::vector<std::unique_ptr<Expression>>     expressions_;
-  ExpressionTuple<std::unique_ptr<Expression>> tuple_;
-  bool                                         emitted_ = false;
+  vector<unique_ptr<Expression>>          expressions_;
+  ExpressionTuple<unique_ptr<Expression>> tuple_;
+  bool                                    emitted_ = false;
 };

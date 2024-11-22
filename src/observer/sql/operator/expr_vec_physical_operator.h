@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 class ExprVecPhysicalOperator : public PhysicalOperator
 {
 public:
-  ExprVecPhysicalOperator(std::vector<Expression *> &&expressions);
+  ExprVecPhysicalOperator(vector<Expression *> &&expressions);
 
   virtual ~ExprVecPhysicalOperator() = default;
 
@@ -30,7 +30,7 @@ public:
   RC close() override;
 
 private:
-  std::vector<Expression *> expressions_;  /// 表达式
-  Chunk                     chunk_;
-  Chunk                     evaled_chunk_;
+  vector<Expression *> expressions_;  /// 表达式
+  Chunk                chunk_;
+  Chunk                evaled_chunk_;
 };

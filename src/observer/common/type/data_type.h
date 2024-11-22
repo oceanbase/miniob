@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/array.h"
 #include "common/lang/memory.h"
 #include "common/lang/string.h"
-#include "common/rc.h"
+#include "common/sys/rc.h"
 #include "common/type/attr_type.h"
 
 class Value;

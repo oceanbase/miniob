@@ -14,9 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
-#include <vector>
-
 #include "sql/expr/expression.h"
 
 /**
@@ -55,15 +52,15 @@ public:
 
   virtual LogicalOperatorType type() const = 0;
 
-  void        add_child(std::unique_ptr<LogicalOperator> oper);
-  auto        children() -> std::vector<std::unique_ptr<LogicalOperator>>        &{ return children_; }
-  auto        expressions() -> std::vector<std::unique_ptr<Expression>>        &{ return expressions_; }
+  void        add_child(unique_ptr<LogicalOperator> oper);
+  auto        children() -> vector<unique_ptr<LogicalOperator>>        &{ return children_; }
+  auto        expressions() -> vector<unique_ptr<Expression>>        &{ return expressions_; }
   static bool can_generate_vectorized_operator(const LogicalOperatorType &type);
 
 protected:
-  std::vector<std::unique_ptr<LogicalOperator>> children_;  ///< 子算子
+  vector<unique_ptr<LogicalOperator>> children_;  ///< 子算子
 
   ///< 表达式，比如select中的列，where中的谓词等等，都可以使用表达式来表示
   ///< 表达式能是一个常量，也可以是一个函数，也可以是一个列，也可以是一个子查询等等
-  std::vector<std::unique_ptr<Expression>> expressions_;
+  vector<unique_ptr<Expression>> expressions_;
 };

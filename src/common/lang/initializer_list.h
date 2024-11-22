@@ -8,29 +8,8 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Longda on 2021/4/20.
-//
+#pragma once
 
-#include "common/metrics/timer_snapshot.h"
-#include <sstream>
+#include <initializer_list>
 
-namespace common {
-
-TimerSnapshot::TimerSnapshot() {}
-
-TimerSnapshot::~TimerSnapshot() {}
-
-double TimerSnapshot::get_tps() { return tps; }
-
-void TimerSnapshot::set_tps(double tps) { this->tps = tps; }
-
-std::string TimerSnapshot::to_string()
-{
-  std::stringstream oss;
-
-  oss << HistogramSnapShot::to_string() << ",tps:" << tps;
-
-  return oss.str();
-}
-}  // namespace common
+using std::initializer_list;

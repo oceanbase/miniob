@@ -12,14 +12,12 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2024/05/29.
 //
 
-#include <algorithm>
-
 #include "common/log/log.h"
 #include "common/lang/string.h"
+#include "common/lang/ranges.h"
 #include "sql/parser/expression_binder.h"
 #include "sql/expr/expression_iterator.h"
 
-using namespace std;
 using namespace common;
 
 Table *BinderContext::find_table(const char *table_name) const
@@ -386,7 +384,7 @@ RC check_aggregate_expression(AggregateExpr &expression)
   }
 
   // 子表达式中不能再包含聚合表达式
-  function<RC(std::unique_ptr<Expression>&)> check_aggregate_expr = [&](unique_ptr<Expression> &expr) -> RC {
+  function<RC(unique_ptr<Expression>&)> check_aggregate_expr = [&](unique_ptr<Expression> &expr) -> RC {
     RC rc = RC::SUCCESS;
     if (expr->type() == ExprType::AGGREGATION) {
       LOG_WARN("aggregate expression cannot be nested");

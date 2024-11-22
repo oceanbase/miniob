@@ -12,8 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2024/05/30.
 //
 
-#include <memory>
-
 #include "common/log/log.h"
 #include "sql/operator/group_by_logical_operator.h"
 #include "sql/expr/expression.h"

@@ -30,7 +30,10 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/sstream.h"
 #include "common/lang/set.h"
 
+using std::stof;
+using std::stol;
 using std::string;
+using std::to_string;
 
 namespace common {
 

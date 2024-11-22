@@ -8,16 +8,8 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-//
-// Created by Longda on 2021/4/20.
-//
+#pragma once
 
-#include "reservoir.h"
+#include <tuple>
 
-using namespace common;
-
-Reservoir::Reservoir(RandomGenerator &random) : random(random) {}
-
-Reservoir::~Reservoir() {}
-
-size_t Reservoir::next(size_t range) { return random.next(range); }
+using std::tuple;
