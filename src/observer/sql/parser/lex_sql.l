@@ -47,7 +47,6 @@ while (0);
 extern int atoi();
 extern double atof();
 
-std::vector<char *> allocated_strings;
 #define RETURN_TOKEN(token) LOG_DEBUG("%s", #token);return token
 %}
 
@@ -121,7 +120,7 @@ GROUP                                   RETURN_TOKEN(GROUP);
 BY                                      RETURN_TOKEN(BY);
 STORAGE                                 RETURN_TOKEN(STORAGE);
 FORMAT                                  RETURN_TOKEN(FORMAT);
-{ID}                                    yylval->string=strdup(yytext); allocated_strings.push_back(yylval->string); RETURN_TOKEN(ID);
+{ID}                                    yylval->string=strdup(yytext); static_cast<std::vector<char*>*>(yyextra)->push_back(yylval->string); RETURN_TOKEN(ID);
 "("                                     RETURN_TOKEN(LBRACE);
 ")"                                     RETURN_TOKEN(RBRACE);
 
@@ -138,18 +137,12 @@ FORMAT                                  RETURN_TOKEN(FORMAT);
 "-" |
 "*" |
 "/"                                     { return yytext[0]; }
-\"[^"]*\"                               yylval->string = strdup(yytext); allocated_strings.push_back(yylval->string); RETURN_TOKEN(SSS);
-'[^']*\'                                yylval->string = strdup(yytext); allocated_strings.push_back(yylval->string); RETURN_TOKEN(SSS);
+\"[^"]*\"                               yylval->string = strdup(yytext); static_cast<std::vector<char*>*>(yyextra)->push_back(yylval->string); RETURN_TOKEN(SSS);
+'[^']*\'                                yylval->string = strdup(yytext); static_cast<std::vector<char*>*>(yyextra)->push_back(yylval->string); RETURN_TOKEN(SSS);
 
 .                                       LOG_DEBUG("Unknown character [%c]",yytext[0]); return yytext[0];
 %%
 
 void scan_string(const char *str, yyscan_t scanner) {
   yy_switch_to_buffer(yy_scan_string(str, scanner), scanner);
-}
-void free_allocated_strings() {
-    for (char *ptr : allocated_strings) {
-        free(ptr);
-    }
-    allocated_strings.clear();
 }
