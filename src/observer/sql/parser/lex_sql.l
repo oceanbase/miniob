@@ -27,6 +27,7 @@ while (0);
 %{
 #include<string.h>
 #include<stdio.h>
+#include <vector>
 
 /**
  * flex 代码包含三个部分，使用 %% 分隔
@@ -119,7 +120,7 @@ GROUP                                   RETURN_TOKEN(GROUP);
 BY                                      RETURN_TOKEN(BY);
 STORAGE                                 RETURN_TOKEN(STORAGE);
 FORMAT                                  RETURN_TOKEN(FORMAT);
-{ID}                                    yylval->cstring=strdup(yytext); RETURN_TOKEN(ID);
+{ID}                                    yylval->cstring=strdup(yytext); static_cast<std::vector<char*>*>(yyextra)->push_back(yylval->cstring); RETURN_TOKEN(ID);
 "("                                     RETURN_TOKEN(LBRACE);
 ")"                                     RETURN_TOKEN(RBRACE);
 
@@ -136,8 +137,8 @@ FORMAT                                  RETURN_TOKEN(FORMAT);
 "-" |
 "*" |
 "/"                                     { return yytext[0]; }
-\"[^"]*\"                               yylval->cstring = strdup(yytext); RETURN_TOKEN(SSS);
-'[^']*\'                                yylval->cstring = strdup(yytext); RETURN_TOKEN(SSS);
+\"[^"]*\"                               yylval->cstring = strdup(yytext); static_cast<std::vector<char*>*>(yyextra)->push_back(yylval->cstring); RETURN_TOKEN(SSS);
+'[^']*\'                                yylval->cstring = strdup(yytext); static_cast<std::vector<char*>*>(yyextra)->push_back(yylval->cstring); RETURN_TOKEN(SSS);
 
 .                                       LOG_DEBUG("Unknown character [%c]",yytext[0]); return yytext[0];
 %%
