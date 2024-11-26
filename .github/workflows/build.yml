@@ -19,7 +19,7 @@ jobs:
 
     steps:
     - name: Checkout repository and submodules
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Init
       shell: bash
@@ -67,7 +67,7 @@ jobs:
         brew install bison
 
     - name: Checkout repository and submodules
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
         
     - name: Build
       shell: bash
