@@ -1279,20 +1279,20 @@ RC BplusTreeHandler::insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, 
     return RC::RECORD_DUPLICATE_KEY;
   }
 
+
+  Frame *new_frame = nullptr;
    // 添加预分配逻辑，当节点接近满时提前分配新节点
   if (leaf_node.size() < leaf_node.max_size() - 5) {
-    Frame *new_frame = nullptr;
     RC     rc        = split<LeafIndexNodeHandler>(mtr, frame, new_frame);
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to split leaf node. rc=%d:%s", rc, strrc(rc));
       return rc;
     }
+    LeafIndexNodeHandler new_index_node(mtr, file_header_, new_frame);
+    new_index_node.set_next_page(leaf_node.next_page());
+    new_index_node.set_parent_page_num(leaf_node.parent_page_num());
+    leaf_node.set_next_page(new_frame->page_num());
   }
-
-  LeafIndexNodeHandler new_index_node(mtr, file_header_, new_frame);
-  new_index_node.set_next_page(leaf_node.next_page());
-  new_index_node.set_parent_page_num(leaf_node.parent_page_num());
-  leaf_node.set_next_page(new_frame->page_num());
 
   if (leaf_node.size() < leaf_node.max_size()) {
       leaf_node.insert(insert_position, key, (const char *)rid);
@@ -1301,12 +1301,12 @@ RC BplusTreeHandler::insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, 
       return RC::SUCCESS;
   }
 
-  Frame *new_frame = nullptr;
   RC rc = split<LeafIndexNodeHandler>(mtr, frame, new_frame);
   if (OB_FAIL(rc)) {
       LOG_WARN("failed to split leaf node. rc=%d:%s", rc, strrc(rc));
       return rc;
   }
+  // 避免重复声明，不再重复声明 new_index_node，而是直接使用之前声明过的 new_frame 进行操作
   LeafIndexNodeHandler new_index_node(mtr, file_header_, new_frame);
   new_index_node.set_next_page(leaf_node.next_page());
   new_index_node.set_parent_page_num(leaf_node.parent_page_num());
@@ -1422,6 +1422,15 @@ RC BplusTreeHandler::insert_entry_into_parent(BplusTreeMiniTransaction &mtr, Fra
   return rc;
 }
 
+
+template <typename IndexNodeHandlerType>
+void BplusTreeHandler::initializeNewNode(BplusTreeMiniTransaction &mtr, Frame *new_frame, IndexNodeHandlerType &old_node)
+{
+    IndexNodeHandlerType new_node(mtr, file_header_, new_frame);
+    new_node.init_empty();
+    new_node.set_parent_page_num(old_node.parent_page_num());
+}
+
 /**
  * split one full node into two
  */
@@ -1439,6 +1448,8 @@ RC BplusTreeHandler::split(BplusTreeMiniTransaction &mtr, Frame *frame, Frame *&
 
   mtr.latch_memo().xlatch(new_frame);
 
+  // 正确声明 new_node
+  IndexNodeHandlerType new_node(mtr, file_header_, new_frame); 
   // 封装初始化新节点的操作
   initializeNewNode<IndexNodeHandlerType>(mtr, new_frame, old_node);
 
