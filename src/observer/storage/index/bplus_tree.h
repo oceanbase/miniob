@@ -49,39 +49,39 @@ enum class BplusTreeOperationType
  * @brief 属性比较(BplusTree)
  * @ingroup BPlusTree
  */
+ /*
+ 优化描述：@sjk
+ 在 operator() 函数中，将 (void *) 类型转换替换为 reinterpret_cast 为更具体的类型转换，如 reinterpret_cast<const int*>(v1) 和 reinterpret_cast<const float*>(v1)，提高类型安全性。
+ */
 class AttrComparator
 {
 public:
-  void init(AttrType type, int length)
-  {
-    attr_type_   = type;
-    attr_length_ = length;
-  }
-
-  int attr_length() const { return attr_length_; }
-
-  int operator()(const char *v1, const char *v2) const
-  {
-    switch (attr_type_) {
-      case INTS: {
-        return common::compare_int((void *)v1, (void *)v2);
-      } break;
-      case FLOATS: {
-        return common::compare_float((void *)v1, (void *)v2);
-      }
-      case CHARS: {
-        return common::compare_string((void *)v1, attr_length_, (void *)v2, attr_length_);
-      }
-      default: {
-        ASSERT(false, "unknown attr type. %d", attr_type_);
-        return 0;
-      }
+    void init(AttrType type, int length)
+    {
+        attr_type_ = type;
+        attr_length_ = length;
     }
-  }
+
+    int attr_length() const { return attr_length_; }
+
+    int operator()(const char* v1, const char* v2) const
+    {
+        switch (attr_type_) {
+            case INTS:
+                return common::compare_int(reinterpret_cast<const int*>(v1), reinterpret_cast<const int*>(v2));
+            case FLOATS:
+                return common::compare_float(reinterpret_cast<const float*>(v1), reinterpret_cast<const float*>(v2));
+            case CHARS:
+                return common::compare_string(v1, attr_length_, v2, attr_length_);
+            default:
+                ASSERT(false, "unknown attr type. %d", attr_type_);
+                return 0;
+        }
+    }
 
 private:
-  AttrType attr_type_;
-  int      attr_length_;
+    AttrType attr_type_;
+    int      attr_length_;
 };
 
 /**
@@ -116,46 +116,39 @@ private:
  * @brief 属性打印,调试使用(BplusTree)
  * @ingroup BPlusTree
  */
+/*
+优化描述：@sjk
+在 operator() 函数中，对于 CHARS 类型，使用 std::string(v, v + attr_length_) 直接构造字符串，避免手动迭代字符，提高代码简洁性和可读性。
+ */
 class AttrPrinter
 {
 public:
-  void init(AttrType type, int length)
-  {
-    attr_type_   = type;
-    attr_length_ = length;
-  }
-
-  int attr_length() const { return attr_length_; }
-
-  std::string operator()(const char *v) const
-  {
-    switch (attr_type_) {
-      case INTS: {
-        return std::to_string(*(int *)v);
-      } break;
-      case FLOATS: {
-        return std::to_string(*(float *)v);
-      }
-      case CHARS: {
-        std::string str;
-        for (int i = 0; i < attr_length_; i++) {
-          if (v[i] == 0) {
-            break;
-          }
-          str.push_back(v[i]);
-        }
-        return str;
-      }
-      default: {
-        ASSERT(false, "unknown attr type. %d", attr_type_);
-      }
+    void init(AttrType type, int length)
+    {
+        attr_type_ = type;
+        attr_length_ = length;
     }
-    return std::string();
-  }
+
+    int attr_length() const { return attr_length_; }
+
+    std::string operator()(const char* v) const
+    {
+        switch (attr_type_) {
+            case INTS:
+                return std::to_string(*reinterpret_cast<const int*>(v));
+            case FLOATS:
+                return std::to_string(*reinterpret_cast<const float*>(v));
+            case CHARS:
+                return std::string(v, v + attr_length_);
+            default:
+                ASSERT(false, "unknown attr type. %d", attr_type_);
+                return "";
+        }
+    }
 
 private:
-  AttrType attr_type_;
-  int      attr_length_;
+    AttrType attr_type_;
+    int      attr_length_;
 };
 
 /**
@@ -191,11 +184,11 @@ private:
  */
 struct IndexFileHeader
 {
-  IndexFileHeader()
-  {
-    memset(this, 0, sizeof(IndexFileHeader));
-    root_page = BP_INVALID_PAGE_NUM;
-  }
+  IndexFileHeader() : root_page(BP_INVALID_PAGE_NUM), internal_max_size(0), leaf_max_size(0), attr_length(0), key_length(0), attr_type(AttrType::UNDEFINED) {}
+  /*
+  优化描述：@sjk
+  使用列表初始化代替 memset 来初始化结构体，使代码更清晰简洁。
+   */
   PageNum  root_page;          ///< 根节点在磁盘中的页号
   int32_t  internal_max_size;  ///< 内部节点最大的键值对数
   int32_t  leaf_max_size;      ///< 叶子节点最大的键值对数
@@ -289,12 +282,20 @@ struct InternalIndexNode : public IndexNode
 class IndexNodeHandler
 {
 public:
-  IndexNodeHandler(const IndexFileHeader &header, Frame *frame);
+  IndexNodeHandler(const IndexFileHeader& header, Frame* frame) : header_(header), node_(reinterpret_cast<IndexNode*>(frame->data())) {}
+  /*
+  优化描述：@sjk
+  在构造函数中使用 reinterpret_cast<IndexNode*>(frame->data()) 进行初始化，更清晰地表达意图。
+  */
   virtual ~IndexNodeHandler() = default;
 
   void init_empty(bool leaf);
 
-  bool is_leaf() const;
+  bool is_leaf() const { return node_->is_leaf; }
+  /*
+  优化描述：@sjk
+  将 is_leaf 函数修改为 inline 函数，提高性能。
+   */
   int  key_size() const;
   int  value_size() const;
   int  item_size() const;
@@ -326,7 +327,11 @@ protected:
 class LeafIndexNodeHandler : public IndexNodeHandler
 {
 public:
-  LeafIndexNodeHandler(const IndexFileHeader &header, Frame *frame);
+  LeafIndexNodeHandler(const IndexFileHeader& header, Frame* frame) : IndexNodeHandler(header, frame), leaf_node_(reinterpret_cast<LeafIndexNode*>(frame->data())) {}
+  /*
+  优化描述：@sjk
+  在构造函数中使用 reinterpret_cast<LeafIndexNode*>(frame->data()) 初始化 leaf_node_，更清晰。
+   */
   virtual ~LeafIndexNodeHandler() = default;
 
   void    init_empty();
@@ -543,7 +548,13 @@ private:
   void                            free_key(char *key);
 
 protected:
-  DiskBufferPool *disk_buffer_pool_ = nullptr;
+  //DiskBufferPool *disk_buffer_pool_ = nullptr;
+  std::unique_ptr<DiskBufferPool> disk_buffer_pool_;
+  /*
+  优化描述：@sjk
+  使用 std::unique_ptr<DiskBufferPool> 管理 disk_buffer_pool_ 的生命周期，避免资源泄漏。
+  */
+
   bool            header_dirty_     = false;  //
   IndexFileHeader file_header_;
 
@@ -606,7 +617,12 @@ private:
   /// 起始位置和终止位置都是有效的数据
   Frame *current_frame_ = nullptr;
 
-  common::MemPoolItem::unique_ptr right_key_;
+  //common::MemPoolItem::unique_ptr right_key_;
+  std::unique_ptr<common::MemPoolItem> right_key_;
+  /*
+  优化描述：@sjk
+  对于资源管理，如 right_key_，使用 std::unique_ptr 确保资源的正确释放。
+  */
   int                             iter_index_    = -1;
   bool                            first_emitted_ = false;
 };
