@@ -1460,13 +1460,7 @@ RC BplusTreeHandler::split(BplusTreeMiniTransaction &mtr, Frame *frame, Frame *&
   return RC::SUCCESS;
 }
 
-template <typename IndexNodeHandlerType>
-void BplusTreeHandler::initializeNewNode(BplusTreeMiniTransaction &mtr, Frame *new_frame, IndexNodeHandlerType &old_node)
-{
-    IndexNodeHandlerType new_node(mtr, file_header_, new_frame);
-    new_node.init_empty();
-    new_node.set_parent_page_num(old_node.parent_page_num());
-}
+
 
 /*
 优化信息
