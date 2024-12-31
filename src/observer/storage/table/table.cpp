@@ -540,3 +540,44 @@ RC Table::sync()
   LOG_INFO("Sync table over. table=%s", name());
   return rc;
 }
+
+RC Table::drop(const char *dir)
+{
+  // 1.drop index first
+  RC rc = RC::SUCCESS;
+  if ((rc = sync()) != RC::SUCCESS) {
+    LOG_WARN("Failed to sync table %s to disk.", name());
+  } else {
+    std::string meta_file = ::table_meta_file(dir, name());
+    // 1.drop  meta file and index file
+    if (0 != ::unlink(meta_file.c_str())) {
+      LOG_WARN("unable to delete %s meta file", name());
+      rc = RC::DELETE_FILE_ERROR;
+    } else {
+      const int index_num = table_meta_.index_num();
+      for (int i = 0; i < index_num; i++) {
+        ((BplusTreeIndex *)indexes_[i])->close();
+        const IndexMeta *index_meta = table_meta_.index(i);
+        if (index_meta != nullptr) {
+          std::string index_file = ::table_index_file(dir, name(), index_meta->name());
+          if (0 != ::unlink(index_file.c_str())) {
+            LOG_WARN("unable to delete %s meta file", name());
+            rc = RC::DELETE_FILE_ERROR;
+            break;
+          }
+        }
+      }
+    }
+  }
+  if (RC::SUCCESS == rc) {
+    // 2.destroy record handler
+    record_handler_->close();
+    delete record_handler_;
+    record_handler_ = nullptr;
+    // 3.destroy buffer pool and remove data file
+    std::string        data_file = table_data_file(dir, name());
+    BufferPoolManager &bpm       = db_->buffer_pool_manager();
+    rc                           = bpm.remove_file(data_file.c_str());
+  }
+  return rc;
+}

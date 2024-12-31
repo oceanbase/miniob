@@ -332,6 +332,8 @@ public:
 
   RC flush_page(Frame &frame);
 
+  RC remove_file(const char *file_name);
+  
   BPFrameManager    &get_frame_manager() { return frame_manager_; }
   DoubleWriteBuffer *get_dblwr_buffer() { return dblwr_buffer_.get(); }
 

@@ -110,6 +110,8 @@ public:
 
   RC sync();
 
+  RC drop(const char *dir);
+
 private:
   RC insert_entry_of_indexes(const char *record, const RID &rid);
   RC delete_entry_of_indexes(const char *record, const RID &rid, bool error_on_not_exists);

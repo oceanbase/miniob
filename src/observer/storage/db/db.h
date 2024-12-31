@@ -87,6 +87,8 @@ public:
    */
   RC sync();
 
+  RC drop_table(const char *table_name);
+  
   /// @brief 获取当前数据库的日志处理器
   LogHandler &log_handler();
 
