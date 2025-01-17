@@ -9,6 +9,7 @@ services:
     privileged: true
     ports:
       - "10000:22"
+      - "8443:8443"
     restart: unless-stopped
     environment:
       #  set the env argument PRIVATE_KEY when using ssh clone

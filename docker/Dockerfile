@@ -1,5 +1,5 @@
-FROM linuxserver/code-server:4.19.1
-#FROM codercom/code-server:4.21.1
+FROM linuxserver/code-server:latest
+# FROM codercom/code-server:4.21.1
 
 RUN apt-get  update && apt-get  install -y net-tools vim git curl wget iputils-ping gdb
 
@@ -17,7 +17,8 @@ RUN apt-get update \
 # install openssh
 RUN apt-get install -y openssh-server
 
-RUN apt-get installl -y clangd
+# install clangd
+RUN apt-get install -y clangd
 
 # 更新 code-server 所在的容器中的 PATH 环境变量
 ENV PATH="/usr/bin/gcc:${PATH}"
