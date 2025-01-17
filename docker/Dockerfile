@@ -7,6 +7,7 @@ RUN apt-get  update && apt-get  install -y net-tools vim git curl wget iputils-p
 # locale
 RUN apt-get update && apt-get install -y locales apt-utils && rm -rf /var/lib/apt/lists/* \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+
 ENV LANG en_US.utf8
 
 # dev tools
@@ -48,3 +49,5 @@ RUN mkdir -p /root/docker/bin && touch /etc/.firstrun
 COPY bin/* /root/docker/bin/
 
 RUN chmod +x /root/docker/bin/*
+
+RUN apt-get install -y lldb
