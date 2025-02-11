@@ -47,7 +47,7 @@ jobs:
         sudo apt-get update && sudo apt-get install -y lcov
         cd build_debug
         rm -rf unittest
-        lcov -c -d ./ -o coverage.info
+        lcov -c -d ./ -o coverage.info --ignore-errors source
 
     - uses: codecov/codecov-action@v3
       with:

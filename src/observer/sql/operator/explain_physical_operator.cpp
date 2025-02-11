@@ -31,8 +31,8 @@ void ExplainPhysicalOperator::generate_physical_plan()
   ss << "OPERATOR(NAME)\n";
 
   int               level = 0;
-  vector<bool> ends;
-  ends.push_back(true);
+  vector<uint8_t> ends;
+  ends.push_back(1);
   const auto children_size = static_cast<int>(children_.size());
   for (int i = 0; i < children_size - 1; i++) {
     to_string(ss, children_[i].get(), level, false /*last_child*/, ends);
@@ -83,7 +83,7 @@ Tuple *ExplainPhysicalOperator::current_tuple() { return &tuple_; }
  * @param ends 表示当前某个层级上的算子，是否已经没有其它的节点，以判断使用什么打印符号
  */
 void ExplainPhysicalOperator::to_string(
-    ostream &os, PhysicalOperator *oper, int level, bool last_child, vector<bool> &ends)
+    ostream &os, PhysicalOperator *oper, int level, bool last_child, vector<uint8_t> &ends)
 {
   for (int i = 0; i < level - 1; i++) {
     if (ends[i]) {
@@ -95,7 +95,7 @@ void ExplainPhysicalOperator::to_string(
   if (level > 0) {
     if (last_child) {
       os << "└─";
-      ends[level - 1] = true;
+      ends[level - 1] = 1;
     } else {
       os << "├─";
     }
@@ -111,7 +111,7 @@ void ExplainPhysicalOperator::to_string(
   if (static_cast<int>(ends.size()) < level + 2) {
     ends.resize(level + 2);
   }
-  ends[level + 1] = false;
+  ends[level + 1] = 0;
 
   vector<unique_ptr<PhysicalOperator>> &children = oper->children();
   const auto                                 size     = static_cast<int>(children.size());

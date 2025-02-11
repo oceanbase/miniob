@@ -159,7 +159,7 @@ INCLUDE_DIRECTORIES(. ${PROJECT_SOURCE_DIR}/deps ${PROJECT_SOURCE_DIR}/src /usr/
 
 IF(WITH_UNIT_TESTS)
     IF (ENABLE_COVERAGE)
-        SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -fprofile-arcs -ftest-coverage")
+        SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -fprofile-arcs -ftest-coverage -fprofile-update=atomic")
     ENDIF (ENABLE_COVERAGE)
     enable_testing()
 ENDIF(WITH_UNIT_TESTS)
