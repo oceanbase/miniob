@@ -41,7 +41,7 @@ public:
   }
 
 private:
-  void to_string(ostream &os, PhysicalOperator *oper, int level, bool last_child, vector<bool> &ends);
+  void to_string(ostream &os, PhysicalOperator *oper, int level, bool last_child, vector<uint8_t> &ends);
 
   void generate_physical_plan();
 
