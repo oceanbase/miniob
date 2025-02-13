@@ -38,12 +38,13 @@ title: 开源学堂在线编程环境开发 MiniOB
 2. 修改好代码之后，`Ctrl+Shift+B`构建项目，构建完毕后有一个`build_debug`的文件夹，存放编译后的可执行文件。
 3. 使用`clangd`作为语言服务器， 构建完毕后，将`build_debug`中的`compile_commands.json`文件复制到`miniob`目录中，随便打开一个cpp文件，就可以看到`clangd`开始工作。
 ![](images/cloudlab-setup-config-clangd.png)
-4. 用`F5`进行调试，关于如何`vscode`如何调试，可以参考相关的资料。修改`launch.json`文件中`program`和`args`来调试不同的可执行文件。
+4. 用`F5`进行调试，关于如何`vscode`如何调试，可以参考相关的资料:[cpp-debug](https://code.visualstudio.com/docs/cpp/cpp-debug)。修改`launch.json`文件中`program`和`args`来调试不同的可执行文件。
 ![](images/cloudlab-setup-launch-config.png)
+![](images/cloudlab-setup-debug.png)
 ## 提交作业
 实验课作业使用提交平台进行提交，提交平台：[OceanBase训练营](https://open.oceanbase.com/train?questionId=200001)
 
-训练营提交代码需要gitee/github的仓库，并且大家创建的仓库必须是设置为*私有仓库*（否则会提交失败），具体教程可以参考下面链接：
+训练营提交代码需要gitee/github的仓库，并且大家创建的仓库必须是设置为**私有仓库**（否则会提交失败），具体教程可以参考下面链接：
 
 [MiniOB GitHub 在训练营中的使用说明](https://oceanbase.github.io/miniob/game/github-introduction/)
 
@@ -52,12 +53,12 @@ title: 开源学堂在线编程环境开发 MiniOB
 点击立即提测，填入对应的仓库代码地址，`Commit id`和分支，就可以进行测试，并且可以看到测试结果。
 
 ## 注意事项
-1. 注意在线平台的实验时长的限制，到达限制之后会*回收当前环境*，但是*在持久化目录下的文件不会被清理，会保存下去*，就是上文提到的`workspace`下的文件。注意如果需要`debug`，一定要注意剩余环境时长。
+1. 注意在线平台的实验时长的限制，到达限制之后会*回收当前环境*，但是**在持久化目录下的文件不会被清理，会持久保存**，就是上文提到的`workspace`下的文件。注意如果需要`debug`，一定要注意剩余环境时长。
 2. 需要及时将代码上传到`github/gitee`上避免丢失代码。
 3. 共有5个实验，实验文档会持续更新。
 4. MiniOB的资料：[MiniOB](https://oceanbase.github.io/miniob/)
 ## 可能会出现的问题
-出现了问题优先上网搜索，查询资料然后再可以问问助教，同学和老师。
+出现了问题请先查看相关文档，对于一些文档中没有出现的异常提示/报错可以上网搜索，查询资料然后再可以问问助教，同学和老师。
 
 ### Github的网络没有问题，但是push代码失败
 1. 使用令牌来做Github的身份验证，详细参考：
