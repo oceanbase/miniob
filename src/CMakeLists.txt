@@ -5,3 +5,7 @@ ADD_SUBDIRECTORY(obclient)
 if (WITH_MEMTRACER)
     ADD_SUBDIRECTORY(memtracer)
 endif()
+
+if (WITH_CPPLINGS)
+    ADD_SUBDIRECTORY(cpplings)
+endif()

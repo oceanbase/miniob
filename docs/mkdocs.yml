@@ -47,6 +47,10 @@ nav:
     - game/gitee-instructions.md
     - game/miniob-vectordb.md
     - game/git-introduction.md
+  - 数据库系统实现原理与实践:
+    - db_course_lab/overview.md
+    - db_course_lab/cloudlab_setup.md
+    - db_course_lab/lab0.md
   - 数据库实现简明教程:
     - lectures/copyright.md
     - lectures/lecture-1.md
@@ -59,10 +63,6 @@ nav:
   - 博客:
     - blog/introduction.md
     - blog/1.md
-  - 数据库系统实现原理与实践:
-    - db_course_lab/overview.md
-    - db_course_lab/cloudlab_setup.md
-    - db_course_lab/lab0.md
 
 markdown_extensions:
   - pymdownx.highlight:

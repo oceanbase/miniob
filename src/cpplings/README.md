@@ -3,7 +3,9 @@
 
 `cpplings` 包含一些关于 C++ 语言的代码练习，希望可以帮助大家学习和编写 C++ 代码，`cpplings` 的命名参考了 [rustlings](https://github.com/rust-lang/rustlings)。当然 C++ 语言的功能及特性过于庞大和复杂，cpplings 主要包含了在做 MiniOB 相关题目过程中可能用到的一些语法特性，并不能作为完整的 C++ 语言手册来学习。也非常欢迎大家提交 issue 或 PR 来贡献更多的练习题目。
 
-在运行 `./build.sh debug` 后，该目录下每个文件都会生成一个与其对应的同名的可执行文件（位于 `build_debug/bin/cpplings` 目录下），运行该可执行文件即可查看该代码的输出结果。
+在运行 `./build.sh debug -DENABLE_ASAN=OFF` 后，该目录下每个文件都会生成一个与其对应的同名的可执行文件（位于 `build_debug/bin/cpplings` 目录下），运行该可执行文件即可查看该代码的输出结果。
+
+注意：由于 MiniOB 中会使用 ASAN 来检测内存错误，ASAN 的使用会导致代码执行变慢，练习中的例子无法很好的暴露出并发异常的问题，因此需要在编译时加上 ```-DENABLE_ASAN=OFF``` 来关闭 ASAN。也可以直接使用 g++ 来编译，例如对于 `lock.cpp` 可以通过 `g++ lock.cpp -o lock -g -lpthread` 来编译。
 
 当你未实现文件中指定的 TODO 要求时，直接运行可执行文件会报错提示，例如：
 ```
