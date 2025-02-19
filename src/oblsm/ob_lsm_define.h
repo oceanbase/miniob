@@ -9,11 +9,20 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #pragma once
+namespace oceanbase {
 
-#include <memory>
+static constexpr const char *SSTABLE_SUFFIX  = ".sst";
+static constexpr const char *MANIFEST_SUFFIX = ".mf";
 
-using std::enable_shared_from_this;
-using std::make_shared;
-using std::make_unique;
-using std::shared_ptr;
-using std::unique_ptr;
+/**
+ * @enum CompactionType
+ * @brief Defines the types of compaction strategies in an LSM-Tree or similar systems.
+ */
+enum class CompactionType
+{
+  TIRED = 0,
+  LEVELED,
+  UNKNOWN,
+};
+
+}  // namespace oceanbase

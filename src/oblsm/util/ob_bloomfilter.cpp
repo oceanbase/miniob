@@ -8,12 +8,6 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#pragma once
+#include "oblsm/util/ob_bloomfilter.h"
 
-#include <memory>
-
-using std::enable_shared_from_this;
-using std::make_shared;
-using std::make_unique;
-using std::shared_ptr;
-using std::unique_ptr;
+namespace oceanbase {}  // namespace oceanbase

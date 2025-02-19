@@ -10,10 +10,6 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
+#include <stack>
 
-using std::enable_shared_from_this;
-using std::make_shared;
-using std::make_unique;
-using std::shared_ptr;
-using std::unique_ptr;
+using std::stack;
