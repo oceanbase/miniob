@@ -23,7 +23,8 @@ See the Mulan PSL v2 for more details. */
 class Foo
 {
 public:
-  Foo() {
+  Foo()
+  {
     // TODO: 添加必要的日志信息，观察函数何时调用。
   }
 

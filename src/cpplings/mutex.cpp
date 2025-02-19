@@ -30,7 +30,6 @@ struct Node
   Node *next;
 };
 
-
 std::atomic<Node *> list_head(nullptr);
 
 // 向 `list_head` 中添加一个 value 为 `val` 的 Node 节点。

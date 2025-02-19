@@ -10,10 +10,20 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include <memory>
+#include "common/lang/vector.h"
+#include "common/lang/memory.h"
 
-using std::enable_shared_from_this;
-using std::make_shared;
-using std::make_unique;
-using std::shared_ptr;
-using std::unique_ptr;
+namespace oceanbase {
+
+class ObComparator;
+class ObLsmIterator;
+
+/**
+ * @brief Return an iterator that provided the union of the data in
+ * children. For example, an iterator that provided
+ * the union of memtable and sstable.
+ *
+ */
+ObLsmIterator *new_merging_iterator(const ObComparator *comparator, vector<unique_ptr<ObLsmIterator>> &&children);
+
+}  // namespace oceanbase

@@ -10,6 +10,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include "common/lang/string.h"
 namespace oceanbase {
 
 /**
@@ -21,7 +22,7 @@ class ObBloomfilter
 public:
   /**
    * @brief Constructs a Bloom filter with specified parameters.
-   * 
+   *
    * @param hash_func_count Number of hash functions to use. Default is 4.
    * @param totoal_bits Total number of bits in the Bloom filter. Default is 65536.
    */
@@ -32,34 +33,28 @@ public:
    * @details This method computes hash values for the given object and sets corresponding bits in the filter.
    * @param object The object to be inserted.
    */
-  void insert(const std::string &object)
-  {
-  }
+  void insert(const string &object) {}
 
   /**
    * @brief Clears all entries in the Bloom filter.
-   * 
+   *
    * @details Resets the filter, removing all previously inserted objects.
    */
-  void clear()
-  {
-  }
-  
+  void clear() {}
+
   /**
    * @brief Checks if an object is possibly in the Bloom filter.
-   * 
+   *
    * @param object The object to be checked.
    * @return true if the object might be in the filter, false if definitely not.
    */
-  bool contains(const std::string &object) const
-  {
-  }
-  
-   /**
+  bool contains(const string &object) const { return false; }
+
+  /**
    * @brief Returns the count of objects inserted into the Bloom filter.
    */
-  size_t object_count() const { return object_count_; }
-  
+  size_t object_count() const { return 0; }
+
   /**
    * @brief Checks if the Bloom filter is empty.
    * @return true if the filter is empty, false otherwise.
@@ -67,9 +62,6 @@ public:
   bool empty() const { return 0 == object_count(); }
 
 private:
-
-  /// the count of objects inserted into the Bloom filter
-  size_t object_count_;
 };
 
 }  // namespace oceanbase
