@@ -53,7 +53,7 @@ public:
   /**
    * @brief Returns the count of objects inserted into the Bloom filter.
    */
-  size_t object_count() const { return object_count_; }
+  size_t object_count() const { return 0; }
 
   /**
    * @brief Checks if the Bloom filter is empty.
@@ -62,8 +62,6 @@ public:
   bool empty() const { return 0 == object_count(); }
 
 private:
-  /// the count of objects inserted into the Bloom filter
-  size_t object_count_;
 };
 
 }  // namespace oceanbase
