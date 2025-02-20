@@ -19,6 +19,7 @@ RC SetVariableExecutor::execute(SQLStageEvent *sql_event)
 
     const char  *var_name  = stmt->var_name();
     const Value &var_value = stmt->var_value();
+    // TODO: refactor the variable configuration
     if (strcasecmp(var_name, "sql_debug") == 0) {
       bool bool_value = false;
       rc              = var_value_to_boolean(var_value, bool_value);
@@ -34,7 +35,22 @@ RC SetVariableExecutor::execute(SQLStageEvent *sql_event)
       } else {
         rc = RC::INVALID_ARGUMENT;
       }
-    } else {
+    } else if (strcasecmp(var_name, "hash_join") == 0) { // TODO: remove this configuration
+        bool bool_value = false;
+        rc              = var_value_to_boolean(var_value, bool_value);
+        if (rc == RC::SUCCESS) {
+          session->set_hash_join(bool_value);
+          LOG_TRACE("set hash_join to %d", bool_value);
+        }
+      } else if (strcasecmp(var_name, "use_cascade") == 0) {
+        // TODO: remove this params, due to the dblab needed, likely to be long-existing
+        bool bool_value = false;
+        rc              = var_value_to_boolean(var_value, bool_value);
+        if (rc == RC::SUCCESS) {
+          session->set_use_cascade(bool_value);
+          LOG_TRACE("set use_cascade to %d", bool_value);
+        }
+      } else {
       rc = RC::VARIABLE_NOT_EXISTS;
     }
 

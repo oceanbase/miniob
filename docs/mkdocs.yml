@@ -52,6 +52,7 @@ nav:
     - db_course_lab/cloudlab_setup.md
     - db_course_lab/lab0.md
     - db_course_lab/lab1.md
+    - db_course_lab/lab2.md
   - 数据库实现简明教程:
     - lectures/copyright.md
     - lectures/lecture-1.md

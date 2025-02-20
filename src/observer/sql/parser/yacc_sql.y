@@ -105,6 +105,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         EXPLAIN
         STORAGE
         FORMAT
+        ENGINE
+        ANALYZE
         EQ
         LT
         GT
@@ -152,6 +154,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <condition_list>      where
 %type <condition_list>      condition_list
 %type <cstring>             storage_format
+%type <cstring>             storage_engine
 %type <relation_list>       rel_list
 %type <expression>          expression
 %type <expression_list>     expression_list
@@ -163,6 +166,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <sql_node>            delete_stmt
 %type <sql_node>            create_table_stmt
 %type <sql_node>            drop_table_stmt
+%type <sql_node>            analyze_table_stmt
 %type <sql_node>            show_tables_stmt
 %type <sql_node>            desc_table_stmt
 %type <sql_node>            create_index_stmt
@@ -200,6 +204,7 @@ command_wrapper:
   | delete_stmt
   | create_table_stmt
   | drop_table_stmt
+  | analyze_table_stmt
   | show_tables_stmt
   | desc_table_stmt
   | create_index_stmt
@@ -256,6 +261,13 @@ drop_table_stmt:    /*drop table 语句的语法解析树*/
       $$->drop_table.relation_name = $3;
     };
 
+analyze_table_stmt:  /* analyze table 语法的语法解析树*/
+    ANALYZE TABLE ID {
+      $$ = new ParsedSqlNode(SCF_ANALYZE_TABLE);
+      $$->analyze_table.relation_name = $3;
+    }
+    ;
+
 show_tables_stmt:
     SHOW TABLES {
       $$ = new ParsedSqlNode(SCF_SHOW_TABLES);
@@ -289,7 +301,7 @@ drop_index_stmt:      /*drop index 语句的语法解析树*/
     }
     ;
 create_table_stmt:    /*create table 语句的语法解析树*/
-    CREATE TABLE ID LBRACE attr_def attr_def_list RBRACE storage_format
+    CREATE TABLE ID LBRACE attr_def attr_def_list RBRACE storage_format storage_engine
     {
       $$ = new ParsedSqlNode(SCF_CREATE_TABLE);
       CreateTableSqlNode &create_table = $$->create_table;
@@ -307,6 +319,10 @@ create_table_stmt:    /*create table 语句的语法解析树*/
       delete $5;
       if ($8 != nullptr) {
         create_table.storage_format = $8;
+      }
+      if ($9 != nullptr) {
+        create_table.storage_engine = $9;
+        free($9);
       }
     }
     ;
@@ -405,6 +421,17 @@ storage_format:
     | STORAGE FORMAT EQ ID
     {
       $$ = $4;
+    }
+    ;
+
+storage_engine:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | ENGINE EQ ID
+    {
+      $$ = $3;
     }
     ;
     

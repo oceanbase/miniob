@@ -48,13 +48,13 @@ IF (HAVE_READLINE)
     TARGET_LINK_LIBRARIES(observer_static ${READLINE_LIBRARY})
     TARGET_INCLUDE_DIRECTORIES(observer_static PRIVATE ${READLINE_INCLUDE_DIR})
     ADD_DEFINITIONS(-DUSE_READLINE)
-    MESSAGE ("observer_static use readline")
+    MESSAGE ("observer_static use readline ${READLINE_INCLUDE_DIR}")
 ELSE ()
     MESSAGE ("readline is not found")
 ENDIF()
 
 SET_TARGET_PROPERTIES(observer_static PROPERTIES OUTPUT_NAME observer)
-TARGET_LINK_LIBRARIES(observer_static ${LIBRARIES})
+TARGET_LINK_LIBRARIES(observer_static ${LIBRARIES} oblsm)
 
 # Target 必须在定义 ADD_EXECUTABLE 之后， programs 不受这个限制
 # TARGETS和PROGRAMS 的默认权限是OWNER_EXECUTE, GROUP_EXECUTE, 和WORLD_EXECUTE，即755权限， programs 都是处理脚本类

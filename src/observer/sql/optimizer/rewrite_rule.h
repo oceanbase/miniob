@@ -23,6 +23,7 @@ class Expression;
 /**
  * @brief 逻辑计划的重写规则
  * @ingroup Rewriter
+ * TODO: 重构下当前的查询改写规则，放到 cascade optimizer 中。
  */
 class RewriteRule
 {

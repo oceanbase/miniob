@@ -24,6 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/clog/disk_log_handler.h"
 #include "storage/buffer/double_write_buffer.h"
+#include "oblsm/include/ob_lsm.h"
 
 class Table;
 class LogHandler;
@@ -64,7 +65,8 @@ public:
    * @param storage_format 表的存储格式
    */
   RC create_table(const char *table_name, span<const AttrInfoSqlNode> attributes,
-      const StorageFormat storage_format = StorageFormat::ROW_FORMAT);
+      const StorageFormat storage_format = StorageFormat::ROW_FORMAT,
+      const StorageEngine storage_engine = StorageEngine::HEAP);
 
   /**
    * @brief 根据表名查找表
@@ -96,6 +98,10 @@ public:
   /// @brief 获取当前数据库的事务管理器
   TrxKit &trx_kit();
 
+  string path() const { return path_; }
+
+  oceanbase::ObLsm *lsm() { return lsm_; }
+
 private:
   /// @brief 打开所有的表。在数据库初始化的时候会执行
   RC open_all_tables();
@@ -117,6 +123,7 @@ private:
   unique_ptr<BufferPoolManager>  buffer_pool_manager_;  ///< 当前数据库的buffer pool管理器
   unique_ptr<LogHandler>         log_handler_;          ///< 当前数据库的日志处理器
   unique_ptr<TrxKit>             trx_kit_;              ///< 当前数据库的事务管理器
+  oceanbase::ObLsm              *lsm_;                  ///< 当前数据库的 LSM-Tree 存储引擎
 
   /// 给每个table都分配一个ID，用来记录日志。这里假设所有的DDL都不会并发操作，所以相关的数据都不上锁
   int32_t next_table_id_ = 0;

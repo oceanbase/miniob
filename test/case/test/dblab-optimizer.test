@@ -1,0 +1,100 @@
+-- echo initialization
+CREATE TABLE join_table_1(id int, name char);
+CREATE TABLE join_table_2(id int, num int);
+CREATE TABLE join_table_3(id int, num2 int);
+
+INSERT INTO join_table_1 VALUES (1, 'a');
+INSERT INTO join_table_1 VALUES (2, 'b');
+INSERT INTO join_table_1 VALUES (3, 'c');
+
+INSERT INTO join_table_2 VALUES (1, 2);
+INSERT INTO join_table_2 VALUES (2, 15);
+INSERT INTO join_table_2 VALUES (3, 100);
+INSERT INTO join_table_2 VALUES (4, 100);
+INSERT INTO join_table_2 VALUES (5, 100);
+INSERT INTO join_table_2 VALUES (6, 100);
+INSERT INTO join_table_2 VALUES (7, 100);
+INSERT INTO join_table_2 VALUES (8, 100);
+INSERT INTO join_table_3 VALUES (1, 120);
+INSERT INTO join_table_3 VALUES (3, 800);
+
+# 子任务1: 查询改写
+set use_cascade=0;
+set hash_join=0;
+
+-- ensure:nlj select * from join_table_1 inner join join_table_2 on join_table_1.id = join_table_2.id where join_table_2.id=1;
+select * from join_table_1 inner join join_table_2 on join_table_1.id = join_table_2.id where join_table_2.id=1;
+
+-- ensure:nlj select * from join_table_1, join_table_2 where join_table_1.id = join_table_2.id and join_table_2.id=1;
+select * from join_table_1, join_table_2 where join_table_1.id = join_table_2.id and join_table_2.id=1;
+
+-- ensure:nlj*2 select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id=join_table_3.id and join_table_2.id=1;
+select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id=join_table_3.id and join_table_2.id=1;
+
+set hash_join=1;
+
+-- ensure:hashjoin select * from join_table_1 inner join join_table_2 on join_table_1.id = join_table_2.id where join_table_2.id=1;
+select * from join_table_1 inner join join_table_2 on join_table_1.id = join_table_2.id where join_table_2.id=1;
+
+-- ensure:hashjoin select * from join_table_1, join_table_2 where join_table_1.id = join_table_2.id and join_table_2.id=1;
+select * from join_table_1, join_table_2 where join_table_1.id = join_table_2.id and join_table_2.id=1;
+
+-- ensure:hashjoin*2 select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id=join_table_3.id and join_table_2.id=1;
+select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id=join_table_3.id and join_table_2.id=1;
+
+-- ensure:hashjoin select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id join_table_2.id>join_table_3.id and join_table_2.id=1;
+-- ensure:nlj select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id>join_table_3.id and join_table_2.id=1;
+select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id>join_table_3.id and join_table_2.id=1;
+
+-- ensure:hashjoin select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id>join_table_3.id and join_table_2.id=1 and join_table_2.id>0;
+select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id>join_table_3.id and join_table_2.id=1 and join_table_2.id>0;
+
+delete from join_table_1;
+delete from join_table_2;
+delete from join_table_3;
+
+# 子任务2: 查询物理优化
+set use_cascade=1;
+
+INSERT INTO join_table_1 VALUES (1, 'a');
+INSERT INTO join_table_2 VALUES (1, 2);
+INSERT INTO join_table_3 VALUES (1, 120);
+INSERT INTO join_table_3 VALUES (3, 800);
+
+analyze table join_table_1;
+analyze table join_table_2;
+analyze table join_table_3;
+
+# 在左右表数据量很小时（两表都只有一行），此时 nested loop join 的代价较小。
+-- ensure:nlj select * from join_table_1,join_table_2 where join_table_1.id = join_table_2.id;
+select * from join_table_1,join_table_2 where join_table_1.id = join_table_2.id;
+
+INSERT INTO join_table_1 VALUES (2, 'b');
+INSERT INTO join_table_1 VALUES (3, 'c');
+INSERT INTO join_table_2 VALUES (2, 15);
+INSERT INTO join_table_2 VALUES (3, 100);
+INSERT INTO join_table_2 VALUES (4, 100);
+INSERT INTO join_table_2 VALUES (5, 100);
+INSERT INTO join_table_2 VALUES (6, 100);
+INSERT INTO join_table_2 VALUES (7, 100);
+INSERT INTO join_table_2 VALUES (8, 100);
+
+analyze table join_table_1;
+analyze table join_table_2;
+analyze table join_table_3;
+
+# 在数据量较大的场景下，此时 hash join 的代价较小。
+-- ensure:hashjoin select * from join_table_1,join_table_2 where join_table_1.id = join_table_2.id;
+select * from join_table_1,join_table_2 where join_table_1.id = join_table_2.id;
+
+# 只有等值条件才可以使用 hash join
+-- ensure:nlj select * from join_table_1,join_table_2 where join_table_1.id > join_table_2.id;
+select * from join_table_1,join_table_2 where join_table_1.id > join_table_2.id;
+
+# 三表 join
+-- ensure:hashjoin*2 select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id=join_table_3.id;
+select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id=join_table_3.id;
+
+-- ensure:hashjoin select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id<join_table_3.id;
+-- ensure:nlj select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id<join_table_3.id;
+select * from join_table_1, join_table_2, join_table_3 where join_table_1.id = join_table_2.id and join_table_2.id<join_table_3.id;

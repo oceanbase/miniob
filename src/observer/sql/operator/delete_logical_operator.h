@@ -27,6 +27,7 @@ public:
   virtual ~DeleteLogicalOperator() = default;
 
   LogicalOperatorType type() const override { return LogicalOperatorType::DELETE; }
+  OpType get_op_type() const override { return OpType::LOGICALDELETE; }
   Table              *table() const { return table_; }
 
 private:

@@ -36,7 +36,7 @@ public:
   void swap(TableMeta &other) noexcept;
 
   RC init(int32_t table_id, const char *name, const vector<FieldMeta> *trx_fields,
-      span<const AttrInfoSqlNode> attributes, StorageFormat storage_format);
+      span<const AttrInfoSqlNode> attributes, StorageFormat storage_format, StorageEngine storage_engine);
 
   RC add_index(const IndexMeta &index);
 
@@ -50,6 +50,7 @@ public:
   auto                field_metas() const -> const vector<FieldMeta>                *{ return &fields_; }
   auto                trx_fields() const -> span<const FieldMeta>;
   const StorageFormat storage_format() const { return storage_format_; }
+  const StorageEngine storage_engine() const { return storage_engine_; }
 
   int field_num() const;  // sys field included
   int sys_field_num() const;
@@ -75,6 +76,7 @@ protected:
   vector<FieldMeta> fields_;  // 包含sys_fields
   vector<IndexMeta> indexes_;
   StorageFormat     storage_format_;
+  StorageEngine     storage_engine_;
 
   int record_size_ = 0;
 };

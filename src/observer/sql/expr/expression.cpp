@@ -114,7 +114,8 @@ RC CastExpr::try_get_value(Value &result) const
 
 ComparisonExpr::ComparisonExpr(CompOp comp, unique_ptr<Expression> left, unique_ptr<Expression> right)
     : comp_(comp), left_(std::move(left)), right_(std::move(right))
-{}
+{
+}
 
 ComparisonExpr::~ComparisonExpr() {}
 
@@ -514,6 +515,10 @@ RC ArithmeticExpr::try_get_value(Value &value) const
 
 UnboundAggregateExpr::UnboundAggregateExpr(const char *aggregate_name, Expression *child)
     : aggregate_name_(aggregate_name), child_(child)
+{}
+
+UnboundAggregateExpr::UnboundAggregateExpr(const char *aggregate_name, unique_ptr<Expression> child)
+    : aggregate_name_(aggregate_name), child_(std::move(child))
 {}
 
 ////////////////////////////////////////////////////////////////////////////////

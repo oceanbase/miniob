@@ -23,6 +23,7 @@ See the Mulan PSL v2 for more details. */
 static const Json::StaticString FIELD_TABLE_ID("table_id");
 static const Json::StaticString FIELD_TABLE_NAME("table_name");
 static const Json::StaticString FIELD_STORAGE_FORMAT("storage_format");
+static const Json::StaticString FIELD_STORAGE_ENGINE("storage_engine");
 static const Json::StaticString FIELD_FIELDS("fields");
 static const Json::StaticString FIELD_INDEXES("indexes");
 
@@ -44,7 +45,8 @@ void TableMeta::swap(TableMeta &other) noexcept
 }
 
 RC TableMeta::init(int32_t table_id, const char *name, const vector<FieldMeta> *trx_fields,
-                   span<const AttrInfoSqlNode> attributes, StorageFormat storage_format)
+                   span<const AttrInfoSqlNode> attributes, StorageFormat storage_format,
+                   StorageEngine storage_engine)
 {
   if (common::is_blank(name)) {
     LOG_ERROR("Name cannot be empty");
@@ -94,6 +96,7 @@ RC TableMeta::init(int32_t table_id, const char *name, const vector<FieldMeta> *
   table_id_ = table_id;
   name_     = name;
   storage_format_ = storage_format;
+  storage_engine_ = storage_engine;
   LOG_INFO("Sussessfully initialized table meta. table id=%d, name=%s", table_id, name);
   return RC::SUCCESS;
 }
@@ -172,6 +175,7 @@ int TableMeta::serialize(ostream &ss) const
   table_value[FIELD_TABLE_ID]   = table_id_;
   table_value[FIELD_TABLE_NAME] = name_;
   table_value[FIELD_STORAGE_FORMAT] = static_cast<int>(storage_format_);
+  table_value[FIELD_STORAGE_ENGINE] = static_cast<int>(storage_engine_);
 
   Json::Value fields_value;
   for (const FieldMeta &field : fields_) {
@@ -236,12 +240,20 @@ int TableMeta::deserialize(istream &is)
   }
 
   const Json::Value &storage_format_value = table_value[FIELD_STORAGE_FORMAT];
-  if (!table_id_value.isInt()) {
+  if (!storage_format_value.isInt()) {
     LOG_ERROR("Invalid storage format. json value=%s", storage_format_value.toStyledString().c_str());
     return -1;
   }
 
   int32_t storage_format = storage_format_value.asInt();
+
+  const Json::Value &storage_engine_value = table_value[FIELD_STORAGE_ENGINE];
+  if (!storage_engine_value.isInt()) {
+    LOG_ERROR("Invalid storage engine. json value=%s", storage_engine_value.toStyledString().c_str());
+    return -1;
+  }
+
+  int32_t storage_engine = storage_engine_value.asInt();
 
   RC  rc        = RC::SUCCESS;
   int field_num = fields_value.size();
@@ -263,6 +275,7 @@ int TableMeta::deserialize(istream &is)
 
   table_id_ = table_id;
   storage_format_ = static_cast<StorageFormat>(storage_format);
+  storage_engine_ = static_cast<StorageEngine>(storage_engine);
   name_.swap(table_name);
   fields_.swap(fields);
   record_size_ = fields_.back().offset() + fields_.back().len() - fields_.begin()->offset();

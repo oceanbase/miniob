@@ -13,14 +13,3 @@ See the Mulan PSL v2 for more details. */
 #include <unordered_set>
 
 using std::unordered_set;
-
-template <class T>
-static bool is_subset(const unordered_set<T> &super_set, const unordered_set<T> &child_set)
-{
-  for (const auto &element : child_set) {
-    if (super_set.find(element) == super_set.end()) {
-      return false;
-    }
-  }
-  return true;
-}

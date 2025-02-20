@@ -24,6 +24,7 @@ public:
   virtual ~GroupByLogicalOperator() = default;
 
   LogicalOperatorType type() const override { return LogicalOperatorType::GROUP_BY; }
+  OpType get_op_type() const override { return OpType::LOGICALGROUPBY; }
 
   auto &group_by_expressions() { return group_by_expressions_; }
   auto &aggregate_expressions() { return aggregate_expressions_; }
