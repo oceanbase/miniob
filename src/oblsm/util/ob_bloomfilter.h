@@ -10,6 +10,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include "common/lang/string.h"
 namespace oceanbase {
 
 /**
@@ -32,7 +33,7 @@ public:
    * @details This method computes hash values for the given object and sets corresponding bits in the filter.
    * @param object The object to be inserted.
    */
-  void insert(const std::string &object)
+  void insert(const string &object)
   {
   }
 
@@ -51,8 +52,9 @@ public:
    * @param object The object to be checked.
    * @return true if the object might be in the filter, false if definitely not.
    */
-  bool contains(const std::string &object) const
+  bool contains(const string &object) const
   {
+    return false;
   }
   
    /**
