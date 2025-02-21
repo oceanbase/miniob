@@ -77,6 +77,8 @@ private:
 
 MiniOB 中的单测框架使用 [GTest](https://github.com/google/googletest)，在默认参数编译后，单测二进制程序位于 `$BUILD_DIR/bin/` 目录下，程序名与单测文件名对应。例如，`ob_bloomfilter_test.cpp` 对应的单测程序为 `$BUILD_DIR/bin/ob_bloomfilter_test`，通过运行该程序即可测试你的实现是否正确。
 
+注意：如需运行单测，请移除单测名称中的 `DISABLED_` 前缀。
+
 ```bash
 # 编译 miniob 代码
 ./build.sh debug --make
