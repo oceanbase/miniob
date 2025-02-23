@@ -916,6 +916,8 @@ RC BplusTreeHandler::open(LogHandler &log_handler, BufferPoolManager &bpm, const
   if (OB_FAIL(rc)) {
     LOG_WARN("Failed to open file name=%s, rc=%d:%s", file_name, rc, strrc(rc));
     return rc;
+  }else {
+    LOG_ERROR("Failed to fully open b+tree. File name: %s, Error code: %d:%s", file_name, rc, strrc(rc));
   }
 
   rc = this->open(log_handler, *disk_buffer_pool);
@@ -1258,6 +1260,15 @@ RC BplusTreeHandler::crabing_protocal_fetch_page(
   return rc;
 }
 
+
+/*
+优化信息@sjk
+预分配新节点后，在后续插入操作中，根据插入位置判断数据应插入到原节点还是新节点，减少了节点满时才进行分裂操作的等待时间，提高了插入操作的响应速度。
+同时，这种方式也能在一定程度上均衡节点的负载，避免某些节点频繁分裂而影响性能。
+通过提前分配新节点，可以将后续的插入操作分散到两个节点中，减少单个节点的压力，从而提高整体的插入效率。
+在高并发场景下，这种优化能够更好地利用系统资源，减少因节点分裂导致的性能波动，使插入操作更加稳定和高效。
+
+ */
 RC BplusTreeHandler::insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, Frame *frame, const char *key, const RID *rid)
 {
   LeafIndexNodeHandler leaf_node(mtr, file_header_, frame);
@@ -1268,20 +1279,34 @@ RC BplusTreeHandler::insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, 
     return RC::RECORD_DUPLICATE_KEY;
   }
 
-  if (leaf_node.size() < leaf_node.max_size()) {
-    leaf_node.insert(insert_position, key, (const char *)rid);
-    frame->mark_dirty();
-    // disk_buffer_pool_->unpin_page(frame); // unpin pages 由latch memo 来操作
-    return RC::SUCCESS;
-  }
 
   Frame *new_frame = nullptr;
-  RC     rc        = split<LeafIndexNodeHandler>(mtr, frame, new_frame);
-  if (OB_FAIL(rc)) {
-    LOG_WARN("failed to split leaf node. rc=%d:%s", rc, strrc(rc));
-    return rc;
+   // 添加预分配逻辑，当节点接近满时提前分配新节点
+  if (leaf_node.size() < leaf_node.max_size() - 5) {
+    RC     rc        = split<LeafIndexNodeHandler>(mtr, frame, new_frame);
+    if (OB_FAIL(rc)) {
+      LOG_WARN("failed to split leaf node. rc=%d:%s", rc, strrc(rc));
+      return rc;
+    }
+    LeafIndexNodeHandler new_index_node(mtr, file_header_, new_frame);
+    new_index_node.set_next_page(leaf_node.next_page());
+    new_index_node.set_parent_page_num(leaf_node.parent_page_num());
+    leaf_node.set_next_page(new_frame->page_num());
   }
 
+  if (leaf_node.size() < leaf_node.max_size()) {
+      leaf_node.insert(insert_position, key, (const char *)rid);
+      frame->mark_dirty();
+      // disk_buffer_pool_->unpin_page(frame); // unpin pages 由 latch memo 来操作
+      return RC::SUCCESS;
+  }
+
+  RC rc = split<LeafIndexNodeHandler>(mtr, frame, new_frame);
+  if (OB_FAIL(rc)) {
+      LOG_WARN("failed to split leaf node. rc=%d:%s", rc, strrc(rc));
+      return rc;
+  }
+  // 避免重复声明，不再重复声明 new_index_node，而是直接使用之前声明过的 new_frame 进行操作
   LeafIndexNodeHandler new_index_node(mtr, file_header_, new_frame);
   new_index_node.set_next_page(leaf_node.next_page());
   new_index_node.set_parent_page_num(leaf_node.parent_page_num());
@@ -1322,8 +1347,9 @@ RC BplusTreeHandler::insert_entry_into_parent(BplusTreeMiniTransaction &mtr, Fra
 
     frame->mark_dirty();
     new_frame->mark_dirty();
-    // disk_buffer_pool_->unpin_page(frame);
-    // disk_buffer_pool_->unpin_page(new_frame);
+    // 先释放子节点的锁，再处理根节点的更新和加锁
+    disk_buffer_pool_->unpin_page(frame);
+    disk_buffer_pool_->unpin_page(new_frame);
 
     root_frame->write_latch();  // 在root页面更新之后，别人就可以访问到了，这时候就要加上锁
     update_root_page_num_locked(mtr, root_frame->page_num());
@@ -1387,11 +1413,22 @@ RC BplusTreeHandler::insert_entry_into_parent(BplusTreeMiniTransaction &mtr, Fra
         // 虽然这里是递归调用，但是通常B+ Tree 的层高比较低（3层已经可以容纳很多数据），所以没有栈溢出风险。
         // Q: 在查找叶子节点时，我们都会尝试将没必要的锁提前释放掉，在这里插入数据时，是在向上遍历节点，
         //    理论上来说，我们可以释放更低层级节点的锁，但是并没有这么做，为什么？
+        // 递归调用前，先释放当前父节点的锁
+        disk_buffer_pool_->unpin_page(parent_frame);
         rc = insert_entry_into_parent(mtr, parent_frame, new_parent_frame, new_node.key_at(0));
       }
     }
   }
   return rc;
+}
+
+
+template <typename IndexNodeHandlerType>
+void BplusTreeHandler::initializeNewNode(BplusTreeMiniTransaction &mtr, Frame *new_frame, IndexNodeHandlerType &old_node)
+{
+    IndexNodeHandlerType new_node(mtr, file_header_, new_frame);
+    new_node.init_empty();
+    new_node.set_parent_page_num(old_node.parent_page_num());
 }
 
 /**
@@ -1411,9 +1448,10 @@ RC BplusTreeHandler::split(BplusTreeMiniTransaction &mtr, Frame *frame, Frame *&
 
   mtr.latch_memo().xlatch(new_frame);
 
-  IndexNodeHandlerType new_node(mtr, file_header_, new_frame);
-  new_node.init_empty();
-  new_node.set_parent_page_num(old_node.parent_page_num());
+  // 正确声明 new_node
+  IndexNodeHandlerType new_node(mtr, file_header_, new_frame); 
+  // 封装初始化新节点的操作
+  initializeNewNode<IndexNodeHandlerType>(mtr, new_frame, old_node);
 
   old_node.move_half_to(new_node);
 
@@ -1421,6 +1459,15 @@ RC BplusTreeHandler::split(BplusTreeMiniTransaction &mtr, Frame *frame, Frame *&
   new_frame->mark_dirty();
   return RC::SUCCESS;
 }
+
+
+
+/*
+优化信息
+在创建新根节点时，原代码在更新根节点相关信息后才释放子节点锁，优化后先释放子节点锁，再处理根节点加锁和更新，减少了子节点锁的持有时间，提高并发性能。
+递归调用 insert_entry_into_parent 前，原代码未释放当前父节点锁，优化后先释放，降低锁的持有范围和时间，有助于提高并发操作时其他线程对该父节点的访问效率。
+split 函数通过封装新节点初始化操作，使锁管理和节点初始化逻辑更清晰，方便代码维护和理解锁与节点操作之间的关系。
+*/
 
 RC BplusTreeHandler::recover_update_root_page(BplusTreeMiniTransaction &mtr, PageNum root_page_num)
 {
@@ -1485,13 +1532,18 @@ RC BplusTreeHandler::create_new_tree(BplusTreeMiniTransaction &mtr, const char *
 
 MemPoolItem::item_unique_ptr BplusTreeHandler::make_key(const char *user_key, const RID &rid)
 {
-  MemPoolItem::item_unique_ptr key = mem_pool_item_->alloc_unique_ptr();
-  if (key == nullptr) {
-    LOG_WARN("Failed to alloc memory for key.");
-    return nullptr;
+  auto key = mem_pool_item_->alloc_unique_ptr();
+  if (!key) {
+      LOG_WARN("Failed to alloc memory for key.");
+      return nullptr;
   }
-  memcpy(static_cast<char *>(key.get()), user_key, file_header_.attr_length);
-  memcpy(static_cast<char *>(key.get()) + file_header_.attr_length, &rid, sizeof(rid));
+  try {
+      memcpy(key.get(), user_key, file_header_.attr_length);
+      memcpy(reinterpret_cast<char *>(key.get()) + file_header_.attr_length, &rid, sizeof(rid));
+  } catch (const std::exception& e) {
+      LOG_ERROR("Exception occurred during memory copy: %s", e.what());
+      return nullptr;
+  }
   return key;
 }
 
