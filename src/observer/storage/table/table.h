@@ -61,6 +61,8 @@ public:
    */
   RC open(Db *db, const char *meta_file, const char *base_dir);
 
+
+  RC drop(const char *path);
   /**
    * @brief 根据给定的字段生成一个记录/行
    * @details 通常是由用户传过来的字段，按照schema信息组装成一个record。
