@@ -478,6 +478,8 @@ public:
    */
   RC close();
 
+  void destroy();
+
   /**
    * @brief 此函数向IndexHandle对应的索引中插入一个索引项。
    * @details 参数user_key指向要插入的属性值，参数rid标识该索引项对应的元组，
