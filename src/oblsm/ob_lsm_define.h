@@ -8,6 +8,21 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#include "oblsm/util/ob_bloomfilter.h"
+#pragma once
+namespace oceanbase {
 
-namespace oceanbase {}  // namespace oceanbase
+static constexpr const char *SSTABLE_SUFFIX  = ".sst";
+static constexpr const char *MANIFEST_SUFFIX = ".mf";
+
+/**
+ * @enum CompactionType
+ * @brief Defines the types of compaction strategies in an LSM-Tree or similar systems.
+ */
+enum class CompactionType
+{
+  TIRED = 0,
+  LEVELED,
+  UNKNOWN,
+};
+
+}  // namespace oceanbase

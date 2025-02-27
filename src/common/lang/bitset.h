@@ -8,6 +8,8 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#include "oblsm/util/ob_bloomfilter.h"
+#pragma once
 
-namespace oceanbase {}  // namespace oceanbase
+#include <bitset>
+
+using std::bitset;

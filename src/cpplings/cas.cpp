@@ -33,7 +33,6 @@ void append_node(int val)
 {
   Node *old_head = list_head;
   Node *new_node = new Node{val, old_head};
-
   // TODO: 使用 compare_exchange_strong 来使这段代码线程安全。
   list_head = new_node;
 }

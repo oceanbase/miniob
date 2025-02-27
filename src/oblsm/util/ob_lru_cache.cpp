@@ -8,6 +8,6 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#include "oblsm/util/ob_bloomfilter.h"
+#include "oblsm/util/ob_lru_cache.h"
 
 namespace oceanbase {}  // namespace oceanbase

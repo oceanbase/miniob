@@ -707,7 +707,6 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
         visible_count++;
       }
     }
-
     ASSERT_EQ(visible_count, insert_num / 2);
   }
   db2->trx_kit().destroy_trx(trx);

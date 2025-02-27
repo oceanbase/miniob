@@ -8,6 +8,22 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-#include "oblsm/util/ob_bloomfilter.h"
+#pragma once
 
-namespace oceanbase {}  // namespace oceanbase
+#include "common/lang/vector.h"
+#include "common/lang/memory.h"
+
+namespace oceanbase {
+
+class ObComparator;
+class ObLsmIterator;
+
+/**
+ * @brief Return an iterator that provided the union of the data in
+ * children. For example, an iterator that provided
+ * the union of memtable and sstable.
+ *
+ */
+ObLsmIterator *new_merging_iterator(const ObComparator *comparator, vector<unique_ptr<ObLsmIterator>> &&children);
+
+}  // namespace oceanbase
