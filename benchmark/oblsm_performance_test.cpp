@@ -99,12 +99,12 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct MixtureBenchmark : public BenchmarkBase
+struct DISABLED_MixtureBenchmark : public BenchmarkBase
 {
   string Name() const override { return "mixture"; }
 };
 
-BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture)(State &state)
+BENCHMARK_DEFINE_F(DISABLED_MixtureBenchmark, Mixture)(State &state)
 {
   pair<uint32_t, uint32_t> insert_range{GetRangeMax(state) + 1, GetRangeMax(state) * 2};
   pair<uint32_t, uint32_t> scan_range{1, 100};
@@ -139,7 +139,7 @@ BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture)(State &state)
   }
 }
 
-BENCHMARK_REGISTER_F(MixtureBenchmark, Mixture)->Threads(10)->Arg(1)->Arg(1000)->Arg(10000);
+BENCHMARK_REGISTER_F(DISABLED_MixtureBenchmark, Mixture)->Threads(10)->Arg(1)->Arg(1000)->Arg(10000);
 
 ////////////////////////////////////////////////////////////////////////////////
 

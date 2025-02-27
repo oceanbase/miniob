@@ -26,7 +26,7 @@ See the Mulan PSL v2 for more details. */
 namespace oceanbase {
 
 ObLsmImpl::ObLsmImpl(const ObLsmOptions &options, const string &path)
-    : options_(options), path_(path), mu_(), mem_table_(nullptr), imem_tables_(), manifest_()
+    : options_(options), path_(path), mu_(), mem_table_(nullptr), imem_tables_()
 {
   mem_table_ = make_shared<ObMemTable>();
   sstables_  = make_shared<vector<vector<shared_ptr<ObSSTable>>>>();

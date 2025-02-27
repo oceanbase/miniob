@@ -10,7 +10,7 @@ FOREACH (F ${ALL_SRC})
     ADD_EXECUTABLE(${prjName} ${F})
     TARGET_LINK_LIBRARIES(${prjName} common pthread dl benchmark::benchmark)
     if(NOT ${prjName} STREQUAL "memtracer_performance_test")
-        TARGET_LINK_LIBRARIES(${prjName} observer_static)
+        TARGET_LINK_LIBRARIES(${prjName} observer_static oblsm)
     endif()
     
 ENDFOREACH (F)

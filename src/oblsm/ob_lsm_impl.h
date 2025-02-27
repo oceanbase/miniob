@@ -131,7 +131,6 @@ private:
   vector<shared_ptr<ObMemTable>>                             imem_tables_;
   SSTablesPtr                                                sstables_;
   common::ThreadPoolExecutor                                 executor_;
-  ObManifest                                                 manifest_;
   atomic<uint64_t>                                           seq_{0};
   atomic<uint64_t>                                           sstable_id_{0};
   condition_variable                                         cv_;
