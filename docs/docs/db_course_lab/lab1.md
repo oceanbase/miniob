@@ -30,7 +30,7 @@ LAB#1 中包含三个相对独立的子任务：
 
 ### 任务1: 实现SkipList 并支持 SkipList 无锁并发写入
 
-目前，ObLsm 中的 MemTable 基于 SkipList 实现，当前的 SkipList（代码位于`src/oblsm/memtable/ob_skiplist.h`）支持一写多读(并发读不需要额外的同步机制，并发写需要外部的同步机制保证线程安全)。SkipList 中的部分函数还没有实现，请在此基础上实现 SkipList 并支持 SkipList 的无锁并发接口(`ObSkipList::insert_concurrently()`)（**注意：除了这一接口外，可能还需要实现其他必要函数，以支持 SkipList 正常运行，请自行 debug 或查看相关代码文件。**）。测试程序位于 `unittest/oblsm/ob_skiplist_test.cpp` 中。要求使用 CAS 操作来实现 SkipList 的无锁并发插入。下面对必要的知识做简单介绍。
+目前，ObLsm 中的 MemTable 基于 SkipList 实现，当前的 SkipList（代码位于`src/oblsm/memtable/ob_skiplist.h`）支持一写多读(并发读不需要额外的同步机制，并发写需要外部的同步机制保证线程安全)。SkipList 中的部分函数还没有实现，请在此基础上实现 SkipList 的写接口(`ObSkipList::insert()`)和无锁并发写接口(`ObSkipList::insert_concurrently()`)（**注意：除了这一接口外，可能还需要实现其他必要函数，以支持 SkipList 正常运行，请自行 debug 或查看相关代码文件。**）。测试程序位于 `unittest/oblsm/ob_skiplist_test.cpp` 中。要求使用 CAS 操作来实现 SkipList 的无锁并发插入。下面对必要的知识做简单介绍。
 
 #### CAS（Compare-And-Swap）
 
