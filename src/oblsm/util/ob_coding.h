@@ -14,13 +14,13 @@ See the Mulan PSL v2 for more details. */
 
 namespace oceanbase {
 
-static const uint8_t SEQ_SIZE = 8;
+static const uint8_t SEQ_SIZE               = 8;
 static const uint8_t LOOKUP_KEY_PREFIX_SIZE = 8;
 
 /**
  * @brief Appends a numeric value to a string in binary format.
  *
- * This template function takes a numeric value of any type and appends its binary 
+ * This template function takes a numeric value of any type and appends its binary
  * representation to the specified string.
  *
  * @tparam T The numeric type (e.g., `int`, `uint64_t`, `float`).
@@ -30,13 +30,13 @@ static const uint8_t LOOKUP_KEY_PREFIX_SIZE = 8;
 template <typename T>
 void put_numeric(string *dst, T v)
 {
-  dst->append(reinterpret_cast<char*>(&v), sizeof(T));
+  dst->append(reinterpret_cast<char *>(&v), sizeof(T));
 }
 
 /**
  * @brief Extracts a numeric value from a binary data source.
  *
- * This template function reads a numeric value of any type from the provided 
+ * This template function reads a numeric value of any type from the provided
  * binary data source and returns it.
  *
  * @tparam T The numeric type to extract (e.g., `int`, `uint64_t`, `float`).
@@ -54,8 +54,8 @@ T get_numeric(const char *src)
 /**
  * @brief Extracts the user key portion from an internal key.
  *
- * An internal key in the LSM-Tree typically contains additional metadata such as 
- * a sequence number at the end. This function removes the sequence number portion 
+ * An internal key in the LSM-Tree typically contains additional metadata such as
+ * a sequence number at the end. This function removes the sequence number portion
  * and returns the user key portion.
  *
  * @param internal_key The internal key to extract the user key from.
@@ -69,7 +69,7 @@ inline string_view extract_user_key(const string_view &internal_key)
 /**
  * @brief Extracts the sequence number from an internal key.
  *
- * The sequence number is usually stored at the end of the internal key in 
+ * The sequence number is usually stored at the end of the internal key in
  * binary format. This function retrieves and returns the sequence number.
  *
  * @param internal_key The internal key to extract the sequence number from.
@@ -83,8 +83,8 @@ inline uint64_t extract_sequence(const string_view &internal_key)
 /**
  * @brief Computes the size of the user key from a lookup key.
  *
- * A lookup key typically contains a prefix and a sequence number in addition 
- * to the user key. This function calculates and returns the size of the user 
+ * A lookup key typically contains a prefix and a sequence number in addition
+ * to the user key. This function calculates and returns the size of the user
  * key portion.
  *
  * @param lookup_key The lookup key to analyze.
@@ -98,7 +98,7 @@ inline size_t user_key_size_from_lookup_key(const string_view &lookup_key)
 /**
  * @brief Extracts the user key from a lookup key.
  *
- * A lookup key in the LSM-Tree contains a prefix, user key, and sequence 
+ * A lookup key in the LSM-Tree contains a prefix, user key, and sequence
  * number. This function extracts and returns the user key portion.
  *
  * @param lookup_key The lookup key to extract the user key from.

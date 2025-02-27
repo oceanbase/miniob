@@ -39,7 +39,7 @@ namespace oceanbase {
 // │    ├─────────────────┤
 // └────┤                 │
 //      └─────────────────┘
- 
+
 /**
  * @class ObSSTable
  * @brief Represents an SSTable (Sorted String Table) in the LSM-Tree.
@@ -104,15 +104,15 @@ public:
   shared_ptr<ObBlock> read_block_with_cache(uint32_t block_idx) const;
 
   /**
- * @brief Reads a block directly from the SSTable file.
- *
- * This function bypasses the block cache and directly reads the requested block
- * from the SSTable file.
- *
- * @param block_idx The index of the block to read.
- *
- * @return shared_ptr<ObBlock> A shared pointer to the requested block.
- */
+   * @brief Reads a block directly from the SSTable file.
+   *
+   * This function bypasses the block cache and directly reads the requested block
+   * from the SSTable file.
+   *
+   * @param block_idx The index of the block to read.
+   *
+   * @return shared_ptr<ObBlock> A shared pointer to the requested block.
+   */
   shared_ptr<ObBlock> read_block(uint32_t block_idx) const;
 
   uint32_t block_count() const { return block_metas_.size(); }

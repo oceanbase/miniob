@@ -33,7 +33,6 @@ namespace oceanbase {
 class ObMemTable : public enable_shared_from_this<ObMemTable>
 {
 public:
-
   ObMemTable() : comparator_(), table_(comparator_){};
 
   ~ObMemTable() = default;
@@ -127,7 +126,7 @@ private:
    * This member defines the rules for comparing keys in the skip list.
    * TODO: support user-defined comparator
    */
-  KeyComparator                                   comparator_;
+  KeyComparator comparator_;
 
   /**
    * @brief The underlying data structure used for key-value storage.
@@ -135,7 +134,7 @@ private:
    * Currently implemented as a skip list. Future versions may support
    * alternative data structures, such as hash tables.
    */
-  Table                                           table_;
+  Table table_;
 
   /**
    * @brief Memory arena used for memory management in the memtable.
@@ -143,7 +142,7 @@ private:
    * Allocates and tracks memory usage for the skip list and other internal
    * components of the memtable.
    */
-  ObArena                                         arena_;
+  ObArena arena_;
 };
 
 /**

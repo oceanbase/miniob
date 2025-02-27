@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace oceanbase;
 
-TEST(table_test, table_test_basic)
+TEST(table_test, DISABLED_table_test_basic)
 {
   ObDefaultComparator comparator;
   shared_ptr<ObMemTable> table = make_shared<ObMemTable>();

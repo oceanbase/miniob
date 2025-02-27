@@ -12,7 +12,4 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "oblsm/util/ob_file_writer.h"
 
-
-namespace oceanbase {
-
-}  // namespace oceanbase
+namespace oceanbase {}  // namespace oceanbase

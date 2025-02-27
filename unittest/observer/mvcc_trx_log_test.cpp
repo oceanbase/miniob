@@ -707,9 +707,6 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
         visible_count++;
       }
     }
-    if (visible_count != insert_num / 2) {
-      system("find . -name \"mvcc_trx_log_test.log*\" -exec cat {} +");
-    }
     ASSERT_EQ(visible_count, insert_num / 2);
   }
   db2->trx_kit().destroy_trx(trx);

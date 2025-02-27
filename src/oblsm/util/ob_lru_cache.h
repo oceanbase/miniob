@@ -19,8 +19,8 @@ namespace oceanbase {
  * @class ObLRUCache
  * @brief A thread-safe implementation of an LRU (Least Recently Used) cache.
  *
- * The `ObLRUCache` class provides a fixed-size cache that evicts the least recently used 
- * entries when the cache exceeds its capacity. It supports thread-safe operations for 
+ * The `ObLRUCache` class provides a fixed-size cache that evicts the least recently used
+ * entries when the cache exceeds its capacity. It supports thread-safe operations for
  * inserting, retrieving, and checking the existence of cache entries.
  *
  * @tparam KeyType The type of keys used to identify cache entries.
@@ -48,10 +48,7 @@ public:
    * @param value A reference to store the value associated with the key.
    * @return `true` if the key is found and the value is retrieved; `false` otherwise.
    */
-  bool get(const KeyType &key, ValueType &value)
-  {
-    return false;
-  }
+  bool get(const KeyType &key, ValueType &value) { return false; }
 
   /**
    * @brief Inserts a key-value pair into the cache.
@@ -63,9 +60,7 @@ public:
    * @param key The key to insert into the cache.
    * @param value The value to associate with the specified key.
    */
-  void put(const KeyType &key, const ValueType &value)
-  {
-  }
+  void put(const KeyType &key, const ValueType &value) {}
 
   /**
    * @brief Checks whether the specified key exists in the cache.
@@ -73,10 +68,7 @@ public:
    * @param key The key to check in the cache.
    * @return `true` if the key exists; `false` otherwise.
    */
-  bool contains(const KeyType &key) const
-  {
-    return false;
-  }
+  bool contains(const KeyType &key) const { return false; }
 
 private:
   /**

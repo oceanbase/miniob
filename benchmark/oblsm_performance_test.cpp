@@ -45,7 +45,7 @@ public:
     if (rc != RC::SUCCESS) {
       throw runtime_error("failed to open oblsm");
     }
-    
+
     LOG_INFO("test %s setup done. threads=%d, thread index=%d",
              this->Name().c_str(), state.threads(), state.thread_index());
   }
@@ -81,11 +81,7 @@ public:
     return max;
   }
 
-  void Insert(uint32_t value)
-  {
-    oblsm_->put(to_string(value), to_string(value));
-  }
-
+  void Insert(uint32_t value) { oblsm_->put(to_string(value), to_string(value)); }
 
   void Scan(uint32_t begin, uint32_t end)
   {
@@ -95,11 +91,10 @@ public:
       iter->next();
     }
     delete iter;
-    
   }
 
 protected:
-  oceanbase::ObLsm* oblsm_ = nullptr;
+  oceanbase::ObLsm *oblsm_ = nullptr;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +106,7 @@ struct MixtureBenchmark : public BenchmarkBase
 
 BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture)(State &state)
 {
-  pair<uint32_t, uint32_t> insert_range{GetRangeMax(state)+1, GetRangeMax(state) * 2};
+  pair<uint32_t, uint32_t> insert_range{GetRangeMax(state) + 1, GetRangeMax(state) * 2};
   pair<uint32_t, uint32_t> scan_range{1, 100};
   pair<uint32_t, uint32_t> data_range{0, GetRangeMax(state) * 2};
 
@@ -132,7 +127,7 @@ BENCHMARK_DEFINE_F(MixtureBenchmark, Mixture)(State &state)
         uint32_t value = static_cast<uint32_t>(insert_generator.next());
         Insert(value);
       } break;
-      case 1: { // scan
+      case 1: {  // scan
         uint32_t begin = static_cast<uint32_t>(data_generator.next());
         uint32_t end   = begin + static_cast<uint32_t>(scan_range_generator.next());
         Scan(begin, end);

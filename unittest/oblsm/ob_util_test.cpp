@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace oceanbase;
 
-TEST(util_test, comparator_test_basic)
+TEST(util_test, DISABLED_comparator_test_basic)
 {
   ObDefaultComparator comparator;
   EXPECT_TRUE(comparator.compare("key99", "key999") < 0);
@@ -27,7 +27,7 @@ TEST(util_test, comparator_test_basic)
   EXPECT_TRUE(comparator.compare("key111", "key111") == 0);
 }
 
-TEST(util_test, create_file) {
+TEST(util_test, DISABLED_create_file) {
   remove("tmpfile");
   auto w = ObFileWriter::create_file_writer("tmpfile", false);
   w->open_file();

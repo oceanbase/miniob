@@ -143,7 +143,6 @@ private:
   int   random_height();
   bool  equal(const Key &a, const Key &b) const { return (compare_(a, b) == 0); }
 
-
   // Return the earliest node that comes at or after key.
   // Return nullptr if there is no such node.
   //
@@ -377,9 +376,7 @@ ObSkipList<Key, ObComparator>::~ObSkipList()
 
 template <typename Key, class ObComparator>
 void ObSkipList<Key, ObComparator>::insert(const Key &key)
-{
-
-}
+{}
 
 template <typename Key, class ObComparator>
 void ObSkipList<Key, ObComparator>::insert_concurrently(const Key &key)

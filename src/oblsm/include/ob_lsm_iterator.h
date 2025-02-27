@@ -40,13 +40,13 @@ namespace oceanbase {
 class ObLsmIterator
 {
 public:
-  ObLsmIterator() {};
+  ObLsmIterator(){};
 
   ObLsmIterator(const ObLsmIterator &) = delete;
 
   ObLsmIterator &operator=(const ObLsmIterator &) = delete;
 
-  virtual ~ObLsmIterator() {};
+  virtual ~ObLsmIterator(){};
 
   /**
    * @brief Checks if the iterator is currently positioned at a valid key-value pair.

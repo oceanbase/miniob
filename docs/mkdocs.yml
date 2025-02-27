@@ -37,6 +37,7 @@ nav:
     - design/miniob-mysql-protocol.md
     - design/miniob-pax-storage.md
     - design/miniob-aggregation-and-group-by.md
+    - design/miniob-lsm-tree.md
     - Doxy 代码文档: design/doxy/html/index.html
   - OceanBase 数据库大赛:
     - game/introduction.md
