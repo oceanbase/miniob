@@ -1,35 +1,46 @@
-
+---
+title: 虚拟机+`vscode remote`开发
+---
 # 虚拟机+`vscode remote`开发
 作者：徐平 数据科学与工程学院 华东师范大学 
-- [虚拟机+`vscode remote`开发](#虚拟机vscode-remote开发)
-      - [1. 安装Ubuntu](#1-安装ubuntu)
-      - [2. 配置环境](#2-配置环境)
-      - [3. 安装必要软件](#3-安装必要软件)
-      - [4. 安装miniob](#4-安装miniob)
-      - [5. vscode插件配置](#5-vscode插件配置)
-      - [6. debug简单教程](#6-debug简单教程)
-  
 
 #### 1. 安装Ubuntu
 Ubuntu下载地址：[下载](https://cn.ubuntu.com/download/desktop)
 
 点击下载
+
 ![](images/vscode_dev_with_local_virtual_env_setup_download_ubuntu.png)
+
 选择典型的类型配置，点击下一步
+
 ![](images/vscode_dev_with_local_virtual_env_setup_init_ubuntu1.png)
+
 找到刚刚从网站下载的iso文件，点击下一步
+
 ![](images/vscode_dev_with_local_virtual_env_setup_init_ubuntu2.png)
+
 设置名称和密码
+
 ![](images/vscode_dev_with_local_virtual_env_setup_init_ubuntu4.png)
+
 设置虚拟机名称和虚拟机数据存放位置
+
 ![](images/vscode_dev_with_local_virtual_env_setup_init_ubuntu5.png)
+
 设置磁盘大小，推荐40~80G，点击下一步
+
 ![](images/vscode_dev_with_local_virtual_env_setup_init_ubuntu6.png)
+
 点击完成即可
+
 ![](images/vscode_dev_with_local_virtual_env_setup_init_ubuntu7.png)
+
 虚拟机开机之后，不断点击`Next`即可, 注意这里选择`Install Ubuntu`，后续操作也是不断点击`Next`。
+
 ![](images/vscode_dev_with_local_virtual_env_setup_init_ubuntu8.png)
+
 输入账号名和密码
+
 ![](images/vscode_dev_with_local_virtual_env_setup_init_ubuntu9.png)
 后续就点击`Next`，最后安装`Ubuntu`，等待安装`Ubuntu`完毕，安装完毕之后点击`Restart Now`即可。
 
@@ -89,19 +100,29 @@ cd miniob
 THIRD_PARTY_INSTALL_PREFIX=/usr/local bash build.sh init 
 ```
 完毕之后，我们用`vscode`打开`miniob`，作为新的工作目录。
+
 ![](images/vscode_dev_with_local_virtual_env_open_miniob_as_workspace.png)
+
 ![](images/vscode_dev_with_local_virtual_env_open_miniob2.png)
+
 #### 5. vscode插件配置
 1. 首先安装插件`clangd`和`C/C++ Debug`。
 安装`clangd`,
+
 ![](images/vscode_dev_with_local_virtual_env_setup-install-clangd.png)
+
 同样的方式安装`C/C++ Debug`。
+
 ![](images/vscode_dev_with_local_virtual_env_setup-install-cppdbg.png)
+
 1. 修改好代码之后，`Ctrl+Shift+B`构建项目，构建完毕后有一个`build_debug`的文件夹，存放编译后的可执行文件。
 2. 使用`clangd`作为语言服务器， 构建完毕后，将`build_debug`中的`compile_commands.json`文件复制到`miniob`目录中，随便打开一个cpp文件，就可以看到`clangd`开始工作。
+   
 ![](images/vscode_dev_with_local_virtual_env_setup-config-clangd.png)
+
 #### 6. debug简单教程
-1. 用`F5`进行调试，关于如何`vscode`如何调试，可以参考相关的资料:[cpp-debug](https://code.visualstudio.com/docs/cpp/cpp-debug)。修改`launch.json`文件中`program`和`args`来调试不同的可执行文件。
+ 用`F5`进行调试，关于如何`vscode`如何调试，可以参考相关的资料:[cpp-debug](https://code.visualstudio.com/docs/cpp/cpp-debug)。修改`launch.json`文件中`program`和`args`来调试不同的可执行文件。
+   
 ![](images/vscode_dev_with_local_virtual_env_setup-launch-config.png)
 ![](images/vscode_dev_with_local_virtual_env_setup-debug.png)
 
