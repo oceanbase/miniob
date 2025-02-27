@@ -22,6 +22,7 @@ ObLsm 是 MiniOB 中的一个为教学设计的 LSM-Tree 架构的 KV 存储引�
 ## 实验
 
 LAB#1 中包含三个相对独立的子任务：
+
 - 任务1: 实现SkipList 并支持 SkipList 无锁并发写入
 - 任务2: 实现 Block Cache 功能，加速 SSTable 的读取
 - 任务3: 实现 Leveled Compaction 功能，支持 SSTable 的合并
@@ -182,6 +183,7 @@ Compaction 的触发条件是某个 Level 的 SSTable 数量超过了阈值，�
 **提示**：除了本文中提到的需要修改的位置，你还可能需要完成其他必要的修改以支持 Leveled Compaction 正常运行，请自行 debug 或查看相关代码文件。
 
 ObLsm 中的 Leveled Compaction 需要满足下面规则：
+
 1. 磁盘上的文件按多个层级（Level）进行组织。我们称它们为1级、2级等，或简称为L1、L2等，层级数由`ObLsmOptions::default_levels` 指定。特殊的 level-0（或简称 L0）包含刚刚从内存写入缓冲区（memtable）刷新的文件。
 2. 每个级别（ L0 除外）都仅包含一个 Sorted Run(相同层级的 SSTable 之间 Key 范围不存在交集)。
 3. 每个层级（L1 及以上）之间的数据大小存在倍数关系:`L_{i+1} = L_{i} * k`，其中 k 由`ObLsmOptions::default_level_ratio` 指定，L1 层级的数据大小由`ObLsmOptions::default_l1_level_size` 指定。
