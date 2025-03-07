@@ -166,7 +166,6 @@ protected:
 
 private:
   inline void asan_poison(void *addr, size_t size) { ASAN_POISON_MEMORY_REGION(addr, size); }
-
   inline void asan_unpoison(void *addr, size_t size) { ASAN_UNPOISON_MEMORY_REGION(addr, size); }
 };
 
@@ -207,13 +206,10 @@ void MemPoolSimple<T>::cleanup()
     LOG_WARN("Begin to do cleanup, but there is no memory pool, this->name:%s!", this->name.c_str());
     return;
   }
-
   MUTEX_LOCK(&this->mutex);
-
   for (auto &&i : frees) {
     asan_unpoison(i, sizeof(T));
   }
-
   used.clear();
   frees.clear();
   this->size = 0;
@@ -309,8 +305,11 @@ string MemPoolSimple<T>::to_string()
 {
   stringstream ss;
 
-  ss << "name:" << this->name << "," << "dyanmic:" << this->dynamic << "," << "size:" << this->size << ","
-     << "pool_size:" << this->pools.size() << "," << "used_size:" << this->used.size() << ","
+  ss << "name:" << this->name << ","
+     << "dyanmic:" << this->dynamic << ","
+     << "size:" << this->size << ","
+     << "pool_size:" << this->pools.size() << ","
+     << "used_size:" << this->used.size() << ","
      << "free_size:" << this->frees.size();
   return ss.str();
 }

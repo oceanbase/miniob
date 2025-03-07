@@ -11,7 +11,6 @@ See the Mulan PSL v2 for more details. */
 //
 // Created by longda on 2022
 //
-
 #include "common/mm/mem_pool.h"
 #include "gtest/gtest.h"
 #include "common/lang/list.h"
