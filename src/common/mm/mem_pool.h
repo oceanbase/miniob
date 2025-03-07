@@ -166,6 +166,7 @@ protected:
 
 private:
   inline void asan_poison(void *addr, size_t size) { ASAN_POISON_MEMORY_REGION(addr, size); }
+
   inline void asan_unpoison(void *addr, size_t size) { ASAN_UNPOISON_MEMORY_REGION(addr, size); }
 };
 
