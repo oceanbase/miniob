@@ -68,7 +68,6 @@ struct Frame
 #ifdef ENABLE_ASAN
 TEST(mm, mm_illegal_access)
 {
-  using namespace common;
   MemPoolSimple<Frame> pool{"mm_illegal_access"};
   ASSERT_TRUE(pool.init() == 0);
   auto frame = pool.alloc();
@@ -78,13 +77,11 @@ TEST(mm, mm_illegal_access)
 
   // Access frame. Process WILL CRASH!
   auto buf = frame->buf;
-  EXPECT_DEATH(buf[0]   = '1', "");
+  EXPECT_DEATH(buf[0] = '1', "");
 }
-#endif
 
 TEST(mm, mm_legal_access)
 {
-  using namespace common;
   MemPoolSimple<Frame> pool{"mm_legal_access"};
   ASSERT_TRUE(pool.init(false, 3, 3) == 0);
   std::vector<Frame *> frames;
@@ -104,6 +101,7 @@ TEST(mm, mm_legal_access)
     pool.free(f);
   }
 }
+#endif
 
 int main(int argc, char **argv)
 {
