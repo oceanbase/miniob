@@ -209,7 +209,7 @@ void MemPoolSimple<T>::cleanup()
 
   MUTEX_LOCK(&this->mutex);
 
-  for (auto&& i : frees) {
+  for (auto &&i : frees) {
     asan_unpoison(i, sizeof(T));
   }
 
@@ -247,7 +247,7 @@ int MemPoolSimple<T>::extend()
   this->size += item_num_per_pool;
   for (int i = 0; i < item_num_per_pool; i++) {
     frees.push_back(pool + i);
-    asan_poison(pool+i,  sizeof(T));
+    asan_poison(pool + i, sizeof(T));
   }
   MUTEX_UNLOCK(&this->mutex);
 

@@ -84,7 +84,7 @@ TEST(mm, DISABLED_mm_illegal_access)
 TEST(mm, mm_legal_access)
 {
   using namespace common;
-  MemPoolSimple<Frame> pool{"mm_illegal_access"};
+  MemPoolSimple<Frame> pool{"mm_legal_access"};
   ASSERT_TRUE(pool.init(false, 3, 3) == 0);
   std::vector<Frame *> frames;
 
@@ -98,7 +98,7 @@ TEST(mm, mm_legal_access)
 
   frames.clear();
   for (auto i = 0; i < 3; ++i) {
-    Frame* f = pool.alloc();
+    Frame *f  = pool.alloc();
     f->buf[0] = 1;
     pool.free(f);
   }
