@@ -209,13 +209,16 @@ void MemPoolSimple<T>::cleanup()
 
   MUTEX_LOCK(&this->mutex);
 
+  for (auto&& i : frees) {
+    asan_unpoison(i, sizeof(T));
+  }
+
   used.clear();
   frees.clear();
   this->size = 0;
 
   for (typename list<T *>::iterator iter = pools.begin(); iter != pools.end(); iter++) {
     T *pool = *iter;
-
     delete[] pool;
   }
   pools.clear();
