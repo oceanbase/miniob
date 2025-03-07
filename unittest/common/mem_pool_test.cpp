@@ -65,8 +65,8 @@ struct Frame
   void reset() {}
 };
 
-// PROCESS WILL CRASH!
-TEST(mm, DISABLED_mm_illegal_access)
+#ifdef ENABLE_ASAN
+TEST(mm, mm_illegal_access)
 {
   using namespace common;
   MemPoolSimple<Frame> pool{"mm_illegal_access"};
@@ -78,8 +78,9 @@ TEST(mm, DISABLED_mm_illegal_access)
 
   // Access frame. Process WILL CRASH!
   auto buf = frame->buf;
-  buf[0]   = '1';
+  EXPECT_DEATH(buf[0]   = '1', "");
 }
+#endif
 
 TEST(mm, mm_legal_access)
 {
