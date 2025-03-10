@@ -25,6 +25,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/os/os.h"
 
+#include <sanitizer/asan_interface.h>
+
 namespace common {
 
 #define DEFAULT_ITEM_NUM_PER_POOL 128
@@ -161,6 +163,10 @@ protected:
   set<T *>  used;
   list<T *> frees;
   int       item_num_per_pool;
+
+private:
+  inline void asan_poison(void *addr, size_t size) { ASAN_POISON_MEMORY_REGION(addr, size); }
+  inline void asan_unpoison(void *addr, size_t size) { ASAN_UNPOISON_MEMORY_REGION(addr, size); }
 };
 
 template <class T>
@@ -200,16 +206,16 @@ void MemPoolSimple<T>::cleanup()
     LOG_WARN("Begin to do cleanup, but there is no memory pool, this->name:%s!", this->name.c_str());
     return;
   }
-
   MUTEX_LOCK(&this->mutex);
-
+  for (auto &&i : frees) {
+    asan_unpoison(i, sizeof(T));
+  }
   used.clear();
   frees.clear();
   this->size = 0;
 
   for (typename list<T *>::iterator iter = pools.begin(); iter != pools.end(); iter++) {
     T *pool = *iter;
-
     delete[] pool;
   }
   pools.clear();
@@ -238,6 +244,7 @@ int MemPoolSimple<T>::extend()
   this->size += item_num_per_pool;
   for (int i = 0; i < item_num_per_pool; i++) {
     frees.push_back(pool + i);
+    asan_poison(pool + i, sizeof(T));
   }
   MUTEX_UNLOCK(&this->mutex);
 
@@ -262,6 +269,7 @@ T *MemPoolSimple<T>::alloc()
     }
   }
   T *buffer = frees.front();
+  asan_unpoison(buffer, sizeof(T));
   frees.pop_front();
 
   used.insert(buffer);
@@ -285,7 +293,7 @@ void MemPoolSimple<T>::free(T *buf)
     print_stacktrace();
     return;
   }
-
+  asan_poison(buf, sizeof(T));
   frees.push_back(buf);
 
   MUTEX_UNLOCK(&this->mutex);
