@@ -17,7 +17,6 @@ See the Mulan PSL v2 for more details. */
 // 变参模板支持接受可变数量的参数，非常适用于构建递归数据结构和算法。
 // SFINAE（替换失败不是错误）是一种模板编程技术，它允许在编译时根据类型特性选择正
 
-
 #include <iostream>
 #include <type_traits>
 #include <vector>
@@ -25,112 +24,108 @@ See the Mulan PSL v2 for more details. */
 
 // 1. 基础函数模板
 template <typename T>
-T max_value(T a, T b) {
-    return (a > b) ? a : b;
+T max_value(T a, T b)
+{
+  return (a > b) ? a : b;
 }
 
 // 2. 类模板
 template <typename T>
-class Container {
+class Container
+{
 private:
-    T data;
+  T data;
 
 public:
-    Container(T value) : data(value) {}
+  Container(T value) : data(value) {}
 
-    T get_data() const {
-        return data;
-    }
+  T get_data() const { return data; }
 
-    void set_data(T value) {
-        data = value;
-    }
+  void set_data(T value) { data = value; }
 };
 
 // 3. 模板特化 - 为std::string类型提供特殊实现
 template <>
-class Container<std::string> {
+class Container<std::string>
+{
 private:
-    std::string data;
+  std::string data;
 
 public:
-    Container(std::string value) : data(value) {}
+  Container(std::string value) : data(value) {}
 
-    std::string get_data() const {
-        return data;
-    }
+  std::string get_data() const { return data; }
 
-    void set_data(std::string value) {
-        data = value;
-    }
+  void set_data(std::string value) { data = value; }
 
-    // 字符串类型特有的方法
-    std::size_t length() const {
-        return data.length();
-    }
+  // 字符串类型特有的方法
+  std::size_t length() const { return data.length(); }
 };
 
 // 4. 变参模板 - 递归终止条件
 template <typename T>
-T sum(T value) {
-    return value;
+T sum(T value)
+{
+  return value;
 }
 
 // 变参模板 - 递归调用
 template <typename T, typename... Args>
-T sum(T first, Args... args) {
-    return first + sum(args...);
+T sum(T first, Args... args)
+{
+  return first + sum(args...);
 }
 
 // 5. SFINAE技术示例
 // 启用仅当T是整数类型时的函数
 template <typename T>
-typename std::enable_if<std::is_integral<T>::value, bool>::type
-is_positive(T value) {
-    return value > 0;
+typename std::enable_if<std::is_integral<T>::value, bool>::type is_positive(T value)
+{
+  return value > 0;
 }
 
 // 启用仅当T是浮点类型时的函数
 template <typename T>
-typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-is_positive(T value) {
-    return value > 0.0;
+typename std::enable_if<std::is_floating_point<T>::value, bool>::type is_positive(T value)
+{
+  return value > 0.0;
 }
 
-int main() {
-    // 1. 测试函数模板
-    std::cout << "Function template examples:" << std::endl;
-    std::cout << "max_value(10, 20): " << max_value(10, 20) << std::endl;
-    std::cout << "max_value(3.14, 2.71): " << max_value(3.14, 2.71) << std::endl;
-    std::cout << "max_value(\"apple\", \"banana\"): " << max_value<std::string>("apple", "banana") << std::endl;
-    
-    // 2. 测试类模板
-    std::cout << "\nClass template examples:" << std::endl;
-    Container<int> int_container(42);
-    std::cout << "int_container.get_data(): " << int_container.get_data() << std::endl;
-    
-    Container<double> double_container(3.14159);
-    std::cout << "double_container.get_data(): " << double_container.get_data() << std::endl;
-    
-    // 3. 测试模板特化
-    std::cout << "\nTemplate specialization examples:" << std::endl;
-    Container<std::string> string_container("Hello Templates!");
-    std::cout << "string_container.get_data(): " << string_container.get_data() << std::endl;
-    std::cout << "string_container.length(): " << string_container.length() << std::endl;
-    
-    // 4. 测试变参模板
-    std::cout << "\nVariadic template examples:" << std::endl;
-    std::cout << "sum(1): " << sum(1) << std::endl;
-    std::cout << "sum(1, 2, 3, 4, 5): " << sum(1, 2, 3, 4, 5) << std::endl;
-    std::cout << "sum(1.1, 2.2, 3.3): " << sum(1.1, 2.2, 3.3) << std::endl;
-    
-    // 5. 测试SFINAE
-    std::cout << "\nSFINAE examples:" << std::endl;
-    std::cout << "is_positive(42): " << (is_positive(42) ? "true" : "false") << std::endl;
-    std::cout << "is_positive(-42): " << (is_positive(-42) ? "true" : "false") << std::endl;
-    std::cout << "is_positive(3.14): " << (is_positive(3.14) ? "true" : "false") << std::endl;
-    std::cout << "is_positive(-3.14): " << (is_positive(-3.14) ? "true" : "false") << std::endl;
-    
-    std::cout << "\npassed!" << std::endl;
-    return 0;
+int main()
+{
+  // 1. 测试函数模板
+  std::cout << "Function template examples:" << std::endl;
+  std::cout << "max_value(10, 20): " << max_value(10, 20) << std::endl;
+  std::cout << "max_value(3.14, 2.71): " << max_value(3.14, 2.71) << std::endl;
+  std::cout << "max_value(\"apple\", \"banana\"): " << max_value<std::string>("apple", "banana") << std::endl;
+
+  // 2. 测试类模板
+  std::cout << "\nClass template examples:" << std::endl;
+  Container<int> int_container(42);
+  std::cout << "int_container.get_data(): " << int_container.get_data() << std::endl;
+
+  Container<double> double_container(3.14159);
+  std::cout << "double_container.get_data(): " << double_container.get_data() << std::endl;
+
+  // 3. 测试模板特化
+  std::cout << "\nTemplate specialization examples:" << std::endl;
+  Container<std::string> string_container("Hello Templates!");
+  std::cout << "string_container.get_data(): " << string_container.get_data() << std::endl;
+  std::cout << "string_container.length(): " << string_container.length() << std::endl;
+
+  // 4. 测试变参模板
+  std::cout << "\nVariadic template examples:" << std::endl;
+  std::cout << "sum(1): " << sum(1) << std::endl;
+  std::cout << "sum(1, 2, 3, 4, 5): " << sum(1, 2, 3, 4, 5) << std::endl;
+  std::cout << "sum(1.1, 2.2, 3.3): " << sum(1.1, 2.2, 3.3) << std::endl;
+
+  // 5. 测试SFINAE
+  std::cout << "\nSFINAE examples:" << std::endl;
+  std::cout << "is_positive(42): " << (is_positive(42) ? "true" : "false") << std::endl;
+  std::cout << "is_positive(-42): " << (is_positive(-42) ? "true" : "false") << std::endl;
+  std::cout << "is_positive(3.14): " << (is_positive(3.14) ? "true" : "false") << std::endl;
+  std::cout << "is_positive(-3.14): " << (is_positive(-3.14) ? "true" : "false") << std::endl;
+
+  std::cout << "\npassed!" << std::endl;
+  return 0;
 }
