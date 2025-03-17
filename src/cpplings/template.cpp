@@ -10,13 +10,15 @@ See the Mulan PSL v2 for more details. */
 
 // 模板编程是C++中的一种强大特性，允许开发者编写与类型无关的代码。
 // 模板可以应用于函数、类和变量，使开发者能够编写通用的算法和数据结构。
-// C++模板主要分为函数模板和类模板两种。
+//
+// C++模板主要分为函数模板和类模板两种：
 // 函数模板允许创建可以处理多种数据类型的函数，而不必为每种类型编写单独的函数。
 // 类模板允许创建可以存储和处理多种数据类型的通用类，例如STL中的容器。
 // 模板特化允许为特定的类型提供专门的实现。
 // 变参模板支持接受可变数量的参数，非常适用于构建递归数据结构和算法。
-// SFINAE（替换失败不是错误）是一种模板编程技术，它允许在编译时根据类型特性选择正
-
+// SFINAE（Substitution Failure Is Not An Error）是一种模板编程技术，它允许在编译时根据类型特性选择正确的
+// 函数重载或模板特化。当模板参数替换失败时，不会产生编译错误，而是简单地从重载解析
+// 集合中删除该函数。
 #include <iostream>
 #include <type_traits>
 #include <vector>
@@ -77,7 +79,11 @@ T sum(T first, Args... args)
 }
 
 // 5. SFINAE技术示例
-// 启用仅当T是整数类型时的函数
+// SFINAE (Substitution Failure Is Not An Error) 是C++模板编程中的重要概念：
+// - 它允许编译器在模板替换过程中，当某个替换导致无效代码时，不产生错误而是继续尝试其他候选函数
+// - 常用于根据类型特性选择不同的函数实现，是C++中实现"编译期多态"的重要机制
+
+// 以下示例展示如何使用SFINAE检测类型是否支持特定操作
 template <typename T>
 typename std::enable_if<std::is_integral<T>::value, bool>::type is_positive(T value)
 {
@@ -121,8 +127,10 @@ int main()
 
   // 5. 测试SFINAE
   std::cout << "\nSFINAE examples:" << std::endl;
+  // - 对于整数类型，调用的是以">=0"判断正负的版本
   std::cout << "is_positive(42): " << (is_positive(42) ? "true" : "false") << std::endl;
   std::cout << "is_positive(-42): " << (is_positive(-42) ? "true" : "false") << std::endl;
+  // - 对于浮点类型，调用的是用">0"判断正负的版本
   std::cout << "is_positive(3.14): " << (is_positive(3.14) ? "true" : "false") << std::endl;
   std::cout << "is_positive(-3.14): " << (is_positive(-3.14) ? "true" : "false") << std::endl;
 
