@@ -24,14 +24,28 @@ ObLsm 是 MiniOB 中的一个为教学设计的 LSM-Tree 架构的 KV 存储引�
 LAB#1 中包含三个相对独立的子任务：
 
 - 任务1: 实现SkipList 并支持 SkipList 无锁并发写入
-- 任务2: 实现 Block Cache 功能，加速 SSTable 的读取
+- 任务2: 实现 Block Cache 功能，加速 SSTable 的读取，实现SStable的序列化功能
 - 任务3: 实现 Leveled Compaction 功能，支持 SSTable 的合并
 
 对于上述的每个实验，代码中均提供了包含必须实现的 API 的类及其接口。请不要修改这些类中预定义函数的定义/类名/文件名等。否则，测试脚本可能无法正常运行。你可以在这些类中添加成员变量和函数，以正确实现所需的功能。
 
 ### 任务1: 实现SkipList 并支持 SkipList 无锁并发写入
 
-目前，ObLsm 中的 MemTable 基于 SkipList 实现，当前的 SkipList（代码位于`src/oblsm/memtable/ob_skiplist.h`）支持一写多读(并发读不需要额外的同步机制，并发写需要外部的同步机制保证线程安全)。SkipList 中的部分函数还没有实现，请在此基础上实现 SkipList 的写接口(`ObSkipList::insert()`)和无锁并发写接口(`ObSkipList::insert_concurrently()`)（**注意：除了这一接口外，可能还需要实现其他必要函数，以支持 SkipList 正常运行，请自行 debug 或查看相关代码文件。**）。测试程序位于 `unittest/oblsm/ob_skiplist_test.cpp` 中。要求使用 CAS 操作来实现 SkipList 的无锁并发插入。下面对必要的知识做简单介绍。
+
+#### 需要修改的文件
+* `src/oblsm/memtable/ob_skiplist.h`
+
+#### 需要实现的函数:
+ * `ObSkipList::find_greater_or_equal`   
+ * `ObSkipList::insert` 插入接口
+ * `ObSkipList::insert_concurrently` 无锁并发查找接口
+
+#### 测试的代码
+查看测试用例检查接口的实现。
+
+ *  `unittest/oblsm/ob_skiplist_test.cpp`
+  
+目前，ObLsm 中的 MemTable 基于 SkipList 实现，当前的 SkipList 支持一写多读(并发读不需要额外的同步机制，并发写需要外部的同步机制保证线程安全)。SkipList 中的部分函数还没有实现，请在此基础上实现 SkipList 的插入接口和无锁并发写接口（**注意：除了这一接口外，可能还需要实现其他必要函数，以支持 SkipList 正常运行，请自行 debug 或查看相关代码文件。**）。要求使用 CAS 操作来实现 SkipList 的无锁并发插入。下面对必要的知识做简单介绍。
 
 #### CAS（Compare-And-Swap）
 
@@ -127,7 +141,48 @@ MiniOB 中的单测框架使用 `GTest`，在默认参数编译后，单测二�
 
 **思考**：多个 CAS 操作并不是原子的，也就是在插入过程中，多个读线程可能看到不一致的新节点，会导致什么问题？
 
-### 任务2：实现 Block Cache（块缓存） 功能，加速 SSTable 的读取
+### 任务2：实现 Block Cache（块缓存） 功能，加速 SSTable 的读取，实现SSTable组织数据的功能
+
+#### 需要修改的文件
+##### 1. 数据组织
+* `src/oblsm/table/ob_block.cpp`
+* `src/oblsm/table/ob_sstable.cpp`
+* `src/oblsm/table/ob_sstable_builder.cpp`
+##### 2. 块缓存
+* `src/oblsm/memtable/src/oblsm/util/ob_lru_cache.h`
+
+#### 需要实现的函数:
+注意要查看数据组织的相关文档：
+[MiniOB LSM-Tree 设计文档](../design/miniob-lsm-tree.md)
+
+##### 1. 数据组织
+  * `ObBlock::decode` 
+    从给定的二进制数据中解析并提取出特定格式的数据，数据组织可以参考上面的文档和`ObBlockBuilder`中的代码。
+
+  * `ObSSTable::init`  
+    `ObSSTable`初始化，初始化`file_reader_`和`block_metas_`
+
+  * `ObSSTable::read_block_with_cache`
+  
+  * `ObSSTable::read_block`
+    从文件中读取一个`ObBlock`。
+  
+  * `ObSSTableBuilder::build`
+    从`memtable`构建一个`ObSSTable`，注意查看`ObSSTableBuilder`内部函数和变量来实现。
+
+##### 2. 块缓存
+* `ObLRUCache::get`
+* `ObLRUCache::put`
+* `ObLRUCache::contains`
+* `ObLRUCache<Key, Value> *new_lru_cache(uint32_t capacity)`
+
+#### 测试的代码
+查看测试用例检查接口的实现。
+ * `unittest/oblsm/ob_block_test.cpp`
+ * `unittest/oblsm/ob_table_test.cpp`
+ * `unittest/oblsm/ob_lru_cache_test.cpp`
+
+每个 SSTable 是由多个 Block构成。
 
 Block Cache(块缓存)是 LSM-Tree 在内存中缓存数据以供读取的地方。Block Cache 的作用是优化热点数据访问磁盘时的I/O性能。ObLsm 中使用 LRU Cache 来实现块缓存。
 
@@ -143,7 +198,7 @@ Block 通过 `(sst_id, block_id)` 作为 Key 进行缓存。如果命中了缓�
 
 
 **提示**：在实现 Block Cache 时，需要保证其线程安全。
-**提示**：除了本文中提到的需要修改的位置，你还可能需要完成其他必要的修改以支持 Block Cache 正常运行，请自行 debug 或查看相关代码文件。。
+**提示**：除了本文中提到的需要修改的位置，你还可能需要完成其他必要的修改以支持 Block Cache 正常运行，请自行 debug 或查看相关代码文件。
 
 **思考**：在 RocksDB 中，块缓存通过 `strict_capacity_limit` 配置项来控制块缓存大小是否严格限制在块缓存容量内。在你的实现中，块缓存大小是否有可能会超过块缓存容量？
 
@@ -152,16 +207,6 @@ Block 通过 `(sst_id, block_id)` 作为 Key 进行缓存。如果命中了缓�
 ### 测试
 
 可以通过运行 `unittest/oblsm/ob_lru_cache_test.cpp` 来测试 LRU Cache 的功能。
-
-此外，还需要保证可以通过 `unittest/oblsm/ob_lsm_test.cpp` 和 `benchmark/oblsm_performance_test.cpp` 保证在增加 LRU Cache 后，不影响 LSM-Tree 的功能。
-
-Q：如何运行 `benchmark/oblsm_performance_test.cpp`？
-A：通过如下编译命令编译时，对应二进制文件位于`$BUILD_DIR/bin/`目录下，文件名为`oblsm_performance_test`。
-
-```bash
-bash build.sh release -DCONCURRENCY=ON -DWITH_BENCHMARK=ON
-```
-
 
 ### 任务3：实现 Leveled Compaction 功能，支持 SSTable 的合并
 
@@ -199,6 +244,13 @@ ObLsm 中的 Leveled Compaction 需要满足下面规则：
 #### 测试
 
 可以通过运行 `unittest/oblsm/ob_compaction_test.cpp` 来测试 Leveled Compaction 功能。此外，还需要保证可以通过 `unittest/oblsm/ob_lsm_test.cpp` 和 `benchmark/oblsm_performance_test.cpp` 保证在增加 Compaction 后，不影响 LSM-Tree 的功能。
+
+Q：如何运行 `benchmark/oblsm_performance_test.cpp`？
+A：通过如下编译命令编译时，对应二进制文件位于`$BUILD_DIR/bin/`目录下，文件名为`oblsm_performance_test`。
+
+```bash
+bash build.sh release -DCONCURRENCY=ON -DWITH_BENCHMARK=ON
+```
 
 ## 参考资料
 这里提供了一些学习资料供大家参考学习。
