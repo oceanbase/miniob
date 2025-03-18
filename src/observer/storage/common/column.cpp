@@ -78,12 +78,12 @@ void Column::reset()
   if (data_ != nullptr && own_) {
     delete[] data_;
   }
-  data_ = nullptr;
-  count_       = 0;
-  capacity_    = 0;
-  own_         = false;
-  attr_type_   = AttrType::UNDEFINED;
-  attr_len_    = -1;
+  data_      = nullptr;
+  count_     = 0;
+  capacity_  = 0;
+  own_       = false;
+  attr_type_ = AttrType::UNDEFINED;
+  attr_len_  = -1;
 }
 
 RC Column::append_one(char *data) { return append(data, 1); }
@@ -98,8 +98,10 @@ RC Column::append(char *data, int count)
     LOG_WARN("append data to full column");
     return RC::INTERNAL;
   }
+  // Using a larger integer type to avoid overflow
+  size_t total_bytes = static_cast<size_t>(count) * static_cast<size_t>(attr_len_);
 
-  memcpy(data_ + count_ * attr_len_, data, count * attr_len_);
+  memcpy(data_ + count_ * attr_len_, data, total_bytes);
   count_ += count;
   return RC::SUCCESS;
 }
