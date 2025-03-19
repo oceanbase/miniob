@@ -127,10 +127,10 @@ int main()
 
   // 5. 测试SFINAE
   std::cout << "\nSFINAE examples:" << std::endl;
-  // - 对于整数类型，调用的是以">=0"判断正负的版本
+  // - 对于整数类型，调用的是以">0"判断正负的版本
   std::cout << "is_positive(42): " << (is_positive(42) ? "true" : "false") << std::endl;
   std::cout << "is_positive(-42): " << (is_positive(-42) ? "true" : "false") << std::endl;
-  // - 对于浮点类型，调用的是用">0"判断正负的版本
+  // - 对于浮点类型，调用的是用">0.0"判断正负的版本
   std::cout << "is_positive(3.14): " << (is_positive(3.14) ? "true" : "false") << std::endl;
   std::cout << "is_positive(-3.14): " << (is_positive(-3.14) ? "true" : "false") << std::endl;
 
