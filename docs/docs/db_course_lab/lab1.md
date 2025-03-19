@@ -4,9 +4,21 @@ title: LAB#1 LSM-Tree 存储引擎
 
 > 请不要将代码提交到公开仓库（包括提交带有题解的 Pull Request），同时也请不要抄袭其他同学或网络上可能存在的代码。
 
+
+
 # LAB#1 LSM-Tree 存储引擎
 
 这是数据库系统实现原理与实践课程的第一个正式实验题目，实验内容是完成 LSM-Tree 存储引擎中的部分功能。
+
+每次实验代码更新，需要将代码从远端仓库拉取下来，大家需要从 miniob 的 github 仓库上把代码拉取到本地。
+
+```
+1. git remote add origin_ob https://github.com/oceanbase/miniob.git
+2. git pull origin_ob
+3. git merge origin_ob/main
+4. 解决git冲突
+5. 实现代码，推送到自己的github仓库上
+```
 
 ## LSM-Tree 简介
 LSM-Tree 将写操作（包括数据插入、修改、删除）采用追加写的方式写入内存中并进行排序（MemTable），当 MemTable 的大小达到一定阈值后再将数据顺序写入磁盘中（Sorted Strings Table, SSTable），这使得 LSM-Tree 具有优秀的写性能；但是读操作时需要查询 MemTable 和 SSTable 中数据。因此，为了提高读性能，LSM-Tree会定期对磁盘中的SSTable文件进行合并（Compaction），合并时会将相同数据进行合并，减少数据量。
