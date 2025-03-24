@@ -14,15 +14,14 @@ See the Mulan PSL v2 for more details. */
 // STL主要由三个核心组件组成：
 // 1. 容器(Containers) - 用于存储数据的模板类，如vector, list, map, set等。
 //    - 序列容器：vector, list, deque - 以线性方式存储元素
-//    - 关联容器：map, set, multimap, multiset - 以键值方式存储和快速查找元素
-//    - 无序容器：unordered_map, unordered_set - 基于哈希表实现的快速查找
+//    - 关联容器：map, set, multimap, multiset，unordered_map, unordered_set - 以键值方式存储和快速查找元素
 //    - 容器适配器：stack, queue, priority_queue - 提供特定接口的容器包装器
 //
 // 2. 迭代器(Iterators) - 用于遍历容器元素的类似指针的对象，提供容器与算法之间的桥梁。
 //    - 输入/输出迭代器：用于单向遍历和读/写操作
 //    - 前向迭代器：支持多次遍历和读写操作
 //    - 双向迭代器：允许向前和向后遍历
-//    - 随机访问迭代器：支持随机访问和指针算术
+//    - 随机访问迭代器：支持随机访问和完整的迭代器运算（如加减整数进行跳转、迭代器间距离计算、比较运算等）
 //
 // 3. 算法(Algorithms) - 提供对容器内容进行操作的函数模板，如排序、搜索、变换等。
 //    - 非修改序列算法：find, count, for_each等
@@ -398,14 +397,14 @@ int main()
   std::cout << std::endl;
 
   // 迭代器算术
-  auto iterIt = vec.begin();
-  std::advance(iterIt, 2);  // 前进2个位置
-  std::cout << "Element at advance(begin, 2): " << *iterIt << std::endl;
+  auto iter_it = vec.begin();
+  std::advance(iter_it, 2);  // 前进2个位置
+  std::cout << "Element at advance(begin, 2): " << *iter_it << std::endl;
 
-  auto next_it = std::next(iterIt);  // 返回下一个位置的迭代器
+  auto next_it = std::next(iter_it);  // 返回下一个位置的迭代器
   std::cout << "Element at next iterator: " << *next_it << std::endl;
 
-  auto prev_it = std::prev(iterIt);  // 返回前一个位置的迭代器
+  auto prev_it = std::prev(iter_it);  // 返回前一个位置的迭代器
   std::cout << "Element at prev iterator: " << *prev_it << std::endl;
 
   // 迭代器范围
@@ -433,66 +432,66 @@ int main()
   // ===== 算法库示例 =====
   std::cout << "===== Algorithm Library Examples =====\n";
 
-  std::vector<int> algVec = {5, 2, 8, 1, 9, 3, 7, 4, 6};
-  std::vector<int> algVec2(9);
+  std::vector<int> alg_vec = {5, 2, 8, 1, 9, 3, 7, 4, 6};
+  std::vector<int> alg_vec2(9);
 
   // 排序算法
   std::cout << "-- Sorting and Searching --\n";
 
   // 排序
-  std::sort(algVec.begin(), algVec.end());
+  std::sort(alg_vec.begin(), alg_vec.end());
   std::cout << "Vector after sorting: ";
-  for (const auto &elem : algVec) {
+  for (const auto &elem : alg_vec) {
     std::cout << elem << " ";
   }
   std::cout << std::endl;
 
   // 二分查找
-  bool found = std::binary_search(algVec.begin(), algVec.end(), 7);
+  bool found = std::binary_search(alg_vec.begin(), alg_vec.end(), 7);
   std::cout << "Binary search for 7: " << (found ? "Found" : "Not found") << std::endl;
 
   // 查找
-  auto findIt = std::find(algVec.begin(), algVec.end(), 4);
-  if (findIt != algVec.end()) {
-    std::cout << "Found 4 at index " << std::distance(algVec.begin(), findIt) << std::endl;
+  auto find_it = std::find(alg_vec.begin(), alg_vec.end(), 4);
+  if (find_it != alg_vec.end()) {
+    std::cout << "Found 4 at index " << std::distance(alg_vec.begin(), find_it) << std::endl;
   }
 
   // 最大最小值
-  auto [min_it, max_it] = std::minmax_element(algVec.begin(), algVec.end());
+  auto [min_it, max_it] = std::minmax_element(alg_vec.begin(), alg_vec.end());
   std::cout << "Min value: " << *min_it << ", Max value: " << *max_it << std::endl;
 
   // 修改序列算法
   std::cout << "-- Modifying Sequence Algorithms --\n";
 
   // 复制
-  std::copy(algVec.begin(), algVec.end(), algVec2.begin());
-  std::cout << "algVec2 after copy: ";
-  for (const auto &elem : algVec2) {
+  std::copy(alg_vec.begin(), alg_vec.end(), alg_vec2.begin());
+  std::cout << "alg_vec2 after copy: ";
+  for (const auto &elem : alg_vec2) {
     std::cout << elem << " ";
   }
   std::cout << std::endl;
 
   // 填充
-  std::fill(algVec2.begin() + 3, algVec2.begin() + 6, 99);
-  std::cout << "algVec2 after fill: ";
-  for (const auto &elem : algVec2) {
+  std::fill(alg_vec2.begin() + 3, alg_vec2.begin() + 6, 99);
+  std::cout << "alg_vec2 after fill: ";
+  for (const auto &elem : alg_vec2) {
     std::cout << elem << " ";
   }
   std::cout << std::endl;
 
   // 替换
-  std::replace(algVec.begin(), algVec.end(), 4, 44);
-  std::cout << "algVec after replace: ";
-  for (const auto &elem : algVec) {
+  std::replace(alg_vec.begin(), alg_vec.end(), 4, 44);
+  std::cout << "alg_vec after replace: ";
+  for (const auto &elem : alg_vec) {
     std::cout << elem << " ";
   }
   std::cout << std::endl;
 
   // 转换
-  std::vector<int> algVec3(algVec.size());
-  std::transform(algVec.begin(), algVec.end(), algVec3.begin(), [](int n) { return n * 2; });
-  std::cout << "algVec3 after transform (each element * 2): ";
-  for (const auto &elem : algVec3) {
+  std::vector<int> alg_vec3(alg_vec.size());
+  std::transform(alg_vec.begin(), alg_vec.end(), alg_vec3.begin(), [](int n) { return n * 2; });
+  std::cout << "alg_vec3 after transform (each element * 2): ";
+  for (const auto &elem : alg_vec3) {
     std::cout << elem << " ";
   }
   std::cout << std::endl;
@@ -501,32 +500,32 @@ int main()
   std::cout << "-- Non-modifying Sequence Algorithms --\n";
 
   // 计数
-  int count = std::count_if(algVec3.begin(), algVec3.end(), [](int n) { return n > 10; });
-  std::cout << "Number of elements > 10 in algVec3: " << count << std::endl;
+  int count = std::count_if(alg_vec3.begin(), alg_vec3.end(), [](int n) { return n > 10; });
+  std::cout << "Number of elements > 10 in alg_vec3: " << count << std::endl;
 
   // 所有元素满足条件？
-  bool all = std::all_of(algVec.begin(), algVec.end(), [](int n) { return n < 100; });
-  std::cout << "Are all elements in algVec < 100? " << (all ? "Yes" : "No") << std::endl;
+  bool all = std::all_of(alg_vec.begin(), alg_vec.end(), [](int n) { return n < 100; });
+  std::cout << "Are all elements in alg_vec < 100? " << (all ? "Yes" : "No") << std::endl;
 
   // 任意元素满足条件？
-  bool any = std::any_of(algVec.begin(), algVec.end(), [](int n) { return n > 8; });
-  std::cout << "Are any elements in algVec > 8? " << (any ? "Yes" : "No") << std::endl;
+  bool any = std::any_of(alg_vec.begin(), alg_vec.end(), [](int n) { return n > 8; });
+  std::cout << "Are any elements in alg_vec > 8? " << (any ? "Yes" : "No") << std::endl;
 
   // 数值算法
   std::cout << "-- Numeric Algorithms --\n";
 
   // 累加
-  int sum = std::accumulate(algVec.begin(), algVec.end(), 0);
-  std::cout << "Sum of elements in algVec: " << sum << std::endl;
+  int sum = std::accumulate(alg_vec.begin(), alg_vec.end(), 0);
+  std::cout << "Sum of elements in alg_vec: " << sum << std::endl;
 
   // 内积
-  int product = std::inner_product(algVec.begin(), algVec.end(), algVec3.begin(), 0);
-  std::cout << "Inner product of algVec and algVec3: " << product << std::endl;
+  int product = std::inner_product(alg_vec.begin(), alg_vec.end(), alg_vec3.begin(), 0);
+  std::cout << "Inner product of alg_vec and alg_vec3: " << product << std::endl;
 
   // 部分和
-  std::vector<int> sums(algVec.size());
-  std::partial_sum(algVec.begin(), algVec.end(), sums.begin());
-  std::cout << "Partial sums of algVec: ";
+  std::vector<int> sums(alg_vec.size());
+  std::partial_sum(alg_vec.begin(), alg_vec.end(), sums.begin());
+  std::cout << "Partial sums of alg_vec: ";
   for (const auto &elem : sums) {
     std::cout << elem << " ";
   }
