@@ -16,17 +16,16 @@ See the Mulan PSL v2 for more details. */
 /**
  * @brief ApplyRule task
  */
-class ApplyRule : public CascadeTask {
+class ApplyRule : public CascadeTask
+{
 public:
   ApplyRule(GroupExpr *group_expr, Rule *rule, OptimizerContext *context)
-      : CascadeTask(context, CascadeTaskType::APPLY_RULE),
-        group_expr_(group_expr),
-        rule_(rule) {}
+      : CascadeTask(context, CascadeTaskType::APPLY_RULE), group_expr_(group_expr), rule_(rule)
+  {}
 
   void perform() override;
 
 private:
-
   GroupExpr *group_expr_;
-  Rule *rule_;
+  Rule      *rule_;
 };

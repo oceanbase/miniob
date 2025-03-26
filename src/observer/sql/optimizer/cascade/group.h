@@ -22,35 +22,35 @@ class GroupExpr;
 class Memo;
 /**
  * @class Group
- * 
+ *
  * @brief A class representing a group within cascade optimizer.
- * 
- * This class manages a group of expressions and their associated costs, 
+ *
+ * This class manages a group of expressions and their associated costs,
  * and keeps track of whether the group has been explored.
  */
-class Group {
- public:
-
+class Group
+{
+public:
   /**
    * @brief Constructor for the Group class. A Group tracks both logical and
    * physical M_EXPRs.
-   * 
+   *
    * @param id The unique identifier for the group.
    */
-  Group(int id, GroupExpr* expr, Memo* memo);
+  Group(int id, GroupExpr *expr, Memo *memo);
 
   ~Group();
 
   /**
    * @brief Adds an expression to the group.
-   * 
+   *
    * @param expr The expression to add.
    */
   void add_expr(GroupExpr *expr);
 
   /**
    * @brief Sets the cost of a given expression in the group.
-   * 
+   *
    * @param expr The expression for which to set the cost.
    * @param cost The cost associated with the expression.
    * @return True if the cost was successfully set, false if the expression is not setted.
@@ -74,7 +74,7 @@ class Group {
 
   /**
    * @brief Gets the cost lower bound.
-   * 
+   *
    * @note This function is a work in progress (WIP).
    */
   double get_cost_lb() { return -1; }
@@ -93,13 +93,12 @@ class Group {
 
   GroupExpr *get_logical_expression();
 
-  LogicalProperty* get_logical_prop() { return logical_prop_.get(); }
+  LogicalProperty *get_logical_prop() { return logical_prop_.get(); }
 
   ///< dump the group info, for debug
   void dump() const;
 
- private:
-
+private:
   int id_;
 
   std::tuple<double, GroupExpr *> winner_;
@@ -111,5 +110,4 @@ class Group {
   std::vector<GroupExpr *> physical_expressions_;
 
   unique_ptr<LogicalProperty> logical_prop_ = nullptr;
-
 };

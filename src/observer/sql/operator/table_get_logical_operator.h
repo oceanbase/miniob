@@ -32,16 +32,11 @@ public:
 
   OpType get_op_type() const override { return OpType::LOGICALGET; }
 
-  virtual uint64_t hash() const {
-    return 0;
-  }
+  virtual uint64_t hash() const { return 0; }
 
-  virtual bool operator==(const OperatorNode &other) const {
-    return false;
-  }
+  virtual bool operator==(const OperatorNode &other) const { return false; }
 
-  unique_ptr<LogicalProperty> find_log_prop(const vector<LogicalProperty*> &log_props) override;
-
+  unique_ptr<LogicalProperty> find_log_prop(const vector<LogicalProperty *> &log_props) override;
 
   Table        *table() const { return table_; }
   ReadWriteMode read_write_mode() const { return mode_; }

@@ -45,7 +45,7 @@ std::unique_ptr<PhysicalOperator> Optimizer::choose_best_plan(int root_group_id)
   PhysicalOperator* winner_phys = dynamic_cast<PhysicalOperator*>(winner_contents);
   LOG_TRACE("winner: %d", winner_phys->type());
   for (const auto& child : winner->get_child_group_ids()) {
-    winner_phys->add_child(std::move(choose_best_plan(child)));
+    winner_phys->add_child(choose_best_plan(child));
   }
 
   return std::unique_ptr<PhysicalOperator>(winner_phys);

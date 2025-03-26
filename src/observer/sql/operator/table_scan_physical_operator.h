@@ -36,17 +36,12 @@ public:
   string param() const override;
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::TABLE_SCAN; }
-  OpType get_op_type() const override { return OpType::SEQSCAN; }
-  virtual uint64_t hash() const {
-    return 0;
-  }
+  OpType               get_op_type() const override { return OpType::SEQSCAN; }
+  virtual uint64_t     hash() const { return 0; }
 
-  virtual bool operator==(const OperatorNode &other) const {
-    return false;
-  }
+  virtual bool operator==(const OperatorNode &other) const { return false; }
 
-  double calculate_cost(LogicalProperty* prop, 
-      const vector<LogicalProperty*> &child_log_props, CostModel* cm) override
+  double calculate_cost(LogicalProperty *prop, const vector<LogicalProperty *> &child_log_props, CostModel *cm) override
   {
     return (cm->io() + cm->cpu_op()) * prop->get_card();
   }

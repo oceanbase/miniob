@@ -13,14 +13,16 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/property.h"
 
 class PropertySet;
-struct PropSetPtrHash {
+struct PropSetPtrHash
+{
   /**
    * TODO: WIP
    */
   std::size_t operator()(PropertySet *const &s) const { return 0; }
 };
 
-struct PropSetPtrEq {
+struct PropSetPtrEq
+{
   /**
    * TODO: WIP
    */
@@ -30,10 +32,12 @@ struct PropSetPtrEq {
 /**
  * TODO: WIP
  */
-class PropertySet {
+class PropertySet
+{
 public:
-  PropertySet() = default;
+  PropertySet()  = default;
   ~PropertySet() = default;
+
 private:
   std::vector<Property *> properties_;
 };

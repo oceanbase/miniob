@@ -16,15 +16,15 @@ See the Mulan PSL v2 for more details. */
 /**
  * @brief ExploreGroup
  */
-class ExploreGroup : public CascadeTask {
+class ExploreGroup : public CascadeTask
+{
 public:
-
   ExploreGroup(Group *group, OptimizerContext *context)
-      : CascadeTask(context, CascadeTaskType::EXPLORE_GROUP), group_(group) {}
+      : CascadeTask(context, CascadeTaskType::EXPLORE_GROUP), group_(group)
+  {}
 
   void perform() override;
 
 private:
-
   Group *group_;
 };

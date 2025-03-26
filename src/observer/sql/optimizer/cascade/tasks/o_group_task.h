@@ -16,13 +16,15 @@ See the Mulan PSL v2 for more details. */
 /**
  * @brief: OptimizeGroup, find the best plan for a group
  */
-class OptimizeGroup : public CascadeTask {
- public:
+class OptimizeGroup : public CascadeTask
+{
+public:
   OptimizeGroup(Group *group, OptimizerContext *context)
-      : CascadeTask(context, CascadeTaskType::OPTIMIZE_GROUP), group_(group) {}
+      : CascadeTask(context, CascadeTaskType::OPTIMIZE_GROUP), group_(group)
+  {}
 
   void perform() override;
 
- private:
+private:
   Group *group_;
 };

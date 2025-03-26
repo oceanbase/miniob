@@ -14,8 +14,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "sql/operator/physical_operator.h"
 
-
-class OptimizerUtils {
+class OptimizerUtils
+{
 public:
-  static string dump_physical_plan(const unique_ptr<PhysicalOperator>& root);
+  static string dump_physical_plan(const unique_ptr<PhysicalOperator> &root);
 };

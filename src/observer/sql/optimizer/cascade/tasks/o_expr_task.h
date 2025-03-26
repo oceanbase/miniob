@@ -15,11 +15,12 @@ See the Mulan PSL v2 for more details. */
 /**
  * OptimizeExpression
  */
-class OptimizeExpression : public CascadeTask {
+class OptimizeExpression : public CascadeTask
+{
 public:
-
   OptimizeExpression(GroupExpr *group_expr, OptimizerContext *context)
-      : CascadeTask(context, CascadeTaskType::OPTIMIZE_EXPR), group_expr_(group_expr) {}
+      : CascadeTask(context, CascadeTaskType::OPTIMIZE_EXPR), group_expr_(group_expr)
+  {}
 
   void perform() override;
 

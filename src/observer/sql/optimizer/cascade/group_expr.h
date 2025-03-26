@@ -21,19 +21,18 @@ See the Mulan PSL v2 for more details. */
 /* GroupExpr used to represent a particular logical or physical
  * operator expression.
  */
-class GroupExpr {
- public:
+class GroupExpr
+{
+public:
   /**
    * @param contents optimizer node contents
    * @param child_groups Vector of children groups
    */
-  GroupExpr(OperatorNode* contents,
-                  std::vector<int> &&child_groups)
-      : group_id_(-1), contents_(contents), child_groups_(child_groups) {
-  }
+  GroupExpr(OperatorNode *contents, std::vector<int> &&child_groups)
+      : group_id_(-1), contents_(contents), child_groups_(child_groups)
+  {}
 
-  ~GroupExpr() {
-  }
+  ~GroupExpr() {}
 
   int get_group_id() const { return group_id_; }
 
@@ -41,17 +40,19 @@ class GroupExpr {
 
   const vector<int> &get_child_group_ids() const { return child_groups_; }
 
-  int get_child_group_id(int child_idx) const {
+  int get_child_group_id(int child_idx) const
+  {
     ASSERT(child_idx >= 0 && static_cast<size_t>(child_idx) < child_groups_.size(),
                      "child_idx is out of bounds");
     return child_groups_[child_idx];
   }
 
-  OperatorNode* get_op() { return contents_; }
+  OperatorNode *get_op() { return contents_; }
 
   double get_cost() const { return lowest_cost_; }
 
-  void set_local_cost(double cost) {
+  void set_local_cost(double cost)
+  {
     if (cost < lowest_cost_) {
       lowest_cost_ = cost;
     }
@@ -60,7 +61,7 @@ class GroupExpr {
   // TODO
   uint64_t hash() const;
 
-  bool operator==(const GroupExpr &r) { return (*contents_ == *(r.contents_)) && (child_groups_ == r.child_groups_); }
+  bool operator==(const GroupExpr &r) const { return (*contents_ == *(r.contents_)) && (child_groups_ == r.child_groups_); }
 
   void set_rule_explored(Rule *rule) { rule_mask_.set(rule->get_rule_idx(), true); }
 
@@ -70,10 +71,10 @@ class GroupExpr {
 
   void dump() const;
 
- private:
+private:
   int group_id_{};
 
-  OperatorNode* contents_{};
+  OperatorNode *contents_{};
 
   std::vector<int> child_groups_;
 

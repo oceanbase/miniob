@@ -18,7 +18,8 @@ See the Mulan PSL v2 for more details. */
 /**
  * @brief Operator type(including logical and physical)
  */
-enum class OpType {
+enum class OpType
+{
   UNDEFINED = 0,
 
   // Special wildcard
@@ -61,11 +62,11 @@ enum class OpType {
   SCALARGROUPBY
 };
 
-
 // TODO: OperatorNode is the abstrace class of logical/physical operator
 // in cascade there is EXPR to include OperatorNode and OperatorNode children
 // so here remove genral_children.
-class OperatorNode {
+class OperatorNode
+{
 public:
   virtual ~OperatorNode() = default;
   /**
@@ -76,7 +77,7 @@ public:
   /**
    * TODO: unify logical and physical OpType
    */
-  virtual OpType get_op_type() const {return OpType::UNDEFINED; }
+  virtual OpType get_op_type() const { return OpType::UNDEFINED; }
 
   /**
    * @return Whether node contents represent a physical operator / expression
@@ -91,18 +92,20 @@ public:
   /**
    * TODO: complete it if needed
    */
-  virtual uint64_t hash() const {
-    return std::hash<int>()(static_cast<int>(get_op_type()));
-  }
-  virtual bool operator==(const OperatorNode &other) const {
-    if (get_op_type() != other.get_op_type()) return false;
-    if (general_children_.size() != other.general_children_.size()) return false;
+  virtual uint64_t hash() const { return std::hash<int>()(static_cast<int>(get_op_type())); }
+  virtual bool     operator==(const OperatorNode &other) const
+  {
+    if (get_op_type() != other.get_op_type())
+      return false;
+    if (general_children_.size() != other.general_children_.size())
+      return false;
 
     for (size_t idx = 0; idx < general_children_.size(); idx++) {
-      auto &child = general_children_[idx];
+      auto &child       = general_children_[idx];
       auto &other_child = other.general_children_[idx];
 
-      if (*child != *other_child) return false;
+      if (*child != *other_child)
+        return false;
     }
     return true;
   }
@@ -111,43 +114,31 @@ public:
    * @param log_props Input logical properties of the operator node.
    * @return Logical property of the operator node.
    */
-  virtual unique_ptr<LogicalProperty> find_log_prop(const vector<LogicalProperty*> &log_props)
-  {
-    return nullptr;
-  }
+  virtual unique_ptr<LogicalProperty> find_log_prop(const vector<LogicalProperty *> &log_props) { return nullptr; }
 
   /**
- * @brief Calculates the cost of a logical operation.
- *
- * This function is intended to be overridden in derived classes. It calculates
- * the cost associated with a specific logical property, taking into account the
- * provided child logical properties and a cost model.
- *
- * @param prop A pointer to the logical property for which the cost is being calculated.
- * @param child_log_props A vector containing pointers to child logical properties.
- * @param cm A pointer to the cost model used for calculating the cost.
- * @return The calculated cost as a double.
- */
-  virtual double calculate_cost(LogicalProperty* prop, 
-      const vector<LogicalProperty*> &child_log_props, CostModel* cm)
+   * @brief Calculates the cost of a logical operation.
+   *
+   * This function is intended to be overridden in derived classes. It calculates
+   * the cost associated with a specific logical property, taking into account the
+   * provided child logical properties and a cost model.
+   *
+   * @param prop A pointer to the logical property for which the cost is being calculated.
+   * @param child_log_props A vector containing pointers to child logical properties.
+   * @param cm A pointer to the cost model used for calculating the cost.
+   * @return The calculated cost as a double.
+   */
+  virtual double calculate_cost(LogicalProperty *prop, const vector<LogicalProperty *> &child_log_props, CostModel *cm)
   {
     return 0.0;
   }
 
-  void add_general_child(OperatorNode* child) {
-    general_children_.push_back(child);
-  }
+  void add_general_child(OperatorNode *child) { general_children_.push_back(child); }
 
-  vector<OperatorNode*>& get_general_children() {
-    return general_children_;
-  }
-
-
+  vector<OperatorNode *> &get_general_children() { return general_children_; }
 
 protected:
-
   // TODO: refactor
   // cascade optimizer 中使用，为了logical/physical operator 可以统一在 cascade 中迭代
-  vector<OperatorNode*> general_children_;
-  
+  vector<OperatorNode *> general_children_;
 };

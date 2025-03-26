@@ -19,7 +19,8 @@ class OptimizerContext;
 class Memo;
 class RuleWithPromise;
 
-enum class CascadeTaskType {
+enum class CascadeTaskType
+{
   OPTIMIZE_GROUP,
   OPTIMIZE_EXPR,
   EXPLORE_GROUP,
@@ -27,9 +28,9 @@ enum class CascadeTaskType {
   OPTIMIZE_INPUTS
 };
 
-class CascadeTask {
- public:
-
+class CascadeTask
+{
+public:
   CascadeTask(OptimizerContext *context, CascadeTaskType type) : type_(type), context_(context) {}
 
   virtual void perform() = 0;
@@ -42,7 +43,7 @@ class CascadeTask {
 
   virtual ~CascadeTask() = default;
 
- protected:
-  CascadeTaskType type_;
+protected:
+  CascadeTaskType   type_;
   OptimizerContext *context_;
 };

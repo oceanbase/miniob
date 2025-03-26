@@ -27,7 +27,7 @@ public:
   virtual ~CalcPhysicalOperator() = default;
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::CALC; }
-  OpType get_op_type() const override { return OpType::CALCULATE; }
+  OpType               get_op_type() const override { return OpType::CALCULATE; }
 
   string name() const override { return "CALC"; }
   string param() const override { return ""; }

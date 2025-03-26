@@ -21,16 +21,17 @@ See the Mulan PSL v2 for more details. */
  * tables, such as table statistics. It is designed as a singleton to ensure
  * a single point of management for the metadata.
  */
-class Catalog {
+class Catalog
+{
 
 public:
   Catalog() = default;
 
   ~Catalog() = default;
 
-  Catalog(const Catalog&) = delete;
+  Catalog(const Catalog &) = delete;
 
-  Catalog& operator=(const Catalog&) = delete;
+  Catalog &operator=(const Catalog &) = delete;
 
   /**
    * @brief Retrieves table statistics for a given table_id.
@@ -55,18 +56,19 @@ public:
    *
    * @return A reference to the singleton instance of the Catalog.
    */
-  static Catalog& get_instance() {
+  static Catalog &get_instance()
+  {
     static Catalog instance;
     return instance;
   }
 
 private:
   mutex mutex_;
-  
+
   /**
    * @brief A map storing the table statistics indexed by table_id.
    *
    * This map is currently not persisted and its persistence is planned via a system table.
    */
-  unordered_map<int, TableStats> table_stats_; ///< Table statistics storage.
+  unordered_map<int, TableStats> table_stats_;  ///< Table statistics storage.
 };

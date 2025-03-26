@@ -33,8 +33,8 @@ public:
 
   OpType get_op_type() const override { return OpType::INNERNLJOIN; }
 
-  virtual double calculate_cost(LogicalProperty* prop, 
-      const vector<LogicalProperty*> &child_log_props, CostModel* cm) override
+  virtual double calculate_cost(
+      LogicalProperty *prop, const vector<LogicalProperty *> &child_log_props, CostModel *cm) override
   {
     return 0.0;
   }
@@ -52,7 +52,7 @@ private:
   // Expression *predicate() { return predicate_; }
 
 private:
-  Trx        *trx_ = nullptr;
+  Trx *trx_ = nullptr;
 
   //! 左表右表的真实对象是在PhysicalOperator::children_中，这里是为了写的时候更简单
   PhysicalOperator *left_        = nullptr;

@@ -17,26 +17,27 @@ See the Mulan PSL v2 for more details. */
 /**
  * @brief This collection of undone cascade tasks is currently stored as a stack.
  */
-class PendingTasks {
- public:
-  CascadeTask *pop() {
+class PendingTasks
+{
+public:
+  CascadeTask *pop()
+  {
     auto task = task_stack_.top();
     task_stack_.pop();
     LOG_DEBUG("pop task %d", task_stack_.size());
     return task;
   }
 
-  void push(CascadeTask *task) {
+  void push(CascadeTask *task)
+  {
     task_stack_.push(task);
     LOG_DEBUG("push task %d", task_stack_.size());
-    
   }
 
-  bool empty() {
-    return task_stack_.empty();
-  }
+  bool empty() { return task_stack_.empty(); }
 
-  ~PendingTasks() {
+  ~PendingTasks()
+  {
     while (!task_stack_.empty()) {
       auto task = task_stack_.top();
       task_stack_.pop();

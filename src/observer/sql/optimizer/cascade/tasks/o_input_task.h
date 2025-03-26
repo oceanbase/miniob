@@ -16,23 +16,25 @@ See the Mulan PSL v2 for more details. */
 /**
  * OptimizeInputs
  */
-class OptimizeInputs : public CascadeTask {
- public:
+class OptimizeInputs : public CascadeTask
+{
+public:
   OptimizeInputs(GroupExpr *group_expr, OptimizerContext *context)
-      : CascadeTask(context, CascadeTaskType::OPTIMIZE_INPUTS), group_expr_(group_expr) {}
+      : CascadeTask(context, CascadeTaskType::OPTIMIZE_INPUTS), group_expr_(group_expr)
+  {}
 
   explicit OptimizeInputs(OptimizeInputs *task)
       : CascadeTask(task->context_, CascadeTaskType::OPTIMIZE_INPUTS),
         group_expr_(task->group_expr_),
         cur_total_cost_(task->cur_total_cost_),
-        cur_child_idx_(task->cur_child_idx_) {}
+        cur_child_idx_(task->cur_child_idx_)
+  {}
 
   void perform() override;
 
   ~OptimizeInputs() override {}
 
- private:
-
+private:
   GroupExpr *group_expr_;
 
   double cur_total_cost_;

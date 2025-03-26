@@ -63,7 +63,7 @@ public:
   auto        expressions() -> vector<unique_ptr<Expression>>        &{ return expressions_; }
   static bool can_generate_vectorized_operator(const LogicalOperatorType &type);
   // TODO: used by cascade optimizer, tmp function, need to be remove
-  void        generate_general_child();
+  void generate_general_child();
 
 protected:
   vector<unique_ptr<LogicalOperator>> children_;  ///< 子算子

@@ -19,24 +19,20 @@ See the Mulan PSL v2 for more details. */
  * @brief cascade optimizer
  * TODO: currently, Optimizer is used for CBO optimization. need to unify the optimizer in miniob
  */
-class Optimizer {
- public:
+class Optimizer
+{
+public:
+  Optimizer() : context_(std::make_unique<OptimizerContext>()) {}
 
-
-  Optimizer()
-      : context_(std::make_unique<OptimizerContext>()) {}
-
-  std::unique_ptr<PhysicalOperator> optimize(OperatorNode* op_tree);
+  std::unique_ptr<PhysicalOperator> optimize(OperatorNode *op_tree);
 
   std::unique_ptr<PhysicalOperator> choose_best_plan(int root_id);
 
- private:
-
+private:
   void optimize_loop(int root_group_id);
 
   void execute_task_stack(PendingTasks *task_stack, int root_group_id, OptimizerContext *root_context);
 
-
-  CostModel cost_model_;
+  CostModel                         cost_model_;
   std::unique_ptr<OptimizerContext> context_;
 };

@@ -17,7 +17,8 @@ See the Mulan PSL v2 for more details. */
 /**
  * @brief: Enum defining the types of rules
  */
-enum class RuleType : uint32_t {
+enum class RuleType : uint32_t
+{
   // Transformation rules (logical -> logical)
   // TODO: currently, we don't have transformation rules
 
@@ -48,7 +49,8 @@ enum class RuleType : uint32_t {
 /**
  * Enum defining set of rules
  */
-enum class RuleSetName : uint32_t {
+enum class RuleSetName : uint32_t
+{
   // TODO: add more rule sets
   PHYSICAL_IMPLEMENTATION
 };
@@ -57,7 +59,8 @@ enum class RuleSetName : uint32_t {
  * Enum defining rule promises
  * LogicalPromise should be used for logical rules
  */
-enum class RulePromise : uint32_t {
+enum class RulePromise : uint32_t
+{
 
   /**
    * Logical rule/low priority unnest
@@ -73,15 +76,15 @@ enum class RulePromise : uint32_t {
 /**
  * TODO: Distinguish from logical rules and unify logical rewrite rule
  */
-class Rule {
+class Rule
+{
 public:
-  virtual ~Rule() { }
+  virtual ~Rule() {}
   /**
    * Gets the match pattern for the rule
    * @returns match pattern
    */
   Pattern *get_match_pattern() const { return match_pattern_.get(); }
-
 
   /**
    * @returns whether the rule is a physical transformation
@@ -109,8 +112,9 @@ public:
    *
    * @return The promise, the higher the promise, the rule should be applied sooner
    */
-  virtual RulePromise promise(GroupExpr *group_expr) const {
-    if (is_physical()) 
+  virtual RulePromise promise(GroupExpr *group_expr) const
+  {
+    if (is_physical())
       return RulePromise::PHYSICAL_PROMISE;
     return RulePromise::LOGICAL_PROMISE;
   }
@@ -122,16 +126,17 @@ public:
    * @param transformed Vector of "after" operator trees
    * @param context The current optimization context
    */
-  virtual void transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const = 0;
+  virtual void transform(OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed,
+      OptimizerContext *context) const = 0;
+
 protected:
-  RuleType type_;
+  RuleType            type_;
   unique_ptr<Pattern> match_pattern_;
 };
 
-class RuleWithPromise {
- public:
+class RuleWithPromise
+{
+public:
   RuleWithPromise(Rule *rule, RulePromise promise) : rule_(rule), promise_(promise) {}
 
   Rule *get_rule() { return rule_; }
@@ -146,7 +151,7 @@ class RuleWithPromise {
 
   bool operator>(const RuleWithPromise &r) const { return promise_ > r.promise_; }
 
- private:
+private:
   /**
    * Rule
    */
@@ -158,11 +163,13 @@ class RuleWithPromise {
   RulePromise promise_;
 };
 
-class RuleSet {
- public:
+class RuleSet
+{
+public:
   RuleSet();
 
-  ~RuleSet() {
+  ~RuleSet()
+  {
     for (auto &it : rules_map_) {
       for (auto rule : it.second) {
         delete rule;
@@ -180,7 +187,7 @@ class RuleSet {
    */
   std::vector<Rule *> &get_rules_by_name(RuleSetName set) { return rules_map_[static_cast<uint32_t>(set)]; }
 
- private:
+private:
   /**
    * Map from RuleSetName (uint32_t) -> vector of rules
    * TODO: use unique_ptr

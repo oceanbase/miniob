@@ -18,22 +18,22 @@ See the Mulan PSL v2 for more details. */
  * such as the number of rows it contains.
  * TODO: Add more statistics as needed.
  */
-class TableStats {
+class TableStats
+{
 public:
   explicit TableStats(int row_nums) : row_nums(row_nums) {}
 
   TableStats() = default;
 
-  TableStats(const TableStats& other) {
-    row_nums = other.row_nums;
-  }
+  TableStats(const TableStats &other) { row_nums = other.row_nums; }
 
-  TableStats& operator=(const TableStats& other) {
+  TableStats &operator=(const TableStats &other)
+  {
     row_nums = other.row_nums;
     return *this;
   }
 
   ~TableStats() = default;
-  
+
   int row_nums = 0;
 };

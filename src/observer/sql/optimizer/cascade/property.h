@@ -10,7 +10,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-class Property {
+class Property
+{
 
 private:
   int dummy;
@@ -19,14 +20,15 @@ private:
 /**
  * @brief Logical Property, such as the cardinality of logical operator
  */
-class LogicalProperty {
+class LogicalProperty
+{
 public:
   explicit LogicalProperty(int card) : card_(card) {}
-  LogicalProperty() = default;
+  LogicalProperty()  = default;
   ~LogicalProperty() = default;
 
   int get_card() const { return card_; }
 
 private:
-  int card_ = 0; /// cardinality
+  int card_ = 0;  /// cardinality
 };

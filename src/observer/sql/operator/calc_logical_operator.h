@@ -27,5 +27,5 @@ public:
   virtual ~CalcLogicalOperator() = default;
 
   LogicalOperatorType type() const override { return LogicalOperatorType::CALC; }
-  OpType get_op_type() const override { return OpType::LOGICALCALCULATE; }
+  OpType              get_op_type() const override { return OpType::LOGICALCALCULATE; }
 };

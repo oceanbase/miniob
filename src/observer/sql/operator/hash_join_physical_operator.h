@@ -17,4 +17,5 @@ See the Mulan PSL v2 for more details. */
  * @brief Hash Join 算子
  * @ingroup PhysicalOperator
  */
-class HashJoinPhysicalOperator{};
+class HashJoinPhysicalOperator
+{};

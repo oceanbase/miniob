@@ -17,4 +17,5 @@ See the Mulan PSL v2 for more details. */
  * @brief 将一些谓词表达式下推到join中
  * @ingroup Rewriter
  */
-class PredicateToJoinRewriter{};
+class PredicateToJoinRewriter
+{};

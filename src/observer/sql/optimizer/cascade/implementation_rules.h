@@ -15,13 +15,13 @@ See the Mulan PSL v2 for more details. */
 /**
  * Rule transforms Logical Scan -> Physical Scan
  */
-class LogicalGetToPhysicalSeqScan : public Rule {
- public:
+class LogicalGetToPhysicalSeqScan : public Rule
+{
+public:
   LogicalGetToPhysicalSeqScan();
 
-  void transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const override;
+  void transform(OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed,
+      OptimizerContext *context) const override;
 };
 
 // TODO: support index scan
@@ -31,74 +31,74 @@ class LogicalGetToPhysicalSeqScan : public Rule {
 /**
  * Rule transforms Logical Projection -> Physical Projection
  */
-class LogicalProjectionToProjection : public Rule {
- public:
+class LogicalProjectionToProjection : public Rule
+{
+public:
   LogicalProjectionToProjection();
 
-  void transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const override;
+  void transform(OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed,
+      OptimizerContext *context) const override;
 };
 
 /**
  * Rule transforms Logical Insert -> Physical Insert
  */
-class LogicalInsertToInsert : public Rule {
- public:
+class LogicalInsertToInsert : public Rule
+{
+public:
   LogicalInsertToInsert();
 
-  void transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const override;
+  void transform(OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed,
+      OptimizerContext *context) const override;
 };
 
 /**
  * Rule transforms Logical explain -> Physical explain
  */
-class LogicalExplainToExplain : public Rule {
- public:
+class LogicalExplainToExplain : public Rule
+{
+public:
   LogicalExplainToExplain();
 
-  void transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const override;
+  void transform(OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed,
+      OptimizerContext *context) const override;
 };
 
 /**
  * Rule transforms Logical calculate -> Physical calculate
  */
-class LogicalCalcToCalc : public Rule {
- public:
+class LogicalCalcToCalc : public Rule
+{
+public:
   LogicalCalcToCalc();
 
-  void transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const override;
+  void transform(OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed,
+      OptimizerContext *context) const override;
 };
 
 /**
  * Rule transforms Logical delete -> Physical delete
  */
-class LogicalDeleteToDelete : public Rule {
- public:
+class LogicalDeleteToDelete : public Rule
+{
+public:
   LogicalDeleteToDelete();
 
-  void transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const override;
+  void transform(OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed,
+      OptimizerContext *context) const override;
 };
 
 /**
  * Rule transforms Logical predicate -> Physical predicate
  * TODO: In practice, this rule may not be used and can be removed
  */
-class LogicalPredicateToPredicate : public Rule {
- public:
+class LogicalPredicateToPredicate : public Rule
+{
+public:
   LogicalPredicateToPredicate();
 
-  void transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const override;
+  void transform(OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed,
+      OptimizerContext *context) const override;
 };
 
 /**

@@ -65,7 +65,7 @@ enum class ExprType
 class Expression
 {
 public:
-  Expression()          = default;
+  Expression() = default;
 
   virtual ~Expression() = default;
 
@@ -148,9 +148,7 @@ public:
   StarExpr(const char *table_name) : table_name_(table_name) {}
   virtual ~StarExpr() = default;
 
-  unique_ptr<Expression> copy() const override {
-    return make_unique<StarExpr>(table_name_.c_str());
-  }
+  unique_ptr<Expression> copy() const override { return make_unique<StarExpr>(table_name_.c_str()); }
 
   ExprType type() const override { return ExprType::STAR; }
   AttrType value_type() const override { return AttrType::UNDEFINED; }
@@ -172,9 +170,7 @@ public:
 
   virtual ~UnboundFieldExpr() = default;
 
-  unique_ptr<Expression> copy() const override {
-    return make_unique<UnboundFieldExpr>(table_name_, field_name_);
-  }
+  unique_ptr<Expression> copy() const override { return make_unique<UnboundFieldExpr>(table_name_, field_name_); }
 
   ExprType type() const override { return ExprType::UNBOUND_FIELD; }
   AttrType value_type() const override { return AttrType::UNDEFINED; }
@@ -197,16 +193,14 @@ class FieldExpr : public Expression
 {
 public:
   FieldExpr() = default;
-  FieldExpr(const Table *table, const FieldMeta *field) : field_(table, field) { }
-  FieldExpr(const Field &field) : field_(field) { }
+  FieldExpr(const Table *table, const FieldMeta *field) : field_(table, field) {}
+  FieldExpr(const Field &field) : field_(field) {}
 
   virtual ~FieldExpr() = default;
 
   bool equal(const Expression &other) const override;
 
-  unique_ptr<Expression> copy() const override {
-    return make_unique<FieldExpr>(field_);
-  }
+  unique_ptr<Expression> copy() const override { return make_unique<FieldExpr>(field_); }
 
   ExprType type() const override { return ExprType::FIELD; }
   AttrType value_type() const override { return field_.attr_type(); }
@@ -241,9 +235,7 @@ public:
 
   bool equal(const Expression &other) const override;
 
-  unique_ptr<Expression> copy() const override {
-    return make_unique<ValueExpr>(value_);
-  }
+  unique_ptr<Expression> copy() const override { return make_unique<ValueExpr>(value_); }
 
   RC get_value(const Tuple &tuple, Value &value) const override;
   RC get_column(Chunk &chunk, Column &column) override;
@@ -274,9 +266,7 @@ public:
   CastExpr(unique_ptr<Expression> child, AttrType cast_type);
   virtual ~CastExpr();
 
-  unique_ptr<Expression> copy() const override {
-    return make_unique<CastExpr>(child_->copy(), cast_type_);
-  }
+  unique_ptr<Expression> copy() const override { return make_unique<CastExpr>(child_->copy(), cast_type_); }
 
   ExprType type() const override { return ExprType::CAST; }
 
@@ -311,7 +301,8 @@ public:
   AttrType value_type() const override { return AttrType::BOOLEANS; }
   CompOp   comp() const { return comp_; }
 
-  unique_ptr<Expression> copy() const override {
+  unique_ptr<Expression> copy() const override
+  {
     return make_unique<ComparisonExpr>(comp_, left_->copy(), right_->copy());
   }
 
@@ -364,7 +355,8 @@ public:
   ConjunctionExpr(Type type, vector<unique_ptr<Expression>> &children);
   virtual ~ConjunctionExpr() = default;
 
-  unique_ptr<Expression> copy() const override {
+  unique_ptr<Expression> copy() const override
+  {
     vector<unique_ptr<Expression>> children;
     for (auto &child : children_) {
       children.emplace_back(child->copy());
@@ -406,7 +398,8 @@ public:
   ArithmeticExpr(Type type, unique_ptr<Expression> left, unique_ptr<Expression> right);
   virtual ~ArithmeticExpr() = default;
 
-  unique_ptr<Expression> copy() const override {
+  unique_ptr<Expression> copy() const override
+  {
     if (right_) {
       return make_unique<ArithmeticExpr>(arithmetic_type_, left_->copy(), right_->copy());
     } else {
@@ -460,7 +453,8 @@ public:
 
   ExprType type() const override { return ExprType::UNBOUND_AGGREGATION; }
 
-  unique_ptr<Expression> copy() const override {
+  unique_ptr<Expression> copy() const override
+  {
     return make_unique<UnboundAggregateExpr>(aggregate_name_.c_str(), child_->copy());
   }
 
@@ -495,9 +489,7 @@ public:
 
   bool equal(const Expression &other) const override;
 
-  unique_ptr<Expression> copy() const override {
-    return make_unique<AggregateExpr>(aggregate_type_, child_->copy());
-  }
+  unique_ptr<Expression> copy() const override { return make_unique<AggregateExpr>(aggregate_type_, child_->copy()); }
 
   ExprType type() const override { return ExprType::AGGREGATION; }
 

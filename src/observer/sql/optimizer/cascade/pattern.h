@@ -14,12 +14,11 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/vector.h"
 #include "common/lang/memory.h"
 
-class Pattern {
+class Pattern
+{
 public:
-
   explicit Pattern(OpType op) : type_(op) {}
-  ~Pattern() {
-  }
+  ~Pattern() {}
 
   void add_child(Pattern *child) { children_.push_back(unique_ptr<Pattern>(child)); }
 
@@ -29,7 +28,7 @@ public:
 
   OpType type() const { return type_; }
 
- private:
+private:
   OpType type_;
 
   vector<unique_ptr<Pattern>> children_;

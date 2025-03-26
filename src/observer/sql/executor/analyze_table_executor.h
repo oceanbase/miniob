@@ -22,10 +22,11 @@ class RecordScanner;
 class AnalyzeTableExecutor
 {
 public:
-  AnalyzeTableExecutor()          = default;
+  AnalyzeTableExecutor() = default;
   virtual ~AnalyzeTableExecutor();
 
   RC execute(SQLStageEvent *sql_event);
+
 private:
   RecordScanner *scanner_ = nullptr;
 };
