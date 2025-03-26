@@ -225,9 +225,9 @@ int main()
   }
 
   // 查找和检查
-  auto mapIt = map2.find("banana");
-  if (mapIt != map2.end()) {
-    std::cout << "Found: " << mapIt->first << " => " << mapIt->second << std::endl;
+  auto map_it = map2.find("banana");
+  if (map_it != map2.end()) {
+    std::cout << "Found: " << map_it->first << " => " << map_it->second << std::endl;
   }
 
   bool exists = map2.count("grape") > 0;
@@ -275,9 +275,9 @@ int main()
   std::cout << std::endl;
 
   // 查找和检查
-  auto setIt = set1.find(20);
-  if (setIt != set1.end()) {
-    std::cout << "Found element: " << *setIt << std::endl;
+  auto set_it = set1.find(20);
+  if (set_it != set1.end()) {
+    std::cout << "Found element: " << *set_it << std::endl;
   }
 
   exists = set1.count(50) > 0;
