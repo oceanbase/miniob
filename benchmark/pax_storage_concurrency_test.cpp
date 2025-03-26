@@ -221,7 +221,7 @@ public:
     Table               table;
     HeapRecordScanner   scanner(&table, *buffer_pool_, &trx, log_handler_, ReadWriteMode::READ_ONLY, &condition_filter);
     table.table_meta_.storage_format_ = StorageFormat::PAX_FORMAT;
-    RC rc = scanner.open_scan();
+    RC rc                             = scanner.open_scan();
     if (rc != RC::SUCCESS) {
       stat.scan_open_failed_count++;
     } else {

@@ -11,8 +11,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 class Property
-{
-};
+{};
 
 /**
  * @brief Logical Property, such as the cardinality of logical operator
