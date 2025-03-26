@@ -32,9 +32,9 @@ public:
 
   OpType get_op_type() const override { return OpType::LOGICALGET; }
 
-  virtual uint64_t hash() const { return 0; }
+  virtual uint64_t hash() const override { return 0; }
 
-  virtual bool operator==(const OperatorNode &other) const { return false; }
+  virtual bool operator==(const OperatorNode &other) const override { return false; }
 
   unique_ptr<LogicalProperty> find_log_prop(const vector<LogicalProperty *> &log_props) override;
 
