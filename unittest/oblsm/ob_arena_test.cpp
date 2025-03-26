@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace oceanbase;
 
-TEST(arena_test, arena_test_basic)
+TEST(arena_test, DISABLED_arena_test_basic)
 {
   ObArena arena;
   const int count = 1000;

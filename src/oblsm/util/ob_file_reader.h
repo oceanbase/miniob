@@ -24,8 +24,8 @@ namespace oceanbase {
  * @brief A utility class for reading files in an efficient manner.
  *
  * The `ObFileReader` class provides a simple interface for reading files. It allows
- * opening, closing, and reading specific portions of a file while also exposing 
- * the file size for external use. This class is intended for use in scenarios where 
+ * opening, closing, and reading specific portions of a file while also exposing
+ * the file size for external use. This class is intended for use in scenarios where
  * file-based data storage, such as SSTables, is accessed.
  */
 class ObFileReader
@@ -34,7 +34,7 @@ public:
   /**
    * @brief Constructs an `ObFileReader` object with the specified file name.
    *
-   * The file name is stored internally, but the file is not opened until 
+   * The file name is stored internally, but the file is not opened until
    * `open_file()` is explicitly called.
    *
    * @param filename The name of the file to be read.

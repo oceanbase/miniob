@@ -50,7 +50,7 @@ public:
   static ObCompactionPicker *create(CompactionType type, ObLsmOptions *options);
 
 protected:
-  ObLsmOptions *options_; ///< Pointer to the LSM-Tree options configuration.
+  ObLsmOptions *options_;  ///< Pointer to the LSM-Tree options configuration.
 };
 
 /**

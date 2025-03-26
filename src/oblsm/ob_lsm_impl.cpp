@@ -178,10 +178,7 @@ void ObLsmImpl::try_major_compaction()
   try_major_compaction();
 }
 
-vector<shared_ptr<ObSSTable>> ObLsmImpl::do_compaction(ObCompaction *picked)
-{
-  return {};
-}
+vector<shared_ptr<ObSSTable>> ObLsmImpl::do_compaction(ObCompaction *picked) { return {}; }
 
 void ObLsmImpl::build_sstable(shared_ptr<ObMemTable> imem)
 {

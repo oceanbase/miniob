@@ -42,8 +42,8 @@ namespace oceanbase {
  * @brief Represents a data block in the LSM-Tree.
  *
  * The `ObBlock` class manages a block of serialized key-value pairs, along with
- * their offsets, for efficient storage and retrieval. It provides methods to decode 
- * serialized data, access individual entries, and create iterators for traversing 
+ * their offsets, for efficient storage and retrieval. It provides methods to decode
+ * serialized data, access individual entries, and create iterators for traversing
  * the block contents.
  */
 class ObBlock
@@ -64,9 +64,9 @@ public:
    * @brief Decodes serialized block data.
    *
    * This function parses and decodes the serialized string data to reconstruct
-   * the block's structure, including all key-value offsets and entries.  
-   * The decoded data format can reference ObBlockBuilder.  
-   * @param data The serialized block data as a string. 
+   * the block's structure, including all key-value offsets and entries.
+   * The decoded data format can reference ObBlockBuilder.
+   * @param data The serialized block data as a string.
    * @return RC The result code indicating the success or failure of the decode operation.
    */
   RC decode(const string &data);
@@ -117,7 +117,7 @@ public:
   string_view value() const override { return value_; }
 
 private:
-  void                 parse_entry();
+  void parse_entry();
 
 private:
   const ObComparator  *comparator_;
@@ -137,7 +137,7 @@ public:
       : first_key_(first_key), last_key_(last_key), offset_(offset), size_(size)
   {}
   string encode() const;
-  RC   decode(const string &data);
+  RC     decode(const string &data);
 
   string first_key_;
   string last_key_;

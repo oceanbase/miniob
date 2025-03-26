@@ -28,7 +28,8 @@ class ObSSTableBuilder
 {
 public:
   ObSSTableBuilder(const ObComparator *comparator, ObLRUCache<uint64_t, shared_ptr<ObBlock>> *block_cache)
-      : comparator_(comparator), block_cache_(block_cache) {}
+      : comparator_(comparator), block_cache_(block_cache)
+  {}
   ~ObSSTableBuilder() = default;
 
   /**

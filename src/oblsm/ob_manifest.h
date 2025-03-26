@@ -12,13 +12,11 @@ See the Mulan PSL v2 for more details. */
 
 namespace oceanbase {
 
-class ObManifestRecord {
-  
-};
+class ObManifestRecord
+{};
 
-class ObManifestSnapshot {
-
-};
+class ObManifestSnapshot
+{};
 class ObManifest
 {
 public:

@@ -18,9 +18,11 @@ See the Mulan PSL v2 for more details. */
 
 using namespace oceanbase;
 
-class KeyValueGenerator {
+class KeyValueGenerator
+{
 public:
-  static vector<pair<string, string>> generate_data(size_t count) {
+  static vector<pair<string, string>> generate_data(size_t count)
+  {
     vector<pair<string, string>> data;
     for (size_t i = 0; i < count; ++i) {
       data.emplace_back("key" + to_string(i), "value" + to_string(i));
@@ -29,13 +31,15 @@ public:
   }
 };
 
-class ObLsmTestBase : public ::testing::TestWithParam<size_t> {
+class ObLsmTestBase : public ::testing::TestWithParam<size_t>
+{
 protected:
-  ObLsm* db;
+  ObLsm       *db;
   ObLsmOptions options;
-  string path;
+  string       path;
 
-  void SetUp() override {
+  void SetUp() override
+  {
     path = "./testdb";
     set_up_options();
     filesystem::remove_all(path);
@@ -44,18 +48,17 @@ protected:
     ASSERT_NE(db, nullptr);
   }
 
-  void set_up_options() {
-    options.memtable_size = 8 * 1024;
-    options.table_size = 16 * 1024;
+  void set_up_options()
+  {
+    options.memtable_size         = 8 * 1024;
+    options.table_size            = 16 * 1024;
     options.default_levels        = 7;
     options.default_l1_level_size = 128 * 1024;
     options.default_level_ratio   = 10;
     options.default_l0_file_num   = 3;
-    options.default_run_num = 7;
-    options.type = CompactionType::LEVELED;
+    options.default_run_num       = 7;
+    options.type                  = CompactionType::LEVELED;
   }
 
-  void TearDown() override {
-      delete db;
-  }
+  void TearDown() override { delete db; }
 };

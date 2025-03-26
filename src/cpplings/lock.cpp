@@ -34,8 +34,7 @@ struct Node
   Node *next;
 };
 
-
-Node * list_head(nullptr);
+Node *list_head(nullptr);
 
 // 向 `list_head` 中添加一个 value 为 `val` 的 Node 节点。
 void append_node(int val)

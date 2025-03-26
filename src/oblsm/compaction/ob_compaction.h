@@ -66,7 +66,7 @@ public:
   /**
    * @brief Retrieves the vector of SSTables from the specified input level.
    */
-  const vector<shared_ptr<ObSSTable>>& inputs(int which) const { return inputs_[which]; }
+  const vector<shared_ptr<ObSSTable>> &inputs(int which) const { return inputs_[which]; }
 
 private:
   /// Each compaction reads inputs from "level_" and "level_+1"

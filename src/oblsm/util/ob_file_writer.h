@@ -34,7 +34,7 @@ public:
   /**
    * @brief Constructs an `ObFileWriter` object with the specified file name and mode.
    *
-   * The constructor initializes the file writer with the given file name. The file is not opened 
+   * The constructor initializes the file writer with the given file name. The file is not opened
    * until `open_file()` is called. The `append` parameter determines whether the file should
    * be opened in append mode or overwrite mode.
    *
@@ -101,7 +101,7 @@ public:
   /**
    * @brief Creates a new `ObFileWriter` instance.
    *
-   * This static factory method constructs a new `ObFileWriter` object with the specified 
+   * This static factory method constructs a new `ObFileWriter` object with the specified
    * file name and append mode.
    *
    * @param filename The name of the file to write to.
@@ -119,7 +119,7 @@ private:
   /**
    * @brief Indicates whether the file should be opened in append mode.
    *
-   * If `true`, data will be appended to the existing file. If `false`, the existing file (if any) 
+   * If `true`, data will be appended to the existing file. If `false`, the existing file (if any)
    * will be overwritten when the file is opened.
    */
   bool append_;

@@ -100,6 +100,7 @@ IF (ENABLE_ASAN)
     IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${STATIC_STDLIB})
         ADD_LINK_OPTIONS(-static-libasan)
     ENDIF()
+    add_definitions(-DENABLE_ASAN)
 ENDIF()
 
 IF (ENABLE_TSAN)

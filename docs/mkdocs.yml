@@ -14,6 +14,7 @@ nav:
     - 运行: how_to_run.md
     - 开发环境:
       - dev-env/introduction.md
+      - dev-env/vscode_dev_with_local_virtual_env.md
       - dev-env/dev_by_online.md
       - dev-env/how-to-dev-using-docker.md
       - dev-env/how_to_dev_in_docker_container_by_vscode.md
@@ -21,6 +22,7 @@ nav:
       - dev-env/how_to_dev_miniob_by_docker_on_windows.md
       - dev-env/how_to_dev_miniob_by_vscode.md
       - dev-env/miniob-how-to-debug.md
+      - dev-env/how_to_submit_for_testing.md
   - 设计文档:
     - design/miniob-architecture.md
     - design/miniob-buffer-pool.md
@@ -36,6 +38,7 @@ nav:
     - design/miniob-mysql-protocol.md
     - design/miniob-pax-storage.md
     - design/miniob-aggregation-and-group-by.md
+    - design/miniob-lsm-tree.md
     - Doxy 代码文档: design/doxy/html/index.html
   - OceanBase 数据库大赛:
     - game/introduction.md

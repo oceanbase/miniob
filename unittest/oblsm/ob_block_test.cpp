@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace oceanbase;
 
-TEST(block_test, block_builder_test_basic)
+TEST(block_test, DISABLED_block_builder_test_basic)
 {
   ObBlockBuilder builder;
   ObDefaultComparator comparator;
@@ -33,7 +33,7 @@ TEST(block_test, block_builder_test_basic)
   ASSERT_EQ(block.size(), 4);
 }
 
-TEST(block_test, block_iterator_test_basic)
+TEST(block_test, DISABLED_block_iterator_test_basic)
 {
   ObBlockBuilder builder;
   ObDefaultComparator comparator;

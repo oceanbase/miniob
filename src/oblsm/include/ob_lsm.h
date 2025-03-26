@@ -53,7 +53,7 @@ public:
   /**
    * @brief Inserts or updates a key-value entry in the LSM-Tree.
    *
-   * This method adds a new entry 
+   * This method adds a new entry
    *
    * @param key The key to insert or update.
    * @param value The value associated with the key.
@@ -78,7 +78,7 @@ public:
    *
    * This method returns a heap-allocated iterator over the contents of the
    * database. The iterator is initially invalid, and the caller must use one
-   * of the `seek`/`seek_to_first`/`seek_to_last` methods on the iterator 
+   * of the `seek`/`seek_to_first`/`seek_to_last` methods on the iterator
    * before accessing any elements.
    *
    * @param options Read options to configure the behavior of the iterator.
@@ -94,7 +94,6 @@ public:
    * LSM-Tree for debugging or inspection purposes.
    */
   virtual void dump_sstables() = 0;
-
 };
 
 }  // namespace oceanbase

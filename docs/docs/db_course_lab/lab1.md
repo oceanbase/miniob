@@ -8,6 +8,16 @@ title: LAB#1 LSM-Tree 存储引擎
 
 这是数据库系统实现原理与实践课程的第一个正式实验题目，实验内容是完成 LSM-Tree 存储引擎中的部分功能。
 
+每次实验代码更新，需要将代码从远端仓库拉取下来，大家需要从 miniob 的 github 仓库上把代码拉取到本地。
+
+```
+1. git remote add origin_ob https://github.com/oceanbase/miniob.git
+2. git pull origin_ob
+3. git merge origin_ob/main
+4. 解决git冲突
+5. 实现代码，推送到自己的github仓库上
+```
+
 ## LSM-Tree 简介
 LSM-Tree 将写操作（包括数据插入、修改、删除）采用追加写的方式写入内存中并进行排序（MemTable），当 MemTable 的大小达到一定阈值后再将数据顺序写入磁盘中（Sorted Strings Table, SSTable），这使得 LSM-Tree 具有优秀的写性能；但是读操作时需要查询 MemTable 和 SSTable 中数据。因此，为了提高读性能，LSM-Tree会定期对磁盘中的SSTable文件进行合并（Compaction），合并时会将相同数据进行合并，减少数据量。
 
@@ -22,15 +32,32 @@ ObLsm 是 MiniOB 中的一个为教学设计的 LSM-Tree 架构的 KV 存储引�
 ## 实验
 
 LAB#1 中包含三个相对独立的子任务：
+
 - 任务1: 实现SkipList 并支持 SkipList 无锁并发写入
-- 任务2: 实现 Block Cache 功能，加速 SSTable 的读取
+- 任务2: 实现 Block Cache 功能，加速 SSTable 的读取，实现 SSTable 组织数据的功能。
 - 任务3: 实现 Leveled Compaction 功能，支持 SSTable 的合并
 
 对于上述的每个实验，代码中均提供了包含必须实现的 API 的类及其接口。请不要修改这些类中预定义函数的定义/类名/文件名等。否则，测试脚本可能无法正常运行。你可以在这些类中添加成员变量和函数，以正确实现所需的功能。
 
-### 任务1: 实现SkipList 并支持 SkipList 无锁并发写入
+### 任务1: 实现 SkipList 并支持 SkipList 无锁并发写入
 
-目前，ObLsm 中的 MemTable 基于 SkipList 实现，当前的 SkipList（代码位于`src/oblsm/memtable/ob_skiplist.h`）支持一写多读(并发读不需要额外的同步机制，并发写需要外部的同步机制保证线程安全)。SkipList 中的部分函数还没有实现，请在此基础上实现 SkipList 并支持 SkipList 的无锁并发接口(`ObSkipList::insert_concurrently()`)（**注意：除了这一接口外，可能还需要实现其他必要函数，以支持 SkipList 正常运行，请自行 debug 或查看相关代码文件。**）。测试程序位于 `unittest/oblsm/ob_skiplist_test.cpp` 中。要求使用 CAS 操作来实现 SkipList 的无锁并发插入。下面对必要的知识做简单介绍。
+
+#### 需要修改的文件
+* `src/oblsm/memtable/ob_skiplist.h`
+
+#### 需要实现的函数:
+
+ * `ObSkipList::find_greater_or_equal`   
+ * `ObSkipList::insert` 插入接口
+ * `ObSkipList::insert_concurrently` 无锁并发查找接口
+
+#### 测试的代码
+
+查看测试用例检查接口的实现。
+
+ *  `unittest/oblsm/ob_skiplist_test.cpp`
+  
+目前，ObLsm 中的 MemTable 基于 SkipList 实现，当前的 SkipList 支持一写多读(并发读不需要额外的同步机制，并发写需要外部的同步机制保证线程安全)。SkipList 中的部分函数还没有实现，请在此基础上实现 SkipList 的插入接口和无锁并发写接口（**注意：除了这一接口外，可能还需要实现其他必要函数，以支持 SkipList 正常运行，请自行 debug 或查看相关代码文件。**）。要求使用 CAS 操作来实现 SkipList 的无锁并发插入。下面对必要的知识做简单介绍。**注意：无锁 insert 接口不需要集成进lsm-tree 中，只需要通过单测文件中的测试即可。**
 
 #### CAS（Compare-And-Swap）
 
@@ -126,15 +153,65 @@ MiniOB 中的单测框架使用 `GTest`，在默认参数编译后，单测二�
 
 **思考**：多个 CAS 操作并不是原子的，也就是在插入过程中，多个读线程可能看到不一致的新节点，会导致什么问题？
 
-### 任务2：实现 Block Cache（块缓存） 功能，加速 SSTable 的读取
+### 任务2：实现 Block Cache（块缓存） 功能，加速 SSTable 的读取，实现 SSTable 组织数据的功能
 
-Block Cache(块缓存)是 LSM-Tree 在内存中缓存数据以供读取的地方。Block Cache 的作用是优化热点数据访问磁盘时的I/O性能。ObLsm 中使用 LRU Cache 来实现块缓存。
+**注意要查看数据组织的相关文档：**
+[MiniOB LSM-Tree 设计文档](../design/miniob-lsm-tree.md)
+
+#### 需要修改的文件
+
+##### 1. 数据组织
+
+* `src/oblsm/table/ob_block.cpp`
+* `src/oblsm/table/ob_sstable.cpp`
+* `src/oblsm/table/ob_sstable_builder.cpp`
+* 
+##### 2. 块缓存
+
+* `src/oblsm/memtable/src/oblsm/util/ob_lru_cache.h`
+
+#### 需要实现的函数:
+
+##### 1. 数据组织
+
+  * `ObBlock::decode` 
+    从给定的二进制数据中解析并提取出特定格式的数据，数据组织可以参考上面的文档和`ObBlockBuilder`中的代码。
+
+  * `ObSSTable::init`  
+    `ObSSTable`初始化，初始化`file_reader_`和`block_metas_`
+
+  * `ObSSTable::read_block_with_cache`
+  
+  * `ObSSTable::read_block`
+    从文件中读取一个`ObBlock`。
+  
+  * `ObSSTableBuilder::build`
+    从`memtable`构建一个`ObSSTable`，注意查看`ObSSTableBuilder`内部函数和变量来实现。
+
+##### 2. 块缓存
+
+* `ObLRUCache::get`
+* `ObLRUCache::put`
+* `ObLRUCache::contains`
+* `ObLRUCache<Key, Value> *new_lru_cache(uint32_t capacity)`
+
+#### 测试的代码
+
+查看测试用例检查接口的实现。
+ * `unittest/oblsm/ob_block_test.cpp`
+ * `unittest/oblsm/ob_table_test.cpp`
+ * `unittest/oblsm/ob_lru_cache_test.cpp`
+
+每个 SSTable 是由多个 Block构成。
+
+Block Cache (块缓存)是 LSM-Tree 在内存中缓存数据以供读取的地方。Block Cache 的作用是优化热点数据访问磁盘时的I/O性能。ObLsm 中使用 LRU Cache 来实现块缓存。
 
 LRU Cache（Least Recently Used）是一种常见的缓存淘汰算法。用于在有限的缓存空间中管理数据对象。LRU Cache 的核心思想是基于时间局部性原理，即最近被访问的数据在未来可能会被再次访问。
 
-Cache的容量有限，因此当Cache的容量用完后，而又有新的内容需要添加进来时，就需要挑选并舍弃原有的部分内容，从而腾出空间来放新内容。LRU Cache 的替换原则就是将最近最少使用的内容替换掉。
+Cache 的容量有限，因此当 Cache 的容量用完后，而又有新的内容需要添加进来时，就需要挑选并舍弃原有的部分内容，从而腾出空间来放新内容。LRU Cache 的替换原则就是将最近最少使用的内容替换掉。
 
 #### Block Cache 实现内容
+
 你需要实现 `src/oblsm/util/ob_lru_cache.h` 中的 `ObLruCache` 类，实现 LRU 缓存的功能。
 你需要在 SSTable 上实现 `read_block_with_cache()` 函数。
 
@@ -142,7 +219,7 @@ Block 通过 `(sst_id, block_id)` 作为 Key 进行缓存。如果命中了缓�
 
 
 **提示**：在实现 Block Cache 时，需要保证其线程安全。
-**提示**：除了本文中提到的需要修改的位置，你还可能需要完成其他必要的修改以支持 Block Cache 正常运行，请自行 debug 或查看相关代码文件。。
+**提示**：除了本文中提到的需要修改的位置，你还可能需要完成其他必要的修改以支持 Block Cache 正常运行，请自行 debug 或查看相关代码文件。
 
 **思考**：在 RocksDB 中，块缓存通过 `strict_capacity_limit` 配置项来控制块缓存大小是否严格限制在块缓存容量内。在你的实现中，块缓存大小是否有可能会超过块缓存容量？
 
@@ -151,16 +228,6 @@ Block 通过 `(sst_id, block_id)` 作为 Key 进行缓存。如果命中了缓�
 ### 测试
 
 可以通过运行 `unittest/oblsm/ob_lru_cache_test.cpp` 来测试 LRU Cache 的功能。
-
-此外，还需要保证可以通过 `unittest/oblsm/ob_lsm_test.cpp` 和 `benchmark/oblsm_performance_test.cpp` 保证在增加 LRU Cache 后，不影响 LSM-Tree 的功能。
-
-Q：如何运行 `benchmark/oblsm_performance_test.cpp`？
-A：通过如下编译命令编译时，对应二进制文件位于`$BUILD_DIR/bin/`目录下，文件名为`oblsm_performance_test`。
-
-```bash
-bash build.sh release -DCONCURRENCY=ON -DWITH_BENCHMARK=ON
-```
-
 
 ### 任务3：实现 Leveled Compaction 功能，支持 SSTable 的合并
 
@@ -198,6 +265,13 @@ ObLsm 中的 Leveled Compaction 需要满足下面规则：
 
 可以通过运行 `unittest/oblsm/ob_compaction_test.cpp` 来测试 Leveled Compaction 功能。此外，还需要保证可以通过 `unittest/oblsm/ob_lsm_test.cpp` 和 `benchmark/oblsm_performance_test.cpp` 保证在增加 Compaction 后，不影响 LSM-Tree 的功能。
 
+Q：如何运行 `benchmark/oblsm_performance_test.cpp`？
+A：通过如下编译命令编译时，对应二进制文件位于`$BUILD_DIR/bin/`目录下，文件名为`oblsm_performance_test`。
+
+```bash
+bash build.sh release -DCONCURRENCY=ON -DWITH_BENCHMARK=ON
+```
+`ob_lsm_test` 和 `oblsm_performance_test` 作为集成性质的测试，可能要在完成上述所有任务后才会通过。
 ## 参考资料
 这里提供了一些学习资料供大家参考学习。
 [The Art of Multiprocessor Programming](https://www2.cs.sfu.ca/~ashriram/Courses/CS431/assets/distrib/AMP.pdf)

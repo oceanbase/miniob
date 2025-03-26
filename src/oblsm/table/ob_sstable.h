@@ -18,28 +18,31 @@ See the Mulan PSL v2 for more details. */
 #include "oblsm/util/ob_lru_cache.h"
 
 namespace oceanbase {
-
 // TODO: add a dumptool to dump sst files(example for usage: ./dumptool sst_file)
-//      ┌─────────────────┐
-//      │    block 1      │◄───┐
-//      ├─────────────────┤    │
-//      │    block 2      │    │
-//      ├─────────────────┤    │
-//      │      ..         │    │
-//      ├─────────────────┤    │
-//      │    block n      │◄─┐ │
-//      ├─────────────────┤  │ │
-// ┌───►│  meta size(n)   │  │ │
-// │    ├─────────────────┤  │ │
-// │    │  block meta 1   ├──┼─┘
-// │    ├─────────────────┤  │
-// │    │      ..         │  │
-// │    ├─────────────────┤  │
-// │    │  block meta n   ├──┘
-// │    ├─────────────────┤
-// └────┤                 │
-//      └─────────────────┘
- 
+//    ┌─────────────────┐
+//    │    block 1      │◄──┐
+//    ├─────────────────┤   │
+//    │    block 2      │   │
+//    ├─────────────────┤   │
+//    │      ..         │   │
+//    ├─────────────────┤   │
+//    │    block n      │◄┐ │
+//    ├─────────────────┤ │ │
+// ┌─►│  meta size(n)   │ │ │
+// │  ├─────────────────┤ │ │
+// │  │block meta 1 size│ │ │
+// │  ├─────────────────┤ │ │
+// │  │  block meta 1   ┼─┼─┘
+// │  ├─────────────────┤ │
+// │  │      ..         │ │
+// │  ├─────────────────┤ │
+// │  │block meta n size│ │
+// │  ├─────────────────┤ │
+// │  │  block meta n   ┼─┘
+// │  ├─────────────────┤
+// └──┼                 │
+//    └─────────────────┘
+
 /**
  * @class ObSSTable
  * @brief Represents an SSTable (Sorted String Table) in the LSM-Tree.
@@ -104,15 +107,15 @@ public:
   shared_ptr<ObBlock> read_block_with_cache(uint32_t block_idx) const;
 
   /**
- * @brief Reads a block directly from the SSTable file.
- *
- * This function bypasses the block cache and directly reads the requested block
- * from the SSTable file.
- *
- * @param block_idx The index of the block to read.
- *
- * @return shared_ptr<ObBlock> A shared pointer to the requested block.
- */
+   * @brief Reads a block directly from the SSTable file.
+   *
+   * This function bypasses the block cache and directly reads the requested block
+   * from the SSTable file.
+   *
+   * @param block_idx The index of the block to read.
+   *
+   * @return shared_ptr<ObBlock> A shared pointer to the requested block.
+   */
   shared_ptr<ObBlock> read_block(uint32_t block_idx) const;
 
   uint32_t block_count() const { return block_metas_.size(); }
@@ -134,7 +137,7 @@ private:
   unique_ptr<ObFileReader> file_reader_;
   vector<BlockMeta>        block_metas_;
 
-  ObLRUCache<uint64_t, shared_ptr<ObBlock>> *block_cache_;
+  [[maybe_unused]] ObLRUCache<uint64_t, shared_ptr<ObBlock>> *block_cache_;
 };
 
 class TableIterator : public ObLsmIterator
