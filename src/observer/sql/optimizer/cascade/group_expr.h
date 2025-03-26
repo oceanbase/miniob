@@ -61,7 +61,10 @@ public:
   // TODO
   uint64_t hash() const;
 
-  bool operator==(const GroupExpr &r) const { return (*contents_ == *(r.contents_)) && (child_groups_ == r.child_groups_); }
+  bool operator==(const GroupExpr &r) const
+  {
+    return (*contents_ == *(r.contents_)) && (child_groups_ == r.child_groups_);
+  }
 
   void set_rule_explored(Rule *rule) { rule_mask_.set(rule->get_rule_idx(), true); }
 
