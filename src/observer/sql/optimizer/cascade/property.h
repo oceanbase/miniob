@@ -12,9 +12,6 @@ See the Mulan PSL v2 for more details. */
 
 class Property
 {
-
-private:
-  int dummy;
 };
 
 /**

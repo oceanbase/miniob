@@ -137,7 +137,7 @@ private:
   unique_ptr<ObFileReader> file_reader_;
   vector<BlockMeta>        block_metas_;
 
-  [[maybe_unused]] ObLRUCache<uint64_t, shared_ptr<ObBlock>> *block_cache_;
+  ObLRUCache<uint64_t, shared_ptr<ObBlock>> *block_cache_;
 };
 
 class TableIterator : public ObLsmIterator
