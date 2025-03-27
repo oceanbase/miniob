@@ -90,7 +90,7 @@ Cascade Optimizer 的入口函数为 `src/observer/sql/optimizer/cascade/optimiz
 
 ## 如何为 Cascade 添加新的算子转换规则
 
-1. 添加逻辑算子和物理算子的定义，可参考`src/observer/sql/operator/table_get_logical_opertor.h` 和 `src/observer/sql/operator/table_scan_physical_operator.h`
+1. 添加逻辑算子和物理算子的定义，可参考`src/observer/sql/operator/table_get_logical_operator.h` 和 `src/observer/sql/operator/table_scan_physical_operator.h`
 2. 添加逻辑算子到物理算子的转换规则，可参考`src/observer/sql/optimizer/implementation_rules.h::LogicalGetToPhysicalSeqScan`
 3. 在 `src/observer/sql/optimizer/rules.h` 中的 `RuleSet` 中注册相应的转换规则。
 
