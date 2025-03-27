@@ -51,7 +51,7 @@ class Table;
  * 按照上面的描述，这里提供了几个类，分别是：
  * - RecordFileHandler：管理整个文件/表的记录增删改查
  * - RecordPageHandler：管理单个页面上记录的增删改查
- * - RecordFileScanner：可以用来遍历整个文件上的所有记录
+ * - RecordScanner：可以用来遍历整个文件上的所有记录
  * - RecordPageIterator：可以用来遍历指定页面上的所有记录
  * - PageHeader：每个页面上都会记录的页面头信息
  */
@@ -414,70 +414,6 @@ private:
   common::Mutex          lock_;  ///< 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
   StorageFormat          storage_format_;
   TableMeta             *table_meta_;
-};
-
-/**
- * @brief 遍历某个文件中所有记录
- * @ingroup RecordManager
- * @details 遍历所有的页面，同时访问这些页面中所有的记录
- */
-class RecordFileScanner
-{
-public:
-  RecordFileScanner() = default;
-  ~RecordFileScanner();
-
-  /**
-   * @brief 打开一个文件扫描。
-   * @details 如果条件不为空，则要对每条记录进行条件比较，只有满足所有条件的记录才被返回
-   * @param table            遍历的哪张表
-   * @param buffer_pool      访问的文件
-   * @param mode             当前是否只读操作。访问数据时，需要对页面加锁。比如
-   *                         删除时也需要遍历找到数据，然后删除，这时就需要加写锁
-   * @param condition_filter 做一些初步过滤操作
-   */
-  RC open_scan(Table *table, DiskBufferPool &buffer_pool, Trx *trx, LogHandler &log_handler, ReadWriteMode mode,
-      ConditionFilter *condition_filter);
-
-  /**
-   * @brief 关闭一个文件扫描，释放相应的资源
-   */
-  RC close_scan();
-
-  /**
-   * @brief 获取下一条记录
-   *
-   * @param record 返回的下一条记录
-   */
-  RC next(Record &record);
-
-  RC update_current(const Record &record);
-
-private:
-  /**
-   * @brief 获取该文件中的下一条记录
-   */
-  RC fetch_next_record();
-
-  /**
-   * @brief 获取一个页面内的下一条记录
-   */
-  RC fetch_next_record_in_page();
-
-private:
-  // TODO 对于一个纯粹的record遍历器来说，不应该关心表和事务
-  Table *table_ = nullptr;  ///< 当前遍历的是哪张表。这个字段仅供事务函数使用，如果设计合适，可以去掉
-
-  DiskBufferPool *disk_buffer_pool_ = nullptr;  ///< 当前访问的文件
-  Trx            *trx_              = nullptr;  ///< 当前是哪个事务在遍历
-  LogHandler     *log_handler_      = nullptr;
-  ReadWriteMode   rw_mode_ = ReadWriteMode::READ_WRITE;  ///< 遍历出来的数据，是否可能对它做修改
-
-  BufferPoolIterator bp_iterator_;                    ///< 遍历buffer pool的所有页面
-  ConditionFilter   *condition_filter_    = nullptr;  ///< 过滤record
-  RecordPageHandler *record_page_handler_ = nullptr;  ///< 处理文件某页面的记录
-  RecordPageIterator record_page_iterator_;           ///< 遍历某个页面上的所有record
-  Record             next_record_;                    ///< 获取的记录放在这里缓存起来
 };
 
 /**

@@ -23,6 +23,7 @@ class LogicalOperator;
 /**
  * @defgroup Rewriter
  * @brief 根据规则对逻辑计划进行重写
+ * TODO: refactor with cascade optimizer
  */
 
 /**

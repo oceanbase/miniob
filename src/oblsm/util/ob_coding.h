@@ -11,6 +11,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/lang/string.h"
+#include "common/lang/string_view.h"
 
 namespace oceanbase {
 

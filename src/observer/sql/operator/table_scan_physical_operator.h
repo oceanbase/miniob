@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "sql/operator/physical_operator.h"
 #include "storage/record/record_manager.h"
+#include "storage/record/record_scanner.h"
 #include "common/types.h"
 
 class Table;
@@ -35,6 +36,15 @@ public:
   string param() const override;
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::TABLE_SCAN; }
+  OpType               get_op_type() const override { return OpType::SEQSCAN; }
+  virtual uint64_t     hash() const override { return 0; }
+
+  virtual bool operator==(const OperatorNode &other) const override { return false; }
+
+  double calculate_cost(LogicalProperty *prop, const vector<LogicalProperty *> &child_log_props, CostModel *cm) override
+  {
+    return (cm->io() + cm->cpu_op()) * prop->get_card();
+  }
 
   RC open(Trx *trx) override;
   RC next() override;
@@ -51,7 +61,7 @@ private:
   Table                         *table_ = nullptr;
   Trx                           *trx_   = nullptr;
   ReadWriteMode                  mode_  = ReadWriteMode::READ_WRITE;
-  RecordFileScanner              record_scanner_;
+  RecordScanner                 *record_scanner_;
   Record                         current_record_;
   RowTuple                       tuple_;
   vector<unique_ptr<Expression>> predicates_;  // TODO chang predicate to table tuple filter

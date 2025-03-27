@@ -28,6 +28,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/math/integer_generator.h"
 #include "common/thread/thread_pool_executor.h"
 #include "storage/clog/integrated_log_replayer.h"
+#include "storage/record/heap_record_scanner.h"
 #include "gtest/gtest.h"
 
 using namespace std;
@@ -68,12 +69,12 @@ TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
 
   VacuousTrx        trx;
   ChunkFileScanner chunk_scanner;
-  RecordFileScanner record_scanner;
   Table             table;
   table.table_meta_.storage_format_ = StorageFormat::PAX_FORMAT;
   // no record
   // record iterator
-  rc = record_scanner.open_scan(&table, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
+  HeapRecordScanner record_scanner(&table, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
+  rc = record_scanner.open_scan();
   ASSERT_EQ(rc, RC::SUCCESS);
 
   int    count = 0;
@@ -114,17 +115,20 @@ TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
   }
 
   // record iterator
-  rc = record_scanner.open_scan(&table, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
-  ASSERT_EQ(rc, RC::SUCCESS);
+  {
+    HeapRecordScanner record_scanner(&table, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
+    rc = record_scanner.open_scan();
+    ASSERT_EQ(rc, RC::SUCCESS);
 
-  count = 0;
-  while (OB_SUCC(rc = record_scanner.next(record))) {
-    count++;
+    count = 0;
+    while (OB_SUCC(rc = record_scanner.next(record))) {
+      count++;
+    }
+    ASSERT_EQ(RC::RECORD_EOF, rc);
+
+    record_scanner.close_scan();
+    ASSERT_EQ(count, rids.size());
   }
-  ASSERT_EQ(RC::RECORD_EOF, rc);
-
-  record_scanner.close_scan();
-  ASSERT_EQ(count, rids.size());
 
   // chunk iterator
   rc = chunk_scanner.open_scan_chunk(&table, *bp, log_handler, ReadWriteMode::READ_ONLY);
@@ -145,17 +149,20 @@ TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
   }
 
   // record iterator
-  rc = record_scanner.open_scan(&table, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
-  ASSERT_EQ(rc, RC::SUCCESS);
+  {
+    HeapRecordScanner record_scanner(&table, *bp, &trx, log_handler, ReadWriteMode::READ_ONLY, nullptr /*condition_filter*/);
+    rc = record_scanner.open_scan();
+    ASSERT_EQ(rc, RC::SUCCESS);
 
-  count = 0;
-  while (OB_SUCC(rc = record_scanner.next(record))) {
-    count++;
+    count = 0;
+    while (OB_SUCC(rc = record_scanner.next(record))) {
+      count++;
+    }
+    ASSERT_EQ(RC::RECORD_EOF, rc);
+
+    record_scanner.close_scan();
+    ASSERT_EQ(count, rids.size() / 2);
   }
-  ASSERT_EQ(RC::RECORD_EOF, rc);
-
-  record_scanner.close_scan();
-  ASSERT_EQ(count, rids.size() / 2);
 
   // chunk iterator
   rc = chunk_scanner.open_scan_chunk(&table, *bp, log_handler, ReadWriteMode::READ_ONLY);

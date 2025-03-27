@@ -48,13 +48,6 @@ RC IndexScanPhysicalOperator::open(Trx *trx)
     LOG_WARN("failed to create index scanner");
     return RC::INTERNAL;
   }
-
-  record_handler_ = table_->record_handler();
-  if (nullptr == record_handler_) {
-    LOG_WARN("invalid record handler");
-    index_scanner->destroy();
-    return RC::INTERNAL;
-  }
   index_scanner_ = index_scanner;
 
   tuple_.set_schema(table_, table_->table_meta().field_metas());
@@ -70,7 +63,7 @@ RC IndexScanPhysicalOperator::next()
 
   bool filter_result = false;
   while (RC::SUCCESS == (rc = index_scanner_->next_entry(&rid))) {
-    rc = record_handler_->get_record(rid, current_record_);
+    rc = table_->get_record(rid, current_record_);
     if (OB_FAIL(rc)) {
       LOG_TRACE("failed to get record. rid=%s, rc=%s", rid.to_string().c_str(), strrc(rc));
       return rc;
