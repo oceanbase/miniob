@@ -18,7 +18,7 @@ title: Cascade Optimizer(查询优化器)
 这里的Expression（表达式）表示一个带有零或多个Input Expression（输入表达式）的Operator，同样可以分为Logical Expression（逻辑表达式）和 Physical Expression（物理表达式）。
 例如对于 TableScan 算子来说，TableScan 算子本身就可以理解为是一个 Expression（不带输入表达式）；对于 Join 算子来说，Join 算子以及其子节点一起构成一个 Expression。
 
-MiniOB 当前的实现中为每个 `OperatorNode` 增加了一个成员变量 `vector<OperatorNode*> general_children_;`，可以认为这里的 Expression 也对应到 MiniOB 中的 `OpertorNode`。
+MiniOB 当前的实现中为每个 `OperatorNode` 增加了一个成员变量 `vector<OperatorNode*> general_children_;`，可以认为这里的 Expression 也对应到 MiniOB 中的 `OperatorNode`。
 
 ### Group
 Group 是一组逻辑等效的逻辑和物理表达式，产生相同的输出。
