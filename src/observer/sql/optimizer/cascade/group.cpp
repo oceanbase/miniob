@@ -18,7 +18,7 @@ Group::Group(int id, GroupExpr* expr, Memo *memo)
   int arity = expr->get_children_groups_size();
 	vector<LogicalProperty*> input_prop;
 	if(arity == 0) {
-    logical_prop_ = std::move((expr->get_op())->find_log_prop(input_prop));
+    logical_prop_ = (expr->get_op())->find_log_prop(input_prop);
 	} else {
 		for(int i=0; i<arity; i++)
 		{	
@@ -26,7 +26,7 @@ Group::Group(int id, GroupExpr* expr, Memo *memo)
 			input_prop.push_back(group->get_logical_prop());
 		}
 		
-		logical_prop_ = std::move((expr->get_op())->find_log_prop(input_prop));
+		logical_prop_ = (expr->get_op())->find_log_prop(input_prop);
   }
 }
 Group::~Group() {

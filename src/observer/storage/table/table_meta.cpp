@@ -33,6 +33,7 @@ TableMeta::TableMeta(const TableMeta &other)
       fields_(other.fields_),
       indexes_(other.indexes_),
       storage_format_(other.storage_format_),
+      storage_engine_(other.storage_engine_),
       record_size_(other.record_size_)
 {}
 
