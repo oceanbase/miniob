@@ -31,7 +31,7 @@ public:
 
   OpType get_op_type() const override { return OpType::LOGICALINNERJOIN; }
 
-  unique_ptr<LogicalProperty> find_log_prop(const vector<LogicalProperty *> &log_props)
+  unique_ptr<LogicalProperty> find_log_prop(const vector<LogicalProperty *> &log_props) override
   {
     if (log_props.size() != 2) {
       return nullptr;
@@ -56,6 +56,5 @@ public:
   }
 
 private:
-  LogicalOperator                    *predicate_op_ = nullptr;
   std::vector<unique_ptr<Expression>> join_predicates_;
 };
