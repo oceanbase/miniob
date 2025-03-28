@@ -76,6 +76,14 @@ Trx *Session::current_trx()
   return trx_;
 }
 
+void Session::destroy_trx()
+  {
+    if (trx_ != nullptr) {
+      db_->trx_kit().destroy_trx(trx_);
+      trx_ = nullptr;
+    }
+  }
+
 thread_local Session *thread_session = nullptr;
 
 void Session::set_current_session(Session *session) { thread_session = session; }

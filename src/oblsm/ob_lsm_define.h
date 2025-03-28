@@ -13,6 +13,7 @@ namespace oceanbase {
 
 static constexpr const char *SSTABLE_SUFFIX  = ".sst";
 static constexpr const char *MANIFEST_SUFFIX = ".mf";
+static constexpr const char *WAL_SUFFIX      = ".wal";
 
 /**
  * @enum CompactionType

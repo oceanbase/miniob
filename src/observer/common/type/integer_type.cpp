@@ -28,6 +28,20 @@ int IntegerType::compare(const Value &left, const Value &right) const
   return INT32_MAX;
 }
 
+RC IntegerType::cast_to(const Value &val, AttrType type, Value &result) const
+{
+  switch (type) {
+  case AttrType::FLOATS: {
+    float float_value = val.get_int();
+    result.set_float(float_value);
+    return RC::SUCCESS;
+  }
+  default:
+    LOG_WARN("unsupported type %d", type);
+    return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+  }
+}
+
 RC IntegerType::add(const Value &left, const Value &right, Value &result) const
 {
   result.set_int(left.get_int() + right.get_int());

@@ -110,7 +110,7 @@ public:
   string get_string() const;
   bool   get_boolean() const;
 
-private:
+public:
   void set_int(int val);
   void set_float(float val);
   void set_string(const char *s, int len = 0);

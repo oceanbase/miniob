@@ -67,6 +67,8 @@ public:
    */
   Trx *current_trx();
 
+  void destroy_trx();
+
   /**
    * @brief 设置当前正在处理的请求
    */

@@ -112,6 +112,7 @@ public:
   Record(const Record &other)
   {
     rid_   = other.rid_;
+    key_   = other.key_;
     data_  = other.data_;
     len_   = other.len_;
     owner_ = other.owner_;
@@ -136,6 +137,7 @@ public:
       return *this;
     }
     this->rid_ = other.rid_;
+    this->key_ = other.key_;
     memcpy(data_, other.data_, other.len_);
     return *this;
   }
@@ -143,7 +145,7 @@ public:
   Record(Record &&other)
   {
     rid_ = other.rid_;
-
+    key_ = other.key_;
     if (!other.owner_) {
       data_        = other.data_;
       len_         = other.len_;
@@ -226,6 +228,21 @@ public:
     return RC::SUCCESS;
   }
 
+  RC reset_filed(int field_offset, int field_len)
+  {
+    if (!owner_) {
+      LOG_ERROR("cannot set field when record does not own the memory");
+      return RC::INTERNAL;
+    }
+    if (field_offset + field_len > len_) {
+      LOG_ERROR("invalid offset or length. offset=%d, length=%d, total length=%d", field_offset, field_len, len_);
+      return RC::INVALID_ARGUMENT;
+    }
+
+    memset(data_ + field_offset, 0, field_len);
+    return RC::SUCCESS;
+  }
+
   char       *data() { return this->data_; }
   const char *data() const { return this->data_; }
   int         len() const { return this->len_; }
@@ -236,13 +253,16 @@ public:
     this->rid_.page_num = page_num;
     this->rid_.slot_num = slot_num;
   }
-  RID       &rid() { return rid_; }
-  const RID &rid() const { return rid_; }
+
+  RID          &rid() { return rid_; }
+  const RID    &rid() const { return rid_; }
+  void          set_key(const string &key) { key_ = key; }
+  const string &key() const { return key_; }
 
 private:
-  RID rid_;
-
-  char *data_  = nullptr;
-  int   len_   = 0;      /// 如果不是record自己来管理内存，这个字段可能是无效的
-  bool  owner_ = false;  /// 表示当前是否由record来管理内存
+  RID    rid_;
+  string key_;  //// 记录的主键，用于 lsm-tree 引擎，需要考虑重构 Record
+  char  *data_  = nullptr;
+  int    len_   = 0;      /// 如果不是record自己来管理内存，这个字段可能是无效的
+  bool   owner_ = false;  /// 表示当前是否由record来管理内存
 };

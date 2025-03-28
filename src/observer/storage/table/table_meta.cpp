@@ -26,6 +26,7 @@ static const Json::StaticString FIELD_STORAGE_FORMAT("storage_format");
 static const Json::StaticString FIELD_STORAGE_ENGINE("storage_engine");
 static const Json::StaticString FIELD_FIELDS("fields");
 static const Json::StaticString FIELD_INDEXES("indexes");
+static const Json::StaticString FIELD_PRIMARY_KEYS("primary_keys");
 
 TableMeta::TableMeta(const TableMeta &other)
     : table_id_(other.table_id_),
@@ -46,7 +47,7 @@ void TableMeta::swap(TableMeta &other) noexcept
 }
 
 RC TableMeta::init(int32_t table_id, const char *name, const vector<FieldMeta> *trx_fields,
-                   span<const AttrInfoSqlNode> attributes, StorageFormat storage_format,
+                   span<const AttrInfoSqlNode> attributes, const vector<string> &primary_keys, StorageFormat storage_format,
                    StorageEngine storage_engine)
 {
   if (common::is_blank(name)) {
@@ -92,6 +93,7 @@ RC TableMeta::init(int32_t table_id, const char *name, const vector<FieldMeta> *
     field_offset += attr_info.length;
   }
 
+  primary_keys_ = primary_keys;
   record_size_ = field_offset;
 
   table_id_ = table_id;
@@ -194,6 +196,12 @@ int TableMeta::serialize(ostream &ss) const
     indexes_value.append(std::move(index_value));
   }
   table_value[FIELD_INDEXES] = std::move(indexes_value);
+
+  Json::Value primary_keys_value;
+  for (const auto &field : primary_keys_) {
+    primary_keys_value.append(field);
+  }
+  table_value[FIELD_PRIMARY_KEYS] = std::move(primary_keys_value);
 
   Json::StreamWriterBuilder builder;
   Json::StreamWriter       *writer = builder.newStreamWriter();
@@ -306,6 +314,27 @@ int TableMeta::deserialize(istream &is)
       }
     }
     indexes_.swap(indexes);
+  }
+
+  const Json::Value &primary_keys_value = table_value[FIELD_PRIMARY_KEYS];
+  if (!primary_keys_value.empty()) {
+    if (!primary_keys_value.isArray()) {
+      LOG_ERROR("Invalid table meta. primary keys is not array, json value=%s", fields_value.toStyledString().c_str());
+      return -1;
+    }
+    const int              primary_key_num = primary_keys_value.size();
+    vector<string> primary_keys(primary_key_num);
+    for (int i = 0; i < primary_key_num; i++) {
+      const Json::Value &field_name_value = primary_keys_value[i];
+      if (!field_name_value.isString()) {
+        LOG_ERROR("Invalid table meta. primary key name is not string, json value=%s",
+                  field_name_value.toStyledString().c_str());
+        return -1;
+      }
+      string field_name = field_name_value.asString();
+      primary_keys.push_back(field_name);
+    }
+    primary_keys_.swap(primary_keys);
   }
 
   return (int)(is.tellg() - old_pos);

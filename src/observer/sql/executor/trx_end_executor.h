@@ -33,6 +33,7 @@ public:
 
   RC execute(SQLStageEvent *sql_event)
   {
+    RC            rc            = RC::SUCCESS;
     Stmt         *stmt          = sql_event->stmt();
     SessionEvent *session_event = sql_event->session_event();
 
@@ -41,9 +42,11 @@ public:
     Trx *trx = session->current_trx();
 
     if (stmt->type() == StmtType::COMMIT) {
-      return trx->commit();
+      rc = trx->commit();
     } else {
-      return trx->rollback();
+      rc = trx->rollback();
     }
+    session->destroy_trx();
+    return rc;
   }
 };

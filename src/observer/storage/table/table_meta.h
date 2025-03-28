@@ -36,7 +36,8 @@ public:
   void swap(TableMeta &other) noexcept;
 
   RC init(int32_t table_id, const char *name, const vector<FieldMeta> *trx_fields,
-      span<const AttrInfoSqlNode> attributes, StorageFormat storage_format, StorageEngine storage_engine);
+      span<const AttrInfoSqlNode> attributes, const vector<string> &primary_keys, StorageFormat storage_format,
+      StorageEngine storage_engine);
 
   RC add_index(const IndexMeta &index);
 
@@ -60,6 +61,8 @@ public:
   const IndexMeta *index(int i) const;
   int              index_num() const;
 
+  const vector<string> &primary_keys() const { return primary_keys_; }
+
   int record_size() const;
 
 public:
@@ -75,6 +78,7 @@ protected:
   vector<FieldMeta> trx_fields_;
   vector<FieldMeta> fields_;  // 包含sys_fields
   vector<IndexMeta> indexes_;
+  vector<string>    primary_keys_;
   StorageFormat     storage_format_;
   StorageEngine     storage_engine_;
 

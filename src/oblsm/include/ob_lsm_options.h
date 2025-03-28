@@ -38,12 +38,17 @@ struct ObLsmOptions
 
   // default compaction type
   CompactionType type = CompactionType::LEVELED;
+
+  // it is used to control whether the WAL is forced to be written to the disk every time a new key is written.
+  bool force_sync_new_log = true;
 };
 
 // TODO: UNIMPLEMENTED
 struct ObLsmReadOptions
 {
   ObLsmReadOptions(){};
+
+  int64_t seq = -1;
 };
 
 }  // namespace oceanbase

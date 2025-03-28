@@ -137,14 +137,14 @@ private:
   unique_ptr<ObFileReader> file_reader_;
   vector<BlockMeta>        block_metas_;
 
-  [[maybe_unused]] ObLRUCache<uint64_t, shared_ptr<ObBlock>> *block_cache_;
+  ObLRUCache<uint64_t, shared_ptr<ObBlock>> *block_cache_;
 };
 
 class TableIterator : public ObLsmIterator
 {
 public:
   TableIterator(const shared_ptr<ObSSTable> &sst) : sst_(sst), block_cnt_(sst->block_count()) {}
-  ~TableIterator() = default;
+  ~TableIterator() override = default;
 
   void        seek(const string_view &key) override;
   void        seek_to_first() override;

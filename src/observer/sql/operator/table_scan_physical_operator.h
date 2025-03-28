@@ -37,9 +37,22 @@ public:
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::TABLE_SCAN; }
   OpType               get_op_type() const override { return OpType::SEQSCAN; }
-  virtual uint64_t     hash() const override { return 0; }
+  virtual uint64_t     hash() const override
+  {
+    uint64_t hash = std::hash<int>()(static_cast<int>(get_op_type()));
+    hash ^= std::hash<int>()(table_->table_id());
+    return hash;
+  }
 
-  virtual bool operator==(const OperatorNode &other) const override { return false; }
+  virtual bool operator==(const OperatorNode &other) const override
+  {
+    if (get_op_type() != other.get_op_type())
+      return false;
+    const auto &other_get = dynamic_cast<const TableScanPhysicalOperator *>(&other);
+    if (table_->table_id() != other_get->table_id())
+      return false;
+    return true;
+  }
 
   double calculate_cost(LogicalProperty *prop, const vector<LogicalProperty *> &child_log_props, CostModel *cm) override
   {
@@ -51,6 +64,8 @@ public:
   RC close() override;
 
   Tuple *current_tuple() override;
+
+  int table_id() const { return table_->table_id(); }
 
   void set_predicates(vector<unique_ptr<Expression>> &&exprs);
 

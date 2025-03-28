@@ -54,9 +54,12 @@ public:
    * @param name   数据库名称
    * @param dbpath 当前数据库放在哪个目录下
    * @param trx_kit_name 使用哪种类型的事务模型
+   * @param storage_engine 存储引擎，目前只支持heap table 和 lsm-tree 两种
    * @note 数据库不是放在dbpath/name下，是直接使用dbpath目录
+   * @todo 支持多个 db，例如同一个db 都是相同的存储引擎。可参考 duckdb。
    */
-  RC init(const char *name, const char *dbpath, const char *trx_kit_name, const char *log_handler_name);
+  RC init(const char *name, const char *dbpath, const char *trx_kit_name, const char *log_handler_name,
+      const char *storage_engine = "heap");
 
   /**
    * @brief 创建一个表
@@ -64,9 +67,8 @@ public:
    * @param attributes 表的属性
    * @param storage_format 表的存储格式
    */
-  RC create_table(const char *table_name, span<const AttrInfoSqlNode> attributes,
-      const StorageFormat storage_format = StorageFormat::ROW_FORMAT,
-      const StorageEngine storage_engine = StorageEngine::HEAP);
+  RC create_table(const char *table_name, span<const AttrInfoSqlNode> attributes, const vector<string> &primary_keys,
+      const StorageFormat storage_format = StorageFormat::ROW_FORMAT);
 
   /**
    * @brief 根据表名查找表
@@ -116,6 +118,21 @@ private:
   /// @brief 初始化数据库的double buffer pool
   RC init_dblwr_buffer();
 
+  StorageEngine get_storage_engine()
+  {
+    StorageEngine engine = StorageEngine::UNKNOWN_ENGINE;
+    if (storage_engine_.length() == 0) {
+      engine = StorageEngine::HEAP;
+    } else if (0 == strcasecmp(storage_engine_.c_str(), "heap")) {
+      engine = StorageEngine::HEAP;
+    } else if (0 == strcasecmp(storage_engine_.c_str(), "lsm")) {
+      engine = StorageEngine::LSM;
+    } else {
+      engine = StorageEngine::UNKNOWN_ENGINE;
+    }
+    return engine;
+  }
+
 private:
   string                         name_;                 ///< 数据库名称
   string                         path_;                 ///< 数据库文件存放的目录
@@ -128,5 +145,6 @@ private:
   /// 给每个table都分配一个ID，用来记录日志。这里假设所有的DDL都不会并发操作，所以相关的数据都不上锁
   int32_t next_table_id_ = 0;
 
-  LSN check_point_lsn_ = 0;  ///< 当前数据库的检查点LSN。会记录到磁盘中。
+  LSN    check_point_lsn_ = 0;  ///< 当前数据库的检查点LSN。会记录到磁盘中。
+  string storage_engine_;
 };

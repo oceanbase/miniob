@@ -14,12 +14,13 @@ See the Mulan PSL v2 for more details. */
 #include "oblsm/include/ob_lsm_iterator.h"
 #include "oblsm/include/ob_lsm.h"
 #include "sql/expr/tuple.h"
+#include "storage/trx/trx.h"
 
 using namespace oceanbase;
 class LsmRecordScanner : public RecordScanner
 {
 public:
-  LsmRecordScanner(Table *table, ObLsm *oblsm) : table_(table), oblsm_(oblsm) {}
+  LsmRecordScanner(Table *table, ObLsm *oblsm, Trx *trx) : table_(table), oblsm_(oblsm), trx_(trx) {}
   ~LsmRecordScanner() = default;
 
   /**
@@ -42,6 +43,7 @@ public:
 private:
   Table         *table_    = nullptr;
   ObLsm         *oblsm_    = nullptr;
+  Trx           *trx_      = nullptr;
   ObLsmIterator *lsm_iter_ = nullptr;
   RowTuple       tuple_;
   Record         record_;

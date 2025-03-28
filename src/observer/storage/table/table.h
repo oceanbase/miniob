@@ -57,7 +57,8 @@ public:
    * @param attributes 字段
    */
   RC create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
-      span<const AttrInfoSqlNode> attributes, StorageFormat storage_format, StorageEngine storage_engine);
+      span<const AttrInfoSqlNode> attributes, const vector<string> &primary_keys, StorageFormat storage_format,
+      StorageEngine storage_engine);
 
   /**
    * 打开一个表
@@ -82,6 +83,10 @@ public:
    */
   RC insert_record(Record &record);
   RC delete_record(const Record &record);
+
+  RC insert_record_with_trx(Record &record, Trx *trx);
+  RC delete_record_with_trx(const Record &record, Trx *trx);
+  RC update_record_with_trx(const Record &old_record, const Record &new_record, Trx *trx);
   RC get_record(const RID &rid, Record &record);
 
   // TODO refactor

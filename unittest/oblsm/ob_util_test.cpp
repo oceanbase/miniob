@@ -35,6 +35,21 @@ TEST(util_test, DISABLED_create_file) {
   remove("tmpfile");
 }
 
+TEST(util_test, DISABLED_rw_file) {
+  remove("tmpfile");
+  auto w = ObFileWriter::create_file_writer("tmpfile", false);
+  w->open_file();
+  string s = "hello world";
+  w->write(s);
+  w->flush();
+  auto r = ObFileReader::create_file_reader("tmpfile");
+  auto read_res = r->read_pos(0, s.size());
+  EXPECT_EQ(read_res, s);
+  EXPECT_TRUE(filesystem::exists("tmpfile"));
+  remove("tmpfile");
+}
+
+
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

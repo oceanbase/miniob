@@ -15,25 +15,35 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/mutex.h"
 #include "common/lang/atomic.h"
 #include "common/lang/memory.h"
-#include "common/lang/filesystem.h"
 #include "common/lang/condition_variable.h"
+#include "common/lang/utility.h"
 #include "common/thread/thread_pool_executor.h"
+#include "oblsm/include/ob_lsm_transaction.h"
 #include "oblsm/memtable/ob_memtable.h"
 #include "oblsm/table/ob_sstable.h"
 #include "oblsm/util/ob_lru_cache.h"
 #include "oblsm/compaction/ob_compaction.h"
 #include "oblsm/ob_manifest.h"
-#include <cstdint>
-#include <stdexcept>
+#include "oblsm/wal/ob_lsm_wal.h"
 
 namespace oceanbase {
+
+struct ObLsmBgCompactCtx
+{
+  ObLsmBgCompactCtx() = default;
+  ObLsmBgCompactCtx(uint64_t id) : new_memtable_id(id) {}
+  uint64_t new_memtable_id;
+};
 
 class ObLsmImpl : public ObLsm
 {
 public:
   ObLsmImpl(const ObLsmOptions &options, const string &path);
-  ~ObLsmImpl()
+  ~ObLsmImpl() override
   {
+    if (!options_.force_sync_new_log) {
+      wal_->sync();
+    }
     executor_.shutdown();
     executor_.await_termination();
   }
@@ -42,12 +52,26 @@ public:
 
   RC get(const string_view &key, string *value) override;
 
+  RC remove(const string_view &key) override;
+
+  ObLsmTransaction *begin_transaction() override;
+
   ObLsmIterator *new_iterator(ObLsmReadOptions options) override;
 
   SSTablesPtr get_sstables() { return sstables_; }
 
+  RC recover();
+  RC batch_put(const std::vector<pair<string, string>> &kvs) override;
+
   // used for debug
   void dump_sstables() override;
+
+private:
+  RC recover_from_wal();
+  RC recover_from_manifest_records(const std::vector<ObManifestCompaction> &records);
+  RC load_manifest_snapshot(const ObManifestSnapshot &snapshot);
+  RC load_manifest_sstable(const std::vector<std::vector<uint64_t>> &sstables);
+  RC write_manifest_snapshot();
 
 private:
   /**
@@ -101,8 +125,10 @@ private:
 
   /**
    * @brief Handles background compaction tasks.
+   *
+   * @param ctx Save the data that will be used during the compaction process.
    */
-  void background_compaction();
+  void background_compaction(std::shared_ptr<ObLsmBgCompactCtx> ctx);
 
   /**
    * @brief Builds an SSTable from the given MemTable.
@@ -124,17 +150,31 @@ private:
    */
   string get_sstable_path(uint64_t sstable_id);
 
-  ObLsmOptions                                               options_;
-  string                                                     path_;
-  mutex                                                      mu_;
-  shared_ptr<ObMemTable>                                     mem_table_;
-  vector<shared_ptr<ObMemTable>>                             imem_tables_;
-  SSTablesPtr                                                sstables_;
-  common::ThreadPoolExecutor                                 executor_;
-  atomic<uint64_t>                                           seq_{0};
-  atomic<uint64_t>                                           sstable_id_{0};
-  condition_variable                                         cv_;
+  /**
+   * @brief Retrieves the file path for a given Memtable id.
+   *
+   * @param memtable_id The unique identifier of the memtable whose path needs to be retrieved.
+   * @return A string representing the full file path of the wal.
+   */
+  string get_wal_path(uint64_t memtable_id);
+
+  ObLsmOptions                      options_;
+  string                            path_;
+  mutex                             mu_;
+  std::shared_ptr<WAL>              wal_;
+  std::vector<std::shared_ptr<WAL>> frozen_wals_;
+  shared_ptr<ObMemTable>            mem_table_;
+  vector<shared_ptr<ObMemTable>>    imem_tables_;
+  SSTablesPtr                       sstables_;
+  common::ThreadPoolExecutor        executor_;
+  ObManifest                        manifest_;
+  atomic<uint64_t>                  seq_{0};
+  atomic<uint64_t>                  sstable_id_{0};
+  atomic<uint64_t>                  memtable_id_{0};
+  condition_variable                cv_;
+  // TODO: use global variable?
   const ObDefaultComparator                                  default_comparator_;
+  const ObInternalKeyComparator                              internal_key_comparator_;
   atomic<bool>                                               compacting_ = false;
   std::unique_ptr<ObLRUCache<uint64_t, shared_ptr<ObBlock>>> block_cache_;
 };

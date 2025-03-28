@@ -30,7 +30,6 @@ public:
 
   Trx *create_trx(LogHandler &log_handler) override;
   Trx *create_trx(LogHandler &log_handler, int32_t trx_id) override;
-  Trx *find_trx(int32_t trx_id) override;
   void all_trxes(vector<Trx *> &trxes) override;
 
   void destroy_trx(Trx *trx) override;
@@ -41,11 +40,12 @@ public:
 class VacuousTrx : public Trx
 {
 public:
-  VacuousTrx()          = default;
+  VacuousTrx() : Trx(TrxKit::Type::VACUOUS) {}
   virtual ~VacuousTrx() = default;
 
   RC insert_record(Table *table, Record &record) override;
   RC delete_record(Table *table, Record &record) override;
+  RC update_record(Table *table, Record &old_record, Record &new_record) override { return RC::UNIMPLEMENTED; }
   RC visit_record(Table *table, Record &record, ReadWriteMode mode) override;
   RC start_if_need() override;
   RC commit() override;

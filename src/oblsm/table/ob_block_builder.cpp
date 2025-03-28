@@ -30,7 +30,7 @@ RC ObBlockBuilder::add(const string_view &key, const string_view &value)
       LOG_ERROR("block is empty, but kv pair is too large, key size: %lu, value size: %lu", key.size(), value.size());
       return RC::UNIMPLEMENTED;
     }
-    LOG_WARN("block is full, can't add more kv pair");
+    LOG_TRACE("block is full, can't add more kv pair");
     rc = RC::FULL;
   } else {
     offsets_.push_back(data_.size());

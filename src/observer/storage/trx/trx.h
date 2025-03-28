@@ -107,6 +107,7 @@ public:
   {
     VACUOUS,  ///< 空的事务管理器，不做任何事情
     MVCC,     ///< 支持MVCC的事务管理器
+    LSM,      ///< 支持LSM的事务管理器
   };
 
 public:
@@ -122,7 +123,6 @@ public:
    * @brief 创建一个事务，日志回放时使用
    */
   virtual Trx *create_trx(LogHandler &log_handler, int32_t trx_id) = 0;
-  virtual Trx *find_trx(int32_t trx_id)                            = 0;
   virtual void all_trxes(vector<Trx *> &trxes)                     = 0;
 
   virtual void destroy_trx(Trx *trx) = 0;
@@ -130,7 +130,7 @@ public:
   virtual LogReplayer *create_log_replayer(Db &db, LogHandler &log_handler) = 0;
 
 public:
-  static TrxKit *create(const char *name);
+  static TrxKit *create(const char *name, Db *db);
 };
 
 /**
@@ -140,12 +140,13 @@ public:
 class Trx
 {
 public:
-  Trx()          = default;
+  Trx(TrxKit::Type type) : type_(type) {}
   virtual ~Trx() = default;
 
-  virtual RC insert_record(Table *table, Record &record)                    = 0;
-  virtual RC delete_record(Table *table, Record &record)                    = 0;
-  virtual RC visit_record(Table *table, Record &record, ReadWriteMode mode) = 0;
+  virtual RC insert_record(Table *table, Record &record)                         = 0;
+  virtual RC delete_record(Table *table, Record &record)                         = 0;
+  virtual RC update_record(Table *table, Record &old_record, Record &new_record) = 0;
+  virtual RC visit_record(Table *table, Record &record, ReadWriteMode mode)      = 0;
 
   virtual RC start_if_need() = 0;
   virtual RC commit()        = 0;
@@ -154,4 +155,8 @@ public:
   virtual RC redo(Db *db, const LogEntry &log_entry) = 0;
 
   virtual int32_t id() const = 0;
+  TrxKit::Type    type() const { return type_; }
+
+private:
+  TrxKit::Type type_;
 };

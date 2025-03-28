@@ -96,6 +96,7 @@ set hash_join=1;
 - 需要实现 INNER JOIN 语法，并将 `INNER JOIN table ON expr` 中的条件表达式 `expr` 放到 `Hash Join` 算子中，支持 `expr` 中包含单个等值条件即可。
 - 可以通过 `Explain` 语句来查看你的执行计划。
 - 可以使用 `test/test/case/miniob_test.py`工具进行 SQL 功能性的测试，相关使用文档位于 `test/test/case/README.md`，部分测试用例可参考 `test/case/test/dblab-hash-join.test`。
+- 需要补充 `PhysicalPlanGenerator::can_use_hash_join` 函数，在等值比较条件下使用 hashjoin 算子。
 
 
 ### 任务3: 查询优化（针对 Join 算子进行查询优化）
@@ -141,6 +142,8 @@ SELECT * FROM tbl1, tbl2, tbl3 WHERE tbl1.a = tbl2.a AND tbl2.a > tbl3.a AND tbl
 - 不需要考虑 OR 条件。
 - 谓词下推的规则在 `src/observer/sql/optimizer/predicate_to_join_rule.h` 中实现。
 - 部分测试用例可参考 `test/case/test/dblab-optimizer.test`
+- 如何确定什么时候谓词可以下推到 join 算子/ join 算子的子节点？可以在每个算子节点中存一下涉及到的表名/表ID，同时在每个谓词表达式中也存储涉及到的表名/表ID，然后可以通过判断谓词涉及到的表名/表ID 是否在算子节点中出现来确定。
+- 需要考虑谓词条件下推到 JOIN 子节点后，如果可以继续下推，需要将谓词条件继续下推，并尽可能消除谓词过滤（Predicate）算子。（例如对于 `select * from tbl1, tbl2 where tbl1.a > 1`，需要将 `tbl1.a > 1` 下推到 TableScan 算子）
 
 ##### 查询物理优化
 你需要基于 Cascade Optimizer（主要代码位于 `src/observer/sql/optimizer/cascade` 中）实现 Join 物理算子选择，即选择 HashJoin 或 NestedLoopJoin 作为 Join 算子的物理算子。你需要根据参与Join 表的基数和谓词条件来计算两个算子的代价，并选择代价较低的 Join 物理算子。

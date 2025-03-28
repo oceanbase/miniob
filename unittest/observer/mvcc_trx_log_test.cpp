@@ -73,7 +73,7 @@ TEST(MvccTrxLog, wal)
   }
 
   for (const string &table_name : table_names) {
-    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos));
+    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos, {}));
     ASSERT_EQ(RC::SUCCESS, db->sync());
   }
 
@@ -196,7 +196,7 @@ TEST(MvccTrxLog, wal2)
   }
 
   for (const string &table_name : table_names) {
-    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos));
+    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos, {}));
     ASSERT_EQ(RC::SUCCESS, db->sync());
   }
 
@@ -248,7 +248,7 @@ TEST(MvccTrxLog, wal2)
   for (int i = table_num; i < table_num + table_num2; i++) {
     string table_name = "table_" + to_string(i);
     table_names_part2.push_back(table_name);
-    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos));
+    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos, {}));
     ASSERT_EQ(RC::SUCCESS, db->sync());
   }
 
@@ -385,7 +385,7 @@ TEST(MvccTrxLog, wal_rollback)
   }
 
   for (const string &table_name : table_names) {
-    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos));
+    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos, {}));
     ASSERT_EQ(RC::SUCCESS, db->sync());
   }
 
@@ -511,7 +511,7 @@ TEST(MvccTrxLog, wal_rollback_half)
   }
 
   for (const string &table_name : table_names) {
-    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos));
+    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos, {}));
     ASSERT_EQ(RC::SUCCESS, db->sync());
   }
 
@@ -642,7 +642,7 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   }
 
   for (const string &table_name : table_names) {
-    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos));
+    ASSERT_EQ(RC::SUCCESS, db->create_table(table_name.c_str(), attr_infos, {}));
     ASSERT_EQ(RC::SUCCESS, db->sync());
   }
 

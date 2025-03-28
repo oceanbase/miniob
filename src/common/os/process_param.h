@@ -71,7 +71,17 @@ public:
       trx_kit_name_ = kit_name;
     }
   }
+
   const string &trx_kit_name() const { return trx_kit_name_; }
+
+  void set_storage_engine(const char *storage_engine)
+  {
+    if (storage_engine) {
+      storage_engine_ = storage_engine;
+    }
+  }
+
+  const string &storage_engine() const { return storage_engine_; }
 
   void set_thread_handling_name(const char *thread_handling_name)
   {
@@ -100,6 +110,7 @@ private:
   string         unix_socket_path_;
   string         protocol_;
   string         trx_kit_name_;
+  string         storage_engine_;
   string         thread_handling_name_;
   int            buffer_pool_memory_size_ = -1;
   string         durability_mode_;

@@ -37,7 +37,6 @@ TEST_P(ObLsmTest, DISABLED_oblsm_test_basic1)
     ASSERT_EQ(db->get(key, &fetched_value), RC::SUCCESS);
     EXPECT_EQ(fetched_value, value);
   }
-  sleep(2);
 
   ObLsmIterator* it = db->new_iterator(ObLsmReadOptions());
   it->seek_to_first();
@@ -88,8 +87,49 @@ TEST_P(ObLsmTest, DISABLED_ConcurrentPutAndGetTest) {
   for (auto &thread : threads) {
     thread.join();
   }
+  // Verify all data using iterator
+  ObLsmReadOptions options;
+  ObLsmIterator *iterator = db->new_iterator(options);
+
+  iterator->seek_to_first();
+  int count = 0;
+  while (iterator->valid()) {
+    iterator->next();
+    ++count;
+  }
+
+  EXPECT_EQ(count, num_entries);
+
+  // Clean up
+  delete iterator;
+}
+
+TEST_P(ObLsmTest, DISABLED_ConcurrentPutAndRecoverTest) {
+  const int num_entries = GetParam();
+  const int num_threads = 4;
+  const int batch_size = num_entries / num_threads;
+
+  std::vector<std::thread> threads;
+  for (int i = 0; i < num_threads; ++i) {
+    int start = i * batch_size;
+    int end = 0;
+    if (i == num_threads - 1) {
+      end = num_entries;
+    } else {
+      end = start + batch_size;
+    }
+    threads.emplace_back(thread_put, db, start, end);
+  }
+
+  for (auto &thread : threads) {
+    thread.join();
+  }
   // TODO: remove sleep
   sleep(2);
+
+  // Close db
+  delete db;
+  ASSERT_EQ(ObLsm::open(this->options, this->path, &db), RC::SUCCESS);
 
   // Verify all data using iterator
   ObLsmReadOptions options;

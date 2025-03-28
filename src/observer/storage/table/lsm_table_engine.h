@@ -30,6 +30,9 @@ public:
 
   RC insert_record(Record &record) override;
   RC delete_record(const Record &record) override { return RC::UNIMPLEMENTED; }
+  RC insert_record_with_trx(Record &record, Trx *trx) override { return RC::UNIMPLEMENTED; }
+  RC delete_record_with_trx(const Record &record, Trx *trx) override { return RC::UNIMPLEMENTED; }
+  RC update_record_with_trx(const Record &old_record, const Record &new_record, Trx *trx) override { return RC::UNIMPLEMENTED; }
   RC get_record(const RID &rid, Record &record) override { return RC::UNIMPLEMENTED; }
 
   RC create_index(Trx *trx, const FieldMeta *field_meta, const char *index_name) override { return RC::UNIMPLEMENTED; }
@@ -40,7 +43,7 @@ public:
   RC     sync() override { return RC::SUCCESS; }
   Index *find_index(const char *index_name) const override { return nullptr; }
   Index *find_index_by_field(const char *field_name) const override { return nullptr; }
-  RC     open() override { return RC::SUCCESS; }
+  RC     open() override;
   RC     init() override { return RC::UNIMPLEMENTED; }
 
 private:

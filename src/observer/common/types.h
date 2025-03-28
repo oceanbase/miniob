@@ -53,9 +53,8 @@ enum class StorageFormat
 
 /**
  * @brief 存储引擎类型
- * @details 当前支持 HEAP 和 LSM 两种存储引擎。
+ * @details 当前支持 HEAP 和 LSM 两种存储引擎，存储引擎在 observer 启动时指定。
  */
-// TODO: support configure storage engine
 enum class StorageEngine
 {
   HEAP = 0,
