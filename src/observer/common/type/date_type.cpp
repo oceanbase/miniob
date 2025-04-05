@@ -11,6 +11,7 @@ int DateType::compare(const Value &left, const Value &right) const
 
 RC DateType::to_string(const Value &val, string &result) const
 {
+  
   // 提取年、月、日
   int year  = val.value_.int_value_ / 10000;        // 获取年份
   int month = (val.value_.int_value_ / 100) % 100;  // 获取月份
