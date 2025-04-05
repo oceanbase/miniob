@@ -16,6 +16,8 @@ RC DateType::to_string(const Value &val, string &result) const
   int month = (val.value_.int_value_ / 100) % 100;  // 获取月份
   int day   = val.value_.int_value_ % 100;          // 获取日期
 
+
+  
   // 使用字符串流构建结果字符串
   std::ostringstream oss;
   oss << std::setw(4) << std::setfill('0') << year << '-' << std::setw(2) << std::setfill('0') << month << '-'
