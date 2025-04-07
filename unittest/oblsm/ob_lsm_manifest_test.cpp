@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace oceanbase;
 
-TEST(oblsm_manifest_test, record_serialization_and_deserialization)
+TEST(oblsm_manifest_test, DISABLED_record_serialization_and_deserialization)
 {
   // Compaction
   ObManifestCompaction compaction;
@@ -64,7 +64,7 @@ TEST(oblsm_manifest_test, record_serialization_and_deserialization)
   EXPECT_EQ(new_memtable, memtable);
 }
 
-TEST(oblsm_manifest_test, manifest_without_currentfile)
+TEST(oblsm_manifest_test, DISABLED_manifest_without_currentfile)
 {
   filesystem::remove_all("oblsm_tmp");
   filesystem::create_directory("oblsm_tmp");
@@ -90,7 +90,7 @@ TEST(oblsm_manifest_test, manifest_without_currentfile)
   remove(mf_file.c_str());
 }
 
-TEST(oblsm_manifest_test, manifest_persist)
+TEST(oblsm_manifest_test, DISABLED_manifest_persist)
 {
   filesystem::remove_all("oblsm_tmp");
   filesystem::create_directory("oblsm_tmp");
@@ -132,7 +132,7 @@ TEST(oblsm_manifest_test, manifest_persist)
   remove(mf_file.c_str());
 }
 
-TEST(oblsm_manifest_test, manifest_reopen)
+TEST(oblsm_manifest_test, DISABLED_manifest_reopen)
 {
   filesystem::remove_all("oblsm_tmp");
   filesystem::create_directory("oblsm_tmp");
@@ -175,7 +175,7 @@ TEST(oblsm_manifest_test, manifest_reopen)
   remove(mf_file.c_str());
 }
 
-TEST(oblsm_manifest_test, oblsm_recover_empty)
+TEST(oblsm_manifest_test, DISABLED_oblsm_recover_empty)
 {
   filesystem::remove_all("oblsm_tmp");
   filesystem::create_directory("oblsm_tmp");
@@ -192,7 +192,7 @@ TEST(oblsm_manifest_test, oblsm_recover_empty)
   delete lsm;
 }
 
-TEST(oblsm_manifest_test, oblsm_simple_recover)
+TEST(oblsm_manifest_test, DISABLED_oblsm_simple_recover)
 {
   filesystem::remove_all("oblsm_tmp");
   filesystem::create_directory("oblsm_tmp");

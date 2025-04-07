@@ -96,13 +96,13 @@ private:
    * This member variable links the transaction to its underlying database, ensuring that
    * all transactional operations target the correct storage layer.
    */
-  ObLsm *db_ = nullptr;
+  [[maybe_unused]] ObLsm *db_ = nullptr;
 
   /**
    * @brief The transaction's unique timestamp.
    *
    */
-  uint64_t ts_ = 0;
+  [[maybe_unused]] uint64_t ts_ = 0;
 
   /**
    * @brief In-memory store for transactional changes.
@@ -119,6 +119,5 @@ private:
  * @brief An iterator for traversing the transaction's in-memory store
  */
 class TrxInnerMapIterator : public ObLsmIterator
-{
-};
+{};
 }  // namespace oceanbase

@@ -149,15 +149,9 @@ RC ObLsmImpl::put(const string_view &key, const string_view &value)
   return rc;
 }
 
-RC ObLsmImpl::batch_put(const vector<pair<string, string>> &kvs)
-{
-  return RC::UNIMPLEMENTED;
-}
+RC ObLsmImpl::batch_put(const vector<pair<string, string>> &kvs) { return RC::UNIMPLEMENTED; }
 
-RC ObLsmImpl::remove(const string_view &key)
-{
-  return RC::UNIMPLEMENTED;
-}
+RC ObLsmImpl::remove(const string_view &key) { return RC::UNIMPLEMENTED; }
 
 RC ObLsmImpl::try_freeze_memtable()
 {
@@ -282,7 +276,7 @@ void ObLsmImpl::try_major_compaction()
   try_major_compaction();
 }
 
-vector<shared_ptr<ObSSTable>> ObLsmImpl::do_compaction(ObCompaction *picked){ return {}; }
+vector<shared_ptr<ObSSTable>> ObLsmImpl::do_compaction(ObCompaction *picked) { return {}; }
 
 void ObLsmImpl::build_sstable(shared_ptr<ObMemTable> imem)
 {
