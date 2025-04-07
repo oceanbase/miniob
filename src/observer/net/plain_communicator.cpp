@@ -245,6 +245,11 @@ RC PlainCommunicator::write_result_internal(SessionEvent *event, bool &need_disc
   }
 
   if (OB_FAIL(rc)) {
+		// 失败时也close sql_result, 防止出现"frame unlock while not holding read lock"
+		RC rc_close = sql_result->close();
+		if (OB_SUCC(rc)) {
+			rc = rc_close;
+		}
     return rc;
   }
 
