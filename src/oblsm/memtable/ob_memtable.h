@@ -62,18 +62,6 @@ public:
   void put(uint64_t seq, const string_view &key, const string_view &value);
 
   /**
-   * @brief Retrieves the value associated with a specific key from the memtable.
-   *
-   * Searches for the specified key in the memtable. If the key exists, its
-   * associated value is stored in the output parameter `*value`.
-   *
-   * @param key The key to search for in the memtable.
-   * @param value A pointer to a string where the retrieved value will be stored.
-   * @return An RC value indicating the success or failure of the operation.
-   */
-  RC get(const string_view &key, string *value);
-
-  /**
    * @brief Estimates the memory usage of the memtable.
    *
    * Returns the approximate memory usage of the memtable, including the

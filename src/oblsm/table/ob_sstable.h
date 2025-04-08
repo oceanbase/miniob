@@ -86,8 +86,6 @@ public:
    */
   void init();
 
-  RC get(const string_view &lookup_key, string *value);
-
   uint32_t sst_id() const { return sst_id_; }
 
   shared_ptr<ObSSTable> get_shared_ptr() { return shared_from_this(); }

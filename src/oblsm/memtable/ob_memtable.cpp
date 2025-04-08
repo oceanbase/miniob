@@ -45,34 +45,6 @@ void ObMemTable::put(uint64_t seq, const string_view &key, const string_view &va
   table_.insert(buf);
 }
 
-// TODO: use iterator to simplify the code
-RC ObMemTable::get(const string_view &lookup_key, string *value)
-{
-  RC                                                rc = RC::SUCCESS;
-  ObSkipList<const char *, KeyComparator>::Iterator iter(&table_);
-  iter.seek(lookup_key.data());
-  if (iter.valid()) {
-    const char *entry      = iter.key();
-    char *      key_ptr    = const_cast<char *>(entry);
-    size_t      key_length = get_numeric<size_t>(key_ptr);
-    key_ptr += sizeof(size_t);
-    // TODO: unify comparator and key lookup key in memtable and sstable.
-    string_view user_key = extract_user_key_from_lookup_key(lookup_key);
-    if (comparator_.comparator.user_comparator()->compare(string_view(key_ptr, key_length - SEQ_SIZE), user_key) == 0) {
-      key_ptr += key_length;
-      size_t val_len = get_numeric<size_t>(key_ptr);
-      key_ptr += sizeof(size_t);
-      string_view val(key_ptr, val_len);
-      value->assign(val.data(), val.size());
-    } else {
-      return RC::NOTFOUND;
-    }
-  } else {
-    return RC::NOTFOUND;
-  }
-  return rc;
-}
-
 int ObMemTable::KeyComparator::operator()(const char *a, const char *b) const
 {
   // Internal keys are encoded as length-prefixed strings.

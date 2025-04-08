@@ -35,7 +35,6 @@ ObLsmImpl::ObLsmImpl(const ObLsmOptions &options, const string &path)
     sstables_->resize(options_.default_levels);
   }
 
-  // TODO: Check the cpu consumption at idle
   executor_.init("ObLsmBackground", 1, 1, 60 * 1000);
   block_cache_ =
       std::unique_ptr<ObLRUCache<uint64_t, shared_ptr<ObBlock>>>{new ObLRUCache<uint64_t, shared_ptr<ObBlock>>(1024)};
@@ -317,40 +316,15 @@ RC ObLsmImpl::get(const string_view &key, string *value)
 {
   RC                     rc = RC::SUCCESS;
   unique_lock<mutex>     lock(mu_);
-  shared_ptr<ObMemTable> mem = mem_table_;
-
-  shared_ptr<ObMemTable> imm = nullptr;
-  if (!imem_tables_.empty()) {
-    imm = imem_tables_.back();
-  }
-  vector<shared_ptr<ObSSTable>> sstables;
-  for (auto &level : *sstables_) {
-    sstables.insert(sstables.end(), level.begin(), level.end());
-  }
-  lock.unlock();
-  string lookup_key;
-  put_numeric<uint64_t>(&lookup_key, key.size() + SEQ_SIZE);
-  lookup_key.append(key.data(), key.size());
-  // TODO: currenttly we use only use the latest seq,
-  // we need to use specific seq if oblsm support transaction
-  put_numeric<uint64_t>(&lookup_key, seq_.load());
-
-  if (OB_SUCC(mem_table_->get(lookup_key, value))) {
-    LOG_INFO("get key from memtable");
-  } else if (imm != nullptr && OB_SUCC(imm->get(lookup_key, value))) {
-    LOG_INFO("get key from immemtable");
-  } else {
-    for (auto &sst : sstables) {
-      // TODO: sort sstables and return newest value
-      if (OB_SUCC(sst->get(lookup_key, value))) {
-        break;
-      }
-      if (rc != RC::NOT_EXIST) {
-        LOG_WARN("get key from sstables error: %d", rc);
-      }
+  auto iter = unique_ptr<ObLsmIterator>(new_iterator(ObLsmReadOptions{}));
+  iter->seek(key);
+  if (iter->valid() && iter->key() == key) {
+    if (iter->value().empty()) {
+      rc = RC::NOT_EXIST;
+    } else {
+      value->assign(iter->value());
     }
-  }
-  if (value->empty()) {
+  } else {
     rc = RC::NOT_EXIST;
   }
   return rc;
