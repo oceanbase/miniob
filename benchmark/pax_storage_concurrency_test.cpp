@@ -27,6 +27,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/common/condition_filter.h"
 #include "storage/record/record_manager.h"
+#include "storage/record/heap_record_scanner.h"
 #include "storage/trx/vacuous_trx.h"
 #include "storage/clog/vacuous_log_handler.h"
 #include "storage/buffer/double_write_buffer.h"
@@ -216,11 +217,11 @@ public:
   void Scan(int32_t begin, int32_t end, Stat &stat)
   {
     TestConditionFilter condition_filter(begin, end);
-    RecordFileScanner   scanner;
     VacuousTrx          trx;
     Table               table;
+    HeapRecordScanner   scanner(&table, *buffer_pool_, &trx, log_handler_, ReadWriteMode::READ_ONLY, &condition_filter);
     table.table_meta_.storage_format_ = StorageFormat::PAX_FORMAT;
-    RC rc = scanner.open_scan(&table, *buffer_pool_, &trx, log_handler_, ReadWriteMode::READ_ONLY, &condition_filter);
+    RC rc                             = scanner.open_scan();
     if (rc != RC::SUCCESS) {
       stat.scan_open_failed_count++;
     } else {

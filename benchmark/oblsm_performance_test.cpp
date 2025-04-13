@@ -45,7 +45,6 @@ public:
     if (rc != RC::SUCCESS) {
       throw runtime_error("failed to open oblsm");
     }
-
     LOG_INFO("test %s setup done. threads=%d, thread index=%d",
              this->Name().c_str(), state.threads(), state.thread_index());
   }

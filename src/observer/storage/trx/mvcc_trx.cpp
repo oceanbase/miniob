@@ -357,10 +357,10 @@ RC MvccTrx::rollback()
         RID    rid(operation.page_num(), operation.slot_num());
         Table *table = operation.table();
         // 这里也可以不删除，仅仅给数据加个标识位，等垃圾回收器来收割也行
-
+        Record record;
+        record.set_rid(rid);
         if (recovering_) {
           // 恢复的时候，需要额外判断下当前记录是否还是当前事务拥有。是的话才能删除记录
-          Record record;
           rc = table->get_record(rid, record);
           if (OB_SUCC(rc)) {
             Field begin_xid_field, end_xid_field;
@@ -376,7 +376,7 @@ RC MvccTrx::rollback()
             return rc;
           }
         }
-        rc = table->delete_record(rid);
+        rc = table->delete_record(record);
         ASSERT(rc == RC::SUCCESS, "failed to delete record while rollback. rid=%s, rc=%s",
                rid.to_string().c_str(), strrc(rc));
       } break;

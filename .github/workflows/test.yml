@@ -63,7 +63,7 @@ jobs:
         run: |
           cd test/sysbench
           sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} prepare
-          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} run
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} run || { cat ../../observer.log*; exit 1; }
 
       - name: stop server
         shell: bash
@@ -83,7 +83,7 @@ jobs:
         shell: bash
         run: |
           cd test/sysbench
-          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} run
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} run || { cat ../../observer.log*; exit 1; }
 
   benchmark-test:
     runs-on: ubuntu-latest

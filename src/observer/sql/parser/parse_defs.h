@@ -154,9 +154,11 @@ struct AttrInfoSqlNode
  */
 struct CreateTableSqlNode
 {
-  string                  relation_name;   ///< Relation name
-  vector<AttrInfoSqlNode> attr_infos;      ///< attributes
-  string                  storage_format;  ///< storage format
+  string                  relation_name;  ///< Relation name
+  vector<AttrInfoSqlNode> attr_infos;     ///< attributes
+  // TODO: integrate to CreateTableOptions
+  string storage_format;  ///< storage format
+  string storage_engine;  ///< storage engine
 };
 
 /**
@@ -166,6 +168,15 @@ struct CreateTableSqlNode
 struct DropTableSqlNode
 {
   string relation_name;  ///< 要删除的表名
+};
+
+/**
+ * @brief 描述一个analyze table语句
+ * @ingroup SQLParser
+ */
+struct AnalyzeTableSqlNode
+{
+  string relation_name;  ///< 要分析的表名
 };
 
 /**
@@ -263,6 +274,7 @@ enum SqlCommandFlag
   SCF_DELETE,
   SCF_CREATE_TABLE,
   SCF_DROP_TABLE,
+  SCF_ANALYZE_TABLE,
   SCF_CREATE_INDEX,
   SCF_DROP_INDEX,
   SCF_SYNC,
@@ -294,6 +306,7 @@ public:
   UpdateSqlNode       update;
   CreateTableSqlNode  create_table;
   DropTableSqlNode    drop_table;
+  AnalyzeTableSqlNode analyze_table;
   CreateIndexSqlNode  create_index;
   DropIndexSqlNode    drop_index;
   DescTableSqlNode    desc_table;

@@ -31,6 +31,7 @@ public:
   virtual ~PredicatePhysicalOperator() = default;
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::PREDICATE; }
+  OpType               get_op_type() const override { return OpType::FILTER; }
 
   RC open(Trx *trx) override;
   RC next() override;

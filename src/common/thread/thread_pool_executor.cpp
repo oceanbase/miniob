@@ -156,6 +156,8 @@ void ThreadPoolExecutor::thread_func()
       if (keep_alive_time_ms_.count() > 0) {
         idle_deadline = Clock::now() + keep_alive_time_ms_;
       }
+    } else {
+      this_thread::sleep_for(10ms);
     }
     if (state_ != State::RUNNING && work_queue_->size() == 0) {
       break;

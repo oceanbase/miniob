@@ -233,13 +233,11 @@ Block 通过 `(sst_id, block_id)` 作为 Key 进行缓存。如果命中了缓�
 
 #### Compaction 简介
 ##### Leveled Compaction
-
 在 Leveled Compaction 中，LSM-Tree 划分为 N 个 Level，每个 Level 仅包含一个 Sorted Run(相同层级的 SSTable 之间 Key 范围不存在交集)；相邻 Level 的 SSTable 大小有一个倍数关系。
 
 Compaction 的触发是由于某个 Level 的数据量超过了阈值。在 Compaction 时会选择 L(n-1) 的数据，与原有 L(n) 的数据 Rowkey 有交集的部分进行合并，得到新的 L(n) 数据。
 
 ##### Tiered Compaction
-
 在 Tiered Compaction 中，LSM-Tree 也被划分为 N 个 Level，每个 Level 可以包含多个 SSTable。相同 Level 的 SSTable 的 key range 可能存在交集。在查询时需要访问这个 Level 所有的 SSTable，使得读放大比较严重，查询性能不佳。
 
 Compaction 的触发条件是某个 Level 的 SSTable 数量超过了阈值，会将 L(n) 的若干 SSTable，合出一个新的 SSTable 放入 L(n+1)，并不与原有 L(n+1) 的数据进行合并。相比于 Leveled 而言执行速度会更快，写放大会更优，但由于查询的 SSTable 数量变多，读放大会更差。
@@ -251,7 +249,6 @@ Compaction 的触发条件是某个 Level 的 SSTable 数量超过了阈值，�
 **提示**：除了本文中提到的需要修改的位置，你还可能需要完成其他必要的修改以支持 Leveled Compaction 正常运行，请自行 debug 或查看相关代码文件。
 
 ObLsm 中的 Leveled Compaction 需要满足下面规则：
-
 1. 磁盘上的文件按多个层级（Level）进行组织。我们称它们为1级、2级等，或简称为L1、L2等，层级数由`ObLsmOptions::default_levels` 指定。特殊的 level-0（或简称 L0）包含刚刚从内存写入缓冲区（memtable）刷新的文件。
 2. 每个级别（ L0 除外）都仅包含一个 Sorted Run(相同层级的 SSTable 之间 Key 范围不存在交集)。
 3. 每个层级（L1 及以上）之间的数据大小存在倍数关系:`L_{i+1} = L_{i} * k`，其中 k 由`ObLsmOptions::default_level_ratio` 指定，L1 层级的数据大小由`ObLsmOptions::default_l1_level_size` 指定。

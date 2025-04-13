@@ -481,11 +481,38 @@ class CommandRunner:
       result = self.run_connection(command_arg)
     elif 'sort' == command:
       result = self.run_sort(command_arg)
+    elif command.startswith('ensure'):
+      result = self.run_ensure(command, command_arg)
     else:
       _logger.error("No such command %s", command)
       result = False
 
     return result
+  
+  def run_ensure(self, command: str, sql: str):
+    self.__result_writer.write_line(command + " " + sql)
+    result, data = self.__current_client.run_sql("explain " + sql)
+    if result is False:
+      return False
+    if command == "ensure:hashjoin":
+      if len(data.split("HASH_JOIN")) != 2:
+        return False
+    elif command == "ensure:hashjoin*2":
+      if len(data.split("HASH_JOIN")) != 3:
+        return False
+    elif command == "ensure:hashjoin*4":
+      if len(data.split("HASH_JOIN")) != 5:
+        return False
+    elif command == "ensure:nlj":
+      if len(data.split("NESTED_LOOP_JOIN")) != 2:
+        return False
+    elif command == "ensure:nlj*2":
+      if len(data.split("NESTED_LOOP_JOIN")) != 3:
+        return False
+    else:
+      _logger.error("No such ensure command %s", command)
+      return False
+    return True
     
   def run_anything(self, argline: str):
     argline = argline.strip()
@@ -720,7 +747,7 @@ class TestSuite:
 
     result_file_name = test_case.result_file(self.__test_result_base_dir)
     if self.__report_only:
-      os.rename(result_tmp_file_name, result_file_name)
+      shutil.copy(result_tmp_file_name, result_file_name)
       return True
     else:
       result = self.__compare_files(result_tmp_file_name, result_file_name)

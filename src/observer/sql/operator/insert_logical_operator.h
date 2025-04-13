@@ -29,6 +29,8 @@ public:
 
   LogicalOperatorType type() const override { return LogicalOperatorType::INSERT; }
 
+  OpType get_op_type() const override { return OpType::LOGICALINSERT; }
+
   Table               *table() const { return table_; }
   const vector<Value> &values() const { return values_; }
   vector<Value>       &values() { return values_; }

@@ -41,7 +41,7 @@ enum class ReadWriteMode
 };
 
 /**
- * @brief 存储格式
+ * @brief 存储格式，仅支持 Heap 存储引擎设置。
  * @details 当前仅支持行存格式（ROW_FORMAT）以及 PAX 存储格式(PAX_FORMAT)。
  */
 enum class StorageFormat
@@ -49,6 +49,18 @@ enum class StorageFormat
   UNKNOWN_FORMAT = 0,
   ROW_FORMAT,
   PAX_FORMAT
+};
+
+/**
+ * @brief 存储引擎类型
+ * @details 当前支持 HEAP 和 LSM 两种存储引擎。
+ */
+// TODO: support configure storage engine
+enum class StorageEngine
+{
+  HEAP = 0,
+  LSM,
+  UNKNOWN_ENGINE
 };
 
 /**

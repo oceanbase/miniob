@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/log/log.h"
 #include "sql/expr/expression.h"
+#include "session/session.h"
 #include "sql/operator/aggregate_vec_physical_operator.h"
 #include "sql/operator/calc_logical_operator.h"
 #include "sql/operator/calc_physical_operator.h"
@@ -23,11 +24,12 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/explain_physical_operator.h"
 #include "sql/operator/expr_vec_physical_operator.h"
 #include "sql/operator/group_by_vec_physical_operator.h"
+#include "sql/operator/hash_join_physical_operator.h"
 #include "sql/operator/index_scan_physical_operator.h"
 #include "sql/operator/insert_logical_operator.h"
 #include "sql/operator/insert_physical_operator.h"
 #include "sql/operator/join_logical_operator.h"
-#include "sql/operator/join_physical_operator.h"
+#include "sql/operator/nested_loop_join_physical_operator.h"
 #include "sql/operator/predicate_logical_operator.h"
 #include "sql/operator/predicate_physical_operator.h"
 #include "sql/operator/project_logical_operator.h"
@@ -44,45 +46,45 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
-RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   RC rc = RC::SUCCESS;
 
   switch (logical_operator.type()) {
     case LogicalOperatorType::CALC: {
-      return create_plan(static_cast<CalcLogicalOperator &>(logical_operator), oper);
+      return create_plan(static_cast<CalcLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     case LogicalOperatorType::TABLE_GET: {
-      return create_plan(static_cast<TableGetLogicalOperator &>(logical_operator), oper);
+      return create_plan(static_cast<TableGetLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     case LogicalOperatorType::PREDICATE: {
-      return create_plan(static_cast<PredicateLogicalOperator &>(logical_operator), oper);
+      return create_plan(static_cast<PredicateLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     case LogicalOperatorType::PROJECTION: {
-      return create_plan(static_cast<ProjectLogicalOperator &>(logical_operator), oper);
+      return create_plan(static_cast<ProjectLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     case LogicalOperatorType::INSERT: {
-      return create_plan(static_cast<InsertLogicalOperator &>(logical_operator), oper);
+      return create_plan(static_cast<InsertLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     case LogicalOperatorType::DELETE: {
-      return create_plan(static_cast<DeleteLogicalOperator &>(logical_operator), oper);
+      return create_plan(static_cast<DeleteLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     case LogicalOperatorType::EXPLAIN: {
-      return create_plan(static_cast<ExplainLogicalOperator &>(logical_operator), oper);
+      return create_plan(static_cast<ExplainLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     case LogicalOperatorType::JOIN: {
-      return create_plan(static_cast<JoinLogicalOperator &>(logical_operator), oper);
+      return create_plan(static_cast<JoinLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     case LogicalOperatorType::GROUP_BY: {
-      return create_plan(static_cast<GroupByLogicalOperator &>(logical_operator), oper);
+      return create_plan(static_cast<GroupByLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     default: {
@@ -93,22 +95,22 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, unique_ptr<P
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_vec(LogicalOperator &logical_operator, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_vec(LogicalOperator &logical_operator, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   RC rc = RC::SUCCESS;
 
   switch (logical_operator.type()) {
     case LogicalOperatorType::TABLE_GET: {
-      return create_vec_plan(static_cast<TableGetLogicalOperator &>(logical_operator), oper);
+      return create_vec_plan(static_cast<TableGetLogicalOperator &>(logical_operator), oper, session);
     } break;
     case LogicalOperatorType::PROJECTION: {
-      return create_vec_plan(static_cast<ProjectLogicalOperator &>(logical_operator), oper);
+      return create_vec_plan(static_cast<ProjectLogicalOperator &>(logical_operator), oper, session);
     } break;
     case LogicalOperatorType::GROUP_BY: {
-      return create_vec_plan(static_cast<GroupByLogicalOperator &>(logical_operator), oper);
+      return create_vec_plan(static_cast<GroupByLogicalOperator &>(logical_operator), oper, session);
     } break;
     case LogicalOperatorType::EXPLAIN: {
-      return create_vec_plan(static_cast<ExplainLogicalOperator &>(logical_operator), oper);
+      return create_vec_plan(static_cast<ExplainLogicalOperator &>(logical_operator), oper, session);
     } break;
     default: {
       return RC::INVALID_ARGUMENT;
@@ -119,7 +121,7 @@ RC PhysicalPlanGenerator::create_vec(LogicalOperator &logical_operator, unique_p
 
 
 
-RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   vector<unique_ptr<Expression>> &predicates = table_get_oper.predicates();
   // 看看是否有可以用于索引查找的表达式
@@ -190,7 +192,7 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
   return RC::SUCCESS;
 }
 
-RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   vector<unique_ptr<LogicalOperator>> &children_opers = pred_oper.children();
   ASSERT(children_opers.size() == 1, "predicate logical operator's sub oper number should be 1");
@@ -198,7 +200,7 @@ RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, uniqu
   LogicalOperator &child_oper = *children_opers.front();
 
   unique_ptr<PhysicalOperator> child_phy_oper;
-  RC                           rc = create(child_oper, child_phy_oper);
+  RC                           rc = create(child_oper, child_phy_oper, session);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to create child operator of predicate operator. rc=%s", strrc(rc));
     return rc;
@@ -213,7 +215,7 @@ RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, uniqu
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   vector<unique_ptr<LogicalOperator>> &child_opers = project_oper.children();
 
@@ -223,7 +225,7 @@ RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, uniq
   if (!child_opers.empty()) {
     LogicalOperator *child_oper = child_opers.front().get();
 
-    rc = create(*child_oper, child_phy_oper);
+    rc = create(*child_oper, child_phy_oper, session);
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to create project logical operator's child physical operator. rc=%s", strrc(rc));
       return rc;
@@ -241,7 +243,7 @@ RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, uniq
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(InsertLogicalOperator &insert_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(InsertLogicalOperator &insert_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   Table                  *table           = insert_oper.table();
   vector<Value>          &values          = insert_oper.values();
@@ -250,7 +252,7 @@ RC PhysicalPlanGenerator::create_plan(InsertLogicalOperator &insert_oper, unique
   return RC::SUCCESS;
 }
 
-RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   vector<unique_ptr<LogicalOperator>> &child_opers = delete_oper.children();
 
@@ -260,7 +262,7 @@ RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, unique
   if (!child_opers.empty()) {
     LogicalOperator *child_oper = child_opers.front().get();
 
-    rc = create(*child_oper, child_physical_oper);
+    rc = create(*child_oper, child_physical_oper, session);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to create physical operator. rc=%s", strrc(rc));
       return rc;
@@ -275,7 +277,7 @@ RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, unique
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   vector<unique_ptr<LogicalOperator>> &child_opers = explain_oper.children();
 
@@ -284,7 +286,7 @@ RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, uniq
   unique_ptr<PhysicalOperator> explain_physical_oper(new ExplainPhysicalOperator);
   for (unique_ptr<LogicalOperator> &child_oper : child_opers) {
     unique_ptr<PhysicalOperator> child_physical_oper;
-    rc = create(*child_oper, child_physical_oper);
+    rc = create(*child_oper, child_physical_oper, session);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to create child physical operator. rc=%s", strrc(rc));
       return rc;
@@ -297,7 +299,7 @@ RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, uniq
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   RC rc = RC::SUCCESS;
 
@@ -306,24 +308,31 @@ RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr
     LOG_WARN("join operator should have 2 children, but have %d", child_opers.size());
     return RC::INTERNAL;
   }
+  if (session->hash_join_on() && can_use_hash_join(join_oper)) {
+  } else {
+    unique_ptr<PhysicalOperator> join_physical_oper(new NestedLoopJoinPhysicalOperator());
+    for (auto &child_oper : child_opers) {
+      unique_ptr<PhysicalOperator> child_physical_oper;
+      rc = create(*child_oper, child_physical_oper, session);
+      if (rc != RC::SUCCESS) {
+        LOG_WARN("failed to create physical child oper. rc=%s", strrc(rc));
+        return rc;
+      }
 
-  unique_ptr<PhysicalOperator> join_physical_oper(new NestedLoopJoinPhysicalOperator);
-  for (auto &child_oper : child_opers) {
-    unique_ptr<PhysicalOperator> child_physical_oper;
-    rc = create(*child_oper, child_physical_oper);
-    if (rc != RC::SUCCESS) {
-      LOG_WARN("failed to create physical child oper. rc=%s", strrc(rc));
-      return rc;
+      join_physical_oper->add_child(std::move(child_physical_oper));
     }
 
-    join_physical_oper->add_child(std::move(child_physical_oper));
+    oper = std::move(join_physical_oper);
   }
-
-  oper = std::move(join_physical_oper);
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper)
+bool PhysicalPlanGenerator::can_use_hash_join(JoinLogicalOperator &join_oper)
+{
+  return false;
+}
+
+RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   RC rc = RC::SUCCESS;
 
@@ -332,7 +341,7 @@ RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, unique_
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_plan(GroupByLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_plan(GroupByLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   RC rc = RC::SUCCESS;
 
@@ -349,7 +358,7 @@ RC PhysicalPlanGenerator::create_plan(GroupByLogicalOperator &logical_oper, uniq
 
   LogicalOperator             &child_oper = *logical_oper.children().front();
   unique_ptr<PhysicalOperator> child_physical_oper;
-  rc = create(child_oper, child_physical_oper);
+  rc = create(child_oper, child_physical_oper, session);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to create child physical operator of group by operator. rc=%s", strrc(rc));
     return rc;
@@ -361,7 +370,7 @@ RC PhysicalPlanGenerator::create_plan(GroupByLogicalOperator &logical_oper, uniq
   return rc;
 }
 
-RC PhysicalPlanGenerator::create_vec_plan(TableGetLogicalOperator &table_get_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_vec_plan(TableGetLogicalOperator &table_get_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   vector<unique_ptr<Expression>> &predicates = table_get_oper.predicates();
   Table *table = table_get_oper.table();
@@ -373,7 +382,7 @@ RC PhysicalPlanGenerator::create_vec_plan(TableGetLogicalOperator &table_get_ope
   return RC::SUCCESS;
 }
 
-RC PhysicalPlanGenerator::create_vec_plan(GroupByLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_vec_plan(GroupByLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   RC rc = RC::SUCCESS;
   unique_ptr<PhysicalOperator> physical_oper = nullptr;
@@ -389,7 +398,7 @@ RC PhysicalPlanGenerator::create_vec_plan(GroupByLogicalOperator &logical_oper, 
 
   LogicalOperator             &child_oper = *logical_oper.children().front();
   unique_ptr<PhysicalOperator> child_physical_oper;
-  rc = create_vec(child_oper, child_physical_oper);
+  rc = create_vec(child_oper, child_physical_oper, session);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to create child physical operator of group by(vec) operator. rc=%s", strrc(rc));
     return rc;
@@ -403,7 +412,7 @@ RC PhysicalPlanGenerator::create_vec_plan(GroupByLogicalOperator &logical_oper, 
   return RC::SUCCESS;
 }
 
-RC PhysicalPlanGenerator::create_vec_plan(ProjectLogicalOperator &project_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_vec_plan(ProjectLogicalOperator &project_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   vector<unique_ptr<LogicalOperator>> &child_opers = project_oper.children();
 
@@ -412,7 +421,7 @@ RC PhysicalPlanGenerator::create_vec_plan(ProjectLogicalOperator &project_oper, 
   RC rc = RC::SUCCESS;
   if (!child_opers.empty()) {
     LogicalOperator *child_oper = child_opers.front().get();
-    rc                          = create_vec(*child_oper, child_phy_oper);
+    rc                          = create_vec(*child_oper, child_phy_oper, session);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to create project logical operator's child physical operator. rc=%s", strrc(rc));
       return rc;
@@ -438,7 +447,7 @@ RC PhysicalPlanGenerator::create_vec_plan(ProjectLogicalOperator &project_oper, 
 }
 
 
-RC PhysicalPlanGenerator::create_vec_plan(ExplainLogicalOperator &explain_oper, unique_ptr<PhysicalOperator> &oper)
+RC PhysicalPlanGenerator::create_vec_plan(ExplainLogicalOperator &explain_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   vector<unique_ptr<LogicalOperator>> &child_opers = explain_oper.children();
 
@@ -447,7 +456,7 @@ RC PhysicalPlanGenerator::create_vec_plan(ExplainLogicalOperator &explain_oper, 
   unique_ptr<PhysicalOperator> explain_physical_oper(new ExplainPhysicalOperator);
   for (unique_ptr<LogicalOperator> &child_oper : child_opers) {
     unique_ptr<PhysicalOperator> child_physical_oper;
-    rc = create_vec(*child_oper, child_physical_oper);
+    rc = create_vec(*child_oper, child_physical_oper, session);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to create child physical operator. rc=%s", strrc(rc));
       return rc;

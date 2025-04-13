@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/expr/expression.h"
+#include "sql/operator/operator_node.h"
+#include "common/lang/unordered_set.h"
 
 /**
  * @brief 逻辑算子
@@ -44,7 +46,7 @@ enum class LogicalOperatorType
  * @brief 逻辑算子描述当前执行计划要做什么
  * @details 可以看OptimizeStage中相关的代码
  */
-class LogicalOperator
+class LogicalOperator : public OperatorNode
 {
 public:
   LogicalOperator() = default;
@@ -52,10 +54,16 @@ public:
 
   virtual LogicalOperatorType type() const = 0;
 
+  bool is_physical() const override { return false; }
+  bool is_logical() const override { return true; }
+
   void        add_child(unique_ptr<LogicalOperator> oper);
+  void        add_expressions(unique_ptr<Expression> expr);
   auto        children() -> vector<unique_ptr<LogicalOperator>>        &{ return children_; }
   auto        expressions() -> vector<unique_ptr<Expression>>        &{ return expressions_; }
   static bool can_generate_vectorized_operator(const LogicalOperatorType &type);
+  // TODO: used by cascade optimizer, tmp function, need to be remove
+  void generate_general_child();
 
 protected:
   vector<unique_ptr<LogicalOperator>> children_;  ///< 子算子

@@ -10,6 +10,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "oblsm/memtable/ob_memtable.h"
 #include "common/lang/string.h"
+#include "common/lang/string_view.h"
 #include "common/lang/memory.h"
 #include "oblsm/util/ob_coding.h"
 #include "oblsm/ob_lsm_define.h"

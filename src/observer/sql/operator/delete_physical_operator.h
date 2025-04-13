@@ -32,6 +32,8 @@ public:
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::DELETE; }
 
+  OpType get_op_type() const override { return OpType::DELETE; }
+
   RC open(Trx *trx) override;
   RC next() override;
   RC close() override;

@@ -100,6 +100,16 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
     return rc;
   }
 
+  oceanbase::ObLsmOptions options;
+  filesystem::path lsm_path = filesystem::path(dbpath) / "lsm";
+  filesystem::create_directory(lsm_path);
+
+  rc = oceanbase::ObLsm::open(options, lsm_path, &lsm_);
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("failed to open lsm. dbpath=%s, rc=%s", dbpath, strrc(rc));
+    return rc;
+  }
+
   name_ = name;
   path_ = dbpath;
 
@@ -134,7 +144,8 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
   return rc;
 }
 
-RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attributes, const StorageFormat storage_format)
+RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attributes, const StorageFormat storage_format,
+                    const StorageEngine storage_engine)
 {
   RC rc = RC::SUCCESS;
   // check table_name
@@ -147,7 +158,8 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
   string  table_file_path = table_meta_file(path_.c_str(), table_name);
   Table  *table           = new Table();
   int32_t table_id        = next_table_id_++;
-  rc = table->create(this, table_id, table_file_path.c_str(), table_name, path_.c_str(), attributes, storage_format);
+  rc = table->create(this, table_id, table_file_path.c_str(), table_name, path_.c_str(), attributes, storage_format,
+                     storage_engine);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;
