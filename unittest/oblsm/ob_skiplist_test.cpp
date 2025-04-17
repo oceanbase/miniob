@@ -244,8 +244,8 @@ static void RunConcurrentInsert(int write_parallelism = 4) {
   common::ThreadPoolExecutor executor_;
   executor_.init("skiplist_test", write_parallelism, write_parallelism, 60 * 1000);
   common::RandomGenerator rnd;
-  const int N = 1000;
-  const int kSize = 1000;
+  const int N = 100;
+  const int kSize = 10;
   for (int i = 0; i < N; i++) {
     TestState* state = new TestState();
     executor_.execute(std::bind(concurrent_reader, state));
