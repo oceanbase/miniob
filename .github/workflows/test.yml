@@ -145,5 +145,26 @@ jobs:
           nohup ./build_release/bin/observer -T one-thread-per-connection -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk &
           sleep 10 && echo "wake up"
           mysql -S /tmp/miniob.sock -e "show tables"
-            
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+      
+      - name: init mysql
+        uses: shogo82148/actions-setup-mysql@v1
+        with:
+          mysql-version: "8.0"
+      - name: init
+        shell: bash
+        run: |
+          sudo bash build.sh init
+          sudo apt -y install pip python3-pymysql python3-psutil
+
+      - name: integration test
+        shell: bash
+        run: |
+          cd test/integration_test/
+          bash ./miniob_test_docker_entry.sh
+          python3 ./libminiob_test.py -c conf.ini
 
