@@ -314,9 +314,9 @@ string ObLsmImpl::get_wal_path(uint64_t memtable_id)
 
 RC ObLsmImpl::get(const string_view &key, string *value)
 {
-  RC                     rc = RC::SUCCESS;
-  unique_lock<mutex>     lock(mu_);
-  auto iter = unique_ptr<ObLsmIterator>(new_iterator(ObLsmReadOptions{}));
+  RC                 rc = RC::SUCCESS;
+  unique_lock<mutex> lock(mu_);
+  auto               iter = unique_ptr<ObLsmIterator>(new_iterator(ObLsmReadOptions{}));
   iter->seek(key);
   if (iter->valid() && iter->key() == key) {
     if (iter->value().empty()) {

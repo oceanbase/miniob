@@ -13,7 +13,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "oblsm/util/ob_coding.h"
 #include "oblsm/ob_lsm_define.h"
-#include "oblsm/util/ob_coding.h"
 
 namespace oceanbase {
 
