@@ -85,20 +85,6 @@ void MvccTrxKit::destroy_trx(Trx *trx)
   delete trx;
 }
 
-Trx *MvccTrxKit::find_trx(int32_t trx_id)
-{
-  lock_.lock();
-  for (Trx *trx : trxes_) {
-    if (trx->id() == trx_id) {
-      lock_.unlock();
-      return trx;
-    }
-  }
-  lock_.unlock();
-
-  return nullptr;
-}
-
 void MvccTrxKit::all_trxes(vector<Trx *> &trxes)
 {
   lock_.lock();
@@ -113,11 +99,11 @@ LogReplayer *MvccTrxKit::create_log_replayer(Db &db, LogHandler &log_handler)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-MvccTrx::MvccTrx(MvccTrxKit &kit, LogHandler &log_handler) : trx_kit_(kit), log_handler_(log_handler)
+MvccTrx::MvccTrx(MvccTrxKit &kit, LogHandler &log_handler) : Trx(TrxKit::Type::MVCC), trx_kit_(kit), log_handler_(log_handler)
 {}
 
 MvccTrx::MvccTrx(MvccTrxKit &kit, LogHandler &log_handler, int32_t trx_id) 
-  : trx_kit_(kit), log_handler_(log_handler), trx_id_(trx_id)
+  : Trx(TrxKit::Type::MVCC), trx_kit_(kit), log_handler_(log_handler), trx_id_(trx_id)
 {
   started_    = true;
   recovering_ = true;

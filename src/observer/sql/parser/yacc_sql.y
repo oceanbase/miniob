@@ -105,7 +105,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         EXPLAIN
         STORAGE
         FORMAT
-        ENGINE
+        PRIMARY
+        KEY
         ANALYZE
         EQ
         LT
@@ -121,14 +122,15 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   Value *                                    value;
   enum CompOp                                comp;
   RelAttrSqlNode *                           rel_attr;
-  vector<AttrInfoSqlNode> *             attr_infos;
+  vector<AttrInfoSqlNode> *                  attr_infos;
   AttrInfoSqlNode *                          attr_info;
   Expression *                               expression;
-  vector<unique_ptr<Expression>> * expression_list;
-  vector<Value> *                       value_list;
-  vector<ConditionSqlNode> *            condition_list;
-  vector<RelAttrSqlNode> *              rel_attr_list;
-  vector<string> *                 relation_list;
+  vector<unique_ptr<Expression>> *           expression_list;
+  vector<Value> *                            value_list;
+  vector<ConditionSqlNode> *                 condition_list;
+  vector<RelAttrSqlNode> *                   rel_attr_list;
+  vector<string> *                           relation_list;
+  vector<string> *                           key_list;
   char *                                     cstring;
   int                                        number;
   float                                      floats;
@@ -154,7 +156,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <condition_list>      where
 %type <condition_list>      condition_list
 %type <cstring>             storage_format
-%type <cstring>             storage_engine
+%type <key_list>            primary_key
+%type <key_list>            attr_list
 %type <relation_list>       rel_list
 %type <expression>          expression
 %type <expression_list>     expression_list
@@ -301,7 +304,7 @@ drop_index_stmt:      /*drop index 语句的语法解析树*/
     }
     ;
 create_table_stmt:    /*create table 语句的语法解析树*/
-    CREATE TABLE ID LBRACE attr_def attr_def_list RBRACE storage_format storage_engine
+    CREATE TABLE ID LBRACE attr_def attr_def_list primary_key RBRACE storage_format
     {
       $$ = new ParsedSqlNode(SCF_CREATE_TABLE);
       CreateTableSqlNode &create_table = $$->create_table;
@@ -317,29 +320,30 @@ create_table_stmt:    /*create table 语句的语法解析树*/
       create_table.attr_infos.emplace_back(*$5);
       reverse(create_table.attr_infos.begin(), create_table.attr_infos.end());
       delete $5;
-      if ($8 != nullptr) {
-        create_table.storage_format = $8;
+      if ($7 != nullptr) {
+        create_table.primary_keys.swap(*$7);
+        delete $7;
       }
       if ($9 != nullptr) {
-        create_table.storage_engine = $9;
-        free($9);
+        create_table.storage_format = $9;
       }
     }
     ;
+    
 attr_def_list:
     /* empty */
     {
       $$ = nullptr;
     }
-    | COMMA attr_def attr_def_list
+    | attr_def_list COMMA attr_def
     {
-      if ($3 != nullptr) {
-        $$ = $3;
+      if ($1 != nullptr) {
+        $$ = $1;
       } else {
         $$ = new vector<AttrInfoSqlNode>;
       }
-      $$->emplace_back(*$2);
-      delete $2;
+      $$->insert($$->begin(), *$3);
+      delete $3;
     }
     ;
     
@@ -368,6 +372,33 @@ type:
     | FLOAT_T  { $$ = static_cast<int>(AttrType::FLOATS); }
     | VECTOR_T { $$ = static_cast<int>(AttrType::VECTORS); }
     ;
+primary_key:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | COMMA PRIMARY KEY LBRACE attr_list RBRACE
+    {
+      $$ = $5;
+    }
+    ;
+
+attr_list:
+    ID {
+      $$ = new vector<string>();
+      $$->push_back($1);
+    }
+    | ID COMMA attr_list {
+      if ($3 != nullptr) {
+        $$ = $3;
+      } else {
+        $$ = new vector<string>;
+      }
+
+      $$->insert($$->begin(), $1);
+    }
+    ;
+
 insert_stmt:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 
     {
@@ -421,17 +452,6 @@ storage_format:
     | STORAGE FORMAT EQ ID
     {
       $$ = $4;
-    }
-    ;
-
-storage_engine:
-    /* empty */
-    {
-      $$ = nullptr;
-    }
-    | ENGINE EQ ID
-    {
-      $$ = $3;
     }
     ;
     

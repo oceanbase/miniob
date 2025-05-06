@@ -71,8 +71,6 @@ public:
    */
   RC decode(const string &data);
 
-  RC get(const string_view &key, string *value);
-
   ObLsmIterator *new_iterator() const;
 
 private:

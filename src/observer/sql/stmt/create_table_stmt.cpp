@@ -23,11 +23,7 @@ RC CreateTableStmt::create(Db *db, const CreateTableSqlNode &create_table, Stmt 
   if (storage_format == StorageFormat::UNKNOWN_FORMAT) {
     return RC::INVALID_ARGUMENT;
   }
-  StorageEngine storage_engine = get_storage_engine(create_table.storage_engine.c_str());
-  if (storage_engine == StorageEngine::UNKNOWN_ENGINE) {
-    return RC::INVALID_ARGUMENT;
-  }
-  stmt = new CreateTableStmt(create_table.relation_name, create_table.attr_infos, storage_format, storage_engine);
+  stmt = new CreateTableStmt(create_table.relation_name, create_table.attr_infos, create_table.primary_keys, storage_format);
   sql_debug("create table statement: table name %s", create_table.relation_name.c_str());
   return RC::SUCCESS;
 }
@@ -44,18 +40,4 @@ StorageFormat CreateTableStmt::get_storage_format(const char *format_str) {
     format = StorageFormat::UNKNOWN_FORMAT;
   }
   return format;
-}
-
-StorageEngine CreateTableStmt::get_storage_engine(const char *engine_str) {
-  StorageEngine engine = StorageEngine::UNKNOWN_ENGINE;
-  if (strlen(engine_str) == 0) {
-    engine = StorageEngine::HEAP;
-  } else if (0 == strcasecmp(engine_str, "heap")) {
-    engine = StorageEngine::HEAP;
-  } else if (0 == strcasecmp(engine_str, "lsm")) {
-    engine = StorageEngine::LSM;
-  } else {
-    engine = StorageEngine::UNKNOWN_ENGINE;
-  }
-  return engine;
 }

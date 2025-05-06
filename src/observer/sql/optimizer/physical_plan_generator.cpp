@@ -309,6 +309,7 @@ RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr
     return RC::INTERNAL;
   }
   if (session->hash_join_on() && can_use_hash_join(join_oper)) {
+    // your code here
   } else {
     unique_ptr<PhysicalOperator> join_physical_oper(new NestedLoopJoinPhysicalOperator());
     for (auto &child_oper : child_opers) {
@@ -329,6 +330,7 @@ RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr
 
 bool PhysicalPlanGenerator::can_use_hash_join(JoinLogicalOperator &join_oper)
 {
+  // your code here
   return false;
 }
 

@@ -58,6 +58,7 @@ RC IndexScanPhysicalOperator::open(Trx *trx)
 
 RC IndexScanPhysicalOperator::next()
 {
+  // TODO: 需要适配 lsm-tree 引擎
   RID rid;
   RC  rc = RC::SUCCESS;
 

@@ -21,15 +21,24 @@ namespace oceanbase {
 class ObUserIterator : public ObLsmIterator
 {
 public:
-  ObUserIterator(ObLsmIterator *iter, uint64_t seq) : iter_(iter), seq_(seq) {}
+  ObUserIterator(ObLsmIterator *iter, uint64_t seq) : iter_(iter), seq_(seq), valid_(false) {}
 
-  ~ObUserIterator() = default;
+  ~ObUserIterator() override = default;
 
-  bool valid() const override { return iter_->valid(); }
+  bool valid() const override { return valid_; }
 
-  void seek_to_first() override { iter_->seek_to_first(); }
+  void seek_to_first() override
+  {
+    iter_->seek_to_first();
+    if (iter_->valid()) {
+      find_next_user_entry(false, &saved_key_);
+    } else {
+      valid_ = false;
+    }
+  }
 
-  void seek_to_last() override { iter_->seek_to_last(); }
+  // TODO: implement seek_to_last
+  void seek_to_last() override { valid_ = false; }
 
   void seek(const string_view &target) override
   {
@@ -37,9 +46,52 @@ public:
     lookup_key_.append(target.data(), target.size());
     put_numeric<uint64_t>(&lookup_key_, seq_);
     iter_->seek(string_view(lookup_key_.data(), lookup_key_.size()));
+    if (iter_->valid()) {
+      find_next_user_entry(false, &saved_key_);
+    } else {
+      valid_ = false;
+    }
   }
 
-  void next() override { iter_->next(); }
+  void next() override
+  {
+    saved_key_ = extract_user_key(iter_->key());
+    iter_->next();
+    if (!iter_->valid()) {
+      valid_ = false;
+      saved_key_.clear();
+      return;
+    }
+    find_next_user_entry(true, &saved_key_);
+  }
+
+  // skipping indicated if to skip current entry.
+  // skip indicated current user key.
+  void find_next_user_entry(bool skipping, std::string *skip)
+  {
+    do {
+      size_t      curr_seq = extract_sequence(iter_->key());
+      string_view user_key = extract_user_key(iter_->key());
+      string_view value    = iter_->value();
+      if (curr_seq <= seq_) {
+        if (value.empty()) {  // for delete
+          *skip    = user_key;
+          skipping = true;
+        } else {  // for insert
+          if (skipping && user_comparator_.compare(user_key, *skip) <= 0) {
+
+          } else {
+            valid_ = true;
+            saved_key_.clear();
+            return;
+          }
+        }
+      }
+      iter_->next();
+    } while (iter_->valid());
+    saved_key_.clear();
+    valid_ = false;
+  }
 
   string_view key() const override { return extract_user_key(iter_->key()); }
 
@@ -50,6 +102,9 @@ private:
   unique_ptr<ObLsmIterator> iter_;
   uint64_t                  seq_;
   string                    lookup_key_;
+  string                    saved_key_;
+  bool                      valid_;
+  ObDefaultComparator       user_comparator_;
 };
 
 ObLsmIterator *new_user_iterator(ObLsmIterator *iter, uint64_t seq) { return new ObUserIterator(iter, seq); }

@@ -123,6 +123,56 @@ Block 的主要实现位于 `src/oblsm/table/ob_block.h`
 ### Compaction
 Compaction 是 LSM-Tree 的关键组件，Compaction 会将多个 SSTable 合并为一个或多个新的 SSTable。Compaction 的实现主要位于 `src/oblsm/compaction/`
 
+## 系统恢复
+### Manifest
+每次 LSM-Tree 进行 Compaction 操作，系统就是一个新的版本，Manifest 组件则需要去记录这组版本更替的 SSTable 变动信息。主要实现位于 `src/oblsm/ob_manifest.h`
+
+Manifest 的记录分为三种:
+#### Compaction Record
+
+用于记录每次合并操作时，增加的新的 sstables ， 删除的 sstables，这组操作持久化到磁盘上的最大的时间戳(seq), 以及下一个 sstable 的 id。
+
+#### Snapshot Record
+
+用于记录系统当前的元数据的快照，包括 当前的sstables信息，分层信息，时间戳，下一个sstable的id 。用于提升系统恢复速度，当系统恢复完毕，就会生成一个 snapshot record 写入一个新的 manifest 文件。
+
+####  New Memtable Record 
+
+系统进行 minor compaction 时，会将当前的 memtable 转换成 sstable, 创建一个新的 memtable, 这条记录用于记录新的 memtable 的 id， 恢复系统的时候通过这个 id 找到对应的 WAL 文件，恢复 memtbale。
+
+### WAL
+WAL（Write-Ahead Log）是 LSM-Tree 用于恢复系统内存数据结构（Memtable）状态的组件。每次向 Memtable 写入数据时，都会先将数据写入 WAL 日志文件，然后再将数据写入 Memtable。主要实现位于 `oblsm/wal/ob_lsm_wal.h`
+
+#### 日志格式
+```
+    ┌───────────┬──────────────┬───────┬──────────────┬──────────────────┐
+    │           │              │       │              │                  │
+    │ seq(8)    │ key_len(8)   │ key   │ val_len(8)   │ val              │
+    │           │              │       │              │                  │
+    └───────────┴──────────────┴───────┴──────────────┴──────────────────┘
+```
+
+#### 写入日志
+向 LSM-Tree 中插入数据的时候，系统会先向当前 memtable 对应的 WAL 文件 中写入一条日志，日志格式如上图，然后再写入进 memtable 。WAL 记录了所有的写操作，并且是顺序写入的，有助于提高写入性能。WAL 的结构通常是一个顺序文件，其中每一条记录都代表一个写入操作。
+
+#### Memtable恢复
+当 Memtable 被持久化到磁盘时，WAL 文件中的操作会被回放，确保内存中的数据与磁盘上的数据一致。恢复过程通常如下：
+
+1. **读取 WAL 文件**：系统首先读取所有尚未被处理的 WAL 日志记录。
+2. **重放日志**：按照 WAL 文件中记录的操作顺序，将数据重新写入 Memtable。
+3. **合并数据**：恢复的 Memtable 会与当前存储的数据合并，从而恢复到系统崩溃前的最新状态。
+4. **清理 WAL 文件**：旧的 WAL 文件会被清除。
+
+### 系统恢复步骤
+每次发生 Compaction 操作，系统会写入一条 Compaction Record 进入当前 Manifest 文件中，特别的，当发送 minor compaction 的时候会写入一条 NewMemtable Record 进入当前 Manifest 文件中。
+
+当 LSM-Tree 启动的时候，会读取目录下的 CURRENT 文件，里面保存当前 Manifest 文件的名称，打开当前 Manifest 文件，读取所有的记录，并按照记录信息恢复。
+
+1. 首先从系统快照（Snapshot）恢复
+2. 然后一条条地按照合并信息（Compaction Record） 恢复
+3. 根据最新的 NewMemtable Record 的记录找到对应的日志文件(WAL) , 然后从日志中恢复 Memtable
+4. 恢复完毕之后，创建一个新的 Manifest 文件，生成系统快照，写入到新的 Manifest 文件中，同时写入一条 NewMemtable Record。
+
 ## 基于 ObLsm 的表引擎
 MiniOB 基于 ObLsm 模块实现了一个 LSM-Tree 表引擎，用于以 Key-Value 格式存储表数据。表引擎的实现位于：`src/observer/storage/table/lsm_table_engine.h`。
 

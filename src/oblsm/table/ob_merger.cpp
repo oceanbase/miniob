@@ -23,7 +23,7 @@ public:
       : comparator_(comparator), children_(std::move(children)), current_(nullptr)
   {}
 
-  ~ObMergingIterator() = default;
+  ~ObMergingIterator() override = default;
 
   bool valid() const override { return current_ != nullptr; }
 
@@ -81,7 +81,7 @@ void ObMergingIterator::find_smallest()
     if (child->valid()) {
       if (smallest == nullptr) {
         smallest = child;
-      } else if (comparator_->compare(extract_user_key(child->key()), extract_user_key(smallest->key())) < 0) {
+      } else if (comparator_->compare(child->key(), smallest->key()) < 0) {
         smallest = child;
       }
     }
@@ -97,7 +97,7 @@ void ObMergingIterator::find_largest()
     if (child->valid()) {
       if (largest == nullptr) {
         largest = child;
-      } else if (comparator_->compare(extract_user_key(child->key()), extract_user_key(largest->key())) > 0) {
+      } else if (comparator_->compare(child->key(), largest->key()) > 0) {
         largest = child;
       }
     }

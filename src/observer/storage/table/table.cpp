@@ -40,7 +40,7 @@ Table::~Table()
 }
 
 RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
-    span<const AttrInfoSqlNode> attributes, StorageFormat storage_format, StorageEngine storage_engine)
+    span<const AttrInfoSqlNode> attributes, const vector<string> &primary_keys, StorageFormat storage_format, StorageEngine storage_engine)
 {
   if (table_id < 0) {
     LOG_WARN("invalid table id. table_id=%d, table_name=%s", table_id, name);
@@ -76,7 +76,7 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
 
   // 创建文件
   const vector<FieldMeta> *trx_fields = db->trx_kit().trx_fields();
-  if ((rc = table_meta_.init(table_id, name, trx_fields, attributes, storage_format, storage_engine)) != RC::SUCCESS) {
+  if ((rc = table_meta_.init(table_id, name, trx_fields, attributes, primary_keys, storage_format, storage_engine)) != RC::SUCCESS) {
     LOG_ERROR("Failed to init table meta. name:%s, ret:%d", name, rc);
     return rc;  // delete table file
   }
@@ -183,6 +183,20 @@ RC Table::insert_record(Record &record)
 RC Table::visit_record(const RID &rid, function<bool(Record &)> visitor)
 {
   return engine_->visit_record(rid, visitor);
+}
+
+RC Table::insert_record_with_trx(Record &record, Trx *trx)
+{
+  return engine_->insert_record_with_trx(record, trx);
+}
+RC Table::delete_record_with_trx(const Record &record, Trx *trx)
+{
+  return engine_->delete_record_with_trx(record, trx);
+}
+
+RC Table::update_record_with_trx(const Record &old_record, const Record &new_record, Trx* trx)
+{
+  return engine_->update_record_with_trx(old_record, new_record, trx);
 }
 
 RC Table::get_record(const RID &rid, Record &record)

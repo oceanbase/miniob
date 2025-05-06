@@ -13,11 +13,13 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/lang/string_view.h"
 #include "common/sys/rc.h"
+#include "common/lang/utility.h"
 #include "oblsm/include/ob_lsm_options.h"
 #include "oblsm/include/ob_lsm_iterator.h"
 
 namespace oceanbase {
 
+class ObLsmTransaction;
 /**
  * @brief ObLsm is a key-value storage engine for educational purpose.
  * ObLsm learned a lot about design from leveldb and streamlined it.
@@ -74,6 +76,19 @@ public:
   virtual RC get(const string_view &key, string *value) = 0;
 
   /**
+   * @brief Delete a key-value entry in the LSM-Tree.
+   *
+   * This method remove a entry
+   *
+   * @param key The key to remove.
+   * @return An RC value indicating success or failure of the operation.
+   */
+  virtual RC remove(const string_view &key) = 0;
+
+  // TODO: distinguish transaction interface and non-transaction interface, refer to rocksdb
+  virtual ObLsmTransaction *begin_transaction() = 0;
+
+  /**
    * @brief Creates a new iterator for traversing the LSM-Tree database.
    *
    * This method returns a heap-allocated iterator over the contents of the
@@ -86,6 +101,14 @@ public:
    * @note The caller is responsible for deleting the iterator when it is no longer needed.
    */
   virtual ObLsmIterator *new_iterator(ObLsmReadOptions options) = 0;
+
+  /**
+   * @brief Inserts a batch of key-value entries into the LSM-Tree.
+   *
+   * @param kvs A vector of key-value pairs to insert.
+   * @return An RC value indicating success or failure of the operation.
+   */
+  virtual RC batch_put(const vector<pair<string, string>> &kvs) = 0;
 
   /**
    * @brief Dumps all SSTables for debugging purposes.

@@ -76,6 +76,14 @@ See the Mulan PSL v2 for more details. */
   DEFINE_RC(LOGBUF_FULL)                 \
   DEFINE_RC(LOG_FILE_FULL)               \
   DEFINE_RC(LOG_ENTRY_INVALID)           \
+  DEFINE_RC(JSON_PARSE_FAILED)           \
+  DEFINE_RC(JSON_MEMBER_MISSING)         \
+  DEFINE_RC(RANGE_ERROR)                 \
+  DEFINE_RC(WAL_INVALID_FILENAME)        \
+  DEFINE_RC(INPUT_EOF)                   \
+  DEFINE_RC(INVALID_TOKEN)               \
+  DEFINE_RC(UNEXPECTED_END_OF_STRING)    \
+  DEFINE_RC(SYNTAX_ERROR)                \
   DEFINE_RC(UNSUPPORTED)
 
 enum class RC

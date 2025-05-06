@@ -16,9 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/vector.h"
 #include "common/log/log.h"
 #include "common/sys/rc.h"
+#include "common/value.h"
 #include <cstring>
-
-#include <iostream>
 
 using byte_t    = unsigned char;
 using bytes     = vector<byte_t>;
@@ -396,6 +395,52 @@ public:
     } else if (OB_FAIL(OrderedCode::append(encoded_key, rowkey_prefix))) {
       LOG_WARN("append failed");
     } else if (OB_FAIL(OrderedCode::append(encoded_key, rid))) {
+      LOG_WARN("append failed");
+    }
+    return rc;
+  }
+
+  static RC encode_table_prefix(int64_t table_id, bytes &encoded_key)
+  {
+    RC rc = RC::SUCCESS;
+    if (OB_FAIL(OrderedCode::append(encoded_key, table_prefix))) {
+      LOG_WARN("append failed");
+    } else if (OB_FAIL(OrderedCode::append(encoded_key, table_id))) {
+      LOG_WARN("append failed");
+    } else if (OB_FAIL(OrderedCode::append(encoded_key, rowkey_prefix))) {
+      LOG_WARN("append failed");
+    }
+    return rc;
+  }
+
+  static RC encode_value(const Value &val, bytes &dst)
+  {
+    RC rc = RC::SUCCESS;
+    switch (val.attr_type()) {
+      case AttrType::INTS:
+        if (OB_FAIL(OrderedCode::append(dst, (int64_t)val.get_int()))) {
+          LOG_WARN("append failed");
+        }
+        break;
+      case AttrType::FLOATS:
+        if (OB_FAIL(OrderedCode::append(dst, (double)val.get_float()))) {
+          LOG_WARN("append failed");
+        }
+        break;
+      case AttrType::CHARS:
+        if (OB_FAIL(OrderedCode::append(dst, val.get_string()))) {
+          LOG_WARN("append failed");
+        }
+        break;
+      default: return RC::INVALID_ARGUMENT;
+    }
+    return rc;
+  }
+
+  static RC encode_int(int64_t val, bytes &dst)
+  {
+    RC rc = RC::SUCCESS;
+    if (OB_FAIL(OrderedCode::append(dst, val))) {
       LOG_WARN("append failed");
     }
     return rc;

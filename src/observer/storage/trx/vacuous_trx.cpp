@@ -24,8 +24,6 @@ Trx *VacuousTrxKit::create_trx(LogHandler &, int32_t /*trx_id*/) { return nullpt
 
 void VacuousTrxKit::destroy_trx(Trx *trx) { delete trx; }
 
-Trx *VacuousTrxKit::find_trx(int32_t /* trx_id */) { return nullptr; }
-
 void VacuousTrxKit::all_trxes(vector<Trx *> &trxes) { return; }
 
 LogReplayer *VacuousTrxKit::create_log_replayer(Db &, LogHandler &) { return new VacuousTrxLogReplayer; }

@@ -88,8 +88,6 @@ public:
    */
   void init();
 
-  RC get(const string_view &lookup_key, string *value);
-
   uint32_t sst_id() const { return sst_id_; }
 
   shared_ptr<ObSSTable> get_shared_ptr() { return shared_from_this(); }
@@ -146,7 +144,7 @@ class TableIterator : public ObLsmIterator
 {
 public:
   TableIterator(const shared_ptr<ObSSTable> &sst) : sst_(sst), block_cnt_(sst->block_count()) {}
-  ~TableIterator() = default;
+  ~TableIterator() override = default;
 
   void        seek(const string_view &key) override;
   void        seek_to_first() override;

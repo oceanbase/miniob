@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/vector.h"
 #include "common/lang/memory.h"
 #include "common/value.h"
+#include "common/lang/utility.h"
 
 class Expression;
 
@@ -156,6 +157,7 @@ struct CreateTableSqlNode
 {
   string                  relation_name;  ///< Relation name
   vector<AttrInfoSqlNode> attr_infos;     ///< attributes
+  vector<string>          primary_keys;   ///< primary keys
   // TODO: integrate to CreateTableOptions
   string storage_format;  ///< storage format
   string storage_engine;  ///< storage engine

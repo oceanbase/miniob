@@ -10,11 +10,21 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/record/lsm_record_scanner.h"
 #include "storage/common/codec.h"
+#include "storage/trx/lsm_mvcc_trx.h"
 
 RC LsmRecordScanner::open_scan()
 {
   RC rc = RC::SUCCESS;
-  lsm_iter_ = oblsm_->new_iterator(ObLsmReadOptions());
+  if (lsm_iter_ != nullptr) {
+    delete lsm_iter_;
+    lsm_iter_ = nullptr;
+  }
+  if (trx_->type() == TrxKit::Type::VACUOUS) {
+    lsm_iter_ = oblsm_->new_iterator(ObLsmReadOptions());
+  } else if (trx_->type() == TrxKit::Type::LSM) {
+    auto lsm_trx = dynamic_cast<LsmMvccTrx *>(trx_);
+    lsm_iter_ = lsm_trx->get_trx()->new_iterator(ObLsmReadOptions());
+  }
   bytes encoded_key;
   rc = Codec::encode_without_rid(table_->table_id(), encoded_key);
   if (RC::SUCCESS != rc) {
@@ -29,31 +39,29 @@ RC LsmRecordScanner::open_scan()
 
 RC LsmRecordScanner::close_scan()
 {
-  delete lsm_iter_;
-  lsm_iter_ = nullptr;
+  if (lsm_iter_ != nullptr) {
+    delete lsm_iter_;
+    lsm_iter_ = nullptr;
+  }
   return RC::SUCCESS;
 }
 
 RC LsmRecordScanner::next(Record &record)
 {
   if (lsm_iter_->valid()) {
-    // string_view lsm_key = lsm_iter_->key();
     string_view lsm_value = lsm_iter_->value();
-    // record_.set_data_owner(lsm_value.data(), lsm_value.length());
-    // // record_.set_rid();
-    // tuple_.set_record(&record_);
     string_view lsm_key = lsm_iter_->key();
     int64_t table_id = 0;
     bytes lsm_key_bytes(lsm_key.begin(), lsm_key.end());
     Codec::decode(lsm_key_bytes, table_id);
     if (table_id != table_->table_id()) {
+      LOG_TRACE("table id not match, table id: %ld", table_->table_id());
       return RC::RECORD_EOF;
     }
-
+    record.set_key(string(lsm_key));
     record.copy_data((char *)lsm_value.data(), lsm_value.length());
     lsm_iter_->next();
     return RC::SUCCESS;
-
   } else {
     return RC::RECORD_EOF;
   }

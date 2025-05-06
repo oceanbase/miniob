@@ -10,36 +10,13 @@ See the Mulan PSL v2 for more details. */
 
 #include "oblsm/table/ob_block.h"
 #include "oblsm/util/ob_coding.h"
+#include "common/lang/memory.h"
 
 namespace oceanbase {
 
 RC ObBlock::decode(const string &data)
 {
   return RC::UNIMPLEMENTED;
-}
-
-RC ObBlock::get(const string_view &key, string *value)
-{
-  RC rc = RC::NOT_EXIST;
-  for (size_t i = 0; i < offsets_.size(); i++) {
-    uint32_t    curr_begin = offsets_[i];
-    uint32_t    curr_end   = i == offsets_.size() - 1 ? data_.size() : offsets_[i + 1];
-    string_view curr       = string_view(data_.data() + curr_begin, curr_end - curr_begin);
-    // TODO: parse key and value
-    // const char * data_ptr = curr.data();
-    uint32_t    key_size   = get_numeric<uint32_t>(curr.data());
-    string_view curr_key   = string_view(curr.data() + sizeof(uint32_t), key_size);
-    uint32_t    value_size = get_numeric<uint32_t>(curr.data() + sizeof(uint32_t) + key_size);
-    string_view val        = string_view(curr.data() + 2 * sizeof(uint32_t) + key_size, value_size);
-    // TODO: here key use lookup key
-    if (comparator_->compare(extract_user_key(curr_key), extract_user_key_from_lookup_key(key)) == 0) {
-      comparator_->compare(extract_user_key(curr_key), extract_user_key_from_lookup_key(key));
-      *value = val;
-      rc     = RC::SUCCESS;
-      break;
-    }
-  }
-  return rc;
 }
 
 string_view ObBlock::get_entry(uint32_t offset) const

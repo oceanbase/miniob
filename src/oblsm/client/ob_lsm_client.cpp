@@ -7,9 +7,24 @@ THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
+//
+//  Create by Ping Xu(haibarapink@gmail.com)
+//
 
-#include <stdio.h>
-#include "common/lang/string.h"
+#include "common/lang/filesystem.h"
+#include "common/sys/rc.h"
+#include "oblsm/client/cliutil/parser.h"
+#include "oblsm/include/ob_lsm.h"
+#include "oblsm/include/ob_lsm_iterator.h"
+#include "oblsm/include/ob_lsm_options.h"
+#include "oblsm/util/ob_comparator.h"
+
+using namespace oceanbase;
+
+const string prompt = "oblsm> ";
+bool         quit   = false;
+ObLsm       *lsm    = nullptr;
+ObLsmOptions opt;
 
 const char *startup_tips = R"(
 Welcome to the OceanBase database implementation course.
@@ -21,15 +36,155 @@ Learn more about MiniOB at https://github.com/oceanbase/miniob
 
 )";
 
-int main(int argc, char *argv[])
+void print_rc(RC rc)
 {
-  printf("%s\n", startup_tips);
-  // TODO: a simple cli for oblsm, reference src/obclient/client.cpp
-  // usage example:
-  // put key1 value1
-  // get key1
-  // scan key1 key9
-  printf("oblsm client is working in progress.\n");
+  // red
+  std::cout << "\033[31m";
+  std::cout << "rc, " << strrc(rc) << std::endl;
+  // default color
+  std::cout << "\033[0m";
+}
 
-  return 0;
+void print_sys_msg(string_view msg)
+{
+  // green
+  std::cout << "\033[32m";
+  std::cout << msg << std::endl;
+  // default color
+  std::cout << "\033[0m";
+}
+
+std::vector<std::pair<string, string>> scan(
+    const std::string *strs, const bool *bounds, ObDefaultComparator &comparator)
+{
+  std::vector<std::pair<string, string>> res;
+
+  if (!bounds[0] && !bounds[1] && comparator.compare(strs[0], strs[1]) > 0) {
+    return res;
+  }
+  ObLsmReadOptions rd_opt;
+  auto             runner = std::unique_ptr<ObLsmIterator>(lsm->new_iterator(rd_opt));
+  auto             end    = std::unique_ptr<ObLsmIterator>(lsm->new_iterator(rd_opt));
+
+  if (bounds[0]) {
+    runner->seek_to_first();
+  } else {
+    runner->seek(strs[0]);
+  }
+
+  if (!runner->valid()) {
+    return res;
+  }
+
+  if (bounds[1]) {
+    end->seek_to_last();
+  } else {
+    end->seek(strs[1]);
+    if (!end->valid()) {
+      end->seek_to_last();
+    }
+  }
+
+  if (!end->valid()) {
+    return res;
+  }
+
+  while (runner->valid() && comparator.compare(runner->key(), end->key()) <= 0) {
+    res.emplace_back(runner->key(), runner->value());
+    runner->next();
+  }
+
+  return res;
+}
+
+void help()
+{
+  for (int i = static_cast<int>(ObLsmCliCmdType::OPEN); i <= static_cast<int>(ObLsmCliCmdType::EXIT); ++i) {
+    ObLsmCliCmdType cmd = static_cast<ObLsmCliCmdType>(i);
+    if (cmd != ObLsmCliCmdType::HELP) {
+      std::cout << "Command: " << ObLsmCliUtil::strcmd(cmd) << std::endl;
+      std::cout << ObLsmCliUtil::cmd_usage(cmd) << std::endl;
+      std::cout << std::endl;
+    }
+  }
+}
+
+int main(int, char **)
+{
+  print_sys_msg(startup_tips);
+  print_sys_msg("Enter the help command to view the usage of oblsm_cli");
+  for (; !quit;) {
+    string            command = my_readline(prompt);
+    ObLsmCliCmdParser parser;
+    auto            &&result     = parser.result;
+    RC                rc         = parser.parse(command);
+    auto              comparator = ObDefaultComparator{};
+    if (OB_FAIL(rc)) {
+      print_rc(rc);
+      print_sys_msg(result.error);
+      continue;
+    }
+
+    if (result.cmd != ObLsmCliCmdType::EXIT && result.cmd != ObLsmCliCmdType::OPEN &&
+        result.cmd != ObLsmCliCmdType::HELP && lsm == nullptr) {
+      print_sys_msg("Please open a database first!");
+      continue;
+    }
+
+    switch (result.cmd) {
+      case ObLsmCliCmdType::OPEN:
+        if (!filesystem::exists(result.args[0])) {
+          filesystem::create_directory(result.args[0]);
+        }
+        if (lsm) {
+          delete lsm;
+          lsm = nullptr;
+        }
+        rc = ObLsm::open(opt, result.args[0], &lsm);
+        if (OB_FAIL(rc)) {
+          print_rc(rc);
+        }
+        break;
+      case ObLsmCliCmdType::SET:
+        rc = lsm->put(result.args[0], result.args[1]);
+        if (OB_FAIL(rc)) {
+          print_rc(rc);
+        }
+        break;
+      case ObLsmCliCmdType::GET: {
+        ObLsmReadOptions rd_opt;
+
+        auto seek_iter = std::unique_ptr<ObLsmIterator>(lsm->new_iterator(rd_opt));
+        seek_iter->seek(result.args[0]);
+        if (seek_iter->valid() && comparator.compare(seek_iter->key(), result.args[0]) == 0) {
+          std::cout << seek_iter->value() << std::endl;
+        }
+      } break;
+      case ObLsmCliCmdType::DELETE: {
+        print_sys_msg("unimplement!");
+        break;
+      }
+      case ObLsmCliCmdType::SCAN: {
+        auto scan_res = scan(result.args, result.bounds, comparator);
+        for (const auto &[k, v] : scan_res) {
+          std::cout << k << " " << v << "\n";
+        }
+        std::cout << std::endl;
+      } break;
+      case ObLsmCliCmdType::CLOSE:
+        delete lsm;
+        lsm = nullptr;
+        print_sys_msg("Success.");
+        break;
+      case ObLsmCliCmdType::HELP: help(); break;
+      case ObLsmCliCmdType::EXIT:
+        if (lsm) {
+          delete lsm;
+          lsm = nullptr;
+        }
+        print_sys_msg("bye.");
+        quit = true;
+        break;
+    }
+  }
 }

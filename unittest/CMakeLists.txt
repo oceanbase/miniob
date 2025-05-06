@@ -6,9 +6,10 @@ find_package(GTest CONFIG REQUIRED)
 include(GoogleTest)
 
 ADD_SUBDIRECTORY(common)
+ADD_SUBDIRECTORY(oblsm)
+
 IF (WITH_MEMTRACER)
     ADD_SUBDIRECTORY(memtracer)
 ENDIF (WITH_MEMTRACER)
 
 ADD_SUBDIRECTORY(observer)
-ADD_SUBDIRECTORY(oblsm)

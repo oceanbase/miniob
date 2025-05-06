@@ -54,6 +54,7 @@ RC SqlResult::close()
         LOG_PANIC("rollback failed. rc=%s", strrc(rc2));
       }
     }
+    session_->destroy_trx();
   }
   return rc;
 }
