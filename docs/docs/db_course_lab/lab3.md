@@ -3,16 +3,18 @@ title: LAB#3 事务引擎
 ---
 
 > 请不要将代码提交到公开仓库（包括提交带有题解的 Pull Request），同时也请不要抄袭其他同学或网络上可能存在的代码。
-> 
-> 每次实验代码更新，需要将代码从远端仓库拉取下来，大家需要从 miniob 的 github 仓库上把代码拉取到本地。
->
-> 1. git remote add origin_ob https://github.com/oceanbase/miniob.git
-> 2. git pull origin_ob
-> 3. git merge origin_ob/main
-> 4. 解决git冲突
-> 5. 实现代码，推送到自己的github仓库上
 
 # LAB#3 事务引擎
+
+每次实验代码更新，需要将代码从远端仓库拉取下来，大家需要从 miniob 的 github 仓库上把代码拉取到本地。
+
+```
+1. git remote add origin_ob https://github.com/oceanbase/miniob.git
+2. git pull origin_ob
+3. git merge origin_ob/main
+4. 解决git冲突
+5. 实现代码，推送到自己的github仓库上
+```
 
 在数据库系统实现原理与实践课程的 [LAB#1](lab1.md)，[LAB#2](lab2.md) 中，你已经完成了数据库系统中的存储引擎（基于 LSM-Tree 的存储引擎）,查询引擎（实现查询算子，优化执行计划等）。在这个实验中，你需要为 LAB#1 中实现的 LSM-Tree 存储引擎支持事务，同时支持数据库的持久化和恢复。你需要根据此文档的指导，完成事务引擎以及数据库的持久化和恢复。
 
@@ -57,6 +59,7 @@ RC update_record_with_trx(const Record &old_record, const Record &new_record, Tr
 你可以通过开启多个 obclient 测试 MiniOB 中的事务。
 
 **提示** 测试过程中，需要在启动 observer 时指定存储引擎为lsm，事务类型为lsm。即 `-E lsm -t lsm`
+
 **测试用例示例**
 ```
 client 1:                         client 2:
@@ -78,7 +81,9 @@ commit;
 ```
 
 **提示** 你需要实现快照隔离（Snapshot Isolation）级别的 MVCC 事务。
+
 **提示** 事务提交时可以使用`ObLsmImpl::batch_put`，来一次性写入一批数据，需要考虑这一批数据写入的原子性，以及写入过程中的失败回滚。
+
 **注意** `update_record_with_trx` 在LAB#3 中不做要求，在 LAB#4 中要求必须实现。
 
 **思考** 当前的 WriteBatch 是完全在内存中的，如果事务中涉及的大小超过内存大小应该如何处理？
@@ -88,11 +93,11 @@ commit;
 #### 背景介绍
 在 LAB#1 中，你已经实现了 LSM-Tree 的基本功能，但是你应该发现如果关闭 LSM-Tree 之后重新打开，之前写入的数据可能并不会存在，这是由于 LAB#1 中还没有实现 LSM-Tree 的持久化和恢复机制。在本任务中，你需要实现 LSM-Tree 的持久化和恢复机制，同时基于 LSM-Tree 的 MiniOB 也要支持持久化和恢复。这里介绍下 LSM-Tree 的持久化和恢复机制的实现思路：
 
-1. 通过 Write Ahead Log（WAL）实现 MemTable 数据的持久化。
+* 通过 Write Ahead Log（WAL）实现 MemTable 数据的持久化。
   
 WAL 是一种常见的日志机制，用于确保数据的可靠性和持久性。在 LSM-Tree 中，每次数据写入之前，都会先写入 WAL 文件，这是一个文件日志，记录了数据变更的操作细节。即便系统发生故障，数据库可以通过 WAL 文件恢复写入到 MemTable 的数据，从而防止数据丢失。
 
-2. 通过 Manifest 文件实现 SSTable 状态的持久化。
+* 通过 Manifest 文件实现 SSTable 状态的持久化。
 
 Manifest 文件是 LSM-Tree 的 "元数据目录"，用于记录某一时间点 LSM-Tree 的状态。它描述了 LSM-Tree 中每个 SSTable 文件的元数据（如编号、层级等），使数据库能够在重启或恢复时快速加载恢复 SSTable 的状态。
 
