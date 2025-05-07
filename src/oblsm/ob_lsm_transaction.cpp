@@ -40,7 +40,11 @@ private:
   unique_ptr<ObLsmIterator> right_;
 };
 
-ObLsmTransaction::ObLsmTransaction(ObLsm *db, uint64_t ts) : db_(db), ts_(ts) {}
+ObLsmTransaction::ObLsmTransaction(ObLsm *db, uint64_t ts) : db_(db), ts_(ts)
+{
+  (void)db_;
+  (void)ts_;
+}
 
 RC ObLsmTransaction::get(const string_view &key, string *value) { return RC::UNIMPLEMENTED; }
 

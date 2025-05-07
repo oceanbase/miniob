@@ -96,13 +96,13 @@ private:
    * This member variable links the transaction to its underlying database, ensuring that
    * all transactional operations target the correct storage layer.
    */
-  [[maybe_unused]] ObLsm *db_ = nullptr;
+  ObLsm *db_ = nullptr;
 
   /**
    * @brief The transaction's unique timestamp.
    *
    */
-  [[maybe_unused]] uint64_t ts_ = 0;
+  uint64_t ts_ = 0;
 
   /**
    * @brief In-memory store for transactional changes.
