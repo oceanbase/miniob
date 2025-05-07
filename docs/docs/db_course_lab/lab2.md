@@ -6,6 +6,16 @@ title: LAB#2 查询引擎
 
 # LAB#2 查询引擎
 
+每次实验代码更新，需要将代码从远端仓库拉取下来，大家需要从 miniob 的 github 仓库上把代码拉取到本地。
+
+```
+1. git remote add origin_ob https://github.com/oceanbase/miniob.git
+2. git pull origin_ob
+3. git merge origin_ob/main
+4. 解决git冲突
+5. 实现代码，推送到自己的github仓库上
+```
+
 在数据库系统实现原理与实践课程的 [LAB#1](lab1.md) 中，你已经完成了数据库系统中的存储引擎（基于 LSM-Tree 的存储引擎）。在这个实验中，你将实现数据库系统中的查询引擎（基于 MiniOB）。你需要根据此文档的指导，完成 MiniOB 查询引擎中的语法解析，查询优化，查询执行等模块。
 
 ## 实验
@@ -91,6 +101,7 @@ set hash_join=1;
 ```
 
 **提示**
+
 - 你的修改可能不止包含 `src/observer/sql/operator/hash_join_physical_operator.h/.cpp` 中的代码。
 - 可以参考 Nested Loop Join 算子的实现。
 - 需要实现 INNER JOIN 语法，并将 `INNER JOIN table ON expr` 中的条件表达式 `expr` 放到 `Hash Join` 算子中，支持 `expr` 中包含单个等值条件即可。
@@ -117,6 +128,7 @@ set hash_join=1;
 MiniOB 中的 `Cascade Optimizer` 设计文档可参考 `src/observer/optimizer/cascade/README.md`， MiniOB 中的实现主要参考了 [columbia](https://github.com/yongwen/columbia) 和 [noisepage](https://github.com/cmu-db/noisepage) 的实现。
 
 关于 cascade 优化器原理的更多细节可以参考相关论文：
+
 1. [cascade 论文](https://15721.courses.cs.cmu.edu/spring2016/papers/graefe-ieee1995.pdf)
 2. [columbia 论文](https://15721.courses.cs.cmu.edu/spring2019/papers/22-optimizer1/xu-columbia-thesis1998.pdf)
 
@@ -138,7 +150,8 @@ SELECT * FROM tbl1, tbl2, tbl3 WHERE tbl1.a = tbl2.a AND tbl2.a > tbl3.a AND tbl
 ```
 上述语句中，`tbl3.a > 100` 可以下推到 tbl3 对应的 TableScan 算子中，`tbl2.a > tbl3.a` 和 `tbl1.a = tbl2.a` 可以下推到对应的 Join 算子中。
 
-提示：
+**提示**
+
 - 不需要考虑 OR 条件。
 - 谓词下推的规则在 `src/observer/sql/optimizer/predicate_to_join_rule.h` 中实现。
 - 部分测试用例可参考 `test/case/test/dblab-optimizer.test`
@@ -149,6 +162,7 @@ SELECT * FROM tbl1, tbl2, tbl3 WHERE tbl1.a = tbl2.a AND tbl2.a > tbl3.a AND tbl
 你需要基于 Cascade Optimizer（主要代码位于 `src/observer/sql/optimizer/cascade` 中）实现 Join 物理算子选择，即选择 HashJoin 或 NestedLoopJoin 作为 Join 算子的物理算子。你需要根据参与Join 表的基数和谓词条件来计算两个算子的代价，并选择代价较低的 Join 物理算子。
 
 代价计算规则如下：
+
 1. NestedLoopJoin 算子的代价计算公式如下：
 $$
 cost_{nlj} = left \times right \times CPU + output \times CPU
@@ -162,6 +176,7 @@ $$
 其中，left 表示左边算子的基数，right 表示右边算子的基数，hash_cost 表示构建阶段的一次插入哈希表操作的代价，hash_probe 表示探测阶段一次探测（probe）的代价，output 表示输出的基数，CPU 表示一次 CPU 操作的代价。
 
 **提示**
+
 - 可参考 `src/observer/sql/optimizer/cascade/README.md` 文档添加新的转换规则。
 - 需要先完成任务2 以及谓词条件下推改写规则。 
 - 请不要修改 `src/observer/sql/optimizer/cascade/cost_model.h`

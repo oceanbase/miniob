@@ -45,39 +45,45 @@ title: 数据库系统实现原理与实践课程实验
 
 如果你已经对 Git/Github 的使用有了一定的了解，可以参考[Github 使用文档](../game/github-introduction.md) 或 [Gitee 使用文档](../game//gitee-instructions.md)来创建自己的 MiniOB 代码仓库（**注意：请创建私有（Private）仓库**）。
 
-#### 准备自己的开发环境
+#### 2. 准备自己的开发环境
 MiniOB 的开发环境需要使用 Linux/MacOS 操作系统，建议使用 Linux 操作系统。我们为大家准备好了一个[开源学堂在线编程环境](./cloudlab_setup.md)（**建议大家优先使用在线编程环境，避免由于自己开发环境问题导致的bug**），除此之外，我们准备了详细的[本地开发环境准备文档](../dev-env/introduction.md)。
 
-#### 在开发环境中构建调试 MiniOB，并验证 MiniOB 的基本功能
+#### 3. 在开发环境中构建调试 MiniOB，并验证 MiniOB 的基本功能
 在准备好自己的开发环境后，你就可以下载 MiniOB 代码，编译 MiniOB 并运行测试用例，验证 MiniOB 的基本功能。
-1. 下载 MiniOB 代码，**注意：这里请使用自己的私有仓库地址**
+
+* 下载 MiniOB 代码，**注意：这里请使用自己的私有仓库地址**
 ```
 git clone https://github.com/oceanbase/miniob.git
 ```
-2. 在 MiniOB 代码目录下，运行下面命令来编译 MiniOB
+
+* 在 MiniOB 代码目录下，运行下面命令来编译 MiniOB
 ```
 bash build.sh debug
 ```
-3. 进入 build_debug 目录
+
+* 进入 build_debug 目录
 ```
 cd build_debug/
 ```
-4. 在 MiniOB 代码目录下，运行下面命令来启动 MiniOB
+
+* 在 MiniOB 代码目录下，运行下面命令来启动 MiniOB
 ```
 ./bin/observer
 ```
-5. 打开另一个终端，进入 build_debug 目录，运行下面命令来启动 MiniOB client
+
+* 打开另一个终端，进入 build_debug 目录，运行下面命令来启动 MiniOB client
 ```
 ./bin/obclient
 ```
-6. 在 obclient 中分别执行下面的 SQL 语句，并查看输出结果是否符合预期。
+
+* 在 obclient 中分别执行下面的 SQL 语句，并查看输出结果是否符合预期。
 ```
 create table t1 (id int, name char(10));
 insert into t1 values (1, 'hello');
 select * from t1;
 ```
 
-如果一切顺利，你的终端将会展示如下的结果：
+* 如果一切顺利，你的终端将会展示如下的结果：
 ```
 $./bin/obclient 
 
@@ -98,7 +104,8 @@ id | name
 miniob >
 ```
 
-#### 将代码提交到测试平台，并通过 `basic` 题目
+#### 4. 将代码提交到测试平台，并通过 `basic` 题目
+
 测试平台中的 `basic` 题目是用来验证 MiniOB 的基本功能的（如创建表，插入数据，查询数据等），原始的 MiniOB 代码（**不需要任何代码修改**）就可以通过测试。你需要参考[文档](https://ask.oceanbase.com/t/topic/35600372)来将 MiniOB 代码提交到测试平台进行测试，并通过 `basic` 题目。至此，恭喜你已经顺利熟悉了开发环境和测试平台的使用。
 
 ## 注意事项

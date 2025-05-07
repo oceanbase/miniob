@@ -12,13 +12,15 @@ title: LAB#4 性能测试
 
 ## 通过 TPC-C 测试所需的前置功能
 
-1. 实现聚合函数（Min/Max/Count/Sum）。支持如下类型的语法：
+* 实现聚合函数（Min/Max/Count/Sum）。支持如下类型的语法：
 ```sql
 SELECT min(NO_O_ID) FROM NEW_ORDER WHERE NO_D_ID = %s AND NO_W_ID = %s
 ```
-2. 支持 update/delete 语句。
-提示：当前 MiniOB 已基本支持 delete 语句的语法解析/执行，只需要适配 LSM-Tree 存储引擎即可。
-提示：update 语句的实现可参考现有的 insert/delete 语句的实现。需要支持如下类型的 update 语法
+
+* 支持 update/delete 语句。
+
+**提示** 当前 MiniOB 已基本支持 delete 语句的语法解析/执行，只需要适配 LSM-Tree 存储引擎即可。
+**提示** update 语句的实现可参考现有的 insert/delete 语句的实现。需要支持如下类型的 update 语法
 
 ```sql
 UPDATE CUSTOMER SET C_BALANCE = C_BALANCE + %s WHERE C_ID = %s AND C_D_ID = %s AND C_W_ID = %s;
@@ -38,7 +40,7 @@ sudo pip2 install pymysql==0.9.3 --trusted-host pypi.python.org --trusted-host p
 
 ## 运行测试
 
-1. 准备 config 文件，例如:
+* 准备 config 文件，例如:
 ```
 [miniob]
 
@@ -47,12 +49,12 @@ unix_socket          = /tmp/miniob.sock
 
 ```
 
-2. 启动 MiniOB，例如：
+* 启动 MiniOB，例如：
 ```
 ./bin/observer -E lsm -t lsm -P mysql -s /tmp/miniob.sock -f ../etc/observer.ini
 ```
 
-3. 运行 tpcc 测试，例如：
+* 运行 tpcc 测试，例如：
 ```
 python ./tpcc.py --config=miniob.config  miniob  --debug --clients 4
 ```
@@ -74,6 +76,7 @@ SELECT W_TAX FROM WAREHOUSE WHERE W_ID = %s;
 可参考：https://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html
 
 **提示** 对于存在主键索引的表，表中不能有重复主键的数据。
+
 **注意**：线上测试环境为 1c1g，因此并发测试性能可能与本地环境存在一些出入，线上测试成绩仅供参考，不作为课程成绩的一部分。
 
 
@@ -102,4 +105,5 @@ create table stock (s_i_id int, s_w_id int, s_quantity int, s_dist_01 char(24), 
 ## 参考资料
 
 TPC-C 测试：https://www.tpc.org/tpcc/
+
 TPC-C 测试脚本：https://github.com/nautaa/py-tpcc/tree/miniob
