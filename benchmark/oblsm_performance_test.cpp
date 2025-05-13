@@ -66,8 +66,10 @@ public:
     for (uint32_t value = min; value < max; ++value) {
       string key = to_string(value);
 
-      [[maybe_unused]] RC rc = oblsm_->put(key, key);
-      ASSERT(rc == RC::SUCCESS, "failed to insert entry into btree. key=%" PRIu32, value);
+      RC rc = oblsm_->put(key, key);
+      if (rc != RC::SUCCESS) {
+        exit(1);
+      }
     }
   }
 
@@ -80,7 +82,13 @@ public:
     return max;
   }
 
-  void Insert(uint32_t value) { oblsm_->put(to_string(value), to_string(value)); }
+  void Insert(uint32_t value)
+  { 
+    RC rc = oblsm_->put(to_string(value), to_string(value));
+    if (rc != RC::SUCCESS) {
+      exit(1);
+    }
+  }
 
   void Scan(uint32_t begin, uint32_t end)
   {
