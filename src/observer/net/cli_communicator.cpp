@@ -12,101 +12,60 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/06/25.
 //
 
-#include <setjmp.h>
-#include <signal.h>
+#include <string>
 
 #include "net/cli_communicator.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
-#include "common/os/signal.h"
 #include "event/session_event.h"
 #include "net/buffered_writer.h"
 #include "session/session.h"
-
-#ifdef USE_READLINE
-#include "readline/history.h"
-#include "readline/readline.h"
-#endif
+#include "replxx.hxx"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
 
 using namespace common;
 
-#ifdef USE_READLINE
-const string HISTORY_FILE            = string(getenv("HOME")) + "/.miniob.history";
-time_t       last_history_write_time = 0;
-sigjmp_buf   ctrlc_buf;
-bool         ctrlc_flag = false;
-
-void handle_signals(int signo) {
-  if (signo == SIGINT) {
-    ctrlc_flag = true;
-    siglongjmp(ctrlc_buf, 1);
-  }
-}
+static replxx::Replxx rx;
+const std::string     REPLXX_HISTORY_FILE = "./.miniob.history";
+// const int MAX_HISTORY_SIZE = 500;  // default: 1000
 
 char *my_readline(const char *prompt)
 {
-  static sighandler_t setup_signal_handler = signal(SIGINT, handle_signals);
-  (void)setup_signal_handler;
+  char const *cinput = nullptr;
 
-  int size = history_length;
-  if (size == 0) {
-    read_history(HISTORY_FILE.c_str());
+  try {
+    cinput = rx.input(prompt);
+  } catch (std::exception const &e) {
+    LOG_WARN("replxx input error: %s", e.what());
+    return nullptr;
+  }
 
-    FILE *fp = fopen(HISTORY_FILE.c_str(), "a");
-    if (fp != nullptr) {
-      fclose(fp);
+  if (cinput == nullptr) {
+    return nullptr;
+  }
+
+  bool is_valid_input = false;
+  for (auto c = cinput; *c != '\0'; ++c) {
+    if (!isspace(*c)) {
+      is_valid_input = true;
+      break;
     }
   }
 
-  while ( sigsetjmp( ctrlc_buf, 1 ) != 0 );
-
-  if (ctrlc_flag) {
-    char *line = (char *)malloc(strlen("exit") + 1);
-    strcpy(line, "exit");
-    printf("\n");
-    return line;
+  if (is_valid_input) {
+    rx.history_add(cinput);
   }
 
-  char *line = readline(prompt);
-  if (line != nullptr && line[0] != 0) {
-    add_history(line);
-    if (time(NULL) - last_history_write_time > 5) {
-      write_history(HISTORY_FILE.c_str());
-    }
-    // append_history doesn't work on some readlines
-    // append_history(1, HISTORY_FILE.c_str());
+  char *line = strdup(cinput);
+  if (line == nullptr) {
+    LOG_WARN("Failed to dup input string from replxx");
+    return nullptr;
   }
+
   return line;
 }
-#else   // USE_READLINE
-char *my_readline(const char *prompt)
-{
-  char *buffer = (char *)malloc(MAX_MEM_BUFFER_SIZE);
-  if (nullptr == buffer) {
-    LOG_WARN("failed to alloc line buffer");
-    return nullptr;
-  }
-  fprintf(stdout, "%s", prompt);
-  char *s = fgets(buffer, MAX_MEM_BUFFER_SIZE, stdin);
-  if (nullptr == s) {
-    if (ferror(stdin) || feof(stdin)) {
-      LOG_WARN("failed to read line: %s", strerror(errno));
-    }
-    /* EINTR(4):Interrupted system call */
-    if (errno == EINTR) {
-      strncpy(buffer, "interrupted", MAX_MEM_BUFFER_SIZE);
-      fprintf(stdout, "\n");
-      return buffer;
-    }
-    free(buffer);
-    return nullptr;
-  }
-  return buffer;
-}
-#endif  // USE_READLINE
 
 /* this function config a exit-cmd list, strncasecmp func truncate the command from terminal according to the number,
    'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from
@@ -114,16 +73,34 @@ char *my_readline(const char *prompt)
 */
 bool is_exit_command(const char *cmd)
 {
-  return 0 == strncasecmp("exit", cmd, 4) 
-      || 0 == strncasecmp("bye", cmd, 3) 
-      || 0 == strncasecmp("\\q", cmd, 2)
-      || 0 == strncasecmp("interrupted", cmd, 11);
+  return 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) || 0 == strncasecmp("\\q", cmd, 2) ||
+         0 == strncasecmp("interrupted", cmd, 11);
 }
 
 char *read_command()
 {
-  const char *prompt_str    = "miniob > ";
-  char       *input_command = my_readline(prompt_str);
+  const char *prompt_str = "miniob > ";
+
+  static bool is_first_call = true;
+  if (is_first_call) {
+    // rx.set_max_history_size(MAX_HISTORY_SIZE);
+    // rx.set_unique_history(true);
+
+    rx.history_load(REPLXX_HISTORY_FILE);
+    rx.install_window_change_handler();
+    is_first_call = false;
+  }
+
+  char *input_command = my_readline(prompt_str);
+
+  static time_t previous_history_save_time = 0;
+  if (input_command != nullptr && input_command[0] != '\0') {
+    if (time(NULL) - previous_history_save_time > 5) {
+      rx.history_save(REPLXX_HISTORY_FILE);
+      previous_history_save_time = time(NULL);
+    }
+  }
+
   return input_command;
 }
 
@@ -182,4 +159,10 @@ RC CliCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
 
   need_disconnect = false;
   return rc;
+}
+
+CliCommunicator::~CliCommunicator()
+{
+  rx.history_save(REPLXX_HISTORY_FILE);
+  LOG_INFO("Command history saved to %s", REPLXX_HISTORY_FILE.c_str());
 }

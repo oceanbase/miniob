@@ -115,7 +115,7 @@ function do_init
   cd ${TOPDIR}/deps/3rd/replxx && \
     mkdir -p build && \
     cd build && \
-    ${CMAKE_COMMAND_THIRD_PARTY} .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DREPLXX_BUILD_EXAMPLES=OFF -DREPLXX_BUILD_PACKAGE=OFF && \
+    ${CMAKE_COMMAND_THIRD_PARTY} .. -DCMAKE_BUILD_TYPE=Release -DREPLXX_BUILD_EXAMPLES=OFF -DREPLXX_BUILD_PACKAGE=OFF && \
     ${MAKE_COMMAND} -j4 && \
     ${MAKE_COMMAND} install
 
