@@ -83,7 +83,7 @@ public:
   }
 
   void Insert(uint32_t value)
-  { 
+  {
     RC rc = oblsm_->put(to_string(value), to_string(value));
     if (rc != RC::SUCCESS) {
       exit(1);
