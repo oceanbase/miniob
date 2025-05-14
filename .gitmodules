@@ -10,3 +10,6 @@
 [submodule "deps/3rd/benchmark"]
 	path = deps/3rd/benchmark
 	url = https://github.com/google/benchmark
+[submodule "deps/3rd/replxx"]
+	path = deps/3rd/replxx
+	url = https://github.com/AmokHuginnsson/replxx
