@@ -12,8 +12,6 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2023/06/25.
 //
 
-#include <string>
-
 #include "net/cli_communicator.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
@@ -29,7 +27,6 @@ using namespace common;
 
 static replxx::Replxx rx;
 const std::string     REPLXX_HISTORY_FILE = "./.miniob.history";
-// const int MAX_HISTORY_SIZE = 500;  // default: 1000
 
 char *my_readline(const char *prompt)
 {
@@ -83,9 +80,6 @@ char *read_command()
 
   static bool is_first_call = true;
   if (is_first_call) {
-    // rx.set_max_history_size(MAX_HISTORY_SIZE);
-    // rx.set_unique_history(true);
-
     rx.history_load(REPLXX_HISTORY_FILE);
     rx.install_window_change_handler();
     is_first_call = false;
@@ -144,6 +138,7 @@ RC CliCommunicator::read_event(SessionEvent *&event)
   if (is_exit_command(command)) {
     free(command);
     exit_ = true;
+    rx.history_save(REPLXX_HISTORY_FILE);
     return RC::SUCCESS;
   }
 
