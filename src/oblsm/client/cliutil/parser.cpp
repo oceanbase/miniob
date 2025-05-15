@@ -17,7 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 
 namespace oceanbase {
-std::string my_readline(const std::string &prompt) {
+std::string my_readline(const std::string &prompt)
+{
   static bool is_first_call = true;
   if (is_first_call) {
     rx.history_load(REPLXX_HISTORY_FILE);

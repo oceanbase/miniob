@@ -113,12 +113,12 @@ int main(int, char **)
 {
   print_sys_msg(startup_tips);
   print_sys_msg("Enter the help command to view the usage of oblsm_cli");
-  
+
   static time_t previous_history_save_time = 0;
-  
+
   for (; !quit;) {
     string command = my_readline(prompt);
-    
+
     if (!command.empty()) {
       if (time(nullptr) - previous_history_save_time > 5) {
         rx.history_save(REPLXX_HISTORY_FILE);

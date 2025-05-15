@@ -29,7 +29,7 @@ See the Mulan PSL v2 for more details. */
 namespace oceanbase {
 
 static replxx::Replxx rx;
-inline const string REPLXX_HISTORY_FILE = "./.oblsm_cli.history";
+inline const string   REPLXX_HISTORY_FILE = "./.oblsm_cli.history";
 
 std::string my_readline(const string &prompt);
 

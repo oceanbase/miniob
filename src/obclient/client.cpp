@@ -38,7 +38,7 @@ using namespace std;
 using namespace common;
 
 static replxx::Replxx rx;
-const std::string REPLXX_HISTORY_FILE = "./.obclient.history";
+const std::string     REPLXX_HISTORY_FILE = "./.obclient.history";
 
 char *my_readline(const char *prompt)
 {
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 
   char send_buf[MAX_MEM_BUFFER_SIZE];
 
-  char *input_command = nullptr;
+  char         *input_command              = nullptr;
   static time_t previous_history_save_time = 0;
 
   while ((input_command = my_readline(prompt_str)) != nullptr) {
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
     input_command = nullptr;
   }
   close(sockfd);
-  
+
   rx.history_save(REPLXX_HISTORY_FILE);
   printf("Command history saved to: %s\n", REPLXX_HISTORY_FILE.c_str());
 
