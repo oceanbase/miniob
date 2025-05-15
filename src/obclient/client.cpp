@@ -29,11 +29,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/defs.h"
 #include "common/lang/string.h"
-
-#ifdef USE_READLINE
-#include "readline/history.h"
-#include "readline/readline.h"
-#endif
+#include "replxx.hxx"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
@@ -41,51 +37,51 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-#ifdef USE_READLINE
-const string HISTORY_FILE            = string(getenv("HOME")) + "/.miniob.history";
-time_t       last_history_write_time = 0;
+static replxx::Replxx rx;
+const std::string REPLXX_HISTORY_FILE = "./.obclient.history";
 
 char *my_readline(const char *prompt)
 {
-  int size = history_length;
-  if (size == 0) {
-    read_history(HISTORY_FILE.c_str());
+  static bool is_first_call = true;
+  if (is_first_call) {
+    rx.history_load(REPLXX_HISTORY_FILE);
+    rx.install_window_change_handler();
+    is_first_call = false;
+  }
 
-    FILE *fp = fopen(HISTORY_FILE.c_str(), "a");
-    if (fp != nullptr) {
-      fclose(fp);
+  char const *cinput = nullptr;
+
+  try {
+    cinput = rx.input(prompt);
+  } catch (std::exception const &e) {
+    fprintf(stderr, "replxx input error: %s\n", e.what());
+    return nullptr;
+  }
+
+  if (cinput == nullptr) {
+    return nullptr;
+  }
+
+  bool is_valid_input = false;
+  for (auto c = cinput; *c != '\0'; ++c) {
+    if (!isspace(*c)) {
+      is_valid_input = true;
+      break;
     }
   }
 
-  char *line = readline(prompt);
-  if (line != nullptr && line[0] != 0) {
-    add_history(line);
-    if (time(NULL) - last_history_write_time > 5) {
-      write_history(HISTORY_FILE.c_str());
-    }
-    // append_history doesn't work on some readlines
-    // append_history(1, HISTORY_FILE.c_str());
+  if (is_valid_input) {
+    rx.history_add(cinput);
   }
+
+  char *line = strdup(cinput);
+  if (line == nullptr) {
+    fprintf(stderr, "Failed to dup input string from replxx\n");
+    return nullptr;
+  }
+
   return line;
 }
-#else   // USE_READLINE
-char *my_readline(const char *prompt)
-{
-  char *buffer = (char *)malloc(MAX_MEM_BUFFER_SIZE);
-  if (nullptr == buffer) {
-    fprintf(stderr, "failed to alloc line buffer");
-    return nullptr;
-  }
-  fprintf(stdout, "%s", prompt);
-  char *s = fgets(buffer, MAX_MEM_BUFFER_SIZE, stdin);
-  if (nullptr == s) {
-    fprintf(stderr, "failed to read message from console");
-    free(buffer);
-    return nullptr;
-  }
-  return buffer;
-}
-#endif  // USE_READLINE
 
 /* this function config a exit-cmd list, strncasecmp func truncate the command from terminal according to the number,
    'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from
@@ -189,6 +185,8 @@ int main(int argc, char *argv[])
   char send_buf[MAX_MEM_BUFFER_SIZE];
 
   char *input_command = nullptr;
+  static time_t previous_history_save_time = 0;
+
   while ((input_command = my_readline(prompt_str)) != nullptr) {
     if (common::is_blank(input_command)) {
       free(input_command);
@@ -199,7 +197,13 @@ int main(int argc, char *argv[])
     if (is_exit_command(input_command)) {
       free(input_command);
       input_command = nullptr;
+      rx.history_save(REPLXX_HISTORY_FILE);
       break;
+    }
+
+    if (time(NULL) - previous_history_save_time > 5) {
+      rx.history_save(REPLXX_HISTORY_FILE);
+      previous_history_save_time = time(NULL);
     }
 
     if ((send_bytes = write(sockfd, input_command, strlen(input_command) + 1)) == -1) {  // TODO writen
@@ -242,6 +246,9 @@ int main(int argc, char *argv[])
     input_command = nullptr;
   }
   close(sockfd);
+  
+  rx.history_save(REPLXX_HISTORY_FILE);
+  printf("Command history saved to: %s\n", REPLXX_HISTORY_FILE.c_str());
 
   return 0;
 }
