@@ -29,7 +29,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/defs.h"
 #include "common/lang/string.h"
-#include "common/linereader/line_interface.h"
+#include "common/linereader/line_reader.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
@@ -45,7 +45,7 @@ const std::string LINE_HISTORY_FILE = "./.obclient.history";
 */
 bool is_exit_command(const char *cmd)
 {
-  return is_exit_command(cmd, LINE_HISTORY_FILE);
+  return LineReaderManager::is_exit_command(cmd, LINE_HISTORY_FILE);
 }
 
 int init_unix_sock(const char *unix_sock_path)
@@ -142,9 +142,8 @@ int main(int argc, char *argv[])
 
   char         *input_command              = nullptr;
   static time_t previous_history_save_time = 0;
-  static LineInterface reader;
 
-  while ((input_command = my_readline(prompt_str, LINE_HISTORY_FILE)) != nullptr) {
+  while ((input_command = LineReaderManager::my_readline(prompt_str, LINE_HISTORY_FILE)) != nullptr) {
     if (common::is_blank(input_command)) {
       free(input_command);
       input_command = nullptr;
@@ -158,7 +157,7 @@ int main(int argc, char *argv[])
     }
 
     if (time(NULL) - previous_history_save_time > 5) {
-      reader.history_save(LINE_HISTORY_FILE);
+      LineReaderManager::is_exit_command("", LINE_HISTORY_FILE);
       previous_history_save_time = time(NULL);
     }
 
@@ -203,7 +202,7 @@ int main(int argc, char *argv[])
   }
   close(sockfd);
 
-  reader.history_save(LINE_HISTORY_FILE);
+  LineReaderManager::is_exit_command("", LINE_HISTORY_FILE);
   printf("Command history saved to: %s\n", LINE_HISTORY_FILE.c_str());
 
   return 0;

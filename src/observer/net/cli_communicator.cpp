@@ -18,19 +18,19 @@ See the Mulan PSL v2 for more details. */
 #include "event/session_event.h"
 #include "net/buffered_writer.h"
 #include "session/session.h"
-#include "common/linereader/line_interface.h"
+#include "common/linereader/line_reader.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
 
-using namespace common;
+using common::LineReaderManager;
 
 const std::string LINE_HISTORY_FILE = "./.miniob.history";
 
 char *read_command()
 {
   const char *prompt_str = "miniob > ";
-  return my_readline(prompt_str, LINE_HISTORY_FILE);
+  return LineReaderManager::my_readline(prompt_str, LINE_HISTORY_FILE);
 }
 
 RC CliCommunicator::init(int fd, unique_ptr<Session> session, const string &addr)
@@ -65,12 +65,12 @@ RC CliCommunicator::read_event(SessionEvent *&event)
     return RC::SUCCESS;
   }
 
-  if (is_blank(command)) {
+  if (common::is_blank(command)) {
     free(command);
     return RC::SUCCESS;
   }
 
-  if (is_exit_command(command, LINE_HISTORY_FILE)) {
+  if (LineReaderManager::is_exit_command(command, LINE_HISTORY_FILE)) {
     free(command);
     exit_ = true;
     return RC::SUCCESS;
@@ -92,7 +92,6 @@ RC CliCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
 
 CliCommunicator::~CliCommunicator()
 {
-  static LineInterface reader;
-  reader.history_save(LINE_HISTORY_FILE);
+  LineReaderManager::is_exit_command("", LINE_HISTORY_FILE);
   LOG_INFO("Command history saved to %s", LINE_HISTORY_FILE.c_str());
 }

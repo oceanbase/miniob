@@ -18,8 +18,11 @@ See the Mulan PSL v2 for more details. */
 #include "oblsm/include/ob_lsm_iterator.h"
 #include "oblsm/include/ob_lsm_options.h"
 #include "oblsm/util/ob_comparator.h"
+#include "common/linereader/line_reader.h"
+#include <cstddef>
 
 using namespace oceanbase;
+using common::LineReaderManager;
 
 const string prompt = "oblsm> ";
 bool         quit   = false;
@@ -115,14 +118,21 @@ int main(int, char **)
   print_sys_msg("Enter the help command to view the usage of oblsm_cli");
 
   static time_t previous_history_save_time = 0;
-  static LineInterface reader;
 
   for (; !quit;) {
-    string command = my_readline(prompt);
+    char* command_input = LineReaderManager::my_readline(prompt.c_str(), LINE_HISTORY_FILE);
+
+    if (command_input == nullptr) {
+      continue;
+    }
+
+    std::string command = command_input;
+    free(command_input);
+    command_input = nullptr;
 
     if (!command.empty()) {
       if (time(nullptr) - previous_history_save_time > 5) {
-        reader.history_save(LINE_HISTORY_FILE);
+        LineReaderManager::is_exit_command("", LINE_HISTORY_FILE);
         previous_history_save_time = time(nullptr);
       }
     }
@@ -194,7 +204,7 @@ int main(int, char **)
           delete lsm;
           lsm = nullptr;
         }
-        reader.history_save(LINE_HISTORY_FILE);
+        LineReaderManager::is_exit_command("", LINE_HISTORY_FILE);
         print_sys_msg("Command history saved to " + string(LINE_HISTORY_FILE));
         print_sys_msg("bye.");
         quit = true;

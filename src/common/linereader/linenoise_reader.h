@@ -9,23 +9,22 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 // 
-// Created by Willaaaaaaa on 2025
+// Created by Willaaaaaaa in 2025
 //
 
-#ifndef COMMON_LINEREADER_H
-#define COMMON_LINEREADER_H
+#ifndef COMMON_LINENOISE_WRAPPER_H
+#define COMMON_LINENOISE_WRAPPER_H
 
 #include "common/lang/string.h"
 
-namespace common {
 /**
  * @brief A wrapper class for linenoise lib
  * @details Support history memory...
  */
-class LineReader {
+class LinenoiseReader {
 public:
-  LineReader();
-  ~LineReader() = default;
+  LinenoiseReader();
+  ~LinenoiseReader() = default;
   
   /**
    * @brief Read input with C string
@@ -69,6 +68,5 @@ public:
 private:
   std::string history_file_;
 };
-} // namespace common
 
-#endif // COMMON_LINEREADER_H
+#endif // COMMON_LINENOISE_WRAPPER_H

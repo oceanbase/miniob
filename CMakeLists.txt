@@ -172,6 +172,17 @@ SET(CMAKE_C_FLAGS ${CMAKE_COMMON_FLAGS})
 
 MESSAGE(STATUS "CMAKE_CXX_FLAGS is " ${CMAKE_CXX_FLAGS})
 
+# Line Reading configs
+IF(USE_REPLXX)
+    ADD_DEFINITIONS(-DUSE_REPLXX=1)
+    MESSAGE(STATUS "Using replxx for line reading")
+    FIND_PACKAGE(Threads REQUIRED)
+    FIND_PACKAGE(replxx REQUIRED)
+ELSE()
+    ADD_DEFINITIONS(-DUSE_REPLXX=0)
+    MESSAGE(STATUS "Using linenoise for line reading")
+ENDIF()
+
 # ADD_SUBDIRECTORY(src bin)  bin 为目标目录， 可以省略
 # ADD_SUBDIRECTORY(deps)
 ADD_SUBDIRECTORY(src)
@@ -184,14 +195,3 @@ ENDIF(WITH_BENCHMARK)
 IF(WITH_UNIT_TESTS)
     ADD_SUBDIRECTORY(unittest)
 ENDIF(WITH_UNIT_TESTS)
-
-# Line Reading configs
-IF(USE_REPLXX)
-    ADD_DEFINITIONS(-DUSE_REPLXX=1)
-    MESSAGE(STATUS "Using replxx for line reading")
-    FIND_PACKAGE(Threads REQUIRED)
-    FIND_PACKAGE(replxx REQUIRED)
-ELSE()
-    ADD_DEFINITIONS(-DUSE_REPLXX=0)
-    MESSAGE(STATUS "Using linenoise for line reading")
-ENDIF()
