@@ -22,11 +22,11 @@ using common::LineReaderManager;
 namespace oceanbase {
 std::string my_readline(const std::string &prompt)
 {
-  char* line = LineReaderManager::my_readline(prompt.c_str(), LINE_HISTORY_FILE);
+  char *line = LineReaderManager::my_readline(prompt.c_str(), LINE_HISTORY_FILE);
   if (line == nullptr) {
     return "";
   }
-  
+
   std::string result = line;
   free(line);
   return result;

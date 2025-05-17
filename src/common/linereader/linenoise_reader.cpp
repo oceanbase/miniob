@@ -8,7 +8,7 @@ EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
-// 
+//
 // Created by Willaaaaaaa in 2025
 //
 
@@ -16,35 +16,33 @@ See the Mulan PSL v2 for more details. */
 #include "common/linereader/linenoise.h"
 #include "common/lang/string.h"
 
-LinenoiseReader::LinenoiseReader() {
+LinenoiseReader::LinenoiseReader()
+{
   linenoiseHistorySetMaxLen(1000);
   linenoiseSetMultiLine(0);
 }
 
-char* LinenoiseReader::input(const char* prompt) {
-  return linenoise(prompt);
-}
+char *LinenoiseReader::input(const char *prompt) { return linenoise(prompt); }
 
-bool LinenoiseReader::history_load(const std::string& history_file) {
+bool LinenoiseReader::history_load(const std::string &history_file)
+{
   history_file_ = history_file;
   return linenoiseHistoryLoad(history_file.c_str()) == 0;
 }
 
-bool LinenoiseReader::history_save(const std::string& history_file) const {
+bool LinenoiseReader::history_save(const std::string &history_file) const
+{
   return linenoiseHistorySave(history_file.c_str()) == 0;
 }
 
-bool LinenoiseReader::history_add(const char* line) {
+bool LinenoiseReader::history_add(const char *line)
+{
   if (line != nullptr && *line != '\0') {
     return linenoiseHistoryAdd(line) == 0;
   }
   return false;
 }
 
-void LinenoiseReader::history_set_max_len(int len) {
-  linenoiseHistorySetMaxLen(len);
-}
+void LinenoiseReader::history_set_max_len(int len) { linenoiseHistorySetMaxLen(len); }
 
-void LinenoiseReader::clear_screen() {
-  linenoiseClearScreen();
-}
+void LinenoiseReader::clear_screen() { linenoiseClearScreen(); }

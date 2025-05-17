@@ -13,18 +13,20 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "common/linereader/line_reader.h"
+#include "common/lang/string.h"
 
 namespace common {
 LineReader LineReaderManager::reader_;
-bool LineReaderManager::is_first_call_ = true;
+bool       LineReaderManager::is_first_call_ = true;
 
-char* LineReaderManager::my_readline(const char* prompt, const std::string& history_file) {
+char *LineReaderManager::my_readline(const char *prompt, const std::string &history_file)
+{
   if (is_first_call_) {
     reader_.history_load(history_file);
     is_first_call_ = false;
   }
 
-  char* line = reader_.input(prompt);
+  char *line = (char *)reader_.input(prompt);
   if (line == nullptr) {
     return nullptr;
   }
@@ -40,20 +42,30 @@ char* LineReaderManager::my_readline(const char* prompt, const std::string& hist
   if (is_valid_input) {
     reader_.history_add(line);
   }
-  
+
   return line;
 }
 
-bool LineReaderManager::is_exit_command(const char* cmd, const std::string& history_file) {
-  bool is_exit = 0 == strncasecmp("exit", cmd, 4) || 
-                0 == strncasecmp("bye", cmd, 3) || 
-                0 == strncasecmp("\\q", cmd, 2) ||
-                0 == strncasecmp("interrupted", cmd, 11);
-                
+bool LineReaderManager::is_exit_command(const char *cmd, const std::string &history_file)
+{
+  bool is_exit = 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) ||
+                 0 == strncasecmp("\\q", cmd, 2) || 0 == strncasecmp("interrupted", cmd, 11);
+
   if (is_exit) {
     reader_.history_save(history_file);
   }
-  
+
   return is_exit;
 }
-} // namespace common
+
+void LineReaderManager::free_buffer(char *buffer)
+{
+  if (buffer != nullptr) {
+#if USE_REPLXX
+    delete[] buffer;  // replxx uses new[]
+#else
+    free(buffer);  // linenoise uses malloc
+#endif
+  }
+}
+}  // namespace common

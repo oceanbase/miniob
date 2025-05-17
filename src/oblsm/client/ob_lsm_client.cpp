@@ -120,14 +120,14 @@ int main(int, char **)
   static time_t previous_history_save_time = 0;
 
   for (; !quit;) {
-    char* command_input = LineReaderManager::my_readline(prompt.c_str(), LINE_HISTORY_FILE);
+    char *command_input = LineReaderManager::my_readline(prompt.c_str(), LINE_HISTORY_FILE);
 
     if (command_input == nullptr) {
       continue;
     }
 
     std::string command = command_input;
-    free(command_input);
+    LineReaderManager::free_buffer(command_input);
     command_input = nullptr;
 
     if (!command.empty()) {

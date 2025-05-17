@@ -19,6 +19,11 @@ IF(USE_MUSL_LIBC)
     TARGET_LINK_LIBRARIES(common execinfo)
 ENDIF(USE_MUSL_LIBC)
 
+IF(USE_REPLXX)
+    TARGET_LINK_LIBRARIES(common replxx::replxx)
+    MESSAGE(STATUS "common uses replxx")
+ENDIF()
+
 # 编译静态库时，自动会把同名的动态库给删除， 因此需要临时设置一下
 SET_TARGET_PROPERTIES(common PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 

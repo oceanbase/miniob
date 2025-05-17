@@ -28,7 +28,7 @@ See the Mulan PSL v2 for more details. */
 #define MAX_MEM_BUFFER_SIZE 8192
 namespace oceanbase {
 
-inline const string   LINE_HISTORY_FILE = "./.oblsm_cli.history";
+inline const string LINE_HISTORY_FILE = "./.oblsm_cli.history";
 
 std::string my_readline(const string &prompt);
 

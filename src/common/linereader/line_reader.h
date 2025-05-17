@@ -16,15 +16,16 @@ See the Mulan PSL v2 for more details. */
 #define COMMON_LINE_READER
 
 #if USE_REPLXX
-  #include "replxx.hxx"
-  using LineReader = replxx::Replxx;
+#include "replxx.hxx"
+using LineReader = replxx::Replxx;
 #else
-  #include "common/linereader/linenoise_reader.h"
-  using LineReader = LinenoiseReader;
+#include "common/linereader/linenoise_reader.h"
+using LineReader = LinenoiseReader;
 #endif
 
 namespace common {
-class LineReaderManager {
+class LineReaderManager
+{
 public:
   /**
    * @brief Read a line from input
@@ -32,7 +33,7 @@ public:
    * @param history_file path/to/file
    * @return char* to input string or nullptr
    */
-  static char* my_readline(const char* prompt, const std::string& history_file);
+  static char *my_readline(const char *prompt, const std::string &history_file);
 
   /**
    * @brief Check if the command is an exit command
@@ -40,12 +41,19 @@ public:
    * @param history_file path/to/file
    * @return True if the command is an exit command
    */
-  static bool is_exit_command(const char* cmd, const std::string& history_file);
+  static bool is_exit_command(const char *cmd, const std::string &history_file);
+
+  /**
+   * @brief Free the buffer allocated by my_readline
+   * @param buffer The buffer allocated by my_readline
+   * @note dealing with alloc-dealloc-mismatch
+   */
+  static void free_buffer(char *buffer);
 
 private:
   static LineReader reader_;
-  static bool is_first_call_;
+  static bool       is_first_call_;
 };
-} // namespace common
+}  // namespace common
 
-#endif // COMMON_LINE_READER
+#endif  // COMMON_LINE_READER

@@ -66,19 +66,19 @@ RC CliCommunicator::read_event(SessionEvent *&event)
   }
 
   if (common::is_blank(command)) {
-    free(command);
+    LineReaderManager::free_buffer(command);
     return RC::SUCCESS;
   }
 
   if (LineReaderManager::is_exit_command(command, LINE_HISTORY_FILE)) {
-    free(command);
+    LineReaderManager::free_buffer(command);
     exit_ = true;
     return RC::SUCCESS;
   }
 
   event = new SessionEvent(this);
   event->set_query(string(command));
-  free(command);
+  LineReaderManager::free_buffer(command);
   return RC::SUCCESS;
 }
 
