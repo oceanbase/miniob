@@ -33,7 +33,7 @@ OPTION(STATIC_STDLIB "Link std library static or dynamic, such as libgcc, libstd
 OPTION(USE_SIMD "Use SIMD" OFF)
 OPTION(USE_MUSL_LIBC "Use musl libc" OFF)
 OPTION(WITH_CPPLINGS "Compile cpplings" ON)
-
+OPTION(USE_REPLXX "Use replxx instead of linenoise for line reading" OFF)
 
 MESSAGE(STATUS "HOME dir: $ENV{HOME}")
 #SET(ENV{变量名} 值)
@@ -185,3 +185,13 @@ IF(WITH_UNIT_TESTS)
     ADD_SUBDIRECTORY(unittest)
 ENDIF(WITH_UNIT_TESTS)
 
+# Line Reading configs
+IF(USE_REPLXX)
+    ADD_DEFINITIONS(-DUSE_REPLXX=1)
+    MESSAGE(STATUS "Using replxx for line reading")
+    FIND_PACKAGE(Threads REQUIRED)
+    FIND_PACKAGE(replxx REQUIRED)
+ELSE()
+    ADD_DEFINITIONS(-DUSE_REPLXX=0)
+    MESSAGE(STATUS "Using linenoise for line reading")
+ENDIF()

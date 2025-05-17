@@ -15,10 +15,10 @@ ADD_EXECUTABLE(oblsm_cli ${CLIUTIL_SOURCES} client/ob_lsm_client.cpp)
 INCLUDE(readline)
 MINIOB_FIND_READLINE()
 
-find_package(Threads REQUIRED)
-find_package(replxx REQUIRED)
-TARGET_LINK_LIBRARIES(oblsm_cli replxx::replxx)
-MESSAGE ("oblsm_cli use replxx")
+IF(USE_REPLXX)
+    TARGET_LINK_LIBRARIES(oblsm_cli replxx::replxx)
+    MESSAGE(STATUS "oblsm_cli uses replxx")
+ENDIF()
 
 TARGET_LINK_LIBRARIES(oblsm_cli oblsm)
 
