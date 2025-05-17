@@ -1,5 +1,5 @@
 #pragma once
-#include "common/rc.h"
+#include "common/sys/rc.h"
 
 class SQLStageEvent;
 
