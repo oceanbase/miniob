@@ -70,6 +70,8 @@ public:
   RC create_table(const char *table_name, span<const AttrInfoSqlNode> attributes, const vector<string> &primary_keys,
       const StorageFormat storage_format = StorageFormat::ROW_FORMAT);
 
+  RC drop_table(const char *table_name);
+
   /**
    * @brief 根据表名查找表
    */
