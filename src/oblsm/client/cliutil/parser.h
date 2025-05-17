@@ -23,13 +23,13 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/lang/string_view.h"
 #include "oblsm/client/cliutil/defs.h"
-#include "replxx.hxx"
+#include "common/linereader/line_interface.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 namespace oceanbase {
 
-static replxx::Replxx rx;
-inline const string   REPLXX_HISTORY_FILE = "./.oblsm_cli.history";
+static LineInterface reader;
+inline const string   LINE_HISTORY_FILE = "./.oblsm_cli.history";
 
 std::string my_readline(const string &prompt);
 

@@ -18,22 +18,22 @@ See the Mulan PSL v2 for more details. */
 #include "event/session_event.h"
 #include "net/buffered_writer.h"
 #include "session/session.h"
-#include "replxx.hxx"
+#include "common/linereader/line_interface.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
 
 using namespace common;
 
-static replxx::Replxx rx;
-const std::string     REPLXX_HISTORY_FILE = "./.miniob.history";
+static LineInterface reader;
+const std::string     LINE_HISTORY_FILE = "./.miniob.history";
 
 char *my_readline(const char *prompt)
 {
   char const *cinput = nullptr;
 
   try {
-    cinput = rx.input(prompt);
+    cinput = reader.input(prompt);
   } catch (std::exception const &e) {
     LOG_WARN("replxx input error: %s", e.what());
     return nullptr;
@@ -52,7 +52,7 @@ char *my_readline(const char *prompt)
   }
 
   if (is_valid_input) {
-    rx.history_add(cinput);
+    reader.history_add(cinput);
   }
 
   char *line = strdup(cinput);
@@ -80,8 +80,8 @@ char *read_command()
 
   static bool is_first_call = true;
   if (is_first_call) {
-    rx.history_load(REPLXX_HISTORY_FILE);
-    rx.install_window_change_handler();
+    reader.history_load(LINE_HISTORY_FILE);
+    reader.install_window_change_handler();
     is_first_call = false;
   }
 
@@ -90,7 +90,7 @@ char *read_command()
   static time_t previous_history_save_time = 0;
   if (input_command != nullptr && input_command[0] != '\0') {
     if (time(NULL) - previous_history_save_time > 5) {
-      rx.history_save(REPLXX_HISTORY_FILE);
+      reader.history_save(LINE_HISTORY_FILE);
       previous_history_save_time = time(NULL);
     }
   }
@@ -138,7 +138,7 @@ RC CliCommunicator::read_event(SessionEvent *&event)
   if (is_exit_command(command)) {
     free(command);
     exit_ = true;
-    rx.history_save(REPLXX_HISTORY_FILE);
+    reader.history_save(LINE_HISTORY_FILE);
     return RC::SUCCESS;
   }
 
@@ -158,6 +158,6 @@ RC CliCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
 
 CliCommunicator::~CliCommunicator()
 {
-  rx.history_save(REPLXX_HISTORY_FILE);
-  LOG_INFO("Command history saved to %s", REPLXX_HISTORY_FILE.c_str());
+  reader.history_save(LINE_HISTORY_FILE);
+  LOG_INFO("Command history saved to %s", LINE_HISTORY_FILE.c_str());
 }

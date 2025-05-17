@@ -29,7 +29,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/defs.h"
 #include "common/lang/string.h"
-#include "replxx.hxx"
+#include "common/linereader/line_interface.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
@@ -37,22 +37,22 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-static replxx::Replxx rx;
-const std::string     REPLXX_HISTORY_FILE = "./.obclient.history";
+static LineInterface reader;
+const std::string     LINE_HISTORY_FILE = "./.obclient.history";
 
 char *my_readline(const char *prompt)
 {
   static bool is_first_call = true;
   if (is_first_call) {
-    rx.history_load(REPLXX_HISTORY_FILE);
-    rx.install_window_change_handler();
+    reader.history_load(LINE_HISTORY_FILE);
+    reader.install_window_change_handler();
     is_first_call = false;
   }
 
   char const *cinput = nullptr;
 
   try {
-    cinput = rx.input(prompt);
+    cinput = reader.input(prompt);
   } catch (std::exception const &e) {
     fprintf(stderr, "replxx input error: %s\n", e.what());
     return nullptr;
@@ -71,7 +71,7 @@ char *my_readline(const char *prompt)
   }
 
   if (is_valid_input) {
-    rx.history_add(cinput);
+    reader.history_add(cinput);
   }
 
   char *line = strdup(cinput);
@@ -197,12 +197,12 @@ int main(int argc, char *argv[])
     if (is_exit_command(input_command)) {
       free(input_command);
       input_command = nullptr;
-      rx.history_save(REPLXX_HISTORY_FILE);
+      reader.history_save(LINE_HISTORY_FILE);
       break;
     }
 
     if (time(NULL) - previous_history_save_time > 5) {
-      rx.history_save(REPLXX_HISTORY_FILE);
+      reader.history_save(LINE_HISTORY_FILE);
       previous_history_save_time = time(NULL);
     }
 
@@ -247,8 +247,8 @@ int main(int argc, char *argv[])
   }
   close(sockfd);
 
-  rx.history_save(REPLXX_HISTORY_FILE);
-  printf("Command history saved to: %s\n", REPLXX_HISTORY_FILE.c_str());
+  reader.history_save(LINE_HISTORY_FILE);
+  printf("Command history saved to: %s\n", LINE_HISTORY_FILE.c_str());
 
   return 0;
 }

@@ -21,15 +21,15 @@ std::string my_readline(const std::string &prompt)
 {
   static bool is_first_call = true;
   if (is_first_call) {
-    rx.history_load(REPLXX_HISTORY_FILE);
-    rx.install_window_change_handler();
+    reader.history_load(LINE_HISTORY_FILE);
+    reader.install_window_change_handler();
     is_first_call = false;
   }
 
   char const *cinput = nullptr;
 
   try {
-    cinput = rx.input(prompt.c_str());
+    cinput = reader.input(prompt.c_str());
   } catch (std::exception const &e) {
     std::cerr << "replxx input error: " << e.what() << std::endl;
     return "";
@@ -40,7 +40,7 @@ std::string my_readline(const std::string &prompt)
   std::string result = cinput;
 
   if (is_valid_input) {
-    rx.history_add(result);
+    reader.history_add(result);
   }
 
   return result;
