@@ -3,7 +3,9 @@
 #include <string>
 #include <vector>
 #include "sql/stmt/stmt.h"
+#include "common/sys/rc.h"
 class Db;
+struct DropTableSqlNode;
 class DropTableStmt : public Stmt
 {
 public:
