@@ -1,17 +1,9 @@
-#pragma once
-#include <string>
-#include <vector>
-#include "sql/stmt/stmt.h"
-class Db;
-class DropTableStmt : public Stmt
+#include "drop_table_stmt.h"
+#include "event/sql_debug.h"
+RC DropTableStmt::create(Db *db, const DropTableSqlNode &drop_table, Stmt
+*&stmt)
 {
-public:
-  DropTableStmt(const std::string &table_name) : table_name_(table_name) {}
-  virtual ~DropTableStmt() = default;
-  StmtType type() const override { return StmtType::DROP_TABLE; }
-  const std::string &table_name() const { return table_name_; }
-  static RC create(Db *db, const DropTableSqlNode &drop_table, Stmt *&stmt);
-
-private:
-  std::string table_name_;
-};
+  stmt = new DropTableStmt(drop_table.relation_name);
+  sql_debug("drop table statement: table name %s", drop_table.relation_name.c_str());
+  return RC::SUCCESS;
+}
