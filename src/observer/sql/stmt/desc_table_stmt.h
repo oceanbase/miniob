@@ -13,10 +13,11 @@ See the Mulan PSL v2 for more details. */
 //
 
 #pragma once
-
+#include <string>
 #include "sql/stmt/stmt.h"
-
+#include "common/sys/rc.h"
 class Db;
+struct DropTableSqlNode;
 
 /**
  * @brief 描述表的语句
