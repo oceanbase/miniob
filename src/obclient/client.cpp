@@ -37,51 +37,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-static LineInterface reader;
-const std::string     LINE_HISTORY_FILE = "./.obclient.history";
-
-char *my_readline(const char *prompt)
-{
-  static bool is_first_call = true;
-  if (is_first_call) {
-    reader.history_load(LINE_HISTORY_FILE);
-    reader.install_window_change_handler();
-    is_first_call = false;
-  }
-
-  char const *cinput = nullptr;
-
-  try {
-    cinput = reader.input(prompt);
-  } catch (std::exception const &e) {
-    fprintf(stderr, "replxx input error: %s\n", e.what());
-    return nullptr;
-  }
-
-  if (cinput == nullptr) {
-    return nullptr;
-  }
-
-  bool is_valid_input = false;
-  for (auto c = cinput; *c != '\0'; ++c) {
-    if (!isspace(*c)) {
-      is_valid_input = true;
-      break;
-    }
-  }
-
-  if (is_valid_input) {
-    reader.history_add(cinput);
-  }
-
-  char *line = strdup(cinput);
-  if (line == nullptr) {
-    fprintf(stderr, "Failed to dup input string from replxx\n");
-    return nullptr;
-  }
-
-  return line;
-}
+const std::string LINE_HISTORY_FILE = "./.obclient.history";
 
 /* this function config a exit-cmd list, strncasecmp func truncate the command from terminal according to the number,
    'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from
@@ -89,7 +45,7 @@ char *my_readline(const char *prompt)
 */
 bool is_exit_command(const char *cmd)
 {
-  return 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) || 0 == strncasecmp("\\q", cmd, 2);
+  return is_exit_command(cmd, LINE_HISTORY_FILE);
 }
 
 int init_unix_sock(const char *unix_sock_path)
@@ -186,8 +142,9 @@ int main(int argc, char *argv[])
 
   char         *input_command              = nullptr;
   static time_t previous_history_save_time = 0;
+  static LineInterface reader;
 
-  while ((input_command = my_readline(prompt_str)) != nullptr) {
+  while ((input_command = my_readline(prompt_str, LINE_HISTORY_FILE)) != nullptr) {
     if (common::is_blank(input_command)) {
       free(input_command);
       input_command = nullptr;
@@ -197,7 +154,6 @@ int main(int argc, char *argv[])
     if (is_exit_command(input_command)) {
       free(input_command);
       input_command = nullptr;
-      reader.history_save(LINE_HISTORY_FILE);
       break;
     }
 

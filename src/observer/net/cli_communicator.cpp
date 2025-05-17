@@ -25,77 +25,12 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
-static LineInterface reader;
-const std::string     LINE_HISTORY_FILE = "./.miniob.history";
-
-char *my_readline(const char *prompt)
-{
-  char const *cinput = nullptr;
-
-  try {
-    cinput = reader.input(prompt);
-  } catch (std::exception const &e) {
-    LOG_WARN("replxx input error: %s", e.what());
-    return nullptr;
-  }
-
-  if (cinput == nullptr) {
-    return nullptr;
-  }
-
-  bool is_valid_input = false;
-  for (auto c = cinput; *c != '\0'; ++c) {
-    if (!isspace(*c)) {
-      is_valid_input = true;
-      break;
-    }
-  }
-
-  if (is_valid_input) {
-    reader.history_add(cinput);
-  }
-
-  char *line = strdup(cinput);
-  if (line == nullptr) {
-    LOG_WARN("Failed to dup input string from replxx");
-    return nullptr;
-  }
-
-  return line;
-}
-
-/* this function config a exit-cmd list, strncasecmp func truncate the command from terminal according to the number,
-   'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from
-   the beginning, then compare the result with 'exit', if they match, exit the obclient.
-*/
-bool is_exit_command(const char *cmd)
-{
-  return 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) || 0 == strncasecmp("\\q", cmd, 2) ||
-         0 == strncasecmp("interrupted", cmd, 11);
-}
+const std::string LINE_HISTORY_FILE = "./.miniob.history";
 
 char *read_command()
 {
   const char *prompt_str = "miniob > ";
-
-  static bool is_first_call = true;
-  if (is_first_call) {
-    reader.history_load(LINE_HISTORY_FILE);
-    reader.install_window_change_handler();
-    is_first_call = false;
-  }
-
-  char *input_command = my_readline(prompt_str);
-
-  static time_t previous_history_save_time = 0;
-  if (input_command != nullptr && input_command[0] != '\0') {
-    if (time(NULL) - previous_history_save_time > 5) {
-      reader.history_save(LINE_HISTORY_FILE);
-      previous_history_save_time = time(NULL);
-    }
-  }
-
-  return input_command;
+  return my_readline(prompt_str, LINE_HISTORY_FILE);
 }
 
 RC CliCommunicator::init(int fd, unique_ptr<Session> session, const string &addr)
@@ -135,10 +70,9 @@ RC CliCommunicator::read_event(SessionEvent *&event)
     return RC::SUCCESS;
   }
 
-  if (is_exit_command(command)) {
+  if (is_exit_command(command, LINE_HISTORY_FILE)) {
     free(command);
     exit_ = true;
-    reader.history_save(LINE_HISTORY_FILE);
     return RC::SUCCESS;
   }
 
@@ -158,6 +92,7 @@ RC CliCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
 
 CliCommunicator::~CliCommunicator()
 {
+  static LineInterface reader;
   reader.history_save(LINE_HISTORY_FILE);
   LOG_INFO("Command history saved to %s", LINE_HISTORY_FILE.c_str());
 }

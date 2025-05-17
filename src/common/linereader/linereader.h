@@ -25,14 +25,13 @@ namespace common {
 class LineReader {
 public:
   LineReader();
-  ~LineReader();
-
+  ~LineReader() = default;
+  
   /**
-   * @brief Read input
+   * @brief Read input with C string
    * @param prompt
-   * @return "input" or ""
+   * @return char* to input string or nullptr
    */
-  std::string input(const std::string& prompt);
   char* input(const char* prompt);
   
   /**
@@ -51,10 +50,10 @@ public:
   
   /**
    * @brief Add a single history record to the file
-   * @param line the command to be recorded
+   * @param line the C string command to be recorded
    * @return Whether add success
    */
-  bool history_add(const std::string& line);
+  bool history_add(const char* line);
   
   /**
    * @brief Set the maximum of history length
@@ -63,26 +62,13 @@ public:
   void history_set_max_len(int len);
   
   /**
-   * @brief 安装窗口变化处理程序，用于适配终端大小变化
-   */
-  void install_window_change_handler();
-  
-  /**
    * @brief Clean the screen: Ctrl + L
    */
   void clear_screen();
 
 private:
-  std::string current_history_file_;
+  std::string history_file_;
 };
-
-/**
- * @brief Check whether a string is all blank
- * @param str given string
- */
-bool is_valid_input(const std::string& str);
-
 } // namespace common
 
-#endif // COMMON_LINEREADER_H 
-
+#endif // COMMON_LINEREADER_H

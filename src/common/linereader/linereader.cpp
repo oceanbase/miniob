@@ -17,48 +17,17 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 
 namespace common {
-
 LineReader::LineReader() {
   linenoiseHistorySetMaxLen(1000);
   linenoiseSetMultiLine(0);
 }
 
-LineReader::~LineReader() {
-  if (!current_history_file_.empty()) {
-    history_save(current_history_file_);
-  }
-}
-
-std::string LineReader::input(const std::string& prompt) {
-  char* line = linenoise(prompt.c_str());
-  
-  if (line == nullptr) {
-    return "";
-  }
-  
-  std::string result = line;
-  linenoiseFree(line);
-  return result;
-}
-
 char* LineReader::input(const char* prompt) {
-  char* line = linenoise(prompt);
-  
-  if (line == nullptr) {
-    return nullptr;
-  }
-  
-  char* result = strdup(line);
-  if (result == nullptr) {
-    return nullptr;
-  }
-
-  linenoiseFree(line);
-  return result;
+  return linenoise(prompt);
 }
 
 bool LineReader::history_load(const std::string& history_file) {
-  current_history_file_ = history_file;
+  history_file_ = history_file;
   return linenoiseHistoryLoad(history_file.c_str()) == 0;
 }
 
@@ -66,9 +35,9 @@ bool LineReader::history_save(const std::string& history_file) const {
   return linenoiseHistorySave(history_file.c_str()) == 0;
 }
 
-bool LineReader::history_add(const std::string& line) {
-  if (!line.empty()) {
-    return linenoiseHistoryAdd(line.c_str()) == 0;
+bool LineReader::history_add(const char* line) {
+  if (line != nullptr && *line != '\0') {
+    return linenoiseHistoryAdd(line) == 0;
   }
   return false;
 }
@@ -77,19 +46,7 @@ void LineReader::history_set_max_len(int len) {
   linenoiseHistorySetMaxLen(len);
 }
 
-void LineReader::install_window_change_handler() {}
-
 void LineReader::clear_screen() {
   linenoiseClearScreen();
 }
-
-bool is_valid_input(const std::string& str) {
-  for (size_t i = 0; i < str.length(); ++i) {
-    if (!isspace(str[i])) {
-      return true;
-    }
-  }
-  return false;
-}
-
-} // namespace common 
+} // namespace common

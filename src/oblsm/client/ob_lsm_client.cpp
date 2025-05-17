@@ -115,6 +115,7 @@ int main(int, char **)
   print_sys_msg("Enter the help command to view the usage of oblsm_cli");
 
   static time_t previous_history_save_time = 0;
+  static LineInterface reader;
 
   for (; !quit;) {
     string command = my_readline(prompt);
