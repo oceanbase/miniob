@@ -184,11 +184,12 @@ RC Db::drop_table(const char *table_name)
     LOG_WARN("Failed to find table %s.", table_name);
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
-  rc = table->drop(table_name);
+  rc = table->drop(table_name, path_.c_str());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to drop table %s.", table_name);
     return rc;
   }
+  
   opened_tables_.erase(table_name);
   LOG_INFO("Drop table success. table name=%s.", table_name);
   return rc;

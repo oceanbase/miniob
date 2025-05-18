@@ -64,7 +64,8 @@ public:
    * 删除一个表（新增）
    * @param name 表名
    */
-  RC drop(const char *name);
+  RC drop(const char *name, const char *base_dir);
+
 
   /**
    * 打开一个表

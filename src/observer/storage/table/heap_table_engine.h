@@ -22,6 +22,11 @@ class Table;
 class HeapTableEngine : public TableEngine
 {
 public:
+  const std::vector<Index *> &all_indexes() const { return indexes_; }
+  RecordFileHandler *record_handler() const { return record_handler_; }
+  DiskBufferPool *buffer_pool() const { return data_buffer_pool_; }
+
+  
   friend class Table;
   HeapTableEngine(TableMeta *table_meta, Db *db, Table *table) : TableEngine(table_meta), db_(db), table_(table) {}
   ~HeapTableEngine() override;

@@ -129,34 +129,51 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   return rc;
 }
 
-RC Table::drop(const char *table_name)
+RC Table::drop(const char *table_name, const char *base_dir)
 {
   RC rc = RC::SUCCESS;
   PersistHandler persistHandler;
 
-  std::string data_file = base_dir_ + "/" + table_name + ".data";
-  std::string table_file = base_dir_ + "/" + table_name + ".table";
-  rc = persistHandler.remove_file(data_file.c_str());
-  if (rc != RC::SUCCESS)
-    return rc;
-  rc = persistHandler.remove_file(table_file.c_str());
-  if (rc != RC::SUCCESS)
-    return rc;
+  auto *heap_engine = dynamic_cast<HeapTableEngine *>(engine_.get());
+  if (heap_engine != nullptr) {
 
-  for (auto index : indexes_) {
-    std::string index_file = base_dir_ + "/" + table_name + "-" + index->index_meta().name() + ".index";
-    rc = persistHandler.remove_file(index_file.c_str());
-    if (rc != RC::SUCCESS)
+    for (auto index : heap_engine->all_indexes()) {
+      std::string index_file = std::string(base_dir) + "/" + table_name + "-" +
+                                index->index_meta().name() + ".index";
+      rc = persistHandler.remove_file(index_file.c_str());
+      if (rc != RC::SUCCESS) {
+        LOG_WARN("Failed to remove index file: %s", index_file.c_str());
+        return rc;
+      }
+    }
+
+    rc = heap_engine->buffer_pool()->close_file();
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("Failed to close buffer pool");
       return rc;
+    }
+
+    heap_engine->record_handler()->close();
+  }
+  std::string data_file = std::string(base_dir) + "/" + table_name + ".data";
+  std::string table_file = std::string(base_dir) + "/" + table_name + ".table";
+
+  rc = persistHandler.remove_file(data_file.c_str());
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("Failed to remove data file: %s", data_file.c_str());
+    return rc;
   }
 
-  rc = data_buffer_pool_->close_file();
-  if (rc != RC::SUCCESS)
+  rc = persistHandler.remove_file(table_file.c_str());
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("Failed to remove table file: %s", table_file.c_str());
     return rc;
-  record_handler_->close();
+  }
 
-  return rc;
+  LOG_INFO("Drop table success. table name=%s.", table_name);
+  return RC::SUCCESS;
 }
+
 
 
 RC Table::open(Db *db, const char *meta_file, const char *base_dir)
