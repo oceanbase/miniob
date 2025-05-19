@@ -26,8 +26,22 @@ char *LineReaderManager::my_readline(const char *prompt, const std::string &hist
     is_first_call_ = false;
   }
 
-  char *line = (char *)reader_.input(prompt);
+  char *cinput = (char *)reader_.input(prompt);
+  if (cinput == nullptr) {
+    return nullptr;
+  }
+  
+  char* line = strdup(cinput);
+
+#if USE_REPLXX
+  delete[] cinput;  // replxx uses new[]
+#else
+  free(cinput);     // linenoise uses malloc
+#endif
+  cinput = nullptr;
+
   if (line == nullptr) {
+    std::cerr << "Fail to dup input from reader\n";
     return nullptr;
   }
 
@@ -58,14 +72,19 @@ bool LineReaderManager::is_exit_command(const char *cmd, const std::string &hist
   return is_exit;
 }
 
+bool LineReaderManager::save_history(const std::string &history_file)
+{
+  return reader_.history_save(history_file);
+}
+
 void LineReaderManager::free_buffer(char *buffer)
 {
   if (buffer != nullptr) {
-#if USE_REPLXX
-    delete[] buffer;  // replxx uses new[]
-#else
+// #if USE_REPLXX
+//     delete[] buffer;  // replxx uses new[]
+// #else
     free(buffer);  // linenoise uses malloc
-#endif
+// #endif
   }
 }
 }  // namespace common

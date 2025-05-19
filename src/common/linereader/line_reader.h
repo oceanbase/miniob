@@ -44,9 +44,16 @@ public:
   static bool is_exit_command(const char *cmd, const std::string &history_file);
 
   /**
+   * @brief Save history to file
+   * @param history_file path/to/file
+   * @return True if save succeed
+   */
+  static bool save_history(const std::string &history_file);
+
+  /**
    * @brief Free the buffer allocated by my_readline
    * @param buffer The buffer allocated by my_readline
-   * @note dealing with alloc-dealloc-mismatch
+   * @note dealing with alloc-dealloc-mismatch(To delete??)
    */
   static void free_buffer(char *buffer);
 
