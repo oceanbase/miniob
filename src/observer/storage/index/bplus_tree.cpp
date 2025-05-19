@@ -281,7 +281,7 @@ RC LeafIndexNodeHandler::move_half_to(LeafIndexNodeHandler &other)
 
   other.append(__item_at(move_index), move_item_num);
 
-  RC rc = mtr_.logger().node_remove_items(*this, move_index, span<const char>(__item_at(move_index), move_item_num * item_size()), move_item_num);
+  RC rc = mtr_.logger().node_remove_items(*this, move_index, span<const char>(__item_at(move_index), static_cast<size_t>(move_item_num) * item_size()), move_item_num);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log shrink leaf node. rc=%s", strrc(rc));
     return rc;
