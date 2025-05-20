@@ -70,6 +70,7 @@ insert into t1 values(1, 1);
 select * from t1;
                                   select * from t1;
 delete from t1 where id = 0;
+update t1 set a = 101 where id = 1;
 select * from t1;                 select * from t1;
                                   insert into t1 values(3,3);
                                   select * from t1;
@@ -84,7 +85,7 @@ commit;
 
 **提示** 事务提交时可以使用`ObLsmImpl::batch_put`，来一次性写入一批数据，需要考虑这一批数据写入的原子性，以及写入过程中的失败回滚。
 
-**注意** `update_record_with_trx` 在LAB#3 中不做要求，在 LAB#4 中要求必须实现。
+**提示** 在 lab#3 中需要支持两个客户端在事务中并发执行简单的 update 语句。例如：`update t set a = 1 where b = 2`。在后续 lab#4 中还需要支持更复杂的 update 语法，详情可参考lab#4 文档。
 
 **思考** 当前的 WriteBatch 是完全在内存中的，如果事务中涉及的大小超过内存大小应该如何处理？
 
