@@ -15,23 +15,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/log/log.h"
 #include "common/sys/rc.h"
-#include "common/linereader/line_reader.h"
-
-using common::LineReaderManager;
 
 namespace oceanbase {
-std::string my_readline(const std::string &prompt)
-{
-  char *line = LineReaderManager::my_readline(prompt.c_str(), LINE_HISTORY_FILE);
-  if (line == nullptr) {
-    return "";
-  }
-
-  std::string result = line;
-  free(line);
-  return result;
-}
-
 void ObLsmCliCmdTokenizer::skip_blank_space()
 {
   while (!out_of_range() && std::isspace(command_[p_])) {

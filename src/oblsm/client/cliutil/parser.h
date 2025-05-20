@@ -30,8 +30,6 @@ namespace oceanbase {
 
 inline const string LINE_HISTORY_FILE = "./.oblsm_cli.history";
 
-std::string my_readline(const string &prompt);
-
 enum class TokenType
 {
   COMMAND,

@@ -22,9 +22,9 @@ See the Mulan PSL v2 for more details. */
 #include <cstddef>
 
 using namespace oceanbase;
-using common::LineReaderManager;
+using common::MiniobLineReader;
 
-const string prompt = "oblsm> ";
+const string prompt = "\033[32moblsm> \033[0m";
 bool         quit   = false;
 ObLsm       *lsm    = nullptr;
 ObLsmOptions opt;
@@ -117,29 +117,16 @@ int main(int, char **)
   print_sys_msg(startup_tips);
   print_sys_msg("Enter the help command to view the usage of oblsm_cli");
 
-  static time_t previous_history_save_time = 0;
-
   for (; !quit;) {
-    char *command_input = LineReaderManager::my_readline(prompt.c_str(), LINE_HISTORY_FILE);
+    std::string command_input = MiniobLineReader::my_readline(prompt.c_str(), LINE_HISTORY_FILE);
 
-    if (command_input == nullptr) {
+    if (command_input.empty()) {
       continue;
-    }
-
-    std::string command = command_input;
-    LineReaderManager::free_buffer(command_input);
-    command_input = nullptr;
-
-    if (!command.empty()) {
-      if (time(nullptr) - previous_history_save_time > 5) {
-        LineReaderManager::is_exit_command("", LINE_HISTORY_FILE);
-        previous_history_save_time = time(nullptr);
-      }
     }
 
     ObLsmCliCmdParser parser;
     auto            &&result     = parser.result;
-    RC                rc         = parser.parse(command);
+    RC                rc         = parser.parse(command_input);
     auto              comparator = ObDefaultComparator{};
     if (OB_FAIL(rc)) {
       print_rc(rc);
@@ -204,7 +191,7 @@ int main(int, char **)
           delete lsm;
           lsm = nullptr;
         }
-        LineReaderManager::is_exit_command("", LINE_HISTORY_FILE);
+        MiniobLineReader::save_history(LINE_HISTORY_FILE);
         print_sys_msg("Command history saved to " + string(LINE_HISTORY_FILE));
         print_sys_msg("bye.");
         quit = true;

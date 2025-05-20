@@ -12,19 +12,14 @@ See the Mulan PSL v2 for more details. */
 // Created by Willaaaaaaa in 2025
 //
 
-#ifndef COMMON_LINE_READER
-#define COMMON_LINE_READER
+#ifndef COMMON_LINE_READER_H
+#define COMMON_LINE_READER_H
 
-#if USE_REPLXX
 #include "replxx.hxx"
 using LineReader = replxx::Replxx;
-#else
-#include "common/linereader/linenoise_reader.h"
-using LineReader = LinenoiseReader;
-#endif
 
 namespace common {
-class LineReaderManager
+class MiniobLineReader
 {
 public:
   /**
@@ -33,7 +28,7 @@ public:
    * @param history_file path/to/file
    * @return char* to input string or nullptr
    */
-  static char *my_readline(const char *prompt, const std::string &history_file);
+  static std::string my_readline(const std::string &prompt, const std::string &history_file);
 
   /**
    * @brief Check if the command is an exit command
@@ -41,7 +36,7 @@ public:
    * @param history_file path/to/file
    * @return True if the command is an exit command
    */
-  static bool is_exit_command(const char *cmd, const std::string &history_file);
+  static bool is_exit_command(const std::string &cmd, const std::string &history_file);
 
   /**
    * @brief Save history to file
@@ -50,17 +45,20 @@ public:
    */
   static bool save_history(const std::string &history_file);
 
+private:
   /**
-   * @brief Free the buffer allocated by my_readline
-   * @param buffer The buffer allocated by my_readline
-   * @note dealing with alloc-dealloc-mismatch(To delete??)
+   * @brief Check if history should be auto-saved
+   * @param history_file path/to/file
+   * @return True if history should be saved due to time interval
    */
-  static void free_buffer(char *buffer);
+  static bool check_and_save_history(const std::string &history_file);
 
 private:
   static LineReader reader_;
   static bool       is_first_call_;
+  static time_t     previous_history_save_time_;
+  static int        history_save_interval_;
 };
 }  // namespace common
 
-#endif  // COMMON_LINE_READER
+#endif  // COMMON_LINE_READER_H

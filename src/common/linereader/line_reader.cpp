@@ -16,38 +16,34 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 
 namespace common {
-LineReader LineReaderManager::reader_;
-bool       LineReaderManager::is_first_call_ = true;
+LineReader MiniobLineReader::reader_;
+bool       MiniobLineReader::is_first_call_              = true;
+time_t     MiniobLineReader::previous_history_save_time_ = 0;
+int        MiniobLineReader::history_save_interval_      = 5;
 
-char *LineReaderManager::my_readline(const char *prompt, const std::string &history_file)
+std::string MiniobLineReader::my_readline(const std::string &prompt, const std::string &history_file)
 {
   if (is_first_call_) {
     reader_.history_load(history_file);
     is_first_call_ = false;
   }
 
-  char *cinput = (char *)reader_.input(prompt);
+  const char *cinput = nullptr;
+  cinput             = reader_.input(prompt);
   if (cinput == nullptr) {
-    return nullptr;
+    return "";
   }
-  
-  char* line = strdup(cinput);
 
-#if USE_REPLXX
-  delete[] cinput;  // replxx uses new[]
-#else
-  free(cinput);     // linenoise uses malloc
-#endif
-  cinput = nullptr;
+  std::string line = cinput;
+  cinput           = nullptr;
 
-  if (line == nullptr) {
-    std::cerr << "Fail to dup input from reader\n";
-    return nullptr;
+  if (line.empty()) {
+    return "";
   }
 
   bool is_valid_input = false;
-  for (auto c = line; *c != '\0'; ++c) {
-    if (!isspace(*c)) {
+  for (auto c : line) {
+    if (!isspace(c)) {
       is_valid_input = true;
       break;
     }
@@ -55,15 +51,19 @@ char *LineReaderManager::my_readline(const char *prompt, const std::string &hist
 
   if (is_valid_input) {
     reader_.history_add(line);
+    check_and_save_history(history_file);
   }
 
   return line;
 }
 
-bool LineReaderManager::is_exit_command(const char *cmd, const std::string &history_file)
+bool MiniobLineReader::is_exit_command(const std::string &cmd, const std::string &history_file)
 {
-  bool is_exit = 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) ||
-                 0 == strncasecmp("\\q", cmd, 2) || 0 == strncasecmp("interrupted", cmd, 11);
+  std::string lower_cmd = cmd;
+  common::str_to_lower(lower_cmd);
+
+  bool is_exit = lower_cmd.compare(0, 4, "exit") == 0 || lower_cmd.compare(0, 3, "bye") == 0 ||
+                 lower_cmd.compare(0, 2, "\\q") == 0 || lower_cmd.compare(0, 11, "interrupted") == 0;
 
   if (is_exit) {
     reader_.history_save(history_file);
@@ -72,19 +72,16 @@ bool LineReaderManager::is_exit_command(const char *cmd, const std::string &hist
   return is_exit;
 }
 
-bool LineReaderManager::save_history(const std::string &history_file)
-{
-  return reader_.history_save(history_file);
-}
+bool MiniobLineReader::save_history(const std::string &history_file) { return reader_.history_save(history_file); }
 
-void LineReaderManager::free_buffer(char *buffer)
+bool MiniobLineReader::check_and_save_history(const std::string &history_file)
 {
-  if (buffer != nullptr) {
-// #if USE_REPLXX
-//     delete[] buffer;  // replxx uses new[]
-// #else
-    free(buffer);  // linenoise uses malloc
-// #endif
+  time_t current_time = time(nullptr);
+  if (current_time - previous_history_save_time_ > history_save_interval_) {
+    reader_.history_save(history_file);
+    previous_history_save_time_ = current_time;
+    return true;
   }
+  return false;
 }
 }  // namespace common

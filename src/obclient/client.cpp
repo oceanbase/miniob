@@ -43,7 +43,6 @@ const std::string LINE_HISTORY_FILE = "./.obclient.history";
    'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from
    the beginning, then compare the result with 'exit', if they match, exit the obclient.
 */
-bool is_exit_command(const char *cmd) { return LineReaderManager::is_exit_command(cmd, LINE_HISTORY_FILE); }
 
 int init_unix_sock(const char *unix_sock_path)
 {
@@ -137,33 +136,21 @@ int main(int argc, char *argv[])
 
   char send_buf[MAX_MEM_BUFFER_SIZE];
 
-  char         *input_command              = nullptr;
-  static time_t previous_history_save_time = 0;
+  std::string input_command = "";
 
-  while ((input_command = LineReaderManager::my_readline(prompt_str, LINE_HISTORY_FILE)) != nullptr) {
-    if (common::is_blank(input_command)) {
-      LineReaderManager::free_buffer(input_command);
-      input_command = nullptr;
+  while (!(input_command = MiniobLineReader::my_readline(prompt_str, LINE_HISTORY_FILE)).empty()) {
+    if (input_command.empty() || common::is_blank(input_command.c_str())) {
       continue;
     }
 
-    if (is_exit_command(input_command)) {
-      LineReaderManager::free_buffer(input_command);
-      input_command = nullptr;
+    if (MiniobLineReader::is_exit_command(input_command, LINE_HISTORY_FILE)) {
       break;
     }
 
-    if (time(NULL) - previous_history_save_time > 5) {
-      LineReaderManager::is_exit_command("", LINE_HISTORY_FILE);
-      previous_history_save_time = time(NULL);
-    }
-
-    if ((send_bytes = write(sockfd, input_command, strlen(input_command) + 1)) == -1) {  // TODO writen
+    if ((send_bytes = write(sockfd, input_command.c_str(), input_command.length() + 1)) == -1) {  // TODO writen
       fprintf(stderr, "send error: %d:%s \n", errno, strerror(errno));
       exit(1);
     }
-    LineReaderManager::free_buffer(input_command);
-    input_command = nullptr;
 
     memset(send_buf, 0, sizeof(send_buf));
 
@@ -193,13 +180,9 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (input_command != nullptr) {
-    LineReaderManager::free_buffer(input_command);
-    input_command = nullptr;
-  }
   close(sockfd);
 
-  LineReaderManager::is_exit_command("", LINE_HISTORY_FILE);
+  MiniobLineReader::save_history(LINE_HISTORY_FILE);
   printf("Command history saved to: %s\n", LINE_HISTORY_FILE.c_str());
 
   return 0;
