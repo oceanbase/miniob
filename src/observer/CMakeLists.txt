@@ -43,10 +43,8 @@ TARGET_LINK_LIBRARIES(observer observer_static)
 
 ADD_LIBRARY(observer_static STATIC ${LIB_SRC})
 
-IF(USE_REPLXX)
-    TARGET_LINK_LIBRARIES(observer_static replxx::replxx)
-    MESSAGE(STATUS "observer_static uses replxx")
-ENDIF()
+# TARGET_LINK_LIBRARIES(observer_static replxx::replxx)
+# MESSAGE(STATUS "observer_static uses replxx")
 
 SET_TARGET_PROPERTIES(observer_static PROPERTIES OUTPUT_NAME observer)
 TARGET_LINK_LIBRARIES(observer_static ${LIBRARIES} oblsm)
