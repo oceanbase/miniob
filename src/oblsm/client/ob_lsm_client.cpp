@@ -19,7 +19,6 @@ See the Mulan PSL v2 for more details. */
 #include "oblsm/include/ob_lsm_options.h"
 #include "oblsm/util/ob_comparator.h"
 #include "common/linereader/line_reader.h"
-#include <cstddef>
 
 using namespace oceanbase;
 using common::MiniobLineReader;

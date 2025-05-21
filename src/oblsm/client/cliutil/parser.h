@@ -23,7 +23,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/lang/string_view.h"
 #include "oblsm/client/cliutil/defs.h"
-#include "common/linereader/line_reader.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 namespace oceanbase {

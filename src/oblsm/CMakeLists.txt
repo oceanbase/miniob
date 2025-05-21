@@ -13,11 +13,7 @@ TARGET_LINK_LIBRARIES(oblsm common pthread JsonCpp::JsonCpp)
 
 ADD_EXECUTABLE(oblsm_cli ${CLIUTIL_SOURCES} client/ob_lsm_client.cpp)
 
-# TARGET_LINK_LIBRARIES(oblsm_cli replxx::replxx)
-# MESSAGE(STATUS "oblsm_cli uses replxx")
-
 TARGET_LINK_LIBRARIES(oblsm_cli oblsm)
-
 
 ADD_EXECUTABLE(oblsm_bench benchmarks/ob_lsm_bench.cpp)
 TARGET_LINK_LIBRARIES(oblsm_bench oblsm)

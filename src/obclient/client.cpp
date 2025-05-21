@@ -39,11 +39,6 @@ using namespace common;
 
 const std::string LINE_HISTORY_FILE = "./.obclient.history";
 
-/* this function config a exit-cmd list, strncasecmp func truncate the command from terminal according to the number,
-   'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from
-   the beginning, then compare the result with 'exit', if they match, exit the obclient.
-*/
-
 int init_unix_sock(const char *unix_sock_path)
 {
   int sockfd = socket(PF_UNIX, SOCK_STREAM, 0);

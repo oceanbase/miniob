@@ -1,9 +1,6 @@
 ADD_EXECUTABLE(obclient)
 MESSAGE("Begin to build " obclient)
 
-# TARGET_LINK_LIBRARIES(obclient replxx::replxx)
-# MESSAGE(STATUS "obclient uses replxx")
-
 FILE(GLOB_RECURSE ALL_SRC *.cpp)
 FOREACH (F ${ALL_SRC})
 
