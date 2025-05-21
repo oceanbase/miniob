@@ -133,7 +133,9 @@ int main(int argc, char *argv[])
 
   std::string input_command = "";
 
-  while (!(input_command = MiniobLineReader::my_readline(prompt_str, LINE_HISTORY_FILE)).empty()) {
+  while (true) {
+    input_command = MiniobLineReader::my_readline(prompt_str, LINE_HISTORY_FILE);
+
     if (input_command.empty() || common::is_blank(input_command.c_str())) {
       continue;
     }
