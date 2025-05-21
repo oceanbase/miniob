@@ -20,6 +20,7 @@ See the Mulan PSL v2 for more details. */
 // 如果不需要 `parameters`，`parameters` 可以为空。除非指定返回类型，否则也可以完全省略它。
 // `returnType` 是可选的，如果省略，则将假定为 auto（使用类型推导来确定返回类型）。
 
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <cassert>
@@ -29,15 +30,17 @@ int main()
   std::vector<int> numbers = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};
 
   // TODO: 定义一个 lambda 表达式来检查数字是否为偶数
+  auto is_even = [](int num){return num % 2 == 0;};
+  // bool all_even = std::all_of(numbers.begin(), numbers.end(), is_even);
 
   // 使用 lambda 表达式来累计所有偶数的和
   int even_sum = 0;
   for (const auto &num : numbers) {
     (void)(num);
     // TODO: 在实现 lambda 表达式后将下面的注释取消注释
-    // if (is_even(num)) {
-    //     even_sum += num;
-    // }
+    if (is_even(num)) {
+        even_sum += num;
+    }
   }
 
   std::cout << "Sum of even numbers: " << even_sum << std::endl;

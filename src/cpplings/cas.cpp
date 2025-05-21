@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 // 如果不相等，则将原子变量的当前值赋值给预期值。这个操作是原子的，保证了线程安全。
 // 详细用法可参考：https://en.cppreference.com/w/cpp/atomic/atomic/compare_exchange
 
+#include <atomic>
 #include <iostream>  // std::cout
 #include <thread>    // std::thread
 #include <vector>    // std::vector
@@ -26,15 +27,27 @@ struct Node
   Node *next;
 };
 
-Node *list_head(nullptr);
+std::atomic<Node*> list_head(nullptr);
 
 // 向 `list_head` 中添加一个值为 `val` 的 Node 节点。
 void append_node(int val)
 {
-  Node *old_head = list_head;
-  Node *new_node = new Node{val, old_head};
-  // TODO: 使用 compare_exchange_strong 来使这段代码线程安全。
-  list_head = new_node;
+  // Node *old_head = list_head;
+  // Node *new_node = new Node{val, old_head};
+  // // TODO: 使用 compare_exchange_strong 来使这段代码线程安全。
+  // list_head = new_node;
+
+  // 重写的append_node(int val)方法
+  Node* new_node = new Node{val, nullptr};
+  Node* old_head = list_head.load(std::memory_order_relaxed);
+  do {
+    new_node->next = old_head;
+  }while (!list_head.compare_exchange_strong(
+    old_head,
+    new_node,
+    std::memory_order_release,
+    std::memory_order_relaxed
+  ));
 }
 
 int main()

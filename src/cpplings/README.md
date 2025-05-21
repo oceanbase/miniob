@@ -22,3 +22,10 @@ $./bin/cpplings/cas
 50
 passed!
 ```
+
+编译并运行：
+```
+cd /home/zjl/public/miniob/src/cpplings/
+g++ -std=c++20 -pthread -o cas cas.cpp
+./cas
+```
