@@ -30,6 +30,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/defs.h"
 #include "common/lang/string.h"
 #include "common/linereader/line_reader.h"
+#include "common/log/log.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
@@ -132,15 +133,16 @@ int main(int argc, char *argv[])
   char send_buf[MAX_MEM_BUFFER_SIZE];
 
   std::string input_command = "";
+  MiniobLineReader::instance().init(LINE_HISTORY_FILE);
 
   while (true) {
-    input_command = MiniobLineReader::my_readline(prompt_str, LINE_HISTORY_FILE);
+    input_command = MiniobLineReader::instance().my_readline(prompt_str);
 
     if (input_command.empty() || common::is_blank(input_command.c_str())) {
       continue;
     }
 
-    if (MiniobLineReader::is_exit_command(input_command, LINE_HISTORY_FILE)) {
+    if (MiniobLineReader::instance().is_exit_command(input_command)) {
       break;
     }
 
@@ -179,8 +181,7 @@ int main(int argc, char *argv[])
 
   close(sockfd);
 
-  MiniobLineReader::save_history(LINE_HISTORY_FILE);
-  printf("Command history saved to: %s\n", LINE_HISTORY_FILE.c_str());
+  LOG_INFO("Command history saved to: %s", LINE_HISTORY_FILE.c_str());
 
   return 0;
 }

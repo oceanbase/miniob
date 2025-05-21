@@ -16,48 +16,59 @@ See the Mulan PSL v2 for more details. */
 #define COMMON_LINE_READER_H
 
 #include "replxx.hxx"
-using LineReader = replxx::Replxx;
 
 namespace common {
+/**
+ * @brief A singleton class for line-reading, providing an interface to replxx。
+ */
 class MiniobLineReader
 {
+  // The following private methods guarantee it's Singleton pattern
+private:
+  MiniobLineReader();
+  ~MiniobLineReader();
+  MiniobLineReader(const MiniobLineReader &)            = delete;
+  MiniobLineReader &operator=(const MiniobLineReader &) = delete;
+
 public:
+  /**
+   * @brief Get the singleton instance
+   * @return Reference to the singleton instance
+   */
+  static MiniobLineReader &instance();
+
+  /**
+   * @brief Initialize the lineReader with history file
+   * @param history_file path/to/file
+   */
+  void init(const std::string &history_file);
+
   /**
    * @brief Read a line from input
    * @param prompt The prompt to display
-   * @param history_file path/to/file
-   * @return char* to input string or nullptr
+   * @return input string
    */
-  static std::string my_readline(const std::string &prompt, const std::string &history_file);
+  std::string my_readline(const std::string &prompt);
 
   /**
    * @brief Check if the command is an exit command
    * @param cmd The input command
-   * @param history_file path/to/file
    * @return True if the command is an exit command
    */
-  static bool is_exit_command(const std::string &cmd, const std::string &history_file);
-
-  /**
-   * @brief Save history to file
-   * @param history_file path/to/file
-   * @return True if save succeed
-   */
-  static bool save_history(const std::string &history_file);
+  bool is_exit_command(const std::string &cmd);
 
 private:
   /**
    * @brief Check if history should be auto-saved
-   * @param history_file path/to/file
    * @return True if history should be saved due to time interval
    */
-  static bool check_and_save_history(const std::string &history_file);
+  bool check_and_save_history();
 
 private:
-  static LineReader reader_;
-  static bool       is_first_call_;
-  static time_t     previous_history_save_time_;
-  static int        history_save_interval_;
+  replxx::Replxx reader_;
+  std::string    history_file_;
+  time_t         previous_history_save_time_;
+  int            history_save_interval_;
 };
 }  // namespace common
 

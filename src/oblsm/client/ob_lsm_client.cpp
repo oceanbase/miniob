@@ -116,8 +116,10 @@ int main(int, char **)
   print_sys_msg(startup_tips);
   print_sys_msg("Enter the help command to view the usage of oblsm_cli");
 
+  MiniobLineReader::instance().init(LINE_HISTORY_FILE);
+
   for (; !quit;) {
-    std::string command_input = MiniobLineReader::my_readline(prompt.c_str(), LINE_HISTORY_FILE);
+    std::string command_input = MiniobLineReader::instance().my_readline(prompt.c_str());
 
     if (command_input.empty()) {
       continue;
@@ -190,7 +192,6 @@ int main(int, char **)
           delete lsm;
           lsm = nullptr;
         }
-        MiniobLineReader::save_history(LINE_HISTORY_FILE);
         print_sys_msg("Command history saved to " + string(LINE_HISTORY_FILE));
         print_sys_msg("bye.");
         quit = true;

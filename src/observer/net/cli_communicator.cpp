@@ -40,6 +40,8 @@ RC CliCommunicator::init(int fd, unique_ptr<Session> session, const string &addr
     delete writer_;
     writer_ = new BufferedWriter(write_fd_);
 
+    MiniobLineReader::instance().init(LINE_HISTORY_FILE);
+
     const char delimiter = '\n';
     send_message_delimiter_.assign(1, delimiter);
 
@@ -53,9 +55,9 @@ RC CliCommunicator::init(int fd, unique_ptr<Session> session, const string &addr
 
 RC CliCommunicator::read_event(SessionEvent *&event)
 {
-  event         = nullptr;
+  event                  = nullptr;
   const char *prompt_str = "miniob > ";
-  std::string command = MiniobLineReader::my_readline(prompt_str, LINE_HISTORY_FILE);
+  std::string command    = MiniobLineReader::instance().my_readline(prompt_str);
   if (command.empty()) {
     return RC::SUCCESS;
   }
@@ -64,7 +66,7 @@ RC CliCommunicator::read_event(SessionEvent *&event)
     return RC::SUCCESS;
   }
 
-  if (MiniobLineReader::is_exit_command(command, LINE_HISTORY_FILE)) {
+  if (MiniobLineReader::instance().is_exit_command(command)) {
     exit_ = true;
     return RC::SUCCESS;
   }
@@ -82,8 +84,4 @@ RC CliCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   return rc;
 }
 
-CliCommunicator::~CliCommunicator()
-{
-  MiniobLineReader::save_history(LINE_HISTORY_FILE);
-  LOG_INFO("Command history saved to %s", LINE_HISTORY_FILE.c_str());
-}
+CliCommunicator::~CliCommunicator() { LOG_INFO("Command history saved to %s", LINE_HISTORY_FILE.c_str()); }

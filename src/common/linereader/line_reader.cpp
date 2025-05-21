@@ -16,18 +16,24 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 
 namespace common {
-LineReader MiniobLineReader::reader_;
-bool       MiniobLineReader::is_first_call_              = true;
-time_t     MiniobLineReader::previous_history_save_time_ = 0;
-int        MiniobLineReader::history_save_interval_      = 5;
+MiniobLineReader::MiniobLineReader() : history_file_(""), previous_history_save_time_(0), history_save_interval_(5) {}
 
-std::string MiniobLineReader::my_readline(const std::string &prompt, const std::string &history_file)
+MiniobLineReader::~MiniobLineReader() { reader_.history_save(history_file_); }
+
+MiniobLineReader &MiniobLineReader::instance()
 {
-  if (is_first_call_) {
-    reader_.history_load(history_file);
-    is_first_call_ = false;
-  }
+  static MiniobLineReader instance;
+  return instance;
+}
 
+void MiniobLineReader::init(const std::string &history_file)
+{
+  history_file_ = history_file;
+  reader_.history_load(history_file_);
+}
+
+std::string MiniobLineReader::my_readline(const std::string &prompt)
+{
   const char *cinput = nullptr;
   cinput             = reader_.input(prompt);
   if (cinput == nullptr) {
@@ -51,13 +57,13 @@ std::string MiniobLineReader::my_readline(const std::string &prompt, const std::
 
   if (is_valid_input) {
     reader_.history_add(line);
-    check_and_save_history(history_file);
+    check_and_save_history();
   }
 
   return line;
 }
 
-bool MiniobLineReader::is_exit_command(const std::string &cmd, const std::string &history_file)
+bool MiniobLineReader::is_exit_command(const std::string &cmd)
 {
   std::string lower_cmd = cmd;
   common::str_to_lower(lower_cmd);
@@ -65,20 +71,14 @@ bool MiniobLineReader::is_exit_command(const std::string &cmd, const std::string
   bool is_exit = lower_cmd.compare(0, 4, "exit") == 0 || lower_cmd.compare(0, 3, "bye") == 0 ||
                  lower_cmd.compare(0, 2, "\\q") == 0 || lower_cmd.compare(0, 11, "interrupted") == 0;
 
-  if (is_exit) {
-    reader_.history_save(history_file);
-  }
-
   return is_exit;
 }
 
-bool MiniobLineReader::save_history(const std::string &history_file) { return reader_.history_save(history_file); }
-
-bool MiniobLineReader::check_and_save_history(const std::string &history_file)
+bool MiniobLineReader::check_and_save_history()
 {
   time_t current_time = time(nullptr);
   if (current_time - previous_history_save_time_ > history_save_interval_) {
-    reader_.history_save(history_file);
+    reader_.history_save(history_file_);
     previous_history_save_time_ = current_time;
     return true;
   }
