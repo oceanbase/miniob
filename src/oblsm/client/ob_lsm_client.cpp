@@ -192,7 +192,6 @@ int main(int, char **)
           delete lsm;
           lsm = nullptr;
         }
-        print_sys_msg("Command history saved to " + string(LINE_HISTORY_FILE));
         print_sys_msg("bye.");
         quit = true;
         break;

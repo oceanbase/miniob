@@ -181,7 +181,5 @@ int main(int argc, char *argv[])
 
   close(sockfd);
 
-  LOG_INFO("Command history saved to: %s", LINE_HISTORY_FILE.c_str());
-
   return 0;
 }
