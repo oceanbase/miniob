@@ -24,55 +24,10 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string_view.h"
 #include "oblsm/client/cliutil/defs.h"
 
-#ifdef USE_READLINE
-#include "readline/history.h"
-#include "readline/readline.h"
-#endif
-
 #define MAX_MEM_BUFFER_SIZE 8192
 namespace oceanbase {
 
-#ifdef USE_READLINE
-inline const string HISTORY_FILE            = string(getenv("HOME")) + "/.oblsm_cli.history";
-inline time_t       last_history_write_time = 0;
-
-inline std::string my_readline(const string &prompt)
-{
-  int size = history_length;
-  if (size == 0) {
-    read_history(HISTORY_FILE.c_str());
-
-    std::ofstream historyFile(HISTORY_FILE, std::ios::app);
-    if (historyFile.is_open()) {
-      historyFile.close();
-    }
-  }
-
-  char       *line = readline(prompt.c_str());
-  std::string result;
-  if (line != nullptr && line[0] != 0) {
-    result = line;
-    add_history(line);
-
-    if (std::time(nullptr) - last_history_write_time > 5) {
-      write_history(HISTORY_FILE.c_str());
-    }
-  }
-  free(line);
-  return result;
-}
-#else   // USE_READLINE
-inline std::string my_readline(const std::string &prompt)
-{
-  std::cout << prompt;
-  std::string buffer;
-  if (std::getline(std::cin, buffer)) {
-    return buffer;
-  } else {
-    return "";
-  }
-}
-#endif  // USE_READLINE
+inline const string LINE_HISTORY_FILE = "./.oblsm_cli.history";
 
 enum class TokenType
 {

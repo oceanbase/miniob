@@ -12,6 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by Ping Xu(haibarapink@gmail.com)
 //
 #include "oblsm/client/cliutil/parser.h"
+#include "common/lang/string.h"
 #include "common/log/log.h"
 #include "common/sys/rc.h"
 

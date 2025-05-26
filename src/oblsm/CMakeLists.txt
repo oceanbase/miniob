@@ -12,19 +12,8 @@ FIND_PACKAGE(jsoncpp CONFIG REQUIRED)
 TARGET_LINK_LIBRARIES(oblsm common pthread JsonCpp::JsonCpp)
 
 ADD_EXECUTABLE(oblsm_cli ${CLIUTIL_SOURCES} client/ob_lsm_client.cpp)
-INCLUDE(readline)
-MINIOB_FIND_READLINE()
 
-IF (HAVE_READLINE) 
-    TARGET_LINK_LIBRARIES(oblsm_cli ${READLINE_LIBRARY})
-    TARGET_INCLUDE_DIRECTORIES(oblsm_cli PRIVATE ${READLINE_INCLUDE_DIR})
-    ADD_DEFINITIONS(-DUSE_READLINE)
-    MESSAGE ("oblsm_cli use readline")
-ELSE ()
-    MESSAGE ("readline is not found")
-ENDIF()
 TARGET_LINK_LIBRARIES(oblsm_cli oblsm)
-
 
 ADD_EXECUTABLE(oblsm_bench benchmarks/ob_lsm_bench.cpp)
 TARGET_LINK_LIBRARIES(oblsm_bench oblsm)

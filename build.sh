@@ -108,7 +108,15 @@ function do_init
     mkdir -p build && \
     cd build && \
     ${CMAKE_COMMAND_THIRD_PARTY} -DJSONCPP_WITH_TESTS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF .. && \
-    ${MAKE_COMMAND} && \
+    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} install
+
+  # build replxx
+  cd ${TOPDIR}/deps/3rd/replxx && \
+    mkdir -p build && \
+    cd build && \
+    ${CMAKE_COMMAND_THIRD_PARTY} .. -DCMAKE_BUILD_TYPE=Release -DREPLXX_BUILD_EXAMPLES=OFF -DREPLXX_BUILD_PACKAGE=OFF && \
+    ${MAKE_COMMAND} -j4 && \
     ${MAKE_COMMAND} install
 
   cd $current_dir

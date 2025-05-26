@@ -1,18 +1,6 @@
 ADD_EXECUTABLE(obclient)
 MESSAGE("Begin to build " obclient)
 
-INCLUDE(readline)
-MINIOB_FIND_READLINE()
-
-IF (HAVE_READLINE)
-    TARGET_LINK_LIBRARIES(obclient ${READLINE_LIBRARY})
-    TARGET_INCLUDE_DIRECTORIES(obclient PRIVATE ${READLINE_INCLUDE_DIR})
-    ADD_DEFINITIONS(-DUSE_READLINE)
-    MESSAGE ("obclient use readline")
-ELSE ()
-    MESSAGE ("readline is not found")
-ENDIF()
-
 FILE(GLOB_RECURSE ALL_SRC *.cpp)
 FOREACH (F ${ALL_SRC})
 

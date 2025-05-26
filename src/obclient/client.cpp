@@ -29,11 +29,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/defs.h"
 #include "common/lang/string.h"
-
-#ifdef USE_READLINE
-#include "readline/history.h"
-#include "readline/readline.h"
-#endif
+#include "common/linereader/line_reader.h"
+#include "common/log/log.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
@@ -41,60 +38,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-#ifdef USE_READLINE
-const string HISTORY_FILE            = string(getenv("HOME")) + "/.miniob.history";
-time_t       last_history_write_time = 0;
-
-char *my_readline(const char *prompt)
-{
-  int size = history_length;
-  if (size == 0) {
-    read_history(HISTORY_FILE.c_str());
-
-    FILE *fp = fopen(HISTORY_FILE.c_str(), "a");
-    if (fp != nullptr) {
-      fclose(fp);
-    }
-  }
-
-  char *line = readline(prompt);
-  if (line != nullptr && line[0] != 0) {
-    add_history(line);
-    if (time(NULL) - last_history_write_time > 5) {
-      write_history(HISTORY_FILE.c_str());
-    }
-    // append_history doesn't work on some readlines
-    // append_history(1, HISTORY_FILE.c_str());
-  }
-  return line;
-}
-#else   // USE_READLINE
-char *my_readline(const char *prompt)
-{
-  char *buffer = (char *)malloc(MAX_MEM_BUFFER_SIZE);
-  if (nullptr == buffer) {
-    fprintf(stderr, "failed to alloc line buffer");
-    return nullptr;
-  }
-  fprintf(stdout, "%s", prompt);
-  char *s = fgets(buffer, MAX_MEM_BUFFER_SIZE, stdin);
-  if (nullptr == s) {
-    fprintf(stderr, "failed to read message from console");
-    free(buffer);
-    return nullptr;
-  }
-  return buffer;
-}
-#endif  // USE_READLINE
-
-/* this function config a exit-cmd list, strncasecmp func truncate the command from terminal according to the number,
-   'strncasecmp("exit", cmd, 4)' means that obclient read command string from terminal, truncate it to 4 chars from
-   the beginning, then compare the result with 'exit', if they match, exit the obclient.
-*/
-bool is_exit_command(const char *cmd)
-{
-  return 0 == strncasecmp("exit", cmd, 4) || 0 == strncasecmp("bye", cmd, 3) || 0 == strncasecmp("\\q", cmd, 2);
-}
+const std::string LINE_HISTORY_FILE = "./.obclient.history";
 
 int init_unix_sock(const char *unix_sock_path)
 {
@@ -188,26 +132,24 @@ int main(int argc, char *argv[])
 
   char send_buf[MAX_MEM_BUFFER_SIZE];
 
-  char *input_command = nullptr;
-  while ((input_command = my_readline(prompt_str)) != nullptr) {
-    if (common::is_blank(input_command)) {
-      free(input_command);
-      input_command = nullptr;
+  std::string input_command = "";
+  MiniobLineReader::instance().init(LINE_HISTORY_FILE);
+
+  while (true) {
+    input_command = MiniobLineReader::instance().my_readline(prompt_str);
+
+    if (input_command.empty() || common::is_blank(input_command.c_str())) {
       continue;
     }
 
-    if (is_exit_command(input_command)) {
-      free(input_command);
-      input_command = nullptr;
+    if (MiniobLineReader::instance().is_exit_command(input_command)) {
       break;
     }
 
-    if ((send_bytes = write(sockfd, input_command, strlen(input_command) + 1)) == -1) {  // TODO writen
+    if ((send_bytes = write(sockfd, input_command.c_str(), input_command.length() + 1)) == -1) {  // TODO writen
       fprintf(stderr, "send error: %d:%s \n", errno, strerror(errno));
       exit(1);
     }
-    free(input_command);
-    input_command = nullptr;
 
     memset(send_buf, 0, sizeof(send_buf));
 
@@ -237,10 +179,6 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (input_command != nullptr) {
-    free(input_command);
-    input_command = nullptr;
-  }
   close(sockfd);
 
   return 0;

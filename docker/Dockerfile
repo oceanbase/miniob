@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y locales apt-utils && rm -rf /var/lib/ap
 #     && apt-get update
 
 RUN apt-get update \
-    && apt-get install -y build-essential gdb cmake git wget flex texinfo libreadline-dev diffutils bison \
+    && apt-get install -y build-essential gdb cmake git wget flex texinfo diffutils bison \
     && apt-get install -y clang-format vim sudo
 
 RUN apt-get install -y openssh-server

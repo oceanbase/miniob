@@ -18,10 +18,12 @@ See the Mulan PSL v2 for more details. */
 #include "oblsm/include/ob_lsm_iterator.h"
 #include "oblsm/include/ob_lsm_options.h"
 #include "oblsm/util/ob_comparator.h"
+#include "common/linereader/line_reader.h"
 
 using namespace oceanbase;
+using common::MiniobLineReader;
 
-const string prompt = "oblsm> ";
+const string prompt = "\033[32moblsm> \033[0m";
 bool         quit   = false;
 ObLsm       *lsm    = nullptr;
 ObLsmOptions opt;
@@ -113,11 +115,19 @@ int main(int, char **)
 {
   print_sys_msg(startup_tips);
   print_sys_msg("Enter the help command to view the usage of oblsm_cli");
+
+  MiniobLineReader::instance().init(LINE_HISTORY_FILE);
+
   for (; !quit;) {
-    string            command = my_readline(prompt);
+    std::string command_input = MiniobLineReader::instance().my_readline(prompt.c_str());
+
+    if (command_input.empty()) {
+      continue;
+    }
+
     ObLsmCliCmdParser parser;
     auto            &&result     = parser.result;
-    RC                rc         = parser.parse(command);
+    RC                rc         = parser.parse(command_input);
     auto              comparator = ObDefaultComparator{};
     if (OB_FAIL(rc)) {
       print_rc(rc);
