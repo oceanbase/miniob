@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "oblsm/util/ob_comparator.h"
 #include "oblsm/util/ob_arena.h"
 #include "oblsm/include/ob_lsm_iterator.h"
+#include <mutex>
 
 namespace oceanbase {
 
@@ -131,6 +132,9 @@ private:
    * components of the memtable.
    */
   ObArena arena_;
+
+  // 用于保护ObMemTable::put(uint64_t seq, const string_view &key, const string_view &value) 函数的锁
+  std::mutex table_mutex_;
 };
 
 /**
