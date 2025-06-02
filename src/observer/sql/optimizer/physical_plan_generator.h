@@ -22,6 +22,7 @@ class TableGetLogicalOperator;
 class PredicateLogicalOperator;
 class ProjectLogicalOperator;
 class InsertLogicalOperator;
+class UpdateLogicalOperator;
 class DeleteLogicalOperator;
 class ExplainLogicalOperator;
 class JoinLogicalOperator;
@@ -48,6 +49,7 @@ private:
   RC create_plan(PredicateLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper);
   RC create_plan(ProjectLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper);
   RC create_plan(InsertLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper);
+  RC create_plan(UpdateLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper);
   RC create_plan(DeleteLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper);
   RC create_plan(ExplainLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper);
   RC create_plan(JoinLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper);

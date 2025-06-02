@@ -1,0 +1,41 @@
+{
+	"fields" : 
+	[
+		{
+			"FIELD_id" : 0,
+			"len" : 4,
+			"name" : "id",
+			"offset" : 0,
+			"type" : "ints",
+			"visible" : true
+		},
+		{
+			"FIELD_id" : 1,
+			"len" : 50,
+			"name" : "name",
+			"offset" : 4,
+			"type" : "chars",
+			"visible" : true
+		},
+		{
+			"FIELD_id" : 2,
+			"len" : 4,
+			"name" : "age",
+			"offset" : 54,
+			"type" : "ints",
+			"visible" : true
+		},
+		{
+			"FIELD_id" : 3,
+			"len" : 4,
+			"name" : "grade",
+			"offset" : 58,
+			"type" : "floats",
+			"visible" : true
+		}
+	],
+	"indexes" : null,
+	"storage_format" : 1,
+	"table_id" : 0,
+	"table_name" : "jiahao"
+}

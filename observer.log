@@ -1,0 +1,78 @@
+
+Welcome to the OceanBase database implementation course.
+
+Copyright (c) 2021 OceanBase and/or its affiliates.
+
+Learn more about OceanBase at https://github.com/oceanbase/oceanbase
+Learn more about MiniOB at https://github.com/oceanbase/miniob
+
+Successfully load ../etc/observer.ini
+Not set log file name, use default observer.log
+Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+Db already exists: sys
+Extend one pool, this->size:128, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:256, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:384, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:512, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:640, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:768, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:896, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:1024, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:1152, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:1280, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:1408, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:1536, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:1664, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:1792, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:1920, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:2048, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:2176, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:2304, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:2432, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:2560, item_num_per_pool:128, this->name:BufPool.
+Extend one pool, this->size:2560, item_num_per_pool:128, this->name:BufPool.
+buffer pool manager init with memory size 20971520, page num: 2560, pool num: 20
+double write buffer load pages done. page num=2
+Successfully read db meta file. db=sys, file=miniob/db/sys/sys.db, check_point_lsn=0
+Init a field with name=id
+Init a field with name=name
+Init a field with name=age
+Init a field with name=grade
+Successfully open buffer pool file miniob/db/sys/jiahao.data.
+Successfully open miniob/db/sys/jiahao.data. file_desc=5, hdr_frame=0x7fc1488fa808, file header=pageCount:2, allocatedCount:2
+record file handler init free pages done. free page num=1, rc=SUCCESS
+open record file handle done. rc=SUCCESS
+Open table: jiahao, file: jiahao.table
+All table have been opened. num=1
+Successfully recover db. db=sys checkpoint_lsn=0
+Default handler init with miniob success
+Successfully init utility
+Use port config in command line: 6789
+Listen on port 6789
+Observer start success
+[listen socket] poll error. fd = 6, ret = -1, error=Interrupted system call
+begin to await stop one thread per connection thread handler
+end to await stop one thread per connection thread handler
+begin to await stop one thread per connection thread handler
+end to await stop one thread per connection thread handler
+NetServer quit
+Server stopped
+Receive signal: 15
+NetServer shutting down
+Sync table over. table=jiahao
+Successfully sync table db:sys, table:jiahao.
+double write buffer flush pages ret=SUCCESS
+Successfully write db meta file. db=sys, file=miniob/db/sys/sys.db.tmp, check_point_lsn=0
+Successfully sync db. db=sys
+clear pages in double write buffer. file name=miniob/db/sys/jiahao.data, page count=0
+Successfully close file 5:miniob/db/sys/jiahao.data.
+disk buffer pool exit
+Table has been closed: jiahao
+Db has been closed: sys
+Successfully do cleanup, this->name:BufPool.
+Shutdown Cleanly!

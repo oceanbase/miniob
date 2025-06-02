@@ -1,0 +1,16 @@
+# 4. UPDATE
+
+--- 创建表格
+
+CREATE TABLE jiahao (
+  id INT,
+  name CHAR(50),
+  age INT,
+  grade FLOAT
+);
+
+--- 插入数据
+
+INSERT INTO jiahao VALUES (1, 'Alice', 12, 88.5);
+INSERT INTO jiahao VALUES (2, 'Bob', 23, 92.0);
+INSERT INTO jiahao VALUES (3, 'Charlie', 34, 75.0);
