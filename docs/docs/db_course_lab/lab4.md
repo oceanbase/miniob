@@ -38,6 +38,20 @@ UPDATE CUSTOMER SET C_BALANCE = C_BALANCE + %s WHERE C_ID = %s AND C_D_ID = %s A
 sudo pip2 install pymysql==0.9.3 --trusted-host pypi.python.org --trusted-host pypi.org --trusted-host files.pythonhosted.org
 ```
 
+**如何在 Ubuntu24.04 中安装python2/pip2**
+
+由于 python2/pip2 已经停止维护，这里提供一种在 Ubuntu 24.04（目前 Docker 镜像使用 Ubuntu 24.04）从源码编译安装 python2/pip2 的方法，仅供参考：
+```
+# 安装依赖
+sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
+
+# 下载 python2 源码并编译安装
+wget https://mirrors.aliyun.com/python-release/source/Python-2.7.18.tgz && tar xzf Python-2.7.18.tgz && cd Python-2.7.18 && ./configure --enable-optimizations --with-openssl &&  make altinstall && ln -sfn '/usr/local/bin/python2.7' '/usr/bin/python2'
+
+# 安装pip2
+git clone https://github.com/pypa/get-pip && cd get-pip && python2 public/2.7/get-pip.py
+```
+
 ## 运行测试
 
 * 准备 config 文件，例如:
