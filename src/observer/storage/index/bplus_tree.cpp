@@ -312,9 +312,7 @@ RC LeafIndexNodeHandler::move_to(LeafIndexNodeHandler &other)
   other.append(__item_at(0), this->size());
   other.set_next_page(this->next_page());
 
-  size_t converted_size = static_cast<size_t>(this->size());
-  size_t converted_item_size = static_cast<size_t>(item_size());
-  RC rc = mtr_->logger().node_remove_items(*this, 0, span<const char>(__item_at(0), static_cast<size_t>(this->size()) * static_cast<size_t>(item_size())), this->size());
+  RC rc = mtr_.logger().node_remove_items(*this, 0, span<const char>(__item_at(0), static_cast<size_t>(this->size()) * static_cast<size_t>(item_size())), this->size());
 
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log shrink leaf node. rc=%s", strrc(rc));
@@ -327,9 +325,7 @@ RC LeafIndexNodeHandler::move_to(LeafIndexNodeHandler &other)
 // 复制一些数据到当前节点的最右边
 RC LeafIndexNodeHandler::append(const char *items, int num)
 {
-  size_t converted_num = static_cast<size_t>(num);
-  size_t converted_item_size = static_cast<size_t>(item_size());
-  RC rc = mtr_.logger().node_insert_items(*this, size(), span<const char>(items, converted_num * converted_item_size), num);
+  RC rc = mtr_.logger().node_insert_items(*this, size(), span<const char>(items, static_cast<size_t>(num) * static_cast<size_t>(item_size())), num);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log append items. rc=%d:%s", rc, strrc(rc));
     return rc;
