@@ -314,7 +314,8 @@ RC LeafIndexNodeHandler::move_to(LeafIndexNodeHandler &other)
 
   size_t converted_size = static_cast<size_t>(this->size());
   size_t converted_item_size = static_cast<size_t>(item_size());
-  RC rc = mtr_->logger().node_remove_items(*this, 0, span<const char>(__item_at(0), converted_size * converted_item_size), this->size());
+  RC rc = mtr_->logger().node_remove_items(*this, 0, span<const char>(__item_at(0), static_cast<size_t>(this->size()) * static_cast<size_t>(item_size())), this->size());
+
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log shrink leaf node. rc=%s", strrc(rc));
   }
