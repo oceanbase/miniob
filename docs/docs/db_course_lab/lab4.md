@@ -120,4 +120,4 @@ create table stock (s_i_id int, s_w_id int, s_quantity int, s_dist_01 char(24), 
 
 TPC-C 测试：https://www.tpc.org/tpcc/
 
-TPC-C 测试脚本：https://github.com/nautaa/py-tpcc/tree/miniob
+TPC-C 测试脚本：https://github.com/oceanbase/py-tpcc/tree/miniob
