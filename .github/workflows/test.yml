@@ -121,7 +121,7 @@ jobs:
         shell: bash
         run: |
           cd build_release
-          ${{matrix.memtracer}} ./unittest/memtracer_performance_test
+          ${{matrix.memtracer}} ./benchmark/memtracer_performance_test
       - name: memtracer-unittest
         shell: bash
         run: |
