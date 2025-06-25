@@ -63,24 +63,18 @@ MiniOB 整体架构如下图所示:
 OceanBase 初赛基于一套适合初学者实践的数据库实训平台 MiniOB，代码量少，易于上手学习，包含了数据库的各个关键模块，是一个系统性的数据库学习平台。基于该平台设置了一系列由浅入深的题目，以帮助同学们更好"零"基础入门。
 
 为了帮助大家能在大赛中取得好成绩，我们提供了一系列的教程和指导，帮助大家更好地学习数据库基础知识，更好地完成大赛题目。
-欢迎大家查看[《从0到1数据库内核实战教程》  视频教程](https://open.oceanbase.com/activities/4921877?id=4921946)，视频中包含了代码框架的介绍和一些入门题目的讲解。
+欢迎大家查看[《从0到1数据库内核实战教程》  视频教程](https://open.oceanbase.com/course/427)，视频中包含了代码框架的介绍和一些入门题目的讲解。
 > 由于MiniOB是一个持续演进的产品，视频教程中有些内容会与最新代码有冲突，建议大家参考讲解中的思路。
 
-大赛的初赛是在MiniOB上进行的，同学们可以在前几届的题目上进行提前训练，可以让自己比别人提前一步。大家在日常训练时可以在[MiniOB 训练营](https://open.oceanbase.com/train?questionId=500003) 上提交代码进行测试。
+大赛的初赛是在MiniOB上进行的，同学们可以在前几届的题目上进行提前训练，可以让自己比别人提前一步。大家在日常训练时可以在[MiniOB 训练营](https://open.oceanbase.com/train) 上提交代码进行测试。
 
-在提交前, 请参考并学习 [训练营使用说明](https://ask.oceanbase.com/t/topic/35600372)。
+在提交前, 请参考并学习 [训练营使用说明](https://oceanbase.github.io/miniob/dev-env/how_to_submit_for_testing/)。
 
 如果大家在大赛中或使用训练营时遇到一些问题，请先查看[大赛 FAQ](https://ask.oceanbase.com/t/topic/35601465)。
 
 # 在线开发平台
 
-搭建开发环境是一个比较耗时而且繁琐的事情，特别是对于初学者。为了让大家更快地上手 MiniOB，本仓库基于 Gitpod 建立了快速在线开发平台。点击下面的按钮即可一键体验（建议使用 Chrome 浏览器）。
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/oceanbase/miniob)
-
-> 注意：这个链接打开的是MiniOB主仓库的开发环境，同学们需要通过gitpod进入自己的仓库开发环境。
-
-首次进入 Gitpod 时需要安装一些依赖。安装完成后，终端界面会显示 "Dependency installed successfully"。运行 `bash build.sh --make -j4` 命令即可编译 MiniOB。
+搭建开发环境是一个比较耗时而且繁琐的事情，特别是对于初学者。为了让大家更快地上手 MiniOB，我们为大家提供了一个[开源学堂在线编程环境](./docs/docs/dev-env/cloudlab_setup.md)，推荐大家使用开源学堂在线编程环境进行实验，在线编程环境已经提供了可以直接用于 MiniOB 编程的环境，便于大家快速开始。对于希望在本地准备开发环境的同学，[这篇文档](./docs/docs/dev-env/introduction.md) 中已经介绍的十分详细，请先认真阅读。如果仍有疑问，欢迎提问，也非常欢迎刚刚入门的同学分享自己准备开发环境的经验。
 
 # Contributing
 

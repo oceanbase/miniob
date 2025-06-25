@@ -24,6 +24,7 @@ nav:
       - dev-env/miniob-how-to-debug.md
       - dev-env/how_to_submit_for_testing.md
       - dev-env/integration_test.md
+      - dev-env/cloudlab_setup.md
 
   - 设计文档:
     - design/miniob-architecture.md
@@ -54,7 +55,6 @@ nav:
     - game/git-introduction.md
   - 数据库系统实现原理与实践:
     - db_course_lab/overview.md
-    - db_course_lab/cloudlab_setup.md
     - db_course_lab/lab0.md
     - db_course_lab/lab1.md
     - db_course_lab/lab2.md
