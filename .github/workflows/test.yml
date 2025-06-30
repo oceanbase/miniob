@@ -121,12 +121,12 @@ jobs:
         shell: bash
         run: |
           cd build_release
-          ${{matrix.memtracer}} ./bin/memtracer_performance_test
+          ${{matrix.memtracer}} ./benchmark/memtracer_performance_test
       - name: memtracer-unittest
         shell: bash
         run: |
           cd build_release
-          LD_PRELOAD=./lib/libmemtracer.so ./bin/memtracer_test
+          LD_PRELOAD=./lib/libmemtracer.so ./unittest/memtracer_test
       - name: memtracer-sysbench
         shell: bash
         run: |

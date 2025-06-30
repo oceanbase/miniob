@@ -12,5 +12,5 @@ FOREACH (F ${ALL_SRC})
     if(NOT ${prjName} STREQUAL "memtracer_performance_test")
         TARGET_LINK_LIBRARIES(${prjName} observer_static oblsm)
     endif()
-    
+    SET_TARGET_PROPERTIES(${prjName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/benchmark)
 ENDFOREACH (F)
