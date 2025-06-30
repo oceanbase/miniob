@@ -37,7 +37,7 @@ using namespace common;
 class PaxRecordFileScannerWithParam : public testing::TestWithParam<int>
 {};
 
-TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
+TEST_P(PaxRecordFileScannerWithParam, test_file_iterator)
 {
   int               record_insert_num = GetParam();
   VacuousLogHandler log_handler;
@@ -64,7 +64,7 @@ TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
   table_meta.fields_[1].field_id_ = 1;
 
   RecordFileHandler file_handler(StorageFormat::PAX_FORMAT);
-  rc = file_handler.init(*bp, log_handler, &table_meta);
+  rc = file_handler.init(*bp, log_handler, &table_meta, nullptr);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   VacuousTrx        trx;
@@ -183,7 +183,7 @@ TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
 class PaxPageHandlerTestWithParam : public testing::TestWithParam<int>
 {};
 
-TEST_P(PaxPageHandlerTestWithParam, DISABLED_PaxPageHandler)
+TEST_P(PaxPageHandlerTestWithParam, PaxPageHandler)
 {
   int               record_num = GetParam();
   VacuousLogHandler log_handler;

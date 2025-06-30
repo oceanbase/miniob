@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/type/attr_type.h"
 
 class Value;
+class Column;
 
 /**
  * @brief 定义了数据类型相关的操作，比如比较运算、算术运算等
@@ -46,6 +47,8 @@ public:
    *  INT32_MAX 表示未实现的比较
    */
   virtual int compare(const Value &left, const Value &right) const { return INT32_MAX; }
+
+  virtual int compare(const Column &left, const Column &right, int left_idx, int right_idx) const { return INT32_MAX; }
 
   /**
    * @brief 计算 left + right，并将结果保存到 result 中
