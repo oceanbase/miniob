@@ -25,6 +25,10 @@ class Column;
  * @details 数据类型定义的算术运算中，比如 add、subtract 等，将按照当前数据类型设置最终结果值的类型。
  * 参与运算的参数类型不一定相同，不同的类型进行运算是否能够支持需要参考各个类型的实现。
  */
+
+// Todo: 实现新数据类型
+// your code here
+// DATE,BIGINT,TEXT
 class DataType
 {
 public:

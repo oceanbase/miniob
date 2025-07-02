@@ -295,6 +295,8 @@ load data infile "/data/clickdata/tmp.csv" into table hits fields terminated by 
 
 **提示**: 实现 TEXT 类型时可使用 `src/observer/storage/record/lob_handler.h` 进行数据存储和读取。TEXT 类型的内存形式可考虑使用 `src/observer/common/type/string_t.h`. TEXT 类型在 `Column` 中可以使用 `VectorBuffer` 来存储实际字符串。
 
+**提示**: 参照class Value `src/observer/common/value.h` 中已有的数据类型（`src/observer/common/type/` 下有对应类型的具体实现）创建新的数据类型。
+
 #### 测试
 请参考 ClickBench 测试的数据导入部分：
 https://github.com/oceanbase/ClickBench/tree/miniob/miniob

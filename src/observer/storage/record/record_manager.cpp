@@ -194,6 +194,8 @@ RC RecordPageHandler::init_empty_page(DiskBufferPool &buffer_pool, LogHandler &l
   bitmap_ = frame_->data() + PAGE_HEADER_SIZE;
   memset(bitmap_, 0, page_bitmap_size(page_header_->record_capacity));
   // column_index[i] store the end offset of column `i` or the start offset of column `i+1`
+
+  // 计算列偏移
   int *column_index = reinterpret_cast<int *>(frame_->data() + page_header_->col_idx_offset);
   for (int i = 0; i < column_num; ++i) {
     ASSERT(i == table_meta->field(i)->field_id(), "i should be the col_id of fields[i]");
@@ -286,6 +288,7 @@ RC RowRecordPageHandler::insert_record(const char *data, RID *rid)
   bitmap.set_bit(index);
   page_header_->record_num++;
 
+  // 记录日志，与数据库恢复相关
   RC rc = log_handler_.insert_record(frame_, RID(get_page_num(), index), data);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to insert record. page_num %d:%d. rc=%s", disk_buffer_pool_->file_desc(), frame_->page_num(), strrc(rc));
@@ -421,6 +424,10 @@ bool RecordPageHandler::is_full() const { return page_header_->record_num >= pag
 RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
 {
   // your code here
+  // Todo:
+  // 1.参考RowRecordPageHandler::insert_record完成大体实现
+  // 2.将一行数据拆分成不同的列插入到不同偏移中
+  // 对应列的偏移可以参照RecordPageHandler::init_empty_page
   return RC::UNIMPLEMENTED;
 }
 
@@ -457,6 +464,10 @@ RC PaxRecordPageHandler::delete_record(const RID *rid)
 RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
 {
   // your code here
+  // Todo:
+  // 1.参考RowRecordPageHandler::get_record完成大体实现
+  // 2.通过列的偏移拼接出完整的行数据
+  // 可以参照PaxRecordPageHandler::insert_record的实现
   return RC::UNIMPLEMENTED;
 }
 
@@ -464,6 +475,9 @@ RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
 RC PaxRecordPageHandler::get_chunk(Chunk &chunk)
 {
   // your code here
+  // Todo:
+  // 参照PaxRecordPageHandler::get_record
+  // 一次性获得一个page的所有record
   return RC::UNIMPLEMENTED;
 }
 

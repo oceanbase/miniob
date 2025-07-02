@@ -129,6 +129,8 @@ void LoadDataExecutor::load_data(Table *table, const char *file_name, char termi
         insertion_count++;
       }
     } else if (table->table_meta().storage_format() == StorageFormat::PAX_FORMAT) {
+      // your code here
+      // Todo: 参照insert_record_from_file实现
       rc = RC::UNIMPLEMENTED;
     } else {
       rc = RC::UNSUPPORTED;
