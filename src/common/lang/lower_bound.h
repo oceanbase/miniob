@@ -106,7 +106,7 @@ public:
     data_ += (item_num_ * n);
     return *this;
   }
-  BinaryIterator &operator-=(int n) { return this->operator+(-n); }
+  BinaryIterator &operator-=(int n) { return this->operator+=(-n); }
   BinaryIterator &operator++() { return this->operator+=(1); }
   BinaryIterator  operator++(int)
   {
