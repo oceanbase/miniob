@@ -95,7 +95,8 @@ RC RecordPageIterator::next(Record &record)
 
 RecordPageHandler::~RecordPageHandler() { cleanup(); }
 
-RC RecordPageHandler::init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, ReadWriteMode mode, LobFileHandler* lob_handler)
+RC RecordPageHandler::init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, ReadWriteMode mode,
+    LobFileHandler *lob_handler)
 {
   if (disk_buffer_pool_ != nullptr) {
     if (frame_->page_num() == page_num) {
@@ -159,10 +160,10 @@ RC RecordPageHandler::recover_init(DiskBufferPool &buffer_pool, PageNum page_num
   return ret;
 }
 
-RC RecordPageHandler::init_empty_page(
-    DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, int record_size, TableMeta *table_meta, LobFileHandler* lob_handler)
+RC RecordPageHandler::init_empty_page(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num,
+    int record_size, TableMeta *table_meta, LobFileHandler *lob_handler)
 {
-  RC rc = init(buffer_pool, log_handler, page_num, ReadWriteMode::READ_WRITE);
+  RC rc        = init(buffer_pool, log_handler, page_num, ReadWriteMode::READ_WRITE);
   lob_handler_ = lob_handler;
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to init empty page page_num:record_size %d:%d. rc=%s", page_num, record_size, strrc(rc));
@@ -214,7 +215,7 @@ RC RecordPageHandler::init_empty_page(
 }
 
 RC RecordPageHandler::init_empty_page(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num,
-    int record_size, int column_num, const char *col_idx_data, LobFileHandler* lob_handler)
+    int record_size, int column_num, const char *col_idx_data, LobFileHandler *lob_handler)
 {
   RC rc = init(buffer_pool, log_handler, page_num, ReadWriteMode::READ_WRITE);
   if (OB_FAIL(rc)) {
@@ -420,11 +421,13 @@ bool RecordPageHandler::is_full() const { return page_header_->record_num >= pag
 RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
 {
   // your code here
+  return RC::UNIMPLEMENTED;
 }
 
-RC PaxRecordPageHandler::insert_chunk(const Chunk &chunk, int start_row, int& insert_rows)
+RC PaxRecordPageHandler::insert_chunk(const Chunk &chunk, int start_row, int &insert_rows)
 {
   // your code here
+  return RC::UNIMPLEMENTED;
 }
 
 RC PaxRecordPageHandler::delete_record(const RID *rid)
@@ -454,12 +457,14 @@ RC PaxRecordPageHandler::delete_record(const RID *rid)
 RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
 {
   // your code here
+  return RC::UNIMPLEMENTED;
 }
 
 // TODO: specify the column_ids that chunk needed. currenly we get all columns
 RC PaxRecordPageHandler::get_chunk(Chunk &chunk)
 {
   // your code here
+  return RC::UNIMPLEMENTED;
 }
 
 char *PaxRecordPageHandler::get_field_data(SlotNum slot_num, int col_id)
@@ -486,7 +491,8 @@ int PaxRecordPageHandler::get_field_len(int col_id)
 
 RecordFileHandler::~RecordFileHandler() { this->close(); }
 
-RC RecordFileHandler::init(DiskBufferPool &buffer_pool, LogHandler &log_handler, TableMeta *table_meta, LobFileHandler* lob_handler)
+RC RecordFileHandler::init(
+    DiskBufferPool &buffer_pool, LogHandler &log_handler, TableMeta *table_meta, LobFileHandler *lob_handler)
 {
   if (disk_buffer_pool_ != nullptr) {
     LOG_ERROR("record file handler has been openned.");
@@ -611,7 +617,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
   return record_page_handler->insert_record(data, rid);
 }
 
-RC RecordFileHandler::insert_chunk(const Chunk& chunk, int record_size)
+RC RecordFileHandler::insert_chunk(const Chunk &chunk, int record_size)
 {
   // your code here
   return RC::UNIMPLEMENTED;

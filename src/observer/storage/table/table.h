@@ -117,6 +117,8 @@ public:
 
   const TableMeta &table_meta() const;
 
+  LobFileHandler* lob_handler() const { return lob_handler_; }
+
   RC sync();
 
 private:

@@ -26,11 +26,6 @@ RC LobFileHandler::open_file(const char *file_name)
   return RC::INTERNAL;
 }
 
-RC LobFileHandler::close_file()
-{
-  return file_.close_file();
-}
-
 RC LobFileHandler::insert_data(int64_t &offset, int64_t length, const char *data)
 {
   RC       rc         = RC::SUCCESS;
@@ -46,9 +41,4 @@ RC LobFileHandler::insert_data(int64_t &offset, int64_t length, const char *data
   offset = end_offset;
 
   return rc;
-}
-
-RC LobFileHandler::get_data(int64_t offset, int64_t length, char *data)
-{
-  return file_.read_at(offset, length, data);
 }

@@ -107,7 +107,7 @@ void LoadDataExecutor::load_data(Table *table, const char *file_name, char termi
   vector<string> file_values;
   const string        delim("|");
   int                      line_num        = 0;
-  int                      insertion_count = 0;
+  [[maybe_unused]]int                      insertion_count = 0;
   RC                       rc              = RC::SUCCESS;
   while (!fs.eof() && RC::SUCCESS == rc) {
     getline(fs, line);
