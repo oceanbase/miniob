@@ -14,8 +14,6 @@ See the Mulan PSL v2 for more details. */
  * @brief 属性的类型
  * @details AttrType 枚举列出了属性的各种数据类型。
  */
-// Todo: 实现新数据类型
-// your code here
 enum class AttrType
 {
   UNDEFINED,

@@ -295,7 +295,7 @@ load data infile "/data/clickdata/tmp.csv" into table hits fields terminated by 
 
 **提示**: 实现 TEXT 类型时可使用 `src/observer/storage/record/lob_handler.h` 进行数据存储和读取。TEXT 类型的内存形式可考虑使用 `src/observer/common/type/string_t.h`. TEXT 类型在 `Column` 中可以使用 `VectorBuffer` 来存储实际字符串。
 
-**提示**: 参照class Value `src/observer/common/value.h` 中已有的数据类型（`src/observer/common/type/` 下有对应类型的具体实现）创建新的数据类型。
+**提示**: 需要在 `src/observer/common/value.h` 中支持新的数据类型，在 `src/observer/common/type/` 目录下完成新类型的实现。可以参照已有数据类型的实现方式。
 
 #### 测试
 请参考 ClickBench 测试的数据导入部分：

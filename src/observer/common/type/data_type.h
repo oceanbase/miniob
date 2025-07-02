@@ -26,9 +26,6 @@ class Column;
  * 参与运算的参数类型不一定相同，不同的类型进行运算是否能够支持需要参考各个类型的实现。
  */
 
-// Todo: 实现新数据类型
-// your code here
-// DATE,BIGINT,TEXT
 class DataType
 {
 public:
