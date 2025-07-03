@@ -15,14 +15,23 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 #include "common/lang/limits.h"
 #include "common/value.h"
+#include "storage/common/column.h"
 
 int FloatType::compare(const Value &left, const Value &right) const
 {
-  ASSERT(left.attr_type() == AttrType::FLOATS, "left type is not integer");
+  ASSERT(left.attr_type() == AttrType::FLOATS, "left type is not float");
   ASSERT(right.attr_type() == AttrType::INTS || right.attr_type() == AttrType::FLOATS, "right type is not numeric");
   float left_val  = left.get_float();
   float right_val = right.get_float();
   return common::compare_float((void *)&left_val, (void *)&right_val);
+}
+
+int FloatType::compare(const Column &left, const Column &right, int left_idx, int right_idx) const
+{
+  ASSERT(left.attr_type() == AttrType::FLOATS, "left type is not float");
+  ASSERT(right.attr_type() == AttrType::FLOATS, "right type is not float");
+  return common::compare_float((void *)&((float*)left.data())[left_idx],
+      (void *)&((float*)right.data())[right_idx]);
 }
 
 RC FloatType::add(const Value &left, const Value &right, Value &result) const
