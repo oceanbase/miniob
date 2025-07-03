@@ -28,6 +28,9 @@ Value::Value(bool val) { set_boolean(val); }
 
 Value::Value(const char *s, int len /*= 0*/) { set_string(s, len); }
 
+Value::Value(const string_t& s) { set_string(s.data(), s.size()); }
+
+
 Value::Value(const Value &other)
 {
   this->attr_type_ = other.attr_type_;
@@ -175,6 +178,19 @@ void Value::set_string(const char *s, int len /*= 0*/)
   }
 }
 
+void Value::set_empty_string(int len)
+{
+  reset();
+  attr_type_ = AttrType::CHARS;
+
+  own_data_ = true;
+  value_.pointer_value_ = new char[len + 1];
+  length_               = len;
+  memset(value_.pointer_value_, 0, len);
+  value_.pointer_value_[len] = '\0';
+  
+}
+
 void Value::set_value(const Value &value)
 {
   switch (value.attr_type_) {
@@ -206,14 +222,14 @@ void Value::set_string_from_other(const Value &other)
   }
 }
 
-const char *Value::data() const
+char *Value::data() const
 {
   switch (attr_type_) {
     case AttrType::CHARS: {
       return value_.pointer_value_;
     } break;
     default: {
-      return (const char *)&value_;
+      return (char *)&value_;
     } break;
   }
 }
@@ -288,6 +304,12 @@ float Value::get_float() const
 }
 
 string Value::get_string() const { return this->to_string(); }
+
+string_t Value::get_string_t() const
+{
+  ASSERT(attr_type_ == AttrType::CHARS, "attr type is not CHARS");
+  return string_t(value_.pointer_value_, length_);
+}
 
 bool Value::get_boolean() const
 {

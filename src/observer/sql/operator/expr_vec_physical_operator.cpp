@@ -42,6 +42,7 @@ RC ExprVecPhysicalOperator::next(Chunk &chunk)
   PhysicalOperator &child = *children_[0];
   chunk.reset();
   evaled_chunk_.reset();
+  chunk_.reset();
   if (OB_SUCC(rc = child.next(chunk_))) {
     for (size_t i = 0; i < expressions_.size(); i++) {
       auto column = make_unique<Column>();
