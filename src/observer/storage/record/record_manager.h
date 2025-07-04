@@ -261,12 +261,12 @@ protected:
 protected:
   DiskBufferPool  *disk_buffer_pool_ = nullptr;  ///< 当前操作的buffer pool(文件)
   RecordLogHandler log_handler_;                 ///< 当前操作的日志处理器
-  Frame           *frame_       = nullptr;       ///< 当前操作页面关联的frame(frame的更多概念可以参考buffer pool和frame)
-  ReadWriteMode    rw_mode_     = ReadWriteMode::READ_WRITE;  ///< 当前的操作是否都是只读的
-  PageHeader      *page_header_ = nullptr;                    ///< 当前页面上页面头
-  char            *bitmap_      = nullptr;                    ///< 当前页面上record分配状态信息bitmap内存起始位置
-  StorageFormat    storage_format_;
-  LobFileHandler  *lob_handler_ = nullptr;
+  Frame *frame_ = nullptr;  ///< 当前操作页面关联的frame(frame的更多概念可以参考buffer pool和frame)
+  ReadWriteMode   rw_mode_     = ReadWriteMode::READ_WRITE;  ///< 当前的操作是否都是只读的
+  PageHeader     *page_header_ = nullptr;                    ///< 当前页面上页面头
+  char           *bitmap_      = nullptr;  ///< 当前页面上record分配状态信息bitmap内存起始位置
+  StorageFormat   storage_format_;
+  LobFileHandler *lob_handler_ = nullptr;
 
 protected:
   friend class RecordPageIterator;
@@ -421,7 +421,7 @@ private:
   DiskBufferPool        *disk_buffer_pool_ = nullptr;
   LogHandler            *log_handler_      = nullptr;  ///< 记录日志的处理器
   unordered_set<PageNum> free_pages_;                  ///< 没有填充满的页面集合
-  common::Mutex          lock_;                        ///< 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
+  common::Mutex          lock_;  ///< 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
   StorageFormat          storage_format_;
   TableMeta             *table_meta_;
   LobFileHandler        *lob_handler_ = nullptr;
@@ -456,7 +456,7 @@ private:
 
   DiskBufferPool *disk_buffer_pool_ = nullptr;  ///< 当前访问的文件
   LogHandler     *log_handler_      = nullptr;
-  ReadWriteMode   rw_mode_          = ReadWriteMode::READ_WRITE;  ///< 遍历出来的数据，是否可能对它做修改
+  ReadWriteMode   rw_mode_ = ReadWriteMode::READ_WRITE;  ///< 遍历出来的数据，是否可能对它做修改
 
   BufferPoolIterator bp_iterator_;                    ///< 遍历buffer pool的所有页面
   RecordPageHandler *record_page_handler_ = nullptr;  ///< 处理文件某页面的记录

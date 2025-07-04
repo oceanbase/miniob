@@ -35,7 +35,7 @@ public:
      */
     virtual RC next(Chunk &chunk) = 0;
 
-    virtual void close_scan() {};
+    virtual void close_scan() {}
 
   protected:
     AggregateHashTable *hash_table_;
