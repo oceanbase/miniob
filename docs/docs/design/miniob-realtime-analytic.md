@@ -462,6 +462,11 @@ select * from mv_v1;
 #### 测试
 本次实训实验中只需要考虑创建物化视图，查询物化视图的功能，不需要实现物化视图的刷新。
 
+**提示**: 类似create table + insert算子，子算子为select。parser阶段create materialized view stmt
+可以带一个select stmt，将创建和插入与查询分开处理。
+
+**提示**: 使用抽象表屏蔽表和视图差异，或者将物化视图当作表处理。
+
 ## LAB#4 实时分析性能优化
 
 ### 背景介绍
