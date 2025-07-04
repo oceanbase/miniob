@@ -23,7 +23,7 @@ class Chunk
 {
 public:
   static const int MAX_ROWS = Column::DEFAULT_CAPACITY;
-  Chunk()              = default;
+  Chunk()                   = default;
   Chunk(const Chunk &other)
   {
     for (size_t i = 0; i < other.columns_.size(); ++i) {
@@ -31,9 +31,9 @@ public:
     }
     column_ids_ = other.column_ids_;
   }
-  Chunk(Chunk && chunk)
+  Chunk(Chunk &&chunk)
   {
-    columns_ = std::move(chunk.columns_);
+    columns_    = std::move(chunk.columns_);
     column_ids_ = std::move(chunk.column_ids_);
   }
 

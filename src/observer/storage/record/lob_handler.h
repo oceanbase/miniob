@@ -38,4 +38,4 @@ public:
 
 private:
   PersistHandler file_;
-}; 
+};

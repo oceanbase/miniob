@@ -47,7 +47,7 @@ public:
   explicit Value(float val);
   explicit Value(bool val);
   explicit Value(const char *s, int len = 0);
-  explicit Value(const string_t& val);
+  explicit Value(const string_t &val);
 
   Value(const Value &other);
   Value(Value &&other);

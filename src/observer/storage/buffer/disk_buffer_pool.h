@@ -71,7 +71,8 @@ struct BPFileHeader
   /**
    * 能够分配的最大的页面个数，即bitmap的字节数 乘以8
    */
-  static const int MAX_PAGE_NUM = (BP_PAGE_DATA_SIZE - sizeof(buffer_pool_id) - sizeof(page_count) - sizeof(allocated_pages)) * 8;
+  static const int MAX_PAGE_NUM =
+      (BP_PAGE_DATA_SIZE - sizeof(buffer_pool_id) - sizeof(page_count) - sizeof(allocated_pages)) * 8;
 
   string to_string() const;
 };
@@ -351,5 +352,5 @@ private:
   common::Mutex                            lock_;
   unordered_map<string, DiskBufferPool *>  buffer_pools_;
   unordered_map<int32_t, DiskBufferPool *> id_to_buffer_pools_;
-  atomic<int32_t>                          next_buffer_pool_id_{1};  // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
+  atomic<int32_t> next_buffer_pool_id_{1};  // 系统启动时，会打开所有的表，这样就可以知道当前系统最大的ID是多少了
 };
