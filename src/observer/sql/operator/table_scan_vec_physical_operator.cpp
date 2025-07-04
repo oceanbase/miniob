@@ -53,8 +53,8 @@ RC TableScanVecPhysicalOperator::next(Chunk &chunk)
           continue;
         }
         for (int j = 0; j < all_columns_.column_num(); j++) {
-          filterd_columns_.column(j).append_one(
-              (char *)all_columns_.column(filterd_columns_.column_ids(j)).get_value(i).data());
+          filterd_columns_.column(j).append_value(
+              all_columns_.column(filterd_columns_.column_ids(j)).get_value(i));
         }
       }
       chunk.reference(filterd_columns_);

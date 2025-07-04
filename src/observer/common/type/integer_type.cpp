@@ -13,6 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/type/integer_type.h"
 #include "common/value.h"
+#include "storage/common/column.h"
 
 int IntegerType::compare(const Value &left, const Value &right) const
 {
@@ -26,6 +27,14 @@ int IntegerType::compare(const Value &left, const Value &right) const
     return common::compare_float((void *)&left_val, (void *)&right_val);
   }
   return INT32_MAX;
+}
+
+int IntegerType::compare(const Column &left, const Column &right, int left_idx, int right_idx) const
+{
+  ASSERT(left.attr_type() == AttrType::INTS, "left type is not integer");
+  ASSERT(right.attr_type() == AttrType::INTS, "right type is not integer");
+  return common::compare_int((void *)&((int*)left.data())[left_idx],
+      (void *)&((int*)right.data())[right_idx]);
 }
 
 RC IntegerType::cast_to(const Value &val, AttrType type, Value &result) const

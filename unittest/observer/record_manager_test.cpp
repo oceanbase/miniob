@@ -140,7 +140,7 @@ TEST(RecordScanner, test_record_file_iterator)
   ASSERT_EQ(rc, RC::SUCCESS);
 
   RecordFileHandler file_handler(StorageFormat::ROW_FORMAT);
-  rc = file_handler.init(*bp, log_handler, nullptr);
+  rc = file_handler.init(*bp, log_handler, nullptr, nullptr);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   VacuousTrx        trx;
@@ -242,7 +242,7 @@ TEST(RecordManager, durability)
   ASSERT_NE(buffer_pool, nullptr);
 
   RecordFileHandler record_file_handler(StorageFormat::ROW_FORMAT);
-  ASSERT_EQ(record_file_handler.init(*buffer_pool, log_handler, nullptr), RC::SUCCESS);
+  ASSERT_EQ(record_file_handler.init(*buffer_pool, log_handler, nullptr, nullptr), RC::SUCCESS);
 
   const int  record_size              = 100;
   const char record_data[record_size] = "hello, world!";
@@ -351,7 +351,7 @@ TEST(RecordManager, durability)
   ASSERT_EQ(log_handler2.start(), RC::SUCCESS);
 
   RecordFileHandler record_file_handler2(StorageFormat::ROW_FORMAT);
-  ASSERT_EQ(record_file_handler2.init(*buffer_pool2, log_handler2, nullptr), RC::SUCCESS);
+  ASSERT_EQ(record_file_handler2.init(*buffer_pool2, log_handler2, nullptr, nullptr), RC::SUCCESS);
   for (const auto &[rid, record] : record_map) {
     Record record_data;
     ASSERT_EQ(record_file_handler2.get_record(rid, record_data), RC::SUCCESS);

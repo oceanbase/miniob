@@ -108,6 +108,9 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         PRIMARY
         KEY
         ANALYZE
+        FIELDS
+        TERMINATED
+        ENCLOSED
         EQ
         LT
         GT
@@ -160,8 +163,11 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <key_list>            attr_list
 %type <relation_list>       rel_list
 %type <expression>          expression
+%type <expression>          aggregate_expression
 %type <expression_list>     expression_list
 %type <expression_list>     group_by
+%type <cstring>             fields_terminated_by
+%type <cstring>             enclosed_by
 %type <sql_node>            calc_stmt
 %type <sql_node>            select_stmt
 %type <sql_node>            insert_stmt
@@ -549,6 +555,9 @@ expression:
     | '-' expression %prec UMINUS {
       $$ = create_arithmetic_expression(ArithmeticExpr::Type::NEGATIVE, $2, nullptr, sql_string, &@$);
     }
+    | '*' {
+      $$ = new StarExpr();
+    }
     | value {
       $$ = new ValueExpr(*$1);
       $$->set_name(token_name(sql_string, &@$));
@@ -560,10 +569,15 @@ expression:
       $$->set_name(token_name(sql_string, &@$));
       delete $1;
     }
-    | '*' {
-      $$ = new StarExpr();
+    | aggregate_expression {
+      $$ = $1;
     }
-    // your code here
+    ;
+
+aggregate_expression:
+    ID LBRACE expression RBRACE {
+      $$ = create_aggregate_expression($1, $3, sql_string, &@$);
+    }
     ;
 
 rel_attr:
@@ -690,18 +704,54 @@ group_by:
     {
       $$ = nullptr;
     }
+    | GROUP BY expression_list
+    {
+      // group by 的表达式范围与select查询值的表达式范围是不同的，比如group by不支持 *
+      // 但是这里没有处理。
+      $$ = $3;
+    }
     ;
 load_data_stmt:
-    LOAD DATA INFILE SSS INTO TABLE ID 
+    LOAD DATA INFILE SSS INTO TABLE ID fields_terminated_by enclosed_by
     {
       char *tmp_file_name = common::substr($4, 1, strlen($4) - 2);
       
       $$ = new ParsedSqlNode(SCF_LOAD_DATA);
       $$->load_data.relation_name = $7;
       $$->load_data.file_name = tmp_file_name;
+      if ($8 != nullptr) {
+        char *tmp = common::substr($8,1,strlen($8)-2);
+        $$->load_data.terminated = $8;
+        free(tmp);
+      }
+      if ($9 != nullptr) {
+        char *tmp = common::substr($9,1,strlen($9)-2);
+        $$->load_data.enclosed = $9;
+        free(tmp);
+      }
       free(tmp_file_name);
     }
     ;
+
+fields_terminated_by:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | FIELDS TERMINATED BY SSS
+    {
+      $$ = $4;
+    };
+
+enclosed_by:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | ENCLOSED BY SSS
+    {
+      $$ = $3;
+    };
 
 explain_stmt:
     EXPLAIN command_wrapper

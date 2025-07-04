@@ -37,6 +37,10 @@ See the Mulan PSL v2 for more details. */
 
 Table::~Table()
 {
+  if (lob_handler_ != nullptr) {
+    delete lob_handler_;
+    lob_handler_ = nullptr;
+  }
 }
 
 RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
@@ -101,13 +105,6 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
     LOG_ERROR("Failed to create disk buffer pool of data file. file name=%s", data_file.c_str());
     return rc;
   }
-
-  // rc = init_record_handler(base_dir);
-  // if (rc != RC::SUCCESS) {
-  //   LOG_ERROR("Failed to create table %s due to init record handler failed.", data_file.c_str());
-  //   // don't need to remove the data_file
-  //   return rc;
-  // }
 
   if (table_meta_.storage_engine() == StorageEngine::HEAP) {
     engine_ = make_unique<HeapTableEngine>(&table_meta_, db_, this);
@@ -178,6 +175,11 @@ RC Table::open(Db *db, const char *meta_file, const char *base_dir)
 RC Table::insert_record(Record &record)
 {
   return engine_->insert_record(record);
+}
+
+RC Table::insert_chunk(const Chunk& chunk)
+{
+  return engine_->insert_chunk(chunk);
 }
 
 RC Table::visit_record(const RID &rid, function<bool(Record &)> visitor)

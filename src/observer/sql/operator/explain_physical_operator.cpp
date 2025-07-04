@@ -55,7 +55,7 @@ RC ExplainPhysicalOperator::next(Chunk &chunk)
 
   Value         cell(physical_plan_.c_str());
   auto column = make_unique<Column>();
-  column->init(cell);
+  column->init(cell, chunk.rows());
   chunk.add_column(std::move(column), 0);
   return RC::SUCCESS;
 }

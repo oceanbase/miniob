@@ -39,7 +39,7 @@ RC PersistHandler::create_file(const char *file_name)
       rc = RC::FILE_CREATE;
     } else {
       file_name_ = file_name;
-      close(fd);
+      file_desc_ = fd;
       LOG_INFO("Successfully create %s.", file_name);
     }
   }
@@ -178,7 +178,7 @@ RC PersistHandler::write_at(uint64_t offset, int size, const char *data, int64_t
   return rc;
 }
 
-RC PersistHandler::append(int size, const char *data, int64_t *out_size)
+RC PersistHandler::append(int size, const char *data, int64_t *out_size, int64_t *out_offset)
 {
   RC rc = RC::SUCCESS;
   if (file_name_.empty()) {
@@ -188,7 +188,8 @@ RC PersistHandler::append(int size, const char *data, int64_t *out_size)
     LOG_ERROR("Failed to append, because file is not opened.");
     rc = RC::FILE_NOT_OPENED;
   } else {
-    if (lseek(file_desc_, 0, SEEK_END) == off_t(-1)) {
+    off_t end_offset = lseek(file_desc_, 0, SEEK_END);
+    if (end_offset == off_t(-1)) {
       LOG_ERROR("Failed to append file %d:%s due to failed to seek: %s.",
         file_desc_, file_name_.c_str(), strerror(errno));
       rc = RC::IOERR_SEEK;
@@ -201,6 +202,9 @@ RC PersistHandler::append(int size, const char *data, int64_t *out_size)
       }
       if (out_size != nullptr) {
         *out_size = write_size;
+      }
+      if (out_offset != nullptr) {
+        *out_offset = static_cast<uint64_t>(end_offset);
       }
     }
   }
