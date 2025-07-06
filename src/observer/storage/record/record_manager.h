@@ -365,7 +365,7 @@ private:
 class RecordFileHandler
 {
 public:
-  RecordFileHandler(StorageFormat storage_format) : storage_format_(storage_format) {};
+  RecordFileHandler(StorageFormat storage_format) : storage_format_(storage_format){};
   ~RecordFileHandler();
 
   /**
