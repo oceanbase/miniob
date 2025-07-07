@@ -35,7 +35,7 @@ public:
      */
     virtual RC next(Chunk &chunk) = 0;
 
-    virtual void close_scan(){};
+    virtual void close_scan() {}
 
   protected:
     AggregateHashTable *hash_table_;
@@ -65,7 +65,7 @@ private:
   };
 
 public:
-  using StandardHashTable = unordered_map<vector<Value>, vector<void*>, VectorHash, VectorEqual>;
+  using StandardHashTable = unordered_map<vector<Value>, vector<void *>, VectorHash, VectorEqual>;
   class Scanner : public AggregateHashTable::Scanner
   {
   public:
@@ -98,14 +98,13 @@ public:
     }
   }
 
-
   RC add_chunk(Chunk &groups_chunk, Chunk &aggrs_chunk) override;
 
   StandardHashTable::iterator begin() { return aggr_values_.begin(); }
   StandardHashTable::iterator end() { return aggr_values_.end(); }
 
   /// group by values -> aggregate values
-  StandardHashTable           aggr_values_;
+  StandardHashTable aggr_values_;
 };
 
 /**

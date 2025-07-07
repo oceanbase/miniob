@@ -85,7 +85,7 @@ public:
    */
   RC insert_record(Record &record);
 
-  RC insert_chunk(const Chunk& chunk);
+  RC insert_chunk(const Chunk &chunk);
   RC delete_record(const Record &record);
 
   RC insert_record_with_trx(Record &record, Trx *trx);
@@ -117,7 +117,7 @@ public:
 
   const TableMeta &table_meta() const;
 
-  LobFileHandler* lob_handler() const { return lob_handler_; }
+  LobFileHandler *lob_handler() const { return lob_handler_; }
 
   RC sync();
 
@@ -137,6 +137,6 @@ private:
   // DiskBufferPool    *data_buffer_pool_ = nullptr;  /// 数据文件关联的buffer pool
   // RecordFileHandler *record_handler_   = nullptr;  /// 记录操作
   // vector<Index *>    indexes_;
-  unique_ptr<TableEngine> engine_ = nullptr;
-  LobFileHandler* lob_handler_ = nullptr;
+  unique_ptr<TableEngine> engine_      = nullptr;
+  LobFileHandler         *lob_handler_ = nullptr;
 };
