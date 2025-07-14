@@ -382,9 +382,8 @@ group by 实现采用了基于哈希的分组方式，主要涉及到以下几�
 #### 实验
 
 1. 需要补充 `src/observer/sql/parser/yacc_sql.y` 中 标注`// your code here` 位置的 `aggregation` 和 `group by` 相关的语法。并通过 `src/sql/parser/gen_parser.sh` 生成正确的语法分析代码。
-2. 需要实现 `src/observer/sql/operator/aggregate_vec_physical_operator.cpp` 中标注 `// your code here` 位置的代码。
-3. 需要完整实现位于 `src/observer/sql/operator/group_by_vec_physical_operator.h` 的group by 算子。
-4. 需要实现 `src/observer/sql/expr/aggregate_hash_table.cpp::StandardAggregateHashTable` 中标注 `// your code here` 位置的代码。
+2. 需要完整实现位于 `src/observer/sql/operator/group_by_vec_physical_operator.h` 的group by 算子。
+3. 需要实现 `src/observer/sql/expr/aggregate_hash_table.cpp::StandardAggregateHashTable` 中标注 `// your code here` 位置的代码。
 
 #### 测试
 
