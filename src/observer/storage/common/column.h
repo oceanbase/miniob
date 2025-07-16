@@ -108,6 +108,7 @@ public:
   void reset_data()
   {
     count_         = 0;
+    memset(data_, 0, capacity_ * attr_len_);
     vector_buffer_ = nullptr;
   }
 
