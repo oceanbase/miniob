@@ -67,7 +67,7 @@ RC ValueExpr::get_value(const Tuple &tuple, Value &value) const
 
 RC ValueExpr::get_column(Chunk &chunk, Column &column)
 {
-  column.init(value_, std::max(chunk.rows(), 1));
+  column.init(value_, chunk.rows());
   return RC::SUCCESS;
 }
 
