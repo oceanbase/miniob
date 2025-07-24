@@ -630,7 +630,7 @@ RC InternalIndexNodeHandler::move_last_to_front(InternalIndexNodeHandler &other)
 
 RC InternalIndexNodeHandler::insert_items(int index, const char *items, int num)
 {
-  RC rc = mtr_.logger().node_insert_items(*this, index, span<const char>(items, item_size() * num), num);
+  RC rc = mtr_.logger().node_insert_items(*this, index, span<const char>(items, static_cast<size_t>(item_size()) * static_cast<size_t>(num)), num);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to log insert item. rc=%s", strrc(rc));
     return rc;
