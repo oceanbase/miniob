@@ -64,7 +64,7 @@ TEST_P(PaxRecordFileScannerWithParam, DISABLED_test_file_iterator)
   table_meta.fields_[1].field_id_ = 1;
 
   RecordFileHandler file_handler(StorageFormat::PAX_FORMAT);
-  rc = file_handler.init(*bp, log_handler, &table_meta);
+  rc = file_handler.init(*bp, log_handler, &table_meta, nullptr);
   ASSERT_EQ(rc, RC::SUCCESS);
 
   VacuousTrx        trx;

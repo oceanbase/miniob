@@ -271,6 +271,7 @@ public:
   ExprType type() const override { return ExprType::CAST; }
 
   RC get_value(const Tuple &tuple, Value &value) const override;
+  RC get_column(Chunk &chunk, Column &column) override;
 
   RC try_get_value(Value &value) const override;
 
@@ -411,13 +412,7 @@ public:
   ExprType type() const override { return ExprType::ARITHMETIC; }
 
   AttrType value_type() const override;
-  int      value_length() const override
-  {
-    if (!right_) {
-      return left_->value_length();
-    }
-    return 4;  // sizeof(float) or sizeof(int)
-  };
+  int value_length() const override { return std::max(left_->value_length(), right_ ? right_->value_length() : 0); };
 
   RC get_value(const Tuple &tuple, Value &value) const override;
 
@@ -493,8 +488,26 @@ public:
 
   ExprType type() const override { return ExprType::AGGREGATION; }
 
-  AttrType value_type() const override { return child_->value_type(); }
-  int      value_length() const override { return child_->value_length(); }
+  AttrType value_type() const override
+  {
+    if (aggregate_type_ == Type::COUNT) {
+      return AttrType::INTS;
+    } else if (aggregate_type_ == Type::AVG) {
+      return AttrType::FLOATS;
+    } else {
+      return child_->value_type();
+    }
+  }
+  int value_length() const override
+  {
+    if (aggregate_type_ == Type::COUNT) {
+      return sizeof(int);
+    } else if (aggregate_type_ == Type::AVG) {
+      return sizeof(float);
+    } else {
+      return child_->value_length();
+    }
+  }
 
   RC get_value(const Tuple &tuple, Value &value) const override;
 

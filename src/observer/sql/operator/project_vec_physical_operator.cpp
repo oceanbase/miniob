@@ -43,7 +43,7 @@ RC ProjectVecPhysicalOperator::next(Chunk &chunk)
   if (children_.empty()) {
     return RC::RECORD_EOF;
   }
-  chunk_.reset_data();
+  chunk_.reset();
   RC rc = children_[0]->next(chunk_);
   if (rc == RC::RECORD_EOF) {
     return rc;

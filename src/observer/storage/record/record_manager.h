@@ -20,6 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/chunk.h"
 #include "storage/record/record.h"
 #include "storage/record/record_log.h"
+#include "storage/record/lob_handler.h"
 #include "common/types.h"
 
 class LogHandler;
@@ -136,7 +137,8 @@ public:
    * @param page_num    当前处理哪个页面
    * @param mode        是否只读。在访问页面时，需要对页面加锁
    */
-  RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, ReadWriteMode mode);
+  RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, ReadWriteMode mode,
+      LobFileHandler *lob_handler = nullptr);
 
   /**
    * @brief 数据库恢复时，与普通的运行场景有所不同，不做任何并发操作，也不需要加锁
@@ -154,8 +156,8 @@ public:
    * @param record_size 每个记录的大小
    * @param table_meta  表的元数据
    */
-  RC init_empty_page(
-      DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, int record_size, TableMeta *table_meta);
+  RC init_empty_page(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, int record_size,
+      TableMeta *table_meta, LobFileHandler *lob_handler = nullptr);
 
   /**
    * @brief 对一个新的页面做初始化，初始化关于该页面记录信息的页头PageHeader，该函数用于日志回放时。
@@ -166,7 +168,7 @@ public:
    * @param col_idx_data 列索引数据
    */
   RC init_empty_page(DiskBufferPool &buffer_pool, LogHandler &log_handler, PageNum page_num, int record_size,
-      int col_num, const char *col_idx_data);
+      int col_num, const char *col_idx_data, LobFileHandler *lob_handler = nullptr);
 
   /**
    * @brief 操作结束后做的清理工作，比如释放页面、解锁
@@ -180,6 +182,8 @@ public:
    * @param rid  如果插入成功，通过这个参数返回插入的位置
    */
   virtual RC insert_record(const char *data, RID *rid) { return RC::UNIMPLEMENTED; }
+
+  virtual RC insert_chunk(const Chunk &chunk, int start_row, int &insert_rows) { return RC::UNIMPLEMENTED; }
 
   /**
    * @brief 数据库恢复时，在指定位置插入数据
@@ -258,10 +262,11 @@ protected:
   DiskBufferPool  *disk_buffer_pool_ = nullptr;  ///< 当前操作的buffer pool(文件)
   RecordLogHandler log_handler_;                 ///< 当前操作的日志处理器
   Frame *frame_ = nullptr;  ///< 当前操作页面关联的frame(frame的更多概念可以参考buffer pool和frame)
-  ReadWriteMode rw_mode_     = ReadWriteMode::READ_WRITE;  ///< 当前的操作是否都是只读的
-  PageHeader   *page_header_ = nullptr;                    ///< 当前页面上页面头
-  char         *bitmap_      = nullptr;  ///< 当前页面上record分配状态信息bitmap内存起始位置
-  StorageFormat storage_format_;
+  ReadWriteMode   rw_mode_     = ReadWriteMode::READ_WRITE;  ///< 当前的操作是否都是只读的
+  PageHeader     *page_header_ = nullptr;                    ///< 当前页面上页面头
+  char           *bitmap_      = nullptr;  ///< 当前页面上record分配状态信息bitmap内存起始位置
+  StorageFormat   storage_format_;
+  LobFileHandler *lob_handler_ = nullptr;
 
 protected:
   friend class RecordPageIterator;
@@ -324,6 +329,9 @@ public:
    */
   virtual RC insert_record(const char *data, RID *rid) override;
 
+  // TODO: insert chunk only used in load_data
+  virtual RC insert_chunk(const Chunk &chunk, int start_row, int &insert_rows) override;
+
   virtual RC delete_record(const RID *rid) override;
 
   /**
@@ -365,7 +373,7 @@ public:
    *
    * @param buffer_pool 当前操作的是哪个文件
    */
-  RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler, TableMeta *table_meta);
+  RC init(DiskBufferPool &buffer_pool, LogHandler &log_handler, TableMeta *table_meta, LobFileHandler *lob_handler);
 
   /**
    * @brief 关闭，做一些资源清理的工作
@@ -387,6 +395,8 @@ public:
    * @param rid         返回该记录的标识符
    */
   RC insert_record(const char *data, int record_size, RID *rid);
+
+  RC insert_chunk(const Chunk &chunk, int record_size);
 
   /**
    * @brief 数据库恢复时，在指定文件指定位置插入数据
@@ -414,6 +424,7 @@ private:
   common::Mutex          lock_;  ///< 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
   StorageFormat          storage_format_;
   TableMeta             *table_meta_;
+  LobFileHandler        *lob_handler_ = nullptr;
 };
 
 /**

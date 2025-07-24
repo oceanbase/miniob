@@ -119,18 +119,6 @@ RC PredicatePushdownRewriter::get_exprs_can_pushdown(
     }
   } else if (expr->type() == ExprType::COMPARISON) {
     // 如果是比较操作，并且比较的左边或右边是表某个列值，那么就下推下去
-    auto   comparison_expr = static_cast<ComparisonExpr *>(expr.get());
-
-    unique_ptr<Expression> &left_expr  = comparison_expr->left();
-    unique_ptr<Expression> &right_expr = comparison_expr->right();
-    // 比较操作的左右两边只要有一个是取列字段值的并且另一边也是取字段值或常量，就pushdown
-    if (left_expr->type() != ExprType::FIELD && right_expr->type() != ExprType::FIELD) {
-      return rc;
-    }
-    if (left_expr->type() != ExprType::FIELD && left_expr->type() != ExprType::VALUE &&
-        right_expr->type() != ExprType::FIELD && right_expr->type() != ExprType::VALUE) {
-      return rc;
-    }
 
     pushdown_exprs.emplace_back(std::move(expr));
   }

@@ -147,6 +147,11 @@ TEST(ArithmeticExpr, get_column)
     Value float_value1((float)1.1);
     Value float_value2((float)2.2);
     Chunk chunk;
+    std::unique_ptr<Column> column_tmp = std::make_unique<Column>(AttrType::INTS, sizeof(int), 1);
+    char data[sizeof(int)];
+    memcpy(data, &int_value1, sizeof(int));
+    column_tmp->append_one(data);
+    chunk.add_column(std::move(column_tmp), 0);
 
     Value int_result;
     Value float_result;

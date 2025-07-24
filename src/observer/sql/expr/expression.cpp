@@ -67,7 +67,7 @@ RC ValueExpr::get_value(const Tuple &tuple, Value &value) const
 
 RC ValueExpr::get_column(Chunk &chunk, Column &column)
 {
-  column.init(value_);
+  column.init(value_, chunk.rows());
   return RC::SUCCESS;
 }
 
@@ -97,6 +97,26 @@ RC CastExpr::get_value(const Tuple &tuple, Value &result) const
   }
 
   return cast(value, result);
+}
+
+RC CastExpr::get_column(Chunk &chunk, Column &column)
+{
+  Column child_column;
+  RC rc = child_->get_column(chunk, child_column);
+  if (rc != RC::SUCCESS) {
+    return rc;
+  }
+  column.init(cast_type_, child_column.attr_len());
+  for (int i = 0; i < child_column.count(); ++i) {
+    Value value = child_column.get_value(i);
+    Value cast_value;
+    rc = cast(value, cast_value);
+    if (rc != RC::SUCCESS) {
+      return rc;
+    }
+    column.append_value(cast_value);
+  }
+  return rc;
 }
 
 RC CastExpr::try_get_value(Value &result) const
@@ -222,8 +242,26 @@ RC ComparisonExpr::eval(Chunk &chunk, vector<uint8_t> &select)
     rc = compare_column<int>(left_column, right_column, select);
   } else if (left_column.attr_type() == AttrType::FLOATS) {
     rc = compare_column<float>(left_column, right_column, select);
+  } else if (left_column.attr_type() == AttrType::CHARS) {
+    int rows = 0;
+    if (left_column.column_type() == Column::Type::CONSTANT_COLUMN) {
+      rows = right_column.count();
+    } else {
+      rows = left_column.count();
+    }
+    for (int i = 0; i < rows; ++i) {
+      Value left_val = left_column.get_value(i);
+      Value right_val = right_column.get_value(i);
+      bool        result   = false;
+      rc                   = compare_value(left_val, right_val, result);
+      if (rc != RC::SUCCESS) {
+        LOG_WARN("failed to compare tuple cells. rc=%s", strrc(rc));
+        return rc;
+      }
+      select[i] &= result ? 1 : 0;
+    }
+
   } else {
-    // TODO: support string compare
     LOG_WARN("unsupported data type %d", left_column.attr_type());
     return RC::INTERNAL;
   }
@@ -308,7 +346,8 @@ AttrType ArithmeticExpr::value_type() const
     return left_->value_type();
   }
 
-  if (left_->value_type() == AttrType::INTS && right_->value_type() == AttrType::INTS &&
+  if ((left_->value_type() == AttrType::INTS) &&
+   (right_->value_type() == AttrType::INTS) &&
       arithmetic_type_ != Type::DIV) {
     return AttrType::INTS;
   }

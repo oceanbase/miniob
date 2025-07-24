@@ -31,3 +31,13 @@ AttrType attr_type_from_string(const char *s)
   }
   return AttrType::UNDEFINED;
 }
+
+bool is_numerical_type(AttrType type)
+{
+  return (type == AttrType::INTS || type == AttrType::FLOATS);
+}
+
+bool is_string_type(AttrType type)
+{
+  return (type == AttrType::CHARS);
+}

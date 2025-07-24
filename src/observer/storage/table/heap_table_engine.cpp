@@ -61,6 +61,19 @@ RC HeapTableEngine::insert_record(Record &record)
   return rc;
 }
 
+RC HeapTableEngine::insert_chunk(const Chunk& chunk)
+{
+  RC rc = RC::SUCCESS;
+  rc    = record_handler_->insert_chunk(chunk, table_meta_->record_size());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Insert chunk failed. table name=%s, rc=%s", table_meta_->name(), strrc(rc));
+    return rc;
+  }
+
+  // TODO: insert chunk support update index
+  return rc;
+}
+
 RC HeapTableEngine::visit_record(const RID &rid, function<bool(Record &)> visitor)
 {
   return record_handler_->visit_record(rid, visitor);
@@ -285,7 +298,7 @@ RC HeapTableEngine::init()
 
   record_handler_ = new RecordFileHandler(table_meta_->storage_format());
 
-  rc = record_handler_->init(*data_buffer_pool_, db_->log_handler(), table_meta_);
+  rc = record_handler_->init(*data_buffer_pool_, db_->log_handler(), table_meta_, table_->lob_handler_);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to init record handler. rc=%s", strrc(rc));
     delete record_handler_;
