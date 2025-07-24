@@ -140,6 +140,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %destructor { delete $$; } <value>
 %destructor { delete $$; } <rel_attr>
 %destructor { delete $$; } <attr_infos>
+%destructor { delete $$; } <attr_info>
 %destructor { delete $$; } <expression>
 %destructor { delete $$; } <expression_list>
 %destructor { delete $$; } <value_list>
