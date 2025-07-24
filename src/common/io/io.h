@@ -55,7 +55,7 @@ int touch(const string &fileName);
 /**
  * get file size
  */
-int getFileSize(const char *filePath, uint64_t &fileLen);
+int getFileSize(const char *filePath, int64_t &fileLen);
 
 /**
  * @brief 一次性写入所有指定数据
