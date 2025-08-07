@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "common/value.h"
 #include <cstring>
+#include <algorithm>
 
 using byte_t    = unsigned char;
 using bytes     = vector<byte_t>;
