@@ -1,0 +1,389 @@
+name: build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  init-ubuntu:
+    runs-on: ubuntu-latest
+    name: init-ubuntu
+    outputs:
+      cache-key: ${{ steps.build-cache.outputs.cache-key }}
+    steps:
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v4
+
+    - name: Setup build cache
+      id: build-cache
+      run: |
+        echo "cache-key=build-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', 'cmake/**', 'deps/3rd/**', 'build.sh') }}" >> $GITHUB_OUTPUT
+    - name: Cache build dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          deps/3rd/usr/local
+          build_debug
+          build_release
+        key: ${{ steps.build-cache.outputs.cache-key }}
+        restore-keys: |
+          build-${{ runner.os }}-
+          build-
+    - name: Init
+      shell: bash
+      run: sudo bash build.sh init
+    - name: Upload deps artifact (fallback for fork PR)
+      uses: actions/upload-artifact@v4
+      with:
+        name: deps-${{ runner.os }}
+        path: deps/3rd/usr/local
+        retention-days: 7
+
+  build-and-test-on-ubuntu:
+    runs-on: ubuntu-latest
+    name: build-and-test-on-ubuntu
+    needs: init-ubuntu
+
+    steps:
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v4
+
+    - name: Cache build dependencies
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          deps/3rd/usr/local
+          build_debug
+        key: ${{ needs.init-ubuntu.outputs.cache-key }}
+        restore-keys: |
+          build-${{ runner.os }}-
+          build-
+    - name: Download deps artifact if cache missed
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: deps-${{ runner.os }}
+        path: deps/3rd/usr/local
+    - name: BuildDebug
+      shell: bash
+      run: bash build.sh debug -DCONCURRENCY=ON -DENABLE_COVERAGE=ON -DWITH_BENCHMARK=ON -DWITH_MEMTRACER=ON -DWITH_UNIT_TESTS=ON --make -j4
+
+    - name: Test
+      shell: bash
+      run: |
+        cd build_debug
+        ctest -E memtracer_test --verbose
+    - name: lcov
+      shell: bash
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt-get update && sudo apt-get install -y lcov
+        cd build_debug
+        rm -rf unittest
+        lcov -c -d ./ -o coverage.info --ignore-errors source
+    - uses: codecov/codecov-action@v3
+      with:
+        file: build_debug/coverage.info
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  build-release:
+    runs-on: ubuntu-latest
+    name: build-release-ubuntu
+    needs: init-ubuntu
+
+    steps:
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v4
+
+    - name: Cache build dependencies
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          deps/3rd/usr/local
+          build_release
+        key: ${{ needs.init-ubuntu.outputs.cache-key }}
+        restore-keys: |
+          build-${{ runner.os }}-
+          build-
+    - name: Download deps artifact if cache missed
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: deps-${{ runner.os }}
+        path: deps/3rd/usr/local
+    - name: BuildRelease
+      shell: bash
+      run: bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=ON -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF -DWITH_MEMTRACER=ON --make -j4
+
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-release-artifacts
+        path: |
+          build_release/
+          deps/3rd/usr/local/
+        retention-days: 7
+
+  basic-test:
+    runs-on: ubuntu-latest
+    needs: build-release
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-release-artifacts
+          path: ./
+
+      - name: Fix permissions
+        shell: bash
+        run: |
+          chmod +x build_release/bin/* || true
+          chmod +x build_release/benchmark/* || true
+          chmod +x build_release/unittest/* || true
+          find build_release -name "*.so" -exec chmod +x {} \; || true
+          find build_release -name "*.a" -exec chmod +x {} \; || true
+      - name: run basic test
+        shell: bash
+        run: |
+          echo "begin test..."
+          python3 test/case/miniob_test.py --test-cases=basic | tail -1 | grep "basic is success"
+  sysbench-test:
+    needs: [build-release]
+    strategy:
+      matrix:
+        include:
+          # 基础sysbench测试
+          - thread_model: 'one-thread-per-connection'
+            test_case: 'miniob_insert'
+            build_type: 'release'
+            memtracer: ''
+          - thread_model: 'one-thread-per-connection'
+            test_case: 'miniob_delete'
+            build_type: 'release'
+            memtracer: ''
+          - thread_model: 'one-thread-per-connection'
+            test_case: 'miniob_select'
+            build_type: 'release'
+            memtracer: ''
+          - thread_model: 'java-thread-pool'
+            test_case: 'miniob_insert'
+            build_type: 'release'
+            memtracer: ''
+          - thread_model: 'java-thread-pool'
+            test_case: 'miniob_delete'
+            build_type: 'release'
+            memtracer: ''
+          - thread_model: 'java-thread-pool'
+            test_case: 'miniob_select'
+            build_type: 'release'
+            memtracer: ''
+          # memtracer sysbench测试
+          - thread_model: 'one-thread-per-connection'
+            test_case: 'miniob_insert'
+            build_type: 'release'
+            memtracer: 'LD_PRELOAD=./lib/libmemtracer.so'
+
+    runs-on: ubuntu-latest
+    name: sysbench-test-${{ matrix.build_type }}-${{ matrix.thread_model }}-${{ matrix.test_case }}-${{ matrix.memtracer == '' && 'normal' || 'memtracer' }}
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.build_type == 'debug' && 'build-debug-artifacts' || 'build-release-artifacts' }}
+          path: ./
+
+      - name: Fix permissions
+        shell: bash
+        run: |
+          chmod +x build_${{ matrix.build_type }}/bin/* || true
+          chmod +x build_${{ matrix.build_type }}/benchmark/* || true
+          chmod +x build_${{ matrix.build_type }}/unittest/* || true
+          find build_${{ matrix.build_type }} -name "*.so" -exec chmod +x {} \; || true
+          find build_${{ matrix.build_type }} -name "*.a" -exec chmod +x {} \; || true
+      - name: install sysbench and mariadb-client
+        shell: bash
+        run: |
+          curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh -o script.deb.sh
+          sudo bash script.deb.sh
+          sudo apt -y install sysbench mariadb-client
+      - name: start server
+        shell: bash
+        run: |
+          nohup sh -c '${{ matrix.memtracer }} ./build_${{ matrix.build_type }}/bin/observer -T ${{ matrix.thread_model }} -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk' &
+          sleep 10 && echo "wake up"
+          mysql --version
+          mysql -S /tmp/miniob.sock -e "show tables"
+      - name: sysbench test
+        shell: bash
+        run: |
+          cd test/sysbench
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} prepare
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} run || { cat ../../nohup.txt*; exit 1; }
+      - name: stop server
+        shell: bash
+        run: |
+          mysql -S /tmp/miniob.sock -e "create table t(id int)"
+          mysql -S /tmp/miniob.sock -e "show tables"
+          killall observer
+      - name: restart server
+        shell: bash
+        run: |
+          nohup sh -c '${{ matrix.memtracer }} ./build_${{ matrix.build_type }}/bin/observer -T ${{ matrix.thread_model }} -s /tmp/miniob.sock -f etc/observer.ini -P mysql -t mvcc -d disk' &
+          sleep 10 && echo "wake up"
+          mysql -S /tmp/miniob.sock -e "show tables"
+      - name: sysbench test again
+        shell: bash
+        run: |
+          cd test/sysbench
+          sysbench --mysql-socket=/tmp/miniob.sock --mysql-ignore-errors=41 --threads=10 ${{ matrix.test_case }} run || { cat ../../nohup.txt*; exit 1; }
+  benchmark-test:
+    runs-on: ubuntu-latest
+    needs: build-release
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-release-artifacts
+          path: ./
+
+      - name: Fix permissions
+        shell: bash
+        run: |
+          chmod +x build_release/bin/* || true
+          chmod +x build_release/benchmark/* || true
+          chmod +x build_release/unittest/* || true
+          find build_release -name "*.so" -exec chmod +x {} \; || true
+          find build_release -name "*.a" -exec chmod +x {} \; || true
+      - name: concurrency-test
+        shell: bash
+        run: |
+          cd build_release/bin/
+          for file in `find ./ -name "*_concurrency_test" -executable`; do $file; if [ $? -ne 0 ]; then exit 1; fi; done
+  memtracer-test:
+    needs: build-release
+    strategy:
+      matrix:
+        memtracer: ['LD_PRELOAD=./lib/libmemtracer.so', '']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-release-artifacts
+          path: ./
+
+      - name: Fix permissions
+        shell: bash
+        run: |
+          chmod +x build_release/bin/* || true
+          chmod +x build_release/benchmark/* || true
+          chmod +x build_release/unittest/* || true
+          find build_release -name "*.so" -exec chmod +x {} \; || true
+          find build_release -name "*.a" -exec chmod +x {} \; || true
+      - name: memtracer-performance-test
+        shell: bash
+        run: |
+          cd build_release
+          ${{matrix.memtracer}} ./benchmark/memtracer_performance_test
+      - name: memtracer-unittest
+        shell: bash
+        run: |
+          cd build_release
+          LD_PRELOAD=./lib/libmemtracer.so ./unittest/memtracer_test
+  integration-test:
+    needs: build-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-release-artifacts
+          path: ./
+
+      - name: Fix permissions
+        shell: bash
+        run: |
+          chmod +x build_release/bin/* || true
+          chmod +x build_release/benchmark/* || true
+          chmod +x build_release/unittest/* || true
+          find build_release -name "*.so" -exec chmod +x {} \; || true
+          find build_release -name "*.a" -exec chmod +x {} \; || true
+      
+      - name: init mysql
+        uses: shogo82148/actions-setup-mysql@v1
+        with:
+          mysql-version: "8.0"
+      - name: init
+        shell: bash
+        run: |
+          sudo apt -y install pip python3-pymysql python3-psutil
+      - name: integration test
+        shell: bash
+        run: |
+          cd test/integration_test/
+          bash ./miniob_test_docker_entry.sh
+          python3 ./libminiob_test.py -c conf.ini
+  build-on-mac:
+    runs-on: macos-latest
+    name: build-macos
+
+    steps:
+    - name: Init environment
+      shell: bash
+      run: |
+        brew install bison
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v4
+
+    - name: Setup build cache
+      id: build-cache
+      run: |
+        echo "cache-key=build-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', 'cmake/**', 'deps/3rd/**', 'build.sh') }}" >> $GITHUB_OUTPUT
+    - name: Cache build dependencies
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          deps/3rd/usr/local
+          build_release
+          build_debug
+        key: ${{ steps.build-cache.outputs.cache-key }}
+        restore-keys: |
+          build-${{ runner.os }}-
+          build-
+    
+    - name: Build
+      shell: bash
+      run: |
+        export ASAN_OPTIONS=detect_container_overflow=0
+        export PATH="/opt/homebrew/opt/bison/bin:$PATH"
+        sudo bash build.sh init
+        bash build.sh debug -DWITH_MEMTRACER=ON --make -j4
+        bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF -DWITH_BENCHMARK=ON -DWITH_MEMTRACER=ON --make -j4
