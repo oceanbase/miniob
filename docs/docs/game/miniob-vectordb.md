@@ -74,6 +74,20 @@ INSERT INTO items VALUES (1, STRING_TO_VECTOR('[1,2,3]'));
 - 一个 VECTOR 数据类型的输入查询。
 - 一个字符串，指定了距离度量方式。支持的值有 COSINE、DOT 和 EUCLIDEAN。由于该参数是字符串，因此必须加引号。
 
+  - l2_distance
+
+    - 语法：l2_distance(vector A, vector B)
+    - 计算公式：$[ D = \sqrt{\sum_{i=1}^{n} (A_{i} - B_{i})^2} ]$
+
+  - cosine_distance：
+
+    - 语法：cosine_distance(vector A, vector B)
+    - 计算公式：$[ D = 1 - \frac{\mathbf{A} \cdot \mathbf{B}}{|\mathbf{A}| |\mathbf{B}|} = 1 - \frac{\sum_{i=1}^{n} A_i B_i}{\sqrt{\sum_{i=1}^{n} A_i^2} \sqrt{\sum_{i=1}^{n} B_i^2}} ]$
+
+  - inner_product：
+    - 语法：inner_product(vector A, vector B)
+    - 计算公式：$[ D = \mathbf{A} \cdot \mathbf{B} = a_1 b_1 + a_2 b_2 + ... + a_n b_n = \sum_{i=1}^{n} a_i b_i ]$
+
 **VECTOR_DISTANCE 是此函数的同义词。**
 
 ```sql
