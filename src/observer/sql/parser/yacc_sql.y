@@ -322,45 +322,37 @@ drop_index_stmt:      /*drop index 语句的语法解析树*/
     }
     ;
 create_table_stmt:    /*create table 语句的语法解析树*/
-    CREATE TABLE ID LBRACE attr_def attr_def_list primary_key RBRACE storage_format
+    CREATE TABLE ID LBRACE attr_def_list primary_key RBRACE storage_format
     {
       $$ = new ParsedSqlNode(SCF_CREATE_TABLE);
       CreateTableSqlNode &create_table = $$->create_table;
       create_table.relation_name = $3;
       //free($3);
 
-      vector<AttrInfoSqlNode> *src_attrs = $6;
-
-      if (src_attrs != nullptr) {
-        create_table.attr_infos.swap(*src_attrs);
-        delete src_attrs;
-      }
-      create_table.attr_infos.emplace_back(*$5);
-      reverse(create_table.attr_infos.begin(), create_table.attr_infos.end());
+      create_table.attr_infos.swap(*$5);
       delete $5;
-      if ($7 != nullptr) {
-        create_table.primary_keys.swap(*$7);
-        delete $7;
+
+      if ($6 != nullptr) {
+        create_table.primary_keys.swap(*$6);
+        delete $6;
       }
-      if ($9 != nullptr) {
-        create_table.storage_format = $9;
+      if ($8 != nullptr) {
+        create_table.storage_format = $8;
       }
     }
     ;
     
 attr_def_list:
-    /* empty */
+    attr_def
     {
-      $$ = nullptr;
+      $$ = new vector<AttrInfoSqlNode>;
+      $$->emplace_back(*$1);
+      delete $1;
     }
     | attr_def_list COMMA attr_def
     {
-      if ($1 != nullptr) {
-        $$ = $1;
-      } else {
-        $$ = new vector<AttrInfoSqlNode>;
-      }
-      $$->insert($$->begin(), *$3);
+      $$ = $1;
+      $$->emplace_back(*$3);
       delete $3;
     }
     ;
@@ -418,33 +410,26 @@ attr_list:
     ;
 
 insert_stmt:        /*insert   语句的语法解析树*/
-    INSERT INTO ID VALUES LBRACE value value_list RBRACE 
+    INSERT INTO ID VALUES LBRACE value_list RBRACE 
     {
       $$ = new ParsedSqlNode(SCF_INSERT);
       $$->insertion.relation_name = $3;
-      if ($7 != nullptr) {
-        $$->insertion.values.swap(*$7);
-        delete $7;
-      }
-      $$->insertion.values.emplace_back(*$6);
-      reverse($$->insertion.values.begin(), $$->insertion.values.end());
+      $$->insertion.values.swap(*$6);
       delete $6;
     }
     ;
 
 value_list:
-    /* empty */
+    value
     {
-      $$ = nullptr;
+      $$ = new vector<Value>;
+      $$->emplace_back(*$1);
+      delete $1;
     }
-    | COMMA value value_list  { 
-      if ($3 != nullptr) {
-        $$ = $3;
-      } else {
-        $$ = new vector<Value>;
-      }
-      $$->emplace_back(*$2);
-      delete $2;
+    | value_list COMMA value { 
+      $$ = $1;
+      $$->emplace_back(*$3);
+      delete $3;
     }
     ;
 value:

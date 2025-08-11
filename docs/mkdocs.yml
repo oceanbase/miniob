@@ -73,13 +73,6 @@ nav:
     - blog/introduction.md
     - blog/1.md
 
-markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
-
 theme:
   name: material
   language: zh
@@ -132,6 +125,11 @@ extra:
       link: https://join.slack.com/t/oceanbase/shared_invite/zt-1e25oz3ol-lJ6YNqPHaKwY_mhhioyEuw
 
 markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
   - toc:
       permalink: true
   - pymdownx.arithmatex:
@@ -140,5 +138,6 @@ markdown_extensions:
 
 extra_javascript:
     - ./assets/mathjax.js
-    - https://polyfill.io/v3/polyfill.min.js?features=es6
+    # - https://polyfill.io/v3/polyfill.min.js?features=es6
+    - https://polyfill.alicdn.com/v3/polyfill.min.js?features=es6
     - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
