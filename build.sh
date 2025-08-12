@@ -122,6 +122,20 @@ function do_init
     ${MAKE_COMMAND} -j4 && \
     ${MAKE_COMMAND} install
 
+  # build limonp
+  cd ${TOPDIR}/deps/3rd/limonp && \
+    mkdir -p build && \
+    ${CMAKE_COMMAND_THIRD_PARTY} .. -DCMAKE_BUILD_TYPE=Release && \
+    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} install
+
+  # build cppjieba
+  cd ${TOPDIR}/deps/3rd/cppjieba && \
+    mkdir -p build && \
+    ${CMAKE_COMMAND_THIRD_PARTY} .. -DCMAKE_BUILD_TYPE=Release && \
+    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} install
+
   cd $current_dir
 }
 
