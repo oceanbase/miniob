@@ -22,13 +22,30 @@ See the Mulan PSL v2 for more details. */
 class Chunk
 {
 public:
-  Chunk()              = default;
-  Chunk(const Chunk &) = delete;
-  Chunk(Chunk &&)      = delete;
+  static const int MAX_ROWS = Column::DEFAULT_CAPACITY;
+  Chunk()                   = default;
+  Chunk(const Chunk &other)
+  {
+    for (size_t i = 0; i < other.columns_.size(); ++i) {
+      columns_.emplace_back(other.columns_[i]->clone());
+    }
+    column_ids_ = other.column_ids_;
+  }
+  Chunk(Chunk &&chunk)
+  {
+    columns_    = std::move(chunk.columns_);
+    column_ids_ = std::move(chunk.column_ids_);
+  }
 
   int column_num() const { return columns_.size(); }
 
   Column &column(size_t idx)
+  {
+    ASSERT(idx < columns_.size(), "invalid column index");
+    return *columns_[idx];
+  }
+
+  const Column &column(size_t idx) const
   {
     ASSERT(idx < columns_.size(), "invalid column index");
     return *columns_[idx];

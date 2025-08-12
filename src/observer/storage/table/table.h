@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/table/table_meta.h"
 #include "storage/table/table_engine.h"
+#include "storage/common/chunk.h"
+#include "storage/record/lob_handler.h"
 #include "common/types.h"
 #include "common/lang/span.h"
 #include "common/lang/functional.h"
@@ -82,6 +84,8 @@ public:
    * @param record[in/out] 传入的数据包含具体的数据，插入成功会通过此字段返回RID
    */
   RC insert_record(Record &record);
+
+  RC insert_chunk(const Chunk &chunk);
   RC delete_record(const Record &record);
 
   RC insert_record_with_trx(Record &record, Trx *trx);
@@ -113,6 +117,8 @@ public:
 
   const TableMeta &table_meta() const;
 
+  LobFileHandler *lob_handler() const { return lob_handler_; }
+
   RC sync();
 
 private:
@@ -131,5 +137,6 @@ private:
   // DiskBufferPool    *data_buffer_pool_ = nullptr;  /// 数据文件关联的buffer pool
   // RecordFileHandler *record_handler_   = nullptr;  /// 记录操作
   // vector<Index *>    indexes_;
-  unique_ptr<TableEngine> engine_ = nullptr;
+  unique_ptr<TableEngine> engine_      = nullptr;
+  LobFileHandler         *lob_handler_ = nullptr;
 };

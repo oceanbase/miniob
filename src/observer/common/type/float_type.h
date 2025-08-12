@@ -23,6 +23,7 @@ public:
   virtual ~FloatType() = default;
 
   int compare(const Value &left, const Value &right) const override;
+  int compare(const Column &left, const Column &right, int left_idx, int right_idx) const override;
 
   RC add(const Value &left, const Value &right, Value &result) const override;
   RC subtract(const Value &left, const Value &right, Value &result) const override;

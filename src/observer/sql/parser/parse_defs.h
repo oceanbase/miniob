@@ -223,6 +223,8 @@ struct LoadDataSqlNode
 {
   string relation_name;
   string file_name;
+  string terminated = ",";
+  string enclosed   = "\"";
 };
 
 /**
