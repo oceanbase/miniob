@@ -14,11 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
-#include "sql/executor/execute_stage.h"
-#include "sql/optimizer/optimize_stage.h"
-#include "sql/parser/parse_stage.h"
-#include "sql/parser/resolve_stage.h"
-#include "sql/query_cache/query_cache_stage.h"
+class SessionEvent;
 
 /**
  * @brief SEDA处理的stage
@@ -43,16 +39,5 @@ public:
   virtual ~SessionStage();
 
 public:
-  void handle_request2(SessionEvent *event);
-
-public:
   void handle_request(SessionEvent *event);
-  RC   handle_sql(SQLStageEvent *sql_event);
-
-private:
-  QueryCacheStage query_cache_stage_;
-  ParseStage      parse_stage_;
-  ResolveStage    resolve_stage_;
-  OptimizeStage   optimize_stage_;
-  ExecuteStage    execute_stage_;
 };
