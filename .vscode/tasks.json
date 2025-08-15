@@ -22,11 +22,6 @@
             "label": "build_release",
             "type": "shell",
             "command": "bash build.sh release"
-        },
-        {
-            "label": "gen_parser",
-            "type": "shell",
-            "command": "cd ${workspaceFolder}/src/observer/sql/parser && bash gen_parser.sh"
         }
     ]
 }
