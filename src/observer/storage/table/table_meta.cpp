@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table_meta.h"
 #include "storage/trx/trx.h"
 #include "json/json.h"
-
+namespace oceanbase{
 static const Json::StaticString FIELD_TABLE_ID("table_id");
 static const Json::StaticString FIELD_TABLE_NAME("table_name");
 static const Json::StaticString FIELD_STORAGE_FORMAT("storage_format");
@@ -359,4 +359,5 @@ void TableMeta::desc(ostream &os) const
     os << endl;
   }
   os << ')' << endl;
+}
 }

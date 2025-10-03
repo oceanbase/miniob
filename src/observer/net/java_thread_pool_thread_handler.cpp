@@ -20,7 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/thread/runnable.h"
 #include "common/queue/simple_queue.h"
-
+namespace oceanbase{
 using namespace common;
 
 /**
@@ -244,4 +244,5 @@ RC JavaThreadPoolThreadHandler::await_stop()
 
   LOG_INFO("end to await event base stopped");
   return RC::SUCCESS;
+}
 }

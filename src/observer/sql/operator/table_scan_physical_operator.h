@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/record/record_scanner.h"
 #include "common/types.h"
-
+namespace oceanbase{
 class Table;
 
 /**
@@ -81,3 +81,4 @@ private:
   RowTuple                       tuple_;
   vector<unique_ptr<Expression>> predicates_;  // TODO chang predicate to table tuple filter
 };
+}

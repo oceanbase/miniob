@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/serializer.h"
 
 using namespace common;
-
+namespace oceanbase{
 namespace bplus_tree {
 
 string LogOperation::to_string() const
@@ -606,3 +606,4 @@ RC UpdateRootPageLogEntryHandler::redo(BplusTreeMiniTransaction &mtr, BplusTreeH
 }
 
 }  // namespace bplus_tree
+}

@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/group_expr.h"
 #include "sql/optimizer/cascade/memo.h"
 #include "common/log/log.h"
-
+namespace oceanbase{
 void OptimizeInputs::perform()
 {
   LOG_TRACE("OptimizeInputs::perform()");
@@ -50,4 +50,5 @@ void OptimizeInputs::perform()
       auto cur_group = get_memo().get_group_by_id(group_expr_->get_group_id());
       cur_group->set_expr_cost(group_expr_, cur_total_cost_);
     }
+}
 }

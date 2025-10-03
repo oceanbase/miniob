@@ -26,7 +26,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 using namespace bplus_tree;
-
+namespace oceanbase{
 ///////////////////////////////////////////////////////////////////////////////
 // class BplusTreeLogger
 BplusTreeLogger::BplusTreeLogger(LogHandler &log_handler, int32_t buffer_pool_id)
@@ -290,3 +290,4 @@ RC BplusTreeMiniTransaction::rollback() { return logger_.rollback(*this, tree_ha
 BplusTreeLogReplayer::BplusTreeLogReplayer(BufferPoolManager &bpm) : buffer_pool_manager_(bpm) {}
 
 RC BplusTreeLogReplayer::replay(const LogEntry &entry) { return BplusTreeLogger::redo(buffer_pool_manager_, entry); }
+}

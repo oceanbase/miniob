@@ -27,7 +27,7 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 
 using namespace common;
-
+namespace oceanbase{
 // Destructor
 SessionStage::~SessionStage() {}
 
@@ -110,4 +110,5 @@ RC SessionStage::handle_sql(SQLStageEvent *sql_event)
   }
 
   return rc;
+}
 }

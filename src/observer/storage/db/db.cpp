@@ -29,7 +29,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/integrated_log_replayer.h"
 
 using namespace common;
-
+namespace oceanbase{
 Db::~Db()
 {
   for (auto &iter : opened_tables_) {
@@ -415,3 +415,4 @@ RC Db::init_dblwr_buffer()
 LogHandler        &Db::log_handler() { return *log_handler_; }
 BufferPoolManager &Db::buffer_pool_manager() { return *buffer_pool_manager_; }
 TrxKit            &Db::trx_kit() { return *trx_kit_; }
+}

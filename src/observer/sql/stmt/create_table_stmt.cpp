@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/types.h"
 #include "sql/stmt/create_table_stmt.h"
 #include "event/sql_debug.h"
-
+namespace oceanbase{
 RC CreateTableStmt::create(Db *db, const CreateTableSqlNode &create_table, Stmt *&stmt)
 {
   StorageFormat storage_format = get_storage_format(create_table.storage_format.c_str());
@@ -40,4 +40,5 @@ StorageFormat CreateTableStmt::get_storage_format(const char *format_str) {
     format = StorageFormat::UNKNOWN_FORMAT;
   }
   return format;
+}
 }

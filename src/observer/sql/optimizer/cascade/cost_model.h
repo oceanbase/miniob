@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #pragma once
-
+namespace oceanbase{
 class Memo;
 class GroupExpr;
 /**
@@ -45,3 +45,4 @@ public:
 
   double calculate_cost(Memo *memo, GroupExpr *gexpr);
 };
+}

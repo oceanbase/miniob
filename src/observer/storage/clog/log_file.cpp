@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 
 using namespace common;
-
+namespace oceanbase{
 RC LogFileReader::open(const char *filename)
 {
   filename_ = filename;
@@ -336,4 +336,5 @@ RC LogFileManager::next_file(LogFileWriter &file_writer)
   log_files_.emplace(lsn, file_path);
 
   return file_writer.open(file_path.c_str(), lsn + max_entry_number_per_file_ - 1);
+}
 }

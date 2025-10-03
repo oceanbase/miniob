@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "common/lang/string.h"
 #include "sql/parser/parse_defs.h"
-
+namespace oceanbase{
 namespace Json {
 class Value;
 }  // namespace Json
@@ -58,3 +58,4 @@ protected:
   bool     visible_;
   int      field_id_;
 };
+}

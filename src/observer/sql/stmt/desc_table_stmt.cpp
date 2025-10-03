@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/stmt/desc_table_stmt.h"
 #include "storage/db/db.h"
-
+namespace oceanbase{
 RC DescTableStmt::create(Db *db, const DescTableSqlNode &desc_table, Stmt *&stmt)
 {
   if (db->find_table(desc_table.relation_name.c_str()) == nullptr) {
@@ -22,4 +22,5 @@ RC DescTableStmt::create(Db *db, const DescTableSqlNode &desc_table, Stmt *&stmt
   }
   stmt = new DescTableStmt(desc_table.relation_name);
   return RC::SUCCESS;
+}
 }

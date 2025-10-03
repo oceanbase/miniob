@@ -25,7 +25,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/latch_memo.h"
 #include "storage/clog/log_replayer.h"
 // #include "storage/index/bplus_tree_log_entry.h"
-
+namespace oceanbase{
 struct IndexFileHeader;
 class LogEntry;
 class LogHandler;
@@ -206,3 +206,4 @@ public:
 private:
   BufferPoolManager &buffer_pool_manager_;
 };
+}

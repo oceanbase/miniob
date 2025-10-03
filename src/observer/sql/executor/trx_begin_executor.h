@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_event.h"
 #include "session/session.h"
 #include "storage/trx/trx.h"
-
+namespace oceanbase{
 /**
  * @brief 事务开始语句的执行器
  * @ingroup Executor
@@ -42,3 +42,4 @@ public:
     return trx->start_if_need();
   }
 };
+}

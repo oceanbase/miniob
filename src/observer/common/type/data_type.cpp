@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/type/integer_type.h"
 #include "common/type/data_type.h"
 #include "common/type/vector_type.h"
-
+namespace oceanbase{
 // Todo: 实现新数据类型
 // your code here
 
@@ -25,3 +25,4 @@ array<unique_ptr<DataType>, static_cast<int>(AttrType::MAXTYPE)> DataType::type_
     make_unique<VectorType>(),
     make_unique<DataType>(AttrType::BOOLEANS),
 };
+}

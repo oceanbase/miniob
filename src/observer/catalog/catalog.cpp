@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #include "catalog/catalog.h"
-
+namespace oceanbase{
 const TableStats &Catalog::get_table_stats(int table_id)
 {
   lock_guard<mutex> lock(mutex_);
@@ -20,4 +20,5 @@ void Catalog::update_table_stats(int table_id, const TableStats &table_stats)
 {
   lock_guard<mutex> lock(mutex_);
   table_stats_[table_id] = table_stats;
+}
 }

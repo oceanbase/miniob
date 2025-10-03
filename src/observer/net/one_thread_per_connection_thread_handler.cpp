@@ -24,7 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "net/sql_task_handler.h"
 
 using namespace common;
-
+namespace oceanbase{
 class Worker
 {
 public:
@@ -173,4 +173,5 @@ RC OneThreadPerConnectionThreadHandler::await_stop()
   }
   LOG_INFO("end to await stop one thread per connection thread handler");
   return RC::SUCCESS;
+}
 }

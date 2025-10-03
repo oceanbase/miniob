@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/table_get_logical_operator.h"
-
+namespace oceanbase{
 RC PredicatePushdownRewriter::rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made)
 {
   RC rc = RC::SUCCESS;
@@ -123,4 +123,5 @@ RC PredicatePushdownRewriter::get_exprs_can_pushdown(
     pushdown_exprs.emplace_back(std::move(expr));
   }
   return rc;
+}
 }

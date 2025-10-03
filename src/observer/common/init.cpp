@@ -31,7 +31,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/trx.h"
 
 using namespace common;
-
+namespace oceanbase{
 bool *&_get_init()
 {
   static bool  util_init   = false;
@@ -236,3 +236,4 @@ void cleanup_util()
 }
 
 void cleanup() { cleanup_util(); }
+}

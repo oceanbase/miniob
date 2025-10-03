@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/rules.h"
 #include "sql/optimizer/cascade/implementation_rules.h"
 #include "sql/optimizer/cascade/group_expr.h"
-
+namespace oceanbase{
 RuleSet::RuleSet()
 {
   add_rule(RuleSetName::PHYSICAL_IMPLEMENTATION, new LogicalProjectionToProjection());
@@ -21,4 +21,5 @@ RuleSet::RuleSet()
   add_rule(RuleSetName::PHYSICAL_IMPLEMENTATION, new LogicalCalcToCalc());
   add_rule(RuleSetName::PHYSICAL_IMPLEMENTATION, new LogicalDeleteToDelete());
   add_rule(RuleSetName::PHYSICAL_IMPLEMENTATION, new LogicalPredicateToPredicate());
+}
 }

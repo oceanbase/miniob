@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "storage/db/db.h"
 #include "storage/table/table.h"
-
+namespace oceanbase{
 FilterStmt::~FilterStmt()
 {
   for (FilterUnit *unit : filter_units_) {
@@ -129,4 +129,5 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, unordered_map<st
 
   // 检查两个类型是否能够比较
   return rc;
+}
 }

@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "common/sys/rc.h"
 #include "common/type/attr_type.h"
-
+namespace oceanbase{
 class Stmt;
 class CalcStmt;
 class SelectStmt;
@@ -47,3 +47,4 @@ private:
 
   int implicit_cast_cost(AttrType from, AttrType to);
 };
+}

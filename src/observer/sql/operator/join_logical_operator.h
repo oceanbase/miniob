@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/logical_operator.h"
-
+namespace oceanbase{
 /**
  * @brief 连接算子
  * @ingroup LogicalOperator
@@ -73,3 +73,4 @@ private:
   LogicalOperator                    *predicate_op_ = nullptr;
   std::vector<unique_ptr<Expression>> join_predicates_;
 };
+}

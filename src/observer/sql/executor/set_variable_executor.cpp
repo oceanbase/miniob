@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #include "sql/executor/set_variable_executor.h"
-
+namespace oceanbase{
 RC SetVariableExecutor::execute(SQLStageEvent *sql_event)
 {
     RC rc = RC::SUCCESS;
@@ -111,4 +111,5 @@ RC SetVariableExecutor::get_execution_mode(const Value &var_value, ExecutionMode
     }
 
     return rc;
+}
 }

@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/cascade/group_expr.h"
-
+namespace oceanbase{
 uint64_t GroupExpr::hash() const
 {
   auto hash = contents_->hash();
@@ -26,4 +26,5 @@ void GroupExpr::dump() const
     ss << child << " ";
   }
   LOG_TRACE("GroupExpr contents: %d child groups:  %s", static_cast<int>(contents_->get_op_type()), ss.str().c_str());
+}
 }

@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/physical_operator.h"
-
+namespace oceanbase{
 class Trx;
 class DeleteStmt;
 
@@ -45,3 +45,4 @@ private:
   Trx           *trx_   = nullptr;
   vector<Record> records_;
 };
+}

@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "storage/table/table.h"
 #include "storage/db/db.h"
-
+namespace oceanbase{
 BplusTreeIndex::~BplusTreeIndex() noexcept { close(); }
 
 RC BplusTreeIndex::create(Table *table, const char *file_name, const IndexMeta &index_meta, const FieldMeta &field_meta)
@@ -122,4 +122,5 @@ RC BplusTreeIndexScanner::destroy()
 {
   delete this;
   return RC::SUCCESS;
+}
 }

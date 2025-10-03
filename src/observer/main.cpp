@@ -32,8 +32,9 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 #define NET "NET"
-
+namespace oceanbase{
 static Server *g_server = nullptr;
+
 
 void usage()
 {
@@ -206,4 +207,5 @@ int main(int argc, char **argv)
 
   delete g_server;
   return 0;
+}
 }

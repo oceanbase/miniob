@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/group.h"
 #include "sql/optimizer/cascade/group_expr.h"
 #include "sql/optimizer/cascade/memo.h"
-
+namespace oceanbase{
 Group::Group(int id, GroupExpr* expr, Memo *memo)
       : id_(id), winner_(std::make_tuple(numeric_limits<double>::max(), nullptr)), has_explored_(false)
 {
@@ -73,4 +73,5 @@ void Group::dump() const
 {
   LOG_TRACE("Group %d has %lu logical expressions and %lu physical expressions", 
            id_, logical_expressions_.size(), physical_expressions_.size(), physical_expressions_.size());
+}
 }

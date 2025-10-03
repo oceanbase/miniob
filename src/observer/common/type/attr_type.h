@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #pragma once
-
+namespace oceanbase{
 /**
  * @brief 属性的类型
  * @details AttrType 枚举列出了属性的各种数据类型。
@@ -29,3 +29,4 @@ const char *attr_type_to_string(AttrType type);
 AttrType    attr_type_from_string(const char *s);
 bool        is_numerical_type(AttrType type);
 bool        is_string_type(AttrType type);
+}

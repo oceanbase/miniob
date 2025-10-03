@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/expr/aggregator.h"
 #include "common/log/log.h"
-
+namespace oceanbase{
 RC SumAggregator::accumulate(const Value &value)
 {
   if (value_.attr_type() == AttrType::UNDEFINED) {
@@ -33,4 +33,5 @@ RC SumAggregator::evaluate(Value& result)
 {
   result = value_;
   return RC::SUCCESS;
+}
 }

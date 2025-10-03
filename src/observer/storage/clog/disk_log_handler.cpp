@@ -22,7 +22,7 @@ using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 // LogHandler
-
+namespace oceanbase{
 RC DiskLogHandler::init(const char *path)
 {
   const int max_entry_number_per_file = 1000;
@@ -205,4 +205,5 @@ void DiskLogHandler::thread_func()
   }
 
   LOG_INFO("log handler thread stopped");
+}
 }

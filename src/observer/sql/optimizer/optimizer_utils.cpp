@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/optimizer_utils.h"
-
+namespace oceanbase{
 string OptimizerUtils::dump_physical_plan(const unique_ptr<PhysicalOperator>& children)
 {
   std::function<void(ostream &, PhysicalOperator *, int, bool, vector<uint8_t> &)> to_string = [&](
@@ -61,4 +61,5 @@ string OptimizerUtils::dump_physical_plan(const unique_ptr<PhysicalOperator>& ch
   to_string(ss, children.get(), level, true /*last_child*/, ends);
 
   return ss.str();
+}
 }

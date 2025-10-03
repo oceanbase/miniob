@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/filter_stmt.h"
 #include "storage/field/field.h"
 #include "storage/record/record.h"
-
+namespace oceanbase{
 PredicatePhysicalOperator::PredicatePhysicalOperator(std::unique_ptr<Expression> expr) : expression_(std::move(expr))
 {
   ASSERT(expression_->value_type() == AttrType::BOOLEANS, "predicate's expression should be BOOLEAN type");
@@ -70,4 +70,5 @@ Tuple *PredicatePhysicalOperator::current_tuple() { return children_[0]->current
 RC PredicatePhysicalOperator::tuple_schema(TupleSchema &schema) const
 {
   return children_[0]->tuple_schema(schema);
+}
 }

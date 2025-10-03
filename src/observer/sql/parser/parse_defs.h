@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "common/value.h"
 #include "common/lang/utility.h"
-
+namespace oceanbase{
 class Expression;
 
 /**
@@ -337,3 +337,4 @@ public:
 private:
   vector<unique_ptr<ParsedSqlNode>> sql_nodes_;  ///< 这里记录SQL命令。虽然看起来支持多个，但是当前仅处理一个
 };
+}

@@ -23,7 +23,7 @@ See the Mulan PSL v2 for more details. */
 using byte_t    = unsigned char;
 using bytes     = vector<byte_t>;
 using float64_t = double_t;
-
+namespace oceanbase{
 // reference: https://github.com/code0xff/orderedcodepp
 class OrderedCode
 {
@@ -503,3 +503,4 @@ public:
 //   }
 //   return rc;
 // }
+}

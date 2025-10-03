@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/physical_operator.h"
-
+namespace oceanbase{
 /**
  * @brief Explain物理算子
  * @ingroup PhysicalOperator
@@ -54,3 +54,4 @@ private:
   string         physical_plan_;
   ValueListTuple tuple_;
 };
+}

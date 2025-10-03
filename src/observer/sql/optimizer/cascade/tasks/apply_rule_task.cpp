@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/group_expr.h"
 #include "sql/optimizer/cascade/rules.h"
 #include "common/log/log.h"
-
+namespace oceanbase{
 void ApplyRule::perform()
 {
   LOG_TRACE("ApplyRule::perform() for rule: {%d}", rule_->get_rule_idx());
@@ -51,4 +51,5 @@ void ApplyRule::perform()
   }
 
   group_expr_->set_rule_explored(rule_);
+}
 }

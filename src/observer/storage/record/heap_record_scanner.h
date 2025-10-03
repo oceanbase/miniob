@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_scanner.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/trx/trx.h"
-
+namespace oceanbase{
 /**
  * @brief 遍历某个文件中所有记录
  * @ingroup RecordManager
@@ -76,3 +76,4 @@ private:
   RecordPageIterator record_page_iterator_;           ///< 遍历某个页面上的所有record
   Record             next_record_;                    ///< 获取的记录放在这里缓存起来
 };
+}

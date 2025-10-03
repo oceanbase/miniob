@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/optimizer.h"
 #include "sql/optimizer/cascade/tasks/o_group_task.h"
 #include "sql/optimizer/cascade/memo.h"
-
+namespace oceanbase{
 std::unique_ptr<PhysicalOperator> Optimizer::optimize(OperatorNode* op_tree)
 {
   // Generate initial operator tree from query tree
@@ -69,4 +69,5 @@ void Optimizer::execute_task_stack(PendingTasks *task_stack, int root_group_id, 
     task->perform();
     delete task;
   }
+}
 }

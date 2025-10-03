@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/initializer_list.h"
 #include "sql/operator/physical_operator.h"
-
+namespace oceanbase{
 /**
  * @brief 字符串列表物理算子
  * @ingroup PhysicalOperator
@@ -89,3 +89,4 @@ private:
   bool                     started_ = false;
   ValueListTuple           tuple_;
 };
+}

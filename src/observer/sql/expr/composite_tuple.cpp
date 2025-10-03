@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 
 using namespace std;
-
+namespace oceanbase{
 int CompositeTuple::cell_num() const
 {
   int num = 0;
@@ -68,4 +68,5 @@ Tuple &CompositeTuple::tuple_at(size_t index)
 { 
   ASSERT(index < tuples_.size(), "index=%d, tuples_size=%d", index, tuples_.size());
   return *tuples_[index]; 
+}
 }

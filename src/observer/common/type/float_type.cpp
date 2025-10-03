@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 #include "storage/common/column.h"
 
+namespace oceanbase{
 int FloatType::compare(const Value &left, const Value &right) const
 {
   ASSERT(left.attr_type() == AttrType::FLOATS, "left type is not float");
@@ -91,4 +92,5 @@ RC FloatType::to_string(const Value &val, string &result) const
   ss << common::double_to_str(val.value_.float_value_);
   result = ss.str();
   return RC::SUCCESS;
+}
 }

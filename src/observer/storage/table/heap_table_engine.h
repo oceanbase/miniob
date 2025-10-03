@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/index.h"
 #include "storage/record/record_manager.h"
 #include "storage/db/db.h"
-
+namespace oceanbase{
 class Table;
 /**
  * @brief table engine
@@ -60,3 +60,4 @@ private:
   Db                *db_;
   Table             *table_;
 };
+}

@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/field/field_meta.h"
 #include "storage/common/vector_buffer.h"
-
+namespace oceanbase{
 /**
  * @brief A column contains multiple values in contiguous memory with a specified type.
  */
@@ -143,3 +143,4 @@ private:
   Type                     column_type_   = Type::NORMAL_COLUMN;
   unique_ptr<VectorBuffer> vector_buffer_ = nullptr;
 };
+}

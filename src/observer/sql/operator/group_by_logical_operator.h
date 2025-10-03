@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/logical_operator.h"
-
+namespace oceanbase{
 class GroupByLogicalOperator : public LogicalOperator
 {
 public:
@@ -33,3 +33,4 @@ private:
   vector<unique_ptr<Expression>> group_by_expressions_;
   vector<Expression *>           aggregate_expressions_;  ///< 输出的表达式，可能包含聚合函数
 };
+}

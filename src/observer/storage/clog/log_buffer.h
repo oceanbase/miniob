@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/atomic.h"
 #include "storage/clog/log_module.h"
 #include "storage/clog/log_entry.h"
-
+namespace oceanbase{
 class LogFileWriter;
 
 /**
@@ -77,3 +77,4 @@ private:
 
   int32_t max_bytes_ = 4 * 1024 * 1024;  /// 缓冲区最大字节数
 };
+}

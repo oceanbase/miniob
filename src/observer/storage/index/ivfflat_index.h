@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "storage/index/index.h"
-
+namespace oceanbase{
 /**
  * @brief ivfflat 向量索引
  * @ingroup Index
@@ -47,3 +47,4 @@ private:
   int    lists_  = 1;
   int    probes_ = 1;
 };
+}

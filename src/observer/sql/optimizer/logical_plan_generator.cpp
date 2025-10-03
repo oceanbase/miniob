@@ -39,7 +39,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 using namespace common;
-
+namespace oceanbase{
 RC LogicalPlanGenerator::create(Stmt *stmt, unique_ptr<LogicalOperator> &logical_operator)
 {
   RC rc = RC::SUCCESS;
@@ -356,4 +356,5 @@ RC LogicalPlanGenerator::create_group_by_plan(SelectStmt *select_stmt, unique_pt
                                                            std::move(aggregate_expressions));
   logical_operator = std::move(group_by_oper);
   return RC::SUCCESS;
+}
 }

@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/value.h"
 #include "storage/record/record.h"
-
+namespace oceanbase{
 void Field::set_int(Record &record, int value)
 {
   ASSERT(field_->type() == AttrType::INTS, "could not set int value to a non-int field");
@@ -33,3 +33,4 @@ int Field::get_int(const Record &record)
 }
 
 const char *Field::get_data(const Record &record) { return record.data() + field_->offset(); }
+}

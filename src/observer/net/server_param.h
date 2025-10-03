@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "net/communicator.h"
 #include "common/lang/string.h"
-
+namespace oceanbase{
 /**
  * @brief 服务端启动参数
  * @ingroup Communicator
@@ -49,3 +49,4 @@ public:
 
   string thread_handling;  ///< 线程池模型
 };
+}

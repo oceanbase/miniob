@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "net/buffered_writer.h"
 #include "net/mysql_communicator.h"
 #include "sql/operator/string_list_physical_operator.h"
-
+namespace oceanbase{
 /**
  * @brief MySQL协议相关实现
  * @defgroup MySQLProtocol
@@ -1052,4 +1052,5 @@ RC MysqlCommunicator::write_chunk_result(SqlResult *sql_result, vector<char> &pa
     }
   }
   return rc;
+}
 }

@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/operator_node.h"
 #include "common/lang/vector.h"
 #include "common/lang/memory.h"
-
+namespace oceanbase{
 class Pattern
 {
 public:
@@ -33,3 +33,4 @@ private:
 
   vector<unique_ptr<Pattern>> children_;
 };
+}

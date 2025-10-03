@@ -45,7 +45,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/physical_plan_generator.h"
 
 using namespace std;
-
+namespace oceanbase{
 RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
   RC rc = RC::SUCCESS;
@@ -468,4 +468,5 @@ RC PhysicalPlanGenerator::create_vec_plan(ExplainLogicalOperator &explain_oper, 
 
   oper = std::move(explain_physical_oper);
   return rc;
+}
 }

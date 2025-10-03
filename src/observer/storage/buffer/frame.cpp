@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/frame.h"
 #include "session/session.h"
 #include "session/thread_data.h"
-
+namespace oceanbase{
 FrameId::FrameId(int buffer_pool_id, PageNum page_num) : buffer_pool_id_(buffer_pool_id), page_num_(page_num) {}
 
 bool FrameId::equal_to(const FrameId &other) const
@@ -264,4 +264,5 @@ string Frame::to_string() const
   ss << "frame id:" << frame_id().to_string() << ", dirty=" << dirty() << ", pin=" << pin_count()
      << ", lsn=" << lsn() << ", this=" << this;
   return ss.str();
+}
 }

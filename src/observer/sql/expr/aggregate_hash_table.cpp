@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/aggregate_state.h"
 
 // ----------------------------------StandardAggregateHashTable------------------
-
+namespace oceanbase{
 RC StandardAggregateHashTable::add_chunk(Chunk &groups_chunk, Chunk &aggrs_chunk)
 {
     if (groups_chunk.rows() != aggrs_chunk.rows()) {
@@ -287,3 +287,4 @@ const int LinearProbingAggregateHashTable<V>::DEFAULT_CAPACITY = 16384;
 template class LinearProbingAggregateHashTable<int>;
 template class LinearProbingAggregateHashTable<float>;
 #endif
+}

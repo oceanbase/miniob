@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include <algorithm>
 
 using namespace common;
-
+namespace oceanbase{
 struct DoubleWritePage
 {
 public:
@@ -300,3 +300,4 @@ RC VacuousDoubleWriteBuffer::add_page(DiskBufferPool *bp, PageNum page_num, Page
   return bp->write_page(page_num, page);
 }
 
+}

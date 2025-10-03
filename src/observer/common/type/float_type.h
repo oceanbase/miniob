@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/type/data_type.h"
-
+namespace oceanbase{
 /**
  * @brief 浮点型数据类型
  * @ingroup DataType
@@ -35,3 +35,4 @@ public:
 
   RC to_string(const Value &val, string &result) const override;
 };
+}

@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/field/field.h"
 #include "storage/trx/mvcc_trx_log.h"
 #include "common/lang/algorithm.h"
-
+namespace oceanbase{
 MvccTrxKit::~MvccTrxKit()
 {
   vector<Trx *> tmp_trxes;
@@ -467,4 +467,5 @@ RC MvccTrx::redo(Db *db, const LogEntry &log_entry)
   }
 
   return RC::SUCCESS;
+}
 }

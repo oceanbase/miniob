@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/sys/rc.h"
 #include "common/type/attr_type.h"
-
+namespace oceanbase{
 class Value;
 class Column;
 
@@ -104,3 +104,4 @@ protected:
 
   static array<unique_ptr<DataType>, static_cast<int>(AttrType::MAXTYPE)> type_instances_;
 };
+}

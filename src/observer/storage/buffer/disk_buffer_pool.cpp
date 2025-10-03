@@ -24,7 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 
 using namespace common;
-
+namespace oceanbase{
 static const int MEM_POOL_ITEM_NUM = 20;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -921,3 +921,4 @@ RC BufferPoolManager::get_buffer_pool(int32_t id, DiskBufferPool *&bp)
   return RC::SUCCESS;
 }
 
+}

@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/log/log.h"
 #include "persist.h"
-
+namespace oceanbase{
 PersistHandler::PersistHandler() {}
 
 PersistHandler::~PersistHandler() { close_file(); }
@@ -281,4 +281,5 @@ RC PersistHandler::seek(uint64_t offset)
   }
 
   return rc;
+}
 }

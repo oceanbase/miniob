@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/physical_operator.h"
-
+namespace oceanbase{
 /**
  * @brief 表达式物理算子(Vectorized)
  * @ingroup PhysicalOperator
@@ -34,3 +34,4 @@ private:
   Chunk                chunk_;
   Chunk                evaled_chunk_;
 };
+}

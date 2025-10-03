@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/clog/log_handler.h"
 #include "storage/clog/log_entry.h"
-
+namespace oceanbase{
 string BufferPoolLogEntry::to_string() const
 {
   return string("buffer_pool_id=") + std::to_string(buffer_pool_id) +
@@ -93,4 +93,5 @@ RC BufferPoolLogReplayer::replay(const LogEntry &entry)
       return RC::INTERNAL;
   }
   return RC::SUCCESS;
+}
 }

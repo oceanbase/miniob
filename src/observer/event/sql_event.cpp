@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "event/session_event.h"
 #include "sql/stmt/stmt.h"
-
+namespace oceanbase{
 SQLStageEvent::SQLStageEvent(SessionEvent *event, const string &sql) : session_event_(event), sql_(sql) {}
 
 SQLStageEvent::~SQLStageEvent() noexcept
@@ -29,4 +29,5 @@ SQLStageEvent::~SQLStageEvent() noexcept
     delete stmt_;
     stmt_ = nullptr;
   }
+}
 }

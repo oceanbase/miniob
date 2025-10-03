@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/functional.h"
 #include "storage/table/table_meta.h"
 #include "storage/common/chunk.h"
-
+namespace oceanbase{
 struct RID;
 class Record;
 class DiskBufferPool;
@@ -60,3 +60,4 @@ public:
 protected:
   TableMeta *table_meta_ = nullptr;
 };
+}

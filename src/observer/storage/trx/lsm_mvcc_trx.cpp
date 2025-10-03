@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #include "storage/trx/lsm_mvcc_trx.h"
-
+namespace oceanbase{
 RC LsmMvccTrxKit::init() { return RC::SUCCESS; }
 
 const vector<FieldMeta> *LsmMvccTrxKit::trx_fields() const { return nullptr; }
@@ -72,3 +72,4 @@ RC LsmMvccTrx::rollback()
  * 实际没有使用
  */
 RC LsmMvccTrx::redo(Db *, const LogEntry &) { return RC::SUCCESS; }
+}

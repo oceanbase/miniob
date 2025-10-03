@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/sys/rc.h"
-
+namespace oceanbase{
 class SQLStageEvent;
 class Table;
 class SqlResult;
@@ -35,3 +35,4 @@ public:
 private:
   void load_data(Table *table, const char *file_name, char terminated, char enclosed, SqlResult *sql_result);
 };
+}

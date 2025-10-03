@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/rewrite_rule.h"
 #include "common/lang/memory.h"
 #include "common/lang/vector.h"
-
+namespace oceanbase{
 class LogicalOperator;
 
 /**
@@ -50,3 +50,4 @@ public:
 private:
   vector<unique_ptr<RewriteRule>> rewrite_rules_;
 };
+}

@@ -20,7 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "sql/stmt/create_table_stmt.h"
 #include "storage/db/db.h"
-
+namespace oceanbase{
 RC CreateTableExecutor::execute(SQLStageEvent *sql_event)
 {
   Stmt    *stmt    = sql_event->stmt();
@@ -35,4 +35,5 @@ RC CreateTableExecutor::execute(SQLStageEvent *sql_event)
   RC rc = session->get_current_db()->create_table(table_name, create_table_stmt->attr_infos(), create_table_stmt->primary_keys(), create_table_stmt->storage_format());
 
   return rc;
+}
 }

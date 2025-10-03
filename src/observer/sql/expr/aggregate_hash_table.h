@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/math/simd_util.h"
 #include "common/sys/rc.h"
 #include "sql/expr/expression.h"
-
+namespace oceanbase{
 /**
  * @brief 用于hash group by 的哈希表实现，不支持并发访问。
  */
@@ -176,3 +176,4 @@ private:
   AggregateExpr::Type aggregate_type_;
 };
 #endif  // USE_SIMD
+}

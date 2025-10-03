@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 #ifdef USE_SIMD
 #include "common/math/simd_util.h"
 #endif
+namespace oceanbase{
 template <typename T>
 void SumState<T>::update(const T *values, int size)
 {
@@ -190,3 +191,4 @@ template class CountState<int>;
 
 template class AvgState<int>;
 template class AvgState<float>;
+}

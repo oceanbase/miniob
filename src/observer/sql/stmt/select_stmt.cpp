@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 using namespace common;
-
+namespace oceanbase{
 SelectStmt::~SelectStmt()
 {
   if (nullptr != filter_stmt_) {
@@ -109,4 +109,5 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
   select_stmt->group_by_.swap(group_by_expressions);
   stmt                      = select_stmt;
   return RC::SUCCESS;
+}
 }

@@ -20,7 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/unordered_map.h"
 #include "storage/record/record.h"
 #include "storage/clog/log_replayer.h"
-
+namespace oceanbase{
 class LogHandler;
 class Table;
 class Db;
@@ -162,3 +162,4 @@ private:
   ///< 事务ID到事务的映射。在重做结束后，如果还有未提交的事务，需要回滚。
   unordered_map<int32_t, MvccTrx *> trx_map_;
 };
+}

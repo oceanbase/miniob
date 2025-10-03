@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include <stddef.h>
 
 using namespace common;
-
+namespace oceanbase{
 ConditionFilter::~ConditionFilter() {}
 
 DefaultConditionFilter::DefaultConditionFilter()
@@ -210,4 +210,5 @@ bool CompositeConditionFilter::filter(const Record &rec) const
     }
   }
   return true;
+}
 }

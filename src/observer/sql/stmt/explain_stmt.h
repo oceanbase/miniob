@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/stmt/stmt.h"
-
+namespace oceanbase{
 /**
  * @brief explain语句
  * @ingroup Statement
@@ -35,3 +35,4 @@ public:
 private:
   unique_ptr<Stmt> child_stmt_;
 };
+}

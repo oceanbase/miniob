@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/memo.h"
 #include "catalog/catalog.h"
 #include "sql/optimizer/cascade/group_expr.h"
-
+namespace oceanbase{
 double CostModel::calculate_cost(Memo *memo,
                                GroupExpr *gexpr)
 {
@@ -27,4 +27,5 @@ double CostModel::calculate_cost(Memo *memo,
   }
   return op->calculate_cost(log_prop, child_log_props, this);
 
+}
 }

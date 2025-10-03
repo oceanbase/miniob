@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse_stage.h"
 #include "sql/parser/resolve_stage.h"
 #include "sql/query_cache/query_cache_stage.h"
-
+namespace oceanbase{
 /**
  * @brief SEDA处理的stage
  * @defgroup SQLStage
@@ -56,3 +56,4 @@ private:
   OptimizeStage   optimize_stage_;
   ExecuteStage    execute_stage_;
 };
+}

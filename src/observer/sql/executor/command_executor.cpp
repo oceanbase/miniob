@@ -26,7 +26,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/trx_begin_executor.h"
 #include "sql/executor/trx_end_executor.h"
 #include "sql/stmt/stmt.h"
-
+namespace oceanbase{
 RC CommandExecutor::execute(SQLStageEvent *sql_event)
 {
   Stmt *stmt = sql_event->stmt();
@@ -101,4 +101,5 @@ RC CommandExecutor::execute(SQLStageEvent *sql_event)
   }
 
   return rc;
+}
 }

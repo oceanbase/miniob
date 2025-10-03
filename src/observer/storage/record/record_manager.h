@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_log.h"
 #include "storage/record/lob_handler.h"
 #include "common/types.h"
-
+namespace oceanbase{
 class LogHandler;
 class ConditionFilter;
 class RecordPageHandler;
@@ -461,3 +461,4 @@ private:
   BufferPoolIterator bp_iterator_;                    ///< 遍历buffer pool的所有页面
   RecordPageHandler *record_page_handler_ = nullptr;  ///< 处理文件某页面的记录
 };
+}

@@ -28,7 +28,7 @@ See the Mulan PSL v2 for more details. */
 using namespace common;
 
 // class RecordOperation
-
+namespace oceanbase{
 string RecordOperation::to_string() const
 {
   string ret = std::to_string(type_id()) + ":";
@@ -328,4 +328,5 @@ RC RecordLogReplayer::replay_update(DiskBufferPool &buffer_pool, const RecordLog
   }
 
   return rc;
+}
 }

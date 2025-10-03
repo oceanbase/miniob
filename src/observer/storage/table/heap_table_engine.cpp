@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/meta_util.h"
 #include "storage/db/db.h"
 
-
+namespace oceanbase{
 HeapTableEngine::~HeapTableEngine()
 {
   if (record_handler_ != nullptr) {
@@ -340,4 +340,5 @@ RC HeapTableEngine::open()
     indexes_.push_back(index);
   }
   return rc;
+}
 }

@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse_defs.h"
 
 #include "json/json.h"
-
+namespace oceanbase{
 const static Json::StaticString FIELD_NAME("name");
 const static Json::StaticString FIELD_TYPE("type");
 const static Json::StaticString FIELD_OFFSET("offset");
@@ -138,4 +138,5 @@ RC FieldMeta::from_json(const Json::Value &json_value, FieldMeta &field)
   bool        visible = visible_value.asBool();
   int         field_id  = field_id_value.asInt();
   return field.init(name, type, offset, len, visible, field_id);
+}
 }

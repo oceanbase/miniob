@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/filter_stmt.h"
 #include "storage/db/db.h"
 #include "storage/table/table.h"
-
+namespace oceanbase{
 DeleteStmt::DeleteStmt(Table *table, FilterStmt *filter_stmt) : table_(table), filter_stmt_(filter_stmt) {}
 
 DeleteStmt::~DeleteStmt()
@@ -56,4 +56,5 @@ RC DeleteStmt::create(Db *db, const DeleteSqlNode &delete_sql, Stmt *&stmt)
 
   stmt = new DeleteStmt(table, filter_stmt);
   return rc;
+}
 }

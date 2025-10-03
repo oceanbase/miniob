@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/deque.h"
 #include "common/lang/vector.h"
 #include "storage/buffer/page.h"
-
+namespace oceanbase{
 class Frame;
 class DiskBufferPool;
 
@@ -88,3 +88,4 @@ private:
   deque<LatchMemoItem> items_;
   vector<PageNum>      disposed_pages_;  /// 等待释放的页面
 };
+}

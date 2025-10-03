@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 class Record;
 class TupleCellSpec;
 class Trx;
-
+namespace oceanbase{
 /**
  * @brief 物理算子
  * @defgroup PhysicalOperator
@@ -93,3 +93,4 @@ public:
 protected:
   vector<unique_ptr<PhysicalOperator>> children_;
 };
+}

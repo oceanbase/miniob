@@ -34,7 +34,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/lsm_record_scanner.h"
 #include "storage/table/heap_table_engine.h"
 #include "storage/table/lsm_table_engine.h"
-
+namespace oceanbase{
 Table::~Table()
 {
   if (lob_handler_ != nullptr) {
@@ -296,4 +296,5 @@ Index *Table::find_index_by_field(const char *field_name) const
 RC Table::sync()
 {
   return engine_->sync();
+}
 }

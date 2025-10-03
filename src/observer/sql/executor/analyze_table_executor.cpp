@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_scanner.h"
 
 using namespace std;
-
+namespace oceanbase{
 RC AnalyzeTableExecutor::execute(SQLStageEvent *sql_event)
 {
   RC            rc            = RC::SUCCESS;
@@ -69,4 +69,5 @@ AnalyzeTableExecutor::~AnalyzeTableExecutor()
     delete scanner_;
     scanner_ = nullptr;
   }
+}
 }

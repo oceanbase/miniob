@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/chrono.h"
 
 using namespace common;
-
+namespace oceanbase{
 RC LogEntryBuffer::init(LSN lsn, int32_t max_bytes /*= 0*/)
 {
   current_lsn_.store(lsn);
@@ -103,4 +103,5 @@ int64_t LogEntryBuffer::bytes() const
 int32_t LogEntryBuffer::entry_number() const
 {
   return entries_.size();
+}
 }

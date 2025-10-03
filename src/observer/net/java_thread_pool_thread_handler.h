@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "net/sql_task_handler.h"
 #include "common/thread/thread_pool_executor.h"
 #include "common/lang/mutex.h"
-
+namespace oceanbase{
 struct EventCallbackAg;
 
 /**
@@ -68,3 +68,4 @@ private:
 
   SqlTaskHandler sql_task_handler_;  /// SQL请求处理器
 };
+}

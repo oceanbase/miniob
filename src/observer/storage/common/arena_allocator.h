@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include <cstddef>
 #include <cstdint>
 #include <vector>
-
+namespace oceanbase{
 class Arena
 {
 public:
@@ -71,4 +71,5 @@ inline char *Arena::Allocate(size_t bytes)
     return result;
   }
   return AllocateFallback(bytes);
+}
 }

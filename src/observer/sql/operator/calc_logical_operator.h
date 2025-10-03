@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/logical_operator.h"
-
+namespace oceanbase{
 /**
  * @brief 逻辑算子描述当前执行计划要做什么
  * @details 可以看OptimizeStage中相关的代码
@@ -29,3 +29,4 @@ public:
   LogicalOperatorType type() const override { return LogicalOperatorType::CALC; }
   OpType              get_op_type() const override { return OpType::LOGICALCALCULATE; }
 };
+}

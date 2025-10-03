@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/operator_node.h"
 #include "sql/optimizer/cascade/rules.h"
 #include "sql/optimizer/cascade/property_set.h"
-
+namespace oceanbase{
 // TODO: rename to m_expr(in columbia)?
 /* GroupExpr used to represent a particular logical or physical
  * operator expression.
@@ -85,3 +85,4 @@ private:
 
   double lowest_cost_ = std::numeric_limits<double>::max();
 };
+}

@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "storage/clog/log_handler.h"
-
+namespace oceanbase{
 /**
  * @brief VacuousLogHandler is a log handler implenmentation that do nothing in all methods.
  * It is used for testing.
@@ -45,3 +45,4 @@ private:
     return RC::SUCCESS;
   }
 };
+}

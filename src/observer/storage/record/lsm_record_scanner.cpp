@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/lsm_record_scanner.h"
 #include "storage/common/codec.h"
 #include "storage/trx/lsm_mvcc_trx.h"
-
+namespace oceanbase{
 RC LsmRecordScanner::open_scan()
 {
   RC rc = RC::SUCCESS;
@@ -66,4 +66,5 @@ RC LsmRecordScanner::next(Record &record)
     return RC::RECORD_EOF;
   }
   return RC::SUCCESS;
+}
 }

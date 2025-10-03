@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/operator/nested_loop_join_physical_operator.h"
-
+namespace oceanbase{
 NestedLoopJoinPhysicalOperator::NestedLoopJoinPhysicalOperator() {}
 
 RC NestedLoopJoinPhysicalOperator::open(Trx *trx)
@@ -130,4 +130,5 @@ RC NestedLoopJoinPhysicalOperator::right_next()
   right_tuple_ = right_->current_tuple();
   joined_tuple_.set_right(right_tuple_);
   return rc;
+}
 }

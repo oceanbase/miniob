@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/clog/log_entry.h"
 #include "common/log/log.h"
-
+namespace oceanbase{
 ////////////////////////////////////////////////////////////////////////////////
 // struct LogHeader
 
@@ -84,4 +84,5 @@ RC LogEntry::init(LSN lsn, LogModule module, vector<char> &&data)
 string LogEntry::to_string() const
 {
   return header_.to_string();
+}
 }

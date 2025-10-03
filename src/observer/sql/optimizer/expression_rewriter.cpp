@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/conjunction_simplification_rule.h"
 
 using namespace std;
-
+namespace oceanbase{
 ExpressionRewriter::ExpressionRewriter()
 {
   expr_rewrite_rules_.emplace_back(new ComparisonSimplificationRule);
@@ -144,4 +144,5 @@ RC ExpressionRewriter::rewrite_expression(unique_ptr<Expression> &expr, bool &ch
     } break;
   }
   return rc;
+}
 }

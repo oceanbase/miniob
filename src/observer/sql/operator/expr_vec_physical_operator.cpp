@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 using namespace common;
-
+namespace oceanbase{
 ExprVecPhysicalOperator::ExprVecPhysicalOperator(vector<Expression *> &&expressions)
 {
   expressions_ = std::move(expressions);
@@ -59,4 +59,5 @@ RC ExprVecPhysicalOperator::close()
   children_[0]->close();
   LOG_INFO("close group by operator");
   return RC::SUCCESS;
+}
 }

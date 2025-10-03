@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "sql/expr/expression.h"
 #include "sql/stmt/stmt.h"
-
+namespace oceanbase{
 class Db;
 class Table;
 
@@ -48,3 +48,4 @@ public:
 private:
   vector<unique_ptr<Expression>> expressions_;
 };
+}

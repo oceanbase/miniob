@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/sys/rc.h"
 #include "common/lang/string.h"
-
+namespace oceanbase{
 class TableMeta;
 class FieldMeta;
 
@@ -51,3 +51,4 @@ protected:
   string name_;   // index's name
   string field_;  // field's name
 };
+}

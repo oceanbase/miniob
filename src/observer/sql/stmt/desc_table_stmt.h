@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/stmt/stmt.h"
-
+namespace oceanbase{
 class Db;
 
 /**
@@ -38,3 +38,4 @@ public:
 private:
   string table_name_;
 };
+}

@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "storage/default/default_handler.h"
 #include "storage/trx/trx.h"
-
+namespace oceanbase{
 Session &Session::default_session()
 {
   static Session session;
@@ -93,3 +93,4 @@ Session *Session::current_session() { return thread_session; }
 void Session::set_current_request(SessionEvent *request) { current_request_ = request; }
 
 SessionEvent *Session::current_request() const { return current_request_; }
+}
