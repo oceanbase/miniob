@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/heap_record_scanner.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-namespace oceanbase{
+namespace oceanbase {
 
 RC HeapRecordScanner::open_scan()
 {

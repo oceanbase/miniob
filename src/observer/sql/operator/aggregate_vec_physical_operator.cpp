@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/composite_tuple.h"
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 AggregateVecPhysicalOperator::AggregateVecPhysicalOperator(vector<Expression *> &&expressions)
 {
   aggregate_expressions_ = std::move(expressions);

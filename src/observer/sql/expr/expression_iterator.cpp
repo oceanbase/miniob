@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 
 using namespace std;
-namespace oceanbase{
+namespace oceanbase {
 RC ExpressionIterator::iterate_child_expr(Expression &expr, function<RC(unique_ptr<Expression> &)> callback)
 {
   RC rc = RC::SUCCESS;

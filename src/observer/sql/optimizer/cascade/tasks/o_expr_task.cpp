@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/memo.h"
 #include "common/log/log.h"
 #include <algorithm>
-namespace oceanbase{
+namespace oceanbase {
 void OptimizeExpression::perform()
 {
   std::vector<RuleWithPromise> valid_rules;

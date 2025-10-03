@@ -24,7 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_file.h"
 #include "storage/clog/log_buffer.h"
 #include "storage/clog/log_handler.h"
-namespace oceanbase{
+namespace oceanbase {
 class LogReplayer;
 
 /**

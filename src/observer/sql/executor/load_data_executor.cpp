@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/chunk.h"
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 RC LoadDataExecutor::execute(SQLStageEvent *sql_event)
 {
   RC            rc         = RC::SUCCESS;

@@ -24,7 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/limits.h"
 #include "storage/field/field_meta.h"
 #include "storage/index/index_meta.h"
-namespace oceanbase{
+namespace oceanbase {
 class Field;
 
 /**

@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/sys/rc.h"
 #include "common/lang/vector.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief 环形缓存，当前用于通讯写入数据时的缓存
  * @ingroup Communicator

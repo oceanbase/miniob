@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/field/field_meta.h"
 #include "storage/table/table_meta.h"
 #include "json/json.h"
-namespace oceanbase{
+namespace oceanbase {
 const static Json::StaticString FIELD_NAME("name");
 const static Json::StaticString FIELD_FIELD_NAME("field_name");
 

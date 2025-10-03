@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/stack.h"
 #include "common/log/log.h"
 #include "sql/optimizer/cascade/tasks/cascade_task.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief This collection of undone cascade tasks is currently stored as a stack.
  */

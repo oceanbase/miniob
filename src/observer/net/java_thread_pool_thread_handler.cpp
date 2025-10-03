@@ -20,7 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/thread/runnable.h"
 #include "common/queue/simple_queue.h"
-namespace oceanbase{
+namespace oceanbase {
 using namespace common;
 
 /**

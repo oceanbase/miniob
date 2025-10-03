@@ -24,7 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 static const int MEM_POOL_ITEM_NUM = 20;
 
 ////////////////////////////////////////////////////////////////////////////////

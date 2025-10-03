@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/lsm_mvcc_trx.h"
 #include "storage/trx/trx.h"
 #include "storage/trx/vacuous_trx.h"
-namespace oceanbase{
+namespace oceanbase {
 TrxKit *TrxKit::create(const char *name, Db* db)
 {
   TrxKit *trx_kit = nullptr;

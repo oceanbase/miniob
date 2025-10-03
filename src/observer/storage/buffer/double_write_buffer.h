@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/types.h"
 #include "common/sys/rc.h"
 #include "storage/buffer/page.h"
-namespace oceanbase{
+namespace oceanbase {
 class DiskBufferPool;
 struct DoubleWritePage;
 class BufferPoolManager;

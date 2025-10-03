@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/predicate_rewrite.h"
 #include "sql/operator/logical_operator.h"
-namespace oceanbase{
+namespace oceanbase {
 RC PredicateRewriteRule::rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made)
 {
   vector<unique_ptr<LogicalOperator>> &child_opers = oper->children();

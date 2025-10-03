@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "sql/expr/tuple.h"
 #include "sql/operator/physical_operator.h"
-namespace oceanbase{
+namespace oceanbase {
 class Session;
 
 /**

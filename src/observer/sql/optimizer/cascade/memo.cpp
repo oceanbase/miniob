@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/cascade/memo.h"
-namespace oceanbase{
+namespace oceanbase {
 GroupExpr *Memo::insert_expression(GroupExpr *gexpr, int target_group)
 {
   gexpr->set_group_id(target_group);

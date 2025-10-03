@@ -9,7 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #include "storage/record/lob_handler.h"
-namespace oceanbase{
+namespace oceanbase {
 RC LobFileHandler::create_file(const char *file_name)
 {
   return file_.create_file(file_name);

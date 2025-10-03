@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/lang/unordered_map.h"
 #include "sql/optimizer/cascade/property_set.h"
-namespace oceanbase{
+namespace oceanbase {
 class GroupExpr;
 class Memo;
 /**

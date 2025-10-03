@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/map.h"
 #include "common/lang/string.h"
 #include "common/lang/memory.h"
-namespace oceanbase{
+namespace oceanbase {
 class Trx;
 class TrxKit;
 

@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "common/value.h"
 #include "common/lang/utility.h"
-namespace oceanbase{
+namespace oceanbase {
 class Expression;
 
 /**

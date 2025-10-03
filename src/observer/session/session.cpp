@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "storage/default/default_handler.h"
 #include "storage/trx/trx.h"
-namespace oceanbase{
+namespace oceanbase {
 Session &Session::default_session()
 {
   static Session session;

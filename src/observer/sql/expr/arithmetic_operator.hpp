@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #endif
 
 #include "storage/common/column.h"
-namespace oceanbase{
+namespace oceanbase {
 struct Equal
 {
   template <class T>

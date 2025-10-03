@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/unordered_map.h"
 #include "sql/optimizer/cascade/optimizer_context.h"
 #include "sql/optimizer/cascade/pattern.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief: Enum defining the types of rules
  */

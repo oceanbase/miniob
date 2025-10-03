@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse_defs.h"
 
 #include "json/json.h"
-namespace oceanbase{
+namespace oceanbase {
 const static Json::StaticString FIELD_NAME("name");
 const static Json::StaticString FIELD_TYPE("type");
 const static Json::StaticString FIELD_OFFSET("offset");

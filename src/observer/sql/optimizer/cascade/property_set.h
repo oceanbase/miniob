@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/optimizer/cascade/property.h"
-namespace oceanbase{
+namespace oceanbase {
 class PropertySet;
 struct PropSetPtrHash
 {

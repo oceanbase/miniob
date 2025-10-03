@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse_stage.h"
 #include "sql/parser/resolve_stage.h"
 #include "sql/query_cache/query_cache_stage.h"
-namespace oceanbase{
+namespace oceanbase {
 class Communicator;
 class SQLStageEvent;
 

@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include <algorithm>
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 struct DoubleWritePage
 {
 public:

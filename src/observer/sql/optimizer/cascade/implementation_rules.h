@@ -11,7 +11,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/optimizer/cascade/rules.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * Rule transforms Logical Scan -> Physical Scan
  */

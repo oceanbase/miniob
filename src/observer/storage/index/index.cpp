@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "storage/index/index.h"
-namespace oceanbase{
+namespace oceanbase {
 RC Index::init(const IndexMeta &index_meta, const FieldMeta &field_meta)
 {
   index_meta_ = index_meta;

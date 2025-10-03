@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 RC QueryCacheStage::handle_request(SQLStageEvent *sql_event)
 {
   return RC::SUCCESS;

@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/optimizer_context.h"
 #include "sql/operator/physical_operator.h"
 #include "sql/optimizer/cascade/property_set.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief cascade optimizer
  * TODO: currently, Optimizer is used for CBO optimization. need to unify the optimizer in miniob

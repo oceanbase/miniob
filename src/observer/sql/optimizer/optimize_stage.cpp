@@ -29,7 +29,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 RC OptimizeStage::handle_request(SQLStageEvent *sql_event)
 {
   unique_ptr<LogicalOperator> logical_operator;

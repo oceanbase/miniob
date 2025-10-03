@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 ScalarGroupByPhysicalOperator::ScalarGroupByPhysicalOperator(vector<Expression *> &&expressions)
     : GroupByPhysicalOperator(std::move(expressions))
 {}

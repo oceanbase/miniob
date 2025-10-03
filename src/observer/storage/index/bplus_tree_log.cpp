@@ -26,7 +26,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 using namespace bplus_tree;
-namespace oceanbase{
+namespace oceanbase {
 ///////////////////////////////////////////////////////////////////////////////
 // class BplusTreeLogger
 BplusTreeLogger::BplusTreeLogger(LogHandler &log_handler, int32_t buffer_pool_id)

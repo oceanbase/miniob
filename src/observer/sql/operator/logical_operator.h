@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "sql/operator/operator_node.h"
 #include "common/lang/unordered_set.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief 逻辑算子
  * @defgroup LogicalOperator

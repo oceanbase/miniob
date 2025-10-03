@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/types.h"
 #include "common/lang/span.h"
 #include "common/lang/functional.h"
-namespace oceanbase{
+namespace oceanbase {
 struct RID;
 class Record;
 class DiskBufferPool;

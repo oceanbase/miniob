@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_log.h"
 #include "storage/index/bplus_tree_log.h"
 #include "storage/trx/mvcc_trx_log.h"
-namespace oceanbase{
+namespace oceanbase {
 class BufferPoolManager;
 
 /**

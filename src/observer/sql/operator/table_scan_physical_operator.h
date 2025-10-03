@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/record/record_scanner.h"
 #include "common/types.h"
-namespace oceanbase{
+namespace oceanbase {
 class Table;
 
 /**

@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/vector.h"
 #include "storage/trx/trx.h"
 #include "storage/trx/mvcc_trx_log.h"
-namespace oceanbase{
+namespace oceanbase {
 class CLogManager;
 class LogHandler;
 class MvccTrxLogHandler;

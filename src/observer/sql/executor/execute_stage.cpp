@@ -24,7 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/default_handler.h"
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 RC ExecuteStage::handle_request(SQLStageEvent *sql_event)
 {
   RC rc = RC::SUCCESS;

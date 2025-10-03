@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/index_scan_physical_operator.h"
 #include "storage/index/index.h"
 #include "storage/trx/trx.h"
-namespace oceanbase{
+namespace oceanbase {
 IndexScanPhysicalOperator::IndexScanPhysicalOperator(Table *table, Index *index, ReadWriteMode mode, const Value *left_value,
     bool left_inclusive, const Value *right_value, bool right_inclusive)
     : table_(table),

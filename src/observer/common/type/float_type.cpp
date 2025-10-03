@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 #include "storage/common/column.h"
 
-namespace oceanbase{
+namespace oceanbase {
 int FloatType::compare(const Value &left, const Value &right) const
 {
   ASSERT(left.attr_type() == AttrType::FLOATS, "left type is not float");

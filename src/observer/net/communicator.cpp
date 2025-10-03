@@ -20,7 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 
 #include "common/lang/mutex.h"
-namespace oceanbase{
+namespace oceanbase {
 RC Communicator::init(int fd, unique_ptr<Session> session, const string &addr)
 {
   fd_      = fd;

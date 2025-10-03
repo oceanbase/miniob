@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/sstream.h"
 #include "common/types.h"
 #include "storage/persist/persist.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief 管理LOB文件中的 LOB 对象
  * @ingroup RecordManager

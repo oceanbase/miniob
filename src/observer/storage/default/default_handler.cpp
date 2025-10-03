@@ -25,7 +25,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/trx.h"
 
 using namespace std;
-namespace oceanbase{
+namespace oceanbase {
 DefaultHandler::DefaultHandler() {}
 
 DefaultHandler::~DefaultHandler() noexcept { destroy(); }

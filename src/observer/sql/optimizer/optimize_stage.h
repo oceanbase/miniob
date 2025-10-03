@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/logical_plan_generator.h"
 #include "sql/optimizer/physical_plan_generator.h"
 #include "sql/optimizer/rewriter.h"
-namespace oceanbase{
+namespace oceanbase {
 class SQLStageEvent;
 class LogicalOperator;
 class Stmt;

@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "sql/stmt/stmt.h"
 #include "storage/field/field.h"
-namespace oceanbase{
+namespace oceanbase {
 class FieldMeta;
 class FilterStmt;
 class Db;

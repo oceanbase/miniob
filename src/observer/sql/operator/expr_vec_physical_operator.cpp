@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 ExprVecPhysicalOperator::ExprVecPhysicalOperator(vector<Expression *> &&expressions)
 {
   expressions_ = std::move(expressions);

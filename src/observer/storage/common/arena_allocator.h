@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include <cstddef>
 #include <cstdint>
 #include <vector>
-namespace oceanbase{
+namespace oceanbase {
 class Arena
 {
 public:

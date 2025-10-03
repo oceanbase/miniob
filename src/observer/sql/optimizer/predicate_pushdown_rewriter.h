@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/vector.h"
 #include "sql/optimizer/rewrite_rule.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief 将一些谓词表达式下推到表数据扫描中
  * @ingroup Rewriter

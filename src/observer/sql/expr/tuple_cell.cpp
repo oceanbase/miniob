@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 
 using namespace std;
-namespace oceanbase{
+namespace oceanbase {
 TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, const char *alias)
 {
   if (table_name) {

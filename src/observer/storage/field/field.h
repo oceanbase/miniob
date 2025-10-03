@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/field/field_meta.h"
 #include "storage/table/table.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief 字段
  *

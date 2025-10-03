@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "net/java_thread_pool_thread_handler.h"
 #include "common/log/log.h"
 #include "common/lang/string.h"
-namespace oceanbase{
+namespace oceanbase {
 ThreadHandler * ThreadHandler::create(const char *name)
 {
   const char *default_name = "one-thread-per-connection";

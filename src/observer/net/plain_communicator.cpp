@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "net/buffered_writer.h"
 #include "session/session.h"
 #include "sql/expr/tuple.h"
-namespace oceanbase{
+namespace oceanbase {
 PlainCommunicator::PlainCommunicator()
 {
   send_message_delimiter_.assign(1, '\0');

@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/conjunction_simplification_rule.h"
 #include "common/log/log.h"
 #include "sql/expr/expression.h"
-namespace oceanbase{
+namespace oceanbase {
 RC try_to_get_bool_constant(unique_ptr<Expression> &expr, bool &constant_value)
 {
   if (expr->type() == ExprType::VALUE && expr->value_type() == AttrType::BOOLEANS) {

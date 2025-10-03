@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/sstream.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
-namespace oceanbase{
+namespace oceanbase {
 Value::Value(int val) { set_int(val); }
 
 Value::Value(float val) { set_float(val); }

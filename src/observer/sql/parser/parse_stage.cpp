@@ -25,7 +25,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse.h"
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 RC ParseStage::handle_request(SQLStageEvent *sql_event)
 {
   RC rc = RC::SUCCESS;

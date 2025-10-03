@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include <unistd.h>
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 RC LoadDataStmt::create(Db *db, const LoadDataSqlNode &load_data, Stmt *&stmt)
 {
   RC rc = RC::SUCCESS;

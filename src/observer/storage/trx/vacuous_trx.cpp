@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "storage/trx/vacuous_trx.h"
-namespace oceanbase{
+namespace oceanbase {
 RC VacuousTrxKit::init() { return RC::SUCCESS; }
 
 const vector<FieldMeta> *VacuousTrxKit::trx_fields() const { return nullptr; }

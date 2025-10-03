@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/sys/rc.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief 尝试从Plan的缓存中获取Plan，如果没有命中，则执行Optimizer
  * @ingroup SQLStage

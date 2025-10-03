@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_scanner.h"
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/trx/trx.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief 遍历某个文件中所有记录
  * @ingroup RecordManager

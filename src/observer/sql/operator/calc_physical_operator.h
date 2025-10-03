@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/expr/expression_tuple.h"
 #include "sql/operator/physical_operator.h"
-namespace oceanbase{
+namespace oceanbase {
 class CalcPhysicalOperator : public PhysicalOperator
 {
 public:

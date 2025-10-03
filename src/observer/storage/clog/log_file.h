@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/filesystem.h"
 #include "common/lang/fstream.h"
 #include "common/lang/string.h"
-namespace oceanbase{
+namespace oceanbase {
 class LogEntry;
 
 /**

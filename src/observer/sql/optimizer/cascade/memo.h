@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "sql/optimizer/cascade/group_expr.h"
 #include "sql/optimizer/cascade/group.h"
-namespace oceanbase{
+namespace oceanbase {
 const int UNDEFINED_GROUP = -1;
 
 /**

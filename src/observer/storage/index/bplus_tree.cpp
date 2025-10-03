@@ -21,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief B+树的第一个页面存放的位置
  * @details B+树数据放到Buffer Pool中，Buffer Pool把文件按照固定大小的页面拆分。

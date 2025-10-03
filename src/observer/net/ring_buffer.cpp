@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/algorithm.h"
 #include "common/log/log.h"
 #include "net/ring_buffer.h"
-namespace oceanbase{
+namespace oceanbase {
 const int32_t DEFAULT_BUFFER_SIZE = 16 * 1024;
 
 RingBuffer::RingBuffer() : RingBuffer(DEFAULT_BUFFER_SIZE) {}

@@ -27,7 +27,7 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 // Destructor
 SessionStage::~SessionStage() {}
 

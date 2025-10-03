@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "storage/clog/log_replayer.h"
 #include "sql/parser/parse_defs.h"
-namespace oceanbase{
+namespace oceanbase {
 struct RID;
 class LogHandler;
 class Frame;

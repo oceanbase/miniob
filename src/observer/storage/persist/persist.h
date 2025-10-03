@@ -23,7 +23,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/sys/rc.h"
 #include "common/lang/string.h"
-namespace oceanbase{
+namespace oceanbase {
 class PersistHandler
 {
 public:

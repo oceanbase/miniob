@@ -17,7 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/tuple.h"
 #include "sql/operator/physical_operator.h"
 #include "sql/expr/composite_tuple.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief Group By 物理算子基类
  * @ingroup PhysicalOperator

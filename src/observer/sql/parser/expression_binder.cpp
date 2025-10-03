@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression_iterator.h"
 
 using namespace common;
-namespace oceanbase{
+namespace oceanbase {
 Table *BinderContext::find_table(const char *table_name) const
 {
   auto pred = [table_name](Table *table) { return 0 == strcasecmp(table_name, table->name()); };

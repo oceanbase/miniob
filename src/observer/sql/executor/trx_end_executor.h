@@ -20,7 +20,7 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "sql/stmt/stmt.h"
 #include "storage/trx/trx.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief 事务结束的执行器，可以是提交或回滚
  * @ingroup Executor

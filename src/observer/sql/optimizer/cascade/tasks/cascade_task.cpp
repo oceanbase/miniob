@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/group_expr.h"
 #include "sql/optimizer/cascade/rules.h"
 #include "sql/optimizer/cascade/memo.h"
-namespace oceanbase{
+namespace oceanbase {
 Memo &CascadeTask::get_memo() const {return context_->get_memo(); }
 
 RuleSet &CascadeTask::get_rule_set() const { return context_->get_rule_set(); }

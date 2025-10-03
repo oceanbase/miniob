@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/type/integer_type.h"
 #include "common/type/data_type.h"
 #include "common/type/vector_type.h"
-namespace oceanbase{
+namespace oceanbase {
 // Todo: 实现新数据类型
 // your code here
 

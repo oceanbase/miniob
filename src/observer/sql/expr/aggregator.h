@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/value.h"
 #include "common/sys/rc.h"
-namespace oceanbase{
+namespace oceanbase {
 class Aggregator
 {
 public:

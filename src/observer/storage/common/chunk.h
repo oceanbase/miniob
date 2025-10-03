@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "common/lang/vector.h"
 #include "storage/common/column.h"
-namespace oceanbase{
+namespace oceanbase {
 /**
  * @brief A Chunk represents a set of columns.
  */
