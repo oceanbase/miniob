@@ -38,4 +38,4 @@ private:
   string field_name_;
   string alias_;
 };
-}
+} //namespace oceanbase
