@@ -70,7 +70,7 @@ public:
   LSN flushed_lsn() const { return flushed_lsn_.load(); }
 
 private:
-  mutex           mutex_;    /// 当前数据结构一定会在多线程中访问，所以强制使用有效的锁，而不是有条件生效的common::Mutex
+  mutex mutex_;    /// 当前数据结构一定会在多线程中访问，所以强制使用有效的锁，而不是有条件生效的common::Mutex
   deque<LogEntry> entries_;  /// 日志缓冲区
   atomic<int64_t> bytes_;    /// 当前缓冲区中的日志数据大小
 

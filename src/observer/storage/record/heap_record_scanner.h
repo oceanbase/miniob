@@ -70,7 +70,7 @@ private:
   DiskBufferPool *disk_buffer_pool_ = nullptr;  ///< 当前访问的文件
   Trx            *trx_              = nullptr;  ///< 当前是哪个事务在遍历
   LogHandler     *log_handler_      = nullptr;
-  ReadWriteMode   rw_mode_          = ReadWriteMode::READ_WRITE;  ///< 遍历出来的数据，是否可能对它做修改
+  ReadWriteMode rw_mode_ = ReadWriteMode::READ_WRITE;  ///< 遍历出来的数据，是否可能对它做修改
 
   BufferPoolIterator bp_iterator_;                    ///< 遍历buffer pool的所有页面
   ConditionFilter   *condition_filter_    = nullptr;  ///< 过滤record
