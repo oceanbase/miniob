@@ -10,7 +10,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/log/log.h"
 #include "storage/common/column.h"
+
 namespace oceanbase {
+
 Column::Column(const FieldMeta &meta, size_t size)
     : data_(nullptr),
       count_(0),

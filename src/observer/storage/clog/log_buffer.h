@@ -22,7 +22,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/atomic.h"
 #include "storage/clog/log_module.h"
 #include "storage/clog/log_entry.h"
+
 namespace oceanbase {
+
 class LogFileWriter;
 
 /**

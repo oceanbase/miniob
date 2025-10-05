@@ -26,7 +26,9 @@ See the Mulan PSL v2 for more details. */
 using common::MiniobLineReader;
 
 const std::string LINE_HISTORY_FILE = "./.miniob.history";
+
 namespace oceanbase {
+
 RC CliCommunicator::init(int fd, unique_ptr<Session> session, const string &addr)
 {
   RC rc = PlainCommunicator::init(fd, std::move(session), addr);

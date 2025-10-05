@@ -16,7 +16,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/types.h"
 #include "common/lang/string.h"
+
 namespace oceanbase {
+
 class Trx;
 class Db;
 class SessionEvent;

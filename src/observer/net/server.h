@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "net/server_param.h"
+
 namespace oceanbase {
+
 class Communicator;
 class ThreadHandler;
 

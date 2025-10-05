@@ -17,7 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/lang/vector.h"
 #include "sql/stmt/stmt.h"
+
 namespace oceanbase {
+
 class Db;
 
 /**

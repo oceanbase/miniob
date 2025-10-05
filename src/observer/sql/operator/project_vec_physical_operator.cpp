@@ -14,7 +14,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 
 using namespace std;
+
 namespace oceanbase {
+
 ProjectVecPhysicalOperator::ProjectVecPhysicalOperator(vector<unique_ptr<Expression>> &&expressions)
     : expressions_(std::move(expressions))
 {

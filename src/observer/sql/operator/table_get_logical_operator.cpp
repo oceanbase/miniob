@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/table_get_logical_operator.h"
 #include "sql/optimizer/cascade/property.h"
 #include "catalog/catalog.h"
+
 namespace oceanbase {
+
 TableGetLogicalOperator::TableGetLogicalOperator(Table *table, ReadWriteMode mode)
     : LogicalOperator(), table_(table), mode_(mode)
 {}

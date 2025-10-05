@@ -12,7 +12,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/cascade/tasks/cascade_task.h"
 #include "sql/optimizer/cascade/rules.h"
+
 namespace oceanbase {
+
 /**
  * @brief ApplyRule task
  */

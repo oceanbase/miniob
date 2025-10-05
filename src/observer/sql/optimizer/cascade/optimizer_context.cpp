@@ -11,7 +11,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/optimizer_context.h"
 #include "sql/optimizer/cascade/memo.h"
 #include "sql/optimizer/cascade/rules.h"
+
 namespace oceanbase {
+
 OptimizerContext::OptimizerContext()
       : memo_(new Memo()), rule_set_(new RuleSet()), cost_model_(), task_pool_(nullptr),
         cost_upper_bound_(std::numeric_limits<double>::max()) {}

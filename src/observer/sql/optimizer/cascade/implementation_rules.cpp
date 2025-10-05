@@ -27,7 +27,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/group_by_logical_operator.h"
 #include "sql/operator/scalar_group_by_physical_operator.h"
 #include "sql/operator/hash_group_by_physical_operator.h"
+
 namespace oceanbase {
+
 // -------------------------------------------------------------------------------------------------
 // PhysicalSeqScan
 // -------------------------------------------------------------------------------------------------

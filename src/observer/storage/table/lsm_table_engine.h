@@ -16,7 +16,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "oblsm/include/ob_lsm.h"
 using namespace oceanbase;
+
 namespace oceanbase {
+
 /**
  * @brief lsm table engine
  */

@@ -16,7 +16,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/parser/parse_defs.h"
 #include "sql/stmt/stmt.h"
+
 namespace oceanbase {
+
 class Table;
 class FilterStmt;
 

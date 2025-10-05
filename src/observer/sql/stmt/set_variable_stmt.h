@@ -18,7 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 
 #include "sql/stmt/stmt.h"
+
 namespace oceanbase {
+
 /**
  * @brief SetVairable 语句，设置变量，当前是会话变量，但是只有会话变量，没有全局变量
  * @ingroup Statement

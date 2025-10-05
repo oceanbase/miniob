@@ -14,7 +14,9 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "common/lang/string.h"
+
 namespace oceanbase {
+
 static constexpr const char *DB_META_SUFFIX          = ".db";
 static constexpr const char *TABLE_META_SUFFIX       = ".table";
 static constexpr const char *TABLE_META_FILE_PATTERN = ".*\\.table$";

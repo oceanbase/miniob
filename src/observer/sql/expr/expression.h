@@ -21,7 +21,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/field/field.h"
 #include "sql/expr/aggregator.h"
 #include "storage/common/chunk.h"
+
 namespace oceanbase {
+
 class Tuple;
 
 /**

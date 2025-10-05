@@ -21,7 +21,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/sql_result.h"
 #include "sql/operator/string_list_physical_operator.h"
 #include "storage/db/db.h"
+
 namespace oceanbase {
+
 /**
  * @brief 显示所有表的执行器
  * @ingroup Executor

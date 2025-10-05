@@ -17,7 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "event/sql_debug.h"
 #include "sql/executor/sql_result.h"
+
 namespace oceanbase {
+
 class Session;
 class Communicator;
 

@@ -13,7 +13,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/lang/memory.h"
 #include "sql/operator/physical_operator.h"
+
 namespace oceanbase {
+
 class OptimizerUtils
 {
 public:

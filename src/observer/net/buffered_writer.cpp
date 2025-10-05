@@ -20,7 +20,9 @@ See the Mulan PSL v2 for more details. */
 #include <unistd.h>
 
 #include "net/buffered_writer.h"
+
 namespace oceanbase {
+
 BufferedWriter::BufferedWriter(int fd) : fd_(fd), buffer_() {}
 
 BufferedWriter::BufferedWriter(int fd, int32_t size) : fd_(fd), buffer_(size) {}

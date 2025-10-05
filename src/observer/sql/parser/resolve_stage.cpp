@@ -26,7 +26,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/stmt.h"
 
 using namespace common;
+
 namespace oceanbase {
+
 RC ResolveStage::handle_request(SQLStageEvent *sql_event)
 {
   RC            rc            = RC::SUCCESS;

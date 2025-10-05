@@ -18,7 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/codec.h"
 #include "storage/trx/lsm_mvcc_trx.h"
 
+
 namespace oceanbase {
+
 
 RC LsmTableEngine::insert_record(Record &record)
 {

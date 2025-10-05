@@ -18,7 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "storage/db/db.h"
 #include "storage/table/table.h"
+
 namespace oceanbase {
+
 FilterStmt::~FilterStmt()
 {
   for (FilterUnit *unit : filter_units_) {

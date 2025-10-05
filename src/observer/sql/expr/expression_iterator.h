@@ -17,7 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "common/lang/functional.h"
 #include "common/lang/memory.h"
+
 namespace oceanbase {
+
 class Expression;
 
 class ExpressionIterator

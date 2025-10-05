@@ -16,7 +16,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 
 using namespace std;
+
 namespace oceanbase {
+
 int CompositeTuple::cell_num() const
 {
   int num = 0;

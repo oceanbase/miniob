@@ -25,7 +25,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/disk_log_handler.h"
 #include "storage/buffer/double_write_buffer.h"
 #include "oblsm/include/ob_lsm.h"
+
 namespace oceanbase {
+
 class Table;
 class LogHandler;
 class BufferPoolManager;

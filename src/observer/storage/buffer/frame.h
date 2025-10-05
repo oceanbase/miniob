@@ -24,7 +24,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/types.h"
 #include "storage/buffer/page.h"
+
 namespace oceanbase {
+
 /**
  * @brief 页帧标识符
  * @ingroup BufferPool

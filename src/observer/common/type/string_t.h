@@ -14,7 +14,9 @@ See the Mulan PSL v2 for more details. */
 #include <cstring>
 
 using namespace std;
+
 namespace oceanbase {
+
 struct string_t
 {
 public:

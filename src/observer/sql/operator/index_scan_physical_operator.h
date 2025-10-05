@@ -17,7 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/tuple.h"
 #include "sql/operator/physical_operator.h"
 #include "storage/record/record_manager.h"
+
 namespace oceanbase {
+
 /**
  * @brief 索引扫描物理算子
  * @ingroup PhysicalOperator

@@ -20,7 +20,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/unordered_map.h"
 #include "storage/record/record.h"
 #include "storage/clog/log_replayer.h"
+
 namespace oceanbase {
+
 class LogHandler;
 class Table;
 class Db;

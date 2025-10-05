@@ -19,7 +19,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/span.h"
 #include "common/lang/string.h"
 #include "storage/index/bplus_tree.h"
+
 namespace oceanbase {
+
 class IndexNodeHandler;
 class BplusTreeHandler;
 class BplusTreeMiniTransaction;

@@ -17,7 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 
 using namespace std;
+
 namespace oceanbase {
+
 RC ExplainPhysicalOperator::open(Trx *)
 {
   ASSERT(children_.size() == 1, "explain must has 1 child");

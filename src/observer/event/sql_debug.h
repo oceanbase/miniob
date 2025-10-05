@@ -16,7 +16,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/string.h"
 #include "common/lang/list.h"
+
 namespace oceanbase {
+
 /**
  * @brief SQL调试信息
  * @details

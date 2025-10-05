@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/stmt/stmt.h"
+
 namespace oceanbase {
+
 /**
  * @brief Exit 语句，表示断开连接，现在什么成员都没有
  * @ingroup Statement

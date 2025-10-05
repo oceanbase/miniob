@@ -21,7 +21,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/field/field_meta.h"
 #include "storage/index/index_meta.h"
 #include "storage/record/record_manager.h"
+
 namespace oceanbase {
+
 class IndexScanner;
 
 /**

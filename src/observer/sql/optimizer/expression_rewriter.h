@@ -19,7 +19,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/optimizer/rewrite_rule.h"
+
 namespace oceanbase {
+
 class ExpressionRewriter : public RewriteRule
 {
 public:

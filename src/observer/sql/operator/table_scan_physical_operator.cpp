@@ -17,7 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 
 using namespace std;
+
 namespace oceanbase {
+
 RC TableScanPhysicalOperator::open(Trx *trx)
 {
   RC rc = table_->get_record_scanner(record_scanner_, trx, mode_);

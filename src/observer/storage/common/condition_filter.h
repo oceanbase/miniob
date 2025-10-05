@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/parser/parse.h"
+
 namespace oceanbase {
+
 class Record;
 class Table;
 

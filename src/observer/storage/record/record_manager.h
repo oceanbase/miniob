@@ -22,7 +22,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_log.h"
 #include "storage/record/lob_handler.h"
 #include "common/types.h"
+
 namespace oceanbase {
+
 class LogHandler;
 class ConditionFilter;
 class RecordPageHandler;

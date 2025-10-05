@@ -17,7 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/trx.h"
 
 using namespace oceanbase;
+
 namespace oceanbase {
+
 class LsmRecordScanner : public RecordScanner
 {
 public:

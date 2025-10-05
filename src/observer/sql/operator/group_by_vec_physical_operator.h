@@ -12,7 +12,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/expr/aggregate_hash_table.h"
 #include "sql/operator/physical_operator.h"
+
 namespace oceanbase {
+
 /**
  * @brief Group By 物理算子(vectorized)
  * @ingroup PhysicalOperator

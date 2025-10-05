@@ -20,7 +20,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/span.h"
 #include "storage/field/field_meta.h"
 #include "storage/index/index_meta.h"
+
 namespace oceanbase {
+
 /**
  * @brief 表元数据
  *

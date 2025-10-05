@@ -13,7 +13,9 @@ See the Mulan PSL v2 for more details. */
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
 #include "storage/common/arena_allocator.h"
+
 namespace oceanbase {
+
 static const int kBlockSize = 4096;
 
 Arena::Arena()

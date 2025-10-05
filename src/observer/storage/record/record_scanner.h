@@ -12,7 +12,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/record/record.h"
 #include "storage/common/condition_filter.h"
+
 namespace oceanbase {
+
 /**
  * @brief 遍历某个表中所有记录
  * @ingroup RecordManager

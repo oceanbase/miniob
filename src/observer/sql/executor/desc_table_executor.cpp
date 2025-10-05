@@ -24,7 +24,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 
 using namespace std;
+
 namespace oceanbase {
+
 RC DescTableExecutor::execute(SQLStageEvent *sql_event)
 {
   RC            rc            = RC::SUCCESS;

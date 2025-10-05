@@ -20,7 +20,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/vector.h"
 #include "common/lang/string.h"
 #include "common/lang/memory.h"
+
 namespace oceanbase {
+
 /**
  * @brief 描述一条日志头
  * @ingroup CLog

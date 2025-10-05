@@ -18,7 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_handler.h"
 
 using namespace common;
+
 namespace oceanbase {
+
 static constexpr int PAGE_HEADER_SIZE = (sizeof(PageHeader));
 RecordPageHandler   *RecordPageHandler::create(StorageFormat format)
 {

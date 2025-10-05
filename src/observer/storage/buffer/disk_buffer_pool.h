@@ -36,7 +36,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/frame.h"
 #include "storage/buffer/page.h"
 #include "storage/buffer/buffer_pool_log.h"
+
 namespace oceanbase {
+
 class BufferPoolManager;
 class DiskBufferPool;
 class DoubleWriteBuffer;

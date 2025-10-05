@@ -14,7 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/clog/integrated_log_replayer.h"
 #include "storage/clog/log_entry.h"
+
 namespace oceanbase {
+
 IntegratedLogReplayer::IntegratedLogReplayer(BufferPoolManager &bpm)
     : buffer_pool_log_replayer_(bpm),
       record_log_replayer_(bpm),

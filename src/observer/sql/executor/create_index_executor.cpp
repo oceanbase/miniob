@@ -19,7 +19,9 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "sql/stmt/create_index_stmt.h"
 #include "storage/table/table.h"
+
 namespace oceanbase {
+
 RC CreateIndexExecutor::execute(SQLStageEvent *sql_event)
 {
   Stmt    *stmt    = sql_event->stmt();

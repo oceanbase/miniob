@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "net/plain_communicator.h"
+
 namespace oceanbase {
+
 /**
  * @brief 用于命令行模式的通讯器
  * @ingroup Communicator

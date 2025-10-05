@@ -19,7 +19,9 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_event.h"
 #include "session/session.h"
 #include "sql/stmt/set_variable_stmt.h"
+
 namespace oceanbase {
+
 /**
  * @brief SetVariable语句执行器
  * @ingroup Executor

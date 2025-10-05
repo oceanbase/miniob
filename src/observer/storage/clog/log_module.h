@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <stdint.h>
+
 namespace oceanbase {
+
 /**
  * @brief 日志模块
  * @ingroup CLog

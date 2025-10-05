@@ -16,7 +16,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/physical_operator.h"
 #include "sql/parser/parse.h"
+
 namespace oceanbase {
+
 class InsertStmt;
 
 /**

@@ -29,7 +29,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/index/latch_memo.h"
 #include "storage/index/bplus_tree_log.h"
+
 namespace oceanbase {
+
 class BplusTreeHandler;
 class BplusTreeMiniTransaction;
 

@@ -18,7 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/deque.h"
 #include "common/lang/vector.h"
 #include "storage/buffer/page.h"
+
 namespace oceanbase {
+
 class Frame;
 class DiskBufferPool;
 

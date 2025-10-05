@@ -14,7 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/clog/log_entry.h"
 #include "common/log/log.h"
+
 namespace oceanbase {
+
 ////////////////////////////////////////////////////////////////////////////////
 // struct LogHeader
 

@@ -10,7 +10,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/expr/expression.h"
 #include "common/type/attr_type.h"
+
 namespace oceanbase {
+
 template <class T>
 class SumState
 {

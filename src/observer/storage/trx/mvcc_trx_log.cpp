@@ -22,7 +22,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 
 using namespace common;
+
 namespace oceanbase {
+
 string MvccTrxLogOperation::to_string() const
 {
   string ret = std::to_string(index()) + ":";

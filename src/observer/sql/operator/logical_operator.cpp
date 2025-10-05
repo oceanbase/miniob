@@ -13,7 +13,9 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/operator/logical_operator.h"
+
 namespace oceanbase {
+
 LogicalOperator::~LogicalOperator() {}
 
 void LogicalOperator::add_child(unique_ptr<LogicalOperator> oper) {

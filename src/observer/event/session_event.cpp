@@ -14,7 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "session_event.h"
 #include "net/communicator.h"
+
 namespace oceanbase {
+
 SessionEvent::SessionEvent(Communicator *comm) : communicator_(comm), sql_result_(communicator_->session()) {}
 
 SessionEvent::~SessionEvent() {}

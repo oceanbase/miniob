@@ -18,7 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/trx.h"
 
 using namespace std;
+
 namespace oceanbase {
+
 InsertPhysicalOperator::InsertPhysicalOperator(Table *table, vector<Value> &&values)
     : table_(table), values_(std::move(values))
 {}

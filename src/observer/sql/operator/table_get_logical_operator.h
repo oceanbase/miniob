@@ -16,7 +16,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/logical_operator.h"
 #include "storage/field/field.h"
 #include "common/types.h"
+
 namespace oceanbase {
+
 /**
  * @brief 表示从表中获取数据的算子
  * @details 比如使用全表扫描、通过索引获取数据等

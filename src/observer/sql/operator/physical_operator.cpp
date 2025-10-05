@@ -13,7 +13,9 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/operator/physical_operator.h"
+
 namespace oceanbase {
+
 string physical_operator_type_name(PhysicalOperatorType type)
 {
   switch (type) {

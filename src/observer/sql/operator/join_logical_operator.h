@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/logical_operator.h"
+
 namespace oceanbase {
+
 /**
  * @brief 连接算子
  * @ingroup LogicalOperator

@@ -29,7 +29,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/integrated_log_replayer.h"
 
 using namespace common;
+
 namespace oceanbase {
+
 Db::~Db()
 {
   for (auto &iter : opened_tables_) {

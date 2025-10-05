@@ -24,7 +24,9 @@ See the Mulan PSL v2 for more details. */
 #include "net/sql_task_handler.h"
 
 using namespace common;
+
 namespace oceanbase {
+
 class Worker
 {
 public:

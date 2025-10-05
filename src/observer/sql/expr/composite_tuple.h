@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/expr/tuple.h"
+
 namespace oceanbase {
+
 /**
  * @brief 组合的Tuple
  * @ingroup Tuple

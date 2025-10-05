@@ -17,7 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "session/session.h"
 #include "storage/trx/trx.h"
+
 namespace oceanbase {
+
 SqlResult::SqlResult(Session *session) : session_(session) {}
 
 void SqlResult::set_tuple_schema(const TupleSchema &schema) { tuple_schema_ = schema; }

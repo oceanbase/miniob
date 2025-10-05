@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "sql/optimizer/cascade/property.h"
 #include "sql/optimizer/cascade/cost_model.h"
+
 namespace oceanbase {
+
 /**
  * @brief Operator type(including logical and physical)
  */

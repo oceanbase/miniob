@@ -16,7 +16,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "net/communicator.h"
 #include "common/lang/vector.h"
+
 namespace oceanbase {
+
 class SqlResult;
 
 /**

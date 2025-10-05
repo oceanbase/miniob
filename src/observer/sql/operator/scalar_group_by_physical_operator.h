@@ -15,7 +15,9 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include "sql/operator/group_by_physical_operator.h"
+
 namespace oceanbase {
+
 /**
  * @brief 没有 group by 表达式的 group by 物理算子
  * @ingroup PhysicalOperator

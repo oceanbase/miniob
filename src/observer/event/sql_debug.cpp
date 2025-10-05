@@ -18,7 +18,9 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_debug.h"
 #include "session/session.h"
 
+
 namespace oceanbase {
+
 void SqlDebug::add_debug_info(const string &debug_info) { debug_infos_.push_back(debug_info); }
 
 void SqlDebug::clear_debug_info() { debug_infos_.clear(); }
