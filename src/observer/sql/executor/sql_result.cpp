@@ -84,4 +84,4 @@ void SqlResult::set_operator(unique_ptr<PhysicalOperator> oper)
   operator_ = std::move(oper);
   operator_->tuple_schema(tuple_schema_);
 }
-}
+}  // namespace oceanbase

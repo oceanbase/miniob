@@ -150,4 +150,4 @@ private:
   LSN    check_point_lsn_ = 0;  ///< 当前数据库的检查点LSN。会记录到磁盘中。
   string storage_engine_;
 };
-}
+}  // namespace oceanbase

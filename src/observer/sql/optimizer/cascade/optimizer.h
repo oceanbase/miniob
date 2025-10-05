@@ -38,4 +38,4 @@ private:
   CostModel                         cost_model_;
   std::unique_ptr<OptimizerContext> context_;
 };
-}
+}  // namespace oceanbase

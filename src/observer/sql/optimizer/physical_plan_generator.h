@@ -64,4 +64,4 @@ private:
   // TODO: remove this and add CBO rules
   bool can_use_hash_join(JoinLogicalOperator &logical_oper);
 };
-}
+}  // namespace oceanbase

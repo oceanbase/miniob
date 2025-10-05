@@ -77,4 +77,4 @@ enum class ExecutionMode
 
 /// page的CRC校验和
 using CheckSum = unsigned int;
-}
+}  // namespace oceanbase

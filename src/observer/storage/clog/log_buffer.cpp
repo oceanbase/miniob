@@ -46,7 +46,7 @@ RC LogEntryBuffer::append(LSN &lsn, LogModule module, vector<char> &&data)
   }
 
   LogEntry entry;
-  RC rc = entry.init(lsn, module, std::move(data));
+  RC       rc = entry.init(lsn, module, std::move(data));
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to init log entry. rc=%s", strrc(rc));
     return rc;
@@ -80,7 +80,7 @@ RC LogEntryBuffer::flush(LogFileWriter &writer, int &count)
       entries_.pop_front();
       bytes_ -= entry.total_size();
     }
-    
+
     RC rc = writer.write(entry);
     if (OB_FAIL(rc)) {
       lock_guard guard(mutex_);
@@ -93,17 +93,11 @@ RC LogEntryBuffer::flush(LogFileWriter &writer, int &count)
       flushed_lsn_ = entry.lsn();
     }
   }
-  
+
   return RC::SUCCESS;
 }
 
-int64_t LogEntryBuffer::bytes() const
-{
-  return bytes_.load();
-}
+int64_t LogEntryBuffer::bytes() const { return bytes_.load(); }
 
-int32_t LogEntryBuffer::entry_number() const
-{
-  return entries_.size();
-}
-}
+int32_t LogEntryBuffer::entry_number() const { return entries_.size(); }
+}  // namespace oceanbase

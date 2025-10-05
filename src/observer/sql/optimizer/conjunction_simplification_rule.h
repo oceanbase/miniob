@@ -35,4 +35,4 @@ public:
 
 private:
 };
-}
+}  // namespace oceanbase

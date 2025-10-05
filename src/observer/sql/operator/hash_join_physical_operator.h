@@ -21,4 +21,4 @@ namespace oceanbase {
  */
 class HashJoinPhysicalOperator
 {};
-}
+}  // namespace oceanbase

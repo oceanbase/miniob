@@ -52,4 +52,4 @@ private:
   vector<string>          primary_keys_;
   StorageFormat           storage_format_;
 };
-}
+}  // namespace oceanbase

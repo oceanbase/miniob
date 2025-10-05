@@ -44,4 +44,4 @@ private:
   Value *values_       = nullptr;
   int    value_amount_ = 0;
 };
-}
+}  // namespace oceanbase

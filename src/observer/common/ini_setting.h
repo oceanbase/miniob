@@ -27,4 +27,4 @@ namespace oceanbase {
 #define SOCKET_BUFFER_SIZE 8192
 
 #define SESSION_STAGE_NAME "SessionStage"
-}
+}  // namespace oceanbase

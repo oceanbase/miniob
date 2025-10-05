@@ -39,4 +39,4 @@ public:
 
   int row_nums = 0;
 };
-}
+}  // namespace oceanbase

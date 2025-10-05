@@ -69,8 +69,5 @@ RC PredicatePhysicalOperator::close()
 
 Tuple *PredicatePhysicalOperator::current_tuple() { return children_[0]->current_tuple(); }
 
-RC PredicatePhysicalOperator::tuple_schema(TupleSchema &schema) const
-{
-  return children_[0]->tuple_schema(schema);
-}
-}
+RC PredicatePhysicalOperator::tuple_schema(TupleSchema &schema) const { return children_[0]->tuple_schema(schema); }
+}  // namespace oceanbase

@@ -129,4 +129,4 @@ private:
 
   string path_;  /// 日志文件存放的目录
 };
-}
+}  // namespace oceanbase

@@ -83,9 +83,9 @@ RC insert_record_from_file(
   return rc;
 }
 
-
 // TODO: pax format and row format
-void LoadDataExecutor::load_data(Table *table, const char *file_name, char terminated, char enclosed, SqlResult *sql_result)
+void LoadDataExecutor::load_data(
+    Table *table, const char *file_name, char terminated, char enclosed, SqlResult *sql_result)
 {
   // your code here
   stringstream result_string;
@@ -104,13 +104,13 @@ void LoadDataExecutor::load_data(Table *table, const char *file_name, char termi
   const int sys_field_num = table->table_meta().sys_field_num();
   const int field_num     = table->table_meta().field_num() - sys_field_num;
 
-  vector<Value>       record_values(field_num);
-  string              line;
+  vector<Value>  record_values(field_num);
+  string         line;
   vector<string> file_values;
-  const string        delim("|");
-  int                      line_num        = 0;
-  int                      insertion_count = 0;
-  RC                       rc              = RC::SUCCESS;
+  const string   delim("|");
+  int            line_num        = 0;
+  int            insertion_count = 0;
+  RC             rc              = RC::SUCCESS;
   while (!fs.eof() && RC::SUCCESS == rc) {
     getline(fs, line);
     line_num++;
@@ -149,4 +149,4 @@ void LoadDataExecutor::load_data(Table *table, const char *file_name, char termi
   LOG_INFO("load data done. row num: %s, result: %s", insertion_count, strrc(rc));
   sql_result->set_return_code(RC::SUCCESS);
 }
-}
+}  // namespace oceanbase

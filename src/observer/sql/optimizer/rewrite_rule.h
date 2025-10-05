@@ -46,4 +46,4 @@ public:
 
   virtual RC rewrite(unique_ptr<Expression> &expr, bool &change_made) = 0;
 };
-}
+}  // namespace oceanbase

@@ -59,4 +59,4 @@ RC DeleteStmt::create(Db *db, const DeleteSqlNode &delete_sql, Stmt *&stmt)
   stmt = new DeleteStmt(table, filter_stmt);
   return rc;
 }
-}
+}  // namespace oceanbase

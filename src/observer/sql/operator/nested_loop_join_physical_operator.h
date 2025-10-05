@@ -64,4 +64,4 @@ private:
   bool              round_done_   = true;  //! 右表遍历的一轮是否结束
   bool              right_closed_ = true;  //! 右表算子是否已经关闭
 };
-}
+}  // namespace oceanbase

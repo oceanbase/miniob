@@ -104,4 +104,4 @@ RC GroupByPhysicalOperator::evaluate(GroupValueType &group_value)
 
   return rc;
 }
-}
+}  // namespace oceanbase

@@ -126,4 +126,4 @@ private:
 
   ExecutionMode execution_mode_ = ExecutionMode::TUPLE_ITERATOR;
 };
-}
+}  // namespace oceanbase

@@ -115,4 +115,4 @@ private:
   bool              recovering_ = false;
   OperationSet      operations_;
 };
-}
+}  // namespace oceanbase

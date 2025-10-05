@@ -37,4 +37,4 @@ public:
 private:
   unique_ptr<Stmt> child_stmt_;
 };
-}
+}  // namespace oceanbase

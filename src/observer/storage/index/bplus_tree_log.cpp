@@ -184,13 +184,14 @@ RC BplusTreeLogger::redo(BufferPoolManager &bpm, const LogEntry &entry)
   return rc;
 }
 
-RC BplusTreeLogger::__redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler, Deserializer &redo_buffer)
+RC BplusTreeLogger::__redo(
+    LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler, Deserializer &redo_buffer)
 {
   need_log_ = false;
 
   DEFER(need_log_ = true);
 
-  RC rc = RC::SUCCESS;
+  RC              rc = RC::SUCCESS;
   vector<Frame *> frames;
   while (redo_buffer.remain() > 0) {
     unique_ptr<LogEntryHandler> entry;
@@ -204,8 +205,8 @@ RC BplusTreeLogger::__redo(LSN lsn, BplusTreeMiniTransaction &mtr, BplusTreeHand
     if (frame != nullptr) {
       if (frame->lsn() >= lsn) {
         LOG_TRACE("no need to redo. frame=%p:%s, redo lsn=%ld", frame, frame->to_string().c_str(), lsn);
-	frame->unpin();
-	continue;
+        frame->unpin();
+        continue;
       } else {
         frames.push_back(frame);
       }
@@ -275,7 +276,7 @@ BplusTreeMiniTransaction::~BplusTreeMiniTransaction()
   if (nullptr == operation_result_) {
     return;
   }
-  
+
   if (OB_SUCC(*operation_result_)) {
     commit();
   } else {
@@ -292,4 +293,4 @@ RC BplusTreeMiniTransaction::rollback() { return logger_.rollback(*this, tree_ha
 BplusTreeLogReplayer::BplusTreeLogReplayer(BufferPoolManager &bpm) : buffer_pool_manager_(bpm) {}
 
 RC BplusTreeLogReplayer::replay(const LogEntry &entry) { return BplusTreeLogger::redo(buffer_pool_manager_, entry); }
-}
+}  // namespace oceanbase

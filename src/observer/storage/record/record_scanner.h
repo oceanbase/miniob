@@ -42,4 +42,4 @@ public:
    */
   virtual RC next(Record &record) = 0;
 };
-}
+}  // namespace oceanbase

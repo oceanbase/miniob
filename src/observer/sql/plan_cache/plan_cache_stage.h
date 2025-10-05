@@ -26,4 +26,4 @@ namespace oceanbase {
  */
 class PlanCacheStage
 {};
-}
+}  // namespace oceanbase

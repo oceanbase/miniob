@@ -62,4 +62,4 @@ private:
   Db                *db_;
   Table             *table_;
 };
-}
+}  // namespace oceanbase

@@ -70,4 +70,4 @@ private:
 
   SqlTaskHandler sql_task_handler_;  /// SQL请求处理器
 };
-}
+}  // namespace oceanbase

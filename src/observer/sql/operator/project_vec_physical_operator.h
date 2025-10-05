@@ -41,4 +41,4 @@ private:
   vector<unique_ptr<Expression>> expressions_;
   Chunk                          chunk_;
 };
-}
+}  // namespace oceanbase

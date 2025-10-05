@@ -346,4 +346,4 @@ void CliServer::shutdown()
   // cleanup
   started_ = false;
 }
-}
+}  // namespace oceanbase

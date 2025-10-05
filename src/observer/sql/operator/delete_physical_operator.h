@@ -47,4 +47,4 @@ private:
   Trx           *trx_   = nullptr;
   vector<Record> records_;
 };
-}
+}  // namespace oceanbase

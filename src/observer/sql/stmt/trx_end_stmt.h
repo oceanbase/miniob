@@ -43,4 +43,4 @@ public:
 private:
   StmtType type_;
 };
-}
+}  // namespace oceanbase

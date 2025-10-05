@@ -34,4 +34,4 @@ struct GlobalContext
 };
 
 #define GCTX GlobalContext::instance()
-}
+}  // namespace oceanbase

@@ -38,4 +38,4 @@ struct Page
   CheckSum check_sum;
   char     data[BP_PAGE_DATA_SIZE];
 };
-}
+}  // namespace oceanbase

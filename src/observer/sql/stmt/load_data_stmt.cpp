@@ -57,4 +57,4 @@ RC LoadDataStmt::create(Db *db, const LoadDataSqlNode &load_data, Stmt *&stmt)
   stmt = new LoadDataStmt(table, load_data.file_name.c_str(), load_data.terminated[1], load_data.enclosed[1]);
   return rc;
 }
-}
+}  // namespace oceanbase

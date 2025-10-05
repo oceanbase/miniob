@@ -66,4 +66,4 @@ private:
   string file_name_;
   int    file_desc_ = -1;
 };
-}
+}  // namespace oceanbase

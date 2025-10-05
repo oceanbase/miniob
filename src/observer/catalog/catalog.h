@@ -74,4 +74,4 @@ private:
    */
   unordered_map<int, TableStats> table_stats_;  ///< Table statistics storage.
 };
-}
+}  // namespace oceanbase

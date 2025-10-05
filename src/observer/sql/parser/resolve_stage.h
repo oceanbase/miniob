@@ -29,4 +29,4 @@ class ResolveStage
 public:
   RC handle_request(SQLStageEvent *sql_event);
 };
-}
+}  // namespace oceanbase

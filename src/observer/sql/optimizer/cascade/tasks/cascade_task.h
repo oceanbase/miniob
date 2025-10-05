@@ -49,4 +49,4 @@ protected:
   CascadeTaskType   type_;
   OptimizerContext *context_;
 };
-}
+}  // namespace oceanbase

@@ -53,4 +53,4 @@ RC InsertStmt::create(Db *db, const InsertSqlNode &inserts, Stmt *&stmt)
   stmt = new InsertStmt(table, values, value_num);
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

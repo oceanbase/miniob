@@ -48,4 +48,4 @@ private:
  * 在普通文本场景下，调试信息会直接输出到客户端，并增加 '#' 作为前缀。
  */
 void sql_debug(const char *fmt, ...);
-}
+}  // namespace oceanbase

@@ -35,8 +35,8 @@ RC AnalyzeTableExecutor::execute(SQLStageEvent *sql_event)
       static_cast<int>(stmt->type()));
 
   AnalyzeTableStmt *analyze_table_stmt = static_cast<AnalyzeTableStmt *>(stmt);
-  SqlResult     *sql_result      = session_event->sql_result();
-  const char    *table_name      = analyze_table_stmt->table_name().c_str();
+  SqlResult        *sql_result         = session_event->sql_result();
+  const char       *table_name         = analyze_table_stmt->table_name().c_str();
 
   Db    *db    = session->get_current_db();
   Table *table = db->find_table(table_name);
@@ -46,7 +46,7 @@ RC AnalyzeTableExecutor::execute(SQLStageEvent *sql_event)
     int table_id = table->table_id();
     table->get_record_scanner(scanner_, session->current_trx(), ReadWriteMode::READ_ONLY);
     Record dummy;
-    int row_nums = 0;
+    int    row_nums = 0;
     while (OB_SUCC(rc = scanner_->next(dummy))) {
       row_nums++;
     }
@@ -55,7 +55,7 @@ RC AnalyzeTableExecutor::execute(SQLStageEvent *sql_event)
     } else {
       return rc;
     }
-  
+
     TableStats stats(row_nums);
     Catalog::get_instance().update_table_stats(table_id, stats);
   } else {
@@ -65,11 +65,11 @@ RC AnalyzeTableExecutor::execute(SQLStageEvent *sql_event)
   return rc;
 }
 
-AnalyzeTableExecutor::~AnalyzeTableExecutor() 
+AnalyzeTableExecutor::~AnalyzeTableExecutor()
 {
   if (scanner_ != nullptr) {
     delete scanner_;
     scanner_ = nullptr;
   }
 }
-}
+}  // namespace oceanbase

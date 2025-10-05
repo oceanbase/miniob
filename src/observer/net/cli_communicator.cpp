@@ -87,4 +87,4 @@ RC CliCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
 }
 
 CliCommunicator::~CliCommunicator() { LOG_INFO("Command history saved to %s", LINE_HISTORY_FILE.c_str()); }
-}
+}  // namespace oceanbase

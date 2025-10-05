@@ -60,4 +60,4 @@ protected:
   bool     visible_;
   int      field_id_;
 };
-}
+}  // namespace oceanbase

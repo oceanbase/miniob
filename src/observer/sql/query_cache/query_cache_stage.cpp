@@ -25,8 +25,5 @@ using namespace common;
 
 namespace oceanbase {
 
-RC QueryCacheStage::handle_request(SQLStageEvent *sql_event)
-{
-  return RC::SUCCESS;
-}
-}
+RC QueryCacheStage::handle_request(SQLStageEvent *sql_event) { return RC::SUCCESS; }
+}  // namespace oceanbase

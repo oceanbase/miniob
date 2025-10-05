@@ -32,4 +32,4 @@ public:
 private:
   SQLStageEvent *sql_event_;
 };
-}
+}  // namespace oceanbase

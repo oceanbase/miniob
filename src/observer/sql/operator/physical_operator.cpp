@@ -43,4 +43,4 @@ string physical_operator_type_name(PhysicalOperatorType type)
 string PhysicalOperator::name() const { return physical_operator_type_name(type()); }
 
 string PhysicalOperator::param() const { return ""; }
-}
+}  // namespace oceanbase

@@ -62,4 +62,4 @@ private:
   vector<GroupType>::iterator current_group_;
   bool                        first_emited_ = false;  /// 第一条数据是否已经输出
 };
-}
+}  // namespace oceanbase

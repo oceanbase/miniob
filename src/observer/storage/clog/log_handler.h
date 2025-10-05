@@ -107,4 +107,4 @@ private:
    */
   virtual RC _append(LSN &lsn, LogModule module, vector<char> &&data) = 0;
 };
-}
+}  // namespace oceanbase

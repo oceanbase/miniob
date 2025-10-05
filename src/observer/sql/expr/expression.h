@@ -530,4 +530,4 @@ private:
   Type                   aggregate_type_;
   unique_ptr<Expression> child_;
 };
-}
+}  // namespace oceanbase

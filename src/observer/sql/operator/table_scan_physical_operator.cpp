@@ -37,7 +37,7 @@ RC TableScanPhysicalOperator::next()
   bool filter_result = false;
   while (OB_SUCC(rc = record_scanner_->next(current_record_))) {
     LOG_TRACE("got a record. rid=%s", current_record_.rid().to_string().c_str());
-    
+
     tuple_.set_record(&current_record_);
     rc = filter(tuple_, filter_result);
     if (rc != RC::SUCCESS) {
@@ -55,7 +55,8 @@ RC TableScanPhysicalOperator::next()
   return rc;
 }
 
-RC TableScanPhysicalOperator::close() {
+RC TableScanPhysicalOperator::close()
+{
   RC rc = RC::SUCCESS;
   if (record_scanner_ != nullptr) {
     rc = record_scanner_->close_scan();
@@ -66,7 +67,6 @@ RC TableScanPhysicalOperator::close() {
     record_scanner_ = nullptr;
   }
   return rc;
-
 }
 
 Tuple *TableScanPhysicalOperator::current_tuple()
@@ -102,4 +102,4 @@ RC TableScanPhysicalOperator::filter(RowTuple &tuple, bool &result)
   result = true;
   return rc;
 }
-}
+}  // namespace oceanbase

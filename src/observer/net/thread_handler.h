@@ -65,4 +65,4 @@ public:
    */
   static ThreadHandler *create(const char *name);
 };
-}
+}  // namespace oceanbase

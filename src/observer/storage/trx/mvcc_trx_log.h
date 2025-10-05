@@ -164,4 +164,4 @@ private:
   ///< 事务ID到事务的映射。在重做结束后，如果还有未提交的事务，需要回滚。
   unordered_map<int32_t, MvccTrx *> trx_map_;
 };
-}
+}  // namespace oceanbase

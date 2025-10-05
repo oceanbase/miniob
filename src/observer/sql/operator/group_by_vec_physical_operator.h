@@ -22,7 +22,7 @@ namespace oceanbase {
 class GroupByVecPhysicalOperator : public PhysicalOperator
 {
 public:
-  GroupByVecPhysicalOperator(vector<unique_ptr<Expression>> &&group_by_exprs, vector<Expression *> &&expressions){};
+  GroupByVecPhysicalOperator(vector<unique_ptr<Expression>> &&group_by_exprs, vector<Expression *> &&expressions) {};
 
   virtual ~GroupByVecPhysicalOperator() = default;
 
@@ -34,4 +34,4 @@ public:
 
 private:
 };
-}
+}  // namespace oceanbase

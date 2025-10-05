@@ -213,4 +213,4 @@ bool CompositeConditionFilter::filter(const Record &rec) const
   }
   return true;
 }
-}
+}  // namespace oceanbase

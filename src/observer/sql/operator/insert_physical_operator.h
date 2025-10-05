@@ -46,4 +46,4 @@ private:
   Table        *table_ = nullptr;
   vector<Value> values_;
 };
-}
+}  // namespace oceanbase

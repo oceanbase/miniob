@@ -65,4 +65,4 @@ private:
 private:
   BinderContext &context_;
 };
-}
+}  // namespace oceanbase

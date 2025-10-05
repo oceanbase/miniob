@@ -44,4 +44,4 @@ private:
   Table      *table_       = nullptr;
   FilterStmt *filter_stmt_ = nullptr;
 };
-}
+}  // namespace oceanbase

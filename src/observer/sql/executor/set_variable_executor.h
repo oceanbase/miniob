@@ -39,4 +39,4 @@ private:
 
   RC get_execution_mode(const Value &var_value, ExecutionMode &execution_mode) const;
 };
-}
+}  // namespace oceanbase

@@ -74,4 +74,4 @@ protected:
   ///< 表达式能是一个常量，也可以是一个函数，也可以是一个列，也可以是一个子查询等等
   vector<unique_ptr<Expression>> expressions_;
 };
-}
+}  // namespace oceanbase

@@ -86,4 +86,4 @@ protected:
 
   int record_size_ = 0;
 };
-}
+}  // namespace oceanbase

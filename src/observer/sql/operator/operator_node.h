@@ -145,4 +145,4 @@ protected:
   // cascade optimizer 中使用，为了logical/physical operator 可以统一在 cascade 中迭代
   vector<OperatorNode *> general_children_;
 };
-}
+}  // namespace oceanbase

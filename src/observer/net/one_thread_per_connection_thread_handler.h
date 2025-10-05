@@ -49,4 +49,4 @@ private:
   /// 保护线程安全的锁
   mutex lock_;
 };
-}
+}  // namespace oceanbase

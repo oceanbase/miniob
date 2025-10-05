@@ -10,8 +10,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/common/codec.h"
 
-const byte_t OrderedCode::term[] = {0x00, 0x01};
+const byte_t OrderedCode::term[]  = {0x00, 0x01};
 const byte_t OrderedCode::lit00[] = {0x00, 0xff};
 const byte_t OrderedCode::litff[] = {0xff, 0x00};
-const byte_t OrderedCode::inf[] = {0xff, 0xff};
-const byte_t OrderedCode::msb[] = {0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe};
+const byte_t OrderedCode::inf[]   = {0xff, 0xff};
+const byte_t OrderedCode::msb[]   = {0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe};

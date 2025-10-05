@@ -21,4 +21,4 @@ class OptimizerUtils
 public:
   static string dump_physical_plan(const unique_ptr<PhysicalOperator> &root);
 };
-}
+}  // namespace oceanbase

@@ -53,4 +53,4 @@ private:
   Stmt                        *stmt_ = nullptr;  ///< Resolver之后生成的数据结构
   unique_ptr<PhysicalOperator> operator_;        ///< 生成的执行计划，也可能没有
 };
-}
+}  // namespace oceanbase

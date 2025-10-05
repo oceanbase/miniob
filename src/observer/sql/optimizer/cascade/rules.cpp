@@ -24,4 +24,4 @@ RuleSet::RuleSet()
   add_rule(RuleSetName::PHYSICAL_IMPLEMENTATION, new LogicalDeleteToDelete());
   add_rule(RuleSetName::PHYSICAL_IMPLEMENTATION, new LogicalPredicateToPredicate());
 }
-}
+}  // namespace oceanbase

@@ -58,4 +58,4 @@ protected:
   vector<Expression *> aggregate_expressions_;  /// 聚合表达式
   vector<Expression *> value_expressions_;      /// 计算聚合时的表达式
 };
-}
+}  // namespace oceanbase

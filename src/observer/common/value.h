@@ -20,7 +20,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/type/data_type.h"
 #include "common/type/string_t.h"
 
-
 namespace oceanbase {
 
 /**
@@ -138,4 +137,4 @@ private:
   /// 是否申请并占有内存, 目前对于 CHARS 类型 own_data_ 为true, 其余类型 own_data_ 为false
   bool own_data_ = false;
 };
-}
+}  // namespace oceanbase

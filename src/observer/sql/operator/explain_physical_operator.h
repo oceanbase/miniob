@@ -56,4 +56,4 @@ private:
   string         physical_plan_;
   ValueListTuple tuple_;
 };
-}
+}  // namespace oceanbase

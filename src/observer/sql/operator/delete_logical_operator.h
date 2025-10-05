@@ -35,4 +35,4 @@ public:
 private:
   Table *table_ = nullptr;
 };
-}
+}  // namespace oceanbase

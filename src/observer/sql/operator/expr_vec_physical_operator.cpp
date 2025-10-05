@@ -62,4 +62,4 @@ RC ExprVecPhysicalOperator::close()
   LOG_INFO("close group by operator");
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

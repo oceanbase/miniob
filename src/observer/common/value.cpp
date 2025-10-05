@@ -30,8 +30,7 @@ Value::Value(bool val) { set_boolean(val); }
 
 Value::Value(const char *s, int len /*= 0*/) { set_string(s, len); }
 
-Value::Value(const string_t& s) { set_string(s.data(), s.size()); }
-
+Value::Value(const string_t &s) { set_string(s.data(), s.size()); }
 
 Value::Value(const Value &other)
 {
@@ -185,12 +184,11 @@ void Value::set_empty_string(int len)
   reset();
   attr_type_ = AttrType::CHARS;
 
-  own_data_ = true;
+  own_data_             = true;
   value_.pointer_value_ = new char[len + 1];
   length_               = len;
   memset(value_.pointer_value_, 0, len);
   value_.pointer_value_[len] = '\0';
-  
 }
 
 void Value::set_value(const Value &value)
@@ -247,7 +245,10 @@ string Value::to_string() const
   return res;
 }
 
-int Value::compare(const Value &other) const { return DataType::type_instance(this->attr_type_)->compare(*this, other); }
+int Value::compare(const Value &other) const
+{
+  return DataType::type_instance(this->attr_type_)->compare(*this, other);
+}
 
 int Value::get_int() const
 {
@@ -351,4 +352,4 @@ bool Value::get_boolean() const
   }
   return false;
 }
-}
+}  // namespace oceanbase

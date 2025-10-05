@@ -22,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 
 namespace oceanbase {
 
-ThreadHandler * ThreadHandler::create(const char *name)
+ThreadHandler *ThreadHandler::create(const char *name)
 {
   const char *default_name = "one-thread-per-connection";
   if (nullptr == name || common::is_blank(name)) {
@@ -38,4 +38,4 @@ ThreadHandler * ThreadHandler::create(const char *name)
     return nullptr;
   }
 }
-}
+}  // namespace oceanbase

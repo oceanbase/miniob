@@ -105,4 +105,4 @@ public:
     Inlined inlined;
   } value;
 };
-}
+}  // namespace oceanbase

@@ -24,10 +24,7 @@ ParsedSqlNode::ParsedSqlNode() : flag(SCF_ERROR) {}
 
 ParsedSqlNode::ParsedSqlNode(SqlCommandFlag _flag) : flag(_flag) {}
 
-void ParsedSqlResult::add_sql_node(unique_ptr<ParsedSqlNode> sql_node)
-{
-  sql_nodes_.emplace_back(std::move(sql_node));
-}
+void ParsedSqlResult::add_sql_node(unique_ptr<ParsedSqlNode> sql_node) { sql_nodes_.emplace_back(std::move(sql_node)); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,4 +35,4 @@ RC parse(const char *st, ParsedSqlResult *sql_result)
   sql_parse(st, sql_result);
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

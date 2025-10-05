@@ -43,4 +43,4 @@ private:
   char   terminated_;
   char   enclosed_;
 };
-}
+}  // namespace oceanbase

@@ -35,4 +35,4 @@ int Field::get_int(const Record &record)
 }
 
 const char *Field::get_data(const Record &record) { return record.data() + field_->offset(); }
-}
+}  // namespace oceanbase

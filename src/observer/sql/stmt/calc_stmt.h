@@ -50,4 +50,4 @@ public:
 private:
   vector<unique_ptr<Expression>> expressions_;
 };
-}
+}  // namespace oceanbase

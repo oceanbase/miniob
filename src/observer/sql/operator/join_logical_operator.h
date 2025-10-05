@@ -75,4 +75,4 @@ private:
   LogicalOperator                    *predicate_op_ = nullptr;
   std::vector<unique_ptr<Expression>> join_predicates_;
 };
-}
+}  // namespace oceanbase

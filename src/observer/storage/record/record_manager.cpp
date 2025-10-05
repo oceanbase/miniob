@@ -801,4 +801,4 @@ RC ChunkFileScanner::next_chunk(Chunk &chunk)
   record_page_handler_->cleanup();
   return RC::RECORD_EOF;
 }
-}
+}  // namespace oceanbase

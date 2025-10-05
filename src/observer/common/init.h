@@ -21,4 +21,4 @@ namespace oceanbase {
 
 int  init(common::ProcessParam *processParam);
 void cleanup();
-}
+}  // namespace oceanbase

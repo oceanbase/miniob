@@ -95,4 +95,4 @@ private:
   int32_t      data_size_ = 0;  ///< 已经写入的数据量
   int32_t      write_pos_ = 0;  ///< 当前写指针的位置，范围不会超出[0, capacity)
 };
-}
+}  // namespace oceanbase

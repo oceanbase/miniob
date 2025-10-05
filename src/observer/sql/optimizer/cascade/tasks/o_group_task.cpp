@@ -38,4 +38,4 @@ void OptimizeGroup::perform()
 
   group_->set_explored();
 }
-}
+}  // namespace oceanbase

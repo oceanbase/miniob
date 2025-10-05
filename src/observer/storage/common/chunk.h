@@ -102,4 +102,4 @@ private:
   // `columnd_ids` store the ids of child operator that need to be output
   vector<int> column_ids_;
 };
-}
+}  // namespace oceanbase

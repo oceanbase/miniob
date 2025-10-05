@@ -50,4 +50,4 @@ public:
 private:
   vector<unique_ptr<Tuple>> tuples_;
 };
-}
+}  // namespace oceanbase

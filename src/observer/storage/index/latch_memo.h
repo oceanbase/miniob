@@ -90,4 +90,4 @@ private:
   deque<LatchMemoItem> items_;
   vector<PageNum>      disposed_pages_;  /// 等待释放的页面
 };
-}
+}  // namespace oceanbase

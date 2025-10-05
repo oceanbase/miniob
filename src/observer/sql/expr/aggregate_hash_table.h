@@ -178,4 +178,4 @@ private:
   AggregateExpr::Type aggregate_type_;
 };
 #endif  // USE_SIMD
-}
+}  // namespace oceanbase

@@ -81,4 +81,4 @@ public:
 
   RC replay(const LogEntry &) override { return RC::SUCCESS; }
 };
-}
+}  // namespace oceanbase

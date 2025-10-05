@@ -160,4 +160,4 @@ void LatchMemo::release_to(int point)
   }
   items_.erase(items_.begin(), iter);
 }
-}
+}  // namespace oceanbase

@@ -87,4 +87,4 @@ private:
 
   double lowest_cost_ = std::numeric_limits<double>::max();
 };
-}
+}  // namespace oceanbase

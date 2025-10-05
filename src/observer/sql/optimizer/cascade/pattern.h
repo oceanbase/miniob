@@ -35,4 +35,4 @@ private:
 
   vector<unique_ptr<Pattern>> children_;
 };
-}
+}  // namespace oceanbase

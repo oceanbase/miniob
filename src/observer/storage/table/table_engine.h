@@ -62,4 +62,4 @@ public:
 protected:
   TableMeta *table_meta_ = nullptr;
 };
-}
+}  // namespace oceanbase

@@ -78,7 +78,7 @@ RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
       return DescTableStmt::create(db, sql_node.desc_table, stmt);
     }
 
-    case SCF_ANALYZE_TABLE: { 
+    case SCF_ANALYZE_TABLE: {
       return AnalyzeTableStmt::create(db, sql_node.analyze_table, stmt);
     }
 
@@ -121,4 +121,4 @@ RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
   }
   return RC::UNIMPLEMENTED;
 }
-}
+}  // namespace oceanbase

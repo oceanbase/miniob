@@ -25,4 +25,4 @@ RC DescTableStmt::create(Db *db, const DescTableSqlNode &desc_table, Stmt *&stmt
   stmt = new DescTableStmt(desc_table.relation_name);
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

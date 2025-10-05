@@ -14,7 +14,6 @@ See the Mulan PSL v2 for more details. */
 
 namespace oceanbase {
 
-
 RC HeapRecordScanner::open_scan()
 {
   ASSERT(disk_buffer_pool_ != nullptr, "disk buffer pool is null");
@@ -147,4 +146,4 @@ RC HeapRecordScanner::next(Record &record)
   record = next_record_;
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

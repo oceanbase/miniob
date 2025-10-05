@@ -21,4 +21,4 @@ RC AnalyzeTableStmt::create(Db *db, const AnalyzeTableSqlNode &analyze_table, St
   stmt = new AnalyzeTableStmt(analyze_table.relation_name);
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

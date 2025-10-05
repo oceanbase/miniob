@@ -38,4 +38,4 @@ public:
   vector<unique_ptr<Expression>>       &expressions() { return expressions_; }
   const vector<unique_ptr<Expression>> &expressions() const { return expressions_; }
 };
-}
+}  // namespace oceanbase

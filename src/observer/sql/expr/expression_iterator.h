@@ -27,4 +27,4 @@ class ExpressionIterator
 public:
   static RC iterate_child_expr(Expression &expr, function<RC(unique_ptr<Expression> &)> callback);
 };
-}
+}  // namespace oceanbase

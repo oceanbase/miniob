@@ -58,4 +58,4 @@ RC CreateIndexStmt::create(Db *db, const CreateIndexSqlNode &create_index, Stmt 
   stmt = new CreateIndexStmt(table, field_meta, create_index.index_name);
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

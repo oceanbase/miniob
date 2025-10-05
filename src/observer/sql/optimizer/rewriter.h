@@ -52,4 +52,4 @@ public:
 private:
   vector<unique_ptr<RewriteRule>> rewrite_rules_;
 };
-}
+}  // namespace oceanbase

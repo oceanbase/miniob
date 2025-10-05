@@ -61,4 +61,4 @@ void OptimizeExpression::perform()
     }
   }
 }
-}
+}  // namespace oceanbase

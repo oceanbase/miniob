@@ -17,4 +17,4 @@ See the Mulan PSL v2 for more details. */
 namespace oceanbase {
 
 DeleteLogicalOperator::DeleteLogicalOperator(Table *table) : table_(table) {}
-}
+}  // namespace oceanbase

@@ -36,4 +36,4 @@ public:
     return RC::SUCCESS;
   }
 };
-}
+}  // namespace oceanbase

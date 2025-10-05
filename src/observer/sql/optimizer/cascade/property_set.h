@@ -43,4 +43,4 @@ public:
 private:
   std::vector<Property *> properties_;
 };
-}
+}  // namespace oceanbase

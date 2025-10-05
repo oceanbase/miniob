@@ -60,4 +60,4 @@ void Chunk::reset()
   columns_.clear();
   column_ids_.clear();
 }
-}
+}  // namespace oceanbase

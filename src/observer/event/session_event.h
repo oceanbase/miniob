@@ -48,4 +48,4 @@ private:
   SqlDebug      sql_debug_;               ///< SQL调试信息
   string        query_;                   ///< SQL语句
 };
-}
+}  // namespace oceanbase

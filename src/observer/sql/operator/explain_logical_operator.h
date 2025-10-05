@@ -32,4 +32,4 @@ public:
 
   OpType get_op_type() const override { return OpType::LOGICALEXPLAIN; }
 };
-}
+}  // namespace oceanbase

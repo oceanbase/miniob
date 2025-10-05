@@ -53,4 +53,4 @@ private:
    */
   std::stack<CascadeTask *> task_stack_;
 };
-}
+}  // namespace oceanbase

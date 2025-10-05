@@ -91,4 +91,4 @@ private:
   bool                     started_ = false;
   ValueListTuple           tuple_;
 };
-}
+}  // namespace oceanbase

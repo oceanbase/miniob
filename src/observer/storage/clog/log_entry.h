@@ -89,4 +89,4 @@ private:
   LogHeader    header_;  /// 日志头
   vector<char> data_;    /// 日志数据
 };
-}
+}  // namespace oceanbase

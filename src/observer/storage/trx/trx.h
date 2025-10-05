@@ -162,4 +162,4 @@ public:
 private:
   TrxKit::Type type_;
 };
-}
+}  // namespace oceanbase

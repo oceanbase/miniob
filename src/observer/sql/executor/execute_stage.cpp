@@ -60,4 +60,4 @@ RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
   sql_result->set_operator(std::move(physical_operator));
   return rc;
 }
-}
+}  // namespace oceanbase

@@ -331,4 +331,4 @@ RC RecordLogReplayer::replay_update(DiskBufferPool &buffer_pool, const RecordLog
 
   return rc;
 }
-}
+}  // namespace oceanbase

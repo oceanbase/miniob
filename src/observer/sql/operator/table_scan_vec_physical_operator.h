@@ -52,4 +52,4 @@ private:
   vector<uint8_t>                select_;
   vector<unique_ptr<Expression>> predicates_;
 };
-}
+}  // namespace oceanbase

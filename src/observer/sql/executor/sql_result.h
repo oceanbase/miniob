@@ -59,4 +59,4 @@ private:
   RC                           return_code_ = RC::SUCCESS;
   string                       state_string_;
 };
-}
+}  // namespace oceanbase

@@ -45,4 +45,4 @@ RC VacuousTrx::commit() { return RC::SUCCESS; }
 RC VacuousTrx::rollback() { return RC::SUCCESS; }
 
 RC VacuousTrx::redo(Db *, const LogEntry &) { return RC::SUCCESS; }
-}
+}  // namespace oceanbase

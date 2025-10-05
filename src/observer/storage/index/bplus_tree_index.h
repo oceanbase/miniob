@@ -69,4 +69,4 @@ public:
 private:
   BplusTreeScanner tree_scanner_;
 };
-}
+}  // namespace oceanbase

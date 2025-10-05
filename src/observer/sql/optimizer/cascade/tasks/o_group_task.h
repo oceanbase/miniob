@@ -30,4 +30,4 @@ public:
 private:
   Group *group_;
 };
-}
+}  // namespace oceanbase

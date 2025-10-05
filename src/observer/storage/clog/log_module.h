@@ -54,4 +54,4 @@ public:
 private:
   Id id_;
 };
-}
+}  // namespace oceanbase

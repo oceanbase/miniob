@@ -69,4 +69,4 @@ RC IntegratedLogReplayer::on_done()
 
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

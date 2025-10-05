@@ -142,4 +142,4 @@ private:
   unique_ptr<TableEngine> engine_      = nullptr;
   LobFileHandler         *lob_handler_ = nullptr;
 };
-}
+}  // namespace oceanbase

@@ -284,4 +284,4 @@ RC PersistHandler::seek(uint64_t offset)
 
   return rc;
 }
-}
+}  // namespace oceanbase

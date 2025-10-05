@@ -53,4 +53,4 @@ protected:
   string name_;   // index's name
   string field_;  // field's name
 };
-}
+}  // namespace oceanbase

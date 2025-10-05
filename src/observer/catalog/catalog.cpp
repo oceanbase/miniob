@@ -23,4 +23,4 @@ void Catalog::update_table_stats(int table_id, const TableStats &table_stats)
   lock_guard<mutex> lock(mutex_);
   table_stats_[table_id] = table_stats;
 }
-}
+}  // namespace oceanbase

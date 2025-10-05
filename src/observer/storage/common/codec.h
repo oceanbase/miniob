@@ -505,4 +505,4 @@ public:
 //   }
 //   return rc;
 // }
-}
+}  // namespace oceanbase

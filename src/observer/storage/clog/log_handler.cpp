@@ -47,4 +47,4 @@ RC LogHandler::create(const char *name, LogHandler *&log_handler)
   }
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

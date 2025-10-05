@@ -104,4 +104,4 @@ RC CommandExecutor::execute(SQLStageEvent *sql_event)
 
   return rc;
 }
-}
+}  // namespace oceanbase

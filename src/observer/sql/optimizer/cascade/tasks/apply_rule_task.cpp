@@ -24,7 +24,7 @@ void ApplyRule::perform()
     return;
   }
   // TODO: expr binding, currently group_expr_->get_op() is enough
-  OperatorNode* before = group_expr_->get_op();
+  OperatorNode *before = group_expr_->get_op();
 
   // TODO: check condition
 
@@ -32,7 +32,7 @@ void ApplyRule::perform()
   rule_->transform(before, &after, context_);
   for (const auto &new_expr : after) {
     GroupExpr *new_gexpr = nullptr;
-    auto g_id = group_expr_->get_group_id();
+    auto       g_id      = group_expr_->get_group_id();
     if (context_->record_node_into_group(new_expr.get(), &new_gexpr, g_id)) {
       if (new_gexpr->get_op()->is_logical()) {
         // further optimize new expr
@@ -46,7 +46,7 @@ void ApplyRule::perform()
       new_gexpr->dump();
     }
   }
-  
+
   // TODO: FIXME, better way for record memory allocation
   for (size_t i = 0; i < after.size(); i++) {
     context_->record_operator_node_in_memo(std::move(after[i]));
@@ -54,4 +54,4 @@ void ApplyRule::perform()
 
   group_expr_->set_rule_explored(rule_);
 }
-}
+}  // namespace oceanbase

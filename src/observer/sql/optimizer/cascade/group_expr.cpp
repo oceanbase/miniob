@@ -16,7 +16,8 @@ uint64_t GroupExpr::hash() const
 {
   auto hash = contents_->hash();
   for (const auto &child : child_groups_) {
-    hash ^= std::hash<int>()(child) + 0x9e3779b9 + (hash << 6) + (hash >> 2);;
+    hash ^= std::hash<int>()(child) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    ;
   }
   return hash;
 }
@@ -29,4 +30,4 @@ void GroupExpr::dump() const
   }
   LOG_TRACE("GroupExpr contents: %d child groups:  %s", static_cast<int>(contents_->get_op_type()), ss.str().c_str());
 }
-}
+}  // namespace oceanbase

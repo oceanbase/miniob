@@ -49,4 +49,4 @@ private:
   const FieldMeta *field_meta_ = nullptr;
   string           index_name_;
 };
-}
+}  // namespace oceanbase

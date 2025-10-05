@@ -51,4 +51,4 @@ public:
 
   string thread_handling;  ///< 线程池模型
 };
-}
+}  // namespace oceanbase

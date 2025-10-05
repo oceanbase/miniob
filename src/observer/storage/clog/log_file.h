@@ -155,4 +155,4 @@ private:
 
   map<LSN, filesystem::path> log_files_;  /// 日志文件名和第一个LSN的映射
 };
-}
+}  // namespace oceanbase

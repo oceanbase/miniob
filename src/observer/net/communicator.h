@@ -108,4 +108,4 @@ class CommunicatorFactory
 public:
   Communicator *create(CommunicateProtocol protocol);
 };
-}
+}  // namespace oceanbase

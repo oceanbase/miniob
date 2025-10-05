@@ -49,4 +49,4 @@ private:
 
   int implicit_cast_cost(AttrType from, AttrType to);
 };
-}
+}  // namespace oceanbase

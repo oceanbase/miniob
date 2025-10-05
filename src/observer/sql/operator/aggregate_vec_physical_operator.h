@@ -68,4 +68,4 @@ private:
   AggregateValues      aggr_values_;
   bool                 outputed_ = false;
 };
-}
+}  // namespace oceanbase

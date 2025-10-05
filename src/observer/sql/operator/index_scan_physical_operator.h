@@ -65,4 +65,4 @@ private:
 
   vector<unique_ptr<Expression>> predicates_;
 };
-}
+}  // namespace oceanbase

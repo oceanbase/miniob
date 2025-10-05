@@ -58,4 +58,4 @@ private:
   ObLsm           *lsm_;
   atomic<uint64_t> inc_id_{0};
 };
-}
+}  // namespace oceanbase

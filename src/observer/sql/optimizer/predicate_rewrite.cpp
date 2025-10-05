@@ -58,4 +58,4 @@ RC PredicateRewriteRule::rewrite(unique_ptr<LogicalOperator> &oper, bool &change
   change_made = true;
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

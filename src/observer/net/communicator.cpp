@@ -64,4 +64,4 @@ Communicator *CommunicatorFactory::create(CommunicateProtocol protocol)
     }
   }
 }
-}
+}  // namespace oceanbase

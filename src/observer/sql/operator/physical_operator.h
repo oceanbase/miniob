@@ -95,4 +95,4 @@ public:
 protected:
   vector<unique_ptr<PhysicalOperator>> children_;
 };
-}
+}  // namespace oceanbase

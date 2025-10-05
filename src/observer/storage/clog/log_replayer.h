@@ -42,4 +42,4 @@ public:
    */
   virtual RC on_done() { return RC::SUCCESS; }
 };
-}
+}  // namespace oceanbase

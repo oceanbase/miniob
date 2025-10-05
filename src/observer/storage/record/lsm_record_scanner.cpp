@@ -25,7 +25,7 @@ RC LsmRecordScanner::open_scan()
     lsm_iter_ = oblsm_->new_iterator(ObLsmReadOptions());
   } else if (trx_->type() == TrxKit::Type::LSM) {
     auto lsm_trx = dynamic_cast<LsmMvccTrx *>(trx_);
-    lsm_iter_ = lsm_trx->get_trx()->new_iterator(ObLsmReadOptions());
+    lsm_iter_    = lsm_trx->get_trx()->new_iterator(ObLsmReadOptions());
   }
   bytes encoded_key;
   rc = Codec::encode_without_rid(table_->table_id(), encoded_key);
@@ -37,7 +37,6 @@ RC LsmRecordScanner::open_scan()
   tuple_.set_schema(table_, table_->table_meta().field_metas());
   return rc;
 }
-
 
 RC LsmRecordScanner::close_scan()
 {
@@ -52,9 +51,9 @@ RC LsmRecordScanner::next(Record &record)
 {
   if (lsm_iter_->valid()) {
     string_view lsm_value = lsm_iter_->value();
-    string_view lsm_key = lsm_iter_->key();
-    int64_t table_id = 0;
-    bytes lsm_key_bytes(lsm_key.begin(), lsm_key.end());
+    string_view lsm_key   = lsm_iter_->key();
+    int64_t     table_id  = 0;
+    bytes       lsm_key_bytes(lsm_key.begin(), lsm_key.end());
     Codec::decode(lsm_key_bytes, table_id);
     if (table_id != table_->table_id()) {
       LOG_TRACE("table id not match, table id: %ld", table_->table_id());
@@ -69,4 +68,4 @@ RC LsmRecordScanner::next(Record &record)
   }
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

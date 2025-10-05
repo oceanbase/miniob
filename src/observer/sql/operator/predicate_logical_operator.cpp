@@ -20,4 +20,4 @@ PredicateLogicalOperator::PredicateLogicalOperator(unique_ptr<Expression> expres
 {
   expressions_.emplace_back(std::move(expression));
 }
-}
+}  // namespace oceanbase

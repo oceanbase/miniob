@@ -47,4 +47,4 @@ private:
     return RC::SUCCESS;
   }
 };
-}
+}  // namespace oceanbase

@@ -14,4 +14,4 @@ namespace oceanbase {
 
 class TableStatistics
 {};
-}
+}  // namespace oceanbase

@@ -36,4 +36,4 @@ private:
 private:
   vector<unique_ptr<ExpressionRewriteRule>> expr_rewrite_rules_;
 };
-}
+}  // namespace oceanbase

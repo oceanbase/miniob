@@ -128,4 +128,4 @@ public:
 //                          std::vector<std::unique_ptr<OperatorNode>> *transformed,
 //                          OptimizerContext *context) const override;
 // };
-}
+}  // namespace oceanbase

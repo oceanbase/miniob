@@ -113,4 +113,4 @@ private:
 
   unique_ptr<LogicalProperty> logical_prop_ = nullptr;
 };
-}
+}  // namespace oceanbase

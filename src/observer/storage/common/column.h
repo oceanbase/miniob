@@ -145,4 +145,4 @@ private:
   Type                     column_type_   = Type::NORMAL_COLUMN;
   unique_ptr<VectorBuffer> vector_buffer_ = nullptr;
 };
-}
+}  // namespace oceanbase

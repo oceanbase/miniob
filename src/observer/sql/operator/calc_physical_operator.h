@@ -75,4 +75,4 @@ private:
   ExpressionTuple<unique_ptr<Expression>> tuple_;
   bool                                    emitted_ = false;
 };
-}
+}  // namespace oceanbase

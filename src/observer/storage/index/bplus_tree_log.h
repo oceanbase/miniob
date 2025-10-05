@@ -208,4 +208,4 @@ public:
 private:
   BufferPoolManager &buffer_pool_manager_;
 };
-}
+}  // namespace oceanbase

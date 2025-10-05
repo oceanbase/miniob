@@ -29,7 +29,7 @@ private:
 
 public:
   // TODO: support user-defined
-  CostModel(){};
+  CostModel() {};
 
   inline double cpu_op() { return CPU_OP; }
 
@@ -47,4 +47,4 @@ public:
 
   double calculate_cost(Memo *memo, GroupExpr *gexpr);
 };
-}
+}  // namespace oceanbase

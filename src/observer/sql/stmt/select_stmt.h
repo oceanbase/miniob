@@ -53,4 +53,4 @@ private:
   FilterStmt                    *filter_stmt_ = nullptr;
   vector<unique_ptr<Expression>> group_by_;
 };
-}
+}  // namespace oceanbase

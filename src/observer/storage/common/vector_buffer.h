@@ -34,4 +34,4 @@ public:
 private:
   Arena heap;
 };
-}
+}  // namespace oceanbase

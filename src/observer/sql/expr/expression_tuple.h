@@ -90,4 +90,4 @@ private:
   const vector<ExprPointerType> &expressions_;
   const Tuple                   *child_tuple_ = nullptr;
 };
-}
+}  // namespace oceanbase

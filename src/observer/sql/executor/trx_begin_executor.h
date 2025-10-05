@@ -44,4 +44,4 @@ public:
     return trx->start_if_need();
   }
 };
-}
+}  // namespace oceanbase

@@ -72,4 +72,4 @@ private:
   int        fd_ = -1;
   RingBuffer buffer_;
 };
-}
+}  // namespace oceanbase

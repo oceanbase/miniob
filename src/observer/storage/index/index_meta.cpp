@@ -71,4 +71,4 @@ const char *IndexMeta::name() const { return name_.c_str(); }
 const char *IndexMeta::field() const { return field_.c_str(); }
 
 void IndexMeta::desc(ostream &os) const { os << "index name=" << name_ << ", field=" << field_; }
-}
+}  // namespace oceanbase

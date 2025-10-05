@@ -32,4 +32,4 @@ SQLStageEvent::~SQLStageEvent() noexcept
     stmt_ = nullptr;
   }
 }
-}
+}  // namespace oceanbase

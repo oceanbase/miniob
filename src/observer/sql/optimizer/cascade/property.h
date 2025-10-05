@@ -30,4 +30,4 @@ public:
 private:
   int card_ = 0;  /// cardinality
 };
-}
+}  // namespace oceanbase

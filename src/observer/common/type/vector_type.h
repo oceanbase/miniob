@@ -32,4 +32,4 @@ public:
 
   RC to_string(const Value &val, string &result) const override { return RC::UNIMPLEMENTED; }
 };
-}
+}  // namespace oceanbase

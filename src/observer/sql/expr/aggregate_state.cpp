@@ -28,7 +28,7 @@ void SumState<T>::update(const T *values, int size)
   }
 #else
   for (int i = 0; i < size; ++i) {
- 	  value += values[i];
+    value += values[i];
   }
 #endif
 }
@@ -37,7 +37,7 @@ template <typename T>
 void AvgState<T>::update(const T *values, int size)
 {
   for (int i = 0; i < size; ++i) {
- 	  value += values[i];
+    value += values[i];
   }
   count += size;
 }
@@ -48,9 +48,9 @@ void CountState<T>::update(const T *values, int size)
   value += size;
 }
 
-void* create_aggregate_state(AggregateExpr::Type aggr_type, AttrType attr_type)
+void *create_aggregate_state(AggregateExpr::Type aggr_type, AttrType attr_type)
 {
-  void* state_ptr = nullptr;
+  void *state_ptr = nullptr;
   if (aggr_type == AggregateExpr::Type::SUM) {
     if (attr_type == AttrType::INTS) {
       state_ptr = malloc(sizeof(SumState<int>));
@@ -80,25 +80,25 @@ void* create_aggregate_state(AggregateExpr::Type aggr_type, AttrType attr_type)
   return state_ptr;
 }
 
-RC aggregate_state_update_by_value(void *state, AggregateExpr::Type aggr_type, AttrType attr_type, const Value& val)
+RC aggregate_state_update_by_value(void *state, AggregateExpr::Type aggr_type, AttrType attr_type, const Value &val)
 {
   RC rc = RC::SUCCESS;
   if (aggr_type == AggregateExpr::Type::SUM) {
     if (attr_type == AttrType::INTS) {
-      static_cast<SumState<int>*>(state)->update(val.get_int());
+      static_cast<SumState<int> *>(state)->update(val.get_int());
     } else if (attr_type == AttrType::FLOATS) {
-      static_cast<SumState<float>*>(state)->update(val.get_float());
+      static_cast<SumState<float> *>(state)->update(val.get_float());
     } else {
       LOG_WARN("unsupported aggregate value type");
       return RC::UNIMPLEMENTED;
     }
   } else if (aggr_type == AggregateExpr::Type::COUNT) {
-    static_cast<CountState<int>*>(state)->update(1);
+    static_cast<CountState<int> *>(state)->update(1);
   } else if (aggr_type == AggregateExpr::Type::AVG) {
     if (attr_type == AttrType::INTS) {
-      static_cast<AvgState<int>*>(state)->update(val.get_int());
+      static_cast<AvgState<int> *>(state)->update(val.get_int());
     } else if (attr_type == AttrType::FLOATS) {
-      static_cast<AvgState<float>*>(state)->update(val.get_float());
+      static_cast<AvgState<float> *>(state)->update(val.get_float());
     } else {
       LOG_WARN("unsupported aggregate value type");
       return RC::UNIMPLEMENTED;
@@ -114,14 +114,14 @@ template <class STATE, typename T>
 void append_to_column(void *state, Column &column)
 {
   STATE *state_ptr = reinterpret_cast<STATE *>(state);
-  T res = state_ptr->template finalize<T>();
+  T      res       = state_ptr->template finalize<T>();
   column.append_one((char *)&res);
 }
 
-RC finialize_aggregate_state(void *state, AggregateExpr::Type aggr_type, AttrType attr_type, Column& col)
+RC finialize_aggregate_state(void *state, AggregateExpr::Type aggr_type, AttrType attr_type, Column &col)
 {
   RC rc = RC::SUCCESS;
-  if ( aggr_type == AggregateExpr::Type::SUM) {
+  if (aggr_type == AggregateExpr::Type::SUM) {
     if (attr_type == AttrType::INTS) {
       append_to_column<SumState<int>, int>(state, col);
     } else if (attr_type == AttrType::FLOATS) {
@@ -140,7 +140,7 @@ RC finialize_aggregate_state(void *state, AggregateExpr::Type aggr_type, AttrTyp
     } else {
       rc = RC::UNIMPLEMENTED;
       LOG_WARN("unsupported aggregate value type");
-    }// 
+    }  //
   } else {
     rc = RC::UNIMPLEMENTED;
     LOG_WARN("unsupported aggregator type");
@@ -152,11 +152,11 @@ template <class STATE, typename T>
 void update_aggregate_state(void *state, const Column &column)
 {
   STATE *state_ptr = reinterpret_cast<STATE *>(state);
-  T *    data      = (T *)column.data();
+  T     *data      = (T *)column.data();
   state_ptr->update(data, column.count());
 }
 
-RC aggregate_state_update_by_column(void *state, AggregateExpr::Type aggr_type, AttrType attr_type, Column& col)
+RC aggregate_state_update_by_column(void *state, AggregateExpr::Type aggr_type, AttrType attr_type, Column &col)
 {
   RC rc = RC::SUCCESS;
   if (aggr_type == AggregateExpr::Type::SUM) {
@@ -193,4 +193,4 @@ template class CountState<int>;
 
 template class AvgState<int>;
 template class AvgState<float>;
-}
+}  // namespace oceanbase

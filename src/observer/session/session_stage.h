@@ -58,4 +58,4 @@ private:
   OptimizeStage   optimize_stage_;
   ExecuteStage    execute_stage_;
 };
-}
+}  // namespace oceanbase

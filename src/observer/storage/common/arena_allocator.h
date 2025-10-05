@@ -74,4 +74,4 @@ inline char *Arena::Allocate(size_t bytes)
   }
   return AllocateFallback(bytes);
 }
-}
+}  // namespace oceanbase

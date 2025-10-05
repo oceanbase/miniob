@@ -38,4 +38,4 @@ RC ComparisonSimplificationRule::rewrite(unique_ptr<Expression> &expr, bool &cha
   }
   return rc;
 }
-}
+}  // namespace oceanbase

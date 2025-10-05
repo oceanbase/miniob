@@ -31,4 +31,4 @@ private:
   GroupExpr *group_expr_;
   Rule      *rule_;
 };
-}
+}  // namespace oceanbase

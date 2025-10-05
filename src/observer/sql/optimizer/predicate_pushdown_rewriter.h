@@ -36,4 +36,4 @@ private:
   RC   get_exprs_can_pushdown(unique_ptr<Expression> &expr, vector<unique_ptr<Expression>> &pushdown_exprs);
   bool is_empty_predicate(unique_ptr<Expression> &expr);
 };
-}
+}  // namespace oceanbase

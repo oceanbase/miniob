@@ -46,4 +46,4 @@ public:
 private:
   SetVariableSqlNode set_variable_;
 };
-}
+}  // namespace oceanbase

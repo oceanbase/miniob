@@ -66,9 +66,9 @@ RC CompositeTuple::find_cell(const TupleCellSpec &spec, Value &cell) const
 
 void CompositeTuple::add_tuple(unique_ptr<Tuple> tuple) { tuples_.push_back(std::move(tuple)); }
 
-Tuple &CompositeTuple::tuple_at(size_t index) 
-{ 
+Tuple &CompositeTuple::tuple_at(size_t index)
+{
   ASSERT(index < tuples_.size(), "index=%d, tuples_size=%d", index, tuples_.size());
-  return *tuples_[index]; 
+  return *tuples_[index];
 }
-}
+}  // namespace oceanbase

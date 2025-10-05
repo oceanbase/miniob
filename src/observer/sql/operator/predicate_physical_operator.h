@@ -46,4 +46,4 @@ public:
 private:
   unique_ptr<Expression> expression_;
 };
-}
+}  // namespace oceanbase

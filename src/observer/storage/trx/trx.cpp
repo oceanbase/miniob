@@ -25,7 +25,7 @@ See the Mulan PSL v2 for more details. */
 
 namespace oceanbase {
 
-TrxKit *TrxKit::create(const char *name, Db* db)
+TrxKit *TrxKit::create(const char *name, Db *db)
 {
   TrxKit *trx_kit = nullptr;
   if (common::is_blank(name) || 0 == strcasecmp(name, "vacuous")) {
@@ -45,7 +45,7 @@ TrxKit *TrxKit::create(const char *name, Db* db)
     delete trx_kit;
     trx_kit = nullptr;
   }
-  
+
   return trx_kit;
 }
-}
+}  // namespace oceanbase

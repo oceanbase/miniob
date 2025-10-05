@@ -58,4 +58,4 @@ RC ResolveStage::handle_request(SQLStageEvent *sql_event)
 
   return rc;
 }
-}
+}  // namespace oceanbase

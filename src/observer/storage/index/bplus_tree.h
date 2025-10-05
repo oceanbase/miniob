@@ -723,4 +723,4 @@ private:
   int                                  iter_index_    = -1;
   bool                                 first_emitted_ = false;
 };
-}
+}  // namespace oceanbase

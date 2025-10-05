@@ -51,4 +51,4 @@ private:
   RowTuple       tuple_;
   Record         record_;
 };
-}
+}  // namespace oceanbase

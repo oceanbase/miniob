@@ -169,4 +169,4 @@ public:
    */
   RC clear_pages(DiskBufferPool *bp) override { return RC::SUCCESS; }
 };
-}
+}  // namespace oceanbase

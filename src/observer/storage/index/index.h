@@ -115,4 +115,4 @@ public:
   virtual RC next_entry(RID *rid) = 0;
   virtual RC destroy()            = 0;
 };
-}
+}  // namespace oceanbase

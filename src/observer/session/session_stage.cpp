@@ -113,4 +113,4 @@ RC SessionStage::handle_sql(SQLStageEvent *sql_event)
 
   return rc;
 }
-}
+}  // namespace oceanbase

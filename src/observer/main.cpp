@@ -37,7 +37,6 @@ namespace oceanbase {
 
 static Server *g_server = nullptr;
 
-
 void usage()
 {
   cout << "Usage " << endl;
@@ -211,4 +210,4 @@ int main(int argc, char **argv)
   return 0;
 }
 
-}
+}  // namespace oceanbase

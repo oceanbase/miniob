@@ -107,4 +107,4 @@ private:
   //! 这个sequence id是递增的
   int8_t sequence_id_ = 0;
 };
-}
+}  // namespace oceanbase

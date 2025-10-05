@@ -31,4 +31,4 @@ public:
 
   RC rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made) override;
 };
-}
+}  // namespace oceanbase

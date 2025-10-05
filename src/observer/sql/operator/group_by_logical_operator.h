@@ -35,4 +35,4 @@ private:
   vector<unique_ptr<Expression>> group_by_expressions_;
   vector<Expression *>           aggregate_expressions_;  ///< 输出的表达式，可能包含聚合函数
 };
-}
+}  // namespace oceanbase

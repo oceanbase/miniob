@@ -36,4 +36,4 @@ private:
   Chunk                chunk_;
   Chunk                evaled_chunk_;
 };
-}
+}  // namespace oceanbase

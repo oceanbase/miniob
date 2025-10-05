@@ -37,4 +37,4 @@ public:
 private:
   void load_data(Table *table, const char *file_name, char terminated, char enclosed, SqlResult *sql_result);
 };
-}
+}  // namespace oceanbase

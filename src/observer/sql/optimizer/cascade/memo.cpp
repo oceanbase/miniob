@@ -53,4 +53,4 @@ void Memo::dump() const
     group->dump();
   }
 }
-}
+}  // namespace oceanbase

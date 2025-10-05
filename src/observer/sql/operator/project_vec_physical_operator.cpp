@@ -73,4 +73,4 @@ RC ProjectVecPhysicalOperator::tuple_schema(TupleSchema &schema) const
   }
   return RC::SUCCESS;
 }
-}
+}  // namespace oceanbase

@@ -27,4 +27,4 @@ void ExploreGroup::perform()
 
   group_->set_explored();
 }
-}
+}  // namespace oceanbase

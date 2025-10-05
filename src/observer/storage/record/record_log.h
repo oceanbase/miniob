@@ -155,4 +155,4 @@ private:
 private:
   BufferPoolManager &bpm_;
 };
-}
+}  // namespace oceanbase

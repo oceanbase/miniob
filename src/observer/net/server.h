@@ -100,4 +100,4 @@ public:
 private:
   volatile bool started_ = false;
 };
-}
+}  // namespace oceanbase

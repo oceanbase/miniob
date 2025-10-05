@@ -106,4 +106,4 @@ protected:
 
   static array<unique_ptr<DataType>, static_cast<int>(AttrType::MAXTYPE)> type_instances_;
 };
-}
+}  // namespace oceanbase

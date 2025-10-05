@@ -40,4 +40,4 @@ private:
 private:
   Session *session_ = nullptr;
 };
-}
+}  // namespace oceanbase

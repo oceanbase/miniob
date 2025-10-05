@@ -83,4 +83,4 @@ private:
   RowTuple                       tuple_;
   vector<unique_ptr<Expression>> predicates_;  // TODO chang predicate to table tuple filter
 };
-}
+}  // namespace oceanbase

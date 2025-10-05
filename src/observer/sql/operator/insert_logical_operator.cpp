@@ -16,6 +16,5 @@ See the Mulan PSL v2 for more details. */
 
 namespace oceanbase {
 
-InsertLogicalOperator::InsertLogicalOperator(Table *table, vector<Value> values) : table_(table), values_(values)
-{}
-}
+InsertLogicalOperator::InsertLogicalOperator(Table *table, vector<Value> values) : table_(table), values_(values) {}
+}  // namespace oceanbase

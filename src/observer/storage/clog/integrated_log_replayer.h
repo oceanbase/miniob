@@ -60,4 +60,4 @@ private:
   BplusTreeLogReplayer    bplus_tree_log_replayer_;   ///< bplus tree 日志回放器
   unique_ptr<LogReplayer> trx_log_replayer_;          ///< trx 日志回放器
 };
-}
+}  // namespace oceanbase

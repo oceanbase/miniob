@@ -65,4 +65,4 @@ private:
   PendingTasks *task_pool_;
   double        cost_upper_bound_;
 };
-}
+}  // namespace oceanbase

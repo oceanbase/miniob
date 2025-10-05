@@ -69,4 +69,4 @@ private:
   // 如果有多个表达式，他们的关系都是 AND
   vector<unique_ptr<Expression>> predicates_;
 };
-}
+}  // namespace oceanbase

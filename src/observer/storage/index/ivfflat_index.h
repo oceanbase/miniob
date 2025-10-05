@@ -21,7 +21,7 @@ namespace oceanbase {
 class IvfflatIndex : public Index
 {
 public:
-  IvfflatIndex(){};
+  IvfflatIndex() {};
   virtual ~IvfflatIndex() noexcept {};
 
   RC create(Table *table, const char *file_name, const IndexMeta &index_meta, const FieldMeta &field_meta)
@@ -49,4 +49,4 @@ private:
   int    lists_  = 1;
   int    probes_ = 1;
 };
-}
+}  // namespace oceanbase

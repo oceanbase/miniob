@@ -442,4 +442,4 @@ private:
   Tuple *left_  = nullptr;
   Tuple *right_ = nullptr;
 };
-}
+}  // namespace oceanbase

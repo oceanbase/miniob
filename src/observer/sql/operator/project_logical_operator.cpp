@@ -23,7 +23,7 @@ ProjectLogicalOperator::ProjectLogicalOperator(vector<unique_ptr<Expression>> &&
   expressions_ = std::move(expressions);
 }
 
-unique_ptr<LogicalProperty> ProjectLogicalOperator::find_log_prop(const vector<LogicalProperty*> &log_props)
+unique_ptr<LogicalProperty> ProjectLogicalOperator::find_log_prop(const vector<LogicalProperty *> &log_props)
 {
   int card = 0;
   for (auto log_prop : log_props) {
@@ -35,4 +35,4 @@ unique_ptr<LogicalProperty> ProjectLogicalOperator::find_log_prop(const vector<L
   }
   return make_unique<LogicalProperty>(card);
 }
-}
+}  // namespace oceanbase

@@ -32,4 +32,4 @@ public:
 private:
   RecordScanner *scanner_ = nullptr;
 };
-}
+}  // namespace oceanbase

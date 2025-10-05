@@ -29,4 +29,4 @@ public:
 private:
   GroupExpr *group_expr_;
 };
-}
+}  // namespace oceanbase

@@ -100,4 +100,4 @@ private:
   map<string, Db *> opened_dbs_;        ///< 打开的数据库
   string            storage_engine_;    ///< 存储引擎的名称
 };
-}
+}  // namespace oceanbase

@@ -51,4 +51,4 @@ private:
    */
   int prev_child_idx_ = -1;
 };
-}
+}  // namespace oceanbase

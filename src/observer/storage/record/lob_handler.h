@@ -41,4 +41,4 @@ public:
 private:
   PersistHandler file_;
 };
-}
+}  // namespace oceanbase
