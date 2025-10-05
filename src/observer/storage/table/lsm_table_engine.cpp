@@ -17,7 +17,9 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/lsm_record_scanner.h"
 #include "storage/common/codec.h"
 #include "storage/trx/lsm_mvcc_trx.h"
+
 namespace oceanbase {
+
 RC LsmTableEngine::insert_record(Record &record)
 {
   RC rc = RC::SUCCESS;
@@ -43,4 +45,5 @@ RC LsmTableEngine::open()
 {
   return RC::UNIMPLEMENTED;
 }
-}
+
+} // namespace oceanbase
