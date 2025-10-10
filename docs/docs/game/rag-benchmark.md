@@ -50,33 +50,6 @@ Langflow 是一个开源的、可视化的 LangChain 工作流构建平台。它
 
 我们设计了以 miniob 为向量数据库,langflow 为工作流的 RAG 流程。选手需要完善自己的工作流,在工作流中调用选手自己的 miniob 数据库来完成此题目。
 
-### 测评环境变量介绍
-
-- `OB_DOC_PATH`: OceanBase 官方文档目录地址,测评使用的是 https://github.com/oceanbase/oceanbase-doc/tree/V4.3.5/zh-CN 下的文档
-- `EMBEDDING_NAME`: 词嵌入模型名,测评使用的模型是 bge-m3
-- `EMBEDDING_BASE_URL`: 词嵌入模型地址
-- `LLM_NAME`: 大语言模型名,
-- `LLM_API_KEY`: 大语言模型 Api Key
-- `LLM_BASE_URL`: 大语言模型地址
-- `QA_SERVER_GET_QUESTION_URL`: 测评机生成问题地址
-- `QA_SERVER_POST_ANSWER_URL`: 测评机发送答案地址
-- `MINIOB_SERVER_SOCKET`: miniob socket 文件地址
-
-### 初始工作流
-
-为了方便大家更快上手,我们提供了一个初始的 langflow 工作流 json 文件,包含了与测评机器做答案交互,调用大模型等繁琐 IO 操作。同时也提供了一些必要的组件,内容如下 (从左到右,从上到下一次介绍):
-
-- `Directory`: 负责知识库的导入,通过测评环境变量 `OB_DOC_PATH` 获得 OceanBase 官方文档目录地址,来加载 OceanBase 介绍文档
-- `Split Text`: 文档的分块,通过制定字符/规则划分文档
-- `Ollama Embeddings`: 词嵌入模型
-- `Chat Input`: 调用 `QA_SERVER_GET_QUESTION_URL` 向测评机获取问题
-- `MiniOB`: MiniOB 数据库交互
-- `Parser`: 解析 MiniOB 的检索结果
-- `Prompt`: 通过检索结果生成提示词
-- `Qwen`: 通义千问模型
-- `Chat Output`: 输出大模型结果
-- `Test Output`: 投送测评结果到测评机
-
 ### 测评流程
 
 - 上传代码: 选手需要将自己的工作流导出为 json 格式,放在个人 miniob 仓库下,位置为项目根目录下的 `./RAG/model.json` (注意文件名必须为 `model.json`)
@@ -128,11 +101,38 @@ score = sum(1 for support_fact in support_facts if support_fact in answer) / len
 
 我们会从数据集中选取 30 个问题,并计算平均召回率 (平均召回率 = 所有题目的召回率总和 / 题目数量),若平均召回率高于 70%,则通过此题目
 
+### 测评环境变量介绍
+
+- `OB_DOC_PATH`: OceanBase 官方文档目录地址,测评使用的是 https://github.com/oceanbase/oceanbase-doc/tree/V4.3.5/zh-CN 下的文档
+- `EMBEDDING_NAME`: 词嵌入模型名,测评使用的模型是 bge-m3
+- `EMBEDDING_BASE_URL`: 词嵌入模型地址
+- `LLM_NAME`: 大语言模型名,
+- `LLM_API_KEY`: 大语言模型 Api Key
+- `LLM_BASE_URL`: 大语言模型地址
+- `QA_SERVER_GET_QUESTION_URL`: 测评机生成问题地址
+- `QA_SERVER_POST_ANSWER_URL`: 测评机发送答案地址
+- `MINIOB_SERVER_SOCKET`: miniob socket 文件地址
+
+### 初始工作流
+
+为了方便大家更快上手,我们提供了一个初始的 langflow 工作流 json 文件,包含了与测评机器做答案交互,调用大模型等繁琐 IO 操作。同时也提供了一些必要的组件,内容如下 (从左到右,从上到下一次介绍):
+
+- `Directory`: 负责知识库的导入,通过测评环境变量 `OB_DOC_PATH` 获得 OceanBase 官方文档目录地址,来加载 OceanBase 介绍文档
+- `Split Text`: 文档的分块,通过制定字符/规则划分文档
+- `Ollama Embeddings`: 词嵌入模型
+- `Chat Input`: 调用 `QA_SERVER_GET_QUESTION_URL` 向测评机获取问题
+- `MiniOB`: MiniOB 数据库交互
+- `Parser`: 解析 MiniOB 的检索结果
+- `Prompt`: 通过检索结果生成提示词
+- `Qwen`: 通义千问模型
+- `Chat Output`: 输出大模型结果
+- `Test Output`: 投送测评结果到测评机
+
 ### 测评提示
 
 - 初始工作流的组件默认未连接，请先完成连线后再运行
 - 在 MiniOB 组件代码中标注有 TODO，请完成 TODO 并正确连接以通过此题
-- 测评前请确保测评相关 API 使用正确的环境变量
+- 请勿修改如环境变量名等配置项名称以保证测评顺利进行
 
 ## 参考资料
 
