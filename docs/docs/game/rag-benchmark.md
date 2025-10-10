@@ -12,7 +12,7 @@ RAG（检索增强生成）是一种结合了 信息检索 和 生成式 AI 的�
 
 ### RAG 实现原理
 
-RAG 的实现通常包含以下几个关键步骤: 
+RAG 的实现通常包含以下几个关键步骤:
 
 #### 文档拆分 （Chunk）
 
@@ -64,7 +64,7 @@ Langflow 是一个开源的、可视化的 LangChain 工作流构建平台。它
 
 ### 初始工作流
 
-为了方便大家更快上手,我们提供了一个初始的 langflow 工作流 json 文件,包含了与测评机器做答案交互,调用大模型等繁琐 IO 操作。同时也提供了一些必要的组件,内容如下 (从左到右,从上到下一次介绍): 
+为了方便大家更快上手,我们提供了一个初始的 langflow 工作流 json 文件,包含了与测评机器做答案交互,调用大模型等繁琐 IO 操作。同时也提供了一些必要的组件,内容如下 (从左到右,从上到下一次介绍):
 
 - `Directory`: 负责知识库的导入,通过测评环境变量 `OB_DOC_PATH` 获得 OceanBase 官方文档目录地址,来加载 OceanBase 介绍文档
 - `Split Text`: 文档的分块,通过制定字符/规则划分文档
@@ -87,7 +87,7 @@ Langflow 是一个开源的、可视化的 LangChain 工作流构建平台。它
 
 ### 数据集
 
-测评的知识库来源于 [OceanBase 官方文档](https://github.com/oceanbase/oceanbase-doc),部分的测评数据如下: 
+测评的知识库来源于 [OceanBase 官方文档](https://github.com/oceanbase/oceanbase-doc),部分的测评数据如下:
 
 ```json
 [
@@ -118,7 +118,7 @@ Langflow 是一个开源的、可视化的 LangChain 工作流构建平台。它
 
 #### 召回率计算
 
-通过问题,答案,以及数据集的 `support_facts` 获得召回率,计算公式: 
+通过问题,答案,以及数据集的 `support_facts` 获得召回率,计算公式:
 
 ```python
 score = sum(1 for support_fact in support_facts if support_fact in answer) / len(support_facts)
@@ -130,9 +130,9 @@ score = sum(1 for support_fact in support_facts if support_fact in answer) / len
 
 ### 测评提示
 
-- 我们所给的初始工作流组件并没有相互连接,你需要先完成组件的连接才能运行工作流
-- 为了简化难度,我们几乎实现了除 MiniOB 组件外的其他逻辑,并且我们在 MiniOB 组件代码中留了 TODO List。我们实测过,仅修改 MiniOB 组件代码并且连线正确,也能通过此题目
-- 测评前请保证测评相关 API 使用的是我们的环境变量,否则会爆 500 错误
+- 初始工作流的组件默认未连接，请先完成连线后再运行
+- 在 MiniOB 组件代码中标注有 TODO，请完成 TODO 并正确连接以通过此题
+- 测评前请确保测评相关 API 使用正确的环境变量
 
 ## 参考资料
 
