@@ -1,5 +1,5 @@
 ---
-title: MiniOB 向量数据库
+title: MiniOB 向量数据库 - 2025 版
 ---
 
 # MiniOB 向量数据库
