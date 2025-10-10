@@ -48,11 +48,12 @@ nav:
     - game/miniob-output-convention.md
     - game/debug-output.md
     - game/miniob-memtracer.md
-    - game/miniob_topics.md
     - game/github-introduction.md
     - game/gitee-instructions.md
-    - game/miniob-vectordb.md
     - game/git-introduction.md
+    - game/miniob-vectordb-2024.md
+    - game/miniob-vectordb-2025.md
+    - game/rag-benchmark.md
   - 数据库系统实现原理与实践:
     - db_course_lab/overview.md
     - db_course_lab/lab0.md
