@@ -52,7 +52,7 @@ Langflow 是一个开源的、可视化的 LangChain 工作流构建平台。它
 
 ### 测评流程
 
-- 上传代码: 选手需要将自己的工作流导出为 json 格式,放在个人 miniob 仓库下,位置为项目根目录下的 `./RAG/model.json` (注意文件名必须为 `model.json`)
+- 上传代码: 选手需要将自己的工作流导出为 json 格式,放在个人 miniob 仓库下,位置为项目根目录下的 `./rag/model.json` (注意文件名必须为 `model.json`)
 - 模型导入: 将选手的 model.json 上传到测评的 langflow 平台
 - 启动 miniob: 启动选手的 miniob 数据库
 - 测评: 通过 HTTP API,运行选手的工作流并获得测评结果
