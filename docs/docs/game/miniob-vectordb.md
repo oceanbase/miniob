@@ -132,4 +132,4 @@ SELECT VECTOR_TO_STRING(STRING_TO_VECTOR("[1.05, -17.8, 32]"));
 
 [ivfflat 原理介绍](https://www.timescale.com/blog/nearest-neighbor-indexes-what-are-ivfflat-indexes-in-pgvector-and-how-do-they-work/)
 
-[支持 MiniOB 的 ann-benchmarks fork 仓库](https://github.com/nautaa/ann-benchmarks/tree/miniob_ann)
+[支持 MiniOB 的 ann-benchmarks fork 仓库](https://github.com/oceanbase/ann-benchmarks/tree/miniob)
