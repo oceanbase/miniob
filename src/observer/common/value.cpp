@@ -28,6 +28,16 @@ Value::Value(bool val) { set_boolean(val); }
 
 Value::Value(const char *s, int len /*= 0*/) { set_string(s, len); }
 
+// 用于创建日期类型值的构造函数
+Value::Value(int date_yyyymmdd, AttrType type) {
+  if (type == AttrType::DATES) {
+    set_date(date_yyyymmdd);
+  } else {
+    // 对于其他类型，使用set_int
+    set_int(date_yyyymmdd);
+  }
+}
+
 Value::Value(const Value &other)
 {
   this->attr_type_ = other.attr_type_;
@@ -125,6 +135,11 @@ void Value::set_data(char *data, int length)
       value_.bool_value_ = *(int *)data != 0;
       length_            = length;
     } break;
+    case AttrType::DATES: {
+      // 日期内部使用int表示，格式为YYYYMMDD
+      value_.int_value_ = *(int *)data;
+      length_           = length;
+    } break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
     } break;
@@ -152,6 +167,14 @@ void Value::set_boolean(bool val)
   attr_type_         = AttrType::BOOLEANS;
   value_.bool_value_ = val;
   length_            = sizeof(val);
+}
+
+void Value::set_date(int date_yyyymmdd)
+{
+  reset();
+  attr_type_        = AttrType::DATES;
+  value_.int_value_ = date_yyyymmdd;
+  length_           = sizeof(date_yyyymmdd);
 }
 
 void Value::set_string(const char *s, int len /*= 0*/)
@@ -189,6 +212,12 @@ void Value::set_value(const Value &value)
     } break;
     case AttrType::BOOLEANS: {
       set_boolean(value.get_boolean());
+    } break;
+    case AttrType::DATES: {
+      // 日期内部使用int表示，格式为YYYYMMDD
+      set_int(value.get_int());
+      // 设置类型为DATES
+      set_type(AttrType::DATES);
     } break;
     default: {
       ASSERT(false, "got an invalid value type");
@@ -251,6 +280,10 @@ int Value::get_int() const
     case AttrType::BOOLEANS: {
       return (int)(value_.bool_value_);
     }
+    case AttrType::DATES: {
+      // 日期内部使用int表示，格式为YYYYMMDD
+      return value_.int_value_;
+    }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return 0;
@@ -279,6 +312,10 @@ float Value::get_float() const
     case AttrType::BOOLEANS: {
       return float(value_.bool_value_);
     } break;
+    case AttrType::DATES: {
+      // 日期内部使用int表示，转换为float
+      return float(value_.int_value_);
+    } break;
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return 0;
@@ -287,7 +324,7 @@ float Value::get_float() const
   return 0;
 }
 
-string Value::get_string() const { return this->to_string(); }
+
 
 bool Value::get_boolean() const
 {
@@ -320,10 +357,51 @@ bool Value::get_boolean() const
     case AttrType::BOOLEANS: {
       return value_.bool_value_;
     } break;
+    case AttrType::DATES: {
+      // 日期非零即为true
+      return value_.int_value_ != 0;
+    } break;
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return false;
     }
   }
   return false;
+}
+
+string Value::get_string() const
+{
+  switch (attr_type_) {
+    case AttrType::CHARS: {
+      if (value_.pointer_value_ != nullptr) {
+        return string(value_.pointer_value_, length_);
+      }
+      return "";
+    }
+    case AttrType::INTS: {
+      return std::to_string(value_.int_value_);
+    }
+    case AttrType::FLOATS: {
+      return std::to_string(value_.float_value_);
+    }
+    case AttrType::BOOLEANS: {
+      return value_.bool_value_ ? "true" : "false";
+    }
+    case AttrType::DATES: {
+      // 日期内部使用int表示，格式为YYYYMMDD，需要转换为YYYY-MM-DD格式
+      int date = value_.int_value_;
+      int year = date / 10000;
+      int month = (date % 10000) / 100;
+      int day = date % 100;
+      
+      // 使用格式化字符串创建YYYY-MM-DD格式的日期
+      char buffer[11]; // YYYY-MM-DD需要10个字符+1个结束符
+      snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d", year, month, day);
+      return string(buffer);
+    }
+    default: {
+      LOG_WARN("unknown data type. type=%d", attr_type_);
+      return "";
+    }
+  }
 }
