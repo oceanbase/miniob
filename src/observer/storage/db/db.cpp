@@ -195,6 +195,54 @@ Table *Db::find_table(int32_t table_id) const
   return nullptr;
 }
 
+RC Db::drop_table(const char *table_name)
+{
+  // check table_name
+  if (opened_tables_.count(table_name) == 0) {
+    LOG_WARN("%s does not exist.", table_name);
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+
+  Table *table = opened_tables_[table_name];
+  opened_tables_.erase(table_name);
+
+  // 删除表相关的所有文件
+  string table_meta_file_path = table_meta_file(path_.c_str(), table_name);
+  string table_data_file_path = table_data_file(path_.c_str(), table_name);
+  string table_lob_file_path = table_lob_file(path_.c_str(), table_name);
+
+  // 删除元数据文件
+  if (filesystem::exists(table_meta_file_path)) {
+    filesystem::remove(table_meta_file_path);
+  }
+
+  // 删除数据文件
+  if (filesystem::exists(table_data_file_path)) {
+    filesystem::remove(table_data_file_path);
+  }
+
+  // 删除LOB文件
+  if (filesystem::exists(table_lob_file_path)) {
+    filesystem::remove(table_lob_file_path);
+  }
+
+  // 删除所有索引文件
+  const TableMeta &table_meta = table->table_meta();
+  for (int i = 0; i < table_meta.index_num(); ++i) {
+    const IndexMeta *index_meta = table_meta.index(i);
+    string index_file_path = table_index_file(path_.c_str(), table_name, index_meta->name());
+    if (filesystem::exists(index_file_path)) {
+      filesystem::remove(index_file_path);
+    }
+  }
+
+  // 删除Table对象
+  delete table;
+
+  LOG_INFO("Drop table success. table name=%s", table_name);
+  return RC::SUCCESS;
+}
+
 RC Db::open_all_tables()
 {
   vector<string> table_meta_files;
