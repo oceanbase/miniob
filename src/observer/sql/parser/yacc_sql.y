@@ -14,6 +14,9 @@
 
 using namespace std;
 
+// temporary storage for ON conditions collected during parsing of JOIN clauses
+static vector<ConditionSqlNode> *g_join_on_conditions = nullptr;
+
 string token_name(const char *sql_string, YYLTYPE *llocp)
 {
   return string(sql_string + llocp->first_column, llocp->last_column - llocp->first_column + 1);
@@ -99,6 +102,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         AND
         SET
         ON
+  JOIN
+  INNER
         LOAD
         DATA
         INFILE
@@ -169,6 +174,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <attr_info>           attr_def
 %type <value_list>          value_list
 %type <condition_list>      where
+%type <condition_list>      on_condition_list
 %type <condition_list>      condition_list
 %type <cstring>             storage_format
 %type <key_list>            primary_key
@@ -496,9 +502,18 @@ select_stmt:        /*  select 语句的语法解析树*/
         delete $4;
       }
 
+      // merge where conditions and any ON conditions collected from JOIN clauses
       if ($5 != nullptr) {
         $$->selection.conditions.swap(*$5);
         delete $5;
+      }
+      if (g_join_on_conditions != nullptr) {
+        // append ON conditions to selection.conditions
+        $$->selection.conditions.insert($$->selection.conditions.end(),
+                                       g_join_on_conditions->begin(),
+                                       g_join_on_conditions->end());
+        delete g_join_on_conditions;
+        g_join_on_conditions = nullptr;
       }
 
       if ($6 != nullptr) {
@@ -608,6 +623,38 @@ rel_list:
 
       $$->insert($$->begin(), $1);
     }
+    /* support JOIN syntax: rel JOIN rel ON conditions [JOIN rel ON conditions ...] */
+    | rel_list JOIN relation ON on_condition_list {
+      // append relation to existing list
+      if ($1 != nullptr) {
+        $$ = $1;
+      } else {
+        $$ = new vector<string>;
+      }
+      $$->push_back($3);
+      if ($5 != nullptr) {
+        if (g_join_on_conditions == nullptr) {
+          g_join_on_conditions = new vector<ConditionSqlNode>();
+        }
+        g_join_on_conditions->insert(g_join_on_conditions->end(), $5->begin(), $5->end());
+        delete $5;
+      }
+    }
+    | rel_list INNER JOIN relation ON on_condition_list {
+      if ($1 != nullptr) {
+        $$ = $1;
+      } else {
+        $$ = new vector<string>;
+      }
+      $$->push_back($4);
+      if ($6 != nullptr) {
+        if (g_join_on_conditions == nullptr) {
+          g_join_on_conditions = new vector<ConditionSqlNode>();
+        }
+        g_join_on_conditions->insert(g_join_on_conditions->end(), $6->begin(), $6->end());
+        delete $6;
+      }
+    }
     ;
 
 where:
@@ -617,6 +664,23 @@ where:
     }
     | WHERE condition_list {
       $$ = $2;  
+    }
+    ;
+/* on_condition_list: reuse same structure as condition_list */
+on_condition_list:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | condition {
+      $$ = new vector<ConditionSqlNode>;
+      $$->emplace_back(*$1);
+      delete $1;
+    }
+    | condition AND on_condition_list {
+      $$ = $3;
+      $$->emplace_back(*$1);
+      delete $1;
     }
     ;
 condition_list:
