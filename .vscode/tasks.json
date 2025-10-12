@@ -11,7 +11,7 @@
         {
             "label": "build_debug",
             "type": "shell",
-            "command": "bash build.sh debug",
+            "command": "bash build.sh debug --make -j24",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -21,7 +21,8 @@
         {
             "label": "build_release",
             "type": "shell",
-            "command": "bash build.sh release"
+            "command": "bash build.sh release --make -j24",
+            "problemMatcher": []
         },
         {
             "label": "gen_parser",
