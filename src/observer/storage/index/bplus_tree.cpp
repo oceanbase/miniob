@@ -1274,7 +1274,6 @@ RC BplusTreeHandler::insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, 
       Value v1(file_header_.attr_type, const_cast<char*>(leaf_node.key_at(i)), file_header_.attr_length);
       Value v2(file_header_.attr_type, const_cast<char*>(key), file_header_.attr_length);
       if (v1.compare(v2) == 0) {
-        LOG_TRACE("unique index: entry exists, reject insert");
         return RC::RECORD_DUPLICATE_KEY;
       }
     }
@@ -1283,7 +1282,6 @@ RC BplusTreeHandler::insert_entry_into_leaf_node(BplusTreeMiniTransaction &mtr, 
     bool exists = false;
     leaf_node.lookup(key_comparator_, key, &exists);
     if (exists) {
-      LOG_TRACE("non-unique index: entry exists, reject insert");
       return RC::RECORD_DUPLICATE_KEY;
     }
   }
