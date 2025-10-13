@@ -82,7 +82,14 @@ RC BplusTreeIndex::close()
 
 RC BplusTreeIndex::insert_entry(const char *record, const RID *rid)
 {
-  return index_handler_.insert_entry(record + field_meta_.offset(), rid);
+  if (index_meta_.unique()) {
+    return index_handler_.insert_entry(record + field_meta_.offset(), rid);
+  } else {
+    // For non-unique indexes, we need to allow duplicates
+    // For now, we'll treat non-unique as unique since the current implementation doesn't support multi-value
+    // TODO: Implement proper non-unique index support
+    return index_handler_.insert_entry(record + field_meta_.offset(), rid);
+  }
 }
 
 RC BplusTreeIndex::delete_entry(const char *record, const RID *rid)

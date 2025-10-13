@@ -192,6 +192,7 @@ struct CreateIndexSqlNode
   string index_name;      ///< Index name
   string relation_name;   ///< Relation name
   string attribute_name;  ///< Attribute name
+  bool   unique;          ///< Whether it's a unique index
 };
 
 /**

@@ -91,6 +91,7 @@ DROP                                    RETURN_TOKEN(DROP);
 TABLE                                   RETURN_TOKEN(TABLE);
 TABLES                                  RETURN_TOKEN(TABLES);
 INDEX                                   RETURN_TOKEN(INDEX);
+UNIQUE                                  RETURN_TOKEN(UNIQUE);
 ON                                      RETURN_TOKEN(ON);
 SHOW                                    RETURN_TOKEN(SHOW);
 SYNC                                    RETURN_TOKEN(SYNC);
