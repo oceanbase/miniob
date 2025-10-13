@@ -30,7 +30,7 @@ RC BplusTreeIndex::create(Table *table, const char *file_name, const IndexMeta &
   Index::init(index_meta, field_meta);
 
   BufferPoolManager &bpm = table->db()->buffer_pool_manager();
-  RC rc = index_handler_.create(table->db()->log_handler(), bpm, file_name, field_meta.type(), field_meta.len());
+  RC rc = index_handler_.create(table->db()->log_handler(), bpm, file_name, field_meta.type(), field_meta.len(), index_meta.unique());
   if (RC::SUCCESS != rc) {
     LOG_WARN("Failed to create index_handler, file_name:%s, index:%s, field:%s, rc:%s",
         file_name, index_meta.name(), index_meta.field(), strrc(rc));
@@ -82,7 +82,14 @@ RC BplusTreeIndex::close()
 
 RC BplusTreeIndex::insert_entry(const char *record, const RID *rid)
 {
-  return index_handler_.insert_entry(record + field_meta_.offset(), rid);
+  if (index_meta_.unique()) {
+    return index_handler_.insert_entry(record + field_meta_.offset(), rid);
+  } else {
+    // For non-unique indexes, we need to allow duplicates
+    // For now, we'll treat non-unique as unique since the current implementation doesn't support multi-value
+    // TODO: Implement proper non-unique index support
+    return index_handler_.insert_entry(record + field_meta_.offset(), rid);
+  }
 }
 
 RC BplusTreeIndex::delete_entry(const char *record, const RID *rid)

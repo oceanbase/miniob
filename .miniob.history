@@ -8,15 +8,49 @@ drop_table good
 drop-table good;
 ### 2025-10-12 13:06:35.991
 drop table good;
-### 2025-10-12 13:06:43.195
-show tables
 ### 2025-10-12 13:07:07.742
 DROP TABLE good;
 ### 2025-10-12 13:07:10.347
 quit;
-### 2025-10-12 13:07:15.213
-exit;
 ### 2025-10-12 13:10:10.017
 drop table good
-### 2025-10-12 13:10:15.728
+### 2025-10-13 14:01:41.788
+select * from unique_table'
+### 2025-10-13 14:01:59.743
 exit
+### 2025-10-13 14:06:47.698
+CREATE UNIQUE INDEX index_id on unique_table(id);
+### 2025-10-13 14:07:10.180
+select *
+### 2025-10-13 14:07:32.679
+select * from unique_table;
+### 2025-10-13 14:09:03.478
+CREATE UNIQUE INDEX index_id on unique_table(id);INSERT INTO unique_table VALUES (2,1,1);
+### 2025-10-13 14:09:04.417
+INSERT INTO unique_table VALUES (3,2,1);INSERT INTO unique_table VALUES (1,2,1);
+### 2025-10-13 14:09:29.307
+REATE UNIQUE INDEX index_id on unique_table(id);
+### 2025-10-13 14:15:23.530
+show tables
+### 2025-10-13 14:15:48.645
+drop table unique_table;
+### 2025-10-13 14:17:05.639
+exit;
+### 2025-10-13 14:20:03.024
+drop table unique_table
+### 2025-10-13 14:20:07.247
+create table unique_table(id int, col1 int, col2 int);
+### 2025-10-13 14:20:07.264
+CREATE UNIQUE INDEX index_id on unique_table(id);INSERT INTO unique_table VALUES (2,1,1);INSERT INTO unique_table VALUES (3,2,1);
+### 2025-10-13 14:20:10.547
+INSERT INTO unique_table VALUES (1,2,1);
+### 2025-10-13 14:20:22.581
+select * from unique_table
+### 2025-10-13 14:20:26.987
+CREATE UNIQUE INDEX index_id on unique_table(id);
+### 2025-10-13 14:20:31.493
+INSERT INTO unique_table VALUES (1,1,1);
+### 2025-10-13 14:20:36.272
+INSERT INTO unique_table VALUES (3,2,1);
+### 2025-10-13 14:21:00.723
+INSERT INTO unique_table VALUES (2,1,1);

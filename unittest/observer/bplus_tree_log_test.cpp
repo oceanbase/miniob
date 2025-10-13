@@ -74,7 +74,7 @@ TEST(BplusTreeLog, base)
   ASSERT_EQ(RC::SUCCESS, log_handler->start());
 
   auto bplus_tree = make_unique<BplusTreeHandler>();
-  ASSERT_EQ(RC::SUCCESS, bplus_tree->create(*log_handler, *buffer_pool, AttrType::INTS, 4));
+  ASSERT_EQ(RC::SUCCESS, bplus_tree->create(*log_handler, *buffer_pool, AttrType::INTS, 4, false));
 
   // 2. insert some key-value pairs into the bplus tree
   const int   insert_num = 10000;
@@ -192,7 +192,7 @@ TEST(BplusTreeLog, concurrency)
   vector<unique_ptr<BplusTreeHandler>> bplus_trees;
   for (DiskBufferPool *buffer_pool : buffer_pools) {
     auto bplus_tree = make_unique<BplusTreeHandler>();
-    ASSERT_EQ(RC::SUCCESS, bplus_tree->create(*log_handler, *buffer_pool, AttrType::INTS, 4));
+    ASSERT_EQ(RC::SUCCESS, bplus_tree->create(*log_handler, *buffer_pool, AttrType::INTS, 4, false));
     bplus_trees.push_back(std::move(bplus_tree));
   }
 

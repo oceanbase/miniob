@@ -346,6 +346,7 @@ TEST(test_bplus_tree, test_leaf_index_node_handle)
           *buffer_pool,
           index_file_header.attr_type,
           index_file_header.attr_length,
+          false,
           index_file_header.internal_max_size,
           index_file_header.leaf_max_size));
   BplusTreeMiniTransaction mtr(tree_handler);
@@ -428,6 +429,7 @@ TEST(test_bplus_tree, test_internal_index_node_handle)
           *buffer_pool,
           index_file_header.attr_type,
           index_file_header.attr_length,
+          false,
           index_file_header.internal_max_size,
           index_file_header.leaf_max_size));
   BplusTreeMiniTransaction mtr(tree_handler);
@@ -538,7 +540,7 @@ TEST(test_bplus_tree, test_chars)
   ASSERT_NE(nullptr, buffer_pool);
 
   BplusTreeHandler handler;
-  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, AttrType::CHARS, 8, ORDER, ORDER));
+  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, AttrType::CHARS, 8, false, ORDER, ORDER));
 
   char keys[][9] = {"abcdefg", "12345678", "12345678", "abcdefg", "abcdefga"};
 
@@ -588,7 +590,7 @@ TEST(test_bplus_tree, test_scanner)
   ASSERT_NE(nullptr, buffer_pool);
 
   BplusTreeHandler handler;
-  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, AttrType::INTS, sizeof(int), ORDER, ORDER));
+  ASSERT_EQ(RC::SUCCESS, handler.create(log_handler, *buffer_pool, AttrType::INTS, sizeof(int), false, ORDER, ORDER));
 
   int count = 0;
   RC  rc    = RC::SUCCESS;
@@ -813,7 +815,7 @@ TEST(test_bplus_tree, test_bplus_tree_insert)
   ASSERT_NE(nullptr, buffer_pool);
 
   BplusTreeHandler *handler = new BplusTreeHandler();
-  ASSERT_EQ(RC::SUCCESS, handler->create(log_handler, *buffer_pool, AttrType::INTS, sizeof(int), ORDER, ORDER));
+  ASSERT_EQ(RC::SUCCESS, handler->create(log_handler, *buffer_pool, AttrType::INTS, sizeof(int), false, ORDER, ORDER));
 
   test_insert(handler);
 
@@ -824,6 +826,50 @@ TEST(test_bplus_tree, test_bplus_tree_insert)
   handler->close();
   delete handler;
   handler = nullptr;
+}
+
+TEST(test_bplus_tree, test_bplus_tree_unique_insert)
+{
+  LoggerFactory::init_default("test.log");
+
+  filesystem::path test_directory("bplus_tree");
+  filesystem::path buffer_pool_file = test_directory / "test_bplus_tree_unique_insert.btree";
+  filesystem::remove_all(test_directory);
+  filesystem::create_directory(test_directory);
+
+  VacuousLogHandler log_handler;
+
+  BufferPoolManager bpm;
+  ASSERT_EQ(RC::SUCCESS, bpm.init(make_unique<VacuousDoubleWriteBuffer>()));
+  ASSERT_EQ(RC::SUCCESS, bpm.create_file(buffer_pool_file.c_str()));
+
+  DiskBufferPool *buffer_pool = nullptr;
+  ASSERT_EQ(RC::SUCCESS, bpm.open_file(log_handler, buffer_pool_file.c_str(), buffer_pool));
+  ASSERT_NE(nullptr, buffer_pool);
+
+  BplusTreeHandler *handler = new BplusTreeHandler();
+  ASSERT_EQ(RC::SUCCESS, handler->create(log_handler, *buffer_pool, AttrType::INTS, sizeof(int), true, ORDER, ORDER));
+
+  // Test unique index: insert same key twice should fail
+  RID rid1 = {0, 0};
+  RID rid2 = {0, 1};
+  int key = 42;
+
+  // First insert should succeed
+  RC rc = handler->insert_entry((const char *)&key, &rid1);
+  ASSERT_EQ(RC::SUCCESS, rc);
+
+  // Second insert with same key but different RID should fail for unique index
+  rc = handler->insert_entry((const char *)&key, &rid2);
+  ASSERT_EQ(RC::RECORD_DUPLICATE_KEY, rc);
+
+  // Insert different key should succeed
+  int key2 = 43;
+  rc = handler->insert_entry((const char *)&key2, &rid2);
+  ASSERT_EQ(RC::SUCCESS, rc);
+
+  delete handler;
+  bpm.close_file(buffer_pool_file.c_str());
 }
 
 int main(int argc, char **argv)
