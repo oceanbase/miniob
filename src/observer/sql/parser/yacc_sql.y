@@ -1,6 +1,4 @@
-
 %{
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +9,7 @@
 #include "sql/parser/yacc_sql.hpp"
 #include "sql/parser/lex_sql.h"
 #include "sql/expr/expression.h"
+#include "common/type/date_type.h"
 
 using namespace std;
 
@@ -67,37 +66,38 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 
 //标识tokens
 %token  SEMICOLON
-        BY
-        CREATE
-        DROP
-        GROUP
-        TABLE
-        TABLES
-        INDEX
-        UNIQUE
-        CALC
-        SELECT
-        DESC
-        SHOW
-        SYNC
-        INSERT
-        DELETE
-        UPDATE
-        LBRACE
-        RBRACE
-        COMMA
-        TRX_BEGIN
-        TRX_COMMIT
-        TRX_ROLLBACK
-        INT_T
-        STRING_T
-        FLOAT_T
-        VECTOR_T
-        HELP
-        EXIT
-        DOT //QUOTE
-        INTO
-        VALUES
+  BY
+  CREATE
+  DROP
+  GROUP
+  TABLE
+  TABLES
+  INDEX
+  UNIQUE
+  CALC
+  SELECT
+  DESC
+  SHOW
+  SYNC
+  INSERT
+  DELETE
+  UPDATE
+  LBRACE
+  RBRACE
+  COMMA
+  TRX_BEGIN
+  TRX_COMMIT
+  TRX_ROLLBACK
+  INT_T
+  STRING_T
+  FLOAT_T
+  VECTOR_T
+  DATE_T
+  HELP
+  EXIT
+  DOT //QUOTE
+  INTO
+  VALUES
         FROM
         WHERE
         AND
@@ -387,18 +387,23 @@ attr_def:
       $$ = new AttrInfoSqlNode;
       $$->type = (AttrType)$2;
       $$->name = $1;
-      $$->length = 4;
+      if ($$->type == AttrType::DATES) {
+        $$->length = 4;
+      } else {
+        $$->length = 4;
+      }
     }
     ;
 number:
     NUMBER {$$ = $1;}
     ;
 type:
-    INT_T      { $$ = static_cast<int>(AttrType::INTS); }
-    | STRING_T { $$ = static_cast<int>(AttrType::CHARS); }
-    | FLOAT_T  { $$ = static_cast<int>(AttrType::FLOATS); }
-    | VECTOR_T { $$ = static_cast<int>(AttrType::VECTORS); }
-    ;
+  INT_T      { $$ = static_cast<int>(AttrType::INTS); }
+  | STRING_T { $$ = static_cast<int>(AttrType::CHARS); }
+  | FLOAT_T  { $$ = static_cast<int>(AttrType::FLOATS); }
+  | VECTOR_T { $$ = static_cast<int>(AttrType::VECTORS); }
+  | DATE_T   { $$ = static_cast<int>(AttrType::DATES); }
+  ;
 primary_key:
     /* empty */
     {
@@ -460,7 +465,13 @@ value:
     }
     |SSS {
       char *tmp = common::substr($1,1,strlen($1)-2);
-      $$ = new Value(tmp);
+      // 尝试解析为日期格式 'YYYY-MM-DD'
+      int y, m, d;
+      if (sscanf(tmp, "%d-%d-%d", &y, &m, &d) == 3 && DateType::is_valid_date(y, m, d)) {
+        $$ = new Value(y, m, d);
+      } else {
+        $$ = new Value(tmp);
+      }
       free(tmp);
     }
     ;

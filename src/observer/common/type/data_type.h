@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "common/type/attr_type.h"
 
+
 class Value;
 class Column;
 

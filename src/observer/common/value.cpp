@@ -30,6 +30,9 @@ Value::Value(const char *s, int len /*= 0*/) { set_string(s, len); }
 
 Value::Value(const string_t& s) { set_string(s.data(), s.size()); }
 
+// DATE 类型构造函数
+Value::Value(int year, int month, int day) { set_date(year, month, day); }
+
 
 Value::Value(const Value &other)
 {
@@ -155,6 +158,29 @@ void Value::set_boolean(bool val)
   attr_type_         = AttrType::BOOLEANS;
   value_.bool_value_ = val;
   length_            = sizeof(val);
+}
+
+// DATE 类型设置
+void Value::set_date(int year, int month, int day)
+{
+  reset();
+  attr_type_ = AttrType::DATES;
+  value_.date_value_.year = year;
+  value_.date_value_.month = month;
+  value_.date_value_.day = day;
+  length_ = sizeof(value_.date_value_);
+}
+
+// DATE 类型获取
+void Value::get_date(int &year, int &month, int &day) const
+{
+  if (attr_type_ == AttrType::DATES) {
+    year = value_.date_value_.year;
+    month = value_.date_value_.month;
+    day = value_.date_value_.day;
+  } else {
+    year = month = day = 0;
+  }
 }
 
 void Value::set_string(const char *s, int len /*= 0*/)

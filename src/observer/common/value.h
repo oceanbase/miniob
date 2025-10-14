@@ -49,6 +49,9 @@ public:
   explicit Value(const char *s, int len = 0);
   explicit Value(const string_t &val);
 
+  // DATE 类型构造函数
+  explicit Value(int year, int month, int day);
+
   Value(const Value &other);
   Value(Value &&other);
 
@@ -113,6 +116,9 @@ public:
   string_t get_string_t() const;
   bool     get_boolean() const;
 
+  // DATE 类型获取
+  void     get_date(int &year, int &month, int &day) const;
+
 public:
   void set_int(int val);
   void set_float(float val);
@@ -120,9 +126,13 @@ public:
   void set_empty_string(int len);
   void set_string_from_other(const Value &other);
 
+  // DATE 类型设置
+  void set_date(int year, int month, int day);
+
 private:
   AttrType attr_type_ = AttrType::UNDEFINED;
   int      length_    = 0;
+
 
   union Val
   {
@@ -130,6 +140,11 @@ private:
     float   float_value_;
     bool    bool_value_;
     char   *pointer_value_;
+    struct {
+      int16_t year;
+      int8_t month;
+      int8_t day;
+    } date_value_;
   } value_ = {.int_value_ = 0};
 
   /// 是否申请并占有内存, 目前对于 CHARS 类型 own_data_ 为true, 其余类型 own_data_ 为false
