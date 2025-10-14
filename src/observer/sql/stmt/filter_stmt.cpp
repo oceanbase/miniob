@@ -97,6 +97,8 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, unordered_map<st
     rc                     = get_table_and_field(db, default_table, tables, condition.left_attr, table, field);
     if (rc != RC::SUCCESS) {
       LOG_WARN("cannot find attr");
+      delete filter_unit;
+      filter_unit = nullptr;
       return rc;
     }
     FilterObj filter_obj;
@@ -114,6 +116,8 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, unordered_map<st
     rc                     = get_table_and_field(db, default_table, tables, condition.right_attr, table, field);
     if (rc != RC::SUCCESS) {
       LOG_WARN("cannot find attr");
+      delete filter_unit;
+      filter_unit = nullptr;
       return rc;
     }
     FilterObj filter_obj;

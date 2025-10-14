@@ -32,7 +32,7 @@ RC update_execute(SQLStageEvent *sql_event) {
   const TableMeta &table_meta = table->table_meta();
   const FieldMeta *field = table_meta.field(update_field_name.c_str());
   if (!field) {
-    LOG_ERROR("Field not found: %s", update_field_name);
+    LOG_ERROR("Field not found: %s", update_field_name.c_str());
     return RC::SCHEMA_FIELD_MISSING;
   }
 
@@ -40,7 +40,7 @@ RC update_execute(SQLStageEvent *sql_event) {
   RecordScanner *scanner = nullptr;
   RC rc = table->get_record_scanner(scanner, trx, ReadWriteMode::READ_WRITE);
   if (rc != RC::SUCCESS) {
-    LOG_ERROR("Failed to get record scanner");
+    LOG_ERROR("Failed to get record scanner. rc=%d", rc);
     return rc;
   }
   int update_count = 0;
@@ -56,12 +56,16 @@ RC update_execute(SQLStageEvent *sql_event) {
         Value left_val, right_val;
         if (left.is_attr) {
           const FieldMeta *fm = left.field.meta();
+          // set the value type first so set_data can interpret raw bytes correctly
+          left_val.set_type(fm->type());
           left_val.set_data(record.data() + fm->offset(), fm->len());
         } else {
           left_val = left.value;
         }
         if (right.is_attr) {
           const FieldMeta *fm = right.field.meta();
+          // set the value type first so set_data can interpret raw bytes correctly
+          right_val.set_type(fm->type());
           right_val.set_data(record.data() + fm->offset(), fm->len());
         } else {
           right_val = right.value;

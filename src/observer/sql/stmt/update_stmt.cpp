@@ -4,6 +4,7 @@
 
 UpdateStmt::~UpdateStmt() {
   delete[] values_;
+  delete filter_stmt_;
 }
 /* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
