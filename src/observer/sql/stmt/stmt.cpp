@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/stmt.h"
 #include "common/log/log.h"
 #include "sql/stmt/analyze_table_stmt.h"
+#include "sql/stmt/update_stmt.h"
 #include "sql/stmt/calc_stmt.h"
 #include "sql/stmt/create_index_stmt.h"
 #include "sql/stmt/create_table_stmt.h"
@@ -59,6 +60,9 @@ RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
     }
     case SCF_SELECT: {
       return SelectStmt::create(db, sql_node.selection, stmt);
+    }
+    case SCF_UPDATE: {
+      return UpdateStmt::create(db, sql_node.update, stmt);
     }
 
     case SCF_EXPLAIN: {

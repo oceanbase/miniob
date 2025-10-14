@@ -1,3 +1,4 @@
+#include "sql/executor/update_executor.h"
 /* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -34,6 +35,9 @@ RC CommandExecutor::execute(SQLStageEvent *sql_event)
 
   RC rc = RC::SUCCESS;
   switch (stmt->type()) {
+    case StmtType::UPDATE: {
+      rc = update_execute(sql_event);
+    } break;
     case StmtType::CREATE_INDEX: {
       CreateIndexExecutor executor;
       rc = executor.execute(sql_event);

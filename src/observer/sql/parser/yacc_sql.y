@@ -504,6 +504,7 @@ update_stmt:      /*  update 语句的语法解析树*/
       $$->update.relation_name = $2;
       $$->update.attribute_name = $4;
       $$->update.value = *$6;
+      delete $6; /* 防止 Value 泄漏 */
       if ($7 != nullptr) {
         $$->update.conditions.swap(*$7);
         delete $7;

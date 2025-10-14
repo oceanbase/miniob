@@ -113,6 +113,79 @@ RC HeapTableEngine::get_record_scanner(RecordScanner *&scanner, Trx *trx, ReadWr
   return rc;
 }
 
+RC HeapTableEngine::update_record_with_trx(const Record &old_record, const Record &new_record, Trx *trx)
+{
+  RC rc = RC::SUCCESS;
+  // 1. 删除旧的索引条目
+  for (Index *index : indexes_) {
+    rc = index->delete_entry(old_record.data(), &old_record.rid());
+    if (rc != RC::SUCCESS) {
+      LOG_ERROR("failed to delete entry from index before update. table name=%s, index name=%s, rid=%s, rc=%s",
+                table_meta_->name(), index->index_meta().name(), old_record.rid().to_string().c_str(), strrc(rc));
+      return rc;
+    }
+  }
+
+  // 2. 更新数据页
+  // 使用 visit_record 来安全更新页面内数据（visit_record 会复制页面数据并在页处理器中调用 update）
+  rc = record_handler_->visit_record(old_record.rid(), [&](Record &record) -> bool {
+    // 将 new_record 的数据复制到 visitor 提供的 record（它是一个拥有内存的副本）
+    RC rc_copy = record.copy_data(new_record.data(), new_record.len());
+    if (rc_copy != RC::SUCCESS) {
+      LOG_ERROR("failed to copy new record data in visitor. rc=%d", rc_copy);
+      return false;
+    }
+    record.set_rid(old_record.rid());
+    return true;
+  });
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("failed to update record on page. table=%s, rid=%s, rc=%s",
+              table_meta_->name(), old_record.rid().to_string().c_str(), strrc(rc));
+    // 尝试回滚：将旧索引重新插入
+    for (Index *index : indexes_) {
+      RC rc2 = index->insert_entry(old_record.data(), &old_record.rid());
+      if (rc2 != RC::SUCCESS) {
+        LOG_PANIC("failed to rollback index after update failure. table=%s, index=%s, rid=%s, rc=%s",
+                  table_meta_->name(), index->index_meta().name(), old_record.rid().to_string().c_str(), strrc(rc2));
+      }
+    }
+    return rc;
+  }
+
+  // 3. 插入新的索引条目
+  for (Index *index : indexes_) {
+    rc = index->insert_entry(new_record.data(), &new_record.rid());
+    if (rc != RC::SUCCESS) {
+      LOG_ERROR("failed to insert entry into index after update. table=%s, index=%s, rid=%s, rc=%s",
+                table_meta_->name(), index->index_meta().name(), new_record.rid().to_string().c_str(), strrc(rc));
+      // 回滚：恢复数据页为旧数据，并恢复旧索引
+      RC rc2 = record_handler_->visit_record(old_record.rid(), [&](Record &record) -> bool {
+        RC rc_copy = record.copy_data(old_record.data(), old_record.len());
+        if (rc_copy != RC::SUCCESS) {
+          LOG_ERROR("failed to copy old record data in rollback visitor. rc=%d", rc_copy);
+          return false;
+        }
+        record.set_rid(old_record.rid());
+        return true;
+      });
+      if (rc2 != RC::SUCCESS) {
+        LOG_PANIC("failed to rollback page data after index insert failure. table=%s, rid=%s, rc=%s",
+                  table_meta_->name(), old_record.rid().to_string().c_str(), strrc(rc2));
+      }
+      for (Index *idx2 : indexes_) {
+        RC rc3 = idx2->insert_entry(old_record.data(), &old_record.rid());
+        if (rc3 != RC::SUCCESS) {
+          LOG_PANIC("failed to restore old index after index insert failure. table=%s, index=%s, rid=%s, rc=%s",
+                    table_meta_->name(), idx2->index_meta().name(), old_record.rid().to_string().c_str(), strrc(rc3));
+        }
+      }
+      return rc;
+    }
+  }
+
+  return RC::SUCCESS;
+}
+
 RC HeapTableEngine::get_chunk_scanner(ChunkFileScanner &scanner, Trx *trx, ReadWriteMode mode)
 {
   RC rc = scanner.open_scan_chunk(table_, *data_buffer_pool_, db_->log_handler(), mode);
