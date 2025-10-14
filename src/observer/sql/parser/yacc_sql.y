@@ -387,7 +387,11 @@ attr_def:
       $$ = new AttrInfoSqlNode;
       $$->type = (AttrType)$2;
       $$->name = $1;
-      $$->length = 4;
+      if ($$->type == AttrType::DATES) {
+        $$->length = 4;
+      } else {
+        $$->length = 4;
+      }
     }
     ;
 number:
