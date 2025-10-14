@@ -361,3 +361,28 @@ Finish dump configuration
 [2025-10-14 12:29:16.565337 pid:103215 tid:73f14a9207c0 ctx:504000000490 DEBUG: get_internal@disk_buffer_pool.cpp:118] >> got a frame. frame=frame id:buffer_pool_id:1,page_num:1, dirty=0, pin=2, lsn=0, this=0x73f146308870
 [2025-10-14 12:29:16.565422 pid:103215 tid:73f14a9207c0 ctx:504000000490 TRACE: init@record_manager.cpp:132] >> Successfully init page_num 1.
 [2025-10-14 12:29:16.565556 pid:103215 tid:73f14a9207c0 ctx:504000000490 INFO: handle_event@sql_task_handler.cpp:46] >> write result return SUCCESS
+[2025-10-14 12:30:32.174222 pid:103215 tid:73f14a9207c0 ctx:0 INFO: ~CliCommunicator@cli_communicator.cpp:87] >> Command history saved to ./.miniob.history
+[2025-10-14 12:30:32.174271 pid:103215 tid:73f14a9207c0 ctx:0 INFO: main@main.cpp:203] >> Server stopped
+[2025-10-14 12:30:32.174387 pid:103215 tid:73f14a9207c0 ctx:0 TRACE: add_page@double_write_buffer.cpp:111] >> insert page into double write buffer. buffer_pool_id:1,page_num:1,lsn=0, dwb size:1
+[2025-10-14 12:30:32.174452 pid:103215 tid:73f14a9207c0 ctx:0 DEBUG: flush_page_internal@disk_buffer_pool.cpp:564] >> Flush block. file desc=8, frame=frame id:buffer_pool_id:1,page_num:1, dirty=0, pin=1, lsn=0, this=0x73f146308870
+[2025-10-14 12:30:32.174557 pid:103215 tid:73f14a9207c0 ctx:0 TRACE: add_page@double_write_buffer.cpp:111] >> insert page into double write buffer. buffer_pool_id:1,page_num:0,lsn=0, dwb size:2
+[2025-10-14 12:30:32.174582 pid:103215 tid:73f14a9207c0 ctx:0 DEBUG: flush_page_internal@disk_buffer_pool.cpp:564] >> Flush block. file desc=8, frame=frame id:buffer_pool_id:1,page_num:0, dirty=0, pin=2, lsn=0, this=0x73f146306808
+[2025-10-14 12:30:32.174601 pid:103215 tid:73f14a9207c0 ctx:0 INFO: sync@heap_table_engine.cpp:339] >> Sync table over. table=good
+[2025-10-14 12:30:32.174622 pid:103215 tid:73f14a9207c0 ctx:0 INFO: sync@db.cpp:305] >> Successfully sync table db:sys, table:good.
+[2025-10-14 12:30:32.178978 pid:103215 tid:73f14a9207c0 ctx:0 TRACE: write_page@double_write_buffer.cpp:174] >> double write buffer write page. buffer_pool_id:1,page_num:0,lsn=0
+[2025-10-14 12:30:32.179145 pid:103215 tid:73f14a9207c0 ctx:0 TRACE: write_page@disk_buffer_pool.cpp:613] >> write_page: buffer_pool_id:1, page_num:0, lsn=0, check_sum=1651439760
+[2025-10-14 12:30:32.179203 pid:103215 tid:73f14a9207c0 ctx:0 TRACE: write_page@double_write_buffer.cpp:174] >> double write buffer write page. buffer_pool_id:1,page_num:1,lsn=0
+[2025-10-14 12:30:32.179226 pid:103215 tid:73f14a9207c0 ctx:0 TRACE: write_page@disk_buffer_pool.cpp:613] >> write_page: buffer_pool_id:1, page_num:1, lsn=0, check_sum=-1285996399
+[2025-10-14 12:30:32.179247 pid:103215 tid:73f14a9207c0 ctx:0 INFO: sync@db.cpp:310] >> double write buffer flush pages ret=SUCCESS
+[2025-10-14 12:30:32.179549 pid:103215 tid:73f14a9207c0 ctx:0 INFO: flush_meta@db.cpp:443] >> Successfully write db meta file. db=sys, file=miniob/db/sys/sys.db.tmp, check_point_lsn=0
+[2025-10-14 12:30:32.179588 pid:103215 tid:73f14a9207c0 ctx:0 INFO: sync@db.cpp:329] >> Successfully sync db. db=sys
+[2025-10-14 12:30:32.179639 pid:103215 tid:73f14a9207c0 ctx:0 DEBUG: purge_frame@disk_buffer_pool.cpp:490] >> Successfully purge frame =0x73f146308870, page 1 frame_id=buffer_pool_id:1,page_num:1
+[2025-10-14 12:30:32.179704 pid:103215 tid:73f14a9207c0 ctx:0 DEBUG: purge_frame@disk_buffer_pool.cpp:490] >> Successfully purge frame =0x73f146306808, page 0 frame_id=buffer_pool_id:1,page_num:0
+[2025-10-14 12:30:32.179752 pid:103215 tid:73f14a9207c0 ctx:0 INFO: clear_pages@double_write_buffer.cpp:211] >> clear pages in double write buffer. file name=miniob/db/sys/good.data, page count=0
+[2025-10-14 12:30:32.179772 pid:103215 tid:73f14a9207c0 ctx:0 INFO: close_file@disk_buffer_pool.cpp:307] >> Successfully close file 8:miniob/db/sys/good.data.
+[2025-10-14 12:30:32.179818 pid:103215 tid:73f14a9207c0 ctx:0 INFO: ~DiskBufferPool@disk_buffer_pool.cpp:226] >> disk buffer pool exit
+[2025-10-14 12:30:32.179861 pid:103215 tid:73f14a9207c0 ctx:0 INFO: ~HeapTableEngine@heap_table_engine.cpp:37] >> Table has been closed: good
+[2025-10-14 12:30:32.189893 pid:103215 tid:73f1477146c0 ctx:0 INFO: thread_func@thread_pool_executor.cpp:176] >> [ObLsmBackground] thread exit
+[2025-10-14 12:30:32.380176 pid:103215 tid:73f14a9207c0 ctx:0 INFO: ~Db@db.cpp:49] >> Db has been closed: sys
+[2025-10-14 12:30:32.393684 pid:103215 tid:73f14a9207c0 ctx:0 INFO: cleanup@mem_pool.h:223] >> Successfully do cleanup, this->name:BufPool.
+[2025-10-14 12:30:32.393813 pid:103215 tid:73f14a9207c0 ctx:0 INFO: cleanup_util@init.cpp:230] >> Shutdown Cleanly!

@@ -74,9 +74,9 @@ insert into good values(1,1);
 insert into good values(2,2);
 ### 2025-10-14 12:16:10.134
 exit；
-### 2025-10-14 12:21:16.822
-UPDATE good SET k1=2 WHERE id=1;
-### 2025-10-14 12:21:21.324
-exit;
 ### 2025-10-14 12:29:11.100
 show tables;
+### 2025-10-14 12:29:16.564
+UPDATE good SET k1=2 WHERE id=1;
+### 2025-10-14 12:30:32.172
+exit;
