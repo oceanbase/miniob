@@ -29,9 +29,19 @@ RC CharType::set_value_from_str(Value &val, const string &data) const
 RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
 {
   switch (type) {
+    case AttrType::CHARS:
+    case AttrType::TEXTS: {
+      // Cast string-like to string-like (CHARS <-> TEXTS)
+      // Preserve target attribute type and copy string data (truncate handled later when writing to record)
+      result.reset();
+      result.set_type(type);
+      // Use get_string() to obtain a std::string representation safely
+      std::string s = val.get_string();
+      result.set_string(s.c_str(), static_cast<int>(s.size()));
+      return RC::SUCCESS;
+    }
     default: return RC::UNIMPLEMENTED;
   }
-  return RC::SUCCESS;
 }
 
 int CharType::cast_cost(AttrType type)

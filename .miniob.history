@@ -6,8 +6,6 @@ CREATE TABLE test (id int, name varchar(20));
 drop_table good
 ### 2025-10-12 13:03:54.145
 drop-table good;
-### 2025-10-12 13:06:35.991
-drop table good;
 ### 2025-10-12 13:07:07.742
 DROP TABLE good;
 ### 2025-10-12 13:07:10.347
@@ -74,8 +72,6 @@ insert into good values(1,1);
 insert into good values(2,2);
 ### 2025-10-14 12:16:10.134
 exit；
-### 2025-10-14 12:29:11.100
-show tables;
 ### 2025-10-14 12:29:16.564
 UPDATE good SET k1=2 WHERE id=1;
 ### 2025-10-14 12:44:55.173
@@ -112,7 +108,19 @@ UPDATE Update_table_1 SET col1='N01' WHERE id=1;
 UPDATE Update_table_1 SET col1='N01' WHERE id=100;
 ### 2025-10-16 02:03:12.856
 drop table Update_table_1;
-### 2025-10-16 02:03:17.935
-exit;
 ### 2025-10-16 02:12:22.428
 create table text_table(id int, info text);
+### 2025-10-16 02:17:58.863
+exit;
+### 2025-10-16 02:23:37.975
+show tables;
+### 2025-10-16 02:23:42.373
+drop table good;
+### 2025-10-16 02:23:50.330
+insert into text_table values (1,'this is a very very long string');
+### 2025-10-16 02:24:23.722
+update text_table set info = 'ddd' where id = 1;
+### 2025-10-16 02:24:30.756
+select * from text_table;
+### 2025-10-16 02:24:39.405
+drop table text_table;
