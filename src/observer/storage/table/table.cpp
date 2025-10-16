@@ -256,8 +256,18 @@ RC Table::set_value_to_record(char *record_data, const Value &value, const Field
   size_t       copy_len = field->len();
   const size_t data_len = value.length();
   if (field->type() == AttrType::CHARS) {
+    // for CHARS, keep string and trailing '\0' when possible
     if (copy_len > data_len) {
       copy_len = data_len + 1;
+    }
+  } else if (field->type() == AttrType::TEXTS) {
+    // TEXTS fixed length (4096). If input longer, truncate to field length.
+    if (data_len < copy_len) {
+      // copy actual data only, remaining bytes are left as zero (record_data was memset to 0)
+      copy_len = data_len;
+    } else {
+      // input longer or equal: truncate to field length
+      copy_len = copy_len;
     }
   }
   memcpy(record_data + field->offset(), value.data(), copy_len);
