@@ -107,6 +107,6 @@ RC update_execute(SQLStageEvent *sql_event) {
     }
   }
   delete scanner;
-  if (update_count == 0) return RC::NOTFOUND;
+  // 如果没有匹配任何行，依照 SQL 语义也应返回 SUCCESS，受影响行为 0
   return RC::SUCCESS;
 }
