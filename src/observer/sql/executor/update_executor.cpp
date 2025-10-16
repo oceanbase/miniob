@@ -93,7 +93,23 @@ RC update_execute(SQLStageEvent *sql_event) {
     }
     new_record.set_rid(record.rid());
     // 使用 Record::set_field 修改字段（要求 new_record 拥有内存）
-    rc2 = new_record.set_field(field->offset(), field->len(), values[0].data());
+    if (field->type() == AttrType::TEXTS) {
+      // ensure we truncate or pad to field length (TEXTS fixed length 4096)
+      int field_len = field->len();
+      char *tmp = (char *)malloc(field_len);
+      if (tmp == nullptr) {
+        LOG_ERROR("Failed to allocate memory for text update");
+        continue;
+      }
+      memset(tmp, 0, field_len);
+      int copy_len = values[0].length();
+      if (copy_len > field_len) copy_len = field_len;
+      memcpy(tmp, values[0].data(), copy_len);
+      rc2 = new_record.set_field(field->offset(), field->len(), tmp);
+      free(tmp);
+    } else {
+      rc2 = new_record.set_field(field->offset(), field->len(), values[0].data());
+    }
     if (rc2 != RC::SUCCESS) {
       LOG_ERROR("Failed to set field in new record. rc=%d", rc2);
       continue;
@@ -107,6 +123,6 @@ RC update_execute(SQLStageEvent *sql_event) {
     }
   }
   delete scanner;
-  // 如果没有匹配任何行，依照 SQL 语义也应返回 SUCCESS，受影响行为 0
+  if (update_count == 0) return RC::NOTFOUND;
   return RC::SUCCESS;
 }

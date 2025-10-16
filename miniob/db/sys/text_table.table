@@ -1,0 +1,27 @@
+{
+	"fields" : 
+	[
+		{
+			"FIELD_id" : 0,
+			"len" : 4,
+			"name" : "id",
+			"offset" : 0,
+			"type" : "ints",
+			"visible" : true
+		},
+		{
+			"FIELD_id" : 1,
+			"len" : 4096,
+			"name" : "info",
+			"offset" : 4,
+			"type" : "texts",
+			"visible" : true
+		}
+	],
+	"indexes" : null,
+	"primary_keys" : null,
+	"storage_engine" : 0,
+	"storage_format" : 1,
+	"table_id" : 1,
+	"table_name" : "text_table"
+}

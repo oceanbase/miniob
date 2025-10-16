@@ -429,6 +429,7 @@ public:
         }
         break;
       case AttrType::CHARS:
+      case AttrType::TEXTS:
         if (OB_FAIL(OrderedCode::append(dst, val.get_string()))) {
           LOG_WARN("append failed");
         }

@@ -88,21 +88,31 @@ select* from Update_table_1;
          INSERT INTO Update_table_1 VALUES (3, 'N3', 3, 3);
 ### 2025-10-14 12:45:34.538
 UPDATE Update_table_1 SET t_name='N01' WHERE id=1;
-### 2025-10-14 12:47:09.331
-CREATE TABLE Update_table_1(id int, t_name char(4), col1 int, col2 int);
 ### 2025-10-14 12:47:10.241
 CREATE INDEX index_id on Update_table_1(id);
-### 2025-10-14 12:47:16.317
-INSERT INTO Update_table_1 VALUES (1, 'N1', 1, 1);
-### 2025-10-14 12:47:16.322
-INSERT INTO Update_table_1 VALUES (2, 'N2', 2, 2);
-### 2025-10-14 12:47:16.990
-INSERT INTO Update_table_1 VALUES (3, 'N3', 3, 3);
 ### 2025-10-14 12:47:33.960
 INSERT INTO Update_table_1 VALUES (100, 'N100', 100, 100);
 ### 2025-10-14 12:47:40.416
 UPDATE Update_table_1 SET t_name='N01' WHERE id=100;
-### 2025-10-14 12:47:53.557
+### 2025-10-16 02:02:17.914
+CREATE TABLE Update_table_1(id int, t_name char(4), col1 int, col2 int);
+### 2025-10-16 02:02:18.829
+CREATE INDEX index_id on Update_table_1(id);INSERT INTO Update_table_1 VALUES (1, 'N1', 1, 1);
+### 2025-10-16 02:02:30.184
+select * from Update_table_1
+### 2025-10-16 02:02:36.551
+INSERT INTO Update_table_1 VALUES (1, 'N1', 1, 1);
+### 2025-10-16 02:02:36.556
+INSERT INTO Update_table_1 VALUES (2, 'N2', 2, 2);
+### 2025-10-16 02:02:37.291
+INSERT INTO Update_table_1 VALUES (3, 'N3', 3, 3);
+### 2025-10-16 02:02:42.172
+UPDATE Update_table_1 SET col1='N01' WHERE id=1;
+### 2025-10-16 02:02:55.932
+UPDATE Update_table_1 SET col1='N01' WHERE id=100;
+### 2025-10-16 02:03:12.856
 drop table Update_table_1;
-### 2025-10-14 12:47:56.178
+### 2025-10-16 02:03:17.935
 exit;
+### 2025-10-16 02:12:22.428
+create table text_table(id int, info text);
