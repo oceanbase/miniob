@@ -25,9 +25,15 @@ bash build.sh release -DWITH_MEMTRACER=OFF
 LD_PRELOAD=./lib/libmemtracer.so ./bin/observer
 ```
 通过指定`MT_PRINT_INTERVAL_MS` 环境变量，设置内存使用的打印间隔时间，单位为毫秒（ms），默认为 5000 ms（5s）。通过指定`MT_MEMORY_LIMIT` 环境变量，设置内存使用的上限，单位为字节，当超过该值，MiniOB 进程会立即退出。下述示例表明设置内存使用情况的打印间隔为 1000 ms（1s），内存使用上限为1000 字节。
+Linux:
 ```
 MT_PRINT_INTERVAL_MS=1000 MT_MEMORY_LIMIT=1000 LD_PRELOAD=./lib/libmemtracer.so ./bin/observer
 ```
+Mac:
+```
+MT_PRINT_INTERVAL_MS=1000 MT_MEMORY_LIMIT=1000 DYLD_INSERT_LIBRARIES=./lib/libmemtracer.dylib ./bin/observer
+```
+
 ### 使用场景示例
 1. 通过指定 MiniOB 进程的最大内存限额，可以模拟在内存受限的情况下运行、调试 MiniOB。当超出最大内存限额后，MiniOB 进程会自动退出。
 
