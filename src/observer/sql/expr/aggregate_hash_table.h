@@ -35,7 +35,7 @@ public:
      */
     virtual RC next(Chunk &chunk) = 0;
 
-    virtual void close_scan(){};
+    virtual void close_scan() {}
 
   protected:
     AggregateHashTable *hash_table_;
@@ -47,6 +47,8 @@ public:
   virtual RC add_chunk(Chunk &groups_chunk, Chunk &aggrs_chunk) = 0;
 
   virtual ~AggregateHashTable() = default;
+  vector<AggregateExpr::Type> aggr_types_;
+  vector<AttrType>            aggr_child_types_;
 };
 
 class StandardAggregateHashTable : public AggregateHashTable
@@ -63,7 +65,7 @@ private:
   };
 
 public:
-  using StandardHashTable = unordered_map<vector<Value>, vector<Value>, VectorHash, VectorEqual>;
+  using StandardHashTable = unordered_map<vector<Value>, vector<void *>, VectorHash, VectorEqual>;
   class Scanner : public AggregateHashTable::Scanner
   {
   public:
@@ -84,20 +86,25 @@ public:
       ASSERT(expr->type() == ExprType::AGGREGATION, "expect aggregate expression");
       auto *aggregation_expr = static_cast<AggregateExpr *>(expr);
       aggr_types_.push_back(aggregation_expr->aggregate_type());
+      aggr_child_types_.push_back(aggregation_expr->value_type());
     }
   }
-
-  virtual ~StandardAggregateHashTable() {}
+  virtual ~StandardAggregateHashTable()
+  {
+    for (auto &aggr : aggr_values_) {
+      for (auto &state : aggr.second) {
+        free(state);
+      }
+    }
+  }
 
   RC add_chunk(Chunk &groups_chunk, Chunk &aggrs_chunk) override;
 
   StandardHashTable::iterator begin() { return aggr_values_.begin(); }
   StandardHashTable::iterator end() { return aggr_values_.end(); }
 
-private:
   /// group by values -> aggregate values
-  StandardHashTable           aggr_values_;
-  vector<AggregateExpr::Type> aggr_types_;
+  StandardHashTable aggr_values_;
 };
 
 /**

@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/group_expr.h"
 #include "sql/optimizer/cascade/memo.h"
 #include "common/log/log.h"
+#include <algorithm>
 
 void OptimizeExpression::perform()
 {

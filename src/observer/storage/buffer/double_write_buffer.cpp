@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/io/io.h"
 #include "common/log/log.h"
 #include "common/math/crc.h"
+#include <algorithm>
 
 using namespace common;
 

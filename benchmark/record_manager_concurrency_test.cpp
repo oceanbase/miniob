@@ -106,7 +106,7 @@ public:
     }
 
     handler_ = new RecordFileHandler(StorageFormat::ROW_FORMAT);
-    rc       = handler_->init(*buffer_pool_, log_handler_, nullptr);
+    rc       = handler_->init(*buffer_pool_, log_handler_, nullptr, nullptr);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to init record file handler. rc=%s", strrc(rc));
       throw runtime_error("failed to init record file handler");
