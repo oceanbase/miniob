@@ -36,31 +36,31 @@ RC NestedLoopJoinPhysicalOperator::open(Trx *trx)
 
 RC NestedLoopJoinPhysicalOperator::next()
 {
+  bool left_need_step = (left_tuple_ == nullptr);
   RC   rc             = RC::SUCCESS;
-  while (RC::SUCCESS == rc) {
-    bool left_need_step = (left_tuple_ == nullptr);
-    if (round_done_) {
-      left_need_step = true;
-    }
-
-    if (left_need_step) {
-      rc = left_next();
-      if (rc != RC::SUCCESS) {
-        return rc;
-      }
-    }
-
+  if (round_done_) {
+    left_need_step = true;
+  } else {
     rc = right_next();
     if (rc != RC::SUCCESS) {
       if (rc == RC::RECORD_EOF) {
-        rc = RC::SUCCESS;
-        round_done_ = true;
-        continue;
+        left_need_step = true;
       } else {
         return rc;
       }
+    } else {
+      return rc;  // got one tuple from right
     }
   }
+
+  if (left_need_step) {
+    rc = left_next();
+    if (rc != RC::SUCCESS) {
+      return rc;
+    }
+  }
+
+  rc = right_next();
   return rc;
 }
 
