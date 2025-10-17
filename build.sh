@@ -75,9 +75,6 @@ function prepare_build_dir
 function do_init
 {
   git submodule update --init || return
-  git -C "deps/3rd/libevent" checkout 112421c8fa4840acd73502f2ab6a674fc025de37 || return
-  # git submodule update --remote "deps/3rd/libevent" || return
-  git -C "deps/3rd/jsoncpp" checkout 1.9.6 || return
   current_dir=$PWD
 
   MAKE_COMMAND="make --silent"
@@ -121,6 +118,28 @@ function do_init
     ${CMAKE_COMMAND_THIRD_PARTY} .. -DCMAKE_BUILD_TYPE=Release -DREPLXX_BUILD_EXAMPLES=OFF -DREPLXX_BUILD_PACKAGE=OFF && \
     ${MAKE_COMMAND} -j4 && \
     ${MAKE_COMMAND} install
+
+  # build limonp
+  cd ${TOPDIR}/deps/3rd/cppjieba && \
+    git submodule update --init && \
+    cd deps/limonp && \
+    mkdir -p build && cd build && \
+    ${CMAKE_COMMAND_THIRD_PARTY} .. -DCMAKE_BUILD_TYPE=Release -DINSTALL_GTEST=OFF -DBUILD_GMOCK=OFF -DFETCHCONTENT_SOURCE_DIR_GOOGLETEST=${TOPDIR}/deps/3rd/googletest && \
+    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} install
+  
+  # build cppjieba
+  cd ${TOPDIR}/deps/3rd/cppjieba && \
+    mkdir -p build && \
+    cd build && \
+    ${CMAKE_COMMAND_THIRD_PARTY} .. -DCMAKE_BUILD_TYPE=Release -DINSTALL_GTEST=OFF -DBUILD_GMOCK=OFF -DFETCHCONTENT_SOURCE_DIR_GOOGLETEST=${TOPDIR}/deps/3rd/googletest && \
+    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} install && \
+
+  # create soft link for cppjieba dict
+  cd ${TOPDIR}/deps/3rd/usr/local && \
+    [ ! -e dict ] && \
+    ln -s share/cppjieba/dict .
 
   cd $current_dir
 }

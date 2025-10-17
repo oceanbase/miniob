@@ -1,0 +1,2464 @@
+{
+  "data": {
+    "edges": [],
+    "nodes": [
+      {
+        "data": {
+          "description": "Create a prompt template with dynamic variables.",
+          "display_name": "Prompt",
+          "id": "Prompt-cjybM",
+          "node": {
+            "base_classes": [
+              "Message"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {
+              "template": [
+                "context",
+                "question"
+              ]
+            },
+            "description": "Create a prompt template with dynamic variables.",
+            "display_name": "Prompt",
+            "documentation": "",
+            "edited": false,
+            "field_order": [
+              "template",
+              "tool_placeholder"
+            ],
+            "frozen": false,
+            "icon": "braces",
+            "legacy": false,
+            "metadata": {},
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Prompt",
+                "group_outputs": false,
+                "hidden": null,
+                "method": "build_prompt",
+                "name": "prompt",
+                "options": null,
+                "required_inputs": null,
+                "selected": "Message",
+                "tool_mode": true,
+                "types": [
+                  "Message"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "from langflow.base.prompts.api_utils import process_prompt_template\nfrom langflow.custom.custom_component.component import Component\nfrom langflow.inputs.inputs import DefaultPromptField\nfrom langflow.io import MessageTextInput, Output, PromptInput\nfrom langflow.schema.message import Message\nfrom langflow.template.utils import update_template_values\n\n\nclass PromptComponent(Component):\n    display_name: str = \"Prompt\"\n    description: str = \"Create a prompt template with dynamic variables.\"\n    icon = \"braces\"\n    trace_type = \"prompt\"\n    name = \"Prompt\"\n\n    inputs = [\n        PromptInput(name=\"template\", display_name=\"Template\"),\n        MessageTextInput(\n            name=\"tool_placeholder\",\n            display_name=\"Tool Placeholder\",\n            tool_mode=True,\n            advanced=True,\n            info=\"A placeholder input for tool mode.\",\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Prompt\", name=\"prompt\", method=\"build_prompt\"),\n    ]\n\n    async def build_prompt(self) -> Message:\n        prompt = Message.from_template(**self._attributes)\n        self.status = prompt.text\n        return prompt\n\n    def _update_template(self, frontend_node: dict):\n        prompt_template = frontend_node[\"template\"][\"template\"][\"value\"]\n        custom_fields = frontend_node[\"custom_fields\"]\n        frontend_node_template = frontend_node[\"template\"]\n        _ = process_prompt_template(\n            template=prompt_template,\n            name=\"template\",\n            custom_fields=custom_fields,\n            frontend_node_template=frontend_node_template,\n        )\n        return frontend_node\n\n    async def update_frontend_node(self, new_frontend_node: dict, current_frontend_node: dict):\n        \"\"\"This function is called after the code validation is done.\"\"\"\n        frontend_node = await super().update_frontend_node(new_frontend_node, current_frontend_node)\n        template = frontend_node[\"template\"][\"template\"][\"value\"]\n        # Kept it duplicated for backwards compatibility\n        _ = process_prompt_template(\n            template=template,\n            name=\"template\",\n            custom_fields=frontend_node[\"custom_fields\"],\n            frontend_node_template=frontend_node[\"template\"],\n        )\n        # Now that template is updated, we need to grab any values that were set in the current_frontend_node\n        # and update the frontend_node with those values\n        update_template_values(new_template=frontend_node, previous_template=current_frontend_node[\"template\"])\n        return frontend_node\n\n    def _get_fallback_input(self, **kwargs):\n        return DefaultPromptField(**kwargs)\n"
+              },
+              "context": {
+                "advanced": false,
+                "display_name": "context",
+                "dynamic": false,
+                "field_type": "str",
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "context",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "type": "str",
+                "value": ""
+              },
+              "question": {
+                "advanced": false,
+                "display_name": "question",
+                "dynamic": false,
+                "field_type": "str",
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "question",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "type": "str",
+                "value": ""
+              },
+              "template": {
+                "_input_type": "PromptInput",
+                "advanced": false,
+                "display_name": "Template",
+                "dynamic": false,
+                "info": "",
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "template",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "type": "prompt",
+                "value": "{context}\n\n---\n\nGiven the context above, answer the question as best as possible.\n\nQuestion: {question}\n\nAnswer: "
+              },
+              "tool_placeholder": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Tool Placeholder",
+                "dynamic": false,
+                "info": "A placeholder input for tool mode.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "tool_placeholder",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": true,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              }
+            },
+            "tool_mode": false
+          },
+          "selected_output": "prompt",
+          "type": "Prompt"
+        },
+        "dragging": false,
+        "height": 433,
+        "id": "Prompt-cjybM",
+        "measured": {
+          "height": 433,
+          "width": 320
+        },
+        "position": {
+          "x": 1995.7953090701576,
+          "y": 656.8251970813468
+        },
+        "positionAbsolute": {
+          "x": 1977.9097981422992,
+          "y": 640.5656416923846
+        },
+        "selected": false,
+        "type": "genericNode",
+        "width": 320
+      },
+      {
+        "data": {
+          "description": "Display a chat message in the Playground.",
+          "display_name": "Chat Output",
+          "id": "ChatOutput-k7ET8",
+          "node": {
+            "base_classes": [
+              "Message"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Display a chat message in the Playground.",
+            "display_name": "Chat Output",
+            "documentation": "",
+            "edited": false,
+            "field_order": [
+              "input_value",
+              "should_store_message",
+              "sender",
+              "sender_name",
+              "session_id",
+              "data_template",
+              "background_color",
+              "chat_icon",
+              "text_color"
+            ],
+            "frozen": false,
+            "icon": "MessagesSquare",
+            "legacy": false,
+            "lf_version": "1.5.0.post2",
+            "metadata": {
+              "code_hash": "6f74e04e39d5",
+              "module": "langflow.components.input_output.chat_output.ChatOutput"
+            },
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Output Message",
+                "group_outputs": false,
+                "method": "message_response",
+                "name": "message",
+                "selected": "Message",
+                "tool_mode": true,
+                "types": [
+                  "Message"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "background_color": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Background Color",
+                "dynamic": false,
+                "info": "The background color of the icon.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "load_from_db": false,
+                "name": "background_color",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "chat_icon": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Icon",
+                "dynamic": false,
+                "info": "The icon of the message.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "load_from_db": false,
+                "name": "chat_icon",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "clean_data": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Basic Clean Data",
+                "dynamic": false,
+                "info": "Whether to clean the data",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "clean_data",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
+              },
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "from collections.abc import Generator\nfrom typing import Any\n\nimport orjson\nfrom fastapi.encoders import jsonable_encoder\n\nfrom langflow.base.io.chat import ChatComponent\nfrom langflow.helpers.data import safe_convert\nfrom langflow.inputs.inputs import BoolInput, DropdownInput, HandleInput, MessageTextInput\nfrom langflow.schema.data import Data\nfrom langflow.schema.dataframe import DataFrame\nfrom langflow.schema.message import Message\nfrom langflow.schema.properties import Source\nfrom langflow.template.field.base import Output\nfrom langflow.utils.constants import (\n    MESSAGE_SENDER_AI,\n    MESSAGE_SENDER_NAME_AI,\n    MESSAGE_SENDER_USER,\n)\n\n\nclass ChatOutput(ChatComponent):\n    display_name = \"Chat Output\"\n    description = \"Display a chat message in the Playground.\"\n    documentation: str = \"https://docs.langflow.org/components-io#chat-output\"\n    icon = \"MessagesSquare\"\n    name = \"ChatOutput\"\n    minimized = True\n\n    inputs = [\n        HandleInput(\n            name=\"input_value\",\n            display_name=\"Inputs\",\n            info=\"Message to be passed as output.\",\n            input_types=[\"Data\", \"DataFrame\", \"Message\"],\n            required=True,\n        ),\n        BoolInput(\n            name=\"should_store_message\",\n            display_name=\"Store Messages\",\n            info=\"Store the message in the history.\",\n            value=True,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender\",\n            display_name=\"Sender Type\",\n            options=[MESSAGE_SENDER_AI, MESSAGE_SENDER_USER],\n            value=MESSAGE_SENDER_AI,\n            advanced=True,\n            info=\"Type of sender.\",\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=\"Sender Name\",\n            info=\"Name of the sender.\",\n            value=MESSAGE_SENDER_NAME_AI,\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=\"Session ID\",\n            info=\"The session ID of the chat. If empty, the current session ID parameter will be used.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"data_template\",\n            display_name=\"Data Template\",\n            value=\"{text}\",\n            advanced=True,\n            info=\"Template to convert Data to Text. If left empty, it will be dynamically set to the Data's text key.\",\n        ),\n        MessageTextInput(\n            name=\"background_color\",\n            display_name=\"Background Color\",\n            info=\"The background color of the icon.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"chat_icon\",\n            display_name=\"Icon\",\n            info=\"The icon of the message.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"text_color\",\n            display_name=\"Text Color\",\n            info=\"The text color of the name\",\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"clean_data\",\n            display_name=\"Basic Clean Data\",\n            value=True,\n            info=\"Whether to clean the data\",\n            advanced=True,\n        ),\n    ]\n    outputs = [\n        Output(\n            display_name=\"Output Message\",\n            name=\"message\",\n            method=\"message_response\",\n        ),\n    ]\n\n    def _build_source(self, id_: str | None, display_name: str | None, source: str | None) -> Source:\n        source_dict = {}\n        if id_:\n            source_dict[\"id\"] = id_\n        if display_name:\n            source_dict[\"display_name\"] = display_name\n        if source:\n            # Handle case where source is a ChatOpenAI object\n            if hasattr(source, \"model_name\"):\n                source_dict[\"source\"] = source.model_name\n            elif hasattr(source, \"model\"):\n                source_dict[\"source\"] = str(source.model)\n            else:\n                source_dict[\"source\"] = str(source)\n        return Source(**source_dict)\n\n    async def message_response(self) -> Message:\n        # First convert the input to string if needed\n        text = self.convert_to_string()\n\n        # Get source properties\n        source, icon, display_name, source_id = self.get_properties_from_source_component()\n        background_color = self.background_color\n        text_color = self.text_color\n        if self.chat_icon:\n            icon = self.chat_icon\n\n        # Create or use existing Message object\n        if isinstance(self.input_value, Message):\n            message = self.input_value\n            # Update message properties\n            message.text = text\n        else:\n            message = Message(text=text)\n\n        # Set message properties\n        message.sender = self.sender\n        message.sender_name = self.sender_name\n        message.session_id = self.session_id\n        message.flow_id = self.graph.flow_id if hasattr(self, \"graph\") else None\n        message.properties.source = self._build_source(source_id, display_name, source)\n        message.properties.icon = icon\n        message.properties.background_color = background_color\n        message.properties.text_color = text_color\n\n        # Store message if needed\n        if self.session_id and self.should_store_message:\n            stored_message = await self.send_message(message)\n            self.message.value = stored_message\n            message = stored_message\n\n        self.status = message\n        return message\n\n    def _serialize_data(self, data: Data) -> str:\n        \"\"\"Serialize Data object to JSON string.\"\"\"\n        # Convert data.data to JSON-serializable format\n        serializable_data = jsonable_encoder(data.data)\n        # Serialize with orjson, enabling pretty printing with indentation\n        json_bytes = orjson.dumps(serializable_data, option=orjson.OPT_INDENT_2)\n        # Convert bytes to string and wrap in Markdown code blocks\n        return \"```json\\n\" + json_bytes.decode(\"utf-8\") + \"\\n```\"\n\n    def _validate_input(self) -> None:\n        \"\"\"Validate the input data and raise ValueError if invalid.\"\"\"\n        if self.input_value is None:\n            msg = \"Input data cannot be None\"\n            raise ValueError(msg)\n        if isinstance(self.input_value, list) and not all(\n            isinstance(item, Message | Data | DataFrame | str) for item in self.input_value\n        ):\n            invalid_types = [\n                type(item).__name__\n                for item in self.input_value\n                if not isinstance(item, Message | Data | DataFrame | str)\n            ]\n            msg = f\"Expected Data or DataFrame or Message or str, got {invalid_types}\"\n            raise TypeError(msg)\n        if not isinstance(\n            self.input_value,\n            Message | Data | DataFrame | str | list | Generator | type(None),\n        ):\n            type_name = type(self.input_value).__name__\n            msg = f\"Expected Data or DataFrame or Message or str, Generator or None, got {type_name}\"\n            raise TypeError(msg)\n\n    def convert_to_string(self) -> str | Generator[Any, None, None]:\n        \"\"\"Convert input data to string with proper error handling.\"\"\"\n        self._validate_input()\n        if isinstance(self.input_value, list):\n            return \"\\n\".join([safe_convert(item, clean_data=self.clean_data) for item in self.input_value])\n        if isinstance(self.input_value, Generator):\n            return self.input_value\n        return safe_convert(self.input_value)\n"
+              },
+              "data_template": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Data Template",
+                "dynamic": false,
+                "info": "Template to convert Data to Text. If left empty, it will be dynamically set to the Data's text key.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "load_from_db": false,
+                "name": "data_template",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "{text}"
+              },
+              "input_value": {
+                "_input_type": "MessageInput",
+                "advanced": false,
+                "display_name": "Inputs",
+                "dynamic": false,
+                "info": "Message to be passed as output.",
+                "input_types": [
+                  "Data",
+                  "DataFrame",
+                  "Message"
+                ],
+                "list": false,
+                "load_from_db": false,
+                "name": "input_value",
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "sender": {
+                "_input_type": "DropdownInput",
+                "advanced": true,
+                "combobox": false,
+                "display_name": "Sender Type",
+                "dynamic": false,
+                "info": "Type of sender.",
+                "name": "sender",
+                "options": [
+                  "Machine",
+                  "User"
+                ],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "Machine"
+              },
+              "sender_name": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Sender Name",
+                "dynamic": false,
+                "info": "Name of the sender.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "load_from_db": false,
+                "name": "sender_name",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "AI"
+              },
+              "session_id": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Session ID",
+                "dynamic": false,
+                "info": "The session ID of the chat. If empty, the current session ID parameter will be used.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "load_from_db": false,
+                "name": "session_id",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "should_store_message": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Store Messages",
+                "dynamic": false,
+                "info": "Store the message in the history.",
+                "list": false,
+                "name": "should_store_message",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
+              },
+              "text_color": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Text Color",
+                "dynamic": false,
+                "info": "The text color of the name",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "load_from_db": false,
+                "name": "text_color",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              }
+            },
+            "tool_mode": false
+          },
+          "type": "ChatOutput"
+        },
+        "dragging": false,
+        "height": 234,
+        "id": "ChatOutput-k7ET8",
+        "measured": {
+          "height": 234,
+          "width": 320
+        },
+        "position": {
+          "x": 2825.2325935664726,
+          "y": 928.4705574248117
+        },
+        "positionAbsolute": {
+          "x": 2734.385670401691,
+          "y": 810.6079786425926
+        },
+        "selected": false,
+        "type": "genericNode",
+        "width": 320
+      },
+      {
+        "data": {
+          "id": "parser-tiD4c",
+          "node": {
+            "base_classes": [
+              "Message"
+            ],
+            "beta": false,
+            "category": "processing",
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Format a DataFrame or Data object into text using a template. Enable 'Stringify' to convert input into a readable string instead.",
+            "display_name": "Parser",
+            "documentation": "",
+            "edited": false,
+            "field_order": [
+              "mode",
+              "pattern",
+              "input_data",
+              "sep"
+            ],
+            "frozen": false,
+            "icon": "braces",
+            "key": "parser",
+            "legacy": false,
+            "lf_version": "1.5.0.post1",
+            "metadata": {},
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Parsed Text",
+                "hidden": false,
+                "method": "parse_combined_text",
+                "name": "parsed_text",
+                "selected": "Message",
+                "tool_mode": true,
+                "types": [
+                  "Message"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "score": 2.220446049250313e-16,
+            "template": {
+              "_type": "Component",
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "import json\nfrom typing import Any\n\nfrom langflow.custom import Component\nfrom langflow.io import (\n    BoolInput,\n    HandleInput,\n    MessageTextInput,\n    MultilineInput,\n    Output,\n    TabInput,\n)\nfrom langflow.schema import Data, DataFrame\nfrom langflow.schema.message import Message\n\n\nclass ParserComponent(Component):\n    name = \"parser\"\n    display_name = \"Parser\"\n    description = (\n        \"Format a DataFrame or Data object into text using a template. \"\n        \"Enable 'Stringify' to convert input into a readable string instead.\"\n    )\n    icon = \"braces\"\n\n    inputs = [\n        TabInput(\n            name=\"mode\",\n            display_name=\"Mode\",\n            options=[\"Parser\", \"Stringify\"],\n            value=\"Parser\",\n            info=\"Convert into raw string instead of using a template.\",\n            real_time_refresh=True,\n        ),\n        MultilineInput(\n            name=\"pattern\",\n            display_name=\"Template\",\n            info=(\n                \"Use variables within curly brackets to extract column values for DataFrames \"\n                \"or key values for Data.\"\n                \"For example: `Name: {Name}, Age: {Age}, Country: {Country}`\"\n            ),\n            value=\"Text: {text}\",  # Example default\n            dynamic=True,\n            show=True,\n            required=True,\n        ),\n        HandleInput(\n            name=\"input_data\",\n            display_name=\"Data or DataFrame\",\n            input_types=[\"DataFrame\", \"Data\"],\n            info=\"Accepts either a DataFrame or a Data object.\",\n            required=True,\n        ),\n        MessageTextInput(\n            name=\"sep\",\n            display_name=\"Separator\",\n            advanced=True,\n            value=\"\\n\",\n            info=\"String used to separate rows/items.\",\n        ),\n    ]\n\n    outputs = [\n        Output(\n            display_name=\"Parsed Text\",\n            name=\"parsed_text\",\n            info=\"Formatted text output.\",\n            method=\"parse_combined_text\",\n        ),\n    ]\n\n    def update_build_config(self, build_config, field_value, field_name=None):\n        \"\"\"Dynamically hide/show `template` and enforce requirement based on `stringify`.\"\"\"\n        if field_name == \"mode\":\n            build_config[\"pattern\"][\"show\"] = self.mode == \"Parser\"\n            build_config[\"pattern\"][\"required\"] = self.mode == \"Parser\"\n            if field_value:\n                clean_data = BoolInput(\n                    name=\"clean_data\",\n                    display_name=\"Clean Data\",\n                    info=(\n                        \"Enable to clean the data by removing empty rows and lines \"\n                        \"in each cell of the DataFrame/ Data object.\"\n                    ),\n                    value=True,\n                    advanced=True,\n                    required=False,\n                )\n                build_config[\"clean_data\"] = clean_data.to_dict()\n            else:\n                build_config.pop(\"clean_data\", None)\n\n        return build_config\n\n    def _clean_args(self):\n        \"\"\"Prepare arguments based on input type.\"\"\"\n        input_data = self.input_data\n\n        match input_data:\n            case list() if all(isinstance(item, Data) for item in input_data):\n                msg = \"List of Data objects is not supported.\"\n                raise ValueError(msg)\n            case DataFrame():\n                return input_data, None\n            case Data():\n                return None, input_data\n            case dict() if \"data\" in input_data:\n                try:\n                    if \"columns\" in input_data:  # Likely a DataFrame\n                        return DataFrame.from_dict(input_data), None\n                    # Likely a Data object\n                    return None, Data(**input_data)\n                except (TypeError, ValueError, KeyError) as e:\n                    msg = f\"Invalid structured input provided: {e!s}\"\n                    raise ValueError(msg) from e\n            case _:\n                msg = f\"Unsupported input type: {type(input_data)}. Expected DataFrame or Data.\"\n                raise ValueError(msg)\n\n    def parse_combined_text(self) -> Message:\n        \"\"\"Parse all rows/items into a single text or convert input to string if `stringify` is enabled.\"\"\"\n        # Early return for stringify option\n        if self.mode == \"Stringify\":\n            return self.convert_to_string()\n\n        df, data = self._clean_args()\n\n        lines = []\n        if df is not None:\n            for _, row in df.iterrows():\n                formatted_text = self.pattern.format(**row.to_dict())\n                lines.append(formatted_text)\n        elif data is not None:\n            formatted_text = self.pattern.format(**data.data)\n            lines.append(formatted_text)\n\n        combined_text = self.sep.join(lines)\n        self.status = combined_text\n        return Message(text=combined_text)\n\n    def _safe_convert(self, data: Any) -> str:\n        \"\"\"Safely convert input data to string.\"\"\"\n        try:\n            if isinstance(data, str):\n                return data\n            if isinstance(data, Message):\n                return data.get_text()\n            if isinstance(data, Data):\n                return json.dumps(data.data)\n            if isinstance(data, DataFrame):\n                if hasattr(self, \"clean_data\") and self.clean_data:\n                    # Remove empty rows\n                    data = data.dropna(how=\"all\")\n                    # Remove empty lines in each cell\n                    data = data.replace(r\"^\\s*$\", \"\", regex=True)\n                    # Replace multiple newlines with a single newline\n                    data = data.replace(r\"\\n+\", \"\\n\", regex=True)\n                return data.to_markdown(index=False)\n            return str(data)\n        except (ValueError, TypeError, AttributeError) as e:\n            msg = f\"Error converting data: {e!s}\"\n            raise ValueError(msg) from e\n\n    def convert_to_string(self) -> Message:\n        \"\"\"Convert input data to string with proper error handling.\"\"\"\n        result = \"\"\n        if isinstance(self.input_data, list):\n            result = \"\\n\".join([self._safe_convert(item) for item in self.input_data])\n        else:\n            result = self._safe_convert(self.input_data)\n        self.log(f\"Converted to string with length: {len(result)}\")\n\n        message = Message(text=result)\n        self.status = message\n        return message\n"
+              },
+              "input_data": {
+                "_input_type": "HandleInput",
+                "advanced": false,
+                "display_name": "Data or DataFrame",
+                "dynamic": false,
+                "info": "Accepts either a DataFrame or a Data object.",
+                "input_types": [
+                  "DataFrame",
+                  "Data"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "input_data",
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "trace_as_metadata": true,
+                "type": "other",
+                "value": ""
+              },
+              "mode": {
+                "_input_type": "TabInput",
+                "advanced": false,
+                "display_name": "Mode",
+                "dynamic": false,
+                "info": "Convert into raw string instead of using a template.",
+                "name": "mode",
+                "options": [
+                  "Parser",
+                  "Stringify"
+                ],
+                "placeholder": "",
+                "real_time_refresh": true,
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "tab",
+                "value": "Parser"
+              },
+              "pattern": {
+                "_input_type": "MultilineInput",
+                "advanced": false,
+                "copy_field": false,
+                "display_name": "Template",
+                "dynamic": true,
+                "info": "Use variables within curly brackets to extract column values for DataFrames or key values for Data.For example: `Name: {Name}, Age: {Age}, Country: {Country}`",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "multiline": true,
+                "name": "pattern",
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "Text: {text}"
+              },
+              "sep": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Separator",
+                "dynamic": false,
+                "info": "String used to separate rows/items.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "sep",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "\n"
+              }
+            },
+            "tool_mode": false
+          },
+          "selected_output": "parsed_text",
+          "showNode": true,
+          "type": "parser"
+        },
+        "dragging": false,
+        "id": "parser-tiD4c",
+        "measured": {
+          "height": 361,
+          "width": 320
+        },
+        "position": {
+          "x": 1595.4955059732686,
+          "y": 571.9024955919464
+        },
+        "selected": false,
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "MiniOB-lrJi1",
+          "node": {
+            "base_classes": [
+              "Data",
+              "DataFrame",
+              "VectorStore"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "miniob vector store component.",
+            "display_name": "MiniOB",
+            "documentation": "https://oceanbase.github.io/miniob/",
+            "edited": true,
+            "field_order": [
+              "server_address",
+              "server_port",
+              "server_socket",
+              "number_of_results",
+              "time_limit",
+              "charset",
+              "embedding_model",
+              "ingest_data",
+              "search_query",
+              "should_cache_vector_store"
+            ],
+            "frozen": false,
+            "icon": "database",
+            "legacy": false,
+            "metadata": {},
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Search Results",
+                "group_outputs": false,
+                "hidden": null,
+                "method": "search_documents",
+                "name": "search_results",
+                "options": null,
+                "required_inputs": null,
+                "selected": "Data",
+                "tool_mode": true,
+                "types": [
+                  "Data"
+                ],
+                "value": "__UNDEFINED__"
+              },
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "DataFrame",
+                "group_outputs": false,
+                "hidden": null,
+                "method": "as_dataframe",
+                "name": "dataframe",
+                "options": null,
+                "required_inputs": null,
+                "selected": "DataFrame",
+                "tool_mode": true,
+                "types": [
+                  "DataFrame"
+                ],
+                "value": "__UNDEFINED__"
+              },
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Vector Store Connection",
+                "group_outputs": false,
+                "hidden": true,
+                "method": "as_vector_store",
+                "name": "vectorstoreconnection",
+                "options": null,
+                "required_inputs": null,
+                "selected": "VectorStore",
+                "tool_mode": true,
+                "types": [
+                  "VectorStore"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "charset": {
+                "_input_type": "StrInput",
+                "advanced": true,
+                "display_name": "Charset",
+                "dynamic": false,
+                "info": "",
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "charset",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "UTF-8"
+              },
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "import json\nimport os\nimport select\nimport socket\nimport subprocess\nimport time\nfrom typing import Any, Optional, Dict\nfrom typing import List\n\nfrom langchain_core.documents import Document\nfrom langchain_core.embeddings import Embeddings\nfrom langchain_core.vectorstores import VST, VectorStore\nfrom langflow.base.vectorstores.model import (\n    LCVectorStoreComponent,\n    check_cached_vector_store,\n)\nfrom langflow.base.vectorstores.vector_store_connection_decorator import (\n    vector_store_connection,\n)\nfrom langflow.helpers import docs_to_data\nfrom langflow.inputs import StrInput, IntInput, FloatInput\nfrom langflow.io import HandleInput\nfrom langflow.schema.data import Data\nfrom langflow.serialization import serialize\n\n\nclass MiniOBException(Exception):\n    \"\"\"Base exception class for MiniOB operations.\"\"\"\n\n    def __init__(\n        self, message: str = None, operation: str = None, details: Dict[str, Any] = None\n    ) -> None:\n        self.operation = operation\n        self.details = details or {}\n\n        if message:\n            full_message = message\n        else:\n            full_message = \"MiniOB operation failed\"\n\n        if operation:\n            full_message = f\"[{operation}] {full_message}\"\n\n        if details:\n            detail_str = \", \".join([f\"{k}={v}\" for k, v in details.items()])\n            full_message = f\"{full_message} (Details: {detail_str})\"\n\n        super().__init__(full_message)\n\n\nclass MiniOBConnectionException(MiniOBException):\n    \"\"\"Exception raised when connection to MiniOB server fails.\"\"\"\n\n    def __init__(\n        self,\n        message: str = None,\n        server_address: str = None,\n        server_port: int = None,\n        server_socket: str = None,\n        error_code: str = None,\n    ) -> None:\n        details = {}\n        if server_address:\n            details[\"server_address\"] = server_address\n        if server_port:\n            details[\"server_port\"] = server_port\n        if server_socket:\n            details[\"server_socket\"] = server_socket\n        if error_code:\n            details[\"error_code\"] = error_code\n\n        super().__init__(\n            message or \"Failed to connect to MiniOB server\",\n            operation=\"CONNECTION\",\n            details=details,\n        )\n\n\nclass MiniOBQueryException(MiniOBException):\n    \"\"\"Exception raised when SQL query execution fails.\"\"\"\n\n    def __init__(\n        self,\n        message: str = None,\n        sql: str = None,\n        result: str = None,\n        execution_time: float = None,\n    ) -> None:\n        details = {}\n        if sql:\n            details[\"sql\"] = sql[:200] + \"...\" if len(sql) > 200 else sql\n        if result:\n            details[\"result\"] = result\n        if execution_time:\n            details[\"execution_time_seconds\"] = execution_time\n\n        super().__init__(\n            message or \"SQL query execution failed\",\n            operation=\"QUERY_EXECUTION\",\n            details=details,\n        )\n\n\nclass MiniOBDataException(MiniOBException):\n    \"\"\"Exception raised when data processing fails.\"\"\"\n\n    def __init__(\n        self,\n        message: str = None,\n        data_type: str = None,\n        expected_format: str = None,\n        actual_format: str = None,\n        row_count: int = None,\n    ) -> None:\n        details = {}\n        if data_type:\n            details[\"data_type\"] = data_type\n        if expected_format:\n            details[\"expected_format\"] = expected_format\n        if actual_format:\n            details[\"actual_format\"] = actual_format\n        if row_count is not None:\n            details[\"row_count\"] = row_count\n\n        super().__init__(\n            message or \"Data processing failed\",\n            operation=\"DATA_PROCESSING\",\n            details=details,\n        )\n\n\nclass MiniOBTimeoutException(MiniOBException):\n    \"\"\"Exception raised when operations timeout.\"\"\"\n\n    def __init__(\n        self,\n        message: str = None,\n        timeout_seconds: float = None,\n        operation_type: str = None,\n    ) -> None:\n        details = {}\n        if timeout_seconds:\n            details[\"timeout_seconds\"] = timeout_seconds\n        if operation_type:\n            details[\"operation_type\"] = operation_type\n\n        super().__init__(\n            message or \"Operation timed out\", operation=\"TIMEOUT\", details=details\n        )\n\n\nclass MiniObConnector(object):\n    def __init__(\n        self,\n        server_address: str,\n        server_port: int,\n        server_socket: str,\n        time_limit: float,\n        charset: str,\n        log_func=None,\n    ):\n        if server_port < 0 or server_port > 65535:\n            raise MiniOBConnectionException(\n                message=f\"Invalid server port: {server_port}\",\n                server_address=server_address,\n                server_port=server_port,\n                error_code=\"INVALID_PORT\",\n            )\n\n        self.log_func = log_func or (lambda msg: None)\n\n        self.__server_address = server_address\n        self.__server_port = server_port\n        self.__server_socket = os.getenv(\"MINIOB_SERVER_SOCKET\", \"\")\n        self.__buffer_size = 8192\n        self.__charset = charset\n        self.__socket = None\n\n        self.__time_limit = time_limit\n        if not self.__time_limit:\n            self.__time_limit = 10.0\n\n        self.log_func(f\"Initializing MiniOB connector...\")\n        try:\n            if len(self.__server_socket) > 0:\n                self.log_func(f\"Using Unix socket: {self.__server_socket}\")\n                sock = self.__init_unix_socket(self.__server_socket)\n            else:\n                self.log_func(f\"Using TCP connection: {server_address}:{server_port}\")\n                sock = self.__init_tcp_socket(self.__server_address, self.__server_port)\n\n            self.__socket = sock\n            if sock is not None:\n                self.log_func(\"Socket connection established successfully\")\n                self.__socket.setblocking(False)\n\n                self.__poller = select.poll()\n                self.__poller.register(\n                    self.__socket,\n                    select.POLLIN | select.POLLPRI | select.POLLHUP | select.POLLERR,\n                )\n                self.log_func(\"Socket poller configured successfully\")\n            else:\n                self.log_func(\"Failed to establish socket connection\")\n                raise MiniOBConnectionException(\n                    message=\"Socket connection returned None\",\n                    server_address=server_address,\n                    server_port=server_port,\n                    server_socket=server_socket,\n                    error_code=\"NULL_SOCKET\",\n                )\n        except Exception as e:\n            if isinstance(e, MiniOBConnectionException):\n                raise\n            else:\n                raise MiniOBConnectionException(\n                    message=f\"Failed to initialize connection: {str(e)}\",\n                    server_address=server_address,\n                    server_port=server_port,\n                    server_socket=server_socket,\n                    error_code=\"INIT_FAILED\",\n                ) from e\n\n    @staticmethod\n    def __init_tcp_socket(server_address: str, server_port: int):\n        try:\n            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n            s.connect((server_address, server_port))\n            return s\n        except socket.error as e:\n            raise MiniOBConnectionException(\n                message=f\"Failed to establish TCP connection: {str(e)}\",\n                server_address=server_address,\n                server_port=server_port,\n                error_code=\"TCP_CONNECTION_FAILED\",\n            ) from e\n        except Exception as e:\n            raise MiniOBConnectionException(\n                message=f\"Unexpected error during TCP connection: {str(e)}\",\n                server_address=server_address,\n                server_port=server_port,\n                error_code=\"TCP_UNEXPECTED_ERROR\",\n            ) from e\n\n    @staticmethod\n    def __init_unix_socket(server_socket: str):\n        try:\n            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)\n            sock.connect(server_socket)\n            return sock\n        except socket.error as e:\n            raise MiniOBConnectionException(\n                message=f\"Failed to establish Unix socket connection: {str(e)}\",\n                server_socket=server_socket,\n                error_code=\"UNIX_SOCKET_CONNECTION_FAILED\",\n            ) from e\n        except Exception as e:\n            raise MiniOBConnectionException(\n                message=f\"Unexpected error during Unix socket connection: {str(e)}\",\n                server_socket=server_socket,\n                error_code=\"UNIX_SOCKET_UNEXPECTED_ERROR\",\n            ) from e\n\n    def __recv_response(\n        self,\n        timeout: float,\n        total_timeout_seconds: int,\n    ) -> str:\n        result = b\"\"\n\n        if not timeout:\n            timeout = self.__time_limit\n\n        if timeout is not None:\n            timeout *= 1000\n\n        deadline = time.time() + 3600 * 24\n        if total_timeout_seconds is not None and total_timeout_seconds > 0:\n            deadline = time.time() + total_timeout_seconds\n\n        while time.time() < deadline:\n            events = self.__poller.poll(timeout)\n            if len(events) == 0:\n                raise MiniOBTimeoutException(\n                    message=f\"Poll timeout after {timeout / 1000} second(s)\",\n                    timeout_seconds=timeout / 1000,\n                    operation_type=\"SOCKET_POLL\",\n                )\n\n            (_, event) = events[0]\n            if event & (select.POLLHUP | select.POLLERR):\n                error_details = {\n                    \"POLLHUP\": bool(event & select.POLLHUP),\n                    \"POLLERR\": bool(event & select.POLLERR),\n                    \"event_code\": event,\n                }\n                msg = (\n                    f\"Failed to receive from server. poll return \"\n                    f\"POLLHUP={str(event & select.POLLHUP)} or POLLERR={str(event & select.POLLERR)}\"\n                )\n                self.log_func(msg)\n                raise MiniOBConnectionException(\n                    message=\"Socket connection error during polling\",\n                    error_code=\"SOCKET_POLL_ERROR\",\n                )\n\n            data = self.__socket.recv(self.__buffer_size)\n            if len(data) > 0:\n                try:\n                    if data[0] == 0 and len(result) == 0:\n                        self.log_func(\"Error: receive from server \\\\0 byte\")\n                        ps_ef = subprocess.run(\n                            [\"ps\", \"-ef\"],\n                            stdout=subprocess.PIPE,\n                            stderr=subprocess.PIPE,\n                            universal_newlines=True,\n                        )\n\n                        self.log_func(f\"Process status stdout: {str(ps_ef.stdout)}\")\n                        self.log_func(f\"Process status stderr: {str(ps_ef.stderr)}\")\n                except BaseException as ex:\n                    self.log_func(f\"Exception during data processing: {ex}\")\n\n                result += data\n                self.log_func(\n                    f\"Received from server (size={len(data)}): {data[:100]}...\"\n                )\n\n                if data.endswith(b\"\\0\"):\n\n                    result = result[:-1]\n                    try:\n                        decoded_result = result.decode(encoding=self.__charset)\n                        self.log_func(\n                            f\"Successfully decoded response with length {len(decoded_result)}\"\n                        )\n                        return decoded_result.strip() + \"\\n\"\n                    except UnicodeDecodeError as e:\n                        self.log_func(f\"Unicode decode error: {e}\")\n\n                        decoded_result = result.decode(\n                            encoding=self.__charset, errors=\"replace\"\n                        )\n                        self.log_func(\n                            f\"Decoded with error handling, length: {len(decoded_result)}\"\n                        )\n                        return decoded_result.strip() + \"\\n\"\n            else:\n                self.log_func(f\"Error: receive from server returned zero length data\")\n                raise MiniOBConnectionException(\n                    message=\"Received zero length data from server - connection may be closed\",\n                    error_code=\"ZERO_LENGTH_DATA\",\n                )\n\n        if time.time() >= deadline:\n            self.log_func(\n                f\"Timeout: receive from server timeout after {total_timeout_seconds} seconds\"\n            )\n\n        raise MiniOBTimeoutException(\n            message=f\"Response timeout after {total_timeout_seconds} second(s)\",\n            timeout_seconds=total_timeout_seconds,\n            operation_type=\"RECEIVE_RESPONSE\",\n        )\n\n    def exec(\n        self,\n        sql: str,\n        timeout=None,\n        total_timeout_seconds=None,\n    ) -> str:\n        if not sql:\n            raise MiniOBQueryException(\n                message=\"SQL query cannot be empty or None\", sql=sql or \"None\"\n            )\n\n        start_time = time.time()\n        self.log_func(f\"Executing SQL: {sql}\")\n\n        try:\n            data = str.encode(sql, self.__charset)\n            self.__socket.sendall(data)\n            self.__socket.sendall(b\"\\0\")\n            self.log_func(f\"SQL command sent to server (size={len(data) + 1}): '{sql}'\")\n            self.log_func(\"SQL command sent to server, waiting for response...\")\n\n            result = self.__recv_response(timeout, total_timeout_seconds)\n            execution_time = time.time() - start_time\n\n            self.log_func(f\"SQL response received from server: '{result}'\")\n            self.log_func(f\"SQL execution completed with result: {result}\")\n\n            result_lower = result.lower().strip()\n            if (\n                result_lower.startswith(\"error\")\n                or \"failed\" in result_lower\n                or \"exception\" in result_lower\n            ):\n                raise MiniOBQueryException(\n                    message=\"SQL execution returned error result\",\n                    sql=sql,\n                    result=result,\n                    execution_time=execution_time,\n                )\n\n            return result.strip(\"\\n\")\n\n        except (MiniOBConnectionException, MiniOBTimeoutException):\n\n            raise\n        except Exception as e:\n            execution_time = time.time() - start_time\n            if isinstance(e, MiniOBQueryException):\n                raise\n            else:\n                raise MiniOBQueryException(\n                    message=f\"Unexpected error during SQL execution: {str(e)}\",\n                    sql=sql,\n                    execution_time=execution_time,\n                ) from e\n\n    def close(self):\n        if self.__socket:\n            self.log_func(\"Closing MiniOB connector socket...\")\n            self.__socket.close()\n            self.__socket = None\n            self.log_func(\"MiniOB connector socket closed successfully\")\n        else:\n            self.log_func(\"No socket to close\")\n\n\nclass MiniOBVectorStore(VectorStore):\n    def __init__(\n        self,\n        embedding: Embeddings | None,\n        server_address: str,\n        server_port: int,\n        server_socket: str,\n        time_limit: float,\n        charset: str,\n        log_func=None,\n    ) -> None:\n        self.__embedding: Embeddings | None = embedding\n        self.__log_func = log_func or (lambda msg: None)\n\n        self.connector: MiniObConnector = MiniObConnector(\n            server_address=server_address,\n            server_port=server_port,\n            server_socket=server_socket,\n            time_limit=time_limit,\n            charset=charset,\n            log_func=self.__log_func,\n        )\n\n        if not self.__embedding:\n            raise MiniOBException(\n                message=\"Embedding model is required but was not provided\",\n                operation=\"INITIALIZATION\",\n            )\n\n        try:\n            self.__embedding_dimension: int = len(self.__embedding.embed_query(\"Hello\"))\n        except Exception as e:\n            raise MiniOBException(\n                message=f\"Failed to determine embedding dimension: {str(e)}\",\n                operation=\"EMBEDDING_DIMENSION_CHECK\",\n                details={\"embedding_model\": type(self.__embedding).__name__},\n            ) from e\n        \n        # TODO: initialize miniob data\n\n    def similarity_search(\n        self,\n        query: str,\n        k: int = 4,\n        search_method: str = \"Vector Search\",\n    ) -> list[Document]:\n        self.__log_func(f\"Performing similarity search for query: '{query}' with k={k}\")\n        result = []\n        \n        # TODO: search similar data from miniob\n\n        self.__log_func(f\"Similarity search completed. Found {len(result)} documents\")\n        return result\n\n    def add_documents(\n        self,\n        documents: list[Document],\n        **kwargs: Any,\n    ) -> List[str]:\n        if not documents or len(documents) == 0:\n            self.__log_func(\"No documents provided for insertion\")\n            return []\n\n        self.__log_func(f\"Processing {len(documents)} documents for insertion\")\n        page_contents: List[str] = [document.page_content for document in documents]\n        self.__log_func(\"Generating embeddings for documents...\")\n        try:\n            embeddings: List[List[float]] = self.__embedding.embed_documents(\n                page_contents\n            )\n        except Exception as e:\n            raise MiniOBException(\n                message=f\"Failed to generate embeddings for documents: {str(e)}\",\n                operation=\"GENERATE_EMBEDDINGS\",\n                details={\"document_count\": len(page_contents)},\n            ) from e\n\n        if len(embeddings) != len(page_contents):\n            self.__log_func(\n                f\"Error: Embedding count mismatch. Expected {len(page_contents)}, got {len(embeddings)}\"\n            )\n            raise MiniOBDataException(\n                message=\"Embedding count mismatch with document count\",\n                data_type=\"embeddings\",\n                expected_format=f\"{len(page_contents)} embeddings\",\n                actual_format=f\"{len(embeddings)} embeddings\",\n                row_count=len(page_contents),\n            )\n\n        # TODO: insert data into miniob\n\n        return []\n\n    @classmethod\n    def from_texts(\n        cls: type[VST],\n        texts: list[str],\n        embedding: Embeddings,\n        metadatas: Optional[list[dict]] = None,\n        *,\n        ids: Optional[list[str]] = None,\n        **kwargs: Any,\n    ) -> VST:\n        raise NotImplementedError()\n\n\n@vector_store_connection\nclass MiniOBVectorStoreComponent(LCVectorStoreComponent):\n    display_name = \"MiniOB\"\n    description = \"miniob vector store component.\"\n    documentation: str = \"https://oceanbase.github.io/miniob/\"\n    icon = \"database\"\n    name = \"MiniOB\"\n\n    _cached_vector_store: MiniOBVectorStore | None = None\n\n    inputs = [\n        StrInput(\n            name=\"server_address\",\n            display_name=\"Server Address\",\n            advanced=True,\n            value=\"127.0.0.1\",\n        ),\n        IntInput(\n            name=\"server_port\",\n            display_name=\"Server port\",\n            advanced=True,\n            value=6789,\n        ),\n        StrInput(\n            name=\"server_socket\",\n            display_name=\"Server socket\",\n            advanced=True,\n        ),\n        IntInput(\n            name=\"number_of_results\",\n            display_name=\"Number of Search Results\",\n            advanced=True,\n            value=4,\n        ),\n        FloatInput(\n            name=\"time_limit\",\n            display_name=\"Search Time Limit\",\n            advanced=True,\n            value=10.0,\n        ),\n        StrInput(\n            name=\"charset\",\n            display_name=\"Charset\",\n            advanced=True,\n            value=\"utf-8\",\n        ),\n        HandleInput(\n            name=\"embedding_model\",\n            display_name=\"Embedding Model\",\n            input_types=[\"Embeddings\"],\n            info=\"\",\n            required=True,\n            show=True,\n        ),\n        *LCVectorStoreComponent.inputs,\n    ]\n\n    outputs = [\n        *LCVectorStoreComponent.outputs,\n    ]\n    \n    def _already_build(self) -> bool:\n        # TODO: check if the document has been built\n        return False\n\n    def _add_documents_to_vector_store(self, vector_store: MiniOBVectorStore) -> None:\n        self.log(\"Preparing to add documents to vector store...\")\n        self.ingest_data = self._prepare_ingest_data()\n\n        documents = []\n        for _input in self.ingest_data or []:\n            if isinstance(_input, Data):\n                documents.append(_input.to_lc_document())\n            else:\n                msg = \"Vector Store Inputs must be Data objects.\"\n                self.log(\n                    f\"Error: Invalid input type {type(_input)}, expected Data object\"\n                )\n                raise TypeError(msg)\n\n        self.log(f\"Prepared {len(documents)} documents for ingestion\")\n\n        documents = [\n            Document(\n                page_content=doc.page_content,\n                metadata=serialize(doc.metadata, to_str=True),\n            )\n            for doc in documents\n        ]\n\n        if documents:\n            self.log(f\"Adding {len(documents)} documents to the Vector Store.\")\n            try:\n                vector_store.add_documents(documents)\n                self.log(\n                    f\"Successfully added {len(documents)} documents to Vector Store\"\n                )\n            except Exception as e:\n                self.log(f\"Error adding documents to Vector Store: {str(e)}\")\n                raise\n        else:\n            self.log(\"No documents to add to the Vector Store.\")\n            return None\n\n    @check_cached_vector_store\n    def build_vector_store(self) -> VectorStore:\n        self.log(\"Building MiniOB Vector Store...\")\n        self.log(f\"Connecting to server: {self.server_address}:{self.server_port}\")\n\n        self.log(\n            f\"Configuration: server_address={self.server_address}, server_port={self.server_port}\"\n        )\n        self.log(\n            f\"Configuration: server_socket={self.server_socket}, time_limit={self.time_limit}\"\n        )\n        self.log(\n            f\"Configuration: charset={self.charset}, embedding_model={type(self.embedding_model).__name__ if self.embedding_model else 'None'}\"\n        )\n\n        vector_store = MiniOBVectorStore(\n            embedding=self.embedding_model if self.embedding_model else None,\n            server_address=self.server_address if self.server_address else \"127.0.0.1\",\n            server_port=self.server_port if self.server_port else 6789,\n            server_socket=self.server_socket if self.server_socket else \"\",\n            time_limit=self.time_limit if self.time_limit else 10.0,\n            charset=self.charset if self.charset else \"utf-8\",\n            log_func=self.log,\n        )\n\n        self.log(\"Vector Store created successfully\")\n        if not self._already_build():\n            self._add_documents_to_vector_store(vector_store)\n        self.log(\"Vector Store build completed\")\n        return vector_store\n\n    def search_documents(self, vector_store=None) -> list[Data]:\n        if not vector_store:\n            vector_store = self.build_vector_store()\n\n        query = (self.search_query if self.search_query else \"\").strip()\n        if not query:\n            self.log(\"Warning: Empty search query provided\")\n            return []\n\n        self.log(f\"Searching for documents with query: '{query}'\")\n        self.log(\n            f\"Number of results requested: {self.number_of_results if self.number_of_results else 4}\"\n        )\n\n        vector_store = vector_store or self.build_vector_store()\n\n        data = docs_to_data(\n            vector_store.search(\n                query=query,\n                search_type=\"similarity\",\n                k=self.number_of_results if self.number_of_results else 4,\n            )\n        )\n\n        if not data:\n            self.log(f\"No documents found for query: '{query}'\")\n            return []\n\n        self.log(f\"Found {len(data)} documents for query: '{query}'\")\n        return data\n"
+              },
+              "embedding_model": {
+                "_input_type": "HandleInput",
+                "advanced": false,
+                "display_name": "Embedding Model",
+                "dynamic": false,
+                "info": "",
+                "input_types": [
+                  "Embeddings"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "embedding_model",
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "trace_as_metadata": true,
+                "type": "other",
+                "value": ""
+              },
+              "ingest_data": {
+                "_input_type": "HandleInput",
+                "advanced": false,
+                "display_name": "Ingest Data",
+                "dynamic": false,
+                "info": "",
+                "input_types": [
+                  "Data",
+                  "DataFrame"
+                ],
+                "list": true,
+                "list_add_label": "Add More",
+                "name": "ingest_data",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "trace_as_metadata": true,
+                "type": "other",
+                "value": ""
+              },
+              "number_of_results": {
+                "_input_type": "IntInput",
+                "advanced": true,
+                "display_name": "Number of Search Results",
+                "dynamic": false,
+                "info": "",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "number_of_results",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "int",
+                "value": 4
+              },
+              "search_query": {
+                "_input_type": "QueryInput",
+                "advanced": false,
+                "display_name": "Search Query",
+                "dynamic": false,
+                "info": "Enter a query to run a similarity search.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "search_query",
+                "placeholder": "Enter a query...",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": true,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "query",
+                "value": ""
+              },
+              "server_address": {
+                "_input_type": "StrInput",
+                "advanced": true,
+                "display_name": "Server Address",
+                "dynamic": false,
+                "info": "",
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "server_address",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "127.0.0.1"
+              },
+              "server_port": {
+                "_input_type": "IntInput",
+                "advanced": true,
+                "display_name": "Server port",
+                "dynamic": false,
+                "info": "",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "server_port",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "int",
+                "value": 6789
+              },
+              "server_socket": {
+                "_input_type": "StrInput",
+                "advanced": true,
+                "display_name": "Server socket",
+                "dynamic": false,
+                "info": "",
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "server_socket",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "should_cache_vector_store": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Cache Vector Store",
+                "dynamic": false,
+                "info": "If True, the vector store will be cached for the current build of the component. This is useful for components that have multiple output methods and want to share the same vector store.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "should_cache_vector_store",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
+              },
+              "time_limit": {
+                "_input_type": "FloatInput",
+                "advanced": true,
+                "display_name": "Search Time Limit",
+                "dynamic": false,
+                "info": "",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "time_limit",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "float",
+                "value": 10
+              }
+            },
+            "tool_mode": false
+          },
+          "selected_output": "dataframe",
+          "showNode": true,
+          "type": "MiniOB"
+        },
+        "dragging": false,
+        "id": "MiniOB-lrJi1",
+        "measured": {
+          "height": 337,
+          "width": 320
+        },
+        "position": {
+          "x": 1218.825194906154,
+          "y": 544.6045835470958
+        },
+        "selected": false,
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "TestOutput-gbo7V",
+          "node": {
+            "base_classes": [
+              "Data"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Use as a template to create your own component.",
+            "display_name": "Test Output",
+            "documentation": "https://docs.langflow.org/components-custom-components",
+            "edited": true,
+            "field_order": [
+              "input_value"
+            ],
+            "frozen": false,
+            "icon": "code",
+            "legacy": false,
+            "metadata": {},
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Output",
+                "group_outputs": false,
+                "hidden": null,
+                "method": "build_output",
+                "name": "output",
+                "options": null,
+                "required_inputs": null,
+                "selected": "Data",
+                "tool_mode": true,
+                "types": [
+                  "Data"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "# from langflow.field_typing import Data\nfrom langflow.custom.custom_component.component import Component\nfrom langflow.io import MessageTextInput, Output\nfrom langflow.schema.data import Data\nimport requests\nimport os\n\n\nclass CustomComponent(Component):\n    display_name = \"Test Output\"\n    description = \"Use as a template to create your own component.\"\n    documentation: str = \"https://docs.langflow.org/components-custom-components\"\n    icon = \"code\"\n    name = \"TestOutput\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"input_value\",\n            display_name=\"Input Value\",\n            info=\"This is a custom component Input\",\n            value=\"Hello, World!\",\n            tool_mode=True,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Output\", name=\"output\", method=\"build_output\"),\n    ]\n\n    def build_output(self) -> Data:\n        data = Data(value=self.input_value)\n        self.status = data\n        \n        url = os.getenv(\"QA_SERVER_POST_ANSWER_URL\")\n        headers = {\n            \"Content-Type\": \"application/json\"\n        }\n        data = {\n            \"answer\": self.input_value\n        }\n        \n        requests.post(url, json=data, headers=headers)\n        return data\n"
+              },
+              "input_value": {
+                "_input_type": "MessageTextInput",
+                "advanced": false,
+                "display_name": "Input Value",
+                "dynamic": false,
+                "info": "This is a custom component Input",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "input_value",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": true,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              }
+            },
+            "tool_mode": false
+          },
+          "showNode": true,
+          "type": "TestOutput"
+        },
+        "dragging": false,
+        "id": "TestOutput-gbo7V",
+        "measured": {
+          "height": 204,
+          "width": 320
+        },
+        "position": {
+          "x": 3236.3729027118266,
+          "y": 1073.5049822812236
+        },
+        "selected": false,
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "ChatInput-VGZSq",
+          "node": {
+            "base_classes": [
+              "Message"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Get chat inputs from the Playground.",
+            "display_name": "Chat Input",
+            "documentation": "https://docs.langflow.org/components-io#chat-input",
+            "edited": true,
+            "field_order": [
+              "input_value",
+              "should_store_message",
+              "sender",
+              "sender_name",
+              "session_id",
+              "files",
+              "background_color",
+              "chat_icon",
+              "text_color"
+            ],
+            "frozen": false,
+            "icon": "MessagesSquare",
+            "legacy": false,
+            "lf_version": "1.5.0.post1",
+            "metadata": {},
+            "minimized": true,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Chat Message",
+                "group_outputs": false,
+                "hidden": null,
+                "method": "message_response",
+                "name": "message",
+                "options": null,
+                "required_inputs": null,
+                "selected": "Message",
+                "tool_mode": true,
+                "types": [
+                  "Message"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "background_color": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Background Color",
+                "dynamic": false,
+                "info": "The background color of the icon.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "background_color",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "chat_icon": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Icon",
+                "dynamic": false,
+                "info": "The icon of the message.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "chat_icon",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "import os\n\nfrom langflow.base.data.utils import IMG_FILE_TYPES, TEXT_FILE_TYPES\nfrom langflow.base.io.chat import ChatComponent\nfrom langflow.inputs.inputs import BoolInput\nfrom langflow.io import (\n    DropdownInput,\n    FileInput,\n    MessageTextInput,\n    MultilineInput,\n    Output,\n)\nfrom langflow.schema.message import Message\nfrom langflow.utils.constants import (\n    MESSAGE_SENDER_AI,\n    MESSAGE_SENDER_NAME_USER,\n    MESSAGE_SENDER_USER,\n)\nimport requests\n\n\nclass ChatInput(ChatComponent):\n    display_name = \"Chat Input\"\n    description = \"Get chat inputs from the Playground.\"\n    documentation: str = \"https://docs.langflow.org/components-io#chat-input\"\n    icon = \"MessagesSquare\"\n    name = \"ChatInput\"\n    minimized = True\n\n    inputs = [\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Input Text\",\n            value=\"\",\n            info=\"Message to be passed as input.\",\n            input_types=[],\n        ),\n        BoolInput(\n            name=\"should_store_message\",\n            display_name=\"Store Messages\",\n            info=\"Store the message in the history.\",\n            value=True,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender\",\n            display_name=\"Sender Type\",\n            options=[MESSAGE_SENDER_AI, MESSAGE_SENDER_USER],\n            value=MESSAGE_SENDER_USER,\n            info=\"Type of sender.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=\"Sender Name\",\n            info=\"Name of the sender.\",\n            value=MESSAGE_SENDER_NAME_USER,\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=\"Session ID\",\n            info=\"The session ID of the chat. If empty, the current session ID parameter will be used.\",\n            advanced=True,\n        ),\n        FileInput(\n            name=\"files\",\n            display_name=\"Files\",\n            file_types=TEXT_FILE_TYPES + IMG_FILE_TYPES,\n            info=\"Files to be sent with the message.\",\n            advanced=True,\n            is_list=True,\n            temp_file=True,\n        ),\n        MessageTextInput(\n            name=\"background_color\",\n            display_name=\"Background Color\",\n            info=\"The background color of the icon.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"chat_icon\",\n            display_name=\"Icon\",\n            info=\"The icon of the message.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"text_color\",\n            display_name=\"Text Color\",\n            info=\"The text color of the name\",\n            advanced=True,\n        ),\n    ]\n    outputs = [\n        Output(display_name=\"Chat Message\", name=\"message\", method=\"message_response\"),\n    ]\n\n    async def message_response(self) -> Message:\n        background_color = self.background_color\n        text_color = self.text_color\n        icon = self.chat_icon\n        text = self.input_value\n        if not text:\n            url = os.getenv(\"QA_SERVER_GET_QUESTION_URL\")\n            response = requests.get(url)\n            data = response.json()  # 解析 JSON 响应\n            text = data.get(\"question\")  # 提取 \"question\" 字段的值\n\n        message = await Message.create(\n            text=text,\n            sender=self.sender,\n            sender_name=self.sender_name,\n            session_id=self.session_id,\n            files=self.files,\n            properties={\n                \"background_color\": background_color,\n                \"text_color\": text_color,\n                \"icon\": icon,\n            },\n        )\n        if (\n            self.session_id\n            and isinstance(message, Message)\n            and self.should_store_message\n        ):\n            stored_message = await self.send_message(\n                message,\n            )\n            self.message.value = stored_message\n            message = stored_message\n\n        self.status = message\n        return message\n"
+              },
+              "files": {
+                "_input_type": "FileInput",
+                "advanced": true,
+                "display_name": "Files",
+                "dynamic": false,
+                "fileTypes": [
+                  "txt",
+                  "md",
+                  "mdx",
+                  "csv",
+                  "json",
+                  "yaml",
+                  "yml",
+                  "xml",
+                  "html",
+                  "htm",
+                  "pdf",
+                  "docx",
+                  "py",
+                  "sh",
+                  "sql",
+                  "js",
+                  "ts",
+                  "tsx",
+                  "jpg",
+                  "jpeg",
+                  "png",
+                  "bmp",
+                  "image"
+                ],
+                "file_path": "",
+                "info": "Files to be sent with the message.",
+                "list": true,
+                "list_add_label": "Add More",
+                "name": "files",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "temp_file": true,
+                "title_case": false,
+                "trace_as_metadata": true,
+                "type": "file",
+                "value": ""
+              },
+              "input_value": {
+                "_input_type": "MultilineInput",
+                "advanced": false,
+                "copy_field": false,
+                "display_name": "Input Text",
+                "dynamic": false,
+                "info": "Message to be passed as input.",
+                "input_types": [],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "multiline": true,
+                "name": "input_value",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "sender": {
+                "_input_type": "DropdownInput",
+                "advanced": true,
+                "combobox": false,
+                "dialog_inputs": {},
+                "display_name": "Sender Type",
+                "dynamic": false,
+                "info": "Type of sender.",
+                "name": "sender",
+                "options": [
+                  "Machine",
+                  "User"
+                ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "User"
+              },
+              "sender_name": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Sender Name",
+                "dynamic": false,
+                "info": "Name of the sender.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "sender_name",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "User"
+              },
+              "session_id": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Session ID",
+                "dynamic": false,
+                "info": "The session ID of the chat. If empty, the current session ID parameter will be used.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "session_id",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "should_store_message": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Store Messages",
+                "dynamic": false,
+                "info": "Store the message in the history.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "should_store_message",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
+              },
+              "text_color": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Text Color",
+                "dynamic": false,
+                "info": "The text color of the name",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "text_color",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              }
+            },
+            "tool_mode": false
+          },
+          "showNode": true,
+          "type": "ChatInput"
+        },
+        "dragging": false,
+        "id": "ChatInput-VGZSq",
+        "measured": {
+          "height": 204,
+          "width": 320
+        },
+        "position": {
+          "x": 803.096134571702,
+          "y": 884.9002809531578
+        },
+        "selected": false,
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "OllamaEmbeddings-vt2mP",
+          "node": {
+            "base_classes": [
+              "Embeddings"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Generate embeddings using Ollama models.",
+            "display_name": "Ollama Embeddings",
+            "documentation": "https://python.langchain.com/docs/integrations/text_embedding/ollama",
+            "edited": true,
+            "field_order": [
+              "model_name",
+              "base_url"
+            ],
+            "frozen": false,
+            "icon": "Ollama",
+            "last_updated": "2025-09-01T12:09:42.031Z",
+            "legacy": false,
+            "metadata": {
+              "keywords": [
+                "model",
+                "llm",
+                "language model",
+                "large language model"
+              ]
+            },
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Embeddings",
+                "group_outputs": false,
+                "hidden": null,
+                "method": "build_embeddings",
+                "name": "embeddings",
+                "options": null,
+                "required_inputs": null,
+                "selected": "Embeddings",
+                "tool_mode": true,
+                "types": [
+                  "Embeddings"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "base_url": {
+                "_input_type": "MessageTextInput",
+                "advanced": false,
+                "display_name": "Ollama Base URL",
+                "dynamic": false,
+                "info": "",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "base_url",
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "http://localhost:11434"
+              },
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "import os\nfrom typing import Any\nfrom urllib.parse import urljoin\n\nimport httpx\nfrom langchain_ollama import OllamaEmbeddings\n\nfrom langflow.base.models.model import LCModelComponent\nfrom langflow.base.models.ollama_constants import OLLAMA_EMBEDDING_MODELS, URL_LIST\nfrom langflow.field_typing import Embeddings\nfrom langflow.io import DropdownInput, MessageTextInput, Output\n\nHTTP_STATUS_OK = 200\n\n\nclass OllamaEmbeddingsComponent(LCModelComponent):\n    display_name: str = \"Ollama Embeddings\"\n    description: str = \"Generate embeddings using Ollama models.\"\n    documentation = (\n        \"https://python.langchain.com/docs/integrations/text_embedding/ollama\"\n    )\n    icon = \"Ollama\"\n    name = \"OllamaEmbeddings\"\n\n    inputs = [\n        DropdownInput(\n            name=\"model_name\",\n            display_name=\"Ollama Model\",\n            value=\"\",\n            options=[],\n            real_time_refresh=True,\n            refresh_button=True,\n            combobox=True,\n            required=True,\n        ),\n        MessageTextInput(\n            name=\"base_url\",\n            display_name=\"Ollama Base URL\",\n            value=\"\",\n            required=True,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Embeddings\", name=\"embeddings\", method=\"build_embeddings\"),\n    ]\n\n    def build_embeddings(self) -> Embeddings:\n        try:\n            self.model_name = os.getenv(\"EMBEDDING_NAME\", self.model_name)\n            self.base_url = os.getenv(\"EMBEDDING_BASE_URL\", self.base_url)\n            output = OllamaEmbeddings(model=self.model_name, base_url=self.base_url)\n        except Exception as e:\n            msg = (\n                \"Unable to connect to the Ollama API. \",\n                \"Please verify the base URL, ensure the relevant Ollama model is pulled, and try again.\",\n            )\n            raise ValueError(msg) from e\n        return output\n\n    async def update_build_config(\n        self, build_config: dict, field_value: Any, field_name: str | None = None\n    ):\n        if field_name in {\n            \"base_url\",\n            \"model_name\",\n        } and not await self.is_valid_ollama_url(field_value):\n            # Check if any URL in the list is valid\n            valid_url = \"\"\n            for url in URL_LIST:\n                if await self.is_valid_ollama_url(url):\n                    valid_url = url\n                    break\n            build_config[\"base_url\"][\"value\"] = valid_url\n        if field_name in {\"model_name\", \"base_url\", \"tool_model_enabled\"}:\n            if await self.is_valid_ollama_url(self.base_url):\n                build_config[\"model_name\"][\"options\"] = await self.get_model(\n                    self.base_url\n                )\n            elif await self.is_valid_ollama_url(\n                build_config[\"base_url\"].get(\"value\", \"\")\n            ):\n                build_config[\"model_name\"][\"options\"] = await self.get_model(\n                    build_config[\"base_url\"].get(\"value\", \"\")\n                )\n            else:\n                build_config[\"model_name\"][\"options\"] = []\n\n        return build_config\n\n    async def get_model(self, base_url_value: str) -> list[str]:\n        \"\"\"Get the model names from Ollama.\"\"\"\n        model_ids = []\n        try:\n            url = urljoin(base_url_value, \"/api/tags\")\n            async with httpx.AsyncClient() as client:\n                response = await client.get(url)\n                response.raise_for_status()\n                data = response.json()\n\n            model_ids = [model[\"name\"] for model in data.get(\"models\", [])]\n            # this to ensure that not embedding models are included.\n            # not even the base models since models can have 1b 2b etc\n            # handles cases when embeddings models have tags like :latest - etc.\n            model_ids = [\n                model\n                for model in model_ids\n                if any(\n                    model.startswith(f\"{embedding_model}\")\n                    for embedding_model in OLLAMA_EMBEDDING_MODELS\n                )\n            ]\n\n        except (ImportError, ValueError, httpx.RequestError) as e:\n            msg = \"Could not get model names from Ollama.\"\n            raise ValueError(msg) from e\n\n        return model_ids\n\n    async def is_valid_ollama_url(self, url: str) -> bool:\n        try:\n            async with httpx.AsyncClient() as client:\n                return (\n                    await client.get(f\"{url}/api/tags\")\n                ).status_code == HTTP_STATUS_OK\n        except httpx.RequestError:\n            return False\n"
+              },
+              "model_name": {
+                "_input_type": "DropdownInput",
+                "advanced": false,
+                "combobox": true,
+                "dialog_inputs": {},
+                "display_name": "Ollama Model",
+                "dynamic": false,
+                "info": "",
+                "load_from_db": false,
+                "name": "model_name",
+                "options": [
+                  "bge-m3:latest",
+                  "nomic-embed-text:latest"
+                ],
+                "options_metadata": [],
+                "placeholder": "",
+                "real_time_refresh": true,
+                "refresh_button": true,
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              }
+            },
+            "tool_mode": false
+          },
+          "showNode": true,
+          "type": "OllamaEmbeddings"
+        },
+        "dragging": false,
+        "id": "OllamaEmbeddings-vt2mP",
+        "measured": {
+          "height": 286,
+          "width": 320
+        },
+        "position": {
+          "x": 822.3182942880579,
+          "y": 305.6826144850087
+        },
+        "selected": false,
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "ChatQwenModel-5mSki",
+          "node": {
+            "base_classes": [
+              "LanguageModel",
+              "Message"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Generate text using Alibaba Cloud's Qwen models via DashScope API.",
+            "display_name": "Qwen",
+            "documentation": "",
+            "edited": true,
+            "field_order": [
+              "input_value",
+              "system_message",
+              "stream",
+              "model_name",
+              "api_key",
+              "base_url",
+              "temperature",
+              "top_p",
+              "top_k",
+              "max_tokens",
+              "repetition_penalty",
+              "enable_search",
+              "tool_model_enabled"
+            ],
+            "frozen": false,
+            "icon": "Qwen",
+            "legacy": false,
+            "metadata": {
+              "code_hash": "112daed5634e",
+              "dependencies": {
+                "dependencies": [
+                  {
+                    "name": "pydantic",
+                    "version": "2.10.6"
+                  },
+                  {
+                    "name": "langchain_core",
+                    "version": "0.3.75"
+                  },
+                  {
+                    "name": "langflow",
+                    "version": null
+                  },
+                  {
+                    "name": "dashscope",
+                    "version": null
+                  }
+                ],
+                "total_dependencies": 4
+              },
+              "keywords": [
+                "model",
+                "llm",
+                "language model",
+                "large language model"
+              ],
+              "module": "custom_components.qwen"
+            },
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Model Response",
+                "group_outputs": false,
+                "hidden": null,
+                "method": "text_response",
+                "name": "text_output",
+                "options": null,
+                "required_inputs": null,
+                "selected": "Message",
+                "tool_mode": true,
+                "types": [
+                  "Message"
+                ],
+                "value": "__UNDEFINED__"
+              },
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Language Model",
+                "group_outputs": false,
+                "hidden": null,
+                "method": "build_model",
+                "name": "model_output",
+                "options": null,
+                "required_inputs": null,
+                "selected": "LanguageModel",
+                "tool_mode": true,
+                "types": [
+                  "LanguageModel"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "api_key": {
+                "_input_type": "SecretStrInput",
+                "advanced": false,
+                "display_name": "DashScope API Key",
+                "dynamic": false,
+                "info": "Your DashScope API key for accessing Qwen models.",
+                "input_types": [],
+                "load_from_db": false,
+                "name": "api_key",
+                "password": true,
+                "placeholder": "",
+                "real_time_refresh": true,
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "type": "str",
+                "value": ""
+              },
+              "base_url": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "API Base URL",
+                "dynamic": false,
+                "info": "The base URL for the DashScope API. Defaults to the official DashScope endpoint.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "base_url",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "https://dashscope.aliyuncs.com/api/v1"
+              },
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "\"\"\"Qwen chat model component for Langflow.\"\"\"\n\nimport sys\nimport os\nfrom typing import Any, Dict, List, Optional, Union, Iterator, AsyncIterator\n\nfrom pydantic import ValidationError, PrivateAttr\n\nfrom langchain_core.language_models.chat_models import BaseChatModel\nfrom langchain_core.messages import (\n    AIMessage,\n    AIMessageChunk,\n    BaseMessage,\n    HumanMessage,\n    SystemMessage,\n    ToolMessage,\n)\nfrom langchain_core.outputs import ChatGeneration, ChatGenerationChunk, ChatResult\n\nfrom langflow.base.models.model import LCModelComponent\nfrom langflow.field_typing import LanguageModel\nfrom langflow.field_typing.range_spec import RangeSpec\nfrom langflow.io import (\n    BoolInput,\n    DropdownInput,\n    FloatInput,\n    IntInput,\n    MessageTextInput,\n    SecretStrInput,\n    SliderInput,\n)\nfrom langflow.logging import logger\n\n\nclass ChatQwen(BaseChatModel):\n    \"\"\"ChatQwen model that wraps dashscope Generation API.\"\"\"\n\n    model: str\n    api_key: str\n    temperature: float = 0.7\n    top_p: float = 0.8\n    top_k: int = 0\n    max_tokens: int = 1500\n    repetition_penalty: float = 1.1\n    enable_search: bool = False\n    base_url: str\n    streaming: bool = False\n\n    _dashscope: Any = PrivateAttr(default=None)\n\n    def __init__(self, **kwargs):\n        super().__init__(**kwargs)\n        try:\n            import dashscope\n\n            self._dashscope = dashscope\n            \n            # Set the base URL if provided\n            if hasattr(self, 'base_url') and self.base_url:\n                # Remove trailing slash if present\n                base_url = self.base_url.rstrip('/')\n                self._dashscope.base_http_api_url = base_url\n                logger.info(f\"Set dashscope base_http_api_url to: {base_url}\")\n        except ImportError as e:\n            msg = \"dashscope is not installed. Please install it with `pip install dashscope`.\"\n            raise ImportError(msg) from e\n\n    def _generate(\n        self,\n        messages: List[BaseMessage],\n        stop: Optional[List[str]] = None,\n        run_manager: Optional[Any] = None,\n        **kwargs: Any,\n    ) -> ChatResult:\n        \"\"\"Generate a response from the model.\"\"\"\n        try:\n            # Convert messages to dashscope format\n            dashscope_messages = self._convert_messages_to_dashscope_format(messages)\n\n            # Call dashscope Generation API\n            response = self._dashscope.Generation.call(\n                model=self.model,\n                messages=dashscope_messages,\n                api_key=self.api_key,\n                temperature=self.temperature,\n                top_p=self.top_p,\n                top_k=self.top_k,\n                max_tokens=self.max_tokens,\n                repetition_penalty=self.repetition_penalty,\n                enable_search=self.enable_search,\n                stream=False,\n                **kwargs,\n            )\n\n            if response.status_code == 200:\n                content = response.output.text\n                message = AIMessage(content=content)\n                generation = ChatGeneration(message=message)\n                return ChatResult(generations=[generation])\n            else:\n                raise Exception(f\"API call failed: {response.message}\")\n\n        except Exception as e:\n            logger.error(f\"Error calling Qwen API: {e}\")\n            raise\n\n    def _stream(\n        self,\n        messages: List[BaseMessage],\n        stop: Optional[List[str]] = None,\n        run_manager: Optional[Any] = None,\n        **kwargs: Any,\n    ) -> Iterator[ChatGenerationChunk]:\n        \"\"\"Stream responses from the model.\"\"\"\n        try:\n            # Convert messages to dashscope format\n            dashscope_messages = self._convert_messages_to_dashscope_format(messages)\n\n            # Call dashscope Generation API with streaming\n            response = self._dashscope.Generation.call(\n                model=self.model,\n                messages=dashscope_messages,\n                api_key=self.api_key,\n                temperature=self.temperature,\n                top_p=self.top_p,\n                top_k=self.top_k,\n                max_tokens=self.max_tokens,\n                repetition_penalty=self.repetition_penalty,\n                enable_search=self.enable_search,\n                stream=True,\n                **kwargs,\n            )\n\n            for chunk in response:\n                if chunk.status_code == 200 and chunk.output:\n                    content = chunk.output.text\n                    message_chunk = AIMessageChunk(content=content)\n                    generation_chunk = ChatGenerationChunk(message=message_chunk)\n                    yield generation_chunk\n\n        except Exception as e:\n            logger.error(f\"Error streaming from Qwen API: {e}\")\n            raise\n\n    def _convert_messages_to_dashscope_format(\n        self, messages: List[BaseMessage]\n    ) -> List[Dict[str, str]]:\n        \"\"\"Convert LangChain messages to dashscope format.\"\"\"\n        dashscope_messages = []\n        for message in messages:\n            if isinstance(message, HumanMessage):\n                dashscope_messages.append({\"role\": \"user\", \"content\": message.content})\n            elif isinstance(message, AIMessage):\n                dashscope_messages.append(\n                    {\"role\": \"assistant\", \"content\": message.content}\n                )\n            elif isinstance(message, SystemMessage):\n                dashscope_messages.append(\n                    {\"role\": \"system\", \"content\": message.content}\n                )\n            elif isinstance(message, ToolMessage):\n                dashscope_messages.append({\"role\": \"tool\", \"content\": message.content})\n            else:\n                # Handle other message types as user messages\n                dashscope_messages.append(\n                    {\"role\": \"user\", \"content\": str(message.content)}\n                )\n        return dashscope_messages\n\n    @property\n    def _llm_type(self) -> str:\n        \"\"\"Return type of LLM.\"\"\"\n        return \"qwen\"\n\n\nclass ChatQwenComponent(LCModelComponent):\n    \"\"\"Qwen chat model component for Langflow.\"\"\"\n\n    display_name = \"Qwen\"\n    description = \"Generate text using Alibaba Cloud's Qwen models via DashScope API.\"\n    icon = \"Qwen\"\n    name = \"ChatQwenModel\"\n\n    inputs = [\n        *LCModelComponent._base_inputs,\n        MessageTextInput(\n            name=\"model_name\",\n            display_name=\"Model Name\",\n            value=\"\",\n            advanced=True,\n        ),\n        SecretStrInput(\n            name=\"api_key\",\n            display_name=\"DashScope API Key\",\n            info=\"Your DashScope API key for accessing Qwen models.\",\n            value=None,\n            real_time_refresh=True,\n        ),\n        MessageTextInput(\n            name=\"base_url\",\n            display_name=\"API Base URL\",\n            info=\"The base URL for the DashScope API. Defaults to the official DashScope endpoint.\",\n            value=\"\",\n            advanced=True,\n        ),\n        SliderInput(\n            name=\"temperature\",\n            display_name=\"Temperature\",\n            value=0.7,\n            range_spec=RangeSpec(min=0, max=2, step=0.01),\n            info=\"Controls the randomness of the output. Higher values make the output more random.\",\n            advanced=True,\n        ),\n        FloatInput(\n            name=\"top_p\",\n            display_name=\"Top P\",\n            value=0.8,\n            info=\"Nucleus sampling parameter. Controls diversity by considering only the top p probability mass.\",\n            advanced=True,\n        ),\n        IntInput(\n            name=\"top_k\",\n            display_name=\"Top K\",\n            value=0,\n            info=\"Limits the number of tokens considered for each generation step. 0 means no limit.\",\n            advanced=True,\n        ),\n        IntInput(\n            name=\"max_tokens\",\n            display_name=\"Max Tokens\",\n            value=1500,\n            info=\"Maximum number of tokens to generate. Set to 0 for unlimited tokens.\",\n            advanced=True,\n        ),\n        FloatInput(\n            name=\"repetition_penalty\",\n            display_name=\"Repetition Penalty\",\n            value=1.1,\n            info=\"Penalty for repeating tokens. Higher values reduce repetition.\",\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"enable_search\",\n            display_name=\"Enable Web Search\",\n            value=False,\n            info=\"Enable web search functionality (only works on first conversation round for qwen-turbo).\",\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"tool_model_enabled\",\n            display_name=\"Enable Tool Models\",\n            info=\"Select if you want to use models that can work with tools. If yes, only those models will be shown.\",\n            advanced=False,\n            value=False,\n            real_time_refresh=True,\n        ),\n    ]\n\n    def build_model(self) -> LanguageModel:\n        \"\"\"Build the Qwen chat model.\"\"\"\n        # Build parameters with proper None handling\n        parameters = {\n            \"model\": os.getenv(\"LLM_NAME\", self.model_name),\n            \"api_key\": os.getenv(\"LLM_API_KEY\", self.api_key),\n            \"temperature\": self.temperature if self.temperature is not None else 0.7,\n            \"top_p\": self.top_p if self.top_p is not None else 0.8,\n            \"top_k\": self.top_k if self.top_k is not None else 0,\n            \"max_tokens\": self.max_tokens if self.max_tokens is not None else 1500,\n            \"repetition_penalty\": (\n                self.repetition_penalty if self.repetition_penalty is not None else 1.1\n            ),\n            \"enable_search\": (\n                self.enable_search if self.enable_search is not None else False\n            ),\n            \"base_url\": os.getenv(\"LLM_BASE_URL\", self.base_url),\n            \"streaming\": self.stream if self.stream is not None else False,\n        }\n\n        try:\n            output = ChatQwen(**parameters)\n            return output\n        except ValidationError:\n            raise\n        except Exception as e:\n            msg = f\"Could not connect to Qwen API. err = {e}\"\n            raise ValueError(msg) from e\n\n    def _get_exception_message(self, e: Exception):\n        \"\"\"Get a message from a Qwen exception.\"\"\"\n        return str(e)\n"
+              },
+              "enable_search": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Enable Web Search",
+                "dynamic": false,
+                "info": "Enable web search functionality (only works on first conversation round for qwen-turbo).",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "enable_search",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": false
+              },
+              "input_value": {
+                "_input_type": "MessageInput",
+                "advanced": false,
+                "display_name": "Input",
+                "dynamic": false,
+                "info": "",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "input_value",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "max_tokens": {
+                "_input_type": "IntInput",
+                "advanced": true,
+                "display_name": "Max Tokens",
+                "dynamic": false,
+                "info": "Maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "max_tokens",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "int",
+                "value": 1500
+              },
+              "model_name": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Model Name",
+                "dynamic": false,
+                "info": "",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "model_name",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "qwen-plus"
+              },
+              "repetition_penalty": {
+                "_input_type": "FloatInput",
+                "advanced": true,
+                "display_name": "Repetition Penalty",
+                "dynamic": false,
+                "info": "Penalty for repeating tokens. Higher values reduce repetition.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "repetition_penalty",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "float",
+                "value": 1.1
+              },
+              "stream": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Stream",
+                "dynamic": false,
+                "info": "Stream the response from the model. Streaming works only in Chat.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "stream",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": false
+              },
+              "system_message": {
+                "_input_type": "MultilineInput",
+                "advanced": false,
+                "copy_field": false,
+                "display_name": "System Message",
+                "dynamic": false,
+                "info": "System message to pass to the model.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "multiline": true,
+                "name": "system_message",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "Hello"
+              },
+              "temperature": {
+                "_input_type": "SliderInput",
+                "advanced": true,
+                "display_name": "Temperature",
+                "dynamic": false,
+                "info": "Controls the randomness of the output. Higher values make the output more random.",
+                "max_label": "",
+                "max_label_icon": "",
+                "min_label": "",
+                "min_label_icon": "",
+                "name": "temperature",
+                "placeholder": "",
+                "range_spec": {
+                  "max": 2,
+                  "min": 0,
+                  "step": 0.01,
+                  "step_type": "float"
+                },
+                "required": false,
+                "show": true,
+                "slider_buttons": false,
+                "slider_buttons_options": [],
+                "slider_input": false,
+                "title_case": false,
+                "tool_mode": false,
+                "type": "slider",
+                "value": 0.7
+              },
+              "tool_model_enabled": {
+                "_input_type": "BoolInput",
+                "advanced": false,
+                "display_name": "Enable Tool Models",
+                "dynamic": false,
+                "info": "Select if you want to use models that can work with tools. If yes, only those models will be shown.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "tool_model_enabled",
+                "placeholder": "",
+                "real_time_refresh": true,
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": false
+              },
+              "top_k": {
+                "_input_type": "IntInput",
+                "advanced": true,
+                "display_name": "Top K",
+                "dynamic": false,
+                "info": "Limits the number of tokens considered for each generation step. 0 means no limit.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "top_k",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "int",
+                "value": 0
+              },
+              "top_p": {
+                "_input_type": "FloatInput",
+                "advanced": true,
+                "display_name": "Top P",
+                "dynamic": false,
+                "info": "Nucleus sampling parameter. Controls diversity by considering only the top p probability mass.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "top_p",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "float",
+                "value": 0.8
+              }
+            },
+            "tool_mode": false
+          },
+          "selected_output": "text_output",
+          "showNode": true,
+          "type": "ChatQwenModel"
+        },
+        "dragging": false,
+        "id": "ChatQwenModel-5mSki",
+        "measured": {
+          "height": 427,
+          "width": 320
+        },
+        "position": {
+          "x": 2433.41171731269,
+          "y": 863.9154671314868
+        },
+        "selected": true,
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "Directory-RSP7d",
+          "node": {
+            "base_classes": [
+              "DataFrame"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Recursively load files from a directory.",
+            "display_name": "Directory",
+            "documentation": "https://docs.langflow.org/components-data#directory",
+            "edited": true,
+            "field_order": [
+              "path",
+              "types",
+              "depth",
+              "max_concurrency",
+              "load_hidden",
+              "recursive",
+              "silent_errors",
+              "use_multithreading"
+            ],
+            "frozen": false,
+            "icon": "folder",
+            "legacy": false,
+            "metadata": {},
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Loaded Files",
+                "group_outputs": false,
+                "hidden": null,
+                "method": "as_dataframe",
+                "name": "dataframe",
+                "options": null,
+                "required_inputs": null,
+                "selected": "DataFrame",
+                "tool_mode": true,
+                "types": [
+                  "DataFrame"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "import os\n\nfrom langflow.base.data.utils import (\n    TEXT_FILE_TYPES,\n    parallel_load_data,\n    parse_text_file_to_data,\n    retrieve_file_paths,\n)\nfrom langflow.custom.custom_component.component import Component\nfrom langflow.io import BoolInput, IntInput, MessageTextInput, MultiselectInput\nfrom langflow.schema.data import Data\nfrom langflow.schema.dataframe import DataFrame\nfrom langflow.template.field.base import Output\n\n\nclass DirectoryComponent(Component):\n    display_name = \"Directory\"\n    description = \"Recursively load files from a directory.\"\n    documentation: str = \"https://docs.langflow.org/components-data#directory\"\n    icon = \"folder\"\n    name = \"Directory\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"path\",\n            display_name=\"Path\",\n            info=\"Path to the directory to load files from. Defaults to current directory ('.')\",\n            value=\".\",\n            tool_mode=True,\n        ),\n        MultiselectInput(\n            name=\"types\",\n            display_name=\"File Types\",\n            info=\"File types to load. Select one or more types or leave empty to load all supported types.\",\n            options=TEXT_FILE_TYPES,\n            value=[],\n        ),\n        IntInput(\n            name=\"depth\",\n            display_name=\"Depth\",\n            info=\"Depth to search for files.\",\n            value=0,\n        ),\n        IntInput(\n            name=\"max_concurrency\",\n            display_name=\"Max Concurrency\",\n            advanced=True,\n            info=\"Maximum concurrency for loading files.\",\n            value=2,\n        ),\n        BoolInput(\n            name=\"load_hidden\",\n            display_name=\"Load Hidden\",\n            advanced=True,\n            info=\"If true, hidden files will be loaded.\",\n        ),\n        BoolInput(\n            name=\"recursive\",\n            display_name=\"Recursive\",\n            advanced=True,\n            info=\"If true, the search will be recursive.\",\n        ),\n        BoolInput(\n            name=\"silent_errors\",\n            display_name=\"Silent Errors\",\n            advanced=True,\n            info=\"If true, errors will not raise an exception.\",\n        ),\n        BoolInput(\n            name=\"use_multithreading\",\n            display_name=\"Use Multithreading\",\n            advanced=True,\n            info=\"If true, multithreading will be used.\",\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Loaded Files\", name=\"dataframe\", method=\"as_dataframe\"),\n    ]\n\n    def load_directory(self) -> list[Data]:\n        self.path = os.getenv(\"OB_DOC_PATH\", self.path)\n\n        path = self.path\n        types = self.types\n        depth = self.depth\n        max_concurrency = self.max_concurrency\n        load_hidden = self.load_hidden\n        recursive = self.recursive\n        silent_errors = self.silent_errors\n        use_multithreading = self.use_multithreading\n\n        resolved_path = self.resolve_path(path)\n\n        # If no types are specified, use all supported types\n        if not types:\n            types = TEXT_FILE_TYPES\n\n        # Check if all specified types are valid\n        invalid_types = [t for t in types if t not in TEXT_FILE_TYPES]\n        if invalid_types:\n            msg = f\"Invalid file types specified: {invalid_types}. Valid types are: {TEXT_FILE_TYPES}\"\n            raise ValueError(msg)\n\n        valid_types = types\n\n        file_paths = retrieve_file_paths(\n            resolved_path,\n            load_hidden=load_hidden,\n            recursive=recursive,\n            depth=depth,\n            types=valid_types,\n        )\n\n        loaded_data = []\n        if use_multithreading:\n            loaded_data = parallel_load_data(\n                file_paths, silent_errors=silent_errors, max_concurrency=max_concurrency\n            )\n        else:\n            loaded_data = [\n                parse_text_file_to_data(file_path, silent_errors=silent_errors)\n                for file_path in file_paths\n            ]\n\n        valid_data = [x for x in loaded_data if x is not None and isinstance(x, Data)]\n        self.status = valid_data\n        return valid_data\n\n    def as_dataframe(self) -> DataFrame:\n        return DataFrame(self.load_directory())\n"
+              },
+              "depth": {
+                "_input_type": "IntInput",
+                "advanced": false,
+                "display_name": "Depth",
+                "dynamic": false,
+                "info": "Depth to search for files.",
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "depth",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "int",
+                "value": 10
+              },
+              "load_hidden": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Load Hidden",
+                "dynamic": false,
+                "info": "If true, hidden files will be loaded.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "load_hidden",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": false
+              },
+              "max_concurrency": {
+                "_input_type": "IntInput",
+                "advanced": true,
+                "display_name": "Max Concurrency",
+                "dynamic": false,
+                "info": "Maximum concurrency for loading files.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "max_concurrency",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "int",
+                "value": 2
+              },
+              "path": {
+                "_input_type": "MessageTextInput",
+                "advanced": false,
+                "display_name": "Path",
+                "dynamic": false,
+                "info": "Path to the directory to load files from. Defaults to current directory ('.')",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "path",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": true,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "recursive": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Recursive",
+                "dynamic": false,
+                "info": "If true, the search will be recursive.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "recursive",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": false
+              },
+              "silent_errors": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Silent Errors",
+                "dynamic": false,
+                "info": "If true, errors will not raise an exception.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "silent_errors",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": false
+              },
+              "types": {
+                "_input_type": "MultiselectInput",
+                "advanced": false,
+                "combobox": false,
+                "display_name": "File Types",
+                "dynamic": false,
+                "info": "File types to load. Select one or more types or leave empty to load all supported types.",
+                "list": true,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "types",
+                "options": [
+                  "txt",
+                  "md",
+                  "mdx",
+                  "csv",
+                  "json",
+                  "yaml",
+                  "yml",
+                  "xml",
+                  "html",
+                  "htm",
+                  "pdf",
+                  "docx",
+                  "py",
+                  "sh",
+                  "sql",
+                  "js",
+                  "ts",
+                  "tsx"
+                ],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": [
+                  "md"
+                ]
+              },
+              "use_multithreading": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "Use Multithreading",
+                "dynamic": false,
+                "info": "If true, multithreading will be used.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "use_multithreading",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": false
+              }
+            },
+            "tool_mode": false
+          },
+          "showNode": true,
+          "type": "Directory"
+        },
+        "dragging": false,
+        "id": "Directory-RSP7d",
+        "measured": {
+          "height": 369,
+          "width": 320
+        },
+        "position": {
+          "x": 26.617290426994003,
+          "y": 217.01667865214273
+        },
+        "selected": false,
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "SplitText-Tu2iV",
+          "node": {
+            "base_classes": [
+              "DataFrame"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Split text into chunks based on specified criteria.",
+            "display_name": "Split Text",
+            "documentation": "https://docs.langflow.org/components-processing#split-text",
+            "edited": false,
+            "field_order": [
+              "data_inputs",
+              "chunk_overlap",
+              "chunk_size",
+              "separator",
+              "text_key",
+              "keep_separator"
+            ],
+            "frozen": false,
+            "icon": "scissors-line-dashed",
+            "legacy": false,
+            "lf_version": "1.5.0.post1",
+            "metadata": {
+              "code_hash": "dbf2e9d2319d",
+              "module": "langflow.components.processing.split_text.SplitTextComponent"
+            },
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Chunks",
+                "group_outputs": false,
+                "method": "split_text",
+                "name": "dataframe",
+                "selected": "DataFrame",
+                "tool_mode": true,
+                "types": [
+                  "DataFrame"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "chunk_overlap": {
+                "_input_type": "IntInput",
+                "advanced": false,
+                "display_name": "Chunk Overlap",
+                "dynamic": false,
+                "info": "Number of characters to overlap between chunks.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "chunk_overlap",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "int",
+                "value": 200
+              },
+              "chunk_size": {
+                "_input_type": "IntInput",
+                "advanced": false,
+                "display_name": "Chunk Size",
+                "dynamic": false,
+                "info": "The maximum length of each chunk. Text is first split by separator, then chunks are merged up to this size. Individual splits larger than this won't be further divided.",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "chunk_size",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "int",
+                "value": 1000
+              },
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "from langchain_text_splitters import CharacterTextSplitter\n\nfrom langflow.custom.custom_component.component import Component\nfrom langflow.io import DropdownInput, HandleInput, IntInput, MessageTextInput, Output\nfrom langflow.schema.data import Data\nfrom langflow.schema.dataframe import DataFrame\nfrom langflow.schema.message import Message\nfrom langflow.utils.util import unescape_string\n\n\nclass SplitTextComponent(Component):\n    display_name: str = \"Split Text\"\n    description: str = \"Split text into chunks based on specified criteria.\"\n    documentation: str = \"https://docs.langflow.org/components-processing#split-text\"\n    icon = \"scissors-line-dashed\"\n    name = \"SplitText\"\n\n    inputs = [\n        HandleInput(\n            name=\"data_inputs\",\n            display_name=\"Input\",\n            info=\"The data with texts to split in chunks.\",\n            input_types=[\"Data\", \"DataFrame\", \"Message\"],\n            required=True,\n        ),\n        IntInput(\n            name=\"chunk_overlap\",\n            display_name=\"Chunk Overlap\",\n            info=\"Number of characters to overlap between chunks.\",\n            value=200,\n        ),\n        IntInput(\n            name=\"chunk_size\",\n            display_name=\"Chunk Size\",\n            info=(\n                \"The maximum length of each chunk. Text is first split by separator, \"\n                \"then chunks are merged up to this size. \"\n                \"Individual splits larger than this won't be further divided.\"\n            ),\n            value=1000,\n        ),\n        MessageTextInput(\n            name=\"separator\",\n            display_name=\"Separator\",\n            info=(\n                \"The character to split on. Use \\\\n for newline. \"\n                \"Examples: \\\\n\\\\n for paragraphs, \\\\n for lines, . for sentences\"\n            ),\n            value=\"\\n\",\n        ),\n        MessageTextInput(\n            name=\"text_key\",\n            display_name=\"Text Key\",\n            info=\"The key to use for the text column.\",\n            value=\"text\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"keep_separator\",\n            display_name=\"Keep Separator\",\n            info=\"Whether to keep the separator in the output chunks and where to place it.\",\n            options=[\"False\", \"True\", \"Start\", \"End\"],\n            value=\"False\",\n            advanced=True,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Chunks\", name=\"dataframe\", method=\"split_text\"),\n    ]\n\n    def _docs_to_data(self, docs) -> list[Data]:\n        return [Data(text=doc.page_content, data=doc.metadata) for doc in docs]\n\n    def _fix_separator(self, separator: str) -> str:\n        \"\"\"Fix common separator issues and convert to proper format.\"\"\"\n        if separator == \"/n\":\n            return \"\\n\"\n        if separator == \"/t\":\n            return \"\\t\"\n        return separator\n\n    def split_text_base(self):\n        separator = self._fix_separator(self.separator)\n        separator = unescape_string(separator)\n\n        if isinstance(self.data_inputs, DataFrame):\n            if not len(self.data_inputs):\n                msg = \"DataFrame is empty\"\n                raise TypeError(msg)\n\n            self.data_inputs.text_key = self.text_key\n            try:\n                documents = self.data_inputs.to_lc_documents()\n            except Exception as e:\n                msg = f\"Error converting DataFrame to documents: {e}\"\n                raise TypeError(msg) from e\n        elif isinstance(self.data_inputs, Message):\n            self.data_inputs = [self.data_inputs.to_data()]\n            return self.split_text_base()\n        else:\n            if not self.data_inputs:\n                msg = \"No data inputs provided\"\n                raise TypeError(msg)\n\n            documents = []\n            if isinstance(self.data_inputs, Data):\n                self.data_inputs.text_key = self.text_key\n                documents = [self.data_inputs.to_lc_document()]\n            else:\n                try:\n                    documents = [input_.to_lc_document() for input_ in self.data_inputs if isinstance(input_, Data)]\n                    if not documents:\n                        msg = f\"No valid Data inputs found in {type(self.data_inputs)}\"\n                        raise TypeError(msg)\n                except AttributeError as e:\n                    msg = f\"Invalid input type in collection: {e}\"\n                    raise TypeError(msg) from e\n        try:\n            # Convert string 'False'/'True' to boolean\n            keep_sep = self.keep_separator\n            if isinstance(keep_sep, str):\n                if keep_sep.lower() == \"false\":\n                    keep_sep = False\n                elif keep_sep.lower() == \"true\":\n                    keep_sep = True\n                # 'start' and 'end' are kept as strings\n\n            splitter = CharacterTextSplitter(\n                chunk_overlap=self.chunk_overlap,\n                chunk_size=self.chunk_size,\n                separator=separator,\n                keep_separator=keep_sep,\n            )\n            return splitter.split_documents(documents)\n        except Exception as e:\n            msg = f\"Error splitting text: {e}\"\n            raise TypeError(msg) from e\n\n    def split_text(self) -> DataFrame:\n        return DataFrame(self._docs_to_data(self.split_text_base()))\n"
+              },
+              "data_inputs": {
+                "_input_type": "HandleInput",
+                "advanced": false,
+                "display_name": "Input",
+                "dynamic": false,
+                "info": "The data with texts to split in chunks.",
+                "input_types": [
+                  "Data",
+                  "DataFrame",
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "data_inputs",
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "trace_as_metadata": true,
+                "type": "other",
+                "value": ""
+              },
+              "keep_separator": {
+                "_input_type": "DropdownInput",
+                "advanced": true,
+                "combobox": false,
+                "dialog_inputs": {},
+                "display_name": "Keep Separator",
+                "dynamic": false,
+                "info": "Whether to keep the separator in the output chunks and where to place it.",
+                "name": "keep_separator",
+                "options": [
+                  "False",
+                  "True",
+                  "Start",
+                  "End"
+                ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "False"
+              },
+              "separator": {
+                "_input_type": "MessageTextInput",
+                "advanced": false,
+                "display_name": "Separator",
+                "dynamic": false,
+                "info": "The character to split on. Use \\n for newline. Examples: \\n\\n for paragraphs, \\n for lines, . for sentences",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "separator",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "\n"
+              },
+              "text_key": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "Text Key",
+                "dynamic": false,
+                "info": "The key to use for the text column.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "text_key",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "text"
+              }
+            },
+            "tool_mode": false
+          },
+          "showNode": true,
+          "type": "SplitText"
+        },
+        "dragging": false,
+        "id": "SplitText-Tu2iV",
+        "measured": {
+          "height": 422,
+          "width": 320
+        },
+        "position": {
+          "x": 414.1683533302803,
+          "y": 377.6463955133731
+        },
+        "selected": false,
+        "type": "genericNode"
+      }
+    ],
+    "viewport": {
+      "x": 55.17429725002319,
+      "y": 168.67540734013892,
+      "zoom": 0.3691473697116838
+    }
+  },
+  "description": "Load your data for chat context with Retrieval Augmented Generation.",
+  "endpoint_name": null,
+  "id": "ded6cbe9-664b-4b42-a056-51b0b7367712",
+  "is_component": false,
+  "last_tested_version": "1.6.0",
+  "name": "model (345)",
+  "tags": [
+    "openai",
+    "astradb",
+    "rag",
+    "q-a"
+  ]
+}

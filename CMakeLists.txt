@@ -27,7 +27,7 @@ OPTION(ENABLE_UBSAN "Build with undefined behavior sanitizer" OFF)
 OPTION(WITH_UNIT_TESTS "Compile miniob with unit tests" ON)
 OPTION(WITH_BENCHMARK "Compile benchmark" OFF)
 # TODO: support MemTracer with sanitizers, currently MemTracer doesn't work with sanitizers.
-OPTION(WITH_MEMTRACER "Compile memtracer" OFF)
+OPTION(WITH_MEMTRACER "Compile memtracer" ON)
 OPTION(ENABLE_COVERAGE "Enable unittest coverage" OFF)
 OPTION(ENABLE_NOPIE "Enable no pie" OFF)
 OPTION(CONCURRENCY "Support concurrency operations" OFF)
@@ -54,6 +54,12 @@ ELSEIF(UNIX)
 ELSE()
     MESSAGE(STATUS "This is UNKNOW OS")
 ENDIF(WIN32)
+
+IF(APPLE AND WITH_MEMTRACER AND NOT ENABLE_ASAN)
+    # Force flat namespace to make DYLD_INSERT_LIBRARIES work more like LD_PRELOAD on Linux.
+    # This ensures that our hooks in memtracer intercept all calls, even from system libraries.
+    ADD_LINK_OPTIONS(-Wl,-flat_namespace)
+ENDIF()
 
 # This is for clangd plugin for vscode
 # mute sign-compare error in lex/yacc
