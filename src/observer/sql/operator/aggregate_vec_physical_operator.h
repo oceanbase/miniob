@@ -33,13 +33,6 @@ private:
   template <class STATE, typename T>
   void update_aggregate_state(void *state, const Column &column);
 
-  template <class STATE, typename T>
-  void append_to_column(void *state, Column &column)
-  {
-    STATE *state_ptr = reinterpret_cast<STATE *>(state);
-    column.append_one((char *)&state_ptr->value);
-  }
-
 private:
   class AggregateValues
   {
@@ -71,4 +64,5 @@ private:
   Chunk                chunk_;
   Chunk                output_chunk_;
   AggregateValues      aggr_values_;
+  bool                 outputed_ = false;
 };

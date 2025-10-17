@@ -13,6 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/types.h"
 #include "common/lang/functional.h"
 #include "storage/table/table_meta.h"
+#include "storage/common/chunk.h"
 
 struct RID;
 class Record;
@@ -38,6 +39,7 @@ public:
   virtual ~TableEngine() = default;
 
   virtual RC insert_record(Record &record)                                                        = 0;
+  virtual RC insert_chunk(const Chunk &chunk)                                                     = 0;
   virtual RC delete_record(const Record &record)                                                  = 0;
   virtual RC insert_record_with_trx(Record &record, Trx *trx)                                     = 0;
   virtual RC delete_record_with_trx(const Record &record, Trx *trx)                               = 0;
