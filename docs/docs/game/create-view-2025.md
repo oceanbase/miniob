@@ -21,7 +21,7 @@ title: 2025 初赛 create-view 题目
 | 单表视图 | `CREATE VIEW v AS SELECT * FROM t;` | ✅ 允许 | ✅ 允许 | ✅ 允许 | 基于单个表的完整列视图，完全可更新 |
 | 单表视图（部分列） | `CREATE VIEW v(id, age) AS SELECT id, age FROM t;` | ✅ 允许（仅指定列）<br>❌ 不允许（全列且未覆盖） | ✅ 允许（仅修改包含的列）<br>❌ 不允许（修改非包含列） | ✅ 允许 | 插入时，其他列为 `NULL`；若缺失的列为 `NOT NULL` 且无默认值，则插入失败 |
 | 多表视图 | `CREATE VIEW v AS SELECT t1.id, t2.age FROM t1, t2;` | ⚠️ 部分允许<br>✅ 若只影响一个基表的列<br>❌ 若涉及多个基表 | ⚠️ 部分允许<br>✅ 若只更新来自同一基表的列<br>❌ 若跨多个基表更新 | ❌ 不允许 | 插入或更新只能作用于单一基表对应的字段。<br>例如：<code>INSERT INTO v(id)</code> 可能允许（仅 t1），但 <code>INSERT INTO v VALUES(...)</code> 同时写两表则禁止 |
-| 单表视图（含表达式） | `CREATE VIEW v AS SELECT id, id + age AS data FROM t;` | ✅ 允许（仅插入基础列）<br>❌ 不允许（插入表达式列） | ✅ 允许（仅更新基础列）<br>❌ 不允许（更新表达式列） | ✅ 允许 | 表达式列（如 <code>id + age</code>）是计算值，不能写入；<br>只能对原始列（如 <code>id</code>, <code>age</code>）进行插入或更新 |
+| 单表视图（含表达式） | `CREATE VIEW v AS SELECT id, id + age AS data FROM t;` | ❌ 不允许插入 | ✅ 允许（仅更新基础列）<br>❌ 不允许（更新表达式列） | ✅ 允许 | 表达式列（如 <code>id + age</code>）是计算值，不能写入；<br>只能对原始列（如 <code>id</code>, <code>age</code>）进行更新 |
 | 单表视图（含聚合） | `CREATE VIEW v AS SELECT COUNT(*) AS cnt FROM t;` | ❌ 不允许 | ❌ 不允许 | ❌ 不允许 | 聚合结果无法映射回原表的具体行；<br>此类视图为只读 |
 | 嵌套视图 | `CREATE VIEW v1 AS SELECT id FROM v2;` | ✅ 允许（当 v2 可插入）<br>❌ 不允许（当 v2 不可插入） | ✅ 允许（当 v2 可更新）<br>❌ 不允许（当 v2 不可更新） | ✅ 允许（当 v2 可删除）<br>❌ 不允许（当 v2 不可删除） | 嵌套视图的操作权限完全依赖源视图。<br>若源视图 <code>v2</code> 支持某操作，则 <code>v1</code> 可能支持；否则一律禁止 |
 
