@@ -34,6 +34,7 @@ nav:
     - design/miniob-durability.md
     - design/miniob-sql-parser.md
     - design/miniob-how-to-add-new-sql.md
+    - design/miniob-how-to-add-new-datatype.md
     - design/miniob-sql-expression.md
     - design/miniob-bplus-tree.md
     - design/miniob-bplus-tree-concurrency.md
@@ -42,6 +43,8 @@ nav:
     - design/miniob-pax-storage.md
     - design/miniob-aggregation-and-group-by.md
     - design/miniob-lsm-tree.md
+    - design/miniob-realtime-analytic.md
+    - design/miniob-sql-execution-process.md
     - Doxy 代码文档: design/doxy/html/index.html
   - OceanBase 数据库大赛:
     - game/introduction.md

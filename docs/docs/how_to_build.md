@@ -161,31 +161,66 @@ git config --global core.autocrlf false
 关于该问题的进一步分析，请参考[Linux系统下执行sudo命令环境变量失效现象](https://zhuanlan.zhihu.com/p/669332689)。
 也可以将cmake所在路径添加到sudo的PATH变量中来解决上述问题，请参考[sudo命令下环境变量实效的解决方法](https://www.cnblogs.com/xiao-xiaoyang/p/17444600.html)。
 
+### 3. 构建错误：找不到 Libevent 或 jsoncpp
 
-### 3. Could not find a package configuration file provided by "Libevent"
-在执行build.sh脚本时，遇到下面的错误
-![cmake error](images/miniob-build-libevent.png)
+在执行 `build.sh init` 时可能出现以下错误：
 
-通常是因为cmake版本原因（版本太高？）导致libevent在init阶段没有编译成功。
+![CMake Error - Libevent Not Found](images/miniob-build-libevent.png)  
+![CMake Error - jsoncpp Not Found](images/miniob-build-jsoncpp.png)
 
-***解决方法：***
+### 🔍 原因
 
-在[text](../../deps/3rd/libevent/CMakeLists.txt) 中将cmake的最低版本设置
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-改为
-cmake_minimum_required(VERSION 3.1...3.8 FATAL_ERROR)
-之后重新执行
+项目使用的第三方库 `libevent` 和 `jsoncpp` 依赖较老的 CMake 语法，与高版本 CMake（3.10+）不兼容，导致构建失败。
+
+---
+
+### ✅ 解决方案（二选一）
+
+#### 方案一：快速修复（本地临时使用）
+
+修改子模块中的 CMake 配置，放宽版本限制。
+
+1. 修改 `libevent`：
+```bash
+sed -i 's|cmake_minimum_required(VERSION 3.1 FATAL_ERROR)|cmake_minimum_required(VERSION 3.1...3.8 FATAL_ERROR)|' deps/3rd/libevent/CMakeLists.txt
+```
+2. 修改 jsoncpp：
+```bash
+sed -i 's|cmake_policy(VERSION 3.0)|cmake_policy(VERSION 3.0...3.8)|' deps/3rd/jsoncpp/jsoncppConfig.cmake.in
+```
+重新初始化：
 ```bash
 sudo bash build.sh init
 ```
+⚠️ 注意：此修改仅为本地临时适配，请勿提交到 Git。
 
-如果你成功解决libevent的问题，你大概率会遇到另一个错误：
-![cmake error](images/miniob-build-jsoncpp.png)
-需要在[text](../../deps/3rd/jsoncpp/jsoncppConfig.cmake.in)中将cmake策略
-cmake_policy(VERSION 3.0)
-改为
-cmake_policy(VERSION 3.0...3.8)
-之后重新执行
+#### 方案二：根本解决（推荐，长期使用）
+
+升级 libevent 和 jsoncpp 到支持现代 CMake 的新版。
 ```bash
+# 更新 libevent
+cd deps/3rd/libevent
+git checkout main && git pull origin main
+cd ../../..
+
+# 更新 jsoncpp
+```bash
+cd deps/3rd/jsoncpp
+git checkout master && git pull origin master
+cd ../../..
+```
+推荐切换到稳定版本：
+
+libevent: release-2.1.12-stable  
+jsoncpp: 1.9.5 或更高  
+提交更新：
+```bash
+git add deps/3rd/libevent deps/3rd/jsoncpp
+git commit -m "chore: upgrade libevent and jsoncpp for CMake compatibility"
+git push origin main
+```
+然后重新构建：
+```bash
+rm -rf build/  # 清理缓存
 sudo bash build.sh init
 ```
