@@ -1,0 +1,39 @@
+<!-- 原有页面内容 -->
+{{ page.content }}
+
+<!-- Giscus 评论区 -->
+{% if page and page.meta and page.meta.comments != false %}
+  {# 可选：如果 MD 文件开头有 --- comments: false ---，则隐藏 #}
+{% endif %}
+<h2 id="__comments">讨论区</h2>
+<div class="giscus"></div>
+
+<!-- Giscus 脚本 -->
+<script src="https://giscus.app/client.js"
+        data-repo="zywoote3ture/miniob1"
+        data-repo-id="R_kgDOQGYYjg"
+        data-category="General"
+        data-category-id="DIC_kwDOQGYYjs4Cw5T_"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+<!-- 可选：自定义 CSS（嵌入 style 标签） -->
+<style>
+  .giscus {
+    margin-top: 2em;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+  }
+  .giscus-frame {
+    width: 100%;
+    height: 500px;  /* 可调整高度 */
+  }
+</style>
