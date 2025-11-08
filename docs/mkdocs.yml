@@ -54,6 +54,7 @@ nav:
     - game/create-view-2025.md
     - game/miniob-vectordb-2024.md
     - game/miniob-vectordb-2025.md
+    - game/miniob-full-text-index.md
     - game/rag-benchmark.md
   - 数据库系统实现原理与实践:
     - db_course_lab/overview.md
