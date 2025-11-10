@@ -77,7 +77,7 @@ SELECT * FROM tbl1
 #### 背景介绍
 连接（Join）操作被用来将两个或多个关系表的数据组合起来。
 
-Nested Loop Join（NLJ）算法通过双层循环来输出结果，其中左表为外循环，右表为内循环。目前 MiniOB 中已经实现了 Nested Loop Join 算子（相关实现位于 `src/observer/sql/operator/join_physical_operator.h`）。
+Nested Loop Join（NLJ）算法通过双层循环来输出结果，其中左表为外循环，右表为内循环。目前 MiniOB 中已经实现了 Nested Loop Join 算子（相关实现位于 `src/observer/sql/operator/nested_loop_join_physical_operator.h`）。
 
 基于哈希的连接（Hash Join）算法其执行过程分为两个阶段：构建阶段和探测阶段。哈希连接在两个关系表上执行，假设这两个关系表分别为 R 表和 S 表。在构建阶段，会遍历其中一个关系表（通常是基数较小的表，如图中的 R 表），以参与连接的属性列为键在一个哈希表中存储。在探测阶段，会遍历另一个关系表 S 的所有记录，以参与连接的属性列为键在哈希表中探测，当探测到具有相同键的记录则将结果输出。
 ![hashjoin](images/hashjoin.png)
