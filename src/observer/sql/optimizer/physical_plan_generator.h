@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/physical_operator.h"
 
+namespace oceanbase {
+
 class Session;
 class TableGetLogicalOperator;
 class PredicateLogicalOperator;
@@ -62,3 +64,4 @@ private:
   // TODO: remove this and add CBO rules
   bool can_use_hash_join(JoinLogicalOperator &logical_oper);
 };
+}  // namespace oceanbase

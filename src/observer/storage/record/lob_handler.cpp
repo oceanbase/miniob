@@ -10,10 +10,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/record/lob_handler.h"
 
-RC LobFileHandler::create_file(const char *file_name)
-{
-  return file_.create_file(file_name);
-}
+namespace oceanbase {
+
+RC LobFileHandler::create_file(const char *file_name) { return file_.create_file(file_name); }
 
 RC LobFileHandler::open_file(const char *file_name)
 {
@@ -28,10 +27,10 @@ RC LobFileHandler::open_file(const char *file_name)
 
 RC LobFileHandler::insert_data(int64_t &offset, int64_t length, const char *data)
 {
-  RC       rc         = RC::SUCCESS;
-  int64_t  out_size   = 0;
+  RC      rc         = RC::SUCCESS;
+  int64_t out_size   = 0;
   int64_t end_offset = 0;
-  rc                  = file_.append(length, data, &out_size, &end_offset);
+  rc                 = file_.append(length, data, &out_size, &end_offset);
   if (OB_FAIL(rc)) {
     return rc;
   }
@@ -42,3 +41,4 @@ RC LobFileHandler::insert_data(int64_t &offset, int64_t length, const char *data
 
   return rc;
 }
+}  // namespace oceanbase

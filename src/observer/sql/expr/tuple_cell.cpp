@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
+namespace oceanbase {
+
 TupleCellSpec::TupleCellSpec(const char *table_name, const char *field_name, const char *alias)
 {
   if (table_name) {
@@ -43,5 +45,5 @@ TupleCellSpec::TupleCellSpec(const char *alias)
   }
 }
 
-TupleCellSpec::TupleCellSpec(const string &alias) : alias_(alias)
-{}
+TupleCellSpec::TupleCellSpec(const string &alias) : alias_(alias) {}
+}  // namespace oceanbase

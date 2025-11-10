@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table_meta.h"
 #include "json/json.h"
 
+namespace oceanbase {
+
 const static Json::StaticString FIELD_NAME("name");
 const static Json::StaticString FIELD_FIELD_NAME("field_name");
 
@@ -69,3 +71,4 @@ const char *IndexMeta::name() const { return name_.c_str(); }
 const char *IndexMeta::field() const { return field_.c_str(); }
 
 void IndexMeta::desc(ostream &os) const { os << "index name=" << name_ << ", field=" << field_; }
+}  // namespace oceanbase

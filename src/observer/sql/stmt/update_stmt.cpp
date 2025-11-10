@@ -14,6 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/stmt/update_stmt.h"
 
+namespace oceanbase {
+
 UpdateStmt::UpdateStmt(Table *table, Value *values, int value_amount)
     : table_(table), values_(values), value_amount_(value_amount)
 {}
@@ -24,3 +26,4 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update, Stmt *&stmt)
   stmt = nullptr;
   return RC::INTERNAL;
 }
+}  // namespace oceanbase

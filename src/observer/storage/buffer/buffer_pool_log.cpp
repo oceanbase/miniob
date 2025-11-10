@@ -17,10 +17,11 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_handler.h"
 #include "storage/clog/log_entry.h"
 
+namespace oceanbase {
+
 string BufferPoolLogEntry::to_string() const
 {
-  return string("buffer_pool_id=") + std::to_string(buffer_pool_id) +
-         ", page_num=" + std::to_string(page_num) +
+  return string("buffer_pool_id=") + std::to_string(buffer_pool_id) + ", page_num=" + std::to_string(page_num) +
          ", operation_type=" + BufferPoolOperation(operation_type).to_string();
 }
 
@@ -40,25 +41,22 @@ RC BufferPoolLogHandler::deallocate_page(PageNum page_num, LSN &lsn)
   return append_log(BufferPoolOperation::Type::DEALLOCATE, page_num, lsn);
 }
 
-RC BufferPoolLogHandler::flush_page(Page &page)
-{
-  return log_handler_.wait_lsn(page.lsn);
-}
+RC BufferPoolLogHandler::flush_page(Page &page) { return log_handler_.wait_lsn(page.lsn); }
 
 RC BufferPoolLogHandler::append_log(BufferPoolOperation::Type type, PageNum page_num, LSN &lsn)
 {
   BufferPoolLogEntry log;
   log.buffer_pool_id = buffer_pool_.id();
-  log.page_num = page_num;
+  log.page_num       = page_num;
   log.operation_type = BufferPoolOperation(type).type_id();
 
-  return log_handler_.append(lsn, LogModule::Id::BUFFER_POOL, span<const char>(reinterpret_cast<const char *>(&log), sizeof(log)));
+  return log_handler_.append(
+      lsn, LogModule::Id::BUFFER_POOL, span<const char>(reinterpret_cast<const char *>(&log), sizeof(log)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BufferPoolLogReplayer
-BufferPoolLogReplayer::BufferPoolLogReplayer(BufferPoolManager &bp_manager) : bp_manager_(bp_manager)
-{}
+BufferPoolLogReplayer::BufferPoolLogReplayer(BufferPoolManager &bp_manager) : bp_manager_(bp_manager) {}
 
 RC BufferPoolLogReplayer::replay(const LogEntry &entry)
 {
@@ -71,10 +69,10 @@ RC BufferPoolLogReplayer::replay(const LogEntry &entry)
   auto log = reinterpret_cast<const BufferPoolLogEntry *>(entry.data());
 
   LOG_TRACE("replay buffer pool log. entry=%s, log=%s", entry.to_string().c_str(), log->to_string().c_str());
-  
-  int32_t buffer_pool_id = log->buffer_pool_id;
-  DiskBufferPool *buffer_pool = nullptr;
-  RC rc = bp_manager_.get_buffer_pool(buffer_pool_id, buffer_pool);
+
+  int32_t         buffer_pool_id = log->buffer_pool_id;
+  DiskBufferPool *buffer_pool    = nullptr;
+  RC              rc             = bp_manager_.get_buffer_pool(buffer_pool_id, buffer_pool);
   if (OB_FAIL(rc) || buffer_pool == nullptr) {
     LOG_ERROR("failed to get buffer pool. rc=%s, buffer pool=%p, log=%s, %s", 
               strrc(rc), buffer_pool, entry.to_string().c_str(), log->to_string().c_str());
@@ -82,15 +80,13 @@ RC BufferPoolLogReplayer::replay(const LogEntry &entry)
   }
 
   BufferPoolOperation operation(log->operation_type);
-  switch (operation.type())
-  {
-    case BufferPoolOperation::Type::ALLOCATE:
-      return buffer_pool->redo_allocate_page(entry.lsn(), log->page_num);
-    case BufferPoolOperation::Type::DEALLOCATE:
-      return buffer_pool->redo_deallocate_page(entry.lsn(), log->page_num);
+  switch (operation.type()) {
+    case BufferPoolOperation::Type::ALLOCATE: return buffer_pool->redo_allocate_page(entry.lsn(), log->page_num);
+    case BufferPoolOperation::Type::DEALLOCATE: return buffer_pool->redo_deallocate_page(entry.lsn(), log->page_num);
     default:
       LOG_ERROR("unknown buffer pool operation. operation=%s", operation.to_string().c_str());
       return RC::INTERNAL;
   }
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

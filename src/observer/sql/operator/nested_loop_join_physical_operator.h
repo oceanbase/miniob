@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/physical_operator.h"
 #include "sql/parser/parse.h"
 
+namespace oceanbase {
+
 /**
  * @brief 最简单的两表（称为左表、右表）join算子
  * @details 依次遍历左表的每一行，然后关联右表的每一行
@@ -62,3 +64,4 @@ private:
   bool              round_done_   = true;  //! 右表遍历的一轮是否结束
   bool              right_closed_ = true;  //! 右表算子是否已经关闭
 };
+}  // namespace oceanbase

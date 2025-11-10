@@ -21,17 +21,19 @@ See the Mulan PSL v2 for more details. */
 #include "common/thread/runnable.h"
 #include "common/queue/simple_queue.h"
 
+namespace oceanbase {
+
 using namespace common;
 
 /**
  * @brief libevent 消息回调函数的参数
- * 
+ *
  */
 struct EventCallbackAg
 {
-  JavaThreadPoolThreadHandler *host = nullptr;
-  Communicator *communicator = nullptr;
-  struct event *ev = nullptr;
+  JavaThreadPoolThreadHandler *host         = nullptr;
+  Communicator                *communicator = nullptr;
+  struct event                *ev           = nullptr;
 };
 
 JavaThreadPoolThreadHandler::~JavaThreadPoolThreadHandler()
@@ -59,10 +61,10 @@ RC JavaThreadPoolThreadHandler::start()
   // 创建线程池
   // 这里写死了线程池的大小，实际上可以从配置文件中读取
   int ret = executor_.init("SQL",  // name
-                            2,     // core size
-                            8,     // max size
-                            60*1000 // keep alive time
-                            );
+      2,                           // core size
+      8,                           // max size
+      60 * 1000                    // keep alive time
+  );
   if (0 != ret) {
     LOG_ERROR("failed to init thread pool executor");
     return RC::INTERNAL;
@@ -71,7 +73,7 @@ RC JavaThreadPoolThreadHandler::start()
   // libevent 的监测消息循环主体，要放在一个线程中执行
   // event_loop_thread 是运行libevent 消息监测循环的函数，会长期运行，并且会放到线程池中占据一个线程
   auto event_worker = std::bind(&JavaThreadPoolThreadHandler::event_loop_thread, this);
-  ret = executor_.execute(event_worker);
+  ret               = executor_.execute(event_worker);
   if (0 != ret) {
     LOG_ERROR("failed to execute event worker");
     return RC::INTERNAL;
@@ -94,7 +96,7 @@ static void event_callback(evutil_socket_t fd, short event, void *arg)
 {
   if (event & (EV_READ | EV_CLOSED)) {
     LOG_TRACE("got event. fd=%d, event=%d", fd, event);
-    EventCallbackAg *ag = (EventCallbackAg *)arg;
+    EventCallbackAg             *ag      = (EventCallbackAg *)arg;
     JavaThreadPoolThreadHandler *handler = ag->host;
     handler->handle_event(ag);
   } else {
@@ -113,7 +115,7 @@ void JavaThreadPoolThreadHandler::handle_event(EventCallbackAg *ag)
 
   // sql_handler 是一个回调函数
   auto sql_handler = [this, ag]() {
-    RC rc = sql_task_handler_.handle_event(ag->communicator); // 这里会有接收消息、处理请求然后返回结果一条龙服务
+    RC rc = sql_task_handler_.handle_event(ag->communicator);  // 这里会有接收消息、处理请求然后返回结果一条龙服务
     if (RC::SUCCESS != rc) {
       LOG_WARN("failed to handle sql task. rc=%s", strrc(rc));
       this->close_connection(ag->communicator);
@@ -128,7 +130,7 @@ void JavaThreadPoolThreadHandler::handle_event(EventCallbackAg *ag)
       // LOG_TRACE("add event. fd=%d, communicator=%p", event_get_fd(ag->ev), this);
     }
   };
-  
+
   executor_.execute(sql_handler);
 }
 
@@ -148,9 +150,9 @@ RC JavaThreadPoolThreadHandler::new_connection(Communicator *communicator)
   int fd = communicator->fd();
   LOG_INFO("new connection. fd=%d", fd);
   EventCallbackAg *ag = new EventCallbackAg;
-  ag->host = this;
-  ag->communicator = communicator;
-  ag->ev = nullptr;
+  ag->host            = this;
+  ag->communicator    = communicator;
+  ag->ev              = nullptr;
   /// 创建一个libevent事件对象。其中EV_READ表示可读事件，就是客户端发消息时会触发事件。
   /// EV_ET 表示边缘触发，有消息时只会触发一次，不会重复触发。这个标识在Linux平台上是支持的，但是有些平台不支持。
   /// 使用EV_ET边缘触发时需要注意一个问题，就是每次一定要把客户端发来的消息都读取完，直到read返回EAGAIN为止。
@@ -185,7 +187,7 @@ RC JavaThreadPoolThreadHandler::close_connection(Communicator *communicator)
 
   {
     lock_guard guard(lock_);
-    auto iter = event_map_.find(communicator);
+    auto       iter = event_map_.find(communicator);
     if (iter == event_map_.end()) {
       LOG_ERROR("cannot find event for communicator %p", communicator);
       return RC::INTERNAL;
@@ -196,8 +198,8 @@ RC JavaThreadPoolThreadHandler::close_connection(Communicator *communicator)
   }
 
   if (ag->ev) {
-    event_del(ag->ev);  // 把当前事件从event_base中删除
-    event_free(ag->ev); // 释放event对象
+    event_del(ag->ev);   // 把当前事件从event_base中删除
+    event_free(ag->ev);  // 释放event对象
     ag->ev = nullptr;
   }
   delete ag;
@@ -245,3 +247,4 @@ RC JavaThreadPoolThreadHandler::await_stop()
   LOG_INFO("end to await event base stopped");
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

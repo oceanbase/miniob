@@ -30,6 +30,8 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
+namespace oceanbase {
+
 RC OptimizeStage::handle_request(SQLStageEvent *sql_event)
 {
   unique_ptr<LogicalOperator> logical_operator;
@@ -89,10 +91,11 @@ RC OptimizeStage::generate_physical_plan(
     unique_ptr<LogicalOperator> &logical_operator, unique_ptr<PhysicalOperator> &physical_operator, Session *session)
 {
   RC rc = RC::SUCCESS;
-  if (session->get_execution_mode() == ExecutionMode::CHUNK_ITERATOR && LogicalOperator::can_generate_vectorized_operator(logical_operator->type())) {
+  if (session->get_execution_mode() == ExecutionMode::CHUNK_ITERATOR &&
+      LogicalOperator::can_generate_vectorized_operator(logical_operator->type())) {
     LOG_TRACE("use chunk iterator");
     session->set_used_chunk_mode(true);
-    rc    = physical_plan_generator_.create_vec(*logical_operator, physical_operator, session);
+    rc = physical_plan_generator_.create_vec(*logical_operator, physical_operator, session);
   } else {
     LOG_TRACE("use tuple iterator");
     session->set_used_chunk_mode(false);
@@ -130,3 +133,4 @@ RC OptimizeStage::create_logical_plan(SQLStageEvent *sql_event, unique_ptr<Logic
 
   return logical_plan_generator_.create(stmt, logical_operator);
 }
+}  // namespace oceanbase

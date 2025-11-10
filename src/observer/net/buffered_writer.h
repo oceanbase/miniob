@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "net/ring_buffer.h"
 
+namespace oceanbase {
+
 /**
  * @brief 支持以缓存模式写入数据到文件/socket
  * @details 缓存使用ring buffer实现，当缓存满时会自动刷新缓存。
@@ -70,3 +72,4 @@ private:
   int        fd_ = -1;
   RingBuffer buffer_;
 };
+}  // namespace oceanbase

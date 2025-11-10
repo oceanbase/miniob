@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/field/field.h"
 #include "common/types.h"
 
+namespace oceanbase {
+
 /**
  * @brief 表示从表中获取数据的算子
  * @details 比如使用全表扫描、通过索引获取数据等
@@ -67,3 +69,4 @@ private:
   // 如果有多个表达式，他们的关系都是 AND
   vector<unique_ptr<Expression>> predicates_;
 };
+}  // namespace oceanbase

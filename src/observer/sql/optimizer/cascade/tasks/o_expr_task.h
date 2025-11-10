@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/cascade/tasks/cascade_task.h"
 
+namespace oceanbase {
+
 /**
  * OptimizeExpression
  */
@@ -27,3 +29,4 @@ public:
 private:
   GroupExpr *group_expr_;
 };
+}  // namespace oceanbase

@@ -13,6 +13,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/aggregate_hash_table.h"
 #include "sql/operator/physical_operator.h"
 
+namespace oceanbase {
+
 /**
  * @brief Group By 物理算子(vectorized)
  * @ingroup PhysicalOperator
@@ -20,7 +22,7 @@ See the Mulan PSL v2 for more details. */
 class GroupByVecPhysicalOperator : public PhysicalOperator
 {
 public:
-  GroupByVecPhysicalOperator(vector<unique_ptr<Expression>> &&group_by_exprs, vector<Expression *> &&expressions){};
+  GroupByVecPhysicalOperator(vector<unique_ptr<Expression>> &&group_by_exprs, vector<Expression *> &&expressions) {};
 
   virtual ~GroupByVecPhysicalOperator() = default;
 
@@ -32,3 +34,4 @@ public:
 
 private:
 };
+}  // namespace oceanbase

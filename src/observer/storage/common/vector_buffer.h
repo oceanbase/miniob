@@ -4,6 +4,8 @@
 #include "common/type/string_t.h"
 #include "common/log/log.h"
 
+namespace oceanbase {
+
 class VectorBuffer
 {
 public:
@@ -32,3 +34,4 @@ public:
 private:
   Arena heap;
 };
+}  // namespace oceanbase

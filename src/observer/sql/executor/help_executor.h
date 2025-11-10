@@ -20,6 +20,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/sql_result.h"
 #include "sql/operator/string_list_physical_operator.h"
 
+namespace oceanbase {
+
 /**
  * @brief Help语句执行器
  * @ingroup Executor
@@ -57,3 +59,4 @@ public:
     return RC::SUCCESS;
   }
 };
+}  // namespace oceanbase

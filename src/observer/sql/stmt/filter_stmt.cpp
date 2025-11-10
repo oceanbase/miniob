@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "storage/table/table.h"
 
+namespace oceanbase {
+
 FilterStmt::~FilterStmt()
 {
   for (FilterUnit *unit : filter_units_) {
@@ -50,8 +52,8 @@ RC FilterStmt::create(Db *db, Table *default_table, unordered_map<string, Table 
   return rc;
 }
 
-RC get_table_and_field(Db *db, Table *default_table, unordered_map<string, Table *> *tables,
-    const RelAttrSqlNode &attr, Table *&table, const FieldMeta *&field)
+RC get_table_and_field(Db *db, Table *default_table, unordered_map<string, Table *> *tables, const RelAttrSqlNode &attr,
+    Table *&table, const FieldMeta *&field)
 {
   if (common::is_blank(attr.relation_name.c_str())) {
     table = default_table;
@@ -130,3 +132,4 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, unordered_map<st
   // 检查两个类型是否能够比较
   return rc;
 }
+}  // namespace oceanbase

@@ -26,6 +26,8 @@ static constexpr PageNum BP_HEADER_PAGE = 0;
 static constexpr const int BP_PAGE_SIZE      = (1 << 13);
 static constexpr const int BP_PAGE_DATA_SIZE = (BP_PAGE_SIZE - sizeof(LSN) - sizeof(CheckSum));
 
+namespace oceanbase {
+
 /**
  * @brief 表示一个页面，可能放在内存或磁盘上
  * @ingroup BufferPool
@@ -36,3 +38,4 @@ struct Page
   CheckSum check_sum;
   char     data[BP_PAGE_DATA_SIZE];
 };
+}  // namespace oceanbase

@@ -10,6 +10,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/common/chunk.h"
 
+namespace oceanbase {
+
 void Chunk::add_column(unique_ptr<Column> col, int col_id)
 {
   columns_.push_back(std::move(col));
@@ -58,3 +60,4 @@ void Chunk::reset()
   columns_.clear();
   column_ids_.clear();
 }
+}  // namespace oceanbase

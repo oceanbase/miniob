@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 #include "storage/common/column.h"
 
+namespace oceanbase {
+
 int FloatType::compare(const Value &left, const Value &right) const
 {
   ASSERT(left.attr_type() == AttrType::FLOATS, "left type is not float");
@@ -30,8 +32,7 @@ int FloatType::compare(const Column &left, const Column &right, int left_idx, in
 {
   ASSERT(left.attr_type() == AttrType::FLOATS, "left type is not float");
   ASSERT(right.attr_type() == AttrType::FLOATS, "right type is not float");
-  return common::compare_float((void *)&((float*)left.data())[left_idx],
-      (void *)&((float*)right.data())[right_idx]);
+  return common::compare_float((void *)&((float *)left.data())[left_idx], (void *)&((float *)right.data())[right_idx]);
 }
 
 RC FloatType::add(const Value &left, const Value &right, Value &result) const
@@ -70,7 +71,7 @@ RC FloatType::negative(const Value &val, Value &result) const
 
 RC FloatType::set_value_from_str(Value &val, const string &data) const
 {
-  RC                rc = RC::SUCCESS;
+  RC           rc = RC::SUCCESS;
   stringstream deserialize_stream;
   deserialize_stream.clear();
   deserialize_stream.str(data);
@@ -92,3 +93,4 @@ RC FloatType::to_string(const Value &val, string &result) const
   result = ss.str();
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

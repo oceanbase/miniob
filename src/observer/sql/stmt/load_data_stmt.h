@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/stmt/stmt.h"
 
+namespace oceanbase {
+
 class Table;
 
 class LoadDataStmt : public Stmt
@@ -41,3 +43,4 @@ private:
   char   terminated_;
   char   enclosed_;
 };
+}  // namespace oceanbase

@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 //! this document is used for ini setting
 
+namespace oceanbase {
+
 #define CLIENT_ADDRESS "CLIENT_ADDRESS"
 #define MAX_CONNECTION_NUM "MAX_CONNECTION_NUM"
 #define MAX_CONNECTION_NUM_DEFAULT 8192
@@ -25,3 +27,4 @@ See the Mulan PSL v2 for more details. */
 #define SOCKET_BUFFER_SIZE 8192
 
 #define SESSION_STAGE_NAME "SessionStage"
+}  // namespace oceanbase

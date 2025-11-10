@@ -23,6 +23,8 @@ class SessionEvent;
 class Session;
 class BufferedWriter;
 
+namespace oceanbase {
+
 /**
  * @defgroup Communicator
  * @brief 负责处理与客户端的通讯
@@ -106,3 +108,4 @@ class CommunicatorFactory
 public:
   Communicator *create(CommunicateProtocol protocol);
 };
+}  // namespace oceanbase

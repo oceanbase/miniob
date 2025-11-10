@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/stmt/stmt.h"
 
+namespace oceanbase {
+
 class Db;
 
 /**
@@ -40,3 +42,4 @@ public:
     return RC::SUCCESS;
   }
 };
+}  // namespace oceanbase

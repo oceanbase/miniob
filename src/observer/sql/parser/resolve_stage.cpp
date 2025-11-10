@@ -27,6 +27,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 RC ResolveStage::handle_request(SQLStageEvent *sql_event)
 {
   RC            rc            = RC::SUCCESS;
@@ -56,3 +58,4 @@ RC ResolveStage::handle_request(SQLStageEvent *sql_event)
 
   return rc;
 }
+}  // namespace oceanbase

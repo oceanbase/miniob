@@ -22,6 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/fstream.h"
 #include "common/lang/string.h"
 
+namespace oceanbase {
+
 class LogEntry;
 
 /**
@@ -153,3 +155,4 @@ private:
 
   map<LSN, filesystem::path> log_files_;  /// 日志文件名和第一个LSN的映射
 };
+}  // namespace oceanbase

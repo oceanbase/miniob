@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/common/column.h"
 
+namespace oceanbase {
+
 struct Equal
 {
   template <class T>
@@ -371,4 +373,5 @@ void compare_result(T *left, T *right, int n, vector<uint8_t> &result, CompOp op
     }
     default: break;
   }
+}
 }

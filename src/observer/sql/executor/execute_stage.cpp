@@ -25,6 +25,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 RC ExecuteStage::handle_request(SQLStageEvent *sql_event)
 {
   RC rc = RC::SUCCESS;
@@ -58,3 +60,4 @@ RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
   sql_result->set_operator(std::move(physical_operator));
   return rc;
 }
+}  // namespace oceanbase

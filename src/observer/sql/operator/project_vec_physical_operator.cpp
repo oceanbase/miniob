@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
+namespace oceanbase {
+
 ProjectVecPhysicalOperator::ProjectVecPhysicalOperator(vector<unique_ptr<Expression>> &&expressions)
     : expressions_(std::move(expressions))
 {
@@ -71,3 +73,4 @@ RC ProjectVecPhysicalOperator::tuple_schema(TupleSchema &schema) const
   }
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

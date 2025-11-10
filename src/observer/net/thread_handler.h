@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/sys/rc.h"
 
+namespace oceanbase {
+
 class Communicator;
 
 /**
@@ -63,3 +65,4 @@ public:
    */
   static ThreadHandler *create(const char *name);
 };
+}  // namespace oceanbase

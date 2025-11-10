@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/stmt/stmt.h"
 
+namespace oceanbase {
+
 struct CreateIndexSqlNode;
 class Table;
 class FieldMeta;
@@ -47,3 +49,4 @@ private:
   const FieldMeta *field_meta_ = nullptr;
   string           index_name_;
 };
+}  // namespace oceanbase

@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "common/lang/memory.h"
 
+namespace oceanbase {
+
 class LogicalOperator;
 class Expression;
 
@@ -44,3 +46,4 @@ public:
 
   virtual RC rewrite(unique_ptr<Expression> &expr, bool &change_made) = 0;
 };
+}  // namespace oceanbase

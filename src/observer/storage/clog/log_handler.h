@@ -22,6 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/vector.h"
 #include "storage/clog/log_module.h"
 
+namespace oceanbase {
+
 /**
  * @defgroup CLog commit log/redo log
  */
@@ -105,3 +107,4 @@ private:
    */
   virtual RC _append(LSN &lsn, LogModule module, vector<char> &&data) = 0;
 };
+}  // namespace oceanbase

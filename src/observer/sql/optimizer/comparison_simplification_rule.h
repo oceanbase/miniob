@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "sql/optimizer/rewrite_rule.h"
 
+namespace oceanbase {
+
 class LogicalOperator;
 
 /**
@@ -35,3 +37,4 @@ public:
 
 private:
 };
+}  // namespace oceanbase

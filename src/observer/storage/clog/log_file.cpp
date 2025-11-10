@@ -23,6 +23,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 RC LogFileReader::open(const char *filename)
 {
   filename_ = filename;
@@ -141,10 +143,7 @@ RC LogFileReader::skip_to(LSN start_lsn)
 }
 ////////////////////////////////////////////////////////////////////////////////
 // LogFileWriter
-LogFileWriter::~LogFileWriter()
-{
-  (void)this->close();
-}
+LogFileWriter::~LogFileWriter() { (void)this->close(); }
 
 RC LogFileWriter::open(const char *filename, int end_lsn)
 {
@@ -153,7 +152,7 @@ RC LogFileWriter::open(const char *filename, int end_lsn)
   }
 
   filename_ = filename;
-  end_lsn_ = end_lsn;
+  end_lsn_  = end_lsn;
 
   fd_ = ::open(filename, O_WRONLY | O_APPEND | O_CREAT | O_SYNC, 0644);
   if (fd_ < 0) {
@@ -214,27 +213,18 @@ RC LogFileWriter::write(LogEntry &entry)
   return RC::SUCCESS;
 }
 
-bool LogFileWriter::valid() const
-{
-  return fd_ >= 0;
-}
+bool LogFileWriter::valid() const { return fd_ >= 0; }
 
-bool LogFileWriter::full() const
-{
-  return last_lsn_ >= end_lsn_;
-}
+bool LogFileWriter::full() const { return last_lsn_ >= end_lsn_; }
 
-string LogFileWriter::to_string() const
-{
-  return filename_;
-}
+string LogFileWriter::to_string() const { return filename_; }
 
 ////////////////////////////////////////////////////////////////////////////////
 // LogFileManager
 
 RC LogFileManager::init(const char *directory, int max_entry_number_per_file)
 {
-  directory_ = filesystem::absolute(filesystem::path(directory));
+  directory_                 = filesystem::absolute(filesystem::path(directory));
   max_entry_number_per_file_ = max_entry_number_per_file;
 
   // 检查目录是否存在，不存在就创建出来
@@ -242,7 +232,7 @@ RC LogFileManager::init(const char *directory, int max_entry_number_per_file)
     LOG_INFO("directory is not exist. directory=%s", directory_.c_str());
 
     error_code ec;
-    bool ret = filesystem::create_directories(directory_, ec);
+    bool       ret = filesystem::create_directories(directory_, ec);
     if (!ret) {
       LOG_WARN("create directory failed. directory=%s, error=%s", directory_.c_str(), ec.message().c_str());
       return RC::FILE_CREATE;
@@ -256,8 +246,8 @@ RC LogFileManager::init(const char *directory, int max_entry_number_per_file)
     }
 
     string filename = dir_entry.path().filename().string();
-    LSN lsn = 0;
-    RC rc = get_lsn_from_filename(filename, lsn);
+    LSN    lsn      = 0;
+    RC     rc       = get_lsn_from_filename(filename, lsn);
     if (OB_FAIL(rc)) {
       LOG_TRACE("invalid log file name. filename=%s", filename.c_str());
       continue;
@@ -283,7 +273,8 @@ RC LogFileManager::get_lsn_from_filename(const string &filename, LSN &lsn)
     return RC::INVALID_ARGUMENT;
   }
 
-  string_view lsn_str(filename.data() + strlen(file_prefix_), filename.length() - strlen(file_suffix_) - strlen(file_prefix_));
+  string_view lsn_str(
+      filename.data() + strlen(file_prefix_), filename.length() - strlen(file_suffix_) - strlen(file_prefix_));
   from_chars_result result = from_chars(lsn_str.data(), lsn_str.data() + lsn_str.size(), lsn);
   if (result.ec != errc()) {
     LOG_TRACE("invalid log file name: cannot calc lsn. filename=%s, error=%s", 
@@ -318,8 +309,7 @@ RC LogFileManager::last_file(LogFileWriter &file_writer)
   file_writer.close();
 
   auto last_file_item = log_files_.rbegin();
-  return file_writer.open(last_file_item->second.c_str(), 
-                          last_file_item->first + max_entry_number_per_file_ - 1);
+  return file_writer.open(last_file_item->second.c_str(), last_file_item->first + max_entry_number_per_file_ - 1);
 }
 
 RC LogFileManager::next_file(LogFileWriter &file_writer)
@@ -331,9 +321,10 @@ RC LogFileManager::next_file(LogFileWriter &file_writer)
     lsn = log_files_.rbegin()->first + max_entry_number_per_file_;
   }
 
-  string filename = file_prefix_ + to_string(lsn) + file_suffix_;
+  string           filename  = file_prefix_ + to_string(lsn) + file_suffix_;
   filesystem::path file_path = directory_ / filename;
   log_files_.emplace(lsn, file_path);
 
   return file_writer.open(file_path.c_str(), lsn + max_entry_number_per_file_ - 1);
 }
+}  // namespace oceanbase

@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/mutex.h"
 #include "common/lang/unordered_map.h"
 
+namespace oceanbase {
+
 class Worker;
 
 /**
@@ -47,3 +49,4 @@ private:
   /// 保护线程安全的锁
   mutex lock_;
 };
+}  // namespace oceanbase

@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/tasks/o_expr_task.h"
 #include "common/log/log.h"
 
+namespace oceanbase {
+
 void ExploreGroup::perform()
 {
   LOG_TRACE("ExploreGroup::perform() ");
@@ -25,3 +27,4 @@ void ExploreGroup::perform()
 
   group_->set_explored();
 }
+}  // namespace oceanbase

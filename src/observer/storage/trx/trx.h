@@ -24,6 +24,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/table/table.h"
 
+namespace oceanbase {
+
 /**
  * @defgroup Transaction
  * @brief 事务相关的内容
@@ -160,3 +162,4 @@ public:
 private:
   TrxKit::Type type_;
 };
+}  // namespace oceanbase

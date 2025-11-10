@@ -12,26 +12,33 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/memo.h"
 #include "sql/optimizer/cascade/rules.h"
 
+namespace oceanbase {
+
 OptimizerContext::OptimizerContext()
-      : memo_(new Memo()), rule_set_(new RuleSet()), cost_model_(), task_pool_(nullptr),
-        cost_upper_bound_(std::numeric_limits<double>::max()) {}
+    : memo_(new Memo()),
+      rule_set_(new RuleSet()),
+      cost_model_(),
+      task_pool_(nullptr),
+      cost_upper_bound_(std::numeric_limits<double>::max())
+{}
 
-OptimizerContext::~OptimizerContext() {
-    if (task_pool_ != nullptr) {
-      delete task_pool_;
-      task_pool_ = nullptr;
-    }
-    if (memo_ != nullptr) {
-      delete memo_;
-      memo_ = nullptr;
-    }
-    if (rule_set_ != nullptr) {
-      delete rule_set_;
-      rule_set_ = nullptr;
-    }
+OptimizerContext::~OptimizerContext()
+{
+  if (task_pool_ != nullptr) {
+    delete task_pool_;
+    task_pool_ = nullptr;
   }
+  if (memo_ != nullptr) {
+    delete memo_;
+    memo_ = nullptr;
+  }
+  if (rule_set_ != nullptr) {
+    delete rule_set_;
+    rule_set_ = nullptr;
+  }
+}
 
-GroupExpr *OptimizerContext::make_group_expression(OperatorNode* node)
+GroupExpr *OptimizerContext::make_group_expression(OperatorNode *node)
 {
   std::vector<int> child_groups;
   for (auto &child : node->get_general_children()) {
@@ -50,21 +57,22 @@ GroupExpr *OptimizerContext::make_group_expression(OperatorNode* node)
   return new GroupExpr(node, std::move(child_groups));
 }
 
-  bool OptimizerContext::record_node_into_group(OperatorNode* node, GroupExpr **gexpr,
-                                    int target_group) {
-    auto new_gexpr = make_group_expression(node);
-    auto ptr = memo_->insert_expression(new_gexpr, target_group);
-    ASSERT(ptr, "Root of expr should not fail insertion");
+bool OptimizerContext::record_node_into_group(OperatorNode *node, GroupExpr **gexpr, int target_group)
+{
+  auto new_gexpr = make_group_expression(node);
+  auto ptr       = memo_->insert_expression(new_gexpr, target_group);
+  ASSERT(ptr, "Root of expr should not fail insertion");
 
-    (*gexpr) = ptr;
-    return (ptr == new_gexpr);
-  }
+  (*gexpr) = ptr;
+  return (ptr == new_gexpr);
+}
 
-  Memo &OptimizerContext::get_memo() { return *memo_; }
+Memo &OptimizerContext::get_memo() { return *memo_; }
 
-  RuleSet &OptimizerContext::get_rule_set() { return *rule_set_; }
+RuleSet &OptimizerContext::get_rule_set() { return *rule_set_; }
 
-  void OptimizerContext::record_operator_node_in_memo(unique_ptr<OperatorNode>&& node)
-  {
-    memo_->record_operator(std::move(node));
-  }
+void OptimizerContext::record_operator_node_in_memo(unique_ptr<OperatorNode> &&node)
+{
+  memo_->record_operator(std::move(node));
+}
+}  // namespace oceanbase

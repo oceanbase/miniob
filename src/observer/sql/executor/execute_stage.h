@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/sys/rc.h"
 
+namespace oceanbase {
+
 class SQLStageEvent;
 class SessionEvent;
 class SelectStmt;
@@ -32,3 +34,4 @@ public:
   RC handle_request(SQLStageEvent *event);
   RC handle_request_with_physical_operator(SQLStageEvent *sql_event);
 };
+}  // namespace oceanbase

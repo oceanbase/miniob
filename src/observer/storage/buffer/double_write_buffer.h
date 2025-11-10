@@ -20,6 +20,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "storage/buffer/page.h"
 
+namespace oceanbase {
+
 class DiskBufferPool;
 struct DoubleWritePage;
 class BufferPoolManager;
@@ -167,3 +169,4 @@ public:
    */
   RC clear_pages(DiskBufferPool *bp) override { return RC::SUCCESS; }
 };
+}  // namespace oceanbase

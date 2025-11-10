@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 #include "storage/common/column.h"
 
+namespace oceanbase {
+
 int IntegerType::compare(const Value &left, const Value &right) const
 {
   ASSERT(left.attr_type() == AttrType::INTS, "left type is not integer");
@@ -33,21 +35,18 @@ int IntegerType::compare(const Column &left, const Column &right, int left_idx, 
 {
   ASSERT(left.attr_type() == AttrType::INTS, "left type is not integer");
   ASSERT(right.attr_type() == AttrType::INTS, "right type is not integer");
-  return common::compare_int((void *)&((int*)left.data())[left_idx],
-      (void *)&((int*)right.data())[right_idx]);
+  return common::compare_int((void *)&((int *)left.data())[left_idx], (void *)&((int *)right.data())[right_idx]);
 }
 
 RC IntegerType::cast_to(const Value &val, AttrType type, Value &result) const
 {
   switch (type) {
-  case AttrType::FLOATS: {
-    float float_value = val.get_int();
-    result.set_float(float_value);
-    return RC::SUCCESS;
-  }
-  default:
-    LOG_WARN("unsupported type %d", type);
-    return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    case AttrType::FLOATS: {
+      float float_value = val.get_int();
+      result.set_float(float_value);
+      return RC::SUCCESS;
+    }
+    default: LOG_WARN("unsupported type %d", type); return RC::SCHEMA_FIELD_TYPE_MISMATCH;
   }
 }
 
@@ -77,7 +76,7 @@ RC IntegerType::negative(const Value &val, Value &result) const
 
 RC IntegerType::set_value_from_str(Value &val, const string &data) const
 {
-  RC                rc = RC::SUCCESS;
+  RC           rc = RC::SUCCESS;
   stringstream deserialize_stream;
   deserialize_stream.clear();  // 清理stream的状态，防止多次解析出现异常
   deserialize_stream.str(data);
@@ -98,3 +97,4 @@ RC IntegerType::to_string(const Value &val, string &result) const
   result = ss.str();
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

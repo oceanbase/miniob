@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/default/default_handler.h"
 #include "storage/trx/trx.h"
 
+namespace oceanbase {
+
 Session &Session::default_session()
 {
   static Session session;
@@ -77,12 +79,12 @@ Trx *Session::current_trx()
 }
 
 void Session::destroy_trx()
-  {
-    if (trx_ != nullptr) {
-      db_->trx_kit().destroy_trx(trx_);
-      trx_ = nullptr;
-    }
+{
+  if (trx_ != nullptr) {
+    db_->trx_kit().destroy_trx(trx_);
+    trx_ = nullptr;
   }
+}
 
 thread_local Session *thread_session = nullptr;
 
@@ -93,3 +95,4 @@ Session *Session::current_session() { return thread_session; }
 void Session::set_current_request(SessionEvent *request) { current_request_ = request; }
 
 SessionEvent *Session::current_request() const { return current_request_; }
+}  // namespace oceanbase

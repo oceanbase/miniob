@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "sql/stmt/stmt.h"
 
+namespace oceanbase {
+
 ExplainStmt::ExplainStmt(unique_ptr<Stmt> child_stmt) : child_stmt_(std::move(child_stmt)) {}
 
 RC ExplainStmt::create(Db *db, const ExplainSqlNode &explain, Stmt *&stmt)
@@ -28,6 +30,7 @@ RC ExplainStmt::create(Db *db, const ExplainSqlNode &explain, Stmt *&stmt)
   }
 
   unique_ptr<Stmt> child_stmt_ptr = unique_ptr<Stmt>(child_stmt);
-  stmt                                 = new ExplainStmt(std::move(child_stmt_ptr));
+  stmt                            = new ExplainStmt(std::move(child_stmt_ptr));
   return rc;
 }
+}  // namespace oceanbase

@@ -14,6 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/trx/vacuous_trx.h"
 
+namespace oceanbase {
+
 RC VacuousTrxKit::init() { return RC::SUCCESS; }
 
 const vector<FieldMeta> *VacuousTrxKit::trx_fields() const { return nullptr; }
@@ -43,3 +45,4 @@ RC VacuousTrx::commit() { return RC::SUCCESS; }
 RC VacuousTrx::rollback() { return RC::SUCCESS; }
 
 RC VacuousTrx::redo(Db *, const LogEntry &) { return RC::SUCCESS; }
+}  // namespace oceanbase

@@ -10,6 +10,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+namespace oceanbase {
+
 class Property
 {};
 
@@ -28,3 +30,4 @@ public:
 private:
   int card_ = 0;  /// cardinality
 };
+}  // namespace oceanbase

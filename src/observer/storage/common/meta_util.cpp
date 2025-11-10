@@ -14,6 +14,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/meta_util.h"
 #include "common/lang/filesystem.h"
 
+namespace oceanbase {
+
 string db_meta_file(const char *base_dir, const char *db_name)
 {
   filesystem::path db_dir = filesystem::path(base_dir);
@@ -39,3 +41,4 @@ string table_lob_file(const char *base_dir, const char *table_name)
 {
   return filesystem::path(base_dir) / (string(table_name) + TABLE_LOB_SUFFIX);
 }
+}  // namespace oceanbase

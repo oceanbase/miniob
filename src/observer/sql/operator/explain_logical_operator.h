@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/logical_operator.h"
 
+namespace oceanbase {
+
 /**
  * @brief Explain逻辑算子
  * @ingroup LogicalOperator
@@ -30,3 +32,4 @@ public:
 
   OpType get_op_type() const override { return OpType::LOGICALEXPLAIN; }
 };
+}  // namespace oceanbase

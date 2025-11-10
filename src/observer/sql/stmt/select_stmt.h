@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/stmt.h"
 #include "storage/field/field.h"
 
+namespace oceanbase {
+
 class FieldMeta;
 class FilterStmt;
 class Db;
@@ -51,3 +53,4 @@ private:
   FilterStmt                    *filter_stmt_ = nullptr;
   vector<unique_ptr<Expression>> group_by_;
 };
+}  // namespace oceanbase

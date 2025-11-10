@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/operator_node.h"
 #include "common/lang/unordered_set.h"
 
+namespace oceanbase {
+
 /**
  * @brief 逻辑算子
  * @defgroup LogicalOperator
@@ -72,3 +74,4 @@ protected:
   ///< 表达式能是一个常量，也可以是一个函数，也可以是一个列，也可以是一个子查询等等
   vector<unique_ptr<Expression>> expressions_;
 };
+}  // namespace oceanbase

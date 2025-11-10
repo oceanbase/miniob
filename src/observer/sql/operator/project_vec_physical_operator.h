@@ -13,6 +13,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/physical_operator.h"
 #include "sql/expr/expression_tuple.h"
 
+namespace oceanbase {
+
 /**
  * @brief 选择/投影物理算子(vectorized)
  * @ingroup PhysicalOperator
@@ -39,3 +41,4 @@ private:
   vector<unique_ptr<Expression>> expressions_;
   Chunk                          chunk_;
 };
+}  // namespace oceanbase

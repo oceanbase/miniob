@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "json/json.h"
 
+namespace oceanbase {
+
 const static Json::StaticString FIELD_NAME("name");
 const static Json::StaticString FIELD_TYPE("type");
 const static Json::StaticString FIELD_OFFSET("offset");
@@ -26,7 +28,8 @@ const static Json::StaticString FIELD_LEN("len");
 const static Json::StaticString FIELD_VISIBLE("visible");
 const static Json::StaticString FIELD_FIELD_ID("FIELD_id");
 
-FieldMeta::FieldMeta() : attr_type_(AttrType::UNDEFINED), attr_offset_(-1), attr_len_(0), visible_(false), field_id_(0) {}
+FieldMeta::FieldMeta() : attr_type_(AttrType::UNDEFINED), attr_offset_(-1), attr_len_(0), visible_(false), field_id_(0)
+{}
 
 FieldMeta::FieldMeta(const char *name, AttrType attr_type, int attr_offset, int attr_len, bool visible, int field_id)
 {
@@ -52,7 +55,7 @@ RC FieldMeta::init(const char *name, AttrType attr_type, int attr_offset, int at
   attr_len_    = attr_len;
   attr_offset_ = attr_offset;
   visible_     = visible;
-  field_id_ = field_id;
+  field_id_    = field_id;
 
   LOG_INFO("Init a field with name=%s", name);
   return RC::SUCCESS;
@@ -78,11 +81,11 @@ void FieldMeta::desc(ostream &os) const
 
 void FieldMeta::to_json(Json::Value &json_value) const
 {
-  json_value[FIELD_NAME]    = name_;
-  json_value[FIELD_TYPE]    = attr_type_to_string(attr_type_);
-  json_value[FIELD_OFFSET]  = attr_offset_;
-  json_value[FIELD_LEN]     = attr_len_;
-  json_value[FIELD_VISIBLE] = visible_;
+  json_value[FIELD_NAME]     = name_;
+  json_value[FIELD_TYPE]     = attr_type_to_string(attr_type_);
+  json_value[FIELD_OFFSET]   = attr_offset_;
+  json_value[FIELD_LEN]      = attr_len_;
+  json_value[FIELD_VISIBLE]  = visible_;
   json_value[FIELD_FIELD_ID] = field_id_;
 }
 
@@ -93,11 +96,11 @@ RC FieldMeta::from_json(const Json::Value &json_value, FieldMeta &field)
     return RC::INTERNAL;
   }
 
-  const Json::Value &name_value    = json_value[FIELD_NAME];
-  const Json::Value &type_value    = json_value[FIELD_TYPE];
-  const Json::Value &offset_value  = json_value[FIELD_OFFSET];
-  const Json::Value &len_value     = json_value[FIELD_LEN];
-  const Json::Value &visible_value = json_value[FIELD_VISIBLE];
+  const Json::Value &name_value     = json_value[FIELD_NAME];
+  const Json::Value &type_value     = json_value[FIELD_TYPE];
+  const Json::Value &offset_value   = json_value[FIELD_OFFSET];
+  const Json::Value &len_value      = json_value[FIELD_LEN];
+  const Json::Value &visible_value  = json_value[FIELD_VISIBLE];
   const Json::Value &field_id_value = json_value[FIELD_FIELD_ID];
 
   if (!name_value.isString()) {
@@ -132,10 +135,11 @@ RC FieldMeta::from_json(const Json::Value &json_value, FieldMeta &field)
     return RC::INTERNAL;
   }
 
-  const char *name    = name_value.asCString();
-  int         offset  = offset_value.asInt();
-  int         len     = len_value.asInt();
-  bool        visible = visible_value.asBool();
-  int         field_id  = field_id_value.asInt();
+  const char *name     = name_value.asCString();
+  int         offset   = offset_value.asInt();
+  int         len      = len_value.asInt();
+  bool        visible  = visible_value.asBool();
+  int         field_id = field_id_value.asInt();
   return field.init(name, type, offset, len, visible, field_id);
 }
+}  // namespace oceanbase

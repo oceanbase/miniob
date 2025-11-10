@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 namespace bplus_tree {
 
 string LogOperation::to_string() const
@@ -363,7 +365,7 @@ LeafInitEmptyLogEntryHandler::LeafInitEmptyLogEntryHandler(Frame *frame)
 RC LeafInitEmptyLogEntryHandler::redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler)
 {
   LeafIndexNodeHandler leaf_handler(mtr, tree_handler.file_header(), frame());
-  RC rc = leaf_handler.init_empty();
+  RC                   rc = leaf_handler.init_empty();
   return rc;
 }
 
@@ -494,7 +496,7 @@ RC InternalCreateNewRootLogEntryHandler::deserialize(
 RC InternalCreateNewRootLogEntryHandler::redo(BplusTreeMiniTransaction &mtr, BplusTreeHandler &tree_handler)
 {
   InternalIndexNodeHandler internal_handler(mtr, tree_handler.file_header(), frame());
-  RC rc = internal_handler.create_new_root(first_page_num_, key_.data(), page_num_);
+  RC                       rc = internal_handler.create_new_root(first_page_num_, key_.data(), page_num_);
   return rc;
 }
 
@@ -606,3 +608,4 @@ RC UpdateRootPageLogEntryHandler::redo(BplusTreeMiniTransaction &mtr, BplusTreeH
 }
 
 }  // namespace bplus_tree
+}  // namespace oceanbase

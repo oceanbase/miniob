@@ -31,6 +31,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/trx_begin_stmt.h"
 #include "sql/stmt/trx_end_stmt.h"
 
+namespace oceanbase {
+
 bool stmt_type_ddl(StmtType type)
 {
   switch (type) {
@@ -76,7 +78,7 @@ RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
       return DescTableStmt::create(db, sql_node.desc_table, stmt);
     }
 
-    case SCF_ANALYZE_TABLE: { 
+    case SCF_ANALYZE_TABLE: {
       return AnalyzeTableStmt::create(db, sql_node.analyze_table, stmt);
     }
 
@@ -119,3 +121,4 @@ RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
   }
   return RC::UNIMPLEMENTED;
 }
+}  // namespace oceanbase

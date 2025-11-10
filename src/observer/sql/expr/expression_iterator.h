@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/functional.h"
 #include "common/lang/memory.h"
 
+namespace oceanbase {
+
 class Expression;
 
 class ExpressionIterator
@@ -25,3 +27,4 @@ class ExpressionIterator
 public:
   static RC iterate_child_expr(Expression &expr, function<RC(unique_ptr<Expression> &)> callback);
 };
+}  // namespace oceanbase

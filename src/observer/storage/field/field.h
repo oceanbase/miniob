@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/field/field_meta.h"
 #include "storage/table/table.h"
 
+namespace oceanbase {
+
 /**
  * @brief 字段
  *
@@ -48,3 +50,4 @@ private:
   const Table     *table_ = nullptr;
   const FieldMeta *field_ = nullptr;
 };
+}  // namespace oceanbase

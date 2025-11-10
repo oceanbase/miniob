@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/unordered_map.h"
 #include "sql/optimizer/cascade/property_set.h"
 
+namespace oceanbase {
+
 class GroupExpr;
 class Memo;
 /**
@@ -111,3 +113,4 @@ private:
 
   unique_ptr<LogicalProperty> logical_prop_ = nullptr;
 };
+}  // namespace oceanbase

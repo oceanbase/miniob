@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "net/plain_communicator.h"
 
+namespace oceanbase {
+
 /**
  * @brief 用于命令行模式的通讯器
  * @ingroup Communicator
@@ -39,3 +41,4 @@ private:
 
   int write_fd_ = -1;  ///< 与使用远程通讯模式不同，如果读数据使用标准输入，那么输出应该是标准输出
 };
+}  // namespace oceanbase

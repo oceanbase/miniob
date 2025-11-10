@@ -21,6 +21,8 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
+namespace oceanbase {
+
 GroupByPhysicalOperator::GroupByPhysicalOperator(vector<Expression *> &&expressions)
 {
   aggregate_expressions_ = std::move(expressions);
@@ -102,3 +104,4 @@ RC GroupByPhysicalOperator::evaluate(GroupValueType &group_value)
 
   return rc;
 }
+}  // namespace oceanbase

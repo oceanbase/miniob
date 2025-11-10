@@ -13,6 +13,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/tasks/cascade_task.h"
 #include "sql/optimizer/cascade/group.h"
 
+namespace oceanbase {
+
 /**
  * @brief: OptimizeGroup, find the best plan for a group
  */
@@ -28,3 +30,4 @@ public:
 private:
   Group *group_;
 };
+}  // namespace oceanbase

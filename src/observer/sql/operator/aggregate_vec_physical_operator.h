@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/physical_operator.h"
 
+namespace oceanbase {
+
 /**
  * @brief 聚合物理算子 (Vectorized)
  * @ingroup PhysicalOperator
@@ -66,3 +68,4 @@ private:
   AggregateValues      aggr_values_;
   bool                 outputed_ = false;
 };
+}  // namespace oceanbase

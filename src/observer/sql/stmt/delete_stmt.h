@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse_defs.h"
 #include "sql/stmt/stmt.h"
 
+namespace oceanbase {
+
 class Table;
 class FilterStmt;
 
@@ -42,3 +44,4 @@ private:
   Table      *table_       = nullptr;
   FilterStmt *filter_stmt_ = nullptr;
 };
+}  // namespace oceanbase

@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/sys/rc.h"
 
+namespace oceanbase {
+
 class SQLStageEvent;
 class RecordScanner;
 
@@ -30,3 +32,4 @@ public:
 private:
   RecordScanner *scanner_ = nullptr;
 };
+}  // namespace oceanbase

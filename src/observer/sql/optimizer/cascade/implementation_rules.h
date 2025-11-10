@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/cascade/rules.h"
 
+namespace oceanbase {
+
 /**
  * Rule transforms Logical Scan -> Physical Scan
  */
@@ -126,3 +128,4 @@ public:
 //                          std::vector<std::unique_ptr<OperatorNode>> *transformed,
 //                          OptimizerContext *context) const override;
 // };
+}  // namespace oceanbase

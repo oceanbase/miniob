@@ -15,6 +15,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "sql/optimizer/cascade/property.h"
 #include "sql/optimizer/cascade/cost_model.h"
+
+namespace oceanbase {
+
 /**
  * @brief Operator type(including logical and physical)
  */
@@ -142,3 +145,4 @@ protected:
   // cascade optimizer 中使用，为了logical/physical operator 可以统一在 cascade 中迭代
   vector<OperatorNode *> general_children_;
 };
+}  // namespace oceanbase

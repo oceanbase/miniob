@@ -10,6 +10,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/expr/expression.h"
 #include "common/type/attr_type.h"
+
+namespace oceanbase {
+
 template <class T>
 class SumState
 {
@@ -66,3 +69,4 @@ RC aggregate_state_update_by_value(void *state, AggregateExpr::Type aggr_type, A
 RC aggregate_state_update_by_column(void *state, AggregateExpr::Type aggr_type, AttrType attr_type, Column &col);
 
 RC finialize_aggregate_state(void *state, AggregateExpr::Type aggr_type, AttrType attr_type, Column &col);
+}  // namespace oceanbase

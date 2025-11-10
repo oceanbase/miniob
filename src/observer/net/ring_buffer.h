@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "common/lang/vector.h"
 
+namespace oceanbase {
+
 /**
  * @brief 环形缓存，当前用于通讯写入数据时的缓存
  * @ingroup Communicator
@@ -93,3 +95,4 @@ private:
   int32_t      data_size_ = 0;  ///< 已经写入的数据量
   int32_t      write_pos_ = 0;  ///< 当前写指针的位置，范围不会超出[0, capacity)
 };
+}  // namespace oceanbase

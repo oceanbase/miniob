@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/disk_buffer_pool.h"
 #include "storage/buffer/frame.h"
 
+namespace oceanbase {
+
 LatchMemoItem::LatchMemoItem(LatchMemoType type, Frame *frame)
 {
   this->type  = type;
@@ -158,3 +160,4 @@ void LatchMemo::release_to(int point)
   }
   items_.erase(items_.begin(), iter);
 }
+}  // namespace oceanbase

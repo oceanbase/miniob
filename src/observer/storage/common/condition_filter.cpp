@@ -22,6 +22,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 ConditionFilter::~ConditionFilter() {}
 
 DefaultConditionFilter::DefaultConditionFilter()
@@ -211,3 +213,4 @@ bool CompositeConditionFilter::filter(const Record &rec) const
   }
   return true;
 }
+}  // namespace oceanbase

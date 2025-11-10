@@ -26,11 +26,14 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
+namespace oceanbase {
+
 DefaultHandler::DefaultHandler() {}
 
 DefaultHandler::~DefaultHandler() noexcept { destroy(); }
 
-RC DefaultHandler::init(const char *base_dir, const char *trx_kit_name, const char *log_handler_name, const char *storage_engine)
+RC DefaultHandler::init(
+    const char *base_dir, const char *trx_kit_name, const char *log_handler_name, const char *storage_engine)
 {
   // 检查目录是否存在，或者创建
   filesystem::path db_dir(base_dir);
@@ -41,11 +44,11 @@ RC DefaultHandler::init(const char *base_dir, const char *trx_kit_name, const ch
     return RC::INTERNAL;
   }
 
-  base_dir_ = base_dir;
-  db_dir_   = db_dir;
-  trx_kit_name_ = trx_kit_name;
+  base_dir_         = base_dir;
+  db_dir_           = db_dir;
+  trx_kit_name_     = trx_kit_name;
   log_handler_name_ = log_handler_name;
-  storage_engine_ = storage_engine;
+  storage_engine_   = storage_engine;
 
   const char *sys_db = "sys";
 
@@ -121,7 +124,9 @@ RC DefaultHandler::open_db(const char *dbname)
   // open db
   Db *db  = new Db();
   RC  ret = RC::SUCCESS;
-  if ((ret = db->init(dbname, dbpath.c_str(), trx_kit_name_.c_str(), log_handler_name_.c_str(), storage_engine_.c_str())) != RC::SUCCESS) {
+  if ((ret = db->init(
+           dbname, dbpath.c_str(), trx_kit_name_.c_str(), log_handler_name_.c_str(), storage_engine_.c_str())) !=
+      RC::SUCCESS) {
     LOG_ERROR("Failed to open db: %s. error=%s", dbname, strrc(ret));
     delete db;
   } else {
@@ -180,3 +185,4 @@ RC DefaultHandler::sync()
   }
   return rc;
 }
+}  // namespace oceanbase

@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/disk_log_handler.h"
 #include "storage/clog/vacuous_log_handler.h"
 
+namespace oceanbase {
+
 RC LogHandler::append(LSN &lsn, LogModule::Id module, span<const char> data)
 {
   vector<char> data_vec(data.begin(), data.end());
@@ -45,3 +47,4 @@ RC LogHandler::create(const char *name, LogHandler *&log_handler)
   }
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

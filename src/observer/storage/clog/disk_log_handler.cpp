@@ -23,6 +23,8 @@ using namespace common;
 ////////////////////////////////////////////////////////////////////////////////
 // LogHandler
 
+namespace oceanbase {
+
 RC DiskLogHandler::init(const char *path)
 {
   const int max_entry_number_per_file = 1000;
@@ -75,7 +77,7 @@ RC DiskLogHandler::await_termination()
 
 RC DiskLogHandler::replay(LogReplayer &replayer, LSN start_lsn)
 {
-  LSN max_lsn = 0;
+  LSN  max_lsn         = 0;
   auto replay_callback = [&replayer, &max_lsn](LogEntry &entry) -> RC {
     if (entry.lsn() > max_lsn) {
       max_lsn = entry.lsn();
@@ -99,10 +101,10 @@ RC DiskLogHandler::replay(LogReplayer &replayer, LSN start_lsn)
   return rc;
 }
 
-RC DiskLogHandler::iterate(function<RC(LogEntry&)> consumer, LSN start_lsn)
+RC DiskLogHandler::iterate(function<RC(LogEntry &)> consumer, LSN start_lsn)
 {
   vector<string> log_files;
-  RC rc = file_manager_.list_files(log_files, start_lsn);
+  RC             rc = file_manager_.list_files(log_files, start_lsn);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to list clog files. rc=%s", strrc(rc));
     return rc;
@@ -172,7 +174,7 @@ void DiskLogHandler::thread_func()
   LOG_INFO("log handler thread started");
 
   LogFileWriter file_writer;
-  
+
   RC rc = RC::SUCCESS;
   while (running_.load() || entry_buffer_.entry_number() > 0) {
     if (!file_writer.valid() || rc == RC::LOG_FILE_FULL) {
@@ -193,7 +195,7 @@ void DiskLogHandler::thread_func()
     }
 
     int flush_count = 0;
-    rc = entry_buffer_.flush(file_writer, flush_count);
+    rc              = entry_buffer_.flush(file_writer, flush_count);
     if (OB_FAIL(rc) && RC::LOG_FILE_FULL != rc) {
       LOG_WARN("failed to flush log entry buffer. rc=%s", strrc(rc));
     }
@@ -206,3 +208,4 @@ void DiskLogHandler::thread_func()
 
   LOG_INFO("log handler thread stopped");
 }
+}  // namespace oceanbase

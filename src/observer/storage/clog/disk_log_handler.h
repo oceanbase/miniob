@@ -25,6 +25,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_buffer.h"
 #include "storage/clog/log_handler.h"
 
+namespace oceanbase {
+
 class LogReplayer;
 
 /**
@@ -127,3 +129,4 @@ private:
 
   string path_;  /// 日志文件存放的目录
 };
+}  // namespace oceanbase

@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/cascade/property.h"
 
+namespace oceanbase {
+
 class PropertySet;
 struct PropSetPtrHash
 {
@@ -41,3 +43,4 @@ public:
 private:
   std::vector<Property *> properties_;
 };
+}  // namespace oceanbase

@@ -28,27 +28,30 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/scalar_group_by_physical_operator.h"
 #include "sql/operator/hash_group_by_physical_operator.h"
 
+namespace oceanbase {
+
 // -------------------------------------------------------------------------------------------------
 // PhysicalSeqScan
 // -------------------------------------------------------------------------------------------------
-LogicalGetToPhysicalSeqScan::LogicalGetToPhysicalSeqScan() {
-  type_ = RuleType::GET_TO_SEQ_SCAN;
+LogicalGetToPhysicalSeqScan::LogicalGetToPhysicalSeqScan()
+{
+  type_          = RuleType::GET_TO_SEQ_SCAN;
   match_pattern_ = unique_ptr<Pattern>(new Pattern(OpType::LOGICALGET));
 }
 
-void LogicalGetToPhysicalSeqScan::transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const {
-  TableGetLogicalOperator* table_get_oper = dynamic_cast<TableGetLogicalOperator*>(input);
+void LogicalGetToPhysicalSeqScan::transform(
+    OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed, OptimizerContext *context) const
+{
+  TableGetLogicalOperator *table_get_oper = dynamic_cast<TableGetLogicalOperator *>(input);
 
   vector<unique_ptr<Expression>> &log_preds = table_get_oper->predicates();
-  vector<unique_ptr<Expression>> phys_preds;
+  vector<unique_ptr<Expression>>  phys_preds;
   for (auto &pred : log_preds) {
     phys_preds.push_back(pred->copy());
   }
 
-  Table *table = table_get_oper->table();
-  auto table_scan_oper = new TableScanPhysicalOperator(table, table_get_oper->read_write_mode());
+  Table *table           = table_get_oper->table();
+  auto   table_scan_oper = new TableScanPhysicalOperator(table, table_get_oper->read_write_mode());
   table_scan_oper->set_predicates(std::move(phys_preds));
   auto oper = unique_ptr<OperatorNode>(table_scan_oper);
 
@@ -58,18 +61,19 @@ void LogicalGetToPhysicalSeqScan::transform(OperatorNode* input,
 // -------------------------------------------------------------------------------------------------
 //  LogicalProjectionToProjection
 // -------------------------------------------------------------------------------------------------
-LogicalProjectionToProjection::LogicalProjectionToProjection() {
-  type_ = RuleType::PROJECTION_TO_PHYSOCAL;
+LogicalProjectionToProjection::LogicalProjectionToProjection()
+{
+  type_          = RuleType::PROJECTION_TO_PHYSOCAL;
   match_pattern_ = unique_ptr<Pattern>(new Pattern(OpType::LOGICALPROJECTION));
-  auto child = new Pattern(OpType::LEAF);
+  auto child     = new Pattern(OpType::LEAF);
   match_pattern_->add_child(child);
 }
 
-void LogicalProjectionToProjection::transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const {
-  auto project_oper = dynamic_cast<ProjectLogicalOperator*>(input);
-  vector<unique_ptr<LogicalOperator>> &child_opers = project_oper->children();
+void LogicalProjectionToProjection::transform(
+    OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed, OptimizerContext *context) const
+{
+  auto                                 project_oper = dynamic_cast<ProjectLogicalOperator *>(input);
+  vector<unique_ptr<LogicalOperator>> &child_opers  = project_oper->children();
   ASSERT(child_opers.size() == 1, "only one child is supported for now");
 
   unique_ptr<PhysicalOperator> child_phy_oper;
@@ -85,20 +89,20 @@ void LogicalProjectionToProjection::transform(OperatorNode* input,
 // -------------------------------------------------------------------------------------------------
 // PhysicalInsert
 // -------------------------------------------------------------------------------------------------
-LogicalInsertToInsert::LogicalInsertToInsert() {
-  type_ = RuleType::INSERT_TO_PHYSICAL;
+LogicalInsertToInsert::LogicalInsertToInsert()
+{
+  type_          = RuleType::INSERT_TO_PHYSICAL;
   match_pattern_ = unique_ptr<Pattern>(new Pattern(OpType::LOGICALINSERT));
 }
 
+void LogicalInsertToInsert::transform(
+    OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed, OptimizerContext *context) const
+{
+  InsertLogicalOperator *insert_oper = dynamic_cast<InsertLogicalOperator *>(input);
 
-void LogicalInsertToInsert::transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const {
-  InsertLogicalOperator* insert_oper = dynamic_cast<InsertLogicalOperator*>(input);
-
-  Table                  *table           = insert_oper->table();
-  vector<Value>          &values          = insert_oper->values();
-  auto insert_phy_oper = make_unique<InsertPhysicalOperator>(table, std::move(values));
+  Table         *table           = insert_oper->table();
+  vector<Value> &values          = insert_oper->values();
+  auto           insert_phy_oper = make_unique<InsertPhysicalOperator>(table, std::move(values));
 
   transformed->emplace_back(std::move(insert_phy_oper));
 }
@@ -108,17 +112,16 @@ void LogicalInsertToInsert::transform(OperatorNode* input,
 // -------------------------------------------------------------------------------------------------
 LogicalExplainToExplain::LogicalExplainToExplain()
 {
-  type_ = RuleType::EXPLAIN_TO_PHYSICAL;
+  type_          = RuleType::EXPLAIN_TO_PHYSICAL;
   match_pattern_ = unique_ptr<Pattern>(new Pattern(OpType::LOGICALEXPLAIN));
-  auto child = new Pattern(OpType::LEAF);
+  auto child     = new Pattern(OpType::LEAF);
   match_pattern_->add_child(child);
 }
 
-void LogicalExplainToExplain::transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const
+void LogicalExplainToExplain::transform(
+    OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed, OptimizerContext *context) const
 {
-  auto explain_oper = dynamic_cast<ExplainLogicalOperator*>(input);
+  auto                         explain_oper = dynamic_cast<ExplainLogicalOperator *>(input);
   unique_ptr<PhysicalOperator> explain_physical_oper(new ExplainPhysicalOperator());
   for (auto &child : explain_oper->children()) {
     explain_physical_oper->add_general_child(child.get());
@@ -132,15 +135,14 @@ void LogicalExplainToExplain::transform(OperatorNode* input,
 // -------------------------------------------------------------------------------------------------
 LogicalCalcToCalc::LogicalCalcToCalc()
 {
-  type_ = RuleType::CALC_TO_PHYSICAL;
+  type_          = RuleType::CALC_TO_PHYSICAL;
   match_pattern_ = unique_ptr<Pattern>(new Pattern(OpType::LOGICALCALCULATE));
 }
 
-void LogicalCalcToCalc::transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const
+void LogicalCalcToCalc::transform(
+    OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed, OptimizerContext *context) const
 {
-  auto calc_oper = dynamic_cast<CalcLogicalOperator*>(input);
+  auto                             calc_oper = dynamic_cast<CalcLogicalOperator *>(input);
   unique_ptr<CalcPhysicalOperator> calc_phys_oper(new CalcPhysicalOperator(std::move(calc_oper->expressions())));
 
   transformed->emplace_back(std::move(calc_phys_oper));
@@ -151,17 +153,16 @@ void LogicalCalcToCalc::transform(OperatorNode* input,
 // -------------------------------------------------------------------------------------------------
 LogicalDeleteToDelete::LogicalDeleteToDelete()
 {
-  type_ = RuleType::DELETE_TO_PHYSICAL;
+  type_          = RuleType::DELETE_TO_PHYSICAL;
   match_pattern_ = unique_ptr<Pattern>(new Pattern(OpType::LOGICALDELETE));
-  auto child = new Pattern(OpType::LEAF);
+  auto child     = new Pattern(OpType::LEAF);
   match_pattern_->add_child(child);
 }
 
-void LogicalDeleteToDelete::transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const
+void LogicalDeleteToDelete::transform(
+    OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed, OptimizerContext *context) const
 {
-  auto delete_oper = dynamic_cast<DeleteLogicalOperator*>(input);
+  auto delete_oper = dynamic_cast<DeleteLogicalOperator *>(input);
 
   auto delete_phys_oper = unique_ptr<PhysicalOperator>(new DeletePhysicalOperator(delete_oper->table()));
   for (auto &child : delete_oper->children()) {
@@ -176,23 +177,23 @@ void LogicalDeleteToDelete::transform(OperatorNode* input,
 // -------------------------------------------------------------------------------------------------
 LogicalPredicateToPredicate::LogicalPredicateToPredicate()
 {
-  type_ = RuleType::PREDICATE_TO_PHYSICAL;
+  type_          = RuleType::PREDICATE_TO_PHYSICAL;
   match_pattern_ = unique_ptr<Pattern>(new Pattern(OpType::LOGICALFILTER));
-  auto child = new Pattern(OpType::LEAF);
+  auto child     = new Pattern(OpType::LEAF);
   match_pattern_->add_child(child);
 }
 
-void LogicalPredicateToPredicate::transform(OperatorNode* input,
-                         std::vector<std::unique_ptr<OperatorNode>> *transformed,
-                         OptimizerContext *context) const
+void LogicalPredicateToPredicate::transform(
+    OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed, OptimizerContext *context) const
 {
-  auto predicate_oper = dynamic_cast<PredicateLogicalOperator*>(input);
+  auto predicate_oper = dynamic_cast<PredicateLogicalOperator *>(input);
 
   vector<unique_ptr<Expression>> &expressions = predicate_oper->expressions();
   ASSERT(expressions.size() == 1, "predicate logical operator's children should be 1");
 
-  unique_ptr<Expression> expression = std::move(expressions.front());
-  unique_ptr<PhysicalOperator> oper = unique_ptr<PhysicalOperator>(new PredicatePhysicalOperator(std::move(expression)));
+  unique_ptr<Expression>       expression = std::move(expressions.front());
+  unique_ptr<PhysicalOperator> oper =
+      unique_ptr<PhysicalOperator>(new PredicatePhysicalOperator(std::move(expression)));
   for (auto &child : predicate_oper->children()) {
     oper->add_general_child(child.get());
   }
@@ -209,7 +210,6 @@ void LogicalPredicateToPredicate::transform(OperatorNode* input,
 //   auto child = new Pattern(OpType::LEAF);
 //   match_pattern_->add_child(child);
 // }
-
 
 // void LogicalGroupByToAggregation::transform(OperatorNode* input,
 //                          std::vector<std::unique_ptr<OperatorNode>> *transformed,
@@ -230,7 +230,6 @@ void LogicalPredicateToPredicate::transform(OperatorNode* input,
 //   transformed->emplace_back(std::move(groupby_phys_oper));
 // }
 
-
 // -------------------------------------------------------------------------------------------------
 // Physical Hash Group By
 // -------------------------------------------------------------------------------------------------
@@ -241,7 +240,6 @@ void LogicalPredicateToPredicate::transform(OperatorNode* input,
 //   auto child = new Pattern(OpType::LEAF);
 //   match_pattern_->add_child(child);
 // }
-
 
 // void LogicalGroupByToHashGroupBy::transform(OperatorNode* input,
 //                          std::vector<std::unique_ptr<OperatorNode>> *transformed,
@@ -262,3 +260,4 @@ void LogicalPredicateToPredicate::transform(OperatorNode* input,
 
 //   transformed->emplace_back(std::move(groupby_phys_oper));
 // }
+}  // namespace oceanbase

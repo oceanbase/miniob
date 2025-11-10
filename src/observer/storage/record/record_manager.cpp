@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 static constexpr int PAGE_HEADER_SIZE = (sizeof(PageHeader));
 RecordPageHandler   *RecordPageHandler::create(StorageFormat format)
 {
@@ -799,3 +801,4 @@ RC ChunkFileScanner::next_chunk(Chunk &chunk)
   record_page_handler_->cleanup();
   return RC::RECORD_EOF;
 }
+}  // namespace oceanbase

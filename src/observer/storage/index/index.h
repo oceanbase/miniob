@@ -22,6 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/index_meta.h"
 #include "storage/record/record_manager.h"
 
+namespace oceanbase {
+
 class IndexScanner;
 
 /**
@@ -113,3 +115,4 @@ public:
   virtual RC next_entry(RID *rid) = 0;
   virtual RC destroy()            = 0;
 };
+}  // namespace oceanbase

@@ -22,6 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/span.h"
 #include "common/lang/functional.h"
 
+namespace oceanbase {
+
 struct RID;
 class Record;
 class DiskBufferPool;
@@ -140,3 +142,4 @@ private:
   unique_ptr<TableEngine> engine_      = nullptr;
   LobFileHandler         *lob_handler_ = nullptr;
 };
+}  // namespace oceanbase

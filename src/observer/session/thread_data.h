@@ -14,6 +14,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+namespace oceanbase {
+
 class Trx;
 class Session;
 
@@ -38,3 +40,4 @@ private:
 private:
   Session *session_ = nullptr;
 };
+}  // namespace oceanbase

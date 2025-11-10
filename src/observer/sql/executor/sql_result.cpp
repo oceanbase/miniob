@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "storage/trx/trx.h"
 
+namespace oceanbase {
+
 SqlResult::SqlResult(Session *session) : session_(session) {}
 
 void SqlResult::set_tuple_schema(const TupleSchema &schema) { tuple_schema_ = schema; }
@@ -82,3 +84,4 @@ void SqlResult::set_operator(unique_ptr<PhysicalOperator> oper)
   operator_ = std::move(oper);
   operator_->tuple_schema(tuple_schema_);
 }
+}  // namespace oceanbase

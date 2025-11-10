@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/group_expr.h"
 #include "sql/optimizer/cascade/group.h"
 
+namespace oceanbase {
+
 const int UNDEFINED_GROUP = -1;
 
 /**
@@ -91,3 +93,4 @@ private:
   // shared_ptr 更加合适，但是改动比较大，先暂时不改了。
   std::unordered_map<OperatorNode *, unique_ptr<OperatorNode>> operator_nodes_;
 };
+}  // namespace oceanbase

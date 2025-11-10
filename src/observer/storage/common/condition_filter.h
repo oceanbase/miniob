@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/parser/parse.h"
 
+namespace oceanbase {
+
 class Record;
 class Table;
 
@@ -88,3 +90,4 @@ private:
   int                     filter_num_   = 0;
   bool                    memory_owner_ = false;  // filters_的内存是否由自己来控制
 };
+}  // namespace oceanbase

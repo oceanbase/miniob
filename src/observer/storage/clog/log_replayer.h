@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/sys/rc.h"
 
+namespace oceanbase {
+
 class LogEntry;
 
 /**
@@ -40,3 +42,4 @@ public:
    */
   virtual RC on_done() { return RC::SUCCESS; }
 };
+}  // namespace oceanbase

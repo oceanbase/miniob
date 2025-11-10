@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "sql/parser/parse_defs.h"
 
+namespace oceanbase {
+
 class Db;
 
 /**
@@ -92,3 +94,4 @@ public:
 
 private:
 };
+}  // namespace oceanbase

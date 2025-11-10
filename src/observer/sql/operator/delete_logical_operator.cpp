@@ -14,4 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/delete_logical_operator.h"
 
+namespace oceanbase {
+
 DeleteLogicalOperator::DeleteLogicalOperator(Table *table) : table_(table) {}
+}  // namespace oceanbase

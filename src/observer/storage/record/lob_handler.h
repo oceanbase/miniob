@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/types.h"
 #include "storage/persist/persist.h"
 
+namespace oceanbase {
+
 /**
  * @brief 管理LOB文件中的 LOB 对象
  * @ingroup RecordManager
@@ -39,3 +41,4 @@ public:
 private:
   PersistHandler file_;
 };
+}  // namespace oceanbase

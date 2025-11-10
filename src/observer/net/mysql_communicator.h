@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "net/communicator.h"
 #include "common/lang/string.h"
 
+namespace oceanbase {
+
 class SqlResult;
 class BasePacket;
 
@@ -105,3 +107,4 @@ private:
   //! 这个sequence id是递增的
   int8_t sequence_id_ = 0;
 };
+}  // namespace oceanbase

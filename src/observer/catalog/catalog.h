@@ -13,6 +13,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/mutex.h"
 #include "catalog/table_stats.h"
 
+namespace oceanbase {
+
 /**
  * @class Catalog
  * @brief Store metadata, such as table statistics.
@@ -72,3 +74,4 @@ private:
    */
   unordered_map<int, TableStats> table_stats_;  ///< Table statistics storage.
 };
+}  // namespace oceanbase

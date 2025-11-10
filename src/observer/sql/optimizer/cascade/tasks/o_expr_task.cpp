@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include <algorithm>
 
+namespace oceanbase {
+
 void OptimizeExpression::perform()
 {
   std::vector<RuleWithPromise> valid_rules;
@@ -59,3 +61,4 @@ void OptimizeExpression::perform()
     }
   }
 }
+}  // namespace oceanbase

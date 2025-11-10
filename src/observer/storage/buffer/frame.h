@@ -25,6 +25,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/types.h"
 #include "storage/buffer/page.h"
 
+namespace oceanbase {
+
 /**
  * @brief 页帧标识符
  * @ingroup BufferPool
@@ -187,3 +189,4 @@ private:
   int                          write_recursive_count_ = 0;
   unordered_map<intptr_t, int> read_lockers_;
 };
+}  // namespace oceanbase

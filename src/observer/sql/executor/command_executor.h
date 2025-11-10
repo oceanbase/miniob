@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/sys/rc.h"
 
+namespace oceanbase {
+
 class SQLStageEvent;
 
 /**
@@ -35,3 +37,4 @@ public:
 
   RC execute(SQLStageEvent *sql_event);
 };
+}  // namespace oceanbase

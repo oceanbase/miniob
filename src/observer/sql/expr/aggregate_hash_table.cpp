@@ -13,15 +13,17 @@ See the Mulan PSL v2 for more details. */
 
 // ----------------------------------StandardAggregateHashTable------------------
 
+namespace oceanbase {
+
 RC StandardAggregateHashTable::add_chunk(Chunk &groups_chunk, Chunk &aggrs_chunk)
 {
-    if (groups_chunk.rows() != aggrs_chunk.rows()) {
+  if (groups_chunk.rows() != aggrs_chunk.rows()) {
     LOG_WARN("groups_chunk and aggrs_chunk have different rows: %d, %d", groups_chunk.rows(), aggrs_chunk.rows());
     return RC::INVALID_ARGUMENT;
   }
   for (int i = 0; i < groups_chunk.rows(); i++) {
-    vector<Value> group_by_values;
-    vector<void*> aggr_values;
+    vector<Value>  group_by_values;
+    vector<void *> aggr_values;
 
     for (int j = 0; j < groups_chunk.column_num(); j++) {
       group_by_values.emplace_back(groups_chunk.get_value(j, i));
@@ -30,18 +32,19 @@ RC StandardAggregateHashTable::add_chunk(Chunk &groups_chunk, Chunk &aggrs_chunk
     auto it = aggr_values_.find(group_by_values);
     if (it == aggr_values_.end()) {
       for (size_t j = 0; j < aggr_types_.size(); j++) {
-        void * state_ptr = create_aggregate_state(aggr_types_[j], aggr_child_types_[j]);
+        void *state_ptr = create_aggregate_state(aggr_types_[j], aggr_child_types_[j]);
         if (state_ptr == nullptr) {
           LOG_WARN("create aggregate state failed");
           return RC::INTERNAL;
-        }   
+        }
         aggr_values.emplace_back(state_ptr);
       }
       aggr_values_.emplace(group_by_values, aggr_values);
     }
     auto &aggr = aggr_values_.find(group_by_values)->second;
     for (size_t aggr_idx = 0; aggr_idx < aggr.size(); aggr_idx++) {
-      RC rc = aggregate_state_update_by_value(aggr[aggr_idx], aggr_types_[aggr_idx], aggr_child_types_[aggr_idx], aggrs_chunk.get_value(aggr_idx, i));
+      RC rc = aggregate_state_update_by_value(
+          aggr[aggr_idx], aggr_types_[aggr_idx], aggr_child_types_[aggr_idx], aggrs_chunk.get_value(aggr_idx, i));
       if (rc != RC::SUCCESS) {
         LOG_WARN("update aggregate state failed");
         return rc;
@@ -70,8 +73,10 @@ RC StandardAggregateHashTable::Scanner::next(Chunk &output_chunk)
       auto col_idx = output_chunk.column_ids(i);
       if (col_idx >= static_cast<int>(group_by_values.size())) {
         int aggr_real_idx = col_idx - group_by_values.size();
-        rc = finialize_aggregate_state(aggrs[aggr_real_idx], hash_table_->aggr_types_[aggr_real_idx],
-                                       hash_table_->aggr_child_types_[aggr_real_idx], output_chunk.column(i));
+        rc                = finialize_aggregate_state(aggrs[aggr_real_idx],
+            hash_table_->aggr_types_[aggr_real_idx],
+            hash_table_->aggr_child_types_[aggr_real_idx],
+            output_chunk.column(i));
         if (rc != RC::SUCCESS) {
           LOG_WARN("finialize aggregate state failed");
           return rc;
@@ -265,16 +270,18 @@ void LinearProbingAggregateHashTable<V>::add_batch(int *input_keys, V *input_val
   // off 全部初始化为 0
 
   // for (; i + SIMD_WIDTH <= len;) {
-    // 1: 根据 `inv` 变量的值，从 `input_keys` 中 `selective load` `SIMD_WIDTH` 个不同的输入键值对。
-    // 2. 计算 i += |inv|, `|inv|` 表示 `inv` 中有效的个数 
-    // 3. 计算 hash 值，
-    // 4. 根据聚合类型（目前只支持 sum），在哈希表中更新聚合结果。如果本次循环，没有找到key[i] 在哈希表中的位置，则不更新聚合结果。
-    // 5. gather 操作，根据 hash 值将 keys_ 的 gather 结果写入 table_key 中。
-    // 6. 更新 inv 和 off。如果本次循环key[i] 聚合完成，则inv[i]=-1，表示该位置在下次循环中读取新的键值对。
-    // 如果本次循环 key[i] 未在哈希表中聚合完成（table_key[i] != key[i]），则inv[i] = 0，表示该位置在下次循环中不需要读取新的键值对。
-    // 如果本次循环中，key[i]聚合完成，则off[i] 更新为 0，表示线性探测偏移量为 0，key[i] 未完成聚合，则off[i]++,表示线性探测偏移量加 1。
+  // 1: 根据 `inv` 变量的值，从 `input_keys` 中 `selective load` `SIMD_WIDTH` 个不同的输入键值对。
+  // 2. 计算 i += |inv|, `|inv|` 表示 `inv` 中有效的个数
+  // 3. 计算 hash 值，
+  // 4. 根据聚合类型（目前只支持 sum），在哈希表中更新聚合结果。如果本次循环，没有找到key[i]
+  // 在哈希表中的位置，则不更新聚合结果。
+  // 5. gather 操作，根据 hash 值将 keys_ 的 gather 结果写入 table_key 中。
+  // 6. 更新 inv 和 off。如果本次循环key[i] 聚合完成，则inv[i]=-1，表示该位置在下次循环中读取新的键值对。
+  // 如果本次循环 key[i] 未在哈希表中聚合完成（table_key[i] != key[i]），则inv[i] =
+  // 0，表示该位置在下次循环中不需要读取新的键值对。 如果本次循环中，key[i]聚合完成，则off[i] 更新为
+  // 0，表示线性探测偏移量为 0，key[i] 未完成聚合，则off[i]++,表示线性探测偏移量加 1。
   // }
-  //7. 通过标量线性探测，处理剩余键值对
+  // 7. 通过标量线性探测，处理剩余键值对
 
   // resize_if_need();
 }
@@ -287,3 +294,4 @@ const int LinearProbingAggregateHashTable<V>::DEFAULT_CAPACITY = 16384;
 template class LinearProbingAggregateHashTable<int>;
 template class LinearProbingAggregateHashTable<float>;
 #endif
+}  // namespace oceanbase

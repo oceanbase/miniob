@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "net/server_param.h"
 
+namespace oceanbase {
+
 class Communicator;
 class ThreadHandler;
 
@@ -98,3 +100,4 @@ public:
 private:
   volatile bool started_ = false;
 };
+}  // namespace oceanbase

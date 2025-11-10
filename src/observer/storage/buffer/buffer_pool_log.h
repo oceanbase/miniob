@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "storage/clog/log_replayer.h"
 
+namespace oceanbase {
+
 class DiskBufferPool;
 class BufferPoolManager;
 class LogHandler;
@@ -127,3 +129,4 @@ public:
 private:
   BufferPoolManager &bp_manager_;
 };
+}  // namespace oceanbase
