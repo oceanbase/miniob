@@ -33,7 +33,7 @@ class MiniObClient:
             self.__logger = _logger
 
         self.__server_port = server_port
-        self.__server_socket = server_socket.strip()
+        self.__server_socket = server_socket.strip() if server_socket else ''
         self.__time_limit = time_limit
         self.__socket = None
         self.__buffer_size = 8192
