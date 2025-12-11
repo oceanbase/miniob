@@ -65,10 +65,11 @@ public:
   static int init(const string &log_file);
 
   /**
-   * These functions won't output header information such as __FUNCTION__,
-   * The user should control these information
-   * If the header information should be outputed
-   * please use LOG_PANIC, LOG_ERROR ...
+   * Stream-style logging with default level.
+   * It will emit the standard log header (time/pid/tid/context/function/file/line)
+   * via LOG_HEAD before the message, consistent with LOG_* macros.
+   * If you need to customize or suppress headers, use output/out with your own
+   * prefix handling instead of this operator.
    */
   template <class T>
   Log &operator<<(T message);
