@@ -54,7 +54,7 @@ class MiniObServer:
         self.__check_config(config_file)
         self.__config = config_file
         self.__server_port = server_port
-        self.__server_socket = server_socket.strip()
+        self.__server_socket = server_socket.strip() if server_socket else ''
 
         self.__process = None
         self.__core_path = core_path
