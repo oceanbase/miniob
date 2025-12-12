@@ -133,6 +133,7 @@ score = sum(1 for support_fact in support_facts if support_fact in answer) / len
 - 初始工作流的组件默认未连接，请先完成连线后再运行
 - 在 MiniOB 组件代码中标注有 TODO，请完成 TODO 并正确连接以通过此题
 - 请勿修改如环境变量名等配置项名称以保证测评顺利进行
+- 评测使用的 Python 版本为 3.12.3, 使用的 langflow 分支为 https://github.com/langflow-ai/langflow/tree/61a323d97ded7132c54c97d18e522f69dc6a5fed
 
 ## 参考资料
 
@@ -145,7 +146,7 @@ score = sum(1 for support_fact in support_facts if support_fact in answer) / len
 
 - [LangChain 官方文档](https://python.langchain.com/)
 - [Langflow 官方文档](https://docs.langflow.org/)
-- [Langflow 代码仓库](https://github.com/langflow-ai/langflow)
+- [Langflow 代码仓库](https://github.com/langflow-ai/langflow/tree/61a323d97ded7132c54c97d18e522f69dc6a5fed)
 
 ### 自测模型参考
 
