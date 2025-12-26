@@ -278,36 +278,26 @@ void DebugMutex::unlock()
 ////////////////////////////////////////////////////////////////////////////////
 void Mutex::lock()
 {
-#ifdef CONCURRENCY
   lock_.lock();
   LOG_DEBUG("lock %p, lbt=%s", &lock_, lbt());
-#endif
 }
 
 bool Mutex::try_lock()
 {
-#ifdef CONCURRENCY
   bool result = lock_.try_lock();
   if (result) {
     LOG_DEBUG("try lock success %p, lbt=%s", &lock_, lbt());
   }
   return result;
-#else
-  return true;
-#endif
 }
 
 void Mutex::unlock()
 {
-#ifdef CONCURRENCY
   LOG_DEBUG("unlock %p, lbt=%s", &lock_, lbt());
   lock_.unlock();
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-#ifdef CONCURRENCY
-
 void SharedMutex::lock()
 {
   lock_.lock();
@@ -346,33 +336,7 @@ void SharedMutex::unlock_shared()
   lock_.unlock_shared();
 }
 
-#else  // CONCURRENCY undefined
-
-void SharedMutex::lock() {}
-bool SharedMutex::try_lock() { return true; }
-void SharedMutex::unlock()  // unlock exclusive
-{}
-
-void SharedMutex::lock_shared() {}
-bool SharedMutex::try_lock_shared() { return true; }
-void SharedMutex::unlock_shared() {}
-
-#endif  // CONCURRENCY end
-
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef CONCURRENCY
-void RecursiveSharedMutex::lock_shared() {}
-
-bool RecursiveSharedMutex::try_lock_shared() { return true; }
-
-void RecursiveSharedMutex::unlock_shared() {}
-
-void RecursiveSharedMutex::lock() {}
-
-void RecursiveSharedMutex::unlock() {}
-
-#else   // ifdef CONCURRENCY
-
 void RecursiveSharedMutex::lock_shared()
 {
   unique_lock<mutex> lock(mutex_);
@@ -431,6 +395,5 @@ void RecursiveSharedMutex::unlock()
     }
   }
 }
-#endif  // CONCURRENCY
 
 }  // namespace common
