@@ -77,7 +77,7 @@ jobs:
         path: deps/3rd/usr/local
     - name: BuildDebug
       shell: bash
-      run: bash build.sh debug -DCONCURRENCY=ON -DENABLE_COVERAGE=ON -DWITH_BENCHMARK=ON -DWITH_MEMTRACER=ON -DWITH_UNIT_TESTS=ON --make -j4
+      run: bash build.sh debug -DENABLE_COVERAGE=ON -DWITH_BENCHMARK=ON -DWITH_MEMTRACER=ON -DWITH_UNIT_TESTS=ON --make -j4
 
     - name: Test
       shell: bash
@@ -125,7 +125,7 @@ jobs:
         path: deps/3rd/usr/local
     - name: BuildRelease
       shell: bash
-      run: bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=ON -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF -DWITH_MEMTRACER=ON --make -j4
+      run: bash build.sh release  -DWITH_UNIT_TESTS=ON -DWITH_BENCHMARK=ON -DENABLE_ASAN=OFF -DWITH_MEMTRACER=ON --make -j4
 
     - name: Upload release artifacts
       uses: actions/upload-artifact@v4
@@ -386,4 +386,4 @@ jobs:
         export PATH="/opt/homebrew/opt/bison/bin:$PATH"
         sudo bash build.sh init
         bash build.sh debug -DWITH_MEMTRACER=ON --make -j4
-        bash build.sh release -DCONCURRENCY=ON -DWITH_UNIT_TESTS=OFF -DWITH_BENCHMARK=ON -DWITH_MEMTRACER=ON --make -j4
+        bash build.sh release -DWITH_UNIT_TESTS=OFF -DWITH_BENCHMARK=ON -DWITH_MEMTRACER=ON --make -j4

@@ -275,9 +275,7 @@ public:
   void unlock();
 
 private:
-#ifdef CONCURRENCY
   mutex lock_;
-#endif
 };
 
 class SharedMutex final
@@ -295,16 +293,13 @@ public:
   void unlock_shared();
 
 private:
-#ifdef CONCURRENCY
   shared_mutex lock_;
-#endif
 };
 
 /**
  * 支持写锁递归加锁的读写锁
  * 读锁本身就可以递归加锁。但是某个线程加了读锁后，也不能再加写锁。
  * 但是一个线程可以加多次写锁
- * 与其它类型的锁一样，在CONCURRENCY编译模式下才会真正的生效
  */
 class RecursiveSharedMutex
 {
@@ -320,7 +315,6 @@ public:
   void unlock();
 
 private:
-#ifdef CONCURRENCY
   mutex              mutex_;
   condition_variable shared_lock_cv_;
   condition_variable exclusive_lock_cv_;
@@ -328,7 +322,6 @@ private:
   int                exclusive_lock_count_ = 0;
   thread::id         recursive_owner_;
   int                recursive_count_ = 0;  // 表示当前线程加写锁加了多少次
-#endif                                      // CONCURRENCY
 };
 
 }  // namespace common
