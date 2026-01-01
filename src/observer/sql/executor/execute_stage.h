@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 class SQLStageEvent;
 class SessionEvent;
 class SelectStmt;
+class ShowVariablesSqlNode;
 
 /**
  * @brief 执行SQL语句的Stage，包括DML和DDL
@@ -31,4 +32,7 @@ class ExecuteStage
 public:
   RC handle_request(SQLStageEvent *event);
   RC handle_request_with_physical_operator(SQLStageEvent *sql_event);
+
+private:
+  RC do_show_variables(SessionEvent *session_event, ShowVariablesSqlNode *sql_node);
 };

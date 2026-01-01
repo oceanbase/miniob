@@ -238,6 +238,15 @@ struct SetVariableSqlNode
   Value  value;
 };
 
+/**
+ * @brief 显示变量的值
+ * @ingroup SQLParser
+ */
+struct ShowVariablesSqlNode
+{
+  string pattern; ///< 如果使用了 LIKE '...', 这里存储匹配模式，否则为空
+};
+
 class ParsedSqlNode;
 
 /**
@@ -293,6 +302,7 @@ enum SqlCommandFlag
   SCF_EXIT,
   SCF_EXPLAIN,
   SCF_SET_VARIABLE,  ///< 设置变量
+  SCF_SHOW_VARIABLES,
 };
 /**
  * @brief 表示一个SQL语句
@@ -317,6 +327,7 @@ public:
   LoadDataSqlNode     load_data;
   ExplainSqlNode      explain;
   SetVariableSqlNode  set_variable;
+  ShowVariablesSqlNode show_variables;
 
 public:
   ParsedSqlNode();
