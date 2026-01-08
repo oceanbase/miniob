@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/trx/trx.h"
 
+namespace oceanbase {
+
 /**
  * @brief Vacuous(真空的)，顾名思义就是没有实现事务功能
  */
@@ -64,3 +66,4 @@ public:
 
   RC replay(const LogEntry &) override { return RC::SUCCESS; }
 };
+}  // namespace oceanbase

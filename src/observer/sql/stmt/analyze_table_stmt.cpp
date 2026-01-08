@@ -11,6 +11,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/analyze_table_stmt.h"
 #include "storage/db/db.h"
 
+namespace oceanbase {
+
 RC AnalyzeTableStmt::create(Db *db, const AnalyzeTableSqlNode &analyze_table, Stmt *&stmt)
 {
   if (db->find_table(analyze_table.relation_name.c_str()) == nullptr) {
@@ -19,3 +21,4 @@ RC AnalyzeTableStmt::create(Db *db, const AnalyzeTableSqlNode &analyze_table, St
   stmt = new AnalyzeTableStmt(analyze_table.relation_name);
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

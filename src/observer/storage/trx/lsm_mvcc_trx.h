@@ -16,6 +16,9 @@ See the Mulan PSL v2 for more details. */
 #include "oblsm/include/ob_lsm_transaction.h"
 
 using namespace oceanbase;
+
+namespace oceanbase {
+
 /**
  * @brief lsm-tree 存储引擎对应的事务管理器
  */
@@ -78,3 +81,4 @@ public:
 
   RC replay(const LogEntry &) override { return RC::SUCCESS; }
 };
+}  // namespace oceanbase

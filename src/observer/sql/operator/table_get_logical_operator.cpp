@@ -16,18 +16,18 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/property.h"
 #include "catalog/catalog.h"
 
+namespace oceanbase {
+
 TableGetLogicalOperator::TableGetLogicalOperator(Table *table, ReadWriteMode mode)
     : LogicalOperator(), table_(table), mode_(mode)
 {}
 
-void TableGetLogicalOperator::set_predicates(vector<unique_ptr<Expression>> &&exprs)
-{
-  predicates_ = std::move(exprs);
-}
+void TableGetLogicalOperator::set_predicates(vector<unique_ptr<Expression>> &&exprs) { predicates_ = std::move(exprs); }
 
-unique_ptr<LogicalProperty> TableGetLogicalOperator::find_log_prop(const vector<LogicalProperty*> &log_props)
+unique_ptr<LogicalProperty> TableGetLogicalOperator::find_log_prop(const vector<LogicalProperty *> &log_props)
 {
   int card = Catalog::get_instance().get_table_stats(table_->table_id()).row_nums;
   // TODO: think about predicates.
   return make_unique<LogicalProperty>(card);
 }
+}  // namespace oceanbase

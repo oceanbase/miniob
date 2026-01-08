@@ -21,6 +21,8 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
+namespace oceanbase {
+
 RC CreateIndexStmt::create(Db *db, const CreateIndexSqlNode &create_index, Stmt *&stmt)
 {
   stmt = nullptr;
@@ -56,3 +58,4 @@ RC CreateIndexStmt::create(Db *db, const CreateIndexSqlNode &create_index, Stmt 
   stmt = new CreateIndexStmt(table, field_meta, create_index.index_name);
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/seda/stage_event.h"
 
+namespace oceanbase {
+
 class SQLStageEvent;
 
 class StorageEvent : public common::StageEvent
@@ -30,3 +32,4 @@ public:
 private:
   SQLStageEvent *sql_event_;
 };
+}  // namespace oceanbase

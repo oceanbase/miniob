@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/rewrite_rule.h"
 
+namespace oceanbase {
+
 /**
  * @brief 谓词重写规则
  * @ingroup Rewriter
@@ -29,3 +31,4 @@ public:
 
   RC rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made) override;
 };
+}  // namespace oceanbase

@@ -21,6 +21,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 #include "storage/record/record.h"
 
+namespace oceanbase {
+
 class Table;
 
 /**
@@ -440,3 +442,4 @@ private:
   Tuple *left_  = nullptr;
   Tuple *right_ = nullptr;
 };
+}  // namespace oceanbase

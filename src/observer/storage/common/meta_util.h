@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/string.h"
 
+namespace oceanbase {
+
 static constexpr const char *DB_META_SUFFIX          = ".db";
 static constexpr const char *TABLE_META_SUFFIX       = ".table";
 static constexpr const char *TABLE_META_FILE_PATTERN = ".*\\.table$";
@@ -27,3 +29,4 @@ string table_meta_file(const char *base_dir, const char *table_name);
 string table_data_file(const char *base_dir, const char *table_name);
 string table_index_file(const char *base_dir, const char *table_name, const char *index_name);
 string table_lob_file(const char *base_dir, const char *table_name);
+}  // namespace oceanbase

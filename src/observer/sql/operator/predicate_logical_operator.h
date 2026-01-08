@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "sql/operator/logical_operator.h"
 
+namespace oceanbase {
+
 /**
  * @brief 谓词/过滤逻辑算子
  * @ingroup LogicalOperator
@@ -31,3 +33,4 @@ public:
 
   OpType get_op_type() const override { return OpType::LOGICALFILTER; }
 };
+}  // namespace oceanbase

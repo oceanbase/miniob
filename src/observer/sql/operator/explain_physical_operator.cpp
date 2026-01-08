@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
+namespace oceanbase {
+
 RC ExplainPhysicalOperator::open(Trx *)
 {
   ASSERT(children_.size() == 1, "explain must has 1 child");
@@ -53,12 +55,12 @@ RC ExplainPhysicalOperator::next(Chunk &chunk)
   }
   generate_physical_plan();
 
-  Value         cell(physical_plan_.c_str());
-  auto column = make_unique<Column>();
+  Value cell(physical_plan_.c_str());
+  auto  column = make_unique<Column>();
   column->init(cell, chunk.rows());
   chunk.add_column(std::move(column), 0);
   return RC::SUCCESS;
 }
 
 Tuple *ExplainPhysicalOperator::current_tuple() { return &tuple_; }
-
+}  // namespace oceanbase

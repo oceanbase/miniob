@@ -22,6 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "net/mysql_communicator.h"
 #include "sql/operator/string_list_physical_operator.h"
 
+namespace oceanbase {
+
 /**
  * @brief MySQL协议相关实现
  * @defgroup MySQLProtocol
@@ -348,7 +350,7 @@ struct HandshakeV10 : public BasePacket
 
     char *buf = net_packet.data();
     int   pos = 0;
-    pos += 3; // skip packet length
+    pos += 3;  // skip packet length
 
     pos += store_int1(buf + pos, packet_header.sequence_id);
     pos += store_int1(buf + pos, protocol);
@@ -379,12 +381,12 @@ struct HandshakeV10 : public BasePacket
  */
 struct OkPacket : public BasePacket
 {
-  int8_t      header         = 0;  // 0x00 for ok and 0xFE for EOF
-  int32_t     affected_rows  = 0;
-  int32_t     last_insert_id = 0;
-  int16_t     status_flags   = 0x22;
-  int16_t     warnings       = 0;
-  string      info;  // human readable status information
+  int8_t  header         = 0;  // 0x00 for ok and 0xFE for EOF
+  int32_t affected_rows  = 0;
+  int32_t last_insert_id = 0;
+  int16_t status_flags   = 0x22;
+  int16_t warnings       = 0;
+  string  info;  // human readable status information
 
   OkPacket(int8_t sequence = 0) : BasePacket(sequence) {}
   virtual ~OkPacket() = default;
@@ -398,7 +400,7 @@ struct OkPacket : public BasePacket
     char *buf = net_packet.data();
     int   pos = 0;
 
-    pos += 3; // skip packet length
+    pos += 3;  // skip packet length
     pos += store_int1(buf + pos, packet_header.sequence_id);
     pos += store_int1(buf + pos, header);
     pos += store_lenenc_int(buf + pos, affected_rows);
@@ -471,11 +473,11 @@ struct EofPacket : public BasePacket
  */
 struct ErrPacket : public BasePacket
 {
-  int8_t      header              = 0xFF;
-  int16_t     error_code          = 0;
-  char        sql_state_marker[1] = {'#'};
-  string sql_state{"HY000"};
-  string error_message;
+  int8_t  header              = 0xFF;
+  int16_t error_code          = 0;
+  char    sql_state_marker[1] = {'#'};
+  string  sql_state{"HY000"};
+  string  error_message;
 
   ErrPacket(int8_t sequence = 0) : BasePacket(sequence) {}
   virtual ~ErrPacket() = default;
@@ -519,7 +521,7 @@ struct QueryPacket
 {
   PacketHeader packet_header;
   int8_t       command;  // 0x03: COM_QUERY
-  string  query;    // the text of the SQL query to execute
+  string       query;    // the text of the SQL query to execute
 };
 
 /**
@@ -695,8 +697,8 @@ RC MysqlCommunicator::write_state(SessionEvent *event, bool &need_disconnect)
 {
   SqlResult *sql_result = event->sql_result();
 
-  const int          buf_size     = 2048;
-  char              *buf          = new char[buf_size];
+  const int     buf_size     = 2048;
+  char         *buf          = new char[buf_size];
   const string &state_string = sql_result->state_string();
   if (state_string.empty()) {
     const char *result = strrc(sql_result->return_code());
@@ -937,16 +939,16 @@ RC MysqlCommunicator::send_column_definition(SqlResult *sql_result, bool &need_d
  * @param no_column_def 为了特殊处理没有返回值的语句，比如insert/delete，需要做特殊处理。
  *                      这种语句只需要返回一个ok packet即可
  */
-RC MysqlCommunicator::send_result_rows(SessionEvent *event, SqlResult *sql_result, bool no_column_def, bool &need_disconnect)
+RC MysqlCommunicator::send_result_rows(
+    SessionEvent *event, SqlResult *sql_result, bool no_column_def, bool &need_disconnect)
 {
   RC rc = RC::SUCCESS;
 
   vector<char> packet;
   packet.resize(4 * 1024 * 1024);  // TODO warning: length cannot be fix
 
-  int    affected_rows = 0;
-  if (event->session()->get_execution_mode() == ExecutionMode::CHUNK_ITERATOR
-      && event->session()->used_chunk_mode()) {
+  int affected_rows = 0;
+  if (event->session()->get_execution_mode() == ExecutionMode::CHUNK_ITERATOR && event->session()->used_chunk_mode()) {
     rc = write_chunk_result(sql_result, packet, affected_rows, need_disconnect);
   } else {
     rc = write_tuple_result(sql_result, packet, affected_rows, need_disconnect);
@@ -971,10 +973,11 @@ RC MysqlCommunicator::send_result_rows(SessionEvent *event, SqlResult *sql_resul
   return rc;
 }
 
-RC MysqlCommunicator::write_tuple_result(SqlResult *sql_result, vector<char> &packet, int &affected_rows, bool &need_disconnect)
+RC MysqlCommunicator::write_tuple_result(
+    SqlResult *sql_result, vector<char> &packet, int &affected_rows, bool &need_disconnect)
 {
-  Tuple *tuple         = nullptr;
-  RC rc = RC::SUCCESS;
+  Tuple *tuple = nullptr;
+  RC     rc    = RC::SUCCESS;
   while (RC::SUCCESS == (rc = sql_result->next_tuple(tuple))) {
     assert(tuple != nullptr);
 
@@ -1016,10 +1019,11 @@ RC MysqlCommunicator::write_tuple_result(SqlResult *sql_result, vector<char> &pa
   }
   return rc;
 }
-RC MysqlCommunicator::write_chunk_result(SqlResult *sql_result, vector<char> &packet, int &affected_rows, bool &need_disconnect)
+RC MysqlCommunicator::write_chunk_result(
+    SqlResult *sql_result, vector<char> &packet, int &affected_rows, bool &need_disconnect)
 {
   Chunk chunk;
-  RC rc = RC::SUCCESS;
+  RC    rc = RC::SUCCESS;
   while (RC::SUCCESS == (rc = sql_result->next_chunk(chunk))) {
     int column_num = chunk.column_num();
     if (column_num == 0) {
@@ -1053,3 +1057,4 @@ RC MysqlCommunicator::write_chunk_result(SqlResult *sql_result, vector<char> &pa
   }
   return rc;
 }
+}  // namespace oceanbase

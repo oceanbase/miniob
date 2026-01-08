@@ -26,11 +26,13 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 RC ParseStage::handle_request(SQLStageEvent *sql_event)
 {
   RC rc = RC::SUCCESS;
 
-  SqlResult         *sql_result = sql_event->session_event()->sql_result();
+  SqlResult    *sql_result = sql_event->session_event()->sql_result();
   const string &sql        = sql_event->sql();
 
   ParsedSqlResult parsed_sql_result;
@@ -59,3 +61,4 @@ RC ParseStage::handle_request(SQLStageEvent *sql_event)
 
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

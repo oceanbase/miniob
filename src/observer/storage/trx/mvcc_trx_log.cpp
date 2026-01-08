@@ -23,6 +23,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 string MvccTrxLogOperation::to_string() const
 {
   string ret = std::to_string(index()) + ":";
@@ -108,7 +110,7 @@ RC MvccTrxLogHandler::commit(int32_t trx_id, int32_t commit_trx_id)
   log_entry.commit_trx_id         = commit_trx_id;
 
   LSN lsn = 0;
-  RC rc = log_handler_.append(
+  RC  rc  = log_handler_.append(
       lsn, LogModule::Id::TRANSACTION, span<const char>(reinterpret_cast<const char *>(&log_entry), sizeof(log_entry)));
   if (OB_FAIL(rc)) {
     return rc;
@@ -134,7 +136,7 @@ RC MvccTrxLogHandler::rollback(int32_t trx_id)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 MvccTrxLogReplayer::MvccTrxLogReplayer(Db &db, MvccTrxKit &trx_kit, LogHandler &log_handler)
-  : db_(db), trx_kit_(trx_kit), log_handler_(log_handler)
+    : db_(db), trx_kit_(trx_kit), log_handler_(log_handler)
 {}
 
 RC MvccTrxLogReplayer::replay(const LogEntry &entry)
@@ -150,9 +152,9 @@ RC MvccTrxLogReplayer::replay(const LogEntry &entry)
     return RC::LOG_ENTRY_INVALID;
   }
 
-  auto *header = reinterpret_cast<const MvccTrxLogHeader *>(entry.data());
-  MvccTrx *trx = nullptr;
-  auto trx_iter = trx_map_.find(header->trx_id);
+  auto    *header   = reinterpret_cast<const MvccTrxLogHeader *>(entry.data());
+  MvccTrx *trx      = nullptr;
+  auto     trx_iter = trx_map_.find(header->trx_id);
   if (trx_iter == trx_map_.end()) {
     trx = static_cast<MvccTrx *>(trx_kit_.create_trx(log_handler_, header->trx_id));
     // trx = new MvccTrx(trx_kit_, log_handler_, header->trx_id);
@@ -179,10 +181,11 @@ RC MvccTrxLogReplayer::on_done()
   /// 日志回放已经完成，需要把没有提交的事务，回滚掉
   for (auto &pair : trx_map_) {
     MvccTrx *trx = pair.second;
-    trx->rollback(); // 恢复时的rollback，可能遇到之前已经回滚一半的事务又再次调用回滚的情况
+    trx->rollback();  // 恢复时的rollback，可能遇到之前已经回滚一半的事务又再次调用回滚的情况
     delete pair.second;
   }
   trx_map_.clear();
 
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

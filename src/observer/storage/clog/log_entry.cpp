@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_entry.h"
 #include "common/log/log.h"
 
+namespace oceanbase {
+
 ////////////////////////////////////////////////////////////////////////////////
 // struct LogHeader
 
@@ -23,9 +25,7 @@ const int32_t LogHeader::SIZE = sizeof(LogHeader);
 string LogHeader::to_string() const
 {
   stringstream ss;
-  ss << "lsn=" << lsn 
-     << ", size=" << size 
-     << ", module_id=" << module_id << ":" << LogModule(module_id).name();
+  ss << "lsn=" << lsn << ", size=" << size << ", module_id=" << module_id << ":" << LogModule(module_id).name();
 
   return ss.str();
 }
@@ -34,16 +34,16 @@ string LogHeader::to_string() const
 // class LogEntry
 LogEntry::LogEntry()
 {
-  header_.lsn = 0;
+  header_.lsn  = 0;
   header_.size = 0;
 }
 
 LogEntry::LogEntry(LogEntry &&other)
 {
   header_ = other.header_;
-  data_ = std::move(other.data_);
+  data_   = std::move(other.data_);
 
-  other.header_.lsn = 0;
+  other.header_.lsn  = 0;
   other.header_.size = 0;
 }
 
@@ -54,9 +54,9 @@ LogEntry &LogEntry::operator=(LogEntry &&other)
   }
 
   header_ = other.header_;
-  data_ = std::move(other.data_);
+  data_   = std::move(other.data_);
 
-  other.header_.lsn = 0;
+  other.header_.lsn  = 0;
   other.header_.size = 0;
 
   return *this;
@@ -74,14 +74,12 @@ RC LogEntry::init(LSN lsn, LogModule module, vector<char> &&data)
     return RC::INVALID_ARGUMENT;
   }
 
-  header_.lsn = lsn;
+  header_.lsn       = lsn;
   header_.module_id = module.index();
-  header_.size = static_cast<int32_t>(data.size());
-  data_ = std::move(data);
+  header_.size      = static_cast<int32_t>(data.size());
+  data_             = std::move(data);
   return RC::SUCCESS;
 }
 
-string LogEntry::to_string() const
-{
-  return header_.to_string();
-}
+string LogEntry::to_string() const { return header_.to_string(); }
+}  // namespace oceanbase

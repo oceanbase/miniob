@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/vector.h"
 #include "storage/common/column.h"
 
+namespace oceanbase {
+
 /**
  * @brief A Chunk represents a set of columns.
  */
@@ -100,3 +102,4 @@ private:
   // `columnd_ids` store the ids of child operator that need to be output
   vector<int> column_ids_;
 };
+}  // namespace oceanbase

@@ -20,6 +20,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/trx.h"
 #include "json/json.h"
 
+namespace oceanbase {
+
 static const Json::StaticString FIELD_TABLE_ID("table_id");
 static const Json::StaticString FIELD_TABLE_NAME("table_name");
 static const Json::StaticString FIELD_STORAGE_FORMAT("storage_format");
@@ -47,8 +49,8 @@ void TableMeta::swap(TableMeta &other) noexcept
 }
 
 RC TableMeta::init(int32_t table_id, const char *name, const vector<FieldMeta> *trx_fields,
-                   span<const AttrInfoSqlNode> attributes, const vector<string> &primary_keys, StorageFormat storage_format,
-                   StorageEngine storage_engine)
+    span<const AttrInfoSqlNode> attributes, const vector<string> &primary_keys, StorageFormat storage_format,
+    StorageEngine storage_engine)
 {
   if (common::is_blank(name)) {
     LOG_ERROR("Name cannot be empty");
@@ -71,7 +73,12 @@ RC TableMeta::init(int32_t table_id, const char *name, const vector<FieldMeta> *
     fields_.resize(attributes.size() + trx_fields->size());
     for (size_t i = 0; i < trx_fields->size(); i++) {
       const FieldMeta &field_meta = (*trx_fields)[i];
-      fields_[i] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false /*visible*/, field_meta.field_id());
+      fields_[i]                  = FieldMeta(field_meta.name(),
+          field_meta.type(),
+          field_offset,
+          field_meta.len(),
+          false /*visible*/,
+          field_meta.field_id());
       field_offset += field_meta.len();
     }
 
@@ -84,7 +91,7 @@ RC TableMeta::init(int32_t table_id, const char *name, const vector<FieldMeta> *
     const AttrInfoSqlNode &attr_info = attributes[i];
     // `i` is the col_id of fields[i]
     rc = fields_[i + trx_field_num].init(
-      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/, i);
+        attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/, i);
     if (OB_FAIL(rc)) {
       LOG_ERROR("Failed to init field meta. table name=%s, field name: %s", name, attr_info.name.c_str());
       return rc;
@@ -94,10 +101,10 @@ RC TableMeta::init(int32_t table_id, const char *name, const vector<FieldMeta> *
   }
 
   primary_keys_ = primary_keys;
-  record_size_ = field_offset;
+  record_size_  = field_offset;
 
-  table_id_ = table_id;
-  name_     = name;
+  table_id_       = table_id;
+  name_           = name;
   storage_format_ = storage_format;
   storage_engine_ = storage_engine;
   LOG_INFO("Sussessfully initialized table meta. table id=%d, name=%s", table_id, name);
@@ -114,10 +121,7 @@ const char *TableMeta::name() const { return name_.c_str(); }
 
 const FieldMeta *TableMeta::trx_field() const { return &fields_[0]; }
 
-span<const FieldMeta> TableMeta::trx_fields() const
-{
-  return span<const FieldMeta>(fields_.data(), sys_field_num());
-}
+span<const FieldMeta> TableMeta::trx_fields() const { return span<const FieldMeta>(fields_.data(), sys_field_num()); }
 
 const FieldMeta *TableMeta::field(int index) const { return &fields_[index]; }
 const FieldMeta *TableMeta::field(const char *name) const
@@ -175,8 +179,8 @@ int TableMeta::record_size() const { return record_size_; }
 int TableMeta::serialize(ostream &ss) const
 {
   Json::Value table_value;
-  table_value[FIELD_TABLE_ID]   = table_id_;
-  table_value[FIELD_TABLE_NAME] = name_;
+  table_value[FIELD_TABLE_ID]       = table_id_;
+  table_value[FIELD_TABLE_NAME]     = name_;
   table_value[FIELD_STORAGE_FORMAT] = static_cast<int>(storage_format_);
   table_value[FIELD_STORAGE_ENGINE] = static_cast<int>(storage_engine_);
 
@@ -218,7 +222,7 @@ int TableMeta::deserialize(istream &is)
 {
   Json::Value             table_value;
   Json::CharReaderBuilder builder;
-  string             errors;
+  string                  errors;
 
   streampos old_pos = is.tellg();
   if (!Json::parseFromStream(builder, is, &table_value, &errors)) {
@@ -282,7 +286,7 @@ int TableMeta::deserialize(istream &is)
   auto comparator = [](const FieldMeta &f1, const FieldMeta &f2) { return f1.offset() < f2.offset(); };
   sort(fields.begin(), fields.end(), comparator);
 
-  table_id_ = table_id;
+  table_id_       = table_id;
   storage_format_ = static_cast<StorageFormat>(storage_format);
   storage_engine_ = static_cast<StorageEngine>(storage_engine);
   name_.swap(table_name);
@@ -291,7 +295,7 @@ int TableMeta::deserialize(istream &is)
 
   for (const FieldMeta &field_meta : fields_) {
     if (!field_meta.visible()) {
-      trx_fields_.push_back(field_meta); // 字段加上trx标识更好
+      trx_fields_.push_back(field_meta);  // 字段加上trx标识更好
     }
   }
 
@@ -301,7 +305,7 @@ int TableMeta::deserialize(istream &is)
       LOG_ERROR("Invalid table meta. indexes is not array, json value=%s", fields_value.toStyledString().c_str());
       return -1;
     }
-    const int              index_num = indexes_value.size();
+    const int         index_num = indexes_value.size();
     vector<IndexMeta> indexes(index_num);
     for (int i = 0; i < index_num; i++) {
       IndexMeta &index = indexes[i];
@@ -322,7 +326,7 @@ int TableMeta::deserialize(istream &is)
       LOG_ERROR("Invalid table meta. primary keys is not array, json value=%s", fields_value.toStyledString().c_str());
       return -1;
     }
-    const int              primary_key_num = primary_keys_value.size();
+    const int      primary_key_num = primary_keys_value.size();
     vector<string> primary_keys(primary_key_num);
     for (int i = 0; i < primary_key_num; i++) {
       const Json::Value &field_name_value = primary_keys_value[i];
@@ -360,3 +364,4 @@ void TableMeta::desc(ostream &os) const
   }
   os << ')' << endl;
 }
+}  // namespace oceanbase

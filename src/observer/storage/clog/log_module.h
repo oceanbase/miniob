@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include <stdint.h>
 
+namespace oceanbase {
+
 /**
  * @brief 日志模块
  * @ingroup CLog
@@ -52,3 +54,4 @@ public:
 private:
   Id id_;
 };
+}  // namespace oceanbase

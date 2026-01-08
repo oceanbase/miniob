@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "sql/expr/expression.h"
 
+namespace oceanbase {
+
 RC ComparisonSimplificationRule::rewrite(unique_ptr<Expression> &expr, bool &change_made)
 {
   RC rc = RC::SUCCESS;
@@ -36,3 +38,4 @@ RC ComparisonSimplificationRule::rewrite(unique_ptr<Expression> &expr, bool &cha
   }
   return rc;
 }
+}  // namespace oceanbase

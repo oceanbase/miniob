@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "net/communicator.h"
 #include "common/lang/vector.h"
 
+namespace oceanbase {
+
 class SqlResult;
 
 /**
@@ -44,3 +46,4 @@ protected:
   vector<char> send_message_delimiter_;  ///< 发送消息分隔符
   vector<char> debug_message_prefix_;    ///< 调试信息前缀
 };
+}  // namespace oceanbase

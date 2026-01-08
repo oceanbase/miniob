@@ -21,6 +21,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/string.h"
 #include "common/lang/memory.h"
 
+namespace oceanbase {
+
 /**
  * @brief 描述一条日志头
  * @ingroup CLog
@@ -87,3 +89,4 @@ private:
   LogHeader    header_;  /// 日志头
   vector<char> data_;    /// 日志数据
 };
+}  // namespace oceanbase

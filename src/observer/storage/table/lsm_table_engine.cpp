@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/codec.h"
 #include "storage/trx/lsm_mvcc_trx.h"
 
+namespace oceanbase {
+
 RC LsmTableEngine::insert_record(Record &record)
 {
   RC rc = RC::SUCCESS;
@@ -32,14 +34,13 @@ RC LsmTableEngine::insert_record(Record &record)
 RC LsmTableEngine::get_record_scanner(RecordScanner *&scanner, Trx *trx, ReadWriteMode mode)
 {
   scanner = new LsmRecordScanner(table_, db_->lsm(), trx);
-  RC rc = scanner->open_scan();
+  RC rc   = scanner->open_scan();
   if (rc != RC::SUCCESS) {
     LOG_ERROR("failed to open scanner. rc=%s", strrc(rc));
   }
   return rc;
 }
 
-RC LsmTableEngine::open()
-{
-  return RC::UNIMPLEMENTED;
-}
+RC LsmTableEngine::open() { return RC::UNIMPLEMENTED; }
+
+}  // namespace oceanbase

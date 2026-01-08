@@ -17,4 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "sql/parser/parse_defs.h"
 
+namespace oceanbase {
+
 RC parse(const char *st, ParsedSqlResult *sql_result);
+}

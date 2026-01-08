@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/tuple.h"
 #include "sql/operator/physical_operator.h"
 
+namespace oceanbase {
+
 class Session;
 
 /**
@@ -57,3 +59,4 @@ private:
   RC                           return_code_ = RC::SUCCESS;
   string                       state_string_;
 };
+}  // namespace oceanbase

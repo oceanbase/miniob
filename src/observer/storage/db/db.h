@@ -26,6 +26,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/buffer/double_write_buffer.h"
 #include "oblsm/include/ob_lsm.h"
 
+namespace oceanbase {
+
 class Table;
 class LogHandler;
 class BufferPoolManager;
@@ -148,3 +150,4 @@ private:
   LSN    check_point_lsn_ = 0;  ///< 当前数据库的检查点LSN。会记录到磁盘中。
   string storage_engine_;
 };
+}  // namespace oceanbase

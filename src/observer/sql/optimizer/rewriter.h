@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/memory.h"
 #include "common/lang/vector.h"
 
+namespace oceanbase {
+
 class LogicalOperator;
 
 /**
@@ -50,3 +52,4 @@ public:
 private:
   vector<unique_ptr<RewriteRule>> rewrite_rules_;
 };
+}  // namespace oceanbase

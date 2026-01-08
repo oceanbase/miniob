@@ -21,6 +21,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/lang/mutex.h"
 
+namespace oceanbase {
+
 RC Communicator::init(int fd, unique_ptr<Session> session, const string &addr)
 {
   fd_      = fd;
@@ -62,3 +64,4 @@ Communicator *CommunicatorFactory::create(CommunicateProtocol protocol)
     }
   }
 }
+}  // namespace oceanbase

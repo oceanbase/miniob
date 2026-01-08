@@ -25,6 +25,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace std;
 
+namespace oceanbase {
+
 RC DescTableExecutor::execute(SQLStageEvent *sql_event)
 {
   RC            rc            = RC::SUCCESS;
@@ -64,3 +66,4 @@ RC DescTableExecutor::execute(SQLStageEvent *sql_event)
   }
   return rc;
 }
+}  // namespace oceanbase

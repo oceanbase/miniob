@@ -42,6 +42,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 ServerParam::ServerParam()
 {
   listen_addr        = INADDR_ANY;
@@ -344,3 +346,4 @@ void CliServer::shutdown()
   // cleanup
   started_ = false;
 }
+}  // namespace oceanbase

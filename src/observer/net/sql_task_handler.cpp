@@ -18,10 +18,12 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_event.h"
 #include "session/session.h"
 
+namespace oceanbase {
+
 RC SqlTaskHandler::handle_event(Communicator *communicator)
 {
   SessionEvent *event = nullptr;
-  RC rc = communicator->read_event(event);
+  RC            rc    = communicator->read_event(event);
   if (OB_FAIL(rc)) {
     return rc;
   }
@@ -89,3 +91,4 @@ RC SqlTaskHandler::handle_sql(SQLStageEvent *sql_event)
 
   return rc;
 }
+}  // namespace oceanbase

@@ -14,6 +14,9 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/global_context.h"
 
+namespace oceanbase {
+
 static GlobalContext global_context;
 
 GlobalContext &GlobalContext::instance() { return global_context; }
+}  // namespace oceanbase

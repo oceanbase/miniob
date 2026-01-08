@@ -19,6 +19,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/predicate_pushdown_rewriter.h"
 #include "sql/optimizer/predicate_rewrite.h"
 
+namespace oceanbase {
+
 Rewriter::Rewriter()
 {
   rewrite_rules_.emplace_back(new ExpressionRewriter);
@@ -64,3 +66,4 @@ RC Rewriter::rewrite(unique_ptr<LogicalOperator> &oper, bool &change_made)
   }
   return rc;
 }
+}  // namespace oceanbase

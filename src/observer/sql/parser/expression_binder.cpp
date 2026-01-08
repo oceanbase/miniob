@@ -20,6 +20,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 Table *BinderContext::find_table(const char *table_name) const
 {
   auto pred = [table_name](Table *table) { return 0 == strcasecmp(table_name, table->name()); };
@@ -384,7 +386,7 @@ RC check_aggregate_expression(AggregateExpr &expression)
   }
 
   // 子表达式中不能再包含聚合表达式
-  function<RC(unique_ptr<Expression>&)> check_aggregate_expr = [&](unique_ptr<Expression> &expr) -> RC {
+  function<RC(unique_ptr<Expression> &)> check_aggregate_expr = [&](unique_ptr<Expression> &expr) -> RC {
     RC rc = RC::SUCCESS;
     if (expr->type() == ExprType::AGGREGATION) {
       LOG_WARN("aggregate expression cannot be nested");
@@ -406,10 +408,10 @@ RC ExpressionBinder::bind_aggregate_expression(
     return RC::SUCCESS;
   }
 
-  auto unbound_aggregate_expr = static_cast<UnboundAggregateExpr *>(expr.get());
-  const char *aggregate_name = unbound_aggregate_expr->aggregate_name();
+  auto                unbound_aggregate_expr = static_cast<UnboundAggregateExpr *>(expr.get());
+  const char         *aggregate_name         = unbound_aggregate_expr->aggregate_name();
   AggregateExpr::Type aggregate_type;
-  RC rc = AggregateExpr::type_from_string(aggregate_name, aggregate_type);
+  RC                  rc = AggregateExpr::type_from_string(aggregate_name, aggregate_type);
   if (OB_FAIL(rc)) {
     LOG_WARN("invalid aggregate name: %s", aggregate_name);
     return rc;
@@ -447,3 +449,4 @@ RC ExpressionBinder::bind_aggregate_expression(
   bound_expressions.emplace_back(std::move(aggregate_expr));
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

@@ -10,6 +10,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/optimizer/cascade/memo.h"
 
+namespace oceanbase {
+
 GroupExpr *Memo::insert_expression(GroupExpr *gexpr, int target_group)
 {
   gexpr->set_group_id(target_group);
@@ -51,3 +53,4 @@ void Memo::dump() const
     group->dump();
   }
 }
+}  // namespace oceanbase

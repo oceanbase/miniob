@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/trx/mvcc_trx_log.h"
 #include "common/lang/algorithm.h"
 
+namespace oceanbase {
+
 MvccTrxKit::~MvccTrxKit()
 {
   vector<Trx *> tmp_trxes;
@@ -31,10 +33,11 @@ MvccTrxKit::~MvccTrxKit()
 RC MvccTrxKit::init()
 {
   // 事务使用一些特殊的字段，放到每行记录中，表示行记录的可见性。
-  fields_ = vector<FieldMeta>{
-      // field_id in trx fields is invisible.
-      FieldMeta("__trx_xid_begin", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -1/*field_id*/),
-      FieldMeta("__trx_xid_end", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -2/*field_id*/)};
+  fields_ = vector<FieldMeta>{// field_id in trx fields is invisible.
+      FieldMeta(
+          "__trx_xid_begin", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -1 /*field_id*/),
+      FieldMeta(
+          "__trx_xid_end", AttrType::INTS, 0 /*attr_offset*/, 4 /*attr_len*/, false /*visible*/, -2 /*field_id*/)};
 
   LOG_INFO("init mvcc trx kit done.");
   return RC::SUCCESS;
@@ -99,11 +102,12 @@ LogReplayer *MvccTrxKit::create_log_replayer(Db &db, LogHandler &log_handler)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-MvccTrx::MvccTrx(MvccTrxKit &kit, LogHandler &log_handler) : Trx(TrxKit::Type::MVCC), trx_kit_(kit), log_handler_(log_handler)
+MvccTrx::MvccTrx(MvccTrxKit &kit, LogHandler &log_handler)
+    : Trx(TrxKit::Type::MVCC), trx_kit_(kit), log_handler_(log_handler)
 {}
 
-MvccTrx::MvccTrx(MvccTrxKit &kit, LogHandler &log_handler, int32_t trx_id) 
-  : Trx(TrxKit::Type::MVCC), trx_kit_(kit), log_handler_(log_handler), trx_id_(trx_id)
+MvccTrx::MvccTrx(MvccTrxKit &kit, LogHandler &log_handler, int32_t trx_id)
+    : Trx(TrxKit::Type::MVCC), trx_kit_(kit), log_handler_(log_handler), trx_id_(trx_id)
 {
   started_    = true;
   recovering_ = true;
@@ -431,9 +435,9 @@ RC find_table(Db *db, const LogEntry &log_entry, Table *&table)
 
 RC MvccTrx::redo(Db *db, const LogEntry &log_entry)
 {
-  auto *trx_log_header = reinterpret_cast<const MvccTrxLogHeader *>(log_entry.data());
-  Table *table = nullptr;
-  RC     rc    = find_table(db, log_entry, table);
+  auto  *trx_log_header = reinterpret_cast<const MvccTrxLogHeader *>(log_entry.data());
+  Table *table          = nullptr;
+  RC     rc             = find_table(db, log_entry, table);
   if (OB_FAIL(rc)) {
     return rc;
   }
@@ -468,3 +472,4 @@ RC MvccTrx::redo(Db *db, const LogEntry &log_entry)
 
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

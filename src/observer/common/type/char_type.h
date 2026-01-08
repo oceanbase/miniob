@@ -13,6 +13,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "common/type/data_type.h"
 
+namespace oceanbase {
+
 /**
  * @brief 固定长度的字符串类型
  * @ingroup DataType
@@ -34,3 +36,4 @@ public:
 
   RC to_string(const Value &val, string &result) const override;
 };
+}  // namespace oceanbase

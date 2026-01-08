@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/field/field_meta.h"
 
+namespace oceanbase {
+
 class TupleCellSpec final
 {
 public:
@@ -38,3 +40,4 @@ private:
   string field_name_;
   string alias_;
 };
+}  // namespace oceanbase

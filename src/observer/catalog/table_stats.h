@@ -10,6 +10,8 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+namespace oceanbase {
+
 /**
  * @class TableStats
  * @brief Represents statistics related to a table.
@@ -37,3 +39,4 @@ public:
 
   int row_nums = 0;
 };
+}  // namespace oceanbase

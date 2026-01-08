@@ -13,6 +13,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/tasks/o_expr_task.h"
 #include "sql/optimizer/cascade/optimizer_context.h"
 
+namespace oceanbase {
+
 void OptimizeGroup::perform()
 {
   LOG_TRACE("OptimizeGroup::perform() group %d", group_->get_id());
@@ -36,3 +38,4 @@ void OptimizeGroup::perform()
 
   group_->set_explored();
 }
+}  // namespace oceanbase

@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/operator_node.h"
 #include "sql/optimizer/cascade/property_set.h"
 
+namespace oceanbase {
+
 class Memo;
 class RuleSet;
 /**
@@ -63,3 +65,4 @@ private:
   PendingTasks *task_pool_;
   double        cost_upper_bound_;
 };
+}  // namespace oceanbase

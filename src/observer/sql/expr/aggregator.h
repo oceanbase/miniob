@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 #include "common/sys/rc.h"
 
+namespace oceanbase {
+
 class Aggregator
 {
 public:
@@ -35,3 +37,4 @@ public:
   RC accumulate(const Value &value) override;
   RC evaluate(Value &result) override;
 };
+}  // namespace oceanbase

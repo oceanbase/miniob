@@ -16,6 +16,8 @@ See the Mulan PSL v2 for more details. */
 #include "session/session.h"
 #include "session/thread_data.h"
 
+namespace oceanbase {
+
 FrameId::FrameId(int buffer_pool_id, PageNum page_num) : buffer_pool_id_(buffer_pool_id), page_num_(page_num) {}
 
 bool FrameId::equal_to(const FrameId &other) const
@@ -81,7 +83,13 @@ void Frame::write_latch(intptr_t xid)
   ++write_recursive_count_;
   TRACE("frame write lock success."
         "this=%p, pin=%d, frameId=%s, write locker=%lx(recursive=%d), xid=%lx, lbt=%s",
-        this, pin_count_.load(), frame_id_.to_string().c_str(), write_locker_, write_recursive_count_, xid, lbt());
+      this,
+      pin_count_.load(),
+      frame_id_.to_string().c_str(),
+      write_locker_,
+      write_recursive_count_,
+      xid,
+      lbt());
 #endif
 }
 
@@ -103,7 +111,11 @@ void Frame::write_unlatch(intptr_t xid)
       write_locker_, this, pin_count_.load(), frame_id_.to_string().c_str(), xid, lbt());
 
   TRACE("frame write unlock success. this=%p, pin=%d, frameId=%s, xid=%lx, lbt=%s",
-        this, pin_count_.load(), frame_id_.to_string().c_str(), xid, lbt());
+      this,
+      pin_count_.load(),
+      frame_id_.to_string().c_str(),
+      xid,
+      lbt());
 
   if (--write_recursive_count_ == 0) {
     write_locker_ = 0;
@@ -138,7 +150,12 @@ void Frame::read_latch(intptr_t xid)
     ++read_lockers_[xid];
     TRACE("frame read lock success."
           "this=%p, pin=%d, frameId=%s, xid=%lx, recursive=%d, lbt=%s",
-          this, pin_count_.load(), frame_id_.to_string().c_str(), xid, read_lockers_[xid], lbt());
+        this,
+        pin_count_.load(),
+        frame_id_.to_string().c_str(),
+        xid,
+        read_lockers_[xid],
+        lbt());
 #endif
   }
 }
@@ -166,7 +183,12 @@ bool Frame::try_read_latch()
     ++read_lockers_[xid];
     TRACE("frame read lock success."
           "this=%p, pin=%d, frameId=%s, xid=%lx, recursive=%d, lbt=%s",
-          this, pin_count_.load(), frame_id_.to_string().c_str(), xid, read_lockers_[xid], lbt());
+        this,
+        pin_count_.load(),
+        frame_id_.to_string().c_str(),
+        xid,
+        read_lockers_[xid],
+        lbt());
     debug_lock_.unlock();
 #endif
   }
@@ -203,7 +225,11 @@ void Frame::read_unlatch(intptr_t xid)
 
   TRACE("frame read unlock success."
         "this=%p, pin=%d, frameId=%s, xid=%lx, lbt=%s",
-        this, pin_count_.load(), frame_id_.to_string().c_str(), xid, lbt());
+      this,
+      pin_count_.load(),
+      frame_id_.to_string().c_str(),
+      xid,
+      lbt());
 
   lock_.unlock_shared();
 }
@@ -217,8 +243,13 @@ void Frame::pin()
 
   TRACE("after frame pin. "
         "this=%p, write locker=%lx, read locker has xid %d? pin=%d, frameId=%s, xid=%lx, lbt=%s",
-        this, write_locker_, read_lockers_.find(xid) != read_lockers_.end(), 
-        pin_count, frame_id_.to_string().c_str(), xid, lbt());
+      this,
+      write_locker_,
+      read_lockers_.find(xid) != read_lockers_.end(),
+      pin_count,
+      frame_id_.to_string().c_str(),
+      xid,
+      lbt());
 }
 
 int Frame::unpin()
@@ -235,8 +266,13 @@ int Frame::unpin()
   int pin_count = --pin_count_;
   TRACE("after frame unpin. "
         "this=%p, write locker=%lx, read locker has xid? %d, pin=%d, frameId=%s, xid=%lx, lbt=%s",
-        this, write_locker_, read_lockers_.find(xid) != read_lockers_.end(), 
-        pin_count, frame_id_.to_string().c_str(), xid, lbt());
+      this,
+      write_locker_,
+      read_lockers_.find(xid) != read_lockers_.end(),
+      pin_count,
+      frame_id_.to_string().c_str(),
+      xid,
+      lbt());
 
   if (0 == pin_count) {
     ASSERT(write_locker_ == 0,
@@ -261,7 +297,8 @@ void Frame::access() { acc_time_ = current_time(); }
 string Frame::to_string() const
 {
   stringstream ss;
-  ss << "frame id:" << frame_id().to_string() << ", dirty=" << dirty() << ", pin=" << pin_count()
-     << ", lsn=" << lsn() << ", this=" << this;
+  ss << "frame id:" << frame_id().to_string() << ", dirty=" << dirty() << ", pin=" << pin_count() << ", lsn=" << lsn()
+     << ", this=" << this;
   return ss.str();
 }
+}  // namespace oceanbase

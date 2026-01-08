@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/bplus_tree.h"
 #include "storage/index/index.h"
 
+namespace oceanbase {
+
 /**
  * @brief B+树索引
  * @ingroup Index
@@ -67,3 +69,4 @@ public:
 private:
   BplusTreeScanner tree_scanner_;
 };
+}  // namespace oceanbase

@@ -23,6 +23,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/clog/log_replayer.h"
 #include "sql/parser/parse_defs.h"
 
+namespace oceanbase {
+
 struct RID;
 class LogHandler;
 class Frame;
@@ -153,3 +155,4 @@ private:
 private:
   BufferPoolManager &bpm_;
 };
+}  // namespace oceanbase

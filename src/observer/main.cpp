@@ -33,6 +33,8 @@ using namespace common;
 
 #define NET "NET"
 
+namespace oceanbase {
+
 static Server *g_server = nullptr;
 
 void usage()
@@ -207,3 +209,5 @@ int main(int argc, char **argv)
   delete g_server;
   return 0;
 }
+
+}  // namespace oceanbase

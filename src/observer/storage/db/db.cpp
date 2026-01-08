@@ -30,6 +30,8 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 Db::~Db()
 {
   for (auto &iter : opened_tables_) {
@@ -49,7 +51,8 @@ Db::~Db()
   LOG_INFO("Db has been closed: %s", name_.c_str());
 }
 
-RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, const char *log_handler_name, const char *storage_engine)
+RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, const char *log_handler_name,
+    const char *storage_engine)
 {
   RC rc = RC::SUCCESS;
 
@@ -64,7 +67,7 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
   }
 
   oceanbase::ObLsmOptions options;
-  filesystem::path lsm_path = filesystem::path(dbpath) / "lsm";
+  filesystem::path        lsm_path = filesystem::path(dbpath) / "lsm";
   filesystem::create_directory(lsm_path);
 
   rc = oceanbase::ObLsm::open(options, lsm_path, &lsm_);
@@ -150,7 +153,8 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
   return rc;
 }
 
-RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attributes, const vector<string>& primary_keys, const StorageFormat storage_format)
+RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attributes, const vector<string> &primary_keys,
+    const StorageFormat storage_format)
 {
   RC rc = RC::SUCCESS;
   // check table_name
@@ -163,8 +167,15 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
   string  table_file_path = table_meta_file(path_.c_str(), table_name);
   Table  *table           = new Table();
   int32_t table_id        = next_table_id_++;
-  rc = table->create(this, table_id, table_file_path.c_str(), table_name, path_.c_str(), attributes, primary_keys, storage_format,
-                     get_storage_engine());
+  rc                      = table->create(this,
+      table_id,
+      table_file_path.c_str(),
+      table_name,
+      path_.c_str(),
+      attributes,
+      primary_keys,
+      storage_format,
+      get_storage_engine());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;
@@ -415,3 +426,4 @@ RC Db::init_dblwr_buffer()
 LogHandler        &Db::log_handler() { return *log_handler_; }
 BufferPoolManager &Db::buffer_pool_manager() { return *buffer_pool_manager_; }
 TrxKit            &Db::trx_kit() { return *trx_kit_; }
+}  // namespace oceanbase

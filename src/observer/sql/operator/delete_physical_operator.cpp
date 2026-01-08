@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 #include "storage/trx/trx.h"
 
+namespace oceanbase {
+
 RC DeletePhysicalOperator::open(Trx *trx)
 {
   if (children_.empty()) {
@@ -60,12 +62,7 @@ RC DeletePhysicalOperator::open(Trx *trx)
   return RC::SUCCESS;
 }
 
-RC DeletePhysicalOperator::next()
-{
-  return RC::RECORD_EOF;
-}
+RC DeletePhysicalOperator::next() { return RC::RECORD_EOF; }
 
-RC DeletePhysicalOperator::close()
-{
-  return RC::SUCCESS;
-}
+RC DeletePhysicalOperator::close() { return RC::SUCCESS; }
+}  // namespace oceanbase

@@ -24,6 +24,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "common/lang/string.h"
 
+namespace oceanbase {
+
 class PersistHandler
 {
 public:
@@ -64,3 +66,4 @@ private:
   string file_name_;
   int    file_desc_ = -1;
 };
+}  // namespace oceanbase

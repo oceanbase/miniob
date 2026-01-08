@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_debug.h"
 #include "sql/executor/sql_result.h"
 
+namespace oceanbase {
+
 class Session;
 class Communicator;
 
@@ -46,3 +48,4 @@ private:
   SqlDebug      sql_debug_;               ///< SQL调试信息
   string        query_;                   ///< SQL语句
 };
+}  // namespace oceanbase

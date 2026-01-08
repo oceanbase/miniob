@@ -12,6 +12,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "storage/index/index.h"
 
+namespace oceanbase {
+
 /**
  * @brief ivfflat 向量索引
  * @ingroup Index
@@ -19,7 +21,7 @@ See the Mulan PSL v2 for more details. */
 class IvfflatIndex : public Index
 {
 public:
-  IvfflatIndex(){};
+  IvfflatIndex() {};
   virtual ~IvfflatIndex() noexcept {};
 
   RC create(Table *table, const char *file_name, const IndexMeta &index_meta, const FieldMeta &field_meta)
@@ -47,3 +49,4 @@ private:
   int    lists_  = 1;
   int    probes_ = 1;
 };
+}  // namespace oceanbase

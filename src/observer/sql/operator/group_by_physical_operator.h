@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/physical_operator.h"
 #include "sql/expr/composite_tuple.h"
 
+namespace oceanbase {
+
 /**
  * @brief Group By 物理算子基类
  * @ingroup PhysicalOperator
@@ -56,3 +58,4 @@ protected:
   vector<Expression *> aggregate_expressions_;  /// 聚合表达式
   vector<Expression *> value_expressions_;      /// 计算聚合时的表达式
 };
+}  // namespace oceanbase

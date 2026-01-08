@@ -17,5 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/conf/ini.h"
 #include "common/os/process_param.h"
 
+namespace oceanbase {
+
 int  init(common::ProcessParam *processParam);
 void cleanup();
+}  // namespace oceanbase

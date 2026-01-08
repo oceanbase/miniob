@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/logical_operator.h"
 #include "sql/parser/parse_defs.h"
 
+namespace oceanbase {
+
 /**
  * @brief 插入逻辑算子
  * @ingroup LogicalOperator
@@ -39,3 +41,4 @@ private:
   Table        *table_ = nullptr;
   vector<Value> values_;
 };
+}  // namespace oceanbase

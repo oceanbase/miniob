@@ -14,7 +14,10 @@ See the Mulan PSL v2 for more details. */
 
 #include "sql/operator/predicate_logical_operator.h"
 
+namespace oceanbase {
+
 PredicateLogicalOperator::PredicateLogicalOperator(unique_ptr<Expression> expression)
 {
   expressions_.emplace_back(std::move(expression));
 }
+}  // namespace oceanbase

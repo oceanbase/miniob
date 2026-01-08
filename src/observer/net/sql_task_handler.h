@@ -22,6 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/resolve_stage.h"
 #include "sql/query_cache/query_cache_stage.h"
 
+namespace oceanbase {
+
 class Communicator;
 class SQLStageEvent;
 
@@ -50,6 +52,7 @@ private:
   QueryCacheStage query_cache_stage_;  /// 查询缓存阶段
   ParseStage      parse_stage_;        /// 解析阶段。将SQL解析成语法树 ParsedSqlNode
   ResolveStage    resolve_stage_;      /// 解析阶段。将语法树解析成Stmt(statement)
-  OptimizeStage optimize_stage_;  /// 优化阶段。将语句优化成执行计划，包含规则优化和物理优化
-  ExecuteStage  execute_stage_;   /// 执行阶段
+  OptimizeStage optimize_stage_;     /// 优化阶段。将语句优化成执行计划，包含规则优化和物理优化
+  ExecuteStage    execute_stage_;      /// 执行阶段
 };
+}  // namespace oceanbase

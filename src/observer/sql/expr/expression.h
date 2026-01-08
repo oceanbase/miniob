@@ -22,6 +22,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/aggregator.h"
 #include "storage/common/chunk.h"
 
+namespace oceanbase {
+
 class Tuple;
 
 /**
@@ -528,3 +530,4 @@ private:
   Type                   aggregate_type_;
   unique_ptr<Expression> child_;
 };
+}  // namespace oceanbase

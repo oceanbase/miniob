@@ -12,11 +12,13 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/cascade/tasks/o_group_task.h"
 #include "sql/optimizer/cascade/memo.h"
 
-std::unique_ptr<PhysicalOperator> Optimizer::optimize(OperatorNode* op_tree)
+namespace oceanbase {
+
+std::unique_ptr<PhysicalOperator> Optimizer::optimize(OperatorNode *op_tree)
 {
   // Generate initial operator tree from query tree
-  GroupExpr *gexpr = nullptr;
-  bool insert = context_->record_node_into_group(op_tree, &gexpr);
+  GroupExpr *gexpr  = nullptr;
+  bool       insert = context_->record_node_into_group(op_tree, &gexpr);
   ASSERT(insert && gexpr, "Logical expression tree should insert");
   context_->get_memo().dump();
 
@@ -30,7 +32,7 @@ std::unique_ptr<PhysicalOperator> Optimizer::optimize(OperatorNode* op_tree)
 
 std::unique_ptr<PhysicalOperator> Optimizer::choose_best_plan(int root_group_id)
 {
-  auto &memo = context_->get_memo();
+  auto  &memo       = context_->get_memo();
   Group *root_group = memo.get_group_by_id(root_group_id);
   ASSERT(root_group != nullptr, "Root group should not be null");
 
@@ -42,9 +44,9 @@ std::unique_ptr<PhysicalOperator> Optimizer::choose_best_plan(int root_group_id)
   }
   auto winner_contents = winner->get_op();
   context_->get_memo().release_operator(winner_contents);
-  PhysicalOperator* winner_phys = dynamic_cast<PhysicalOperator*>(winner_contents);
+  PhysicalOperator *winner_phys = dynamic_cast<PhysicalOperator *>(winner_contents);
   LOG_TRACE("winner: %d", winner_phys->type());
-  for (const auto& child : winner->get_child_group_ids()) {
+  for (const auto &child : winner->get_child_group_ids()) {
     winner_phys->add_child(choose_best_plan(child));
   }
 
@@ -70,3 +72,4 @@ void Optimizer::execute_task_stack(PendingTasks *task_stack, int root_group_id, 
     delete task;
   }
 }
+}  // namespace oceanbase

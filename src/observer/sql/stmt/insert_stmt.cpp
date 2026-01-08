@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "storage/db/db.h"
 #include "storage/table/table.h"
 
+namespace oceanbase {
+
 InsertStmt::InsertStmt(Table *table, const Value *values, int value_amount)
     : table_(table), values_(values), value_amount_(value_amount)
 {}
@@ -51,3 +53,4 @@ RC InsertStmt::create(Db *db, const InsertSqlNode &inserts, Stmt *&stmt)
   stmt = new InsertStmt(table, values, value_num);
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

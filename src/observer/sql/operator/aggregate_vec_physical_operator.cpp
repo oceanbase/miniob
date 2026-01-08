@@ -17,13 +17,15 @@ See the Mulan PSL v2 for more details. */
 
 using namespace common;
 
+namespace oceanbase {
+
 AggregateVecPhysicalOperator::AggregateVecPhysicalOperator(vector<Expression *> &&expressions)
 {
   aggregate_expressions_ = std::move(expressions);
   value_expressions_.reserve(aggregate_expressions_.size());
 
   ranges::for_each(aggregate_expressions_, [this](Expression *expr) {
-    auto *      aggregate_expr = static_cast<AggregateExpr *>(expr);
+    auto       *aggregate_expr = static_cast<AggregateExpr *>(expr);
     Expression *child_expr     = aggregate_expr->child().get();
     ASSERT(child_expr != nullptr, "aggregation expression must have a child expression");
     value_expressions_.emplace_back(child_expr);
@@ -57,7 +59,8 @@ RC AggregateVecPhysicalOperator::open(Trx *trx)
       value_expressions_[aggr_idx]->get_column(chunk_, column);
       ASSERT(aggregate_expressions_[aggr_idx]->type() == ExprType::AGGREGATION, "expect aggregate expression");
       auto *aggregate_expr = static_cast<AggregateExpr *>(aggregate_expressions_[aggr_idx]);
-      rc = aggregate_state_update_by_column(aggr_values_.at(aggr_idx), aggregate_expr->aggregate_type(), aggregate_expr->child()->value_type(), column);
+      rc                   = aggregate_state_update_by_column(
+          aggr_values_.at(aggr_idx), aggregate_expr->aggregate_type(), aggregate_expr->child()->value_type(), column);
       if (OB_FAIL(rc)) {
         LOG_INFO("failed to update aggregate state. rc=%s", strrc(rc));
         return rc;
@@ -76,7 +79,7 @@ template <class STATE, typename T>
 void AggregateVecPhysicalOperator::update_aggregate_state(void *state, const Column &column)
 {
   STATE *state_ptr = reinterpret_cast<STATE *>(state);
-  T *    data      = (T *)column.data();
+  T     *data      = (T *)column.data();
   state_ptr->update(data, column.count());
 }
 
@@ -89,7 +92,10 @@ RC AggregateVecPhysicalOperator::next(Chunk &chunk)
     auto pos = i;
     ASSERT(aggregate_expressions_[pos]->type() == ExprType::AGGREGATION, "expect aggregation expression");
     auto *aggregate_expr = static_cast<AggregateExpr *>(aggregate_expressions_[pos]);
-    RC rc = finialize_aggregate_state(aggr_values_.at(pos), aggregate_expr->aggregate_type(), aggregate_expr->child()->value_type(), output_chunk_.column(i));
+    RC    rc             = finialize_aggregate_state(aggr_values_.at(pos),
+        aggregate_expr->aggregate_type(),
+        aggregate_expr->child()->value_type(),
+        output_chunk_.column(i));
     if (OB_FAIL(rc)) {
       LOG_INFO("failed to finialize aggregate state. rc=%s", strrc(rc));
       return rc;
@@ -108,3 +114,4 @@ RC AggregateVecPhysicalOperator::close()
   LOG_INFO("close group by operator");
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

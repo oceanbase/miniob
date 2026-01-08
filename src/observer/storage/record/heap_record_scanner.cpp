@@ -12,6 +12,7 @@ See the Mulan PSL v2 for more details. */
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace oceanbase {
 
 RC HeapRecordScanner::open_scan()
 {
@@ -145,3 +146,4 @@ RC HeapRecordScanner::next(Record &record)
   record = next_record_;
   return RC::SUCCESS;
 }
+}  // namespace oceanbase

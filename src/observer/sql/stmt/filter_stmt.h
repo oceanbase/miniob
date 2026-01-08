@@ -20,6 +20,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse_defs.h"
 #include "sql/stmt/stmt.h"
 
+namespace oceanbase {
+
 class Db;
 class Table;
 class FieldMeta;
@@ -88,3 +90,4 @@ public:
 private:
   vector<FilterUnit *> filter_units_;  // 默认当前都是AND关系
 };
+}  // namespace oceanbase

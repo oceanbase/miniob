@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/logical_operator.h"
 #include "storage/field/field.h"
 
+namespace oceanbase {
+
 /**
  * @brief project 表示投影运算
  * @ingroup LogicalOperator
@@ -36,3 +38,4 @@ public:
   vector<unique_ptr<Expression>>       &expressions() { return expressions_; }
   const vector<unique_ptr<Expression>> &expressions() const { return expressions_; }
 };
+}  // namespace oceanbase
