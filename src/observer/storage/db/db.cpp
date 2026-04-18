@@ -412,6 +412,44 @@ RC Db::init_dblwr_buffer()
   return RC::SUCCESS;
 }
 
+RC Db::drop_table(const char *table_name)
+{
+  RC rc = RC::SUCCESS;
+
+  // 1. 检查表是否存在
+  auto iter = opened_tables_.find(table_name);
+  if (iter == opened_tables_.end()) {
+    LOG_WARN("Table not exist. db=%s, table_name=%s", name_.c_str(), table_name);
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+
+  Table *table = iter->second;
+
+  // 2. 从内存映射中移除
+  opened_tables_.erase(iter);
+
+  // 3. 获取文件路径
+  string table_meta_path = table_meta_file(path_.c_str(), table_name);
+  string table_data_path = table_data_file(path_.c_str(), table_name);
+  string table_lob_path  = table_lob_file(path_.c_str(), table_name);
+
+  // 4. 删除 Table 对象（释放内存，关闭文件句柄）
+  delete table;
+
+  // 5. 删除磁盘文件
+  if (filesystem::exists(table_meta_path)) {
+    filesystem::remove(table_meta_path);
+  }
+  if (filesystem::exists(table_data_path)) {
+    filesystem::remove(table_data_path);
+  }
+  if (filesystem::exists(table_lob_path)) {
+    filesystem::remove(table_lob_path);
+  }
+
+  return rc;
+}
+
 LogHandler        &Db::log_handler() { return *log_handler_; }
 BufferPoolManager &Db::buffer_pool_manager() { return *buffer_pool_manager_; }
 TrxKit            &Db::trx_kit() { return *trx_kit_; }
