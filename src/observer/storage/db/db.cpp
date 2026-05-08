@@ -438,9 +438,16 @@ RC Db::drop_table(const char *table_name)
   opened_tables_.erase(iter);
 
   // 3. 获取文件路径
-  string table_meta_path = table_meta_file(path_.c_str(), table_name);
-  string table_data_path = table_data_file(path_.c_str(), table_name);
-  string table_lob_path  = table_lob_file(path_.c_str(), table_name);
+  string         table_meta_path = table_meta_file(path_.c_str(), table_name);
+  string         table_data_path = table_data_file(path_.c_str(), table_name);
+  string         table_lob_path  = table_lob_file(path_.c_str(), table_name);
+  vector<string> index_paths;
+  for (int i = 0; i < table->table_meta().index_num(); i++) {
+    const IndexMeta *index_meta = table->table_meta().index(i);
+    if (index_meta != nullptr) {
+      index_paths.emplace_back(table_index_file(path_.c_str(), table_name, index_meta->name()));
+    }
+  }
 
   // 4. 删除 Table 对象（释放内存，关闭文件句柄）
   delete table;
@@ -454,6 +461,11 @@ RC Db::drop_table(const char *table_name)
   }
   if (filesystem::exists(table_lob_path)) {
     filesystem::remove(table_lob_path);
+  }
+  for (const string &index_path : index_paths) {
+    if (filesystem::exists(index_path)) {
+      filesystem::remove(index_path);
+    }
   }
 
   return rc;

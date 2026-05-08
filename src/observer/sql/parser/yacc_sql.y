@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iterator>
 
 #include "common/log/log.h"
 #include "common/lang/string.h"
@@ -88,8 +89,11 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         INT_T
         STRING_T
         FLOAT_T
+        DATE_T
         VECTOR_T
         TEXT_T
+        INNER
+        JOIN
         HELP
         EXIT
         DOT //QUOTE
@@ -122,6 +126,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
   ParsedSqlNode *                            sql_node;
+  FromSqlNode *                              from_clause;
   ConditionSqlNode *                         condition;
   Value *                                    value;
   enum CompOp                                comp;
@@ -141,6 +146,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 }
 
 %destructor { delete $$; } <condition>
+%destructor { delete $$; } <from_clause>
 %destructor { delete $$; } <value>
 %destructor { delete $$; } <rel_attr>
 %destructor { delete $$; } <attr_infos>
@@ -160,6 +166,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 
 /** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义的成员变量名称 **/
 %type <number>              type
+%type <from_clause>         from_clause
+%type <from_clause>         joined_relation
 %type <condition>           condition
 %type <value>               value
 %type <number>              number
@@ -381,6 +389,7 @@ type:
     INT_T      { $$ = static_cast<int>(AttrType::INTS); }
     | STRING_T { $$ = static_cast<int>(AttrType::CHARS); }
     | FLOAT_T  { $$ = static_cast<int>(AttrType::FLOATS); }
+    | DATE_T   { $$ = static_cast<int>(AttrType::DATES); }
     | VECTOR_T { $$ = static_cast<int>(AttrType::VECTORS); }
     | TEXT_T   { $$ = static_cast<int>(AttrType::TEXTS); }
     ;
@@ -478,6 +487,7 @@ update_stmt:      /*  update 语句的语法解析树*/
       $$->update.relation_name = $2;
       $$->update.attribute_name = $4;
       $$->update.value = *$6;
+      delete $6;
       if ($7 != nullptr) {
         $$->update.conditions.swap(*$7);
         delete $7;
@@ -485,7 +495,7 @@ update_stmt:      /*  update 语句的语法解析树*/
     }
     ;
 select_stmt:        /*  select 语句的语法解析树*/
-    SELECT expression_list FROM rel_list where group_by
+    SELECT expression_list FROM from_clause where group_by
     {
       $$ = new ParsedSqlNode(SCF_SELECT);
       if ($2 != nullptr) {
@@ -494,17 +504,60 @@ select_stmt:        /*  select 语句的语法解析树*/
       }
 
       if ($4 != nullptr) {
-        $$->selection.relations.swap(*$4);
+        $$->selection.relations.swap($4->relations);
+        $$->selection.conditions.swap($4->conditions);
         delete $4;
       }
 
       if ($5 != nullptr) {
-        $$->selection.conditions.swap(*$5);
+        $$->selection.conditions.insert(
+            $$->selection.conditions.end(),
+            std::make_move_iterator($5->begin()),
+            std::make_move_iterator($5->end()));
         delete $5;
       }
 
       if ($6 != nullptr) {
         $$->selection.group_by.swap(*$6);
+        delete $6;
+      }
+    }
+    ;
+
+from_clause:
+    joined_relation
+    {
+      $$ = $1;
+    }
+    | from_clause COMMA joined_relation
+    {
+      $$ = $1;
+      if ($3 != nullptr) {
+        $$->relations.insert($$->relations.end(), $3->relations.begin(), $3->relations.end());
+        $$->conditions.insert(
+            $$->conditions.end(),
+            std::make_move_iterator($3->conditions.begin()),
+            std::make_move_iterator($3->conditions.end()));
+        delete $3;
+      }
+    }
+    ;
+
+joined_relation:
+    relation
+    {
+      $$ = new FromSqlNode;
+      $$->relations.emplace_back($1);
+    }
+    | joined_relation INNER JOIN relation ON condition_list
+    {
+      $$ = $1;
+      $$->relations.emplace_back($4);
+      if ($6 != nullptr) {
+        $$->conditions.insert(
+            $$->conditions.end(),
+            std::make_move_iterator($6->begin()),
+            std::make_move_iterator($6->end()));
         delete $6;
       }
     }

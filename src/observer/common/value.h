@@ -33,6 +33,7 @@ public:
   friend class DataType;
   friend class IntegerType;
   friend class FloatType;
+  friend class DateType;
   friend class BooleanType;
   friend class CharType;
   friend class VectorType;
