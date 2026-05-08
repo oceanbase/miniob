@@ -206,27 +206,31 @@ TEST(BplusTreeLog, concurrency)
   mt19937       generator(rd());
   shuffle(keys.begin(), keys.end(), generator);
 
-  IntegerGenerator tree_index_generator(0, static_cast<int>(bplus_trees.size() - 1) /*max_value*/);
+  const int tree_count = static_cast<int>(bplus_trees.size());
 
   ThreadPoolExecutor executor;
   ASSERT_EQ(0, executor.init("test", 4, 8, 60 * 1000));
 
   for (int i : keys) {
 
-    executor.execute([&bplus_trees, &tree_index_generator, i]() {
-      RID rid(i, i);
-      int tree_index = tree_index_generator.next();
+    executor.execute([&bplus_trees, tree_count, i]() {
+      RID                           rid(i, i);
+      mt19937                       generator(static_cast<uint32_t>(i));
+      uniform_int_distribution<int> tree_index_dist(0, tree_count - 1);
+      int                           tree_index = tree_index_dist(generator);
       ASSERT_EQ(RC::SUCCESS, bplus_trees[tree_index]->insert_entry(reinterpret_cast<const char *>(&i), &rid));
     });
   }
 
-  const int        random_operation_num = 1000 * static_cast<int>(bp_filenames.size());
-  IntegerGenerator operation_index_generator(0, 1);  // 0 for insertion, 1 for deletion
+  const int random_operation_num = 1000 * static_cast<int>(bp_filenames.size());
   for (int i = 0; i < random_operation_num; i++) {
-    executor.execute([&bplus_trees, &tree_index_generator, &operation_index_generator, i]() {
-      int tree_index      = tree_index_generator.next();
-      int operation_index = operation_index_generator.next();
-      RID rid(i, i);
+    executor.execute([&bplus_trees, tree_count, i]() {
+      mt19937                       generator(static_cast<uint32_t>(i + 1000003));
+      uniform_int_distribution<int> tree_index_dist(0, tree_count - 1);
+      uniform_int_distribution<int> operation_index_dist(0, 1);
+      int                           tree_index      = tree_index_dist(generator);
+      int                           operation_index = operation_index_dist(generator);
+      RID                           rid(i, i);
       if (0 == operation_index) {
         bplus_trees[tree_index]->insert_entry(reinterpret_cast<const char *>(&i), &rid);
       } else {

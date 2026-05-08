@@ -103,6 +103,11 @@ public:
   Frame *get(int buffer_pool_id, PageNum page_num);
 
   /**
+   * @brief 查找指定页面，但不增加 pin count
+   */
+  Frame *find(int buffer_pool_id, PageNum page_num);
+
+  /**
    * @brief 列出所有指定文件的页面
    *
    * @param buffer_pool_id buffer Pool标识
@@ -142,6 +147,7 @@ public:
   size_t total_frame_num() const { return allocator_.get_size(); }
 
 private:
+  Frame *find_internal(const FrameId &frame_id);
   Frame *get_internal(const FrameId &frame_id);
   RC     free_internal(const FrameId &frame_id, Frame *frame);
 
