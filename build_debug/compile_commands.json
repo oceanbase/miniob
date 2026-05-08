@@ -1,0 +1,1342 @@
+[
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/conf/ini.cpp.o -c /home/qizi/桌面/miniob/src/common/conf/ini.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/conf/ini.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/io/io.cpp.o -c /home/qizi/桌面/miniob/src/common/io/io.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/io/io.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/lang/bitmap.cpp.o -c /home/qizi/桌面/miniob/src/common/lang/bitmap.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/lang/bitmap.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/lang/comparator.cpp.o -c /home/qizi/桌面/miniob/src/common/lang/comparator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/lang/comparator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/lang/mutex.cpp.o -c /home/qizi/桌面/miniob/src/common/lang/mutex.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/lang/mutex.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/lang/serializer.cpp.o -c /home/qizi/桌面/miniob/src/common/lang/serializer.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/lang/serializer.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/lang/string.cpp.o -c /home/qizi/桌面/miniob/src/common/lang/string.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/lang/string.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/linereader/line_reader.cpp.o -c /home/qizi/桌面/miniob/src/common/linereader/line_reader.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/linereader/line_reader.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/log/backtrace.cpp.o -c /home/qizi/桌面/miniob/src/common/log/backtrace.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/log/backtrace.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/log/log.cpp.o -c /home/qizi/桌面/miniob/src/common/log/log.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/log/log.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/math/crc.cpp.o -c /home/qizi/桌面/miniob/src/common/math/crc.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/math/crc.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/math/md5.cpp.o -c /home/qizi/桌面/miniob/src/common/math/md5.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/math/md5.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/math/random_generator.cpp.o -c /home/qizi/桌面/miniob/src/common/math/random_generator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/math/random_generator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/math/regex.cpp.o -c /home/qizi/桌面/miniob/src/common/math/regex.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/math/regex.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/math/simd_util.cpp.o -c /home/qizi/桌面/miniob/src/common/math/simd_util.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/math/simd_util.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/mm/mem_pool.cpp.o -c /home/qizi/桌面/miniob/src/common/mm/mem_pool.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/mm/mem_pool.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/os/os.cpp.o -c /home/qizi/桌面/miniob/src/common/os/os.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/os/os.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/os/path.cpp.o -c /home/qizi/桌面/miniob/src/common/os/path.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/os/path.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/os/pidfile.cpp.o -c /home/qizi/桌面/miniob/src/common/os/pidfile.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/os/pidfile.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/os/process.cpp.o -c /home/qizi/桌面/miniob/src/common/os/process.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/os/process.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/os/process_param.cpp.o -c /home/qizi/桌面/miniob/src/common/os/process_param.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/os/process_param.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/os/signal.cpp.o -c /home/qizi/桌面/miniob/src/common/os/signal.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/os/signal.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/sys/rc.cpp.o -c /home/qizi/桌面/miniob/src/common/sys/rc.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/sys/rc.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/thread/thread_pool_executor.cpp.o -c /home/qizi/桌面/miniob/src/common/thread/thread_pool_executor.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/thread/thread_pool_executor.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/thread/thread_util.cpp.o -c /home/qizi/桌面/miniob/src/common/thread/thread_util.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/thread/thread_util.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/time/datetime.cpp.o -c /home/qizi/桌面/miniob/src/common/time/datetime.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/time/datetime.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/common  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/common.dir/time/timeout_info.cpp.o -c /home/qizi/桌面/miniob/src/common/time/timeout_info.cpp",
+  "file": "/home/qizi/桌面/miniob/src/common/time/timeout_info.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/parser/lex_sql.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/parser/lex_sql.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/parser/lex_sql.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/parser/yacc_sql.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/parser/yacc_sql.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/parser/yacc_sql.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/catalog/catalog.cpp.o -c /home/qizi/桌面/miniob/src/observer/catalog/catalog.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/catalog/catalog.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/common/global_context.cpp.o -c /home/qizi/桌面/miniob/src/observer/common/global_context.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/common/global_context.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/common/init.cpp.o -c /home/qizi/桌面/miniob/src/observer/common/init.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/common/init.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/common/type/attr_type.cpp.o -c /home/qizi/桌面/miniob/src/observer/common/type/attr_type.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/common/type/attr_type.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/common/type/char_type.cpp.o -c /home/qizi/桌面/miniob/src/observer/common/type/char_type.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/common/type/char_type.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/common/type/data_type.cpp.o -c /home/qizi/桌面/miniob/src/observer/common/type/data_type.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/common/type/data_type.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/common/type/float_type.cpp.o -c /home/qizi/桌面/miniob/src/observer/common/type/float_type.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/common/type/float_type.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/common/type/integer_type.cpp.o -c /home/qizi/桌面/miniob/src/observer/common/type/integer_type.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/common/type/integer_type.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/common/type/text_type.cpp.o -c /home/qizi/桌面/miniob/src/observer/common/type/text_type.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/common/type/text_type.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/common/value.cpp.o -c /home/qizi/桌面/miniob/src/observer/common/value.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/common/value.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/event/session_event.cpp.o -c /home/qizi/桌面/miniob/src/observer/event/session_event.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/event/session_event.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/event/sql_debug.cpp.o -c /home/qizi/桌面/miniob/src/observer/event/sql_debug.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/event/sql_debug.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/event/sql_event.cpp.o -c /home/qizi/桌面/miniob/src/observer/event/sql_event.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/event/sql_event.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/buffered_writer.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/buffered_writer.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/buffered_writer.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/cli_communicator.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/cli_communicator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/cli_communicator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/communicator.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/communicator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/communicator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/java_thread_pool_thread_handler.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/java_thread_pool_thread_handler.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/java_thread_pool_thread_handler.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/mysql_communicator.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/mysql_communicator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/mysql_communicator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/one_thread_per_connection_thread_handler.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/one_thread_per_connection_thread_handler.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/one_thread_per_connection_thread_handler.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/plain_communicator.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/plain_communicator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/plain_communicator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/ring_buffer.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/ring_buffer.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/ring_buffer.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/server.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/server.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/server.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/sql_task_handler.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/sql_task_handler.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/sql_task_handler.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/net/thread_handler.cpp.o -c /home/qizi/桌面/miniob/src/observer/net/thread_handler.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/net/thread_handler.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/session/session.cpp.o -c /home/qizi/桌面/miniob/src/observer/session/session.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/session/session.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/session/session_stage.cpp.o -c /home/qizi/桌面/miniob/src/observer/session/session_stage.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/session/session_stage.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/session/thread_data.cpp.o -c /home/qizi/桌面/miniob/src/observer/session/thread_data.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/session/thread_data.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/analyze_table_executor.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/analyze_table_executor.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/analyze_table_executor.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/command_executor.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/command_executor.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/command_executor.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/create_index_executor.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/create_index_executor.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/create_index_executor.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/create_table_executor.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/create_table_executor.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/create_table_executor.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/desc_table_executor.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/desc_table_executor.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/desc_table_executor.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/drop_table_executor.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/drop_table_executor.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/drop_table_executor.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/execute_stage.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/execute_stage.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/execute_stage.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/load_data_executor.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/load_data_executor.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/load_data_executor.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/set_variable_executor.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/set_variable_executor.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/set_variable_executor.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/executor/sql_result.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/executor/sql_result.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/executor/sql_result.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/expr/aggregate_hash_table.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/expr/aggregate_hash_table.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/expr/aggregate_hash_table.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/expr/aggregate_state.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/expr/aggregate_state.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/expr/aggregate_state.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/expr/aggregator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/expr/aggregator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/expr/aggregator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/expr/composite_tuple.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/expr/composite_tuple.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/expr/composite_tuple.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/expr/expression.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/expr/expression.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/expr/expression.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/expr/expression_iterator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/expr/expression_iterator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/expr/expression_iterator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/expr/tuple_cell.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/expr/tuple_cell.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/expr/tuple_cell.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/aggregate_vec_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/aggregate_vec_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/aggregate_vec_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/delete_logical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/delete_logical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/delete_logical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/delete_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/delete_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/delete_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/explain_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/explain_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/explain_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/expr_vec_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/expr_vec_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/expr_vec_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/group_by_logical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/group_by_logical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/group_by_logical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/group_by_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/group_by_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/group_by_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/group_by_vec_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/group_by_vec_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/group_by_vec_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/hash_group_by_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/hash_group_by_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/hash_group_by_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/hash_join_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/hash_join_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/hash_join_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/index_scan_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/index_scan_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/index_scan_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/insert_logical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/insert_logical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/insert_logical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/insert_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/insert_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/insert_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/join_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/join_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/join_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/logical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/logical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/logical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/nested_loop_join_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/nested_loop_join_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/nested_loop_join_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/predicate_logical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/predicate_logical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/predicate_logical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/predicate_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/predicate_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/predicate_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/project_logical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/project_logical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/project_logical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/project_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/project_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/project_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/project_vec_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/project_vec_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/project_vec_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/scalar_group_by_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/scalar_group_by_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/scalar_group_by_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/table_get_logical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/table_get_logical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/table_get_logical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/table_scan_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/table_scan_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/table_scan_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/table_scan_vec_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/table_scan_vec_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/table_scan_vec_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/update_logical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/update_logical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/update_logical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/operator/update_physical_operator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/operator/update_physical_operator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/operator/update_physical_operator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/cost_model.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/cost_model.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/cost_model.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/group.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/group.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/group.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/group_expr.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/group_expr.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/group_expr.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/implementation_rules.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/implementation_rules.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/implementation_rules.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/memo.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/memo.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/memo.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/optimizer.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/optimizer.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/optimizer.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/optimizer_context.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/optimizer_context.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/optimizer_context.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/rules.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/rules.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/rules.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/tasks/apply_rule_task.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/apply_rule_task.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/apply_rule_task.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/tasks/cascade_task.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/cascade_task.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/cascade_task.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/tasks/e_group_task.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/e_group_task.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/e_group_task.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/tasks/o_expr_task.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/o_expr_task.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/o_expr_task.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/tasks/o_group_task.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/o_group_task.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/o_group_task.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/cascade/tasks/o_input_task.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/o_input_task.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/cascade/tasks/o_input_task.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/comparison_simplification_rule.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/comparison_simplification_rule.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/comparison_simplification_rule.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/conjunction_simplification_rule.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/conjunction_simplification_rule.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/conjunction_simplification_rule.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/expression_rewriter.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/expression_rewriter.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/expression_rewriter.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/logical_plan_generator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/logical_plan_generator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/logical_plan_generator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/optimize_stage.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/optimize_stage.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/optimize_stage.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/optimizer_utils.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/optimizer_utils.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/optimizer_utils.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/physical_plan_generator.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/physical_plan_generator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/physical_plan_generator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/predicate_pushdown_rewriter.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/predicate_pushdown_rewriter.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/predicate_pushdown_rewriter.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/predicate_rewrite.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/predicate_rewrite.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/predicate_rewrite.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/predicate_to_join_rule.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/predicate_to_join_rule.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/predicate_to_join_rule.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/optimizer/rewriter.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/optimizer/rewriter.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/optimizer/rewriter.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/parser/expression_binder.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/parser/expression_binder.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/parser/expression_binder.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/parser/parse.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/parser/parse.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/parser/parse.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/parser/parse_stage.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/parser/parse_stage.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/parser/parse_stage.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/parser/resolve_stage.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/parser/resolve_stage.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/parser/resolve_stage.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/plan_cache/plan_cache_stage.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/plan_cache/plan_cache_stage.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/plan_cache/plan_cache_stage.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/query_cache/query_cache_stage.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/query_cache/query_cache_stage.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/query_cache/query_cache_stage.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/analyze_table_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/analyze_table_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/analyze_table_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/create_index_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/create_index_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/create_index_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/create_table_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/create_table_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/create_table_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/delete_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/delete_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/delete_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/desc_table_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/desc_table_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/desc_table_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/drop_table_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/drop_table_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/drop_table_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/explain_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/explain_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/explain_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/filter_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/filter_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/filter_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/insert_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/insert_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/insert_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/load_data_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/load_data_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/load_data_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/select_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/select_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/select_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/sql/stmt/update_stmt.cpp.o -c /home/qizi/桌面/miniob/src/observer/sql/stmt/update_stmt.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/sql/stmt/update_stmt.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/buffer/buffer_pool_log.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/buffer/buffer_pool_log.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/buffer/buffer_pool_log.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/buffer/disk_buffer_pool.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/buffer/disk_buffer_pool.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/buffer/disk_buffer_pool.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/buffer/double_write_buffer.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/buffer/double_write_buffer.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/buffer/double_write_buffer.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/buffer/frame.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/buffer/frame.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/buffer/frame.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/clog/disk_log_handler.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/clog/disk_log_handler.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/clog/disk_log_handler.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/clog/integrated_log_replayer.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/clog/integrated_log_replayer.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/clog/integrated_log_replayer.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/clog/log_buffer.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/clog/log_buffer.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/clog/log_buffer.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/clog/log_entry.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/clog/log_entry.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/clog/log_entry.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/clog/log_file.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/clog/log_file.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/clog/log_file.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/clog/log_handler.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/clog/log_handler.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/clog/log_handler.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/common/arena_allocator.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/common/arena_allocator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/common/arena_allocator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/common/chunk.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/common/chunk.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/common/chunk.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/common/codec.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/common/codec.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/common/codec.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/common/column.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/common/column.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/common/column.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/common/condition_filter.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/common/condition_filter.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/common/condition_filter.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/common/meta_util.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/common/meta_util.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/common/meta_util.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/db/db.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/db/db.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/db/db.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/default/default_handler.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/default/default_handler.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/default/default_handler.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/field/field.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/field/field.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/field/field.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/field/field_meta.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/field/field_meta.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/field/field_meta.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/index/bplus_tree.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/index/bplus_tree.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/index/bplus_tree.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/index/bplus_tree_index.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/index/bplus_tree_index.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/index/bplus_tree_index.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/index/bplus_tree_log.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/index/bplus_tree_log.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/index/bplus_tree_log.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/index/bplus_tree_log_entry.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/index/bplus_tree_log_entry.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/index/bplus_tree_log_entry.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/index/index.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/index/index.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/index/index.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/index/index_meta.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/index/index_meta.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/index/index_meta.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/index/latch_memo.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/index/latch_memo.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/index/latch_memo.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/persist/persist.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/persist/persist.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/persist/persist.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/record/heap_record_scanner.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/record/heap_record_scanner.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/record/heap_record_scanner.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/record/lob_handler.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/record/lob_handler.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/record/lob_handler.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/record/lsm_record_scanner.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/record/lsm_record_scanner.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/record/lsm_record_scanner.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/record/record_log.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/record/record_log.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/record/record_log.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/record/record_manager.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/record/record_manager.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/record/record_manager.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/record/record_scanner.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/record/record_scanner.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/record/record_scanner.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/table/heap_table_engine.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/table/heap_table_engine.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/table/heap_table_engine.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/table/lsm_table_engine.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/table/lsm_table_engine.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/table/lsm_table_engine.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/table/table.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/table/table.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/table/table.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/table/table_meta.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/table/table_meta.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/table/table_meta.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/trx/lsm_mvcc_trx.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/trx/lsm_mvcc_trx.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/trx/lsm_mvcc_trx.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/trx/mvcc_trx.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/trx/mvcc_trx.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/trx/mvcc_trx.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/trx/mvcc_trx_log.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/trx/mvcc_trx_log.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/trx/mvcc_trx_log.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/trx/trx.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/trx/trx.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/trx/trx.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer_static.dir/storage/trx/vacuous_trx.cpp.o -c /home/qizi/桌面/miniob/src/observer/storage/trx/vacuous_trx.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/storage/trx/vacuous_trx.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/observer.dir/main.cpp.o -c /home/qizi/桌面/miniob/src/observer/main.cpp",
+  "file": "/home/qizi/桌面/miniob/src/observer/main.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/obclient",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/obclient.dir/client.cpp.o -c /home/qizi/桌面/miniob/src/obclient/client.cpp",
+  "file": "/home/qizi/桌面/miniob/src/obclient/client.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/compaction/ob_compaction.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/compaction/ob_compaction.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/compaction/ob_compaction.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/compaction/ob_compaction_picker.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/compaction/ob_compaction_picker.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/compaction/ob_compaction_picker.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/memtable/ob_memtable.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/memtable/ob_memtable.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/memtable/ob_memtable.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/ob_lsm_impl.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/ob_lsm_impl.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/ob_lsm_impl.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/ob_lsm_transaction.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/ob_lsm_transaction.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/ob_lsm_transaction.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/ob_manifest.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/ob_manifest.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/ob_manifest.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/ob_user_iterator.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/ob_user_iterator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/ob_user_iterator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/table/ob_block.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/table/ob_block.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/table/ob_block.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/table/ob_block_builder.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/table/ob_block_builder.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/table/ob_block_builder.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/table/ob_merger.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/table/ob_merger.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/table/ob_merger.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/table/ob_sstable.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/table/ob_sstable.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/table/ob_sstable.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/table/ob_sstable_builder.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/table/ob_sstable_builder.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/table/ob_sstable_builder.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/util/ob_arena.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/util/ob_arena.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/util/ob_arena.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/util/ob_bloomfilter.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/util/ob_bloomfilter.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/util/ob_bloomfilter.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/util/ob_comparator.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/util/ob_comparator.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/util/ob_comparator.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/util/ob_file_reader.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/util/ob_file_reader.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/util/ob_file_reader.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/util/ob_file_writer.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/util/ob_file_writer.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/util/ob_file_writer.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/util/ob_lru_cache.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/util/ob_lru_cache.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/util/ob_lru_cache.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm.dir/wal/ob_lsm_wal.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/wal/ob_lsm_wal.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/wal/ob_lsm_wal.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm_cli.dir/client/cliutil/parser.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/client/cliutil/parser.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/client/cliutil/parser.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm_cli.dir/client/ob_lsm_client.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/client/ob_lsm_client.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/client/ob_lsm_client.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/oblsm_bench.dir/benchmarks/ob_lsm_bench.cpp.o -c /home/qizi/桌面/miniob/src/oblsm/benchmarks/ob_lsm_bench.cpp",
+  "file": "/home/qizi/桌面/miniob/src/oblsm/benchmarks/ob_lsm_bench.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/cpplings",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/cas.dir/cas.cpp.o -c /home/qizi/桌面/miniob/src/cpplings/cas.cpp",
+  "file": "/home/qizi/桌面/miniob/src/cpplings/cas.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/cpplings",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/condition_variable.dir/condition_variable.cpp.o -c /home/qizi/桌面/miniob/src/cpplings/condition_variable.cpp",
+  "file": "/home/qizi/桌面/miniob/src/cpplings/condition_variable.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/cpplings",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/lambda.dir/lambda.cpp.o -c /home/qizi/桌面/miniob/src/cpplings/lambda.cpp",
+  "file": "/home/qizi/桌面/miniob/src/cpplings/lambda.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/cpplings",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/lock.dir/lock.cpp.o -c /home/qizi/桌面/miniob/src/cpplings/lock.cpp",
+  "file": "/home/qizi/桌面/miniob/src/cpplings/lock.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/cpplings",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/mutex.dir/mutex.cpp.o -c /home/qizi/桌面/miniob/src/cpplings/mutex.cpp",
+  "file": "/home/qizi/桌面/miniob/src/cpplings/mutex.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/cpplings",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/smart_pointer.dir/smart_pointer.cpp.o -c /home/qizi/桌面/miniob/src/cpplings/smart_pointer.cpp",
+  "file": "/home/qizi/桌面/miniob/src/cpplings/smart_pointer.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/cpplings",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/template.dir/template.cpp.o -c /home/qizi/桌面/miniob/src/cpplings/template.cpp",
+  "file": "/home/qizi/桌面/miniob/src/cpplings/template.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/src/cpplings",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/stl.dir/stl.cpp.o -c /home/qizi/桌面/miniob/src/cpplings/stl.cpp",
+  "file": "/home/qizi/桌面/miniob/src/cpplings/stl.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/tools",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -std=gnu++20 -o CMakeFiles/clog_dump.dir/clog_dump.cpp.o -c /home/qizi/桌面/miniob/tools/clog_dump.cpp",
+  "file": "/home/qizi/桌面/miniob/tools/clog_dump.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/bitmap_test.dir/bitmap_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/bitmap_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/bitmap_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/integer_generator_test.dir/integer_generator_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/integer_generator_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/integer_generator_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/log_test.dir/log_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/log_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/log_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/lower_bound_test.dir/lower_bound_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/lower_bound_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/lower_bound_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/md5_test.dir/md5_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/md5_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/md5_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/mem_pool_test.dir/mem_pool_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/mem_pool_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/mem_pool_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/pidfile_test.dir/pidfile_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/pidfile_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/pidfile_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/serializer_test.dir/serializer_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/serializer_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/serializer_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/simple_queue_test.dir/simple_queue_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/simple_queue_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/simple_queue_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/common",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/thread_pool_executor_test.dir/thread_pool_executor_test.cpp.o -c /home/qizi/桌面/miniob/unittest/common/thread_pool_executor_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/common/thread_pool_executor_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_arena_test.dir/ob_arena_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_arena_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_arena_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_block_test.dir/ob_block_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_block_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_block_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_bloomfilter_test.dir/ob_bloomfilter_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_bloomfilter_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_bloomfilter_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_compaction_test.dir/ob_compaction_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_compaction_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_compaction_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_lru_cache_test.dir/ob_lru_cache_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_lru_cache_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_lru_cache_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_lsm_manifest_test.dir/ob_lsm_manifest_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_lsm_manifest_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_lsm_manifest_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_lsm_test.dir/ob_lsm_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_lsm_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_lsm_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_lsm_transaction_test.dir/ob_lsm_transaction_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_lsm_transaction_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_lsm_transaction_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_lsm_wal_test.dir/ob_lsm_wal_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_lsm_wal_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_lsm_wal_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_skiplist_test.dir/ob_skiplist_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_skiplist_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_skiplist_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_table_test.dir/ob_table_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_table_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_table_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/oblsm",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ob_util_test.dir/ob_util_test.cpp.o -c /home/qizi/桌面/miniob/unittest/oblsm/ob_util_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/oblsm/ob_util_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/aggregate_hash_table_test.dir/aggregate_hash_table_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/aggregate_hash_table_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/aggregate_hash_table_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/arithmetic_operator_test.dir/arithmetic_operator_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/arithmetic_operator_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/arithmetic_operator_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/bp_manager_test.dir/bp_manager_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/bp_manager_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/bp_manager_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/bplus_tree_log_entry_test.dir/bplus_tree_log_entry_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/bplus_tree_log_entry_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/bplus_tree_log_entry_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/bplus_tree_log_test.dir/bplus_tree_log_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/bplus_tree_log_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/bplus_tree_log_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/bplus_tree_test.dir/bplus_tree_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/bplus_tree_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/bplus_tree_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/buffer_pool_log_test.dir/buffer_pool_log_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/buffer_pool_log_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/buffer_pool_log_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/catalog_test.dir/catalog_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/catalog_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/catalog_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/chunk_test.dir/chunk_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/chunk_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/chunk_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/codec_test.dir/codec_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/codec_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/codec_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/composite_tuple_test.dir/composite_tuple_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/composite_tuple_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/composite_tuple_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/disk_buffer_pool_test.dir/disk_buffer_pool_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/disk_buffer_pool_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/disk_buffer_pool_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/disk_log_handler_test.dir/disk_log_handler_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/disk_log_handler_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/disk_log_handler_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/double_write_buffer_test.dir/double_write_buffer_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/double_write_buffer_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/double_write_buffer_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/expression_test.dir/expression_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/expression_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/expression_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/log_buffer_test.dir/log_buffer_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/log_buffer_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/log_buffer_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/log_entry_test.dir/log_entry_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/log_entry_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/log_entry_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/log_file_test.dir/log_file_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/log_file_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/log_file_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/mvcc_trx_log_test.dir/mvcc_trx_log_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/mvcc_trx_log_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/mvcc_trx_log_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/parser_test.dir/parser_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/parser_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/parser_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/pax_storage_test.dir/pax_storage_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/pax_storage_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/pax_storage_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/persist_test.dir/persist_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/persist_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/persist_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/record_manager_test.dir/record_manager_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/record_manager_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/record_manager_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/ring_buffer_test.dir/ring_buffer_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/ring_buffer_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/ring_buffer_test.cpp"
+},
+{
+  "directory": "/home/qizi/桌面/miniob/build_debug/unittest/observer",
+  "command": "/usr/bin/c++ -DENABLE_ASAN -DLINUX -DREPLXX_STATIC -DUNIX -I/home/qizi/桌面/miniob/. -I/home/qizi/桌面/miniob/deps -I/home/qizi/桌面/miniob/src -I/home/qizi/桌面/miniob/src/observer -isystem /usr/include/jsoncpp  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g -DGTEST_HAS_PTHREAD=1 -std=gnu++20 -o CMakeFiles/text_and_drop_table_test.dir/text_and_drop_table_test.cpp.o -c /home/qizi/桌面/miniob/unittest/observer/text_and_drop_table_test.cpp",
+  "file": "/home/qizi/桌面/miniob/unittest/observer/text_and_drop_table_test.cpp"
+}
+]

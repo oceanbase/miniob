@@ -15,7 +15,6 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/meta_util.h"
 #include "storage/db/db.h"
 
-
 HeapTableEngine::~HeapTableEngine()
 {
   if (record_handler_ != nullptr) {
@@ -61,7 +60,7 @@ RC HeapTableEngine::insert_record(Record &record)
   return rc;
 }
 
-RC HeapTableEngine::insert_chunk(const Chunk& chunk)
+RC HeapTableEngine::insert_chunk(const Chunk &chunk)
 {
   RC rc = RC::SUCCESS;
   rc    = record_handler_->insert_chunk(chunk, table_meta_->record_size());
@@ -106,7 +105,7 @@ RC HeapTableEngine::delete_record(const Record &record)
 RC HeapTableEngine::get_record_scanner(RecordScanner *&scanner, Trx *trx, ReadWriteMode mode)
 {
   scanner = new HeapRecordScanner(table_, *data_buffer_pool_, trx, db_->log_handler(), mode, nullptr);
-  RC rc = scanner->open_scan();
+  RC rc   = scanner->open_scan();
   if (rc != RC::SUCCESS) {
     LOG_ERROR("failed to open scanner. rc=%s", strrc(rc));
   }
@@ -151,7 +150,7 @@ RC HeapTableEngine::create_index(Trx *trx, const FieldMeta *field_meta, const ch
 
   // 遍历当前的所有数据，插入这个索引
   RecordScanner *scanner = nullptr;
-  rc = get_record_scanner(scanner, trx, ReadWriteMode::READ_ONLY);
+  rc                     = get_record_scanner(scanner, trx, ReadWriteMode::READ_ONLY);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to create scanner while creating index. table=%s, index=%s, rc=%s", 
              table_meta_->name(), index_name, strrc(rc));
@@ -267,6 +266,41 @@ RC HeapTableEngine::sync()
   return rc;
 }
 
+RC HeapTableEngine::update_record_with_trx(const Record &old_record, const Record &new_record, Trx *trx)
+{
+  RC rc = RC::SUCCESS;
+  // 删除旧索引项
+  for (Index *index : indexes_) {
+    rc = index->delete_entry(old_record.data(), &old_record.rid());
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to delete index entry when updating record. table name=%s, rc=%s", table_meta_->name(), strrc(rc));
+      // continue to attempt update, but note the failure
+    }
+  }
+
+  // 更新存储中的记录
+  if (record_handler_ == nullptr) {
+    LOG_ERROR("record handler is null when updating record. table=%s", table_meta_->name());
+    return RC::INTERNAL;
+  }
+
+  rc = record_handler_->update_record(old_record.rid(), new_record.data());
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to update record in record handler. table=%s, rc=%s", table_meta_->name(), strrc(rc));
+    return rc;
+  }
+
+  // 插入新索引项
+  for (Index *index : indexes_) {
+    rc = index->insert_entry(new_record.data(), &new_record.rid());
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to insert index entry when updating record. table name=%s, rc=%s", table_meta_->name(), strrc(rc));
+      return rc;
+    }
+  }
+
+  return RC::SUCCESS;
+}
 Index *HeapTableEngine::find_index(const char *index_name) const
 {
   for (Index *index : indexes_) {

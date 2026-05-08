@@ -694,11 +694,34 @@ RC RecordFileHandler::get_record(const RID &rid, Record &record)
   rc = page_handler->get_record(rid, inplace_record);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to get record from record page handle. rid=%s, rc=%s", rid.to_string().c_str(), strrc(rc));
+    page_handler->cleanup();
     return rc;
   }
 
   record.copy_data(inplace_record.data(), inplace_record.len());
   record.set_rid(rid);
+  page_handler->cleanup();
+  return rc;
+}
+
+RC RecordFileHandler::update_record(const RID &rid, const char *data)
+{
+  unique_ptr<RecordPageHandler> page_handler(RecordPageHandler::create(storage_format_));
+
+  RC rc = page_handler->init(*disk_buffer_pool_, *log_handler_, rid.page_num, ReadWriteMode::READ_WRITE);
+  if (OB_FAIL(rc)) {
+    LOG_ERROR("Failed to init record page handler.page number=%d", rid.page_num);
+    return rc;
+  }
+
+  rc = page_handler->update_record(rid, data);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to update record from record page handle. rid=%s, rc=%s", rid.to_string().c_str(), strrc(rc));
+    page_handler->cleanup();
+    return rc;
+  }
+
+  page_handler->cleanup();
   return rc;
 }
 
@@ -716,6 +739,7 @@ RC RecordFileHandler::visit_record(const RID &rid, function<bool(Record &)> upda
   rc = page_handler->get_record(rid, inplace_record);
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to get record from record page handle. rid=%s, rc=%s", rid.to_string().c_str(), strrc(rc));
+    page_handler->cleanup();
     return rc;
   }
 
@@ -728,7 +752,14 @@ RC RecordFileHandler::visit_record(const RID &rid, function<bool(Record &)> upda
   bool updated = updater(record);
   if (updated) {
     rc = page_handler->update_record(rid, record.data());
+    if (OB_FAIL(rc)) {
+      LOG_WARN("failed to update record from record page handle. rid=%s, rc=%s", rid.to_string().c_str(), strrc(rc));
+      page_handler->cleanup();
+      return rc;
+    }
   }
+
+  page_handler->cleanup();
   return rc;
 }
 

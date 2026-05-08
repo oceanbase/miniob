@@ -28,6 +28,7 @@ class ExplainLogicalOperator;
 class JoinLogicalOperator;
 class CalcLogicalOperator;
 class GroupByLogicalOperator;
+class UpdateLogicalOperator;
 
 /**
  * @brief 物理计划生成器
@@ -51,6 +52,7 @@ private:
   RC create_plan(InsertLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session *session);
   RC create_plan(DeleteLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session *session);
   RC create_plan(ExplainLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session *session);
+  RC create_plan(UpdateLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session *session);
   RC create_plan(JoinLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session *session);
   RC create_plan(CalcLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session *session);
   RC create_plan(GroupByLogicalOperator &logical_oper, unique_ptr<PhysicalOperator> &oper, Session *session);
