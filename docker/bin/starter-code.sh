@@ -5,6 +5,35 @@
 echo "Try to clone repository..."
 
 SSH_DIR=/root/.ssh
+REPO_DIR=/root/source/miniob
+
+clone_repo() {
+    local repo_addr="$1"
+
+    git clone "$repo_addr" "${REPO_DIR}"
+}
+
+extract_repo_host() {
+    local repo_addr="$1"
+
+    if [[ "$repo_addr" =~ ^git@([^:]+): ]]; then
+        echo "${BASH_REMATCH[1]}"
+    elif [[ "$repo_addr" =~ ^https?://([^/]+)/ ]]; then
+        echo "${BASH_REMATCH[1]}"
+    fi
+}
+
+https_to_ssh_repo() {
+    local repo_addr="$1"
+
+    if [[ "$repo_addr" =~ ^https://github\.com/([^/]+/[^/]+)(\.git)?$ ]]; then
+        echo "git@github.com:${BASH_REMATCH[1]}.git"
+    elif [[ "$repo_addr" =~ ^https://github\.com/([^/]+/[^/]+)$ ]]; then
+        echo "git@github.com:${BASH_REMATCH[1]}.git"
+    else
+        echo ""
+    fi
+}
 
 if [ "$PRIVATE_KEY" = "" ]; then
     echo "ENV PRIVATE_KEY is not set."
@@ -26,16 +55,15 @@ else
         chmod 600 ${SSH_DIR}/id_rsa
 
         # add SSH key fingerprint to known_hosts
-        echo $REPO_ADDR | awk -F'[@:]' '{print $2}' | xargs ssh-keyscan $1 >>${SSH_DIR}/known_hosts
+        repo_host=$(extract_repo_host "$REPO_ADDR")
+        if [ "$repo_host" != "" ]; then
+            ssh-keyscan "$repo_host" >>${SSH_DIR}/known_hosts
+        fi
 
         echo "SSH private rsa key generated!"
     fi
 
 fi
-
-# check if source code exists
-
-REPO_DIR=/root/source/miniob
 
 if [ -d "${REPO_DIR}" ]; then
     cd ${REPO_DIR}
@@ -58,6 +86,16 @@ else
     WORK_DIR=/root/source
     mkdir -p ${WORK_DIR}
 
-    git clone $REPO_ADDR ${REPO_DIR}
+    if ! clone_repo "$REPO_ADDR"; then
+        ssh_repo_addr=$(https_to_ssh_repo "$REPO_ADDR")
+        if [ "$ssh_repo_addr" != "" ]; then
+            echo "HTTPS clone failed, retrying with SSH: ${ssh_repo_addr}"
+            if ! clone_repo "$ssh_repo_addr"; then
+                exit 1
+            fi
+        else
+            exit 1
+        fi
+    fi
 fi
 
