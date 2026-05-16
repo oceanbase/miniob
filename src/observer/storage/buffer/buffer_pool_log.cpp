@@ -139,4 +139,4 @@ RC BufferPoolLogReplayer::replay(const LogEntry &entry)
  * @details 崩溃恢复时由日志回放框架调用，根据日志内容重做页面分配/释放操作。
  *          这是 REDO 日志的核心逻辑：重复执行操作是幂等的（幂等性由底层保证）。
  */
-
+ 
