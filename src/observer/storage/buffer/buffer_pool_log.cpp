@@ -140,5 +140,3 @@ RC BufferPoolLogReplayer::replay(const LogEntry &entry)
  *          这是 REDO 日志的核心逻辑：重复执行操作是幂等的（幂等性由底层保证）。
  */
 
-
- 
