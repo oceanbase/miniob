@@ -89,6 +89,14 @@ int init_tcp_sock(const char *server_host, int server_port)
   }
   return sockfd;
 }
+static void replace_all(std::string &s) {
+  for (auto &ch : s) {
+    if (ch == '\n' || ch == '\r') {
+      ch = ' ';
+    }
+  }
+}
+
 
 const char *startup_tips = R"(
 Welcome to the OceanBase database implementation course.
@@ -135,8 +143,14 @@ int main(int argc, char *argv[])
   std::string input_command = "";
   MiniobLineReader::instance().init(LINE_HISTORY_FILE);
 
+  const char *const_prompt = "      -> ";
+
+  std::string sql_buffer;
+
+  
   while (true) {
-    input_command = MiniobLineReader::instance().my_readline(prompt_str);
+    const char *prompt = sql_buffer.empty() ? prompt_str : const_prompt;
+    input_command = MiniobLineReader::instance().my_readline(prompt);
 
     if (input_command.empty() || common::is_blank(input_command.c_str())) {
       continue;
@@ -145,38 +159,47 @@ int main(int argc, char *argv[])
     if (MiniobLineReader::instance().is_exit_command(input_command)) {
       break;
     }
+    
+    sql_buffer += input_command + ' ';
 
-    if ((send_bytes = write(sockfd, input_command.c_str(), input_command.length() + 1)) == -1) {  // TODO writen
-      fprintf(stderr, "send error: %d:%s \n", errno, strerror(errno));
-      exit(1);
-    }
+    std::string trimmed = sql_buffer;
+    replace_all(trimmed);
 
-    memset(send_buf, 0, sizeof(send_buf));
+    if (!trimmed.empty() && trimmed.find(';') != std::string::npos) {
+      if ((send_bytes = write(sockfd, trimmed.c_str(), trimmed.length() + 1)) == -1) {  // TODO writen
+        fprintf(stderr, "send error: %d:%s \n", errno, strerror(errno));
+        exit(1);
+      }
+    sql_buffer.clear();
 
-    int len = 0;
-    while ((len = recv(sockfd, send_buf, MAX_MEM_BUFFER_SIZE, 0)) > 0) {
-      bool msg_end = false;
-      for (int i = 0; i < len; i++) {
-        if (0 == send_buf[i]) {
-          msg_end = true;
+      memset(send_buf, 0, sizeof(send_buf));
+
+      int len = 0;
+      while ((len = recv(sockfd, send_buf, MAX_MEM_BUFFER_SIZE, 0)) > 0) {
+        bool msg_end = false;
+        for (int i = 0; i < len; i++) {
+          if (0 == send_buf[i]) {
+            msg_end = true;
+            break;
+          }
+          printf("%c", send_buf[i]);
+        }
+        if (msg_end) {
           break;
         }
-        printf("%c", send_buf[i]);
+        memset(send_buf, 0, MAX_MEM_BUFFER_SIZE);
       }
-      if (msg_end) {
+
+      if (len < 0) {
+        fprintf(stderr, "Connection was broken: %s\n", strerror(errno));
         break;
       }
-      memset(send_buf, 0, MAX_MEM_BUFFER_SIZE);
+      if (0 == len) {
+        printf("Connection has been closed\n");
+        break;
+      }
     }
-
-    if (len < 0) {
-      fprintf(stderr, "Connection was broken: %s\n", strerror(errno));
-      break;
-    }
-    if (0 == len) {
-      printf("Connection has been closed\n");
-      break;
-    }
+  
   }
 
   close(sockfd);
