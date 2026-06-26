@@ -421,7 +421,7 @@ private:
   DiskBufferPool        *disk_buffer_pool_ = nullptr;
   LogHandler            *log_handler_      = nullptr;  ///< 记录日志的处理器
   unordered_set<PageNum> free_pages_;                  ///< 没有填充满的页面集合
-  common::Mutex          lock_;  ///< 当编译时增加-DCONCURRENCY=ON 选项时，才会真正的支持并发
+  common::Mutex          lock_;  ///< 记录管理器的锁
   StorageFormat          storage_format_;
   TableMeta             *table_meta_;
   LobFileHandler        *lob_handler_ = nullptr;

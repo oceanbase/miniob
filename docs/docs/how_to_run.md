@@ -36,19 +36,6 @@ title: 如何运行
 ```
 这会连接到服务端的miniob.sock文件。
 
-**并发模式**
-
-默认情况下，编译出的程序是不支持并发的。如果需要支持并发，需要在编译时增加选项 `-DCONCURRENCY=ON`:
-```bash
-cmake -DCONCURRENCY=ON ..
-```
-
-或者
-
-```bash
-bash build.sh -DCONCURRENCY=ON
-```
-
 然后使用上面的命令启动服务端程序，就可以支持并发了。
 
 **启动参数介绍**
