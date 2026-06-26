@@ -12,7 +12,8 @@ services:
     restart: unless-stopped
     environment:
       #  set the env argument PRIVATE_KEY when using ssh clone
-      #  REPO_ADDR format in a private repo: https://<username>:<password>@github.com/oceanbase/miniob.git, '@' in username must be escape to '%40'
+      #  for private GitHub repos, prefer SSH like git@github.com:<user>/<repo>.git
+      #  if you must use HTTPS for a private repo, embed a token in the URL and escape '@' in the username as '%40'
       #  How to run:
       #    Linux shell: 
       #        export PRIVATE_KEY=$(cat ~/.ssh/id_rsa) && docker-compose up -d --build

@@ -15,17 +15,23 @@ flex_target(lex ${PARSER_WORKDIR}/lex_sql.l "${LEXER_SOURCES}" DEFINES_FILE "${L
 bison_target(yacc ${PARSER_WORKDIR}/yacc_sql.y "${PARSER_SOURCES}" DEFINES_FILE "${PARSER_HEADERS}")
 add_flex_bison_dependency(lex yacc)
 
+# 优化1: 显式初始化 LIB_SRC，防止继承父作用域的脏数据
+SET(LIB_SRC "")
+
+# 优化2: 优先添加 Flex/Bison 生成的源文件
+LIST(APPEND LIB_SRC ${LEXER_SOURCES} ${PARSER_SOURCES})
+
 FILE(GLOB_RECURSE ALL_SRC *.cpp *.c)
 SET(MAIN_SRC ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
-MESSAGE("MAIN SRC: " ${MAIN_SRC})
-SET(LIB_SRC ${LIB_SRC} ${LEXER_SOURCES} ${PARSER_SOURCES})
+
+# 优化3: 遍历所有源文件，排除 main.cpp 并避免重复添加
 FOREACH (F ${ALL_SRC})
-
     IF (NOT ${F} STREQUAL ${MAIN_SRC})
-        SET(LIB_SRC ${LIB_SRC} ${F})
-        MESSAGE("Use " ${F})
+        LIST(FIND LIB_SRC ${F} _index)
+        IF (${_index} EQUAL -1)
+            LIST(APPEND LIB_SRC ${F})
+        ENDIF()
     ENDIF()
-
 ENDFOREACH (F)
 
 SET(LIBEVENT_STATIC_LINK TRUE)
@@ -34,11 +40,12 @@ FIND_PACKAGE(jsoncpp CONFIG REQUIRED)
 
 SET(LIBRARIES common pthread dl libevent::core libevent::pthreads)
 
-# 指定目标文件位置
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-MESSAGE("Binary directory:" ${EXECUTABLE_OUTPUT_PATH})
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-MESSAGE("Archive directory:" ${LIBRARY_OUTPUT_PATH})
+# 优化4: 使用现代 CMake 变量设置输出路径，替代过时的 EXECUTABLE_OUTPUT_PATH
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+
+MESSAGE("Binary directory:" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+MESSAGE("Archive directory:" ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
 ADD_EXECUTABLE(observer ${MAIN_SRC})
 TARGET_LINK_LIBRARIES(observer observer_static)

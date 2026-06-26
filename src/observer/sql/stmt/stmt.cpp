@@ -13,23 +13,26 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "sql/stmt/stmt.h"
-#include "common/log/log.h"
-#include "sql/stmt/analyze_table_stmt.h"
+
 #include "sql/stmt/calc_stmt.h"
+#include "sql/stmt/select_stmt.h"
+#include "sql/stmt/insert_stmt.h"
+#include "sql/stmt/delete_stmt.h"
+#include "sql/stmt/update_stmt.h"
 #include "sql/stmt/create_index_stmt.h"
 #include "sql/stmt/create_table_stmt.h"
-#include "sql/stmt/delete_stmt.h"
+#include "sql/stmt/drop_table_stmt.h"
+#include "sql/stmt/analyze_table_stmt.h"
 #include "sql/stmt/desc_table_stmt.h"
-#include "sql/stmt/exit_stmt.h"
 #include "sql/stmt/explain_stmt.h"
-#include "sql/stmt/help_stmt.h"
-#include "sql/stmt/insert_stmt.h"
 #include "sql/stmt/load_data_stmt.h"
-#include "sql/stmt/select_stmt.h"
 #include "sql/stmt/set_variable_stmt.h"
-#include "sql/stmt/show_tables_stmt.h"
 #include "sql/stmt/trx_begin_stmt.h"
 #include "sql/stmt/trx_end_stmt.h"
+#include "sql/stmt/help_stmt.h"
+#include "sql/stmt/exit_stmt.h"
+#include "sql/stmt/show_tables_stmt.h"
+#include "storage/db/db.h"
 
 bool stmt_type_ddl(StmtType type)
 {
@@ -45,6 +48,7 @@ bool stmt_type_ddl(StmtType type)
     }
   }
 }
+
 RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
 {
   stmt = nullptr;
@@ -58,6 +62,9 @@ RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
     }
     case SCF_SELECT: {
       return SelectStmt::create(db, sql_node.selection, stmt);
+    }
+    case SCF_UPDATE: {
+      return UpdateStmt::create(db, sql_node.update, stmt);
     }
 
     case SCF_EXPLAIN: {
@@ -76,7 +83,7 @@ RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
       return DescTableStmt::create(db, sql_node.desc_table, stmt);
     }
 
-    case SCF_ANALYZE_TABLE: { 
+    case SCF_ANALYZE_TABLE: {
       return AnalyzeTableStmt::create(db, sql_node.analyze_table, stmt);
     }
 
@@ -113,9 +120,10 @@ RC Stmt::create_stmt(Db *db, ParsedSqlNode &sql_node, Stmt *&stmt)
       return CalcStmt::create(sql_node.calc, stmt);
     }
 
-    default: {
-      LOG_INFO("Command::type %d doesn't need to create statement.", sql_node.flag);
-    } break;
+    case SCF_DROP_TABLE: {
+      return DropTableStmt::create(db, sql_node.drop_table, stmt);
+    }
+
+    default: LOG_WARN("unknown sql statement type: %d", sql_node.flag); return RC::UNIMPLEMENTED;
   }
-  return RC::UNIMPLEMENTED;
 }

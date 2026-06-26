@@ -65,13 +65,6 @@ function try_make
   fi
 }
 
-# create build directory and cd it.
-function prepare_build_dir
-{
-  TYPE=$1
-  mkdir -p $TOPDIR/build_$TYPE && cd $TOPDIR/build_$TYPE
-}
-
 function do_init
 {
   git submodule update --init || return
@@ -138,14 +131,41 @@ function do_musl_init
     cd ${current_dir}
 }
 
+function reset_stale_cmake_cache
+{
+  BUILD_DIR=$1
+  CACHE_FILE="${BUILD_DIR}/CMakeCache.txt"
+
+  if [[ ! -f "${CACHE_FILE}" ]]
+  then
+    return 0
+  fi
+
+  CACHED_SOURCE_DIR=$(grep '^CMAKE_HOME_DIRECTORY:INTERNAL=' "${CACHE_FILE}" | cut -d= -f2-)
+  CACHED_BUILD_DIR=$(grep '^CMAKE_CACHEFILE_DIR:INTERNAL=' "${CACHE_FILE}" | cut -d= -f2-)
+
+  if [[ "${CACHED_SOURCE_DIR}" != "${TOPDIR}" || "${CACHED_BUILD_DIR}" != "${BUILD_DIR}" ]]
+  then
+    echo "found stale cmake cache in ${BUILD_DIR}"
+    echo "cached source dir: ${CACHED_SOURCE_DIR}"
+    echo "current source dir: ${TOPDIR}"
+    echo "recreate ${BUILD_DIR} to avoid using wrong cache"
+    rm -rf "${BUILD_DIR}"
+  fi
+}
+
 function prepare_build_dir
 {
   TYPE=$1
-  mkdir -p ${TOPDIR}/build_${TYPE}
-  rm -f build
+  BUILD_DIR="${TOPDIR}/build_${TYPE}"
+
+  reset_stale_cmake_cache "${BUILD_DIR}" || return
+
+  mkdir -p "${BUILD_DIR}"
+  rm -rf build
   echo "create soft link for build_${TYPE}, linked by directory named build"
   ln -s build_${TYPE} build
-  cd ${TOPDIR}/build_${TYPE}
+  cd "${BUILD_DIR}"
 }
 
 function do_build

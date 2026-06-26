@@ -409,6 +409,8 @@ public:
 
   RC get_record(const RID &rid, Record &record);
 
+  RC update_record(const RID &rid, const char *data);
+
   RC visit_record(const RID &rid, function<bool(Record &)> updater);
 
 private:

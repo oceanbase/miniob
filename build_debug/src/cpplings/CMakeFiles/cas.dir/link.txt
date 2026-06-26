@@ -1,0 +1,1 @@
+/usr/bin/c++  -Wall -Werror -Wno-error=sign-compare -DDEBUG -g -O0 -fno-omit-frame-pointer -fsanitize=address -fsanitize-address-use-after-scope -g CMakeFiles/cas.dir/cas.cpp.o -o ../../bin/cpplings/cas   -L/usr/local/lib  -Wl,-rpath,/usr/local/lib -lpthread 
