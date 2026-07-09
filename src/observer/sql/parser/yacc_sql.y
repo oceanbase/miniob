@@ -117,6 +117,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         LE
         GE
         NE
+        VARIABLES  
+        LIKE       
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -199,6 +201,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <sql_node>            load_data_stmt
 %type <sql_node>            explain_stmt
 %type <sql_node>            set_variable_stmt
+%type <sql_node>            show_variables_stmt
 %type <sql_node>            help_stmt
 %type <sql_node>            exit_stmt
 %type <sql_node>            command_wrapper
@@ -237,6 +240,7 @@ command_wrapper:
   | load_data_stmt
   | explain_stmt
   | set_variable_stmt
+  | show_variables_stmt
   | help_stmt
   | exit_stmt
     ;
@@ -765,6 +769,24 @@ set_variable_stmt:
       $$->set_variable.name  = $2;
       $$->set_variable.value = *$4;
       delete $4;
+    }
+    ;
+
+show_variables_stmt:
+    SHOW VARIABLES
+    {
+      /* 对应 parse_defs.h 中的 SCF_SHOW_VARIABLES */
+      $$ = new ParsedSqlNode(SCF_SHOW_VARIABLES);
+    }
+    | SHOW VARIABLES LIKE SSS
+    {
+      /* 处理 SHOW VARIABLES LIKE 'sql_debug' */
+      $$ = new ParsedSqlNode(SCF_SHOW_VARIABLES);
+      /* 去除字符串两端的引号 */
+      char *tmp = common::substr($4, 1, strlen($4) - 2);
+      /* 假设 ParsedSqlNode 中有名为 show_variables 的成员用于存储 pattern */
+      $$->show_variables.pattern = tmp;
+      free(tmp);
     }
     ;
 

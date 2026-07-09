@@ -24,6 +24,7 @@ See the Mulan PSL v2 for more details. */
 #include "event/sql_event.h"
 #include "session/session.h"
 #include "sql/stmt/stmt.h"
+#include "sql/parser/parse_defs.h" // 引入 ParsedSqlNode 定义
 
 using namespace common;
 
@@ -33,8 +34,24 @@ RC ResolveStage::handle_request(SQLStageEvent *sql_event)
   SessionEvent *session_event = sql_event->session_event();
   SqlResult    *sql_result    = session_event->sql_result();
 
+  // 1. 提前获取 SQL Node
+  ParsedSqlNode *sql_node = sql_event->sql_node().get();
+
+  // 2.  拦截不需要数据库上下文或 Stmt 的系统命令
+  // 这些命令在 ExecuteStage 中通过 switch(flag) 直接处理，因此在此处直接“放行”
+  if (sql_node->flag == SCF_SHOW_VARIABLES || 
+      sql_node->flag == SCF_SET_VARIABLE ||
+      sql_node->flag == SCF_EXIT ||
+      sql_node->flag == SCF_HELP) {
+    return RC::SUCCESS;
+  }
+
+  // 3. 检查是否选择了数据库 (原有逻辑)
   Db *db = session_event->session()->get_current_db();
   if (nullptr == db) {
+    // 这里需要注意：如果是创建数据库或显示数据库，也不需要当前有 DB
+    // 但为了聚焦解决 SHOW VARIABLES 问题，且不破坏原有逻辑，我们只处理上面拦截的命令
+    // 如果后续发现 CREATE DATABASE 报错，也需要加到上面的 if 中
     LOG_ERROR("cannot find current db");
     rc = RC::SCHEMA_DB_NOT_EXIST;
     sql_result->set_return_code(rc);
@@ -42,9 +59,8 @@ RC ResolveStage::handle_request(SQLStageEvent *sql_event)
     return rc;
   }
 
-  ParsedSqlNode *sql_node = sql_event->sql_node().get();
-  Stmt          *stmt     = nullptr;
-
+  // 4. 创建 Stmt 
+  Stmt *stmt = nullptr;
   rc = Stmt::create_stmt(db, *sql_node, stmt);
   if (rc != RC::SUCCESS && rc != RC::UNIMPLEMENTED) {
     LOG_WARN("failed to create stmt. rc=%d:%s", rc, strrc(rc));
