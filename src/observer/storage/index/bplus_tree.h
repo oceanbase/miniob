@@ -586,6 +586,9 @@ protected:
   template <typename IndexNodeHandlerType>
   RC split(BplusTreeMiniTransaction &mtr, Frame *frame, Frame *&new_frame);
 
+  template <typename IndexNodeHandlerType>
+  void initializeNewNode(BplusTreeMiniTransaction &mtr, Frame *new_frame, IndexNodeHandlerType &old_node);
+
   /**
    * @brief 合并或重新分配
    * @details 当节点中的键值对小于最小值时，需要合并或重新分配
