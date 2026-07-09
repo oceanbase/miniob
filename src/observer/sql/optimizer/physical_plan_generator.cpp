@@ -128,11 +128,12 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
 
   Index     *index      = nullptr;
   ValueExpr *value_expr = nullptr;
+  CompOp    target_op   = NO_OP; 
   for (auto &expr : predicates) {
     if (expr->type() == ExprType::COMPARISON) {
       auto comparison_expr = static_cast<ComparisonExpr *>(expr.get());
       // 简单处理，就找等值查询
-      if (comparison_expr->comp() != EQUAL_TO && comparison_expr->comp() != NOT_EQUAL) {
+      if (comparison_expr->comp() != EQUAL_TO ) {
         continue;
       }
 
@@ -161,12 +162,17 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
       const Field &field = field_expr->field();
       index              = table->find_index_by_field(field.field_name());
       if (nullptr != index) {
+        target_op = comparison_expr->comp(); 
+        // 找到索引把操作符记录下来
         break;
       }
     }
   }
 
-  if (index != nullptr) {
+
+  if (index != nullptr && target_op != NOT_EQUAL) 
+  {
+    //修改条件：不等于操作不使用索引
     ASSERT(value_expr != nullptr, "got an index but value expr is null ?");
 
     const Value               &value           = value_expr->get_value();
@@ -181,15 +187,26 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
     index_scan_oper->set_predicates(std::move(predicates));
     oper = unique_ptr<PhysicalOperator>(index_scan_oper);
     LOG_TRACE("use index scan");
-  } else {
+  } else 
+  {
+    //对于不等于操作或者没有索引的情况，使用表扫描
     auto table_scan_oper = new TableScanPhysicalOperator(table, table_get_oper.read_write_mode());
     table_scan_oper->set_predicates(std::move(predicates));
     oper = unique_ptr<PhysicalOperator>(table_scan_oper);
     LOG_TRACE("use table scan");
+    if(target_op == NOT_EQUAL)
+  {
+    LOG_TRACE("not equal operation,use table scan instead of index scan");
+  }
+  else
+  {
+    LOG_TRACE("use table scan");
+  }
   }
 
   return RC::SUCCESS;
 }
+
 
 RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
 {
