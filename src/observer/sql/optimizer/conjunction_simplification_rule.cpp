@@ -51,28 +51,34 @@ RC ConjunctionSimplificationRule::rewrite(unique_ptr<Expression> &expr, bool &ch
 
     if (conjunction_expr->conjunction_type() == ConjunctionExpr::Type::AND) {
       if (constant_value == true) {
-        child_exprs.erase(iter);
+        iter        = child_exprs.erase(iter);
+        change_made = true;
       } else {
         // always be false
-        unique_ptr<Expression> child_expr = std::move(child_exprs.front());
-        child_exprs.clear();
-        expr = std::move(child_expr);
+        expr        = make_unique<ValueExpr>(Value(false));
+        change_made = true;
         return rc;
       }
     } else {
       // conjunction_type == OR
       if (constant_value == true) {
         // always be true
-        unique_ptr<Expression> child_expr = std::move(child_exprs.front());
-        child_exprs.clear();
-        expr = std::move(child_expr);
+        expr        = make_unique<ValueExpr>(Value(true));
+        change_made = true;
         return rc;
       } else {
-        child_exprs.erase(iter);
+        iter        = child_exprs.erase(iter);
+        change_made = true;
       }
     }
   }
-  if (child_exprs.size() == 1) {
+
+  if (child_exprs.empty()) {
+    // every child was removed, e.g. `true AND true` or `false OR false`
+    bool value  = (conjunction_expr->conjunction_type() == ConjunctionExpr::Type::AND);
+    expr        = make_unique<ValueExpr>(Value(value));
+    change_made = true;
+  } else if (child_exprs.size() == 1) {
     LOG_TRACE("conjunction expression has only 1 child");
     unique_ptr<Expression> child_expr = std::move(child_exprs.front());
     child_exprs.clear();
