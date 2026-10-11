@@ -44,6 +44,15 @@ const vector<FieldMeta> *MvccTrxKit::trx_fields() const { return &fields_; }
 
 int32_t MvccTrxKit::next_trx_id() { return ++current_trx_id_; }
 
+void MvccTrxKit::update_trx_id(int32_t trx_id)
+{
+  lock_.lock();
+  if (current_trx_id_ < trx_id) {
+    current_trx_id_ = trx_id;
+  }
+  lock_.unlock();
+}
+
 int32_t MvccTrxKit::max_trx_id() const { return numeric_limits<int32_t>::max(); }
 
 Trx *MvccTrxKit::create_trx(LogHandler &log_handler)
@@ -450,9 +459,11 @@ RC MvccTrx::redo(Db *db, const LogEntry &log_entry)
     } break;
 
     case MvccTrxLogOperation::Type::COMMIT: {
-      // auto *trx_log_record = reinterpret_cast<const MvccTrxCommitLogEntry *>(log_entry.data());
-      // commit_with_trx_id(trx_log_record->commit_trx_id);
       // 遇到了提交日志，说明前面的记录都已经提交成功了
+      // the commit xid is allocated from the same counter as trx ids. Transactions started after recovery
+      // must get larger ids, otherwise they can't see the records committed by this transaction.
+      auto *trx_log_record = reinterpret_cast<const MvccTrxCommitLogEntry *>(log_entry.data());
+      trx_kit_.update_trx_id(trx_log_record->commit_trx_id);
     } break;
 
     case MvccTrxLogOperation::Type::ROLLBACK: {

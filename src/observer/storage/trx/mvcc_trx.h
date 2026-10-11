@@ -42,6 +42,9 @@ public:
 public:
   int32_t next_trx_id();
 
+  /// @brief make sure that trx ids allocated later are larger than trx_id. used while recovering
+  void update_trx_id(int32_t trx_id);
+
 public:
   int32_t max_trx_id() const;
 
