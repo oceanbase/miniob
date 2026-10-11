@@ -729,6 +729,89 @@ TEST(MvccTrxLog, wal_rollback_abnormal)
   db.reset();
 }
 
+TEST(MvccTrxLog, wal_trx_id_after_recovery)
+{
+  /*
+  Both transactions start before either commits, so the commit xids are larger than every trx id in the log
+  entry headers. A transaction started after recovery must still see both committed records.
+  */
+  filesystem::path test_directory("mvcc_trx_log_test");
+  filesystem::remove_all(test_directory);
+  filesystem::create_directory(test_directory);
+
+  const char      *dbname           = "test_db";
+  const char      *dbname2          = "test_db2";
+  filesystem::path db_path          = test_directory / dbname;
+  filesystem::path db_path2         = test_directory / dbname2;
+  const char      *trx_kit_name     = "mvcc";
+  const char      *log_handler_name = "disk";
+
+  filesystem::create_directories(db_path);
+  filesystem::create_directories(db_path2);
+
+  auto db = make_unique<Db>();
+  ASSERT_EQ(RC::SUCCESS, db->init(dbname, db_path.c_str(), trx_kit_name, log_handler_name));
+
+  const char             *table_name = "table_0";
+  vector<AttrInfoSqlNode> attr_infos(1);
+  attr_infos[0].name   = "field_0";
+  attr_infos[0].type   = AttrType::INTS;
+  attr_infos[0].length = 4;
+  ASSERT_EQ(RC::SUCCESS, db->create_table(table_name, attr_infos, {}));
+  ASSERT_EQ(RC::SUCCESS, db->sync());
+  Table *table = db->find_table(table_name);
+  ASSERT_NE(table, nullptr);
+
+  TrxKit &trx_kit = db->trx_kit();
+  Trx    *trx1    = trx_kit.create_trx(db->log_handler());
+  Trx    *trx2    = trx_kit.create_trx(db->log_handler());
+  ASSERT_EQ(RC::SUCCESS, trx1->start_if_need());
+  ASSERT_EQ(RC::SUCCESS, trx2->start_if_need());
+
+  for (Trx *trx : {trx1, trx2}) {
+    Value  value(trx->id());
+    Record record;
+    ASSERT_EQ(RC::SUCCESS, table->make_record(1, &value, record));
+    ASSERT_EQ(RC::SUCCESS, trx->insert_record(table, record));
+  }
+  ASSERT_EQ(RC::SUCCESS, trx1->commit());
+  ASSERT_EQ(RC::SUCCESS, trx2->commit());
+  trx_kit.destroy_trx(trx1);
+  trx_kit.destroy_trx(trx2);
+
+  DiskLogHandler &log_handler = static_cast<DiskLogHandler &>(db->log_handler());
+  ASSERT_EQ(RC::SUCCESS, log_handler.wait_lsn(log_handler.current_lsn()));
+
+  // copy all files from db to db2
+  filesystem::copy(db_path, db_path2, filesystem::copy_options::recursive);
+
+  auto db2 = make_unique<Db>();
+  ASSERT_EQ(RC::SUCCESS, db2->init(dbname2, db_path2.c_str(), trx_kit_name, log_handler_name));
+  Table *table2 = db2->find_table(table_name);
+  ASSERT_NE(table2, nullptr);
+
+  Trx *trx = db2->trx_kit().create_trx(db2->log_handler());
+  ASSERT_EQ(RC::SUCCESS, trx->start_if_need());
+
+  RecordScanner *scanner = nullptr;
+  ASSERT_EQ(RC::SUCCESS, table2->get_record_scanner(scanner, nullptr, ReadWriteMode::READ_ONLY));
+  int    visible_count = 0;
+  Record record;
+  RC     rc = RC::SUCCESS;
+  while (OB_SUCC(rc = scanner->next(record))) {
+    if (OB_SUCC(trx->visit_record(table2, record, ReadWriteMode::READ_ONLY))) {
+      visible_count++;
+    }
+  }
+  delete scanner;
+
+  ASSERT_EQ(2, visible_count);
+  db2->trx_kit().destroy_trx(trx);
+
+  db2.reset();
+  db.reset();
+}
+
 int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
