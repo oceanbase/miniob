@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #include <limits.h>
 #include <string.h>
 #include <algorithm>
+#include <string>
+#include <vector>
 
 #include "common/defs.h"
 #include "storage/common/table.h"
@@ -638,10 +640,103 @@ RC Table::create_index(Trx *trx, const char *index_name, const char *attribute_n
   return rc;
 }
 
+// 更新时先收集匹配到的记录，避免边扫描边修改导致扫描器状态错乱
+struct UpdateCollectContext {
+  int record_size = 0;
+  std::vector<std::pair<RID, std::string>> *records = nullptr;
+};
+
+static RC update_collect_adapter(Record *record, void *context)
+{
+  UpdateCollectContext *ctx = static_cast<UpdateCollectContext *>(context);
+  ctx->records->emplace_back(record->rid(), std::string(record->data(), ctx->record_size));
+  return RC::SUCCESS;
+}
+
 RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value, int condition_num,
     const Condition conditions[], int *updated_count)
 {
-  return RC::GENERIC_ERROR;
+  if (attribute_name == nullptr || value == nullptr || value->data == nullptr) {
+    LOG_WARN("invalid argument. table=%s", name());
+    return RC::INVALID_ARGUMENT;
+  }
+
+  const FieldMeta *field = table_meta_.field(attribute_name);
+  if (field == nullptr) {
+    LOG_WARN("no such field. table=%s, field=%s", name(), attribute_name);
+    return RC::SCHEMA_FIELD_NOT_EXIST;
+  }
+  if (field->type() != value->type) {
+    LOG_WARN("field type mismatch. table=%s, field=%s, field_type=%d, value_type=%d", name(), attribute_name,
+        field->type(), value->type);
+    return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+  }
+
+  CompositeConditionFilter filter;
+  RC rc = filter.init(*this, conditions, condition_num);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to init condition filter. table=%s, rc=%d:%s", name(), rc, strrc(rc));
+    return rc;
+  }
+
+  std::vector<std::pair<RID, std::string>> matched_records;
+  UpdateCollectContext context;
+  context.record_size = table_meta_.record_size();
+  context.records = &matched_records;
+
+  rc = scan_record(nullptr, &filter, -1, &context, update_collect_adapter);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to scan records while updating. table=%s, rc=%d:%s", name(), rc, strrc(rc));
+    return rc;
+  }
+
+  int count = 0;
+  for (std::pair<RID, std::string> &item : matched_records) {
+    const std::string &old_data = item.second;
+    std::string new_data = old_data;
+
+    // 把新值写到该字段在记录中的偏移位置
+    if (field->type() == CHARS) {
+      if (static_cast<size_t>(field->len()) < strlen(static_cast<const char *>(value->data)) + 1) {
+        LOG_WARN("string is too long for field. table=%s, field=%s", name(), attribute_name);
+        return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+      }
+      memset(&new_data[0] + field->offset(), 0, field->len());
+      memcpy(&new_data[0] + field->offset(), value->data, strlen(static_cast<const char *>(value->data)));
+    } else {
+      memcpy(&new_data[0] + field->offset(), value->data, field->len());
+    }
+
+    // 被更新的列若建有索引，先删除旧索引项
+    rc = delete_entry_of_indexes(old_data.data(), item.first, false);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to delete index entries while updating. table=%s, rc=%d:%s", name(), rc, strrc(rc));
+      return rc;
+    }
+
+    // 原地更新记录，保留 RID 与记录位置
+    Record record;
+    record.set_data(&new_data[0]);
+    record.set_rid(item.first);
+    rc = record_handler_->update_record(&record);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to update record. table=%s, rc=%d:%s", name(), rc, strrc(rc));
+      return rc;
+    }
+
+    // 再按更新后的值写入索引项
+    rc = insert_entry_of_indexes(new_data.data(), item.first);
+    if (rc != RC::SUCCESS) {
+      LOG_WARN("failed to insert index entries while updating. table=%s, rc=%d:%s", name(), rc, strrc(rc));
+      return rc;
+    }
+    count++;
+  }
+
+  if (updated_count != nullptr) {
+    *updated_count = count;
+  }
+  return RC::SUCCESS;
 }
 
 class RecordDeleter {
