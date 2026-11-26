@@ -176,6 +176,43 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
   return RC::SUCCESS;
 }
 
+RC Db::drop_table(const char *table_name)
+{
+  if (common::is_blank(table_name)) {
+    return RC::INVALID_ARGUMENT;
+  }
+  auto iter = opened_tables_.find(table_name);
+  if (iter == opened_tables_.end()) {
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+
+  Table *table = iter->second;
+  vector<string> files;
+  files.emplace_back(table_meta_file(path_.c_str(), table_name));
+  files.emplace_back(table_data_file(path_.c_str(), table_name));
+  files.emplace_back(table_lob_file(path_.c_str(), table_name));
+  const TableMeta &meta = table->table_meta();
+  for (int i = 0; i < meta.index_num(); ++i) {
+    const IndexMeta *index = meta.index(i);
+    if (index != nullptr) {
+      files.emplace_back(table_index_file(path_.c_str(), table_name, index->name()));
+    }
+  }
+
+  opened_tables_.erase(iter);
+  delete table;  // close buffer pool/index/LOB handles before removing their files
+
+  for (const string &file : files) {
+    std::error_code ec;
+    filesystem::remove(file, ec);
+    if (ec) {
+      LOG_ERROR("failed to remove table file. file=%s, error=%s", file.c_str(), ec.message().c_str());
+      return RC::IOERR_WRITE;
+    }
+  }
+  return RC::SUCCESS;
+}
+
 Table *Db::find_table(const char *table_name) const
 {
   unordered_map<string, Table *>::const_iterator iter = opened_tables_.find(table_name);

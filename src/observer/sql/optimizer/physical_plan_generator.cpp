@@ -42,6 +42,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/hash_group_by_physical_operator.h"
 #include "sql/operator/scalar_group_by_physical_operator.h"
 #include "sql/operator/table_scan_vec_physical_operator.h"
+#include "sql/operator/update_logical_operator.h"
+#include "sql/operator/update_physical_operator.h"
 #include "sql/optimizer/physical_plan_generator.h"
 
 using namespace std;
@@ -73,6 +75,10 @@ RC PhysicalPlanGenerator::create(LogicalOperator &logical_operator, unique_ptr<P
 
     case LogicalOperatorType::DELETE: {
       return create_plan(static_cast<DeleteLogicalOperator &>(logical_operator), oper, session);
+    } break;
+
+    case LogicalOperatorType::UPDATE: {
+      return create_plan(static_cast<UpdateLogicalOperator &>(logical_operator), oper, session);
     } break;
 
     case LogicalOperatorType::EXPLAIN: {
@@ -274,6 +280,31 @@ RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, unique
     oper->add_child(std::move(child_physical_oper));
   }
   return rc;
+}
+
+RC PhysicalPlanGenerator::create_plan(UpdateLogicalOperator &update_oper, unique_ptr<PhysicalOperator> &oper, Session *session)
+{
+  vector<unique_ptr<LogicalOperator>> &child_opers = update_oper.children();
+  if (child_opers.size() != 1) {
+    return RC::INTERNAL;
+  }
+
+  const FieldMeta *field = update_oper.table()->table_meta().field(update_oper.attribute_name());
+  if (field == nullptr) {
+    return RC::SCHEMA_FIELD_NOT_EXIST;
+  }
+
+  unique_ptr<PhysicalOperator> child_physical_oper;
+  RC rc = create(*child_opers.front(), child_physical_oper, session);
+  if (rc != RC::SUCCESS) {
+    return rc;
+  }
+
+  unique_ptr<UpdatePhysicalOperator> update_physical_oper(
+      new UpdatePhysicalOperator(update_oper.table(), field, update_oper.value()));
+  update_physical_oper->add_child(std::move(child_physical_oper));
+  oper = std::move(update_physical_oper);
+  return RC::SUCCESS;
 }
 
 RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, unique_ptr<PhysicalOperator> &oper, Session* session)
