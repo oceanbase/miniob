@@ -16,17 +16,17 @@ public:
   UpdateStmt(Table *table, const char *attribute_name, const Value &value, FilterStmt *filter_stmt);
   ~UpdateStmt() override;
 
-  StmtType type() const override { return StmtType::UPDATE; }
-  Table *table() const { return table_; }
-  const char *attribute_name() const { return attribute_name_.c_str(); }
+  StmtType     type() const override { return StmtType::UPDATE; }
+  Table       *table() const { return table_; }
+  const char  *attribute_name() const { return attribute_name_.c_str(); }
   const Value &value() const { return value_; }
-  FilterStmt *filter_stmt() const { return filter_stmt_; }
+  FilterStmt  *filter_stmt() const { return filter_stmt_; }
 
   static RC create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt);
 
 private:
-  Table *table_ = nullptr;
-  string attribute_name_;
-  Value value_;
+  Table      *table_ = nullptr;
+  string      attribute_name_;
+  Value       value_;
   FilterStmt *filter_stmt_ = nullptr;
 };

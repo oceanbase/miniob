@@ -14,13 +14,13 @@ public:
   {}
 
   LogicalOperatorType type() const override { return LogicalOperatorType::UPDATE; }
-  OpType get_op_type() const override { return OpType::LOGICALUPDATE; }
-  Table *table() const { return table_; }
-  const char *attribute_name() const { return attribute_name_.c_str(); }
-  const Value &value() const { return value_; }
+  OpType              get_op_type() const override { return OpType::LOGICALUPDATE; }
+  Table              *table() const { return table_; }
+  const char         *attribute_name() const { return attribute_name_.c_str(); }
+  const Value        &value() const { return value_; }
 
 private:
   Table *table_;
   string attribute_name_;
-  Value value_;
+  Value  value_;
 };
