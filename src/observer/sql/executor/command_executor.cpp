@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/create_index_executor.h"
 #include "sql/executor/create_table_executor.h"
 #include "sql/executor/desc_table_executor.h"
+#include "sql/stmt/drop_table_stmt.h"
 #include "sql/executor/help_executor.h"
 #include "sql/executor/load_data_executor.h"
 #include "sql/executor/set_variable_executor.h"
@@ -26,6 +27,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/trx_begin_executor.h"
 #include "sql/executor/trx_end_executor.h"
 #include "sql/stmt/stmt.h"
+#include "storage/db/db.h"
 
 RC CommandExecutor::execute(SQLStageEvent *sql_event)
 {
@@ -41,6 +43,12 @@ RC CommandExecutor::execute(SQLStageEvent *sql_event)
     case StmtType::CREATE_TABLE: {
       CreateTableExecutor executor;
       rc = executor.execute(sql_event);
+    } break;
+
+    case StmtType::DROP_TABLE: {
+      auto *drop_stmt = static_cast<DropTableStmt *>(stmt);
+      Db *db = sql_event->session_event()->session()->get_current_db();
+      rc = db == nullptr ? RC::SCHEMA_DB_NOT_OPENED : db->drop_table(drop_stmt->table_name().c_str());
     } break;
 
     case StmtType::DESC_TABLE: {

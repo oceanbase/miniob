@@ -88,6 +88,14 @@ public:
       OptimizerContext *context) const override;
 };
 
+class LogicalUpdateToUpdate : public Rule
+{
+public:
+  LogicalUpdateToUpdate();
+  void transform(OperatorNode *input, std::vector<std::unique_ptr<OperatorNode>> *transformed,
+      OptimizerContext *context) const override;
+};
+
 /**
  * Rule transforms Logical predicate -> Physical predicate
  * TODO: In practice, this rule may not be used and can be removed

@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/index/bplus_tree_index.h"
 #include "storage/common/meta_util.h"
 #include "storage/db/db.h"
+#include <string.h>
 
 
 HeapTableEngine::~HeapTableEngine()
@@ -100,6 +101,52 @@ RC HeapTableEngine::delete_record(const Record &record)
            table_meta_->name(), index->index_meta().name(), record.rid().to_string().c_str(), strrc(rc));
   }
   rc = record_handler_->delete_record(&record.rid());
+  return rc;
+}
+
+RC HeapTableEngine::update_record_with_trx(const Record &old_record, const Record &new_record, Trx *)
+{
+  if (old_record.rid() != new_record.rid() || old_record.len() != new_record.len()) {
+    return RC::INVALID_ARGUMENT;
+  }
+
+  RC rc = delete_entry_of_indexes(old_record.data(), old_record.rid(), true);
+  if (rc != RC::SUCCESS) {
+    return rc;
+  }
+
+  rc = record_handler_->visit_record(old_record.rid(), [&](Record &record) {
+    memcpy(record.data(), new_record.data(), new_record.len());
+    return true;
+  });
+  if (rc != RC::SUCCESS) {
+    RC restore_rc = insert_entry_of_indexes(old_record.data(), old_record.rid());
+    if (restore_rc != RC::SUCCESS) {
+      LOG_ERROR("failed to restore old index entries after record update failure. table=%s", table_meta_->name());
+      return RC::INTERNAL;
+    }
+    return rc;
+  }
+
+  rc = insert_entry_of_indexes(new_record.data(), new_record.rid());
+  if (rc != RC::SUCCESS) {
+    for (Index *index : indexes_) {
+      RC cleanup_rc = index->delete_entry(new_record.data(), &new_record.rid());
+      if (cleanup_rc != RC::SUCCESS && cleanup_rc != RC::RECORD_INVALID_KEY) {
+        LOG_ERROR("failed to remove partially inserted index entry. table=%s, index=%s",
+            table_meta_->name(), index->index_meta().name());
+      }
+    }
+    RC rollback_rc = record_handler_->visit_record(old_record.rid(), [&](Record &record) {
+      memcpy(record.data(), old_record.data(), old_record.len());
+      return true;
+    });
+    RC index_rc = insert_entry_of_indexes(old_record.data(), old_record.rid());
+    if (rollback_rc != RC::SUCCESS || index_rc != RC::SUCCESS) {
+      LOG_ERROR("failed to roll back update. table=%s", table_meta_->name());
+      return RC::INTERNAL;
+    }
+  }
   return rc;
 }
 
